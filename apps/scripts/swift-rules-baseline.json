@@ -559,21 +559,6 @@
    "8",
    "9"
   ],
-  "apps/ios/Aperture/Screens/ChartTab.swift": [
-   "0.08",
-   "0.4",
-   "1.1",
-   "10",
-   "14",
-   "16",
-   "2",
-   "24",
-   "24",
-   "37",
-   "6",
-   "60",
-   "90"
-  ],
   "apps/ios/Aperture/Screens/Components.swift": [
    "0.12",
    "0.18",
@@ -1016,12 +1001,6 @@
    "Pausing and cancelling never touch broker stops. Flatten closes the bot's own ",
    "Resume Entries",
    "positions through the normal exit. Each command is queued once; the bot reports the result."
-  ],
-  "apps/ios/Aperture/Screens/ChartTab.swift": [
-   "Candles for the bot's symbols, with entry, stop and the bot's reasons, appear here once ",
-   "Chart",
-   "Chart is on its way",
-   "the bot's API serves captured bars."
   ],
   "apps/ios/Aperture/Screens/Components.swift": [
    "Connect to your Mac",
