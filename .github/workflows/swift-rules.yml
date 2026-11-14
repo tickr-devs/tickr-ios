@@ -1,0 +1,23 @@
+name: swift-rules
+# The apps' Swift code rules (CLAUDE.md, "Swift code rules"): no words in code outside L10n.swift,
+# no magic numbers, 2-space indentation, Russian translation for every key. Runs on every pull
+# request, whatever it touches, so it can be a required check.
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      # The target branch's baseline: a pull request may lower it, never raise it.
+      - name: Read the target branch's baseline
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --depth=1 origin "${{ github.base_ref }}"
+          git show "FETCH_HEAD:apps/scripts/swift-rules-baseline.json" > "$RUNNER_TEMP/base-baseline.json" \
+            || rm -f "$RUNNER_TEMP/base-baseline.json"
+      - name: Swift code rules (apps/scripts/check_swift_rules.py)
+        run: python3 apps/scripts/check_swift_rules.py --base-baseline "$RUNNER_TEMP/base-baseline.json"

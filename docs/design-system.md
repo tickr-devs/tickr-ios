@@ -10,19 +10,20 @@ the approved design canvas. Code follows it one to one:
 ## Rules
 
 1. **Screens use tokens and roles only.** They contain no number, colour or duration of their own.
-   - `apps/scripts/check_swift_literals.py` fails CI on a number other than 0 and 1 unless it is a documented `static let` constant, an enum raw value, a subscript index or a halving `/ 2`.
+   - `apps/scripts/check_swift_rules.py` (rule `numbers`, using `check_swift_literals.py`) fails CI on a number other than 0 and 1 unless it is a documented `static let` constant, an enum raw value, a subscript index or a halving `/ 2`.
    - SwiftLint (`.swiftlint.yml`) fails CI on a colour made outside `Palette.swift`, a hue name instead of a role, and a font size outside `Tokens.Typography`.
    - A screen may define its own documented constant only for a value no other screen uses (a chart's padding ratio, say); anything shared belongs in `Tokens`.
-   - Both run in the `macos-app` workflow. They cover `apps/shared` now; each app is added once its code has moved onto the system.
-2. **No user-facing text in code.** Every string a person reads is a key in a String Catalog (`Localizable.xcstrings`).
+   - The rules check covers `apps/shared`, `apps/macos` and `apps/ios` in the `swift-rules` workflow on every pull request. Violations that predate it are listed by content in `apps/scripts/swift-rules-baseline.json`, which may only shrink; CI fails a pull request that adds to it. The `test` job also runs the check (`tests/test_swift_rules.py`). SwiftLint covers `apps/shared`; each app joins it once its code has moved onto the system.
+2. **No user-facing text in code.** Every string a person reads is defined once, in the target's `L10n.swift`, as `LocalizedStringResource("key", defaultValue: "English")`, and translated in the String Catalog (`Localizable.xcstrings`) beside it.
+   - Views use `L10n` entries. `Text("…")`, `Button("…")`, `Text(verbatim: "…")` and computed properties returning English all fail CI (rule `text`). Other string literals may only be SF Symbol names, documented `static let` identifiers and enum raw values.
+   - CI fails when an `L10n` key has no Russian translation in the catalog (rule `catalog`).
    - English is the development language, with a Russian translation, and the app follows the system language.
    - Protocol values from the bot (`exit_reason`, fence `kind`) are shown through a localized title and never translated in place.
-   - Planned with the macOS move: CI exports the localizations (`xcodebuild -exportLocalizations`) and fails when a Russian translation is missing.
 3. **System appearance only.** Light and dark follow macOS/iOS; there is no theme switch. Light is designed on its own (soft glows and a tinted shadow), not as an inverted dark.
 4. **Components carry the spacing.** Cards, rows, section labels, badges and tags come from shared components. A screen arranges components; it does not restyle them.
 5. **Motion has meaning and respects Reduce Motion.** Every animation uses a `Tokens.Motion` curve. With Reduce Motion on, every piece shows its still final state.
 6. **Formatting: Swift uses 2-space indentation.**
-   - `.editorconfig` and SwiftLint's `indentation_width` already enforce it.
+   - `.editorconfig`, SwiftLint's `indentation_width` (shared package) and the rules check (rule `indent`, every app) enforce it.
    - Planned with each app's move: the Xcode projects' text settings get the same values, so Xcode indents with 2.
 
 ## Colour roles

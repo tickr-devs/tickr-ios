@@ -35,7 +35,7 @@ jobs:
           xcodebuild -version
       - name: Design-system checks (docs/design-system.md)
         run: |
-          python3 apps/scripts/check_swift_literals.py
+          python3 apps/scripts/check_swift_rules.py
           command -v swiftlint >/dev/null || brew install swiftlint
           swiftlint version
           swiftlint lint --strict --quiet --config .swiftlint.yml
