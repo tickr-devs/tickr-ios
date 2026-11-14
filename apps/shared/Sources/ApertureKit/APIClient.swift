@@ -63,9 +63,12 @@ public struct APIClient: Sendable {
 
   public let baseURL: URL
   private let session: URLSession
+  /// Bearer token for a remote address (an HTTPS proxy in front of the API); nil on the Mac.
+  private let token: String?
 
-  public init(baseURL: URL = APIClient.defaultBaseURL, session: URLSession = .shared) {
+  public init(baseURL: URL = APIClient.defaultBaseURL, token: String? = nil, session: URLSession = .shared) {
     self.baseURL = baseURL
+    self.token = token
     self.session = session
   }
 
@@ -114,6 +117,9 @@ public struct APIClient: Sendable {
     var request = URLRequest(url: url)
     request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
     request.setValue("application/json", forHTTPHeaderField: "Accept")
+    if let token {
+      request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    }
     if let body {
       request.httpMethod = "POST"
       request.setValue("application/json", forHTTPHeaderField: "Content-Type")
