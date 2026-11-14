@@ -1294,5 +1294,35 @@ enum L10n {
       LocalizedStringResource("lab.advisorNote", defaultValue: "Proposes new strategy versions from recorded days, with the evidence, for you to accept or reject.", bundle: L10n.bundle)
     }
   }
+  enum MenuBar {
+    /// Menu bar: label over today's result.
+    static var today: LocalizedStringResource {
+      LocalizedStringResource("menuBar.today", defaultValue: "Today", bundle: L10n.bundle)
+    }
+    /// Today's closed trades with wins and losses.
+    static func trades(_ closed: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
+      LocalizedStringResource("menuBar.trades", defaultValue: "\(closed) closed · \(wins) W · \(losses) L", bundle: L10n.bundle)
+    }
+    /// Today's trades and the room under the daily loss limit.
+    static func tradesAndRoom(_ closed: Int, _ wins: Int, _ losses: Int, _ room: String, _ limit: String) -> LocalizedStringResource {
+      LocalizedStringResource("menuBar.tradesAndRoom", defaultValue: "\(closed) closed · \(wins) W · \(losses) L · room \(room) of \(limit)", bundle: L10n.bundle)
+    }
+    /// A position's size in shares.
+    static func shares(_ quantity: String) -> LocalizedStringResource {
+      LocalizedStringResource("menuBar.shares", defaultValue: "\(quantity) sh", bundle: L10n.bundle)
+    }
+    /// A position's entry price.
+    static func entry(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("menuBar.entry", defaultValue: "entry \(price)", bundle: L10n.bundle)
+    }
+    /// The last bar's close.
+    static func last(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("menuBar.last", defaultValue: "last \(price)", bundle: L10n.bundle)
+    }
+    /// How long ago the bot last read the broker.
+    static func brokerRead(_ age: String) -> LocalizedStringResource {
+      LocalizedStringResource("menuBar.brokerRead", defaultValue: "broker read \(age)", bundle: L10n.bundle)
+    }
+  }
   // END Screens
 }
