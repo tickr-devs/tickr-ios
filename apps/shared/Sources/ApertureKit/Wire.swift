@@ -10,7 +10,14 @@ public enum Wire {
   public static let commandSchemaVersion = 1
 
   static let decimalPattern = "^-?[0-9]+(\\.[0-9]+)?$"
-  static let timePattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+  /// A wire time: date, `timeSeparator`, clock with milliseconds, `utcSuffix`.
+  static let datePart = "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+  static let clockPart = "[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}"
+  static let timeSeparator = "T"
+  static let utcSuffix = "Z"
+  static let timePattern = "^" + datePart + timeSeparator + clockPart + utcSuffix + "$"
+  /// The fixed locale that reads wire decimals ("." as the separator, whatever the user's locale).
+  static let posixLocale = "en_US_POSIX"
 
   /// Whether all of `text` matches the anchored regular expression `pattern`.
   static func matches(_ pattern: String, _ text: String) -> Bool {
@@ -32,12 +39,12 @@ public struct DecimalString: Codable, Hashable, Sendable, CustomStringConvertibl
 
   public init(_ text: String) throws {
     guard Wire.matches(Wire.decimalPattern, text) else {
-      throw ContractError("expected a decimal string, got \"\(text)\"")
+      throw ContractError(String(localized: L10n.badDecimal(text)))
     }
     self.text = text
   }
 
-  public var value: Decimal { Decimal(string: text, locale: Locale(identifier: "en_US_POSIX"))! }
+  public var value: Decimal { Decimal(string: text, locale: Locale(identifier: Wire.posixLocale))! }
   public var description: String { text }
   public var isNegative: Bool { text.hasPrefix("-") }
 
@@ -45,7 +52,7 @@ public struct DecimalString: Codable, Hashable, Sendable, CustomStringConvertibl
     let container = try decoder.singleValueContainer()
     guard let text = try? container.decode(String.self) else {
       throw DecodingError.dataCorruptedError(
-        in: container, debugDescription: "expected a decimal string")
+        in: container, debugDescription: String(localized: L10n.expectedDecimal))
     }
     do { try self.init(text) } catch {
       throw DecodingError.dataCorruptedError(in: container, debugDescription: "\(error)")
@@ -67,7 +74,7 @@ public struct WireTime: Codable, Hashable, Sendable, CustomStringConvertible {
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
     guard Wire.matches(Wire.timePattern, text), let date = formatter.date(from: text) else {
-      throw ContractError("expected a UTC time like 2026-01-02T15:04:05.000Z, got \"\(text)\"")
+      throw ContractError(String(localized: L10n.badTime(text)))
     }
     self.text = text
     self.date = date
@@ -78,7 +85,7 @@ public struct WireTime: Codable, Hashable, Sendable, CustomStringConvertible {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     guard let text = try? container.decode(String.self) else {
-      throw DecodingError.dataCorruptedError(in: container, debugDescription: "expected a time string")
+      throw DecodingError.dataCorruptedError(in: container, debugDescription: String(localized: L10n.expectedTime))
     }
     do { try self.init(text) } catch {
       throw DecodingError.dataCorruptedError(in: container, debugDescription: "\(error)")
@@ -103,7 +110,7 @@ extension KeyedDecodingContainer {
   func decodeNullable<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T? {
     guard contains(key) else {
       throw DecodingError.keyNotFound(key, .init(
-        codingPath: codingPath, debugDescription: "nullable key must be present"))
+        codingPath: codingPath, debugDescription: String(localized: L10n.nullableKeyMissing)))
     }
     return try decodeNil(forKey: key) ? nil : decode(T.self, forKey: key)
   }
@@ -114,7 +121,7 @@ extension KeyedDecodingContainer {
     guard value == expected else {
       throw DecodingError.dataCorruptedError(
         forKey: key, in: self,
-        debugDescription: "unsupported \(key.stringValue) \(value), this app reads \(expected)")
+        debugDescription: String(localized: L10n.unsupportedVersion(key.stringValue, value, expected)))
     }
     return value
   }

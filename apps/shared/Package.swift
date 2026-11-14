@@ -6,13 +6,16 @@ import PackageDescription
 
 let package = Package(
   name: "ApertureShared",
+  // Text a person reads is English in code (each target's L10n.swift) and translated in the
+  // target's Resources/Localizable.xcstrings.
+  defaultLocalization: "en",
   platforms: [.macOS(.v14), .iOS(.v17)],
   products: [
     .library(name: "ApertureKit", targets: ["ApertureKit"]),
     .library(name: "ApertureDesign", targets: ["ApertureDesign"]),
   ],
   targets: [
-    .target(name: "ApertureKit"),
+    .target(name: "ApertureKit", resources: [.process("Resources")]),
     .target(name: "ApertureDesign"),
     .testTarget(name: "ApertureKitTests", dependencies: ["ApertureKit"]),
     .testTarget(name: "ApertureDesignTests", dependencies: ["ApertureDesign"]),

@@ -9,18 +9,27 @@ public enum OperatorCommand: Hashable, Sendable {
   case cancelOwnOrders
   case flatten
 
+  /// API paths of the commands (docs/api.md).
+  static let entryStopPath = "/commands/entry-stop"
+  static let cancelOwnOrdersPath = "/commands/cancel-own-orders"
+  static let flattenPath = "/commands/flatten"
+  /// The entry-stop body's key and its two values.
+  static let stateKey = "state"
+  static let on = "on"
+  static let off = "off"
+
   public var path: String {
     switch self {
-    case .entryStop: return "/commands/entry-stop"
-    case .cancelOwnOrders: return "/commands/cancel-own-orders"
-    case .flatten: return "/commands/flatten"
+    case .entryStop: return Self.entryStopPath
+    case .cancelOwnOrders: return Self.cancelOwnOrdersPath
+    case .flatten: return Self.flattenPath
     }
   }
 
   /// Exact JSON body the API requires.
   public var body: [String: String] {
     switch self {
-    case .entryStop(let on): return ["state": on ? "on" : "off"]
+    case .entryStop(let on): return [Self.stateKey: on ? Self.on : Self.off]
     case .cancelOwnOrders, .flatten: return [:]
     }
   }
@@ -44,9 +53,9 @@ public enum APIError: Error, LocalizedError, Equatable {
 
   public var errorDescription: String? {
     switch self {
-    case .refused(let status, let error, let cause): return "API refused (\(status) \(error)): \(cause)"
-    case .contract(let detail): return "API answer does not match contract v1: \(detail)"
-    case .unreachable(let detail): return "Local API not reachable: \(detail)"
+    case .refused(let status, let error, let cause): return String(localized: L10n.apiRefused(status, error, cause))
+    case .contract(let detail): return String(localized: L10n.apiContract(detail))
+    case .unreachable(let detail): return String(localized: L10n.apiUnreachable(detail))
     }
   }
 }
@@ -60,6 +69,21 @@ public struct APIClient: Sendable {
   static let ok = 200
   /// HTTP status of a queued command (accepted, not yet executed).
   static let accepted = 202
+  /// API paths of the reads (docs/api.md); `daysPath` + "/" + date reads one day.
+  static let statusPath = "/status"
+  static let pendingPath = "/commands/pending"
+  static let settingsPath = "/settings"
+  static let daysPath = "/days"
+  static let barsPath = "/bars"
+  /// Query item names of the bars read.
+  static let symbolQuery = "symbol"
+  static let dateQuery = "date"
+  /// HTTP methods, header names and the media type the API speaks.
+  static let get = "GET"
+  static let post = "POST"
+  static let acceptHeader = "accept"
+  static let contentTypeHeader = "content-type"
+  static let json = "application/json"
 
   public let baseURL: URL
   private let session: URLSession
@@ -73,31 +97,32 @@ public struct APIClient: Sendable {
   }
 
   public func status() async throws -> StatusResponseV1 {
-    try await perform(request(path: "/status", body: nil), expect: Self.ok)
+    try await perform(request(path: Self.statusPath, body: nil), expect: Self.ok)
   }
 
   public func pendingCommands() async throws -> PendingCommandsV1 {
-    try await perform(request(path: "/commands/pending", body: nil), expect: Self.ok)
+    try await perform(request(path: Self.pendingPath, body: nil), expect: Self.ok)
   }
 
   /// Risk limits and session times from the bot's config, as the API loaded them.
   public func settings() async throws -> SettingsV1 {
-    try await perform(request(path: "/settings", body: nil), expect: Self.ok)
+    try await perform(request(path: Self.settingsPath, body: nil), expect: Self.ok)
   }
 
   /// Every New York date with records, newest first.
   public func days() async throws -> DaysV1 {
-    try await perform(request(path: "/days", body: nil), expect: Self.ok)
+    try await perform(request(path: Self.daysPath, body: nil), expect: Self.ok)
   }
 
   /// Trades closed on `day` and the symbols with captured bars.
   public func day(_ day: WireDate) async throws -> DayV1 {
-    try await perform(request(path: "/days/\(day.text)", body: nil), expect: Self.ok)
+    try await perform(request(path: "\(Self.daysPath)/\(day.text)", body: nil), expect: Self.ok)
   }
 
   /// Captured M1 bars of `symbol` on `day`, oldest first.
   public func bars(symbol: String, day: WireDate) async throws -> BarsV1 {
-    try await perform(request(path: "/bars", query: [("symbol", symbol), ("date", day.text)], body: nil),
+    try await perform(request(path: Self.barsPath, query: [(Self.symbolQuery, symbol), (Self.dateQuery, day.text)],
+      body: nil),
       expect: Self.ok)
   }
 
@@ -116,16 +141,16 @@ public struct APIClient: Sendable {
     }
     var request = URLRequest(url: url)
     request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
-    request.setValue("application/json", forHTTPHeaderField: "Accept")
+    request.setValue(Self.json, forHTTPHeaderField: Self.acceptHeader)
     if let token {
       request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     }
     if let body {
-      request.httpMethod = "POST"
-      request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+      request.httpMethod = Self.post
+      request.setValue(Self.json, forHTTPHeaderField: Self.contentTypeHeader)
       request.httpBody = body
     } else {
-      request.httpMethod = "GET"
+      request.httpMethod = Self.get
     }
     return request
   }
@@ -139,12 +164,12 @@ public struct APIClient: Sendable {
       throw APIError.unreachable(error.localizedDescription)
     }
     guard let http = response as? HTTPURLResponse else {
-      throw APIError.contract("not an HTTP response")
+      throw APIError.contract(String(localized: L10n.apiNotHTTP))
     }
     let decoder = Wire.decoder()
     if http.statusCode != expect {
       guard let refusal = try? decoder.decode(ErrorV1.self, from: data) else {
-        throw APIError.contract("HTTP \(http.statusCode) without an error-v1 body")
+        throw APIError.contract(String(localized: L10n.apiNoErrorBody(http.statusCode)))
       }
       throw APIError.refused(status: http.statusCode, error: refusal.error, cause: refusal.cause)
     }

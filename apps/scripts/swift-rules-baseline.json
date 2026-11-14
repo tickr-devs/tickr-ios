@@ -1416,93 +1416,9 @@
    "open",
    "traded"
   ],
-  "apps/shared/Sources/ApertureDesign/Formatting.swift": [
-   " R",
-   "en_US_POSIX"
-  ],
   "apps/shared/Sources/ApertureKit/APIClient.swift": [
-   "/bars",
-   "/commands/cancel-own-orders",
-   "/commands/entry-stop",
-   "/commands/flatten",
-   "/commands/pending",
-   "/days",
-   "/days/",
-   "/settings",
-   "/status",
-   "API answer does not match contract v1: ",
-   "API refused ( ): ",
-   "Accept",
    "Authorization",
-   "Bearer ",
-   "Content-Type",
-   "GET",
-   "HTTP  without an error-v1 body",
-   "Local API not reachable: ",
-   "POST",
-   "application/json",
-   "application/json",
-   "date",
-   "not an HTTP response",
-   "off",
-   "on",
-   "state",
-   "symbol"
-  ],
-  "apps/shared/Sources/ApertureKit/Board.swift": [
-   "Cancel own orders",
-   "DONE",
-   "ENTER",
-   "FENCE",
-   "Flatten",
-   "NO STOP",
-   "OPEN",
-   "Pause entries",
-   "REFUSED",
-   "Resume entries",
-   "STOP PENDING",
-   "STOP UNKNOWN",
-   "STOP \\u{2713}",
-   "command-",
-   "fence-",
-   "no price",
-   "position--open",
-   "position--stop",
-   "trade--enter",
-   "trade--exit"
-  ],
-  "apps/shared/Sources/ApertureKit/History.swift": [
-   "%04d-%02d-%02d",
-   "America/New_York",
-   "expected a date like 2026-01-02, got \\\"\\\"",
-   "expected a date string"
-  ],
-  "apps/shared/Sources/ApertureKit/Pairing.swift": [
-   "aperture",
-   "https",
-   "pair",
-   "token",
-   "url"
-  ],
-  "apps/shared/Sources/ApertureKit/Summary.swift": [
-   " USD",
-   ". Entry status unknown.",
-   "Cancel own orders",
-   "Connecting to the local API…",
-   "Entry stop off",
-   "Entry stop on",
-   "Flatten",
-   "Position  has no verified stop (). "
-  ],
-  "apps/shared/Sources/ApertureKit/Wire.swift": [
-   "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\\\.[0-9]{3}Z$",
-   "en_US_POSIX",
-   "expected a UTC time like 2026-01-02T15:04:05.000Z, got \\\"\\\"",
-   "expected a decimal string",
-   "expected a decimal string, got \\\"\\\"",
-   "expected a time string",
-   "nullable key must be present",
-   "unsupported  , this app reads "
+   "Bearer "
   ]
  }
 }

@@ -6,6 +6,8 @@ public enum Money {
   static let minus = "\u{2212}"
   /// Decimals shown for money and prices (cents).
   public static let centsDigits = 2
+  /// The fixed locale of every number ("." as the separator, whatever the user's locale).
+  static let posixLocale = "en_US_POSIX"
 
   /// "12.34" for 12.34; never a sign.
   public static func plain(_ value: Decimal, fractionDigits: Int = centsDigits) -> String {
@@ -36,7 +38,7 @@ public enum Money {
   static func fixed(_ value: Decimal, fractionDigits: Int) -> String {
     let number = NSDecimalNumber(decimal: rounded(value, fractionDigits))
     let formatter = NumberFormatter()
-    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.locale = Locale(identifier: posixLocale)
     formatter.numberStyle = .decimal
     formatter.usesGroupingSeparator = false
     formatter.minimumFractionDigits = fractionDigits
@@ -61,6 +63,9 @@ public enum Risk {
     return (price - entry) / (entry - stop)
   }
 
+  /// The unit of a result in R (risk multiples); the same in every language.
+  static let unit = "R"
+
   /// "+1.6 R", "−1.0 R".
-  public static func text(_ r: Decimal) -> String { Money.signed(r, fractionDigits: 1) + " R" }
+  public static func text(_ r: Decimal) -> String { "\(Money.signed(r, fractionDigits: 1)) \(unit)" }
 }

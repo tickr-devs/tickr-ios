@@ -20,17 +20,17 @@ public struct Headline: Equatable, Sendable {
   /// `fetchError` is the last failure to read /status; it wins over an older good response.
   public static func make(response: StatusResponseV1?, fetchError: String?) -> Headline {
     if let fetchError {
-      return Headline(text: "\(fetchError). Entry status unknown.", severity: .alarm)
+      return Headline(text: String(localized: L10n.headlineFetchFailed(fetchError)), severity: .alarm)
     }
     guard let response else {
-      return Headline(text: "Connecting to the local API…", severity: .attention)
+      return Headline(text: String(localized: L10n.headlineConnecting), severity: .attention)
     }
     guard let status = response.status, !response.stale else {
       return Headline(text: response.summary, severity: .alarm)
     }
     if let position = status.position, position.stop.state != .verified {
       return Headline(
-        text: "Position \(position.symbol) has no verified stop (\(position.stop.state.rawValue)). "
+        text: String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
           + response.summary,
         severity: .alarm)
     }
@@ -45,14 +45,17 @@ public enum Display {
     return time.date.formatted(date: .omitted, time: .standard)
   }
 
-  public static func usd(_ value: DecimalString) -> String { "\(value.text) USD" }
+  /// The currency code shown after money amounts.
+  static let currencyCode = "USD"
+
+  public static func usd(_ value: DecimalString) -> String { "\(value.text) \(currencyCode)" }
 
   public static func commandTitle(_ kind: CommandKind) -> String {
     switch kind {
-    case .entryStopOn: return "Entry stop on"
-    case .entryStopOff: return "Entry stop off"
-    case .cancelOwnOrders: return "Cancel own orders"
-    case .flatten: return "Flatten"
+    case .entryStopOn: return String(localized: L10n.commandEntryStopOn)
+    case .entryStopOff: return String(localized: L10n.commandEntryStopOff)
+    case .cancelOwnOrders: return String(localized: L10n.commandCancelOwnOrders)
+    case .flatten: return String(localized: L10n.commandFlatten)
     }
   }
 }
