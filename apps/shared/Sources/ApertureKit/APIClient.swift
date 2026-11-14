@@ -71,6 +71,22 @@ public struct APIClient: Sendable {
         try await perform(request(path: "/commands/pending", body: nil), expect: 200)
     }
 
+    /// Every New York date with records, newest first.
+    public func days() async throws -> DaysV1 {
+        try await perform(request(path: "/days", body: nil), expect: 200)
+    }
+
+    /// Trades closed on `day` and the symbols with captured bars.
+    public func day(_ day: WireDate) async throws -> DayV1 {
+        try await perform(request(path: "/days/\(day.text)", body: nil), expect: 200)
+    }
+
+    /// Captured M1 bars of `symbol` on `day`, oldest first.
+    public func bars(symbol: String, day: WireDate) async throws -> BarsV1 {
+        try await perform(request(path: "/bars", query: [("symbol", symbol), ("date", day.text)], body: nil),
+                          expect: 200)
+    }
+
     /// Queue a command. Success means queued, not executed: its outcome appears later in
     /// `StatusV1.recentCommands` under the returned command id.
     public func send(_ command: OperatorCommand) async throws -> CommandAcceptedV1 {
@@ -78,8 +94,13 @@ public struct APIClient: Sendable {
         return try await perform(request(path: command.path, body: body), expect: 202)
     }
 
-    func request(path: String, body: Data?) -> URLRequest {
-        var request = URLRequest(url: baseURL.appendingPathComponent(String(path.dropFirst())))
+    func request(path: String, query: [(String, String)] = [], body: Data?) -> URLRequest {
+        var url = baseURL.appendingPathComponent(String(path.dropFirst()))
+        if !query.isEmpty, var parts = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+            parts.queryItems = query.map { URLQueryItem(name: $0.0, value: $0.1) }
+            url = parts.url ?? url
+        }
+        var request = URLRequest(url: url)
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let body {

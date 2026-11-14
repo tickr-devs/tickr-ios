@@ -36,6 +36,9 @@ final class ContractTests: XCTestCase {
             "command-accepted-v1": { try roundTrip(CommandAcceptedV1.self, $0) },
             "pending-commands-v1": { try roundTrip(PendingCommandsV1.self, $0) },
             "error-v1": { try roundTrip(ErrorV1.self, $0) },
+            "days-v1": { try roundTrip(DaysV1.self, $0) },
+            "day-v1": { try roundTrip(DayV1.self, $0) },
+            "bars-v1": { try roundTrip(BarsV1.self, $0) },
         ]
         for name in names {
             let schema = String(name.prefix { $0 != "." })
@@ -51,7 +54,8 @@ final class ContractTests: XCTestCase {
             .filter { $0.hasSuffix(".schema.json") }
             .map { String($0.dropLast(".schema.json".count)) }
         XCTAssertEqual(Set(names), ["status-v1", "command-v1", "status-response-v1",
-                                    "command-accepted-v1", "pending-commands-v1", "error-v1"])
+                                    "command-accepted-v1", "pending-commands-v1", "error-v1",
+                                    "days-v1", "day-v1", "bars-v1"])
     }
 
     func testFullStatusValues() throws {
@@ -94,6 +98,27 @@ final class ContractTests: XCTestCase {
             let data = try JSONSerialization.data(withJSONObject: raw)
             XCTAssertThrowsError(try Wire.decoder().decode(StatusV1.self, from: data), label)
         }
+    }
+
+    func testHistoryValues() throws {
+        let day = try Wire.decoder().decode(DayV1.self, from: fixture("day-v1.json"))
+        XCTAssertEqual(day.day.text, "2026-11-16")
+        XCTAssertEqual(day.trades.first?.stopPrice?.text, "5.02")
+        XCTAssertNil(day.trades.last?.stopPrice)
+        XCTAssertEqual(day.trades.last?.resultR, Decimal(string: "0.082"))
+        XCTAssertEqual(day.barSymbols, ["ABCD", "WXYZ"])
+        let days = try Wire.decoder().decode(DaysV1.self, from: fixture("days-v1.json"))
+        XCTAssertEqual(days.days.map(\.hasBars), [true, false])
+    }
+
+    func testWireDate() throws {
+        XCTAssertEqual(try WireDate("2026-11-16").month, 11)
+        for bad in ["2026-1-16", "2026-13-01", "16.11.2026", "", "2026-11-16T00:00:00.000Z"] {
+            XCTAssertThrowsError(try WireDate(bad), bad)
+        }
+        // 01:30 UTC on Nov 17 is still Nov 16 in New York.
+        let late = try WireTime("2026-11-17T01:30:00.000Z")
+        XCTAssertEqual(WireDate(newYorkDateOf: late.date).text, "2026-11-16")
     }
 
     func testDecimalStringValidation() {

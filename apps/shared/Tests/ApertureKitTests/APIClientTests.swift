@@ -121,4 +121,22 @@ final class APIClientTests: XCTestCase {
         let pending = try await client.pendingCommands()
         XCTAssertEqual(pending.commands.map(\.kind), [.flatten])
     }
+
+    func testHistoryRequests() async throws {
+        let day = try WireDate("2026-11-16")
+        StubProtocol.answer = try (200, fixture("days-v1.json"))
+        let days = try await client.days()
+        XCTAssertEqual(days.days.first?.day, day)
+        StubProtocol.answer = try (200, fixture("day-v1.json"))
+        let one = try await client.day(day)
+        XCTAssertEqual(one.trades.map(\.symbol), ["WXYZ", "ABCD"])
+        StubProtocol.answer = try (200, fixture("bars-v1.json"))
+        let bars = try await client.bars(symbol: "ABCD", day: day)
+        XCTAssertEqual(bars.bars.count, 3)
+        XCTAssertEqual(StubProtocol.seen.map { $0.url?.absoluteString }, [
+            "http://127.0.0.1:8766/days",
+            "http://127.0.0.1:8766/days/2026-11-16",
+            "http://127.0.0.1:8766/bars?symbol=ABCD&date=2026-11-16",
+        ])
+    }
 }
