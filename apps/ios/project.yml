@@ -1,0 +1,46 @@
+# XcodeGen spec for the Aperture iOS app. Generate the Xcode project with `xcodegen` (the
+# generated Aperture.xcodeproj is not committed). See README.md.
+name: Aperture
+options:
+  bundleIdPrefix: local.aperture
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+packages:
+  ApertureShared:
+    path: ../shared
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  Aperture:
+    type: application
+    platform: iOS
+    sources:
+      - Aperture
+    dependencies:
+      - package: ApertureShared
+        product: ApertureKit
+      - package: ApertureShared
+        product: ApertureDesign
+    info:
+      path: Aperture/Info.plist
+      properties:
+        CFBundleDisplayName: Aperture
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
+        # Plain HTTP is allowed only to local addresses (the Simulator reaches the Mac's API on
+        # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.aperture.ios
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_PREVIEWS: YES
+    scheme: {}

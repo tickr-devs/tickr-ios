@@ -1,0 +1,38 @@
+name: ios-app
+on:
+  pull_request:
+    paths:
+      - "apps/ios/**"
+      - "apps/shared/**"
+      - ".github/workflows/ios-app.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/ios/**"
+      - "apps/shared/**"
+      - ".github/workflows/ios-app.yml"
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/ios
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcodebuild -version
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - name: Build for the iOS Simulator (unsigned)
+        run: |
+          if ! xcodebuild build \
+              -project Aperture.xcodeproj \
+              -scheme Aperture \
+              -destination 'generic/platform=iOS Simulator' \
+              -configuration Debug \
+              CODE_SIGNING_ALLOWED=NO > build.log 2>&1; then
+            grep -E "error:" build.log || tail -n 80 build.log
+            exit 1
+          fi
+          grep -E "warning:" build.log | grep -v "/SourcePackages/" || true
+          tail -n 3 build.log
