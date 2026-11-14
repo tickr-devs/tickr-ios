@@ -1,8 +1,9 @@
 @testable import ApertureKit
 import Foundation
-import XCTest
+import Testing
 
 /// Answers requests from a canned (status, body) and records what was asked.
+/// The canned answer is shared state, so the suite that uses it runs its tests one at a time.
 final class StubProtocol: URLProtocol {
   static var answer: (Int, Data) = (200, Data())
   static var seen: [URLRequest] = []
@@ -39,28 +40,28 @@ final class StubProtocol: URLProtocol {
   }
 }
 
-final class APIClientTests: XCTestCase {
-  var client: APIClient!
+@Suite(.serialized) struct APIClientTests {
+  let client: APIClient
 
-  override func setUp() {
+  init() throws {
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [StubProtocol.self]
-    client = APIClient(baseURL: URL(string: "http://127.0.0.1:8766")!,
+    client = APIClient(baseURL: try #require(URL(string: "http://127.0.0.1:8766")),
       session: URLSession(configuration: configuration))
     StubProtocol.seen = []
     StubProtocol.seenBodies = []
   }
 
-  func testStatus() async throws {
+  @Test func status() async throws {
     StubProtocol.answer = try (200, fixture("status-response-v1.json"))
     let response = try await client.status()
-    XCTAssertEqual(response.status?.environment, "sandbox")
-    let request = try XCTUnwrap(StubProtocol.seen.first)
-    XCTAssertEqual(request.httpMethod, "GET")
-    XCTAssertEqual(request.url?.absoluteString, "http://127.0.0.1:8766/status")
+    #expect(response.status?.environment == "sandbox")
+    let request = try #require(StubProtocol.seen.first)
+    #expect(request.httpMethod == "GET")
+    #expect(request.url?.absoluteString == "http://127.0.0.1:8766/status")
   }
 
-  func testCommandsSendExactBodies() async throws {
+  @Test func commandsSendExactBodies() async throws {
     StubProtocol.answer = try (202, fixture("command-accepted-v1.json"))
     let cases: [(OperatorCommand, String, [String: String])] = [
       (.entryStop(on: true), "/commands/entry-stop", ["state": "on"]),
@@ -71,69 +72,61 @@ final class APIClientTests: XCTestCase {
     for (index, (command, path, body)) in cases.enumerated() {
       _ = try await client.send(command)
       let request = StubProtocol.seen[index]
-      XCTAssertEqual(request.httpMethod, "POST")
-      XCTAssertEqual(request.url?.path, path)
-      XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json")
-      XCTAssertNil(request.value(forHTTPHeaderField: "Origin"))
+      #expect(request.httpMethod == "POST")
+      #expect(request.url?.path == path)
+      #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+      #expect(request.value(forHTTPHeaderField: "Origin") == nil)
       let sent = try JSONSerialization.jsonObject(with: StubProtocol.seenBodies[index]) as? [String: String]
-      XCTAssertEqual(sent, body)
+      #expect(sent == body)
     }
   }
 
-  func testAcceptedWarningIsDecoded() async throws {
+  @Test func acceptedWarningIsDecoded() async throws {
     StubProtocol.answer = try (202, fixture("command-accepted-v1.warning.json"))
     let accepted = try await client.send(.flatten)
-    XCTAssertEqual(accepted.command.kind, .flatten)
-    XCTAssertNotNil(accepted.warning)
+    #expect(accepted.command.kind == .flatten)
+    #expect(accepted.warning != nil)
   }
 
-  func testTypedRefusal() async throws {
+  @Test func typedRefusal() async throws {
     StubProtocol.answer = try (403, fixture("error-v1.json"))
-    do {
-      _ = try await client.status()
-      XCTFail("expected a refusal")
-    } catch let error as APIError {
-      guard case .refused(let status, let code, _) = error else { return XCTFail("\(error)") }
-      XCTAssertEqual(status, 403)
-      XCTAssertEqual(code, "forbidden_host")
+    let error = await #expect(throws: APIError.self) { try await client.status() }
+    guard case .refused(let status, let code, _) = error else {
+      Issue.record("expected a refusal, got \(String(describing: error))")
+      return
+    }
+    #expect(status == 403)
+    #expect(code == "forbidden_host")
+  }
+
+  @Test(arguments: [(200, "{\"api_version\": 2}"), (500, "oops")])
+  func nonContractAnswerIsAContractError(status: Int, body: String) async throws {
+    StubProtocol.answer = (status, Data(body.utf8))
+    let error = await #expect(throws: APIError.self) { try await client.status() }
+    guard case .contract = error else {
+      Issue.record("expected a contract error, got \(String(describing: error))")
+      return
     }
   }
 
-  func testNonContractAnswerIsAContractError() async throws {
-    StubProtocol.answer = (200, Data("{\"api_version\": 2}".utf8))
-    do {
-      _ = try await client.status()
-      XCTFail("expected a contract error")
-    } catch let error as APIError {
-      guard case .contract = error else { return XCTFail("\(error)") }
-    }
-    StubProtocol.answer = (500, Data("oops".utf8))
-    do {
-      _ = try await client.status()
-      XCTFail("expected a contract error")
-    } catch let error as APIError {
-      guard case .contract = error else { return XCTFail("\(error)") }
-    }
-  }
-
-  func testPendingCommands() async throws {
+  @Test func pendingCommands() async throws {
     StubProtocol.answer = try (200, fixture("pending-commands-v1.json"))
     let pending = try await client.pendingCommands()
-    XCTAssertEqual(pending.commands.map(\.kind), [.flatten])
+    #expect(pending.commands.map(\.kind) == [.flatten])
   }
 
-  func testHistoryRequests() async throws {
+  @Test func historyRequests() async throws {
     let day = try WireDate("2026-11-16")
     StubProtocol.answer = try (200, fixture("days-v1.json"))
     let days = try await client.days()
-    XCTAssertEqual(days.days.first?.day, day)
+    #expect(days.days.first?.day == day)
     StubProtocol.answer = try (200, fixture("day-v1.json"))
     let one = try await client.day(day)
-    XCTAssertEqual(one.trades.map(\.symbol), ["WXYZ", "ABCD"])
+    #expect(one.trades.map(\.symbol) == ["WXYZ", "ABCD"])
     StubProtocol.answer = try (200, fixture("bars-v1.json"))
     let bars = try await client.bars(symbol: "ABCD", day: day)
-    XCTAssertEqual(bars.bars.count, 3)
-    XCTAssertEqual(StubProtocol.seen.map { $0.url?.absoluteString }, [
+    #expect(bars.bars.count == 3)
+    #expect(StubProtocol.seen.map { $0.url?.absoluteString } == [
       "http://127.0.0.1:8766/days",
       "http://127.0.0.1:8766/days/2026-11-16",
       "http://127.0.0.1:8766/bars?symbol=ABCD&date=2026-11-16",

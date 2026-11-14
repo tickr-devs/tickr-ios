@@ -48,7 +48,7 @@ struct MenuBarPanel: View {
             HStack {
                 Button("Open Aperture") {
                     openWindow(id: WindowID.main)
-                    NSApplication.shared.activate(ignoringOtherApps: true)
+                    NSApplication.shared.activate()
                 }
                 Spacer()
                 SettingsLink { Text("Settings…") }
