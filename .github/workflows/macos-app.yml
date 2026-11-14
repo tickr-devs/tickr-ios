@@ -1,0 +1,28 @@
+name: macos-app
+on:
+  pull_request:
+    paths:
+      - "apps/macos/**"
+      - "tests/api/fixtures/**"
+      - "src/aperture/api/schema/**"
+      - ".github/workflows/macos-app.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/macos/**"
+      - "tests/api/fixtures/**"
+      - "src/aperture/api/schema/**"
+      - ".github/workflows/macos-app.yml"
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/macos
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: swift build
+      - run: swift test
+      - run: scripts/make-app.sh
