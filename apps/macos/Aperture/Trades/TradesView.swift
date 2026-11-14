@@ -291,3 +291,11 @@ private struct WhatIfCard: View {
     }
   }
 }
+
+#if DEBUG
+#Preview {
+  TradesView()
+    .environment(PreviewAPI.model())
+    .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
+}
+#endif

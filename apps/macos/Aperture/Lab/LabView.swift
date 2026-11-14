@@ -113,3 +113,11 @@ private struct AdvisorCard: View {
     }
   }
 }
+
+#if DEBUG
+#Preview {
+  LabView()
+    .environment(PreviewAPI.model())
+    .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
+}
+#endif

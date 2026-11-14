@@ -898,3 +898,11 @@ private struct JournalCard: View {
     }
   }
 }
+
+#if DEBUG
+#Preview {
+  OverviewView()
+    .environment(PreviewAPI.model())
+    .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
+}
+#endif

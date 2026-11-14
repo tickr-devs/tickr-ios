@@ -261,3 +261,11 @@ private struct AccountCard: View {
     }
   }
 }
+
+#if DEBUG
+#Preview {
+  RiskView()
+    .environment(PreviewAPI.model())
+    .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
+}
+#endif

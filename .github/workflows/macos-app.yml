@@ -51,10 +51,11 @@ jobs:
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared
         run: swift test
-      - name: macOS app build
+      - name: macOS app build and screen-logic tests
         working-directory: apps/macos
         run: |
           swift build
+          swift test
           scripts/make-app.sh
       - name: Xcode workspace builds the macOS app (what the owner opens in Xcode)
         run: |

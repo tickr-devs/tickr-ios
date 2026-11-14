@@ -138,7 +138,7 @@ private struct MenuPositions: View {
 }
 
 /// One open position: result so far, a bar from the stop up, stop, entry and last.
-private struct MenuPosition: View {
+struct MenuPosition: View {
   let position: Position
   /// The position with its latest bar; nil until a fresh bar arrives.
   let row: PositionRow?
@@ -148,9 +148,13 @@ private struct MenuPosition: View {
   static let scaleEndR: Decimal = 2
 
   /// Where the last price sits on the bar, 0 at the stop and 1 at `scaleEndR`.
-  private var progress: Double? {
-    guard let r = row?.resultR else { return nil }
-    let share = NSDecimalNumber(decimal: (r + 1) / (Self.scaleEndR + 1)).doubleValue
+  private var progress: Double? { Self.progress(resultR: row?.resultR) }
+
+  /// Where a result in R sits on the bar: 0 at the stop, 1 at `scaleEndR`, clamped; nil when the
+  /// result is unknown.
+  static func progress(resultR r: Decimal?) -> Double? {
+    guard let r else { return nil }
+    let share = NSDecimalNumber(decimal: (r + 1) / (scaleEndR + 1)).doubleValue
     return min(max(share, 0), 1)
   }
 
@@ -339,3 +343,10 @@ private struct MenuFooter: View {
     }
   }
 }
+
+#if DEBUG
+#Preview {
+  MenuBarPanel()
+    .environment(PreviewAPI.model())
+}
+#endif

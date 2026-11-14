@@ -249,3 +249,11 @@ struct Viewport: Equatable {
     position = nil
   }
 }
+
+#if DEBUG
+#Preview {
+  ChartView()
+    .environment(PreviewAPI.model())
+    .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
+}
+#endif

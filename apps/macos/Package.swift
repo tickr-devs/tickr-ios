@@ -32,6 +32,16 @@ let package = Package(
         .enableUpcomingFeature("InferIsolatedConformances"),
         .enableUpcomingFeature("MemberImportVisibility"),
       ]),
+    // Swift Testing tests of the screens' logic (zoom, marks, levels, scales), run by `swift test`.
+    .testTarget(
+      name: "ApertureMacTests",
+      dependencies: ["ApertureMac"],
+      path: "Tests",
+      swiftSettings: [
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+        .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]),
   ],
   // Swift 6 language mode: strict concurrency, as in the Xcode project (SWIFT_VERSION = 6.0).
   swiftLanguageModes: [.v6]

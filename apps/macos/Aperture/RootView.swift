@@ -267,3 +267,11 @@ struct CommandToast: View {
     }
   }
 }
+
+#if DEBUG
+#Preview {
+  RootView()
+    .environment(PreviewAPI.model())
+    .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
+}
+#endif
