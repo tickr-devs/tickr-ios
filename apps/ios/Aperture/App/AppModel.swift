@@ -95,9 +95,10 @@ final class AppModel {
         }
     }
 
-    /// Queues a command once. Refused unless the status is fresh at send time; `confirmOwner`
-    /// (Face ID or passcode) runs first when given, and freshness is checked again after it, so a
-    /// status that went stale or a second tap while Face ID is up never sends.
+    /// Queues a command once. Refused unless the status is fresh when tapped; `confirmOwner`
+    /// (Face ID or passcode) runs first when given. Right before the send the status is read again
+    /// from the bot (not the last poll), and the command is refused unless that read is current, so
+    /// a bot that went stale during the dialog or Face ID never gets the command.
     func send(_ command: OperatorCommand, confirmOwner: (() async -> Biometrics.Outcome)? = nil) async {
         let title = Board.commandTitle(command.kind)
         guard !sending else {
@@ -118,10 +119,11 @@ final class AppModel {
                 notice = Notice(text: "\(title) not sent: owner not confirmed (\(cause)).", tone: .failure)
                 return
             }
-            guard isFresh else {
-                notice = Notice(text: "\(title) not sent: the bot's status went out of date.", tone: .failure)
-                return
-            }
+        }
+        await refresh()
+        guard isFresh, connection.url == url else {
+            notice = Notice(text: "\(title) not sent: the bot's status went out of date.", tone: .failure)
+            return
         }
         do {
             let accepted = try await APIClient(baseURL: url).send(command)
