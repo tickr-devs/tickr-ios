@@ -6,7 +6,7 @@ import XCTest
 let repoRoot = URL(fileURLWithPath: #filePath)
     .deletingLastPathComponent()  // ApertureKitTests
     .deletingLastPathComponent()  // Tests
-    .deletingLastPathComponent()  // macos
+    .deletingLastPathComponent()  // shared
     .deletingLastPathComponent()  // apps
     .deletingLastPathComponent()  // repository root
 let fixturesDir = repoRoot.appendingPathComponent("tests/api/fixtures")
