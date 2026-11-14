@@ -74,10 +74,10 @@ struct RootView: View {
   @ViewBuilder private var detail: some View {
     switch section {
     case .overview: OverviewView()
-    case .chart: ComingNext(section: .chart)
-    case .trades: ComingNext(section: .trades)
-    case .risk: ComingNext(section: .risk)
-    case .lab: ComingNext(section: .lab)
+    case .chart: ChartView()
+    case .trades: TradesView()
+    case .risk: RiskView()
+    case .lab: LabView()
     }
   }
 
@@ -264,19 +264,6 @@ struct CommandToast: View {
     case nil: return Palette.infoText
     case .done: return Palette.profitText
     case .refused: return Palette.lossText
-    }
-  }
-}
-
-/// A section that arrives in the next update of the app.
-struct ComingNext: View {
-  let section: AppSection
-
-  var body: some View {
-    ContentUnavailableView {
-      Label { Text(section.title) } icon: { Image(systemName: section.symbol) }
-    } description: {
-      Text(L10n.Section.comingNext)
     }
   }
 }

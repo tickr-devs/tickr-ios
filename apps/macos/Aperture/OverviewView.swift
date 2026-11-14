@@ -789,7 +789,7 @@ private struct RiskRoomCard: View {
     } content: {
       if let risk = model.settings?.risk {
         let limit = risk.maxDailyLossUsd.value
-        let room = max(0, limit + min(model.shownResult, 0))
+        let room = DailyRoom.left(limit: limit, netResult: model.shownResult)
         let fraction = limit > 0 ? NSDecimalNumber(decimal: room / limit).doubleValue : 0
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
           MoneyText(value: room, font: Tokens.Typography.metric, colored: false)
