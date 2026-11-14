@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:6.2
 // Aperture operator app for macOS, buildable without Xcode (`swift build`, scripts/make-app.sh).
 // In Xcode open Aperture.xcworkspace at the repository root instead: ApertureMac.xcodeproj builds
 // the same sources (folder Aperture/) as a signed app. Contract models, API client and design
@@ -9,7 +9,7 @@ let package = Package(
   name: "ApertureApp",
   // Text a person reads is English in Aperture/L10n.swift, translated in Aperture/Localizable.xcstrings.
   defaultLocalization: "en",
-  platforms: [.macOS(.v14)],
+  platforms: [.macOS(.v26)],
   products: [
     .executable(name: "ApertureMac", targets: ["ApertureMac"]),
   ],
@@ -32,5 +32,7 @@ let package = Package(
         .enableUpcomingFeature("InferIsolatedConformances"),
         .enableUpcomingFeature("MemberImportVisibility"),
       ]),
-  ]
+  ],
+  // Swift 6 language mode: strict concurrency, as in the Xcode project (SWIFT_VERSION = 6.0).
+  swiftLanguageModes: [.v6]
 )

@@ -86,7 +86,7 @@ final class AppModel {
       return
     }
     do {
-      let fresh = try await APIClient(baseURL: url).status()
+      let fresh = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: url)).status()
       response = fresh
       fetchError = nil
       resolveAwaited(fresh)
@@ -126,7 +126,7 @@ final class AppModel {
       return
     }
     do {
-      let accepted = try await APIClient(baseURL: url).send(command)
+      let accepted = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: url)).send(command)
       awaited[accepted.command.commandId] = command.kind
       if let warning = accepted.warning {
         notice = Notice(text: "\(title) queued. \(warning)", tone: .failure)

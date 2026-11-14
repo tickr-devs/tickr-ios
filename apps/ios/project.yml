@@ -6,7 +6,7 @@ name: Aperture
 options:
   bundleIdPrefix: local.aperture
   deploymentTarget:
-    iOS: "17.0"
+    iOS: "26.0"
   createIntermediateGroups: true
   # The Xcode release the owner uses. It becomes LastUpgradeCheck, so Xcode does not offer to
   # "update to recommended settings"; never accept such an offer in Xcode: put the setting here.
@@ -21,7 +21,7 @@ packages:
     path: ../shared
 settings:
   base:
-    SWIFT_VERSION: "5.0"
+    SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1"
     CURRENT_PROJECT_VERSION: "1"
     # Settings Xcode recommends for current projects.

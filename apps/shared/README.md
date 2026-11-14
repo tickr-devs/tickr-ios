@@ -5,7 +5,7 @@ the broker; both read the bot's local API (`docs/api.md`).
 
 | Target | What |
 |---|---|
-| `ApertureKit` | Contract models (mirror of `src/aperture/api/contract.py`), API client, headline logic. Foundation only. |
+| `ApertureKit` | Contract models (mirror of `src/aperture/api/contract.py`), API client, headline logic, and the shared dependency registrations (`Dependencies.swift`: `urlSession`, `apiClient`, `now` on Factory's `Container`). Foundation and FactoryKit, which it re-exports. |
 | `ApertureDesign` | Palette with separate light and dark values (system appearance, no in-app theme switch), money and R formatting, small animated SwiftUI pieces (pulse dot, rise-in, result ring, sparkline, event ticker). Every animation has a still fallback for Reduce Motion. |
 | `Tests/ApertureKitTests` | Decode every fixture in `tests/api/fixtures/` and re-encode it unchanged; refusal and client tests. |
 | `Tests/ApertureDesignTests` | Formatting and risk arithmetic. |
@@ -17,7 +17,7 @@ Text a person reads is defined once in the target's `L10n.swift` and translated 
 Catalog (`Sources/ApertureKit/Resources/Localizable.xcstrings`: English and Russian). Protocol
 values (paths, keys, stop states) stay raw as documented constants.
 
-Platforms: macOS 14, iOS 17.
+Platforms: macOS 26, iOS 26. Swift 6 language mode. Dependencies: Factory (`FactoryKit`; tests use `FactoryTesting` and `@Suite(.container)`).
 
 ```sh
 cd apps/shared && swift test

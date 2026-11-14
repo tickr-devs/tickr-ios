@@ -25,7 +25,7 @@ struct ApertureMacApp: App {
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
 
   init() {
-    let model = AppModel(baseURL: Self.baseURL())
+    let model = Container.shared.appModel()
     model.start()
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.

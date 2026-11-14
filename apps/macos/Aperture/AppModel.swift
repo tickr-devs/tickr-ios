@@ -53,7 +53,9 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
 public final class AppModel {
   // Connection.
   public private(set) var baseURL: URL
-  private var client: APIClient
+  @ObservationIgnored private var client: APIClient
+  /// The current moment (Container.now; tests pin it).
+  @ObservationIgnored @Injected(\.now) private var now
 
   // Live state.
   public private(set) var response: StatusResponseV1?
@@ -84,14 +86,14 @@ public final class AppModel {
 
   public init(baseURL: URL) {
     self.baseURL = baseURL
-    self.client = APIClient(baseURL: baseURL)
+    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
   }
 
   // MARK: derived
 
   public var status: StatusV1? { response?.status }
   public var headline: Headline { Headline.make(response: response, fetchError: fetchError) }
-  public var today: WireDate { WireDate(newYorkDateOf: Date()) }
+  public var today: WireDate { WireDate(newYorkDateOf: now()) }
   public var isLive: Bool { selectedDay == nil || selectedDay == today }
   public var shownDay: WireDate { selectedDay ?? today }
 
@@ -105,14 +107,14 @@ public final class AppModel {
     let since = position.openedAt.date.addingTimeInterval(-Self.barSeconds)
     let bars = barsBySymbol[position.symbol]?.bars.filter { $0.start.date >= since } ?? []
     let last = barsBySymbol[position.symbol]?.bars.last
-    let fresh = last.map { barIsFresh(start: $0.start.date) } ?? false
+    let fresh = last.map { barIsFresh(start: $0.start.date, now: now()) } ?? false
     return [PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
       closes: bars.map(\.close.value))]
   }
 
   /// A captured M1 bar is fresh while its close (start + one minute) is no older than the
   /// server's `status_stale_seconds`. Without settings nothing counts as fresh.
-  func barIsFresh(start: Date, now: Date = Date()) -> Bool {
+  func barIsFresh(start: Date, now: Date) -> Bool {
     guard let settings else { return false }
     let staleSeconds = NSDecimalNumber(decimal: settings.statusStaleSeconds.value).doubleValue
     let barClose = start.addingTimeInterval(Self.barSeconds)
@@ -203,7 +205,7 @@ public final class AppModel {
   public func connect(to url: URL) {
     guard url != baseURL else { return }
     baseURL = url
-    client = APIClient(baseURL: url)
+    client = Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
     response = nil
     settings = nil
     days = []

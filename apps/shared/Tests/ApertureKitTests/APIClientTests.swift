@@ -1,13 +1,43 @@
 @testable import ApertureKit
+import FactoryTesting
 import Foundation
+import Synchronization
 import Testing
 
 /// Answers requests from a canned (status, body) and records what was asked.
 /// The canned answer is shared state, so the suite that uses it runs its tests one at a time.
 final class StubProtocol: URLProtocol {
-  static var answer: (Int, Data) = (200, Data())
-  static var seen: [URLRequest] = []
-  static var seenBodies: [Data] = []
+  /// The canned answer and what was asked, behind a lock: URLSession calls the protocol on its
+  /// own threads.
+  struct Exchange: Sendable {
+    var answer: (Int, Data) = (200, Data())
+    var seen: [URLRequest] = []
+    var seenBodies: [Data] = []
+  }
+
+  static let exchange = Mutex(Exchange())
+
+  static var answer: (Int, Data) {
+    get { exchange.withLock { $0.answer } }
+    set { exchange.withLock { $0.answer = newValue } }
+  }
+
+  static var seen: [URLRequest] {
+    get { exchange.withLock { $0.seen } }
+    set { exchange.withLock { $0.seen = newValue } }
+  }
+
+  static var seenBodies: [Data] {
+    get { exchange.withLock { $0.seenBodies } }
+    set { exchange.withLock { $0.seenBodies = newValue } }
+  }
+
+  /// A session whose every request is answered by this stub.
+  static func session() -> URLSession {
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.protocolClasses = [StubProtocol.self]
+    return URLSession(configuration: configuration)
+  }
 
   override static func canInit(with request: URLRequest) -> Bool { true }
   override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
@@ -40,16 +70,23 @@ final class StubProtocol: URLProtocol {
   }
 }
 
-@Suite(.serialized) struct APIClientTests {
+@Suite(.container, .serialized) struct APIClientTests {
   let client: APIClient
 
   init() throws {
-    let configuration = URLSessionConfiguration.ephemeral
-    configuration.protocolClasses = [StubProtocol.self]
-    client = APIClient(baseURL: try #require(URL(string: "http://127.0.0.1:8766")),
-      session: URLSession(configuration: configuration))
+    client = APIClient(baseURL: try #require(URL(string: "http://127.0.0.1:8766")), session: StubProtocol.session())
     StubProtocol.seen = []
     StubProtocol.seenBodies = []
+  }
+
+  @Test func containerBuildsTheClientWithItsSession() async throws {
+    Container.shared.urlSession.register { StubProtocol.session() }
+    StubProtocol.answer = try (200, fixture("status-response-v1.json"))
+    let endpoint = APIClient.Endpoint(baseURL: try #require(URL(string: "http://127.0.0.1:8766")), token: "t")
+    let response = try await Container.shared.apiClient(endpoint).status()
+    #expect(response.status?.environment == "sandbox")
+    let request = try #require(StubProtocol.seen.first)
+    #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer t")
   }
 
   @Test func status() async throws {

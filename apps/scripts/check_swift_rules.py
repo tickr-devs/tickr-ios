@@ -288,10 +288,12 @@ ONE_ARGUMENT = r"\((?!\s*\w+:)(?:[^(),]|\([^()]*\))*\)"
 XCTEST = "XCTest: use Swift Testing (import Testing, @Test, #expect)"
 COMBINE = "Combine: use async/await, AsyncSequence and Observation"
 CONCURRENCY = "use async/await, Task and actors"
+UNSAFE = "strict-concurrency escape hatch: make the type Sendable or isolate it to an actor"
 LEGACY = [
     (re.compile(IMPORT + r"XCTest\b"), XCTEST),
     (re.compile(IMPORT + r"Combine\b"), COMBINE),
     (re.compile(r"\b(?:AnyCancellable|PassthroughSubject|CurrentValueSubject)\b"), COMBINE),
+    (re.compile(r"\b(?:Just|AnyPublisher)\b|\.eraseToAnyPublisher\(|\.assign\(to:"), COMBINE),
     (re.compile(r"\bTimer\.publish\(|\.publisher\(|\.sink\s*[({]|\.onReceive\("), COMBINE),
     (re.compile(r"\bObservableObject\b"), "ObservableObject: use @Observable"),
     (re.compile(r"@(?:Published|StateObject|ObservedObject|EnvironmentObject)\b"),
@@ -321,9 +323,13 @@ LEGACY = [
      "onChange(of:perform:) is deprecated: use onChange(of:) { old, new in }"),
     (re.compile(r"\.animation" + ONE_ARGUMENT),
      "animation(_:) without value: is deprecated: pass value:"),
+    (re.compile(r"\bnonisolated\(unsafe\)|@unchecked\s+Sendable\b|@preconcurrency\b"), UNSAFE),
     (re.compile(r"ignoringOtherApps"),
      "activate(ignoringOtherApps:) is deprecated: use NSApp.activate()"),
 ]
+# `.onChange(of: value, perform: action)` spread over several lines.
+ON_CHANGE = ".onChange("
+PERFORM = re.compile(r"\bperform:")
 UI_TESTS = re.compile(r"UITests?$")
 
 
@@ -331,11 +337,52 @@ def legacy_violations(path: Path) -> list[tuple[int, str]]:
     """Outdated APIs, in code (comments ignored). UI test targets may still use XCTest."""
     ui_tests = any(UI_TESTS.search(part) for part in path.parts)
     found, in_block = [], False
+    # Open parentheses of an `.onChange(of:` call that continues over several lines (0 = none).
+    on_change = 0
     for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         code, in_block = check_swift_literals.strip(raw, in_block)
+        start = code.find(ON_CHANGE) if not on_change else 0
+        if start >= 0:
+            tail = code[start:]
+            if on_change and PERFORM.search(tail):
+                found.append((number, code.strip()))
+                on_change = 0
+                continue
+            on_change = max(on_change + tail.count("(") - tail.count(")"), 0)
         for pattern, reason in LEGACY:
             if pattern.search(code) and not (ui_tests and reason == XCTEST):
                 found.append((number, code.strip()))
+                break
+    return found
+
+
+# Project settings of the current stack: Swift 6 language mode and the latest OS releases.
+SWIFT_MODE = 6
+LATEST_OS = 26
+SETTINGS = [
+    (re.compile(r"swift-tools-version:\s*(\d+)"), SWIFT_MODE),
+    (re.compile(r"\.(?:macOS|iOS)\(\.v(\d+)"), LATEST_OS),
+    (re.compile(r"\bSWIFT_VERSION[\s=:]+\"?(\d+)"), SWIFT_MODE),
+    (re.compile(r"_DEPLOYMENT_TARGET[\s=:]+\"?(\d+)"), LATEST_OS),
+    (re.compile(r"^\s*(?:iOS|macOS):\s*\"?(\d+)"), LATEST_OS),
+]
+# Settings that weaken strict concurrency: unsafe compiler flags and any checking level below
+# complete.
+WEAKENED = re.compile(
+    r"unsafeFlags|-strict-concurrency=|SWIFT_STRICT_CONCURRENCY[\s=:\"]+(?!complete\b)\w")
+SETTINGS_FILES = ("Package.swift", "project.pbxproj", "project.yml")
+
+
+def settings_violations(path: Path) -> list[tuple[int, str]]:
+    """Package and Xcode project settings older than Swift 6 or the latest OS releases."""
+    found = []
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if WEAKENED.search(line) and not line.lstrip().startswith(("//", "#")):
+            found.append((number, line.strip()))
+            continue
+        for pattern, least in SETTINGS:
+            if any(int(value) < least for value in pattern.findall(line)):
+                found.append((number, line.strip()))
                 break
     return found
 
@@ -378,6 +425,13 @@ def test_swift_files() -> list[Path]:
     return files
 
 
+def settings_files() -> list[Path]:
+    return [path for root in ROOTS for name in SETTINGS_FILES
+            for path in sorted((REPO / root).rglob(name))
+            if not ({".build", "build", "DerivedData", "SourcePackages"}
+                    & set(path.relative_to(REPO).parts))]
+
+
 def plist_files() -> list[Path]:
     return [path for root in ROOTS for path in sorted((REPO / root).rglob("Info.plist"))
             if not SKIPPED_DIRS.intersection(path.relative_to(REPO).parts)]
@@ -393,6 +447,10 @@ def collect() -> dict[str, dict[str, list[tuple[int, str]]]]:
                 result[rule][key] = found
     for path in test_swift_files():
         found = legacy_violations(path)
+        if found:
+            result["legacy"][path.relative_to(REPO).as_posix()] = found
+    for path in settings_files():
+        found = settings_violations(path)
         if found:
             result["legacy"][path.relative_to(REPO).as_posix()] = found
     for path in plist_files():
