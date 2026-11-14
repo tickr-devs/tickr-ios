@@ -22,7 +22,8 @@ the three operator commands. It never talks to the broker.
 
 ## Open in Xcode
 
-Needs Xcode 16 or newer and macOS 14+.
+Kept current with Xcode 27.2: its upgrade check and recommended settings are already applied, so
+Xcode offers no project update. Older Xcode back to 16 still opens it. The app runs on macOS 14+.
 
 ```sh
 open Aperture.xcworkspace        # at the repository root

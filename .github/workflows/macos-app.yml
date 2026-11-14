@@ -23,6 +23,12 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      # The owner builds with the newest Xcode; use the newest release (not beta or RC) this runner has.
+      - name: Select the newest installed Xcode
+        run: |
+          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
       - run: swift --version
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared

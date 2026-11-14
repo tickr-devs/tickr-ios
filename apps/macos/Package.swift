@@ -21,6 +21,13 @@ let package = Package(
                 .product(name: "ApertureKit", package: "ApertureShared"),
                 .product(name: "ApertureDesign", package: "ApertureShared"),
             ],
-            path: "Aperture"),
+            path: "Aperture",
+            // The same language settings as the Xcode project (SWIFT_APPROACHABLE_CONCURRENCY and
+            // SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY), so both builds compile alike.
+            swiftSettings: [
+                .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+                .enableUpcomingFeature("InferIsolatedConformances"),
+                .enableUpcomingFeature("MemberImportVisibility"),
+            ]),
     ]
 )
