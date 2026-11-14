@@ -83,6 +83,10 @@ public struct APIClient: Sendable {
   static let post = "POST"
   static let acceptHeader = "accept"
   static let contentTypeHeader = "content-type"
+  /// HTTP header that carries the bearer token.
+  static let authorizationHeader = "authorization"
+  /// Authentication scheme the bot's API expects before the token (RFC 6750).
+  static let bearerScheme = "Bearer"
   static let json = "application/json"
 
   public let baseURL: URL
@@ -143,7 +147,7 @@ public struct APIClient: Sendable {
     request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
     request.setValue(Self.json, forHTTPHeaderField: Self.acceptHeader)
     if let token {
-      request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+      request.setValue("\(Self.bearerScheme) \(token)", forHTTPHeaderField: Self.authorizationHeader)
     }
     if let body {
       request.httpMethod = Self.post

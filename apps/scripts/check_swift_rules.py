@@ -10,6 +10,8 @@ text     No words in code. A string literal holding a letter may appear only
          - as an SF Symbol name, passed to a `systemName:`, `systemImage:` or `symbol:` label;
          - as an identifier (no whitespace, not a capitalised word such as "Overview") in a
            documented `static let` constant or an enum case raw value (protocol values, keys);
+           the one capitalised protocol token allowed is "Bearer" (the HTTP authentication scheme),
+           in a documented constant;
          - in an `@available` attribute (messages for developers).
          So `Text("Overview")`, `Button("Quit")`, `return "Flatten All"`,
          `Text(verbatim: "Aperture")` and `case overview = "Overview of the day"` all fail.
@@ -26,15 +28,7 @@ catalog  Every key of an `L10n.swift` has a Russian translation in the target's 
          (`*.xcstrings` next to it), and every user-facing Info.plist text (`NS…UsageDescription`)
          has one in an `InfoPlist.xcstrings` of the same app.
 
-Existing violations are listed in swift-rules-baseline.json by rule, file and content (the literal,
-the number, the badly indented line, the key), not by count, so removing an old violation never
-makes room for a new one. A file may hold only the violations listed for it, and the list must be
-shortened in the same pull request that removes violations (`--write-baseline`).
-
-Usage: check_swift_rules.py [--write-baseline] [--base-baseline FILE]
-  --base-baseline FILE  the baseline of the branch a pull request targets; fails when this
-                        branch's baseline lists a violation the target's does not, so a pull
-                        request cannot add to the baseline to let new violations in.
+Usage: check_swift_rules.py
 """
 
 from __future__ import annotations
@@ -43,7 +37,6 @@ import json
 import plistlib
 import re
 import sys
-from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -51,7 +44,6 @@ import check_swift_literals  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 ROOTS = ("apps/shared", "apps/macos", "apps/ios")
-BASELINE = Path(__file__).resolve().parent / "swift-rules-baseline.json"
 SKIPPED_FILES = {"Package.swift", "Package@swift-6.0.swift"}
 SKIPPED_DIRS = {"Tests", ".build", "build", "DerivedData", "SourcePackages"}
 L10N_FILE = "L10n.swift"
@@ -63,6 +55,8 @@ L10N_VALUE_ARGUMENT = re.compile(r"\bdefaultValue\s*:\s*$")
 L10N_CALL = re.compile(r"\bLocalizedStringResource\(")
 IDENTIFIER = re.compile(r"^[A-Za-z0-9_.:/%+\-]+$")
 TITLE_WORD = re.compile(r"^[A-Z][a-z]+$")
+# Capitalised protocol tokens a documented constant may hold: lower-case header names already pass.
+PROTOCOL_TOKENS = {"Bearer"}
 USAGE_KEY = re.compile(r"^NS\w*UsageDescription$")
 ESCAPE = re.compile(r"\\(?:u\{[0-9A-Fa-f]+\}|.)")
 LETTER = re.compile(r"[A-Za-zЀ-ӿ]")
@@ -167,6 +161,8 @@ def text_violations(path: Path) -> list[tuple[int, str]]:
         is_identifier = bool(IDENTIFIER.match(literal)) and not TITLE_WORD.match(literal)
         named = number in documented or check_swift_literals.ENUM_CASE.search(prefix)
         if named and is_identifier:
+            continue
+        if number in documented and literal in PROTOCOL_TOKENS:
             continue
         found.append((number, literal))
     return found
@@ -460,63 +456,19 @@ def collect() -> dict[str, dict[str, list[tuple[int, str]]]]:
     return result
 
 
-def raised(baseline: dict, base: dict | None) -> int:
-    """Count (and print) baseline entries the target branch's baseline lacks; None = no base yet."""
-    if base is None:
-        return 0
-    count = 0
-    for rule, files in baseline.items():
-        for path, items in files.items():
-            added = Counter(items) - Counter(base.get(rule, {}).get(path, []))
-            for item in added.elements():
-                count += 1
-                print(f"{path}: {rule} baseline gained {item!r}; fix the violation instead")
-    return count
-
-
 def main(argv: list[str]) -> int:
     found = collect()
-    if "--write-baseline" in argv:
-        listed = {rule: {path: sorted(detail for _, detail in items)
-                         for path, items in sorted(files.items())}
-                  for rule, files in found.items()}
-        text = json.dumps(listed, indent=1, sort_keys=True, ensure_ascii=False)
-        BASELINE.write_text(text + "\n", encoding="utf-8")
-        print(f"wrote {BASELINE.relative_to(REPO)}")
-        return 0
-    baseline = json.loads(BASELINE.read_text(encoding="utf-8")) if BASELINE.exists() else {}
     failures = 0
-    if "--base-baseline" in argv:
-        base_path = Path(argv[argv.index("--base-baseline") + 1])
-        base = json.loads(base_path.read_text(encoding="utf-8")) if base_path.exists() else None
-        failures += raised(baseline, base)
     for rule, (_, message) in RULES.items():
-        allowed = baseline.get(rule, {})
-        for path in sorted(set(found[rule]) | set(allowed)):
-            items = found[rule].get(path, [])
-            listed = Counter(allowed.get(path, []))
-            new = [(line, detail) for line, detail in items if not take(listed, detail)]
-            for line, detail in new:
+        for path, items in sorted(found[rule].items()):
+            for line, detail in items:
                 failures += 1
                 print(f"{path}:{line}: {rule}: {detail!r}: {message}")
-            for detail in listed.elements():
-                failures += 1
-                print(f"{path}: {rule} baseline lists {detail!r}, which is gone; shorten it: "
-                      "python3 apps/scripts/check_swift_rules.py --write-baseline")
     if failures:
         print("Swift code rules failed; see CLAUDE.md (Swift code rules) and docs/design-system.md")
         return 1
-    total = sum(len(v) for files in found.values() for v in files.values())
-    print(f"Swift code rules pass ({total} baselined violation(s) left to remove)")
+    print("Swift code rules pass")
     return 0
-
-
-def take(listed: Counter, detail: str) -> bool:
-    """Use up one baseline entry for `detail`; False when none is left."""
-    if listed[detail] > 0:
-        listed[detail] -= 1
-        return True
-    return False
 
 
 if __name__ == "__main__":
