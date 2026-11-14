@@ -5,12 +5,14 @@ on:
       - "apps/ios/**"
       - "apps/shared/**"
       - ".github/workflows/ios-app.yml"
+      - "Aperture.xcworkspace/**"
   push:
     branches: [main]
     paths:
       - "apps/ios/**"
       - "apps/shared/**"
       - ".github/workflows/ios-app.yml"
+      - "Aperture.xcworkspace/**"
 jobs:
   build:
     runs-on: macos-latest
@@ -20,14 +22,34 @@ jobs:
         working-directory: apps/ios
     steps:
       - uses: actions/checkout@v4
-      - run: xcodebuild -version
-      - run: brew install xcodegen
-      - run: xcodegen generate
+      # Build with the newest stable Xcode on the runner (the owner uses the current release).
+      - name: Select the newest Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -n 1)
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
+      # Pinned: a new XcodeGen release could change the output and fail the check below.
+      - name: Install XcodeGen 2.46.0
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
+          unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/xcodegen/bin" >> "$GITHUB_PATH"
+      # The committed Aperture.xcodeproj must be exactly what project.yml generates.
+      - name: Check the committed Xcode project matches project.yml
+        run: |
+          xcodegen generate
+          git add --intent-to-add --all .
+          if ! git diff --exit-code -- .; then
+            echo "::error::Aperture.xcodeproj differs from project.yml: run xcodegen in apps/ios and commit"
+            exit 1
+          fi
+      # Built through the root workspace, which is what the owner opens in Xcode.
       - name: Build for the iOS Simulator (unsigned)
         run: |
           if ! xcodebuild build \
-              -project Aperture.xcodeproj \
-              -scheme Aperture \
+              -workspace ../../Aperture.xcworkspace \
+              -scheme 'Aperture iOS' \
               -destination 'generic/platform=iOS Simulator' \
               -configuration Debug \
               CODE_SIGNING_ALLOWED=NO > build.log 2>&1; then

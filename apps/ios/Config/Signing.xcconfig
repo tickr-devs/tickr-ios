@@ -1,0 +1,5 @@
+// Signing settings for running on a real iPhone. The team id is personal, so it lives in the
+// git-ignored Config/Local.xcconfig next to this file, never in the committed project.
+// To run on your iPhone: copy Local.xcconfig.example to Local.xcconfig and put your team id in
+// it. Do not pick the team in Xcode's Signing & Capabilities, which writes it into the project.
+#include? "Local.xcconfig"

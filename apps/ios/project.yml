@@ -1,11 +1,18 @@
-# XcodeGen spec for the Aperture iOS app. Generate the Xcode project with `xcodegen` (the
-# generated Aperture.xcodeproj is not committed). See README.md.
+# XcodeGen spec for the Aperture iOS app. The generated Aperture.xcodeproj IS committed so the
+# app opens in Xcode as is; after editing this file run `xcodegen` and commit the result (CI fails
+# when the two differ). Sources are a synchronized folder, so adding a Swift file under Aperture/
+# needs no project change.
 name: Aperture
 options:
   bundleIdPrefix: local.aperture
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
+  # The Xcode release the owner uses. It becomes LastUpgradeCheck, so Xcode does not offer to
+  # "update to recommended settings"; never accept such an offer in Xcode: put the setting here.
+  xcodeVersion: "27.2"
+attributes:
+  LastSwiftUpdateCheck: "2720"
 packages:
   ApertureShared:
     path: ../shared
@@ -14,21 +21,33 @@ settings:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1"
     CURRENT_PROJECT_VERSION: "1"
+    # Settings Xcode recommends for current projects.
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEAD_CODE_STRIPPING: YES
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY: YES
 targets:
   Aperture:
     type: application
     platform: iOS
     sources:
-      - Aperture
+      - path: Aperture
+        type: syncedFolder
     dependencies:
       - package: ApertureShared
         product: ApertureKit
       - package: ApertureShared
         product: ApertureDesign
     info:
-      path: Aperture/Info.plist
+      path: Support/Info.plist
       properties:
         CFBundleDisplayName: Aperture
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -37,10 +56,25 @@ targets:
         # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+    # The team id comes from the git-ignored Config/Local.xcconfig (see Config/Signing.xcconfig).
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: local.aperture.ios
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
         ENABLE_PREVIEWS: YES
-    scheme: {}
+# The scheme is named for the platform so it stays distinct from "Aperture macOS" in the root
+# Aperture.xcworkspace.
+schemes:
+  Aperture iOS:
+    build:
+      targets:
+        Aperture: all
+    run:
+      config: Debug
+    archive:
+      config: Release

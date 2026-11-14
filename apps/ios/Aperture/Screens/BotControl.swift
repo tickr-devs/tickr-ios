@@ -40,8 +40,11 @@ struct BotControl: ViewModifier {
     static func confirmAndSend(_ command: OperatorCommand, model: AppModel) async {
         let reason = "\(Board.commandTitle(command.kind)) on the trading bot"
         let needsOwner = command == .cancelOwnOrders || command == .flatten
-        let confirm: (() async -> Biometrics.Outcome)? = needsOwner ? { await Biometrics.confirm(reason) } : nil
-        await model.send(command, confirmOwner: confirm)
+        if needsOwner {
+            await model.send(command, confirmOwner: { await Biometrics.confirm(reason) })
+        } else {
+            await model.send(command)
+        }
     }
 }
 
