@@ -5,16 +5,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "ApertureShared",
-    platforms: [.macOS(.v14), .iOS(.v17)],
-    products: [
-        .library(name: "ApertureKit", targets: ["ApertureKit"]),
-        .library(name: "ApertureDesign", targets: ["ApertureDesign"]),
-    ],
-    targets: [
-        .target(name: "ApertureKit"),
-        .target(name: "ApertureDesign"),
-        .testTarget(name: "ApertureKitTests", dependencies: ["ApertureKit"]),
-        .testTarget(name: "ApertureDesignTests", dependencies: ["ApertureDesign"]),
-    ]
+  name: "ApertureShared",
+  platforms: [.macOS(.v14), .iOS(.v17)],
+  products: [
+    .library(name: "ApertureKit", targets: ["ApertureKit"]),
+    .library(name: "ApertureDesign", targets: ["ApertureDesign"]),
+  ],
+  targets: [
+    .target(name: "ApertureKit"),
+    .target(name: "ApertureDesign"),
+    .testTarget(name: "ApertureKitTests", dependencies: ["ApertureKit"]),
+    .testTarget(name: "ApertureDesignTests", dependencies: ["ApertureDesign"]),
+  ]
 )

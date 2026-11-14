@@ -8,6 +8,8 @@ on:
       - "src/aperture/api/schema/**"
       - "Aperture.xcworkspace/**"
       - ".github/workflows/macos-app.yml"
+      - ".swiftlint.yml"
+      - "apps/scripts/**"
   push:
     branches: [main]
     paths:
@@ -17,6 +19,8 @@ on:
       - "src/aperture/api/schema/**"
       - "Aperture.xcworkspace/**"
       - ".github/workflows/macos-app.yml"
+      - ".swiftlint.yml"
+      - "apps/scripts/**"
 jobs:
   build-and-test:
     runs-on: macos-latest
@@ -29,6 +33,12 @@ jobs:
           newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
           sudo xcode-select -s "$newest"
           xcodebuild -version
+      - name: Design-system checks (docs/design-system.md)
+        run: |
+          python3 apps/scripts/check_swift_literals.py
+          command -v swiftlint >/dev/null || brew install swiftlint
+          swiftlint version
+          swiftlint lint --strict --quiet --config .swiftlint.yml
       - run: swift --version
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared

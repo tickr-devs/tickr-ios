@@ -1,0 +1,70 @@
+# SwiftLint for the operator apps (docs/design-system.md, "Rules"). Runs in CI (macos-app).
+# Magic numbers are checked by apps/scripts/check_swift_literals.py, which understands documented
+# constants; colours, fonts and indentation are checked here.
+# Each app joins when its code has moved onto the design system (macOS next, then iOS).
+included:
+  - apps/shared/Sources
+  - apps/shared/Tests
+
+indentation_width:
+  severity: error
+  indentation_width: 2
+  include_comments: true
+  include_compiler_directives: false
+  include_multiline_strings: false
+
+# Trailing commas in multi-line literals are allowed (they keep diffs to one line), not required.
+disabled_rules:
+  - trailing_comma
+
+opt_in_rules:
+  - indentation_width
+  - closure_spacing
+  - empty_count
+  - first_where
+  - sorted_imports
+  - toggle_bool
+
+# Short names are normal for decoder containers (c), coordinates (x, y), comparisons (a, b) and
+# the spacing scale (s, m, l).
+identifier_name:
+  min_length: 1
+  max_length: 50
+
+# Nested types such as Board.Event.Tone read better than prefixed names.
+nesting:
+  type_level: 2
+
+# Test tables use (input, path, body) triples.
+large_tuple:
+  warning: 3
+
+# Force try only on compile-time-constant regexes and dates; reviewed by hand.
+force_try: warning
+force_cast: warning
+
+line_length:
+  warning: 130
+  error: 160
+  ignores_comments: true
+  ignores_urls: true
+
+custom_rules:
+  colour_outside_palette:
+    name: "Colour outside Palette"
+    message: "Colours are semantic roles defined once in Palette.swift (docs/design-system.md)."
+    regex: '(Color\s*\(\s*(red|light|hue|white|\.sRGB|nsColor|uiColor)|NSColor\s*\(|UIColor\s*\()'
+    excluded: ".*/Palette\\.swift"
+    severity: error
+  hue_name_instead_of_role:
+    name: "Hue name instead of a colour role"
+    message: "Use a semantic role (accent, profit, loss, warning, info, highlight, text…, surface…)."
+    regex: 'Palette\.(teal|tealStrong|green|greenStrong|pink|pinkStrong|violet|violetStrong|amber|amberStrong|blue|blueStrong|red|redStrong|card|deep|line|line2|text|text2|muted|dim)\b'
+    excluded: ".*/Palette\\.swift"
+    severity: error
+  font_size_outside_tokens:
+    name: "Font size outside Tokens"
+    message: "Pick a font from Tokens.Typography."
+    regex: '\.system\(\s*size:'
+    excluded: ".*/Tokens\\.swift"
+    severity: error
