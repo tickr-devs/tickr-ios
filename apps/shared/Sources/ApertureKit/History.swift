@@ -37,9 +37,13 @@ public struct WireDate: Codable, Hashable, Comparable, Sendable, CustomStringCon
   /// The New York date of `date`.
   public init(newYorkDateOf date: Date) {
     let parts = WireDate.newYork.dateComponents([.year, .month, .day], from: date)
-    year = parts.year ?? 0
-    month = parts.month ?? 0
-    day = parts.day ?? 0
+    // A Gregorian calendar always fills the components it is asked for; no fallback date.
+    guard let year = parts.year, let month = parts.month, let day = parts.day else {
+      preconditionFailure()
+    }
+    self.year = year
+    self.month = month
+    self.day = day
     text = String(format: Self.format, year, month, day)
   }
 

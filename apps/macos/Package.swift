@@ -6,28 +6,31 @@
 import PackageDescription
 
 let package = Package(
-    name: "ApertureApp",
-    platforms: [.macOS(.v14)],
-    products: [
-        .executable(name: "ApertureMac", targets: ["ApertureMac"]),
-    ],
-    dependencies: [
-        .package(name: "ApertureShared", path: "../shared"),
-    ],
-    targets: [
-        .executableTarget(
-            name: "ApertureMac",
-            dependencies: [
-                .product(name: "ApertureKit", package: "ApertureShared"),
-                .product(name: "ApertureDesign", package: "ApertureShared"),
-            ],
-            path: "Aperture",
-            // The same language settings as the Xcode project (SWIFT_APPROACHABLE_CONCURRENCY and
-            // SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY), so both builds compile alike.
-            swiftSettings: [
-                .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-                .enableUpcomingFeature("InferIsolatedConformances"),
-                .enableUpcomingFeature("MemberImportVisibility"),
-            ]),
-    ]
+  name: "ApertureApp",
+  // Text a person reads is English in Aperture/L10n.swift, translated in Aperture/Localizable.xcstrings.
+  defaultLocalization: "en",
+  platforms: [.macOS(.v14)],
+  products: [
+    .executable(name: "ApertureMac", targets: ["ApertureMac"]),
+  ],
+  dependencies: [
+    .package(name: "ApertureShared", path: "../shared"),
+  ],
+  targets: [
+    .executableTarget(
+      name: "ApertureMac",
+      dependencies: [
+        .product(name: "ApertureKit", package: "ApertureShared"),
+        .product(name: "ApertureDesign", package: "ApertureShared"),
+      ],
+      path: "Aperture",
+      resources: [.process("Localizable.xcstrings")],
+      // The same language settings as the Xcode project (SWIFT_APPROACHABLE_CONCURRENCY and
+      // SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY), so both builds compile alike.
+      swiftSettings: [
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+        .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]),
+  ]
 )

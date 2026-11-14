@@ -56,6 +56,8 @@ public enum Tokens {
     public static let heroSize: CGFloat = 34
     /// Window and screen titles drawn in content.
     public static let titleSize: CGFloat = 26
+    /// The mono word next to a screen title ("Operator").
+    public static let subtitleSize: CGFloat = 18
 
     public static let label = Font.system(size: labelSize, weight: .semibold, design: .monospaced)
     public static let badge = Font.system(size: badgeSize, weight: .bold, design: .monospaced)
@@ -64,6 +66,9 @@ public enum Tokens {
     public static let metric = Font.system(size: metricSize, weight: .bold, design: .monospaced)
     public static let hero = Font.system(size: heroSize, weight: .bold, design: .monospaced)
     public static let title = Font.system(size: titleSize, weight: .bold)
+    public static let subtitle = Font.system(size: subtitleSize, weight: .medium, design: .monospaced)
+    /// SF Symbols inside a round icon well.
+    public static let symbol = Font.system(size: Size.iconWellSymbol, weight: .semibold)
     /// Body text and values in rows: the platform's text styles, so Dynamic Type applies.
     public static let body = Font.body
     public static let bodyMono = Font.body.monospaced()
@@ -164,7 +169,7 @@ public enum Tokens {
     public static let breatheSeconds = 2.4
     /// How much a breathing glow grows.
     public static let breatheScale: CGFloat = 1.08
-    /// Seconds for one turn of slowly rotating marks (logo, radar).
+    /// Seconds for one turn of the radar sweep (the logo has its own slower turn).
     public static let rotationSeconds = 4.0
     /// Points per second of the event ticker.
     public static let tickerSpeed = 22.0

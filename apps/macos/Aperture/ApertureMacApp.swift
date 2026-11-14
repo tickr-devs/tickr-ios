@@ -4,10 +4,10 @@ import SwiftUI
 
 /// User-default keys of the app (Settings window).
 enum Defaults {
-    /// Base URL of the bot's local API.
-    static let apiBaseURL = "apiBaseURL"
-    /// Whether the menu-bar extra is shown.
-    static let showMenuBarExtra = "showMenuBarExtra"
+  /// Base URL of the bot's local API.
+  static let apiBaseURL = "apiBaseURL"
+  /// Whether the menu-bar extra is shown.
+  static let showMenuBarExtra = "showMenuBarExtra"
 }
 
 /// macOS shell: the main window with a sidebar, the standard Settings window (⌘,) and a
@@ -15,67 +15,77 @@ enum Defaults {
 @main
 @MainActor
 struct ApertureMacApp: App {
-    @State private var model: AppModel
-    @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
+  /// Smallest and first size of the main window, in points.
+  static let minWidth: CGFloat = 1080
+  static let minHeight: CGFloat = 700
+  static let defaultWidth: CGFloat = 1440
+  static let defaultHeight: CGFloat = 920
 
-    init() {
-        let model = AppModel(baseURL: Self.baseURL())
-        model.start()
-        _model = State(initialValue: model)
-        // Started with `swift run` there is no bundle: still show a Dock icon and the window.
-        NSApplication.shared.setActivationPolicy(.regular)
+  @State private var model: AppModel
+  @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
+
+  init() {
+    let model = AppModel(baseURL: Self.baseURL())
+    model.start()
+    _model = State(initialValue: model)
+    // Started with `swift run` there is no bundle: still show a Dock icon and the window.
+    NSApplication.shared.setActivationPolicy(.regular)
+  }
+
+  static func baseURL() -> URL {
+    if let text = UserDefaults.standard.string(forKey: Defaults.apiBaseURL), let url = URL(string: text) {
+      return url
+    }
+    return APIClient.defaultBaseURL
+  }
+
+  var body: some Scene {
+    Window(String(localized: L10n.App.name), id: WindowID.main) {
+      RootView()
+        .environment(model)
+        .frame(minWidth: Self.minWidth, minHeight: Self.minHeight)
+    }
+    .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
+    .commands { AppCommands(model: model) }
+
+    Settings {
+      SettingsView()
+        .environment(model)
     }
 
-    static func baseURL() -> URL {
-        if let text = UserDefaults.standard.string(forKey: Defaults.apiBaseURL), let url = URL(string: text) {
-            return url
-        }
-        return APIClient.defaultBaseURL
+    MenuBarExtra(isInserted: $showMenuBarExtra) {
+      MenuBarPanel()
+        .environment(model)
+    } label: {
+      Image(systemName: model.headline.severity.menuBarSymbol)
     }
-
-    var body: some Scene {
-        Window("Aperture", id: WindowID.main) {
-            RootView()
-                .environment(model)
-                .frame(minWidth: 1080, minHeight: 700)
-        }
-        .defaultSize(width: 1440, height: 920)
-        .commands { AppCommands(model: model) }
-
-        Settings {
-            SettingsView()
-                .environment(model)
-        }
-
-        MenuBarExtra(isInserted: $showMenuBarExtra) {
-            MenuBarPanel()
-                .environment(model)
-        } label: {
-            Image(systemName: model.headline.severity.menuBarSymbol)
-        }
-        .menuBarExtraStyle(.window)
-    }
+    .menuBarExtraStyle(.window)
+  }
 }
 
 enum WindowID {
-    static let main = "main"
+  /// Id of the main window (SwiftUI scene identity).
+  static let main = "main"
 }
 
 /// Menu commands: day navigation (⌘[ ⌘] ⌘T) next to the standard ones.
 struct AppCommands: Commands {
-    let model: AppModel
+  let model: AppModel
 
-    var body: some Commands {
-        CommandMenu("Day") {
-            Button("Previous Trading Day") { model.showPreviousDay() }
-                .keyboardShortcut("[", modifiers: .command)
-                .disabled(model.previousDay == nil)
-            Button("Next Trading Day") { model.showNextDay() }
-                .keyboardShortcut("]", modifiers: .command)
-                .disabled(model.isLive)
-            Button("Today") { model.showToday() }
-                .keyboardShortcut("t", modifiers: .command)
-                .disabled(model.isLive)
-        }
+  /// Key of the Today command (⌘T).
+  static let todayKey: KeyEquivalent = "t"
+
+  var body: some Commands {
+    CommandMenu(String(localized: L10n.App.dayMenu)) {
+      Button(String(localized: L10n.App.previousTradingDay)) { model.showPreviousDay() }
+        .keyboardShortcut("[", modifiers: .command)
+        .disabled(model.previousDay == nil)
+      Button(String(localized: L10n.App.nextTradingDay)) { model.showNextDay() }
+        .keyboardShortcut("]", modifiers: .command)
+        .disabled(model.isLive)
+      Button(String(localized: L10n.Common.today)) { model.showToday() }
+        .keyboardShortcut(Self.todayKey, modifiers: .command)
+        .disabled(model.isLive)
     }
+  }
 }

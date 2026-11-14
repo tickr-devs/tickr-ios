@@ -5,688 +5,896 @@ import SwiftUI
 /// Overview: what the bot is doing now, its positions and protection, the day's result, and the
 /// bot controls. For a recorded day it shows that day read-only.
 struct OverviewView: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                HStack(alignment: .top, spacing: 16) {
-                    HeaderCard().rise(0)
-                    DayResultCard().frame(width: 300).rise(0.05)
-                }
-                LiveFlowCard().rise(0.1)
-                HStack(alignment: .top, spacing: 16) {
-                    PositionsCard().rise(0.15)
-                    VStack(spacing: 16) {
-                        SafetyCard()
-                        BotCard()
-                    }
-                    .frame(width: 320)
-                    .rise(0.2)
-                    VStack(spacing: 16) {
-                        RiskRoomCard()
-                        ObserversCard()
-                        JournalCard()
-                    }
-                    .frame(width: 320)
-                    .rise(0.25)
-                }
-            }
-            .padding(20)
-            .frame(maxWidth: 1500)
-            .frame(maxWidth: .infinity)
+  /// The order in which the cards rise in as the screen appears.
+  private enum Order: Int { case header = 0, result, flow, positions, middle, right }
+
+  var body: some View {
+    ScrollView {
+      VStack(spacing: Tokens.Space.l) {
+        HStack(alignment: .top, spacing: Tokens.Space.l) {
+          HeaderCard().rise(step: Order.header.rawValue)
+          DayResultCard().frame(width: Tokens.Size.sideColumn).rise(step: Order.result.rawValue)
         }
+        LiveFlowCard().rise(step: Order.flow.rawValue)
+        HStack(alignment: .top, spacing: Tokens.Space.l) {
+          PositionsCard().rise(step: Order.positions.rawValue)
+          VStack(spacing: Tokens.Space.l) {
+            SafetyCard()
+            BotCard()
+          }
+          .frame(width: Tokens.Size.sideColumn)
+          .rise(step: Order.middle.rawValue)
+          VStack(spacing: Tokens.Space.l) {
+            RiskRoomCard()
+            ObserversCard()
+            JournalCard()
+          }
+          .frame(width: Tokens.Size.sideColumn)
+          .rise(step: Order.right.rawValue)
+        }
+      }
+      .padding(Tokens.Space.xl)
+      .frame(maxWidth: Tokens.Size.contentMaxWidth)
+      .frame(maxWidth: .infinity)
     }
+  }
 }
 
 // MARK: header
 
 private struct HeaderCard: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        HStack(alignment: .center, spacing: 18) {
-            ApertureLogo(size: 60)
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 8) {
-                    Text("Aperture").font(.system(size: 26, weight: .bold))
-                    Text("Operator").font(.system(size: 18, weight: .medium, design: .monospaced)).foregroundStyle(Palette.dim)
-                    if let status = model.status {
-                        Badge(text: status.environment.uppercased(), color: Palette.violetStrong)
-                        Badge(text: status.tradingGate.open ? "GATE OPEN" : "GATE CLOSED",
-                              color: status.tradingGate.open ? Palette.tealStrong : Palette.amberStrong)
-                            .help(status.tradingGate.cause)
-                    }
-                }
-                banner
+  /// Lines the banner's detail may wrap to.
+  static let detailLines = 2
+
+  var body: some View {
+    HStack(alignment: .center, spacing: Tokens.Space.l) {
+      ApertureLogo()
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        HStack(spacing: Tokens.Space.s) {
+          Text(verbatim: AppInfo.name).font(Tokens.Typography.title)
+          Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textQuaternary)
+          if let status = model.status {
+            Badge(verbatim: status.environment, color: Palette.highlightText)
+            Group {
+              if status.tradingGate.open {
+                Badge(L10n.Overview.gateOpen, color: Palette.accentText)
+              } else {
+                Badge(L10n.Overview.gateClosed, color: Palette.warningText)
+              }
             }
-            Spacer(minLength: 0)
+            .help(Text(verbatim: status.tradingGate.cause))
+          }
         }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .apertureCard()
+        banner
+      }
+      Spacer(minLength: 0)
     }
+    .padding(Tokens.Space.l)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .apertureCard()
+  }
 
-    private var banner: some View {
-        let (title, detail, color, alarm) = content
-        return HStack(spacing: 10) {
-            PulseDot(color, size: 9, pulsing: model.isLive)
-            Text(title).font(.headline).foregroundStyle(color)
-            if let detail { Text(detail).font(.callout).foregroundStyle(Palette.muted).lineLimit(2) }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(color.opacity(0.09), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(color.opacity(0.4)))
-        .modifier(AlarmPulse(active: alarm))
-        .textSelection(.enabled)
+  private var banner: some View {
+    let content = content
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+    return HStack(spacing: Tokens.Space.m) {
+      PulseDot(content.color, pulsing: model.isLive)
+      Text(verbatim: content.title).font(.headline).foregroundStyle(content.color)
+      if let detail = content.detail {
+        Text(verbatim: detail).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary).lineLimit(Self.detailLines)
+      }
     }
+    .padding(Tokens.Space.m)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(content.color.opacity(Tokens.Opacity.wash), in: shape)
+    .overlay(shape.strokeBorder(content.color.opacity(Tokens.Opacity.border)))
+    .modifier(AlarmPulse(active: content.alarm))
+    .textSelection(.enabled)
+  }
 
-    private var content: (String, String?, Color, Bool) {
-        if !model.isLive {
-            return ("Recorded day · \(Format.dayLabel(model.shownDay))",
-                    "Read-only view from the bot's records. Commands are off.", Palette.violetStrong, false)
-        }
-        let headline = model.headline
-        var detail: String?
-        if let status = model.status, model.fetchError == nil, model.response?.stale == false {
-            let count = Board.positions(status).count
-            if count > 0 {
-                let protected = Board.positions(status).filter { $0.stop.state == .verified }.count
-                detail = "\(count) position\(count == 1 ? "" : "s") · \(protected) protected by a verified broker stop"
-            } else {
-                detail = "No open position."
-            }
-        }
-        return (headline.text, detail, headline.severity.color, headline.severity == .alarm)
+  private struct Content {
+    let title: String
+    let detail: String?
+    let color: Color
+    let alarm: Bool
+  }
+
+  private var content: Content {
+    if !model.isLive {
+      return Content(
+        title: String(localized: L10n.Common.recordedDay(Format.dayLabel(model.shownDay))),
+        detail: String(localized: L10n.Overview.recordedDetail),
+        color: Palette.highlightText, alarm: false)
     }
+    let headline = model.headline
+    var detail: String?
+    if let status = model.status, model.fetchError == nil, model.response?.stale == false {
+      let positions = Board.positions(status)
+      if positions.isEmpty {
+        detail = String(localized: L10n.Overview.noOpenPosition)
+      } else {
+        let protected = positions.filter { $0.stop.state == .verified }.count
+        detail = String(localized: L10n.Overview.protectedPositions(positions.count, protected))
+      }
+    }
+    return Content(title: headline.text, detail: detail, color: headline.severity.color,
+      alarm: headline.severity == .alarm)
+  }
 }
 
 /// A soft red glow that breathes around something that needs attention now.
 struct AlarmPulse: ViewModifier {
-    let active: Bool
-    @State private var on = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  let active: Bool
+  @State private var on = false
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    func body(content: Content) -> some View {
-        content
-            .shadow(color: active ? Palette.red.opacity(on ? 0.55 : 0.1) : .clear, radius: on ? 10 : 2)
-            .onAppear {
-                guard active, !reduceMotion else { return }
-                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) { on = true }
-            }
-            .onChange(of: active) { _, now in
-                on = false
-                if now && !reduceMotion {
-                    withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) { on = true }
-                }
-            }
+  /// Blur radius of the glow at its weakest and strongest, in points.
+  static let glowRest: CGFloat = 2
+  static let glowPeak: CGFloat = 10
+
+  func body(content: Content) -> some View {
+    content
+      .shadow(
+        color: active ? Palette.loss.opacity(on ? Tokens.Opacity.medium : Tokens.Opacity.wash) : .clear,
+        radius: on ? Self.glowPeak : Self.glowRest)
+      .onAppear { breathe(active) }
+      .onChange(of: active) { _, now in
+        on = false
+        breathe(now)
+      }
+  }
+
+  private func breathe(_ now: Bool) {
+    guard now, !reduceMotion else { return }
+    withAnimation(.easeInOut(duration: Tokens.Motion.breatheSeconds / 2).repeatForever(autoreverses: true)) {
+      on = true
     }
+  }
 }
 
 private struct DayResultCard: View {
-    @Environment(AppModel.self) private var model
-    @State private var counted: Decimal = 0
+  @Environment(AppModel.self) private var model
+  @State private var counted: Decimal = 0
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            CardLabel("Day result · gross")
-            MoneyText(value: counted, usd: true, size: 34, weight: .bold)
-            Text(subtitle).font(.caption.monospaced()).foregroundStyle(Palette.dim)
-            DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
-                .frame(height: 34)
-        }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .apertureCard()
-        .onAppear { countUp() }
-        .onChange(of: model.shownResult) { countUp() }
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      CardLabel(L10n.Overview.dayResult)
+      MoneyText(value: counted, usd: true, font: Tokens.Typography.hero)
+      Text(verbatim: subtitle).font(Tokens.Typography.captionMono).foregroundStyle(Palette.textQuaternary)
+      DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
+        .frame(height: Tokens.Size.sparkline)
     }
+    .padding(Tokens.Space.l)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .apertureCard()
+    .onAppear { countUp() }
+    .onChange(of: model.shownResult) { countUp() }
+  }
 
-    private var subtitle: String {
-        var text = "\(model.shownTradeCount) closed · \(model.shownWins) W · \(model.shownLosses) L"
-        let unrealized = model.positions.compactMap(\.unrealized)
-        // Only when every open position has a fresh price; a partial sum would mislead.
-        if model.isLive && !model.positions.isEmpty && unrealized.count == model.positions.count {
-            text += " · open " + Money.signed(unrealized.reduce(0, +))
-        }
-        return text
+  private var subtitle: String {
+    var text = String(localized: L10n.Overview.dayCounts(model.shownTradeCount, model.shownWins, model.shownLosses))
+    let unrealized = model.positions.compactMap(\.unrealized)
+    // Only when every open position has a fresh price; a partial sum would mislead.
+    if model.isLive && !model.positions.isEmpty && unrealized.count == model.positions.count {
+      text += String(localized: L10n.Overview.openResult(Money.signed(unrealized.reduce(0, +))))
     }
+    return text
+  }
 
-    private func countUp() {
-        withAnimation(.spring(response: 1.1, dampingFraction: 0.9)) { counted = model.shownResult }
-    }
+  private func countUp() {
+    withAnimation(Tokens.Motion.fill) { counted = model.shownResult }
+  }
 }
 
 // MARK: live flow
 
 private struct LiveFlowCard: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        Card(title: "Live flow · screeners → strategy → risk → order → broker stop") {
-            Text(model.isLive ? "live" : "recorded").font(.caption.monospaced()).foregroundStyle(Palette.dim)
-        } content: {
-            Ticker(tickerItems, moving: model.isLive)
-                .frame(height: 22)
-            Pipeline(stages: stages, moving: model.isLive)
-                .frame(height: 96)
-        }
-    }
+  /// Id of the ticker's placeholder item when nothing happened yet.
+  static let quietID = "quiet"
+  /// SF Symbols of the pipeline stages.
+  static let screenersSymbol = "magnifyingglass"
+  static let universeSymbol = "line.3.horizontal.decrease"
+  static let strategySymbol = "chart.bar"
+  static let riskSymbol = "shield"
+  static let orderSymbol = "bolt"
+  static let stopSymbol = "lock"
+  static let reconcileSymbol = "arrow.triangle.2.circlepath"
 
-    private var tickerItems: [TickerItem] {
-        guard let status = model.status, model.isLive else {
-            return model.shownTrades.map {
-                TickerItem(id: $0.tradeId, tag: $0.exitReason.uppercased(),
-                           text: "\($0.symbol) \(Money.signed($0.resultGrossUsd.value))",
-                           tone: $0.resultGrossUsd.value >= 0 ? .green : .red)
-            }
-        }
-        let events = Board.events(status)
-        if events.isEmpty {
-            return [TickerItem(id: "quiet", tag: "QUIET", text: "nothing recorded yet today", tone: .muted)]
-        }
-        return events.map { TickerItem(id: $0.id, tag: $0.tag, text: $0.text, tone: $0.tone.tickerTone) }
+  var body: some View {
+    Card(L10n.Flow.title) {
+      Group {
+        if model.isLive { Text(L10n.Flow.live) } else { Text(L10n.Flow.recorded) }
+      }
+      .font(Tokens.Typography.captionMono)
+      .foregroundStyle(Palette.textQuaternary)
+    } content: {
+      Ticker(tickerItems, moving: model.isLive)
+        .frame(height: Tokens.Size.ticker)
+      Pipeline(stages: stages, moving: model.isLive)
+        .frame(height: Pipeline.height)
     }
+  }
 
-    private var stages: [Pipeline.Stage] {
-        let status = model.isLive ? model.status : nil
-        let position = status.flatMap { Board.positions($0).first }
-        return [
-            .init(name: "SCREENERS", value: nil, symbol: "magnifyingglass", color: Palette.teal),
-            .init(name: "UNIVERSE", value: nil, symbol: "line.3.horizontal.decrease", color: Palette.pink),
-            .init(name: "STRATEGY", value: status.map { "\($0.strategy.name) v\($0.strategy.version)" },
-                  symbol: "chart.bar", color: Palette.violet),
-            .init(name: "RISK", value: status.map { $0.entryBlock == nil ? "entries allowed" : "blocked" },
-                  symbol: "shield", color: Palette.amber),
-            .init(name: "ORDER", value: status.map { "\($0.tradesToday.count) closed" }, symbol: "bolt", color: Palette.blue),
-            .init(name: "BROKER STOP", value: status.map { _ in position.map { Board.stopTag($0.stop.state) } ?? "no position" },
-                  symbol: "lock", color: position.map { $0.stop.state == .verified ? Palette.green : Palette.red } ?? Palette.green),
-            .init(name: "RECONCILE", value: status.map { $0.fences.isEmpty ? "match" : "\($0.fences.count) fence(s)" },
-                  symbol: "arrow.triangle.2.circlepath", color: Palette.blue),
-        ]
+  private var tickerItems: [TickerItem] {
+    guard let status = model.status, model.isLive else {
+      return model.shownTrades.map {
+        TickerItem(id: $0.tradeId, tag: Board.exitReasonTitle($0.exitReason).uppercased(),
+          text: "\($0.symbol) \(Money.signed($0.resultGrossUsd.value))",
+          tone: $0.resultGrossUsd.value >= 0 ? .green : .red)
+      }
     }
+    let events = Board.events(status)
+    if events.isEmpty {
+      return [TickerItem(id: Self.quietID, tag: String(localized: L10n.Flow.quietTag),
+        text: String(localized: L10n.Flow.nothingYet), tone: .muted)]
+    }
+    return events.map { TickerItem(id: $0.id, tag: $0.tag, text: $0.text, tone: $0.tone.tickerTone) }
+  }
+
+  private var stages: [Pipeline.Stage] {
+    let status = model.isLive ? model.status : nil
+    let position = status.flatMap { Board.positions($0).first }
+    let stopColor = position.map { $0.stop.state == .verified ? Palette.profit : Palette.loss } ?? Palette.profit
+    return [
+      .init(id: .screeners, name: L10n.Flow.screeners, value: nil, symbol: Self.screenersSymbol, color: Palette.accent),
+      .init(id: .universe, name: L10n.Flow.universe, value: nil, symbol: Self.universeSymbol,
+        color: Palette.seriesUniverse),
+      .init(id: .strategy, name: L10n.Common.strategy, value: status.map { Format.strategy($0.strategy) },
+        symbol: Self.strategySymbol, color: Palette.highlight),
+      .init(id: .risk, name: L10n.Common.risk,
+        value: status.map { String(localized: $0.entryBlock == nil ? L10n.Flow.entriesAllowed : L10n.Flow.blocked) },
+        symbol: Self.riskSymbol, color: Palette.warning),
+      .init(id: .order, name: L10n.Flow.order, value: status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
+        symbol: Self.orderSymbol, color: Palette.info),
+      .init(id: .stop, name: L10n.Flow.brokerStop,
+        value: status.map { _ in position.map { $0.stop.state.title } ?? String(localized: L10n.Common.noPosition) },
+        symbol: Self.stopSymbol, color: stopColor),
+      .init(id: .reconcile, name: L10n.Flow.reconcile,
+        value: status.map {
+          $0.fences.isEmpty ? String(localized: L10n.Flow.match) : String(localized: L10n.Common.fences($0.fences.count))
+        },
+        symbol: Self.reconcileSymbol, color: Palette.info),
+    ]
+  }
 }
 
 extension Board.Event.Tone {
-    var tickerTone: TickerItem.Tone {
-        switch self {
-        case .teal: return .teal
-        case .green: return .green
-        case .blue: return .blue
-        case .amber: return .amber
-        case .violet: return .violet
-        case .red: return .red
-        case .muted: return .muted
-        }
+  var tickerTone: TickerItem.Tone {
+    switch self {
+    case .teal: return .teal
+    case .green: return .green
+    case .blue: return .blue
+    case .amber: return .amber
+    case .violet: return .violet
+    case .red: return .red
+    case .muted: return .muted
     }
+  }
 
-    var color: Color {
-        switch self {
-        case .teal: return Palette.tealStrong
-        case .green: return Palette.greenStrong
-        case .blue: return Palette.blueStrong
-        case .amber: return Palette.amberStrong
-        case .violet: return Palette.violetStrong
-        case .red: return Palette.redStrong
-        case .muted: return Palette.muted
-        }
+  var color: Color {
+    switch self {
+    case .teal: return Palette.accentText
+    case .green: return Palette.profitText
+    case .blue: return Palette.infoText
+    case .amber: return Palette.warningText
+    case .violet: return Palette.highlightText
+    case .red: return Palette.lossText
+    case .muted: return Palette.textTertiary
     }
+  }
 }
 
 /// The stages a setup passes through, with light travelling along the line between them.
 private struct Pipeline: View {
-    struct Stage: Identifiable {
-        let name: String
-        /// nil = the API does not report this stage yet.
-        let value: String?
-        let symbol: String
-        let color: Color
-        var id: String { name }
-    }
+  /// The stages, in the order a setup passes them.
+  enum StageID: Hashable { case screeners, universe, strategy, risk, order, stop, reconcile }
 
-    let stages: [Stage]
-    let moving: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  struct Stage: Identifiable {
+    let id: StageID
+    let name: LocalizedStringResource
+    /// nil = the API does not report this stage yet.
+    let value: String?
+    let symbol: String
+    let color: Color
+  }
 
-    var body: some View {
-        ZStack(alignment: .top) {
-            GeometryReader { proxy in
-                let inset = proxy.size.width / CGFloat(stages.count) / 2
-                let width = proxy.size.width - 2 * inset
-                Capsule().fill(Palette.line).frame(width: width, height: 2).offset(x: inset, y: 21)
-                if moving && !reduceMotion {
-                    TimelineView(.animation) { context in
-                        let t = context.date.timeIntervalSinceReferenceDate
-                        ForEach(0..<3, id: \.self) { index in
-                            let phase = ((t / 4.2) + Double(index) / 3).truncatingRemainder(dividingBy: 1)
-                            Circle()
-                                .fill(Palette.teal)
-                                .frame(width: 8, height: 8)
-                                .shadow(color: Palette.teal.opacity(0.7), radius: 6)
-                                .opacity(phase < 0.08 ? phase / 0.08 : phase > 0.92 ? (1 - phase) / 0.08 : 1)
-                                .offset(x: inset + width * phase - 4, y: 18)
-                        }
-                    }
-                }
-            }
-            HStack(spacing: 0) {
-                ForEach(Array(stages.enumerated()), id: \.element.id) { index, stage in
-                    VStack(spacing: 6) {
-                        ZStack {
-                            Circle().fill(Palette.card)
-                            Circle().strokeBorder(stage.color.opacity(stage.value == nil ? 0.35 : 1), lineWidth: 1.5)
-                            Image(systemName: stage.symbol).font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(stage.color.opacity(stage.value == nil ? 0.45 : 1))
-                        }
-                        .frame(width: 44, height: 44)
-                        .overlay {
-                            if stage.value != nil && moving {
-                                PulseDot(stage.color, size: 44, pulsing: true).opacity(0.25)
-                                    .animation(.default.delay(Double(index) * 0.35), value: moving)
-                            }
-                        }
-                        Text(stage.name).font(.system(size: 10, weight: .bold, design: .monospaced)).foregroundStyle(Palette.text2)
-                        if let value = stage.value {
-                            Text(value).font(.system(size: 10.5, design: .monospaced)).foregroundStyle(Palette.muted)
-                                .lineLimit(1).contentTransition(.numericText())
-                        } else {
-                            Text("—").font(.system(size: 10.5, design: .monospaced)).foregroundStyle(Palette.dim)
-                                .help("Not reported by the local API yet.")
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
+  let stages: [Stage]
+  let moving: Bool
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+  /// Height of the whole pipeline: icon well, name and value.
+  static let height: CGFloat = 96
+  /// Lights travelling along the line at once, evenly spaced.
+  static let lights = 3
+  /// Share of the trip over which a light fades in at the start and out at the end.
+  static let fadeShare = 0.08
+  /// Blur of a light's glow, in points.
+  static let glow: CGFloat = 6
+  /// Seconds between the pulses of neighbouring stages, so they do not beat together.
+  static let pulseOffset = 0.35
+
+  var body: some View {
+    ZStack(alignment: .top) {
+      GeometryReader { proxy in
+        let inset = proxy.size.width / CGFloat(stages.count) / 2
+        // The track runs from the centre of the first stage to the centre of the last.
+        let width = proxy.size.width - proxy.size.width / CGFloat(stages.count)
+        Capsule().fill(Palette.separator)
+          .frame(width: width, height: Tokens.Stroke.bold)
+          .offset(x: inset, y: (Tokens.Size.iconWell - Tokens.Stroke.bold) / 2)
+        if moving && !reduceMotion {
+          TimelineView(.animation) { context in
+            lights(time: context.date.timeIntervalSinceReferenceDate, inset: inset, width: width)
+          }
         }
-        .accessibilityElement(children: .combine)
+      }
+      HStack(spacing: 0) {
+        ForEach(Array(stages.enumerated()), id: \.element.id) { index, stage in
+          column(stage, index: index)
+        }
+      }
     }
+    .accessibilityElement(children: .combine)
+  }
+
+  private func lights(time: TimeInterval, inset: CGFloat, width: CGFloat) -> some View {
+    ForEach(0..<Self.lights, id: \.self) { index in
+      let phase = (time / Tokens.Motion.pipelineSeconds + Double(index) / Double(Self.lights))
+        .truncatingRemainder(dividingBy: 1)
+      Circle()
+        .fill(Palette.accent)
+        .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
+        .shadow(color: Palette.accent.opacity(Tokens.Opacity.medium), radius: Self.glow)
+        .opacity(min(phase, 1 - phase, Self.fadeShare) / Self.fadeShare)
+        .offset(x: inset + width * phase - Tokens.Size.dot / 2, y: (Tokens.Size.iconWell - Tokens.Size.dot) / 2)
+    }
+  }
+
+  private func column(_ stage: Stage, index: Int) -> some View {
+    let reported = stage.value != nil
+    return VStack(spacing: Tokens.Space.s) {
+      ZStack {
+        Circle().fill(Palette.surface)
+        Circle().strokeBorder(stage.color.opacity(reported ? 1 : Tokens.Opacity.faint), lineWidth: Tokens.Stroke.regular)
+        Image(systemName: stage.symbol)
+          .font(Tokens.Typography.symbol)
+          .foregroundStyle(stage.color.opacity(reported ? 1 : Tokens.Opacity.border))
+      }
+      .frame(width: Tokens.Size.iconWell, height: Tokens.Size.iconWell)
+      .overlay {
+        if reported && moving {
+          PulseDot(stage.color, size: Tokens.Size.iconWell, pulsing: true)
+            .opacity(Tokens.Opacity.faint)
+            .animation(.default.delay(Double(index) * Self.pulseOffset), value: moving)
+        }
+      }
+      Text(stage.name)
+        .textCase(.uppercase)
+        .font(Tokens.Typography.annotationBold)
+        .foregroundStyle(Palette.textSecondary)
+      if let value = stage.value {
+        Text(verbatim: value)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textTertiary)
+          .lineLimit(1)
+          .contentTransition(.numericText())
+      } else {
+        Text(verbatim: Format.missing)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+          .help(Text(L10n.Flow.notReported))
+      }
+    }
+    .frame(maxWidth: .infinity)
+  }
 }
 
 // MARK: positions
 
 private struct PositionsCard: View {
-    @Environment(AppModel.self) private var model
-    @State private var selected: String?
+  @Environment(AppModel.self) private var model
+  @State private var selected: String?
 
-    var body: some View {
-        let rows = model.positions
-        let maxPositions = model.settings?.risk.maxOpenPositions
-        Card(title: "Positions \(rows.count)" + (maxPositions.map { " of \($0)" } ?? "")) {
-            Button("Open Chart") { model.section = .chart }
-                .buttonStyle(.link)
-                .disabled(rows.isEmpty)
-        } content: {
-            if rows.count > 1 {
-                Picker("Position", selection: Binding(get: { selected ?? rows.first?.id }, set: { selected = $0 })) {
-                    ForEach(rows) { row in Text(row.position.symbol).tag(Optional(row.id)) }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-            }
-            if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
-                PositionDetail(row: row)
-                    .id(row.id)
-                    .transition(.opacity.combined(with: .scale(scale: 0.98)))
-            } else {
-                EmptyPositions()
-            }
+  var body: some View {
+    let rows = model.positions
+    Card(title) {
+      Button(String(localized: L10n.Position.openChart)) { model.section = .chart }
+        .buttonStyle(.link)
+        .disabled(rows.isEmpty)
+    } content: {
+      if rows.count > 1 {
+        Picker(String(localized: L10n.Position.picker), selection: Binding(get: { selected ?? rows.first?.id }, set: { selected = $0 })) {
+          ForEach(rows) { row in Text(verbatim: row.position.symbol).tag(Optional(row.id)) }
         }
-        .animation(.spring(response: 0.5, dampingFraction: 0.85), value: selected)
+        .pickerStyle(.segmented)
+        .labelsHidden()
+      }
+      if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
+        PositionDetail(row: row)
+          .id(row.id)
+          .transition(.opacity.combined(with: .scale(scale: PositionsCard.switchScale)))
+      } else {
+        EmptyPositions()
+      }
     }
+    .animation(Tokens.Motion.standard, value: selected)
+  }
+
+  /// Scale a position's detail starts from when the selection changes.
+  static let switchScale = 0.98
+
+  private var title: LocalizedStringResource {
+    let count = model.positions.count
+    if let limit = model.settings?.risk.maxOpenPositions {
+      return L10n.Position.titleOfLimit(count, limit)
+    }
+    return L10n.Position.title(count)
+  }
 }
 
 private struct PositionDetail: View {
-    let row: PositionRow
+  let row: PositionRow
 
-    var body: some View {
-        HStack(alignment: .top, spacing: 18) {
-            MiniChart(closes: row.closes, entry: row.entry, stop: row.stop)
-                .frame(minWidth: 260, minHeight: 210)
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(row.position.symbol).font(.system(size: 28, weight: .bold, design: .monospaced))
-                    Spacer()
-                    StopBadge(state: row.position.stop.state)
-                }
-                VStack(spacing: 6) {
-                    StatLine(label: "quantity", value: Format.quantity(row.quantity))
-                    StatLine(label: "entry", value: Format.price(row.entry))
-                    StatLine(label: "last bar close" + (row.lastBarAt.map { " · " + Format.marketMinute($0) } ?? ""),
-                             value: row.lastBarClose.map { Format.price($0) } ?? (row.lastBarAt == nil ? "—" : "old"))
-                    StatLine(label: "stop", value: Format.price(row.stop),
-                             color: row.position.stop.state == .verified ? Palette.greenStrong : Palette.redStrong)
-                    StatLine(label: "max loss", value: Risk.plannedLoss(entry: row.entry, stop: row.stop, quantity: row.quantity)
-                        .map { Money.plain($0) } ?? "—")
-                    StatLine(label: "R now", value: row.resultR.map(Risk.text) ?? "—")
-                    StatLine(label: "opened", value: Format.marketTime(row.position.openedAt.date))
-                }
-                Divider()
-                HStack {
-                    Text("unrealized").font(.callout).foregroundStyle(Palette.muted)
-                    Spacer()
-                    if let value = row.unrealized { MoneyText(value: value, size: 22, weight: .bold) } else { Text("—") }
-                }
-            }
-            .frame(width: 250)
+  /// Smallest size of the price chart, and width of the figures column, in points.
+  static let chartMinWidth: CGFloat = 260
+  static let chartMinHeight: CGFloat = 210
+  static let figuresWidth: CGFloat = 250
+
+  var body: some View {
+    HStack(alignment: .top, spacing: Tokens.Space.l) {
+      MiniChart(closes: row.closes, entry: row.entry, stop: row.stop)
+        .frame(minWidth: Self.chartMinWidth, minHeight: Self.chartMinHeight)
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        HStack {
+          Text(verbatim: row.position.symbol).font(Tokens.Typography.metric)
+          Spacer()
+          StopBadge(state: row.position.stop.state)
         }
+        figures
+        Divider()
+        HStack {
+          Text(L10n.Position.unrealized).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
+          Spacer()
+          if let value = row.unrealized {
+            MoneyText(value: value, font: Tokens.Typography.metric)
+          } else {
+            Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+          }
+        }
+      }
+      .frame(width: Self.figuresWidth)
     }
+  }
+
+  private var figures: some View {
+    VStack(spacing: Tokens.Space.s) {
+      StatLine(L10n.Position.quantity, value: Format.quantity(row.quantity))
+      StatLine(L10n.Position.entry, value: Format.price(row.entry))
+      StatLine(label: lastBarLabel, value: lastBarValue)
+      StatLine(L10n.Position.stop, value: Format.price(row.stop),
+        color: row.position.stop.state == .verified ? Palette.profitText : Palette.lossText)
+      StatLine(L10n.Position.maxLoss,
+        value: Risk.plannedLoss(entry: row.entry, stop: row.stop, quantity: row.quantity).map { Money.plain($0) }
+          ?? Format.missing)
+      StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing)
+      StatLine(L10n.Position.opened, value: Format.marketTime(row.position.openedAt.date))
+    }
+  }
+
+  private var lastBarLabel: Text {
+    if let time = row.lastBarAt {
+      return Text(L10n.Position.lastBarCloseAt(Format.marketMinute(time)))
+    }
+    return Text(L10n.Position.lastBarClose)
+  }
+
+  private var lastBarValue: String {
+    if let close = row.lastBarClose { return Format.price(close) }
+    return row.lastBarAt == nil ? Format.missing : String(localized: L10n.Position.old)
+  }
 }
 
 struct StopBadge: View {
-    let state: StopState
+  let state: StopState
 
-    var body: some View {
-        Badge(text: Board.stopTag(state), color: state == .verified ? Palette.greenStrong : Palette.redStrong)
-            .modifier(AlarmPulse(active: state != .verified))
+  var body: some View {
+    Badge(verbatim: state.title, color: state == .verified ? Palette.profitText : Palette.lossText)
+      .modifier(AlarmPulse(active: state != .verified))
+  }
+}
+
+extension StopState {
+  /// "Stop ✓", "No stop": the protection of a position, in the person's language.
+  var title: String {
+    switch self {
+    case .verified: return String(localized: L10n.Stop.verified)
+    case .pending: return String(localized: L10n.Stop.pending)
+    case .missing: return String(localized: L10n.Stop.missing)
+    case .unknown: return String(localized: L10n.Stop.unknown)
     }
+  }
 }
 
 /// Closes since the entry, with the entry and stop as dashed lines and a pulsing last point.
 private struct MiniChart: View {
-    let closes: [Decimal]
-    let entry: Decimal
-    let stop: Decimal?
-    @State private var drawn: CGFloat = 0
+  let closes: [Decimal]
+  let entry: Decimal
+  let stop: Decimal?
+  @State private var drawn: CGFloat = 0
 
-    var body: some View {
-        GeometryReader { proxy in
-            chart(size: proxy.size)
-        }
-        .padding(8)
-        .background(Palette.deep, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .onAppear { withAnimation(.easeOut(duration: 1.6)) { drawn = 1 } }
-        .accessibilityLabel("Price since entry with entry and stop lines")
+  var body: some View {
+    GeometryReader { proxy in
+      chart(size: proxy.size)
+    }
+    .padding(Tokens.Space.s)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous))
+    .onAppear { withAnimation(Tokens.Motion.draw) { drawn = 1 } }
+    .accessibilityLabel(Text(L10n.Position.chartLabel))
+  }
+
+  /// Maps a price to a y coordinate, with some room above and below every value shown.
+  private struct Scale {
+    /// Room above and below the values, as a share of their range.
+    static let padShare = 0.12
+    /// Least room, in dollars, so a flat line still has a visible scale.
+    static let padMinimum = 0.01
+
+    let low: Double
+    let high: Double
+    let height: CGFloat
+
+    init(values: [Double], height: CGFloat) {
+      let lowest = values.min() ?? 0
+      let highest = values.max() ?? 1
+      let pad = max((highest - lowest) * Self.padShare, Self.padMinimum)
+      low = lowest - pad
+      high = highest + pad
+      self.height = height
     }
 
-    /// Maps a price to a y coordinate, with some room above and below every value shown.
-    private struct Scale {
-        let low: Double
-        let high: Double
-        let height: CGFloat
-
-        init(values: [Double], height: CGFloat) {
-            let lowest = values.min() ?? 0
-            let highest = values.max() ?? 1
-            let pad = max((highest - lowest) * 0.12, 0.01)
-            low = lowest - pad
-            high = highest + pad
-            self.height = height
-        }
-
-        func y(_ value: Double) -> CGFloat {
-            let fraction = (value - low) / (high - low)
-            return height * CGFloat(1 - fraction)
-        }
+    func y(_ value: Double) -> CGFloat {
+      let fraction = (value - low) / (high - low)
+      return height * CGFloat(1 - fraction)
     }
+  }
 
-    @ViewBuilder private func chart(size: CGSize) -> some View {
-        let values: [Double] = closes.map(Self.double)
-        let entryValue = Self.double(entry)
-        let stopValue: Double? = stop.map(Self.double)
-        let scale = Scale(values: values + [entryValue] + (stopValue.map { [$0] } ?? []), height: size.height)
-        ZStack(alignment: .topLeading) {
-            level(scale.y(entryValue), width: size.width, color: Palette.blue, label: "entry \(Money.plain(entry))")
-            if let stop, let stopValue {
-                level(scale.y(stopValue), width: size.width, color: Palette.red, label: "stop \(Money.plain(stop))")
-            }
-            if values.count > 1 {
-                line(values: values, scale: scale, width: size.width)
-                    .trim(from: 0, to: drawn)
-                    .stroke(Palette.teal, style: StrokeStyle(lineWidth: 2, lineJoin: .round))
-                PulseDot(Palette.teal, size: 8)
-                    .position(x: size.width, y: scale.y(values[values.count - 1]))
-            } else {
-                Text("Waiting for the first bars since the entry")
-                    .font(.caption).foregroundStyle(Palette.dim)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
+  @ViewBuilder private func chart(size: CGSize) -> some View {
+    let values: [Double] = closes.map(Self.double)
+    let entryValue = Self.double(entry)
+    let stopValue: Double? = stop.map(Self.double)
+    let scale = Scale(values: values + [entryValue] + (stopValue.map { [$0] } ?? []), height: size.height)
+    ZStack(alignment: .topLeading) {
+      level(scale.y(entryValue), width: size.width, color: Palette.info,
+        label: Text(L10n.Position.entryLevel(Money.plain(entry))))
+      if let stop, let stopValue {
+        level(scale.y(stopValue), width: size.width, color: Palette.loss,
+          label: Text(L10n.Position.stopLevel(Money.plain(stop))))
+      }
+      if let last = values.last, values.count > 1 {
+        line(values: values, scale: scale, width: size.width)
+          .trim(from: 0, to: drawn)
+          .stroke(Palette.accent, style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineJoin: .round))
+        PulseDot(Palette.accent)
+          .position(x: size.width, y: scale.y(last))
+      } else {
+        Text(L10n.Position.waitingForBars)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textQuaternary)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+      }
     }
+  }
 
-    private func line(values: [Double], scale: Scale, width: CGFloat) -> Path {
-        var path = Path()
-        let step = width / CGFloat(values.count - 1)
-        for (index, value) in values.enumerated() {
-            let point = CGPoint(x: step * CGFloat(index), y: scale.y(value))
-            if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
-        }
-        return path
+  private func line(values: [Double], scale: Scale, width: CGFloat) -> Path {
+    var path = Path()
+    let step = width / CGFloat(values.count - 1)
+    for (index, value) in values.enumerated() {
+      let point = CGPoint(x: step * CGFloat(index), y: scale.y(value))
+      if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
     }
+    return path
+  }
 
-    private func level(_ y: CGFloat, width: CGFloat, color: Color, label: String) -> some View {
-        ZStack(alignment: .topTrailing) {
-            Path { p in p.move(to: CGPoint(x: 0, y: y)); p.addLine(to: CGPoint(x: width, y: y)) }
-                .stroke(color.opacity(0.8), style: StrokeStyle(lineWidth: 1, dash: [4, 5]))
-            Text(label).font(.system(size: 10, design: .monospaced)).foregroundStyle(color)
-                .offset(y: y - 15)
-        }
+  private func level(_ y: CGFloat, width: CGFloat, color: Color, label: Text) -> some View {
+    ZStack(alignment: .topTrailing) {
+      Path { path in
+        path.move(to: CGPoint(x: 0, y: y))
+        path.addLine(to: CGPoint(x: width, y: y))
+      }
+      .stroke(color.opacity(Tokens.Opacity.overlay), style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
+      label
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(color)
+        .padding(.bottom, Tokens.Space.xxs)
+        .alignmentGuide(.top) { $0[.bottom] - y }
     }
+  }
 
-    static func double(_ value: Decimal) -> Double { NSDecimalNumber(decimal: value).doubleValue }
+  static func double(_ value: Decimal) -> Double { NSDecimalNumber(decimal: value).doubleValue }
 }
 
 private struct EmptyPositions: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        HStack(spacing: 20) {
-            Radar().frame(width: 120, height: 120)
-            VStack(alignment: .leading, spacing: 6) {
-                Text(model.isLive ? "No position" : "Recorded day").font(.title3.weight(.semibold))
-                Text(model.isLive
-                     ? "The bot is waiting for a setup. A new position appears here with its broker stop."
-                     : "\(model.shownTradeCount) trades closed this day. Details are in Trades & days.")
-                    .font(.callout).foregroundStyle(Palette.muted)
-                if !model.isLive {
-                    Button("Open Trades & days") { model.section = .trades }.buttonStyle(.link)
-                }
-            }
-            Spacer()
+  /// Size of the radar, and the least height of the empty state, in points.
+  static let radar: CGFloat = 120
+  static let minHeight: CGFloat = 200
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.xl) {
+      Radar().frame(width: Self.radar, height: Self.radar)
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        Group {
+          if model.isLive { Text(L10n.Position.noPosition) } else { Text(L10n.Position.recordedDay) }
         }
-        .frame(minHeight: 200)
+        .font(.title3.weight(.semibold))
+        Group {
+          if model.isLive {
+            Text(L10n.Position.waitingForSetup)
+          } else {
+            Text(L10n.Position.closedThisDay(model.shownTradeCount))
+          }
+        }
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textTertiary)
+        if !model.isLive {
+          Button(String(localized: L10n.Position.openTrades)) { model.section = .trades }.buttonStyle(.link)
+        }
+      }
+      Spacer()
     }
+    .frame(minHeight: Self.minHeight)
+  }
 }
 
 /// A slow radar sweep while the bot scans for setups.
 private struct Radar: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var body: some View {
-        TimelineView(.animation(paused: reduceMotion)) { context in
-            let angle = Angle.degrees(context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 4) / 4 * 360)
-            ZStack {
-                ForEach([1.0, 0.66, 0.33], id: \.self) { scale in
-                    Circle().stroke(Palette.line2, lineWidth: 1).scaleEffect(scale)
-                }
-                AngularGradient(colors: [Palette.teal.opacity(0.45), .clear], center: .center,
-                                startAngle: .degrees(0), endAngle: .degrees(90))
-                    .clipShape(Circle())
-                    .rotationEffect(angle)
-            }
+  /// Rings, as a share of the radar's radius.
+  static let rings = [1.0, 2.0 / 3, 1.0 / 3]
+  /// Width of the sweep's tail.
+  static let sweep = Angle.degrees(90)
+
+  var body: some View {
+    TimelineView(.animation(paused: reduceMotion)) { context in
+      let turn = context.date.timeIntervalSinceReferenceDate
+        .truncatingRemainder(dividingBy: Tokens.Motion.rotationSeconds) / Tokens.Motion.rotationSeconds
+      ZStack {
+        ForEach(Self.rings, id: \.self) { scale in
+          Circle().stroke(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin).scaleEffect(scale)
         }
-        .accessibilityHidden(true)
+        AngularGradient(colors: [Palette.accent.opacity(Tokens.Opacity.border), .clear], center: .center,
+          startAngle: .zero, endAngle: Self.sweep)
+          .clipShape(Circle())
+          .rotationEffect(.radians(turn * Geometry.fullTurn))
+      }
     }
+    .accessibilityHidden(true)
+  }
 }
 
 // MARK: safety and bot
 
 private struct SafetyCard: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        Card("Safety") {
-            TimelineView(.periodic(from: .now, by: 1)) { context in
-                VStack(spacing: 8) {
-                    ForEach(rows(now: context.date), id: \.label) { row in
-                        HStack(spacing: 8) {
-                            Circle().fill(row.color).frame(width: 7, height: 7)
-                            Text(row.label).font(.callout).foregroundStyle(Palette.muted)
-                            Spacer()
-                            Text(row.value).font(.callout.monospaced()).foregroundStyle(row.color)
-                                .lineLimit(1).contentTransition(.numericText())
-                        }
-                    }
-                }
+  /// How often the ages ("3 s ago") refresh, in seconds.
+  static let tick: TimeInterval = 1
+  /// Fence kind the bot raises for positions it did not open (protocol value).
+  static let foreignExposureKind = "foreign_exposure"
+
+  var body: some View {
+    Card(L10n.Safety.title) {
+      TimelineView(.periodic(from: .now, by: Self.tick)) { context in
+        VStack(spacing: Tokens.Space.s) {
+          ForEach(rows(now: context.date)) { row in
+            HStack(spacing: Tokens.Space.s) {
+              Circle().fill(row.color).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+              Text(row.label).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
+              Spacer()
+              Text(verbatim: row.value)
+                .font(Tokens.Typography.calloutMono)
+                .foregroundStyle(row.color)
+                .lineLimit(1)
+                .contentTransition(.numericText())
             }
+          }
         }
+      }
     }
+  }
 
-    private struct Row { let label: String; let value: String; let color: Color }
+  private enum RowID: Hashable { case status, stops, reconcile, stream, read, foreign, pause }
 
-    private func rows(now: Date) -> [Row] {
-        guard model.isLive, let status = model.status else {
-            return [Row(label: "Status", value: model.isLive ? "unavailable" : "recorded day", color: Palette.dim)]
-        }
-        let positions = Board.positions(status)
-        let verified = positions.filter { $0.stop.state == .verified }.count
-        let foreign = status.fences.first { $0.kind == "foreign_exposure" }
-        return [
-            Row(label: "Broker stops", value: positions.isEmpty ? "no position" : "\(verified) of \(positions.count) verified",
-                color: verified == positions.count ? Palette.greenStrong : Palette.redStrong),
-            Row(label: "Reconciliation", value: status.fences.isEmpty ? "no fences" : "\(status.fences.count) fence(s)",
-                color: status.fences.isEmpty ? Palette.greenStrong : Palette.amberStrong),
-            Row(label: "Quote stream", value: status.freshness.stream.rawValue,
-                color: status.freshness.stream == .fresh ? Palette.greenStrong
-                    : status.freshness.stream == .off ? Palette.dim : Palette.amberStrong),
-            Row(label: "Last broker read", value: Format.age(since: status.freshness.lastBrokerReadAt?.date, now: now),
-                color: Palette.greenStrong),
-            Row(label: "Foreign positions", value: foreign == nil ? "none" : "present",
-                color: foreign == nil ? Palette.greenStrong : Palette.redStrong),
-            Row(label: "Entry pause", value: status.entryStop ? "on" : "off",
-                color: status.entryStop ? Palette.amberStrong : Palette.dim),
-        ]
+  private struct Row: Identifiable {
+    let id: RowID
+    let label: LocalizedStringResource
+    let value: String
+    let color: Color
+  }
+
+  private func rows(now: Date) -> [Row] {
+    guard model.isLive, let status = model.status else {
+      let value = String(localized: model.isLive ? L10n.Common.unavailable : L10n.Safety.recordedDay)
+      return [Row(id: .status, label: L10n.Safety.status, value: value, color: Palette.textQuaternary)]
     }
+    let positions = Board.positions(status)
+    let verified = positions.filter { $0.stop.state == .verified }.count
+    let foreign = status.fences.contains { $0.kind == Self.foreignExposureKind }
+    let stream = status.freshness.stream
+    return [
+      Row(id: .stops, label: L10n.Safety.brokerStops,
+        value: positions.isEmpty
+          ? String(localized: L10n.Common.noPosition) : String(localized: L10n.Safety.verified(verified, positions.count)),
+        color: verified == positions.count ? Palette.profitText : Palette.lossText),
+      Row(id: .reconcile, label: L10n.Safety.reconciliation,
+        value: status.fences.isEmpty
+          ? String(localized: L10n.Safety.noFences) : String(localized: L10n.Common.fences(status.fences.count)),
+        color: status.fences.isEmpty ? Palette.profitText : Palette.warningText),
+      Row(id: .stream, label: L10n.Safety.quoteStream, value: stream.title,
+        color: stream == .fresh ? Palette.profitText : stream == .off ? Palette.textQuaternary : Palette.warningText),
+      Row(id: .read, label: L10n.Safety.lastBrokerRead,
+        value: Format.age(since: status.freshness.lastBrokerReadAt?.date, now: now), color: Palette.profitText),
+      Row(id: .foreign, label: L10n.Safety.foreignPositions,
+        value: String(localized: foreign ? L10n.Safety.present : L10n.Common.none),
+        color: foreign ? Palette.lossText : Palette.profitText),
+      Row(id: .pause, label: L10n.Safety.entryPause,
+        value: String(localized: status.entryStop ? L10n.Common.on : L10n.Common.off),
+        color: status.entryStop ? Palette.warningText : Palette.textQuaternary),
+    ]
+  }
 }
 
 private struct BotCard: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        Card(title: "Bot") {
-            if let status = model.status {
-                HStack(spacing: 6) {
-                    PulseDot(status.botState == .running ? Palette.teal : Palette.dim, size: 7,
-                             pulsing: status.botState == .running && model.isLive)
-                    Text(status.entryStop ? "entries paused" : status.botState.rawValue)
-                        .font(.caption.monospaced()).foregroundStyle(Palette.muted)
-                }
-            }
-        } content: {
-            BotControls()
-            if !model.isLive {
-                Text("Commands are off while a recorded day is shown.").font(.caption).foregroundStyle(Palette.dim)
-            } else if model.response?.stale == true || model.fetchError != nil {
-                Text("Commands are off while the status cannot be trusted.").font(.caption).foregroundStyle(Palette.redStrong)
-            }
+  var body: some View {
+    Card(L10n.Common.bot) {
+      if let status = model.status {
+        HStack(spacing: Tokens.Space.s) {
+          PulseDot(status.botState == .running ? Palette.accent : Palette.textQuaternary, size: Tokens.Size.dotSmall,
+            pulsing: status.botState == .running && model.isLive)
+          Text(verbatim: status.entryStop ? String(localized: L10n.Common.entriesPaused) : status.botState.title)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textTertiary)
         }
+      }
+    } content: {
+      BotControls()
+      if !model.isLive {
+        Footnote(L10n.Safety.offWhileRecorded)
+      } else if model.response?.stale == true || model.fetchError != nil {
+        Footnote(L10n.Safety.offWhileUntrusted, color: Palette.lossText)
+      }
     }
+  }
 }
 
 // MARK: right column
 
 private struct RiskRoomCard: View {
-    @Environment(AppModel.self) private var model
-    @State private var shown: Double = 0
+  @Environment(AppModel.self) private var model
+  @State private var shown: Double = 0
 
-    var body: some View {
-        Card(title: "Risk room today") {
-            Button("Details") { model.section = .risk }.buttonStyle(.link)
-        } content: {
-            if let risk = model.settings?.risk {
-                let limit = risk.maxDailyLossUsd.value
-                let room = max(0, limit + min(model.shownResult, 0))
-                let fraction = limit > 0 ? NSDecimalNumber(decimal: room / limit).doubleValue : 0
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    MoneyText(value: room, size: 24, weight: .bold, colored: false)
-                    Text("of \(Money.plain(limit)) USD left").font(.callout).foregroundStyle(Palette.muted)
-                }
-                GeometryReader { proxy in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(Palette.line)
-                        Capsule()
-                            .fill(LinearGradient(colors: [Palette.red, Palette.amber, Palette.teal], startPoint: .leading, endPoint: .trailing))
-                            .frame(width: proxy.size.width * shown)
-                    }
-                }
-                .frame(height: 8)
-                .onAppear { withAnimation(.spring(response: 1.2, dampingFraction: 0.9)) { shown = fraction } }
-                .onChange(of: fraction) { _, value in withAnimation(.spring) { shown = value } }
-                VStack(spacing: 6) {
-                    StatLine(label: "net day result", value: Money.signed(model.shownResult), color: Palette.result(model.shownResult))
-                    StatLine(label: "positions", value: "\(model.positions.count) of \(risk.maxOpenPositions)")
-                    StatLine(label: "planned loss / trade", value: Money.plain(risk.plannedLossUsd.value))
-                    StatLine(label: "notional cap", value: Money.plain(risk.positionNotionalCapUsd.value))
-                    HStack {
-                        Text("open reservations").font(.callout).foregroundStyle(Palette.muted)
-                        Spacer()
-                        PlannedTag(.needsAPI)
-                    }
-                }
-            } else {
-                Text(model.settingsError ?? "Reading limits…").font(.caption).foregroundStyle(Palette.dim)
-            }
+  var body: some View {
+    Card(L10n.RiskRoom.title) {
+      Button(String(localized: L10n.RiskRoom.details)) { model.section = .risk }.buttonStyle(.link)
+    } content: {
+      if let risk = model.settings?.risk {
+        let limit = risk.maxDailyLossUsd.value
+        let room = max(0, limit + min(model.shownResult, 0))
+        let fraction = limit > 0 ? NSDecimalNumber(decimal: room / limit).doubleValue : 0
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+          MoneyText(value: room, font: Tokens.Typography.metric, colored: false)
+          Text(L10n.RiskRoom.left(Money.plain(limit))).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
         }
+        bar(fraction: fraction)
+        VStack(spacing: Tokens.Space.s) {
+          StatLine(L10n.RiskRoom.netResult, value: Money.signed(model.shownResult), color: Palette.result(model.shownResult))
+          StatLine(L10n.RiskRoom.positions, value: String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions)))
+          StatLine(L10n.RiskRoom.plannedLoss, value: Money.plain(risk.plannedLossUsd.value))
+          StatLine(L10n.RiskRoom.notionalCap, value: Money.plain(risk.positionNotionalCapUsd.value))
+          HStack {
+            Text(L10n.RiskRoom.reservations).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
+            Spacer()
+            PlannedTag(.needsAPI)
+          }
+        }
+      } else if let error = model.settingsError {
+        Footnote(verbatim: error)
+      } else {
+        Footnote(L10n.RiskRoom.reading)
+      }
     }
+  }
+
+  private func bar(fraction: Double) -> some View {
+    GeometryReader { proxy in
+      ZStack(alignment: .leading) {
+        Capsule().fill(Palette.separator)
+        Capsule()
+          .fill(LinearGradient(colors: [Palette.loss, Palette.warning, Palette.accent], startPoint: .leading,
+            endPoint: .trailing))
+          .frame(width: proxy.size.width * shown)
+      }
+    }
+    .frame(height: Tokens.Size.bar)
+    .onAppear { withAnimation(Tokens.Motion.fill) { shown = fraction } }
+    .onChange(of: fraction) { _, value in withAnimation(Tokens.Motion.fill) { shown = value } }
+  }
 }
 
 private struct ObserversCard: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        Card(title: "Observers · shadow") {
-            PlannedTag()
-        } content: {
-            let observers = model.settings?.observers ?? []
-            if observers.isEmpty {
-                Text("No observer strategies configured.").font(.callout).foregroundStyle(Palette.muted)
-            } else {
-                ForEach(observers, id: \.self) { name in
-                    HStack {
-                        PulseDot(Palette.violet, size: 6, pulsing: model.isLive)
-                        Text(name).font(.callout.monospaced())
-                        Spacer()
-                        Text("—").foregroundStyle(Palette.dim).help("Observer results are not in the local API yet.")
-                    }
-                }
-            }
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles").foregroundStyle(Palette.violetStrong)
-                Text("AI advisor proposals").font(.callout)
-                Spacer()
-                PlannedTag()
-            }
+  var body: some View {
+    Card(L10n.Observers.title) {
+      PlannedTag()
+    } content: {
+      let observers = model.settings?.observers ?? []
+      if observers.isEmpty {
+        Text(L10n.Observers.none).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
+      } else {
+        ForEach(observers, id: \.self) { name in
+          HStack {
+            PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: model.isLive)
+            Text(verbatim: name).font(Tokens.Typography.calloutMono)
+            Spacer()
+            Text(verbatim: Format.missing)
+              .foregroundStyle(Palette.textQuaternary)
+              .help(Text(L10n.Observers.notInAPI))
+          }
         }
+      }
+      HStack(spacing: Tokens.Space.s) {
+        Image(systemName: AppSection.labSymbol).foregroundStyle(Palette.highlightText)
+        Text(L10n.Observers.advisor).font(Tokens.Typography.callout)
+        Spacer()
+        PlannedTag()
+      }
     }
+  }
 }
 
 private struct JournalCard: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        Card(title: "Journal") {
-            Text("latest first").font(.caption.monospaced()).foregroundStyle(Palette.dim)
-        } content: {
-            let events = model.isLive ? (model.status.map(Board.events) ?? []) : []
-            if events.isEmpty {
-                Text(model.isLive ? "Nothing recorded yet today." : "See Trades & days for this day.")
-                    .font(.callout).foregroundStyle(Palette.muted)
-            } else {
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(events.prefix(10)) { event in
-                        HStack(alignment: .firstTextBaseline, spacing: 8) {
-                            Text(Format.marketTime(event.time)).foregroundStyle(Palette.dim)
-                            Text(event.tag).fontWeight(.bold).foregroundStyle(event.tone.color)
-                            Text(event.text).foregroundStyle(Palette.text2).lineLimit(1)
-                        }
-                        .font(.system(size: 11, design: .monospaced))
-                        .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
-                    }
-                }
-                .animation(.spring(response: 0.5, dampingFraction: 0.85), value: events.map(\.id))
-                .textSelection(.enabled)
-            }
+  /// Most recent events shown here; the full journal is in Trades & days.
+  static let shown = 10
+
+  var body: some View {
+    Card(L10n.Journal.title) {
+      Text(L10n.Journal.latestFirst).font(Tokens.Typography.captionMono).foregroundStyle(Palette.textQuaternary)
+    } content: {
+      let events = model.isLive ? (model.status.map(Board.events) ?? []) : []
+      if events.isEmpty {
+        Group {
+          if model.isLive { Text(L10n.Journal.nothingYet) } else { Text(L10n.Journal.seeTrades) }
         }
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textTertiary)
+      } else {
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
+          ForEach(events.prefix(Self.shown)) { event in
+            HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+              Text(verbatim: Format.marketTime(event.time)).foregroundStyle(Palette.textQuaternary)
+              Text(verbatim: event.tag).fontWeight(.bold).foregroundStyle(event.tone.color)
+              Text(verbatim: event.text).foregroundStyle(Palette.textSecondary).lineLimit(1)
+            }
+            .font(Tokens.Typography.annotation)
+            .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
+          }
+        }
+        .animation(Tokens.Motion.standard, value: events.map(\.id))
+        .textSelection(.enabled)
+      }
     }
+  }
 }

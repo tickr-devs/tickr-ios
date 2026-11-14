@@ -2,224 +2,370 @@ import ApertureDesign
 import ApertureKit
 import SwiftUI
 
+// The macOS app's building blocks. Every size, colour and curve comes from the design system
+// (docs/design-system.md); screens compose these and do not restyle them.
+
 extension Severity {
-    var color: Color {
-        switch self {
-        case .ok: return Palette.greenStrong
-        case .attention: return Palette.amberStrong
-        case .alarm: return Palette.redStrong
-        }
+  /// Text colour of a headline with this severity.
+  var color: Color {
+    switch self {
+    case .ok: return Palette.profitText
+    case .attention: return Palette.warningText
+    case .alarm: return Palette.lossText
     }
+  }
 
-    var fill: Color {
-        switch self {
-        case .ok: return Palette.green
-        case .attention: return Palette.amber
-        case .alarm: return Palette.red
-        }
-    }
+  /// SF Symbols of the menu-bar extra for each severity.
+  static let okSymbol = "camera.aperture"
+  static let attentionSymbol = "pause.circle"
+  static let alarmSymbol = "exclamationmark.triangle.fill"
 
-    var menuBarSymbol: String {
-        switch self {
-        case .ok: return "camera.aperture"
-        case .attention: return "pause.circle"
-        case .alarm: return "exclamationmark.triangle.fill"
-        }
+  var menuBarSymbol: String {
+    switch self {
+    case .ok: return Self.okSymbol
+    case .attention: return Self.attentionSymbol
+    case .alarm: return Self.alarmSymbol
     }
+  }
 }
 
 /// A small marker for something that is not built yet: BACKLOG (planned) or NEEDS API (a
 /// proposal that needs a new local-API read or command).
 struct PlannedTag: View {
-    enum Kind { case backlog, needsAPI }
-    let kind: Kind
+  enum Kind { case backlog, needsAPI }
+  let kind: Kind
 
-    init(_ kind: Kind = .backlog) { self.kind = kind }
+  init(_ kind: Kind = .backlog) { self.kind = kind }
 
-    var body: some View {
-        Text(kind == .backlog ? "BACKLOG" : "NEEDS API")
-            .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
-            .padding(.horizontal, 5)
-            .padding(.vertical, 3)
-            .foregroundStyle(Palette.violetStrong)
-            .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Palette.violet, style: StrokeStyle(lineWidth: 1, dash: [3, 2])))
-            .help(kind == .backlog ? "Planned, not built yet (docs/backlog.md)." : "Needs a new local-API read or command.")
-    }
+  var body: some View {
+    Text(kind == .backlog ? L10n.Planned.backlog : L10n.Planned.needsAPI)
+      .font(Tokens.Typography.badge)
+      .padding(.horizontal, Tokens.Space.xs)
+      .padding(.vertical, Tokens.Space.xxs)
+      .foregroundStyle(Palette.highlightText)
+      .overlay(
+        RoundedRectangle(cornerRadius: Tokens.Radius.small)
+          .strokeBorder(Palette.highlight, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine)))
+      .help(Text(kind == .backlog ? L10n.Planned.backlogHelp : L10n.Planned.needsAPIHelp))
+  }
 }
 
-/// A rounded capsule badge with a mono label.
+/// A capsule badge with a mono label in a role colour.
 struct Badge: View {
-    let text: String
-    let color: Color
+  let text: Text
+  let color: Color
 
-    var body: some View {
-        Text(text)
-            .font(.system(size: 10.5, weight: .bold, design: .monospaced))
-            .tracking(0.6)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .foregroundStyle(color)
-            .background(color.opacity(0.12), in: Capsule())
-            .overlay(Capsule().strokeBorder(color.opacity(0.45), lineWidth: 1))
-    }
+  init(_ title: LocalizedStringResource, color: Color) {
+    self.text = Text(title)
+    self.color = color
+  }
+
+  /// A badge showing data (an environment name, a protocol value), not a sentence.
+  init(verbatim text: String, color: Color) {
+    self.text = Text(verbatim: text)
+    self.color = color
+  }
+
+  var body: some View {
+    text
+      .textCase(.uppercase)
+      .font(Tokens.Typography.badge)
+      .tracking(Tokens.Typography.badgeTracking)
+      .padding(.horizontal, Tokens.Space.s)
+      .padding(.vertical, Tokens.Space.xs)
+      .foregroundStyle(color)
+      .background(color.opacity(Tokens.Opacity.wash), in: Capsule())
+      .overlay(Capsule().strokeBorder(color.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
+  }
 }
 
 /// A money value whose digits roll when it changes.
 struct MoneyText: View {
-    let value: Decimal
-    var usd = false
-    var size: CGFloat = 15
-    var weight: Font.Weight = .semibold
-    var colored = true
+  let value: Decimal
+  var usd = false
+  var font: Font = Tokens.Typography.bodyMono
+  var colored = true
 
-    var body: some View {
-        Text(usd ? Money.signedUSD(value) : Money.signed(value))
-            .font(.system(size: size, weight: weight, design: .monospaced))
-            .foregroundStyle(colored ? Palette.result(value) : Palette.text)
-            .contentTransition(.numericText(value: NSDecimalNumber(decimal: value).doubleValue))
-            .animation(.snappy, value: value)
-    }
+  var body: some View {
+    Text(verbatim: usd ? Money.signedUSD(value) : Money.signed(value))
+      .font(font)
+      .foregroundStyle(colored ? Palette.result(value) : Palette.textPrimary)
+      .contentTransition(.numericText(value: NSDecimalNumber(decimal: value).doubleValue))
+      .animation(Tokens.Motion.quick, value: value)
+  }
 }
 
-/// "label ........ value" on one line, value monospaced.
+/// "label ........ value" on one line. The label is a localization key; the value is data (a
+/// number, a price) or an already localized word.
 struct StatLine: View {
-    let label: String
-    let value: String
-    var color: Color = Palette.text
+  let label: Text
+  let value: String
+  var color: Color = Palette.textPrimary
 
-    var body: some View {
-        HStack {
-            Text(label).foregroundStyle(Palette.muted)
-            Spacer(minLength: 12)
-            Text(value)
-                .font(.system(.body, design: .monospaced))
-                .foregroundStyle(color)
-                .contentTransition(.numericText())
-        }
-        .font(.callout)
+  init(_ label: LocalizedStringResource, value: String, color: Color = Palette.textPrimary) {
+    self.label = Text(label)
+    self.value = value
+    self.color = color
+  }
+
+  init(label: Text, value: String, color: Color = Palette.textPrimary) {
+    self.label = label
+    self.value = value
+    self.color = color
+  }
+
+  var body: some View {
+    HStack {
+      label.foregroundStyle(Palette.textTertiary)
+      Spacer(minLength: Tokens.Space.m)
+      Text(verbatim: value)
+        .font(Tokens.Typography.bodyMono)
+        .foregroundStyle(color)
+        .contentTransition(.numericText())
     }
+    .font(Tokens.Typography.callout)
+  }
 }
 
-/// A card with a label row on top.
+/// A card: section label on top, optional trailing accessory, then the content.
 struct Card<Trailing: View, Content: View>: View {
-    let title: String
-    var tint: Color?
-    @ViewBuilder var trailing: Trailing
-    @ViewBuilder var content: Content
+  let title: Text
+  var tint: Color?
+  let trailing: Trailing
+  let content: Content
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                CardLabel(title)
-                Spacer()
-                trailing
-            }
-            content
-        }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .apertureCard(tint: tint)
+  init(_ title: LocalizedStringResource, tint: Color? = nil, @ViewBuilder trailing: () -> Trailing,
+    @ViewBuilder content: () -> Content) {
+    self.title = Text(title)
+    self.tint = tint
+    self.trailing = trailing()
+    self.content = content()
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      HStack(alignment: .firstTextBaseline) {
+        title
+          .textCase(.uppercase)
+          .font(Tokens.Typography.label)
+          .tracking(Tokens.Typography.labelTracking)
+          .foregroundStyle(Palette.textQuaternary)
+          .accessibilityAddTraits(.isHeader)
+        Spacer()
+        trailing
+      }
+      content
     }
+    .padding(Tokens.Space.l)
+    .frame(maxWidth: .infinity, alignment: .topLeading)
+    .apertureCard(tint: tint)
+  }
 }
 
 extension Card where Trailing == EmptyView {
-    init(_ title: String, tint: Color? = nil, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.tint = tint
-        self.trailing = EmptyView()
-        self.content = content()
-    }
+  init(_ title: LocalizedStringResource, tint: Color? = nil, @ViewBuilder content: () -> Content) {
+    self.init(title, tint: tint, trailing: { EmptyView() }, content: content)
+  }
+}
+
+/// A short caption under a card's content (where a value comes from, why a control is off).
+struct Footnote: View {
+  let text: Text
+  var color: Color = Palette.textQuaternary
+
+  init(_ text: LocalizedStringResource, color: Color = Palette.textQuaternary) {
+    self.text = Text(text)
+    self.color = color
+  }
+
+  /// A message that is already localized (an error from the API client).
+  init(verbatim text: String, color: Color = Palette.textQuaternary) {
+    self.text = Text(verbatim: text)
+    self.color = color
+  }
+
+  var body: some View {
+    text.font(Tokens.Typography.caption).foregroundStyle(color)
+  }
 }
 
 /// The aperture mark: six blades turning slowly inside a ring.
 struct ApertureLogo: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    var size: CGFloat = 56
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  var size: CGFloat = Tokens.Size.logo
 
-    var body: some View {
-        TimelineView(.animation(paused: reduceMotion)) { context in
-            let angle = reduceMotion ? 0 : context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 24) / 24 * 360
-            Canvas { gc, canvas in
-                let r = min(canvas.width, canvas.height) / 2
-                let c = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
-                gc.stroke(Path(ellipseIn: CGRect(x: c.x - r + 1, y: c.y - r + 1, width: 2 * r - 2, height: 2 * r - 2)),
-                          with: .color(Palette.violet), lineWidth: 2)
-                for blade in 0..<6 {
-                    let a = (angle + Double(blade) * 60) * .pi / 180
-                    var p = Path()
-                    p.move(to: CGPoint(x: c.x + r * 0.75 * cos(a), y: c.y + r * 0.75 * sin(a)))
-                    p.addLine(to: CGPoint(x: c.x + r * 0.5 * cos(a + 1.2), y: c.y + r * 0.5 * sin(a + 1.2)))
-                    gc.stroke(p, with: .color(Palette.teal), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
-                }
-                gc.fill(Path(ellipseIn: CGRect(x: c.x - r * 0.22, y: c.y - r * 0.22, width: r * 0.44, height: r * 0.44)),
-                        with: .color(Palette.violet.opacity(0.85)))
-            }
-        }
-        .frame(width: size, height: size)
-        .accessibilityHidden(true)
+  /// Number of blades.
+  static let blades = 6
+  /// Seconds for one full turn of the blades (slower than other rotating marks: it is decoration).
+  static let turnSeconds = 24.0
+  /// Blade start and end as a share of the radius, and the angle each blade spans, in radians.
+  static let bladeOuter = 0.75
+  static let bladeInner = 0.5
+  static let bladeSweep = 1.2
+  /// Radius of the centre dot as a share of the radius.
+  static let core = 0.22
+
+  var body: some View {
+    TimelineView(.animation(paused: reduceMotion)) { context in
+      let turn = reduceMotion ? 0 : context.date.timeIntervalSinceReferenceDate
+        .truncatingRemainder(dividingBy: Self.turnSeconds) / Self.turnSeconds
+      Canvas { graphics, canvas in
+        draw(in: graphics, size: canvas, turn: turn)
+      }
     }
+    .frame(width: size, height: size)
+    .accessibilityHidden(true)
+  }
+
+  private func draw(in graphics: GraphicsContext, size canvas: CGSize, turn: Double) {
+    let radius = min(canvas.width, canvas.height) / 2
+    let center = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
+    let ring = CGRect(origin: .zero, size: canvas).insetBy(dx: Tokens.Stroke.thin, dy: Tokens.Stroke.thin)
+    graphics.stroke(Path(ellipseIn: ring), with: .color(Palette.highlight), lineWidth: Tokens.Stroke.bold)
+    let full = Geometry.fullTurn
+    for blade in 0..<Self.blades {
+      let angle = (turn + Double(blade) / Double(Self.blades)) * full
+      var path = Path()
+      path.move(to: point(center, radius * Self.bladeOuter, angle))
+      path.addLine(to: point(center, radius * Self.bladeInner, angle + Self.bladeSweep))
+      graphics.stroke(path, with: .color(Palette.accent), style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round))
+    }
+    let coreRadius = radius * Self.core
+    let core = CGRect(origin: center, size: .zero).insetBy(dx: -coreRadius, dy: -coreRadius)
+    graphics.fill(Path(ellipseIn: core), with: .color(Palette.highlight.opacity(Tokens.Opacity.overlay)))
+  }
+
+  private func point(_ center: CGPoint, _ distance: Double, _ angle: Double) -> CGPoint {
+    CGPoint(x: center.x + distance * cos(angle), y: center.y + distance * sin(angle))
+  }
 }
 
 /// A sparkline that draws itself in on appear and when its values change.
 struct DrawnSparkline: View {
-    let values: [Double]
-    let color: Color
-    @State private var progress: CGFloat = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  let values: [Double]
+  let color: Color
+  @State private var progress: CGFloat = 0
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var body: some View {
-        Sparkline(values)
-            .trim(from: 0, to: progress)
-            .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-            .onAppear { draw() }
-            .onChange(of: values) { draw() }
-            .accessibilityHidden(true)
-    }
+  var body: some View {
+    Sparkline(values)
+      .trim(from: 0, to: progress)
+      .stroke(color, style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round, lineJoin: .round))
+      .onAppear { draw() }
+      .onChange(of: values) { draw() }
+      .accessibilityHidden(true)
+  }
 
-    private func draw() {
-        progress = reduceMotion ? 1 : 0
-        withAnimation(.easeOut(duration: 1.6)) { progress = 1 }
-    }
+  private func draw() {
+    progress = reduceMotion ? 1 : 0
+    withAnimation(Tokens.Motion.draw) { progress = 1 }
+  }
 }
 
+/// Dates, times and numbers as the app shows them. Times are market time (New York); words come
+/// from the String Catalog.
 enum Format {
-    static let newYork = TimeZone(identifier: "America/New_York")!
+  /// Market time zone: every time the app shows is New York time.
+  static let newYork = TimeZone(identifier: "America/New_York") ?? .current
+  /// Placeholder for a value the app does not have.
+  static let missing = "—"
+  /// Up to this many seconds an age reads in seconds, beyond it in minutes.
+  static let secondsShownUpTo = 120
+  /// Seconds in a minute.
+  static let secondsPerMinute = 60
 
-    /// "10:42:08" in New York time (market time).
-    static func marketTime(_ date: Date?) -> String {
-        guard let date else { return "—" }
-        var style = Date.FormatStyle(date: .omitted, time: .standard)
-        style.timeZone = newYork
-        return date.formatted(style)
-    }
+  /// "10:42:08" in New York time (market time).
+  static func marketTime(_ date: Date?) -> String {
+    guard let date else { return missing }
+    var style = Date.FormatStyle(date: .omitted, time: .standard)
+    style.timeZone = newYork
+    return date.formatted(style)
+  }
 
-    /// "10:42" in New York time.
-    static func marketMinute(_ date: Date) -> String {
-        var style = Date.FormatStyle().hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
-        style.timeZone = newYork
-        return date.formatted(style)
-    }
+  /// "10:42" in New York time.
+  static func marketMinute(_ date: Date) -> String {
+    var style = Date.FormatStyle().hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
+    style.timeZone = newYork
+    return date.formatted(style)
+  }
 
-    /// "Fri Nov 13".
-    static func dayLabel(_ day: WireDate) -> String {
-        var style = Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day()
-        style.timeZone = newYork
-        return day.noonInNewYork.formatted(style)
-    }
+  /// "Fri Nov 13" in the person's language.
+  static func dayLabel(_ day: WireDate) -> String {
+    var style = Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day()
+    style.timeZone = newYork
+    return day.noonInNewYork.formatted(style)
+  }
 
-    /// "3 s ago", "2 min ago".
-    static func age(since date: Date?, now: Date) -> String {
-        guard let date else { return "never" }
-        let seconds = max(0, Int(now.timeIntervalSince(date)))
-        return seconds < 120 ? "\(seconds) s ago" : "\(seconds / 60) min ago"
-    }
+  /// "3 s ago", "2 min ago".
+  static func age(since date: Date?, now: Date) -> String {
+    guard let date else { return String(localized: L10n.Format.never) }
+    let seconds = max(0, Int(now.timeIntervalSince(date)))
+    if seconds < secondsShownUpTo { return String(localized: L10n.Format.secondsAgo(seconds)) }
+    return String(localized: L10n.Format.minutesAgo(seconds / secondsPerMinute))
+  }
 
-    static func price(_ value: Decimal?) -> String {
-        guard let value else { return "—" }
-        return Money.plain(value)
-    }
+  static func price(_ value: Decimal?) -> String {
+    guard let value else { return missing }
+    return Money.plain(value)
+  }
 
-    static func quantity(_ value: Decimal) -> String {
-        NSDecimalNumber(decimal: value).stringValue
+  /// "5 s": a duration from the bot's settings.
+  static func seconds(_ value: Decimal) -> String {
+    String(localized: L10n.Format.seconds(Money.plain(value)))
+  }
+
+  /// "250.00 USD": an amount from the bot's settings.
+  static func usd(_ value: Decimal) -> String {
+    String(localized: L10n.Format.usd(Money.plain(value)))
+  }
+
+  /// "Momentum v3": a strategy and its version.
+  static func strategy(_ strategy: StrategyId) -> String {
+    String(localized: L10n.Common.strategyVersion(strategy.name, strategy.version))
+  }
+
+  static func quantity(_ value: Decimal) -> String {
+    NSDecimalNumber(decimal: value).stringValue
+  }
+}
+
+/// Facts about the running app, read from its bundle rather than written into views.
+enum AppInfo {
+  /// Info.plist key of the product name.
+  static let bundleNameKey = "CFBundleName"
+
+  /// The product name shown in the header ("Aperture"), from the bundle or the process.
+  static var name: String {
+    Bundle.main.object(forInfoDictionaryKey: bundleNameKey) as? String ?? ProcessInfo.processInfo.processName
+  }
+}
+
+extension StreamHealth {
+  /// The quote stream's state in the person's language.
+  var title: String {
+    switch self {
+    case .fresh: return String(localized: L10n.Stream.fresh)
+    case .quiet: return String(localized: L10n.Stream.quiet)
+    case .lost: return String(localized: L10n.Stream.lost)
+    case .off: return String(localized: L10n.Stream.off)
     }
+  }
+}
+
+extension BotState {
+  /// The bot's state in the person's language.
+  var title: String {
+    switch self {
+    case .starting: return String(localized: L10n.BotState.starting)
+    case .running: return String(localized: L10n.BotState.running)
+    case .stopping: return String(localized: L10n.BotState.stopping)
+    case .stopped: return String(localized: L10n.BotState.stopped)
+    }
+  }
+}
+
+/// Plane geometry the drawings share.
+enum Geometry {
+  /// One full turn, in radians.
+  static let fullTurn = Double.pi * 2
 }

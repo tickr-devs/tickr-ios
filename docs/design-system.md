@@ -88,6 +88,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 | Token | Font | Use |
 |---|---|---|
 | `title` | 26 pt bold | Screen header title |
+| `subtitle` | 18 pt medium mono | The word next to a screen title |
 | `hero` | 34 pt bold mono | The one key figure of a screen (day result) |
 | `metric` | 24 pt bold mono | Large figures in cards |
 | `body` / `bodyMono` | `.body` | Values in rows |
@@ -96,6 +97,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `label` | 11 pt semibold mono, uppercase, tracking 0.8 | Card section labels |
 | `badge` | 10.5 pt bold mono, tracking 0.6 | Badges and tags |
 | `annotation` / `annotationBold` | 10.5 pt mono | Chart axes, ticker, pipeline values |
+| `symbol` | `Size.iconWellSymbol` semibold | SF Symbols in icon wells |
 
 ## Lines (`Tokens.Stroke`)
 
@@ -149,7 +151,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `stagger` | 0.05 s | Delay between cards of a screen |
 | `pulseSeconds` / `pulseScale` | 2.4 s / ×2.2 | "Live" pulse ring |
 | `breatheSeconds` / `breatheScale` | 2.4 s / ×1.08 | Glows and alarms breathing |
-| `rotationSeconds` | 4 s per turn | Logo blades, radar sweep |
+| `rotationSeconds` | 4 s per turn | Radar sweep (the logo turns slower, once per 24 s) |
 | `tickerSpeed` | 22 pt/s | Event ticker (edges fade over 6% of its width) |
 | `pipelineSeconds` | 4.2 s | Light travelling the live flow |
 

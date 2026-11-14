@@ -4,236 +4,279 @@ import SwiftUI
 
 /// Sidebar sections, ordered by how often they are used during a trading day.
 enum AppSection: String, CaseIterable, Identifiable {
-    case overview, chart, trades, risk, lab
+  case overview, chart, trades, risk, lab
 
-    var id: String { rawValue }
+  var id: String { rawValue }
 
-    var title: String {
-        switch self {
-        case .overview: return "Overview"
-        case .chart: return "Chart"
-        case .trades: return "Trades & days"
-        case .risk: return "Risk & account"
-        case .lab: return "Strategy lab"
-        }
+  var title: LocalizedStringResource {
+    switch self {
+    case .overview: return L10n.Section.overview
+    case .chart: return L10n.Section.chart
+    case .trades: return L10n.Section.trades
+    case .risk: return L10n.Section.risk
+    case .lab: return L10n.Section.lab
     }
+  }
 
-    var symbol: String {
-        switch self {
-        case .overview: return "square.grid.2x2"
-        case .chart: return "chart.xyaxis.line"
-        case .trades: return "list.bullet.rectangle"
-        case .risk: return "shield.lefthalf.filled"
-        case .lab: return "sparkles"
-        }
+  /// SF Symbols of the sections in the sidebar.
+  static let overviewSymbol = "square.grid.2x2"
+  static let chartSymbol = "chart.xyaxis.line"
+  static let tradesSymbol = "list.bullet.rectangle"
+  static let riskSymbol = "shield.lefthalf.filled"
+  static let labSymbol = "sparkles"
+
+  var symbol: String {
+    switch self {
+    case .overview: return Self.overviewSymbol
+    case .chart: return Self.chartSymbol
+    case .trades: return Self.tradesSymbol
+    case .risk: return Self.riskSymbol
+    case .lab: return Self.labSymbol
     }
+  }
 }
 
 struct RootView: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    private var section: AppSection { model.section }
+  /// Sidebar width: least, preferred and most, in points.
+  static let sidebarMin: CGFloat = 200
+  static let sidebarIdeal: CGFloat = 220
+  static let sidebarMax: CGFloat = 260
 
-    var body: some View {
-        @Bindable var model = model
-        NavigationSplitView {
-            Sidebar(selection: $model.section)
-                .navigationSplitViewColumnWidth(min: 200, ideal: 220, max: 260)
-        } detail: {
-            ZStack(alignment: .bottom) {
-                ApertureBackground()
-                detail
-                    .id(section)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
-                if let toast = model.toast {
-                    CommandToast(command: toast)
-                        .padding(.bottom, 20)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-            }
-            .animation(.spring(response: 0.45, dampingFraction: 0.9), value: section)
-            .animation(.spring(response: 0.45, dampingFraction: 0.85), value: model.toast)
-            .navigationTitle(section.title)
-            .navigationSubtitle(subtitle)
-            .toolbar { DayToolbar() }
+  private var section: AppSection { model.section }
+
+  var body: some View {
+    @Bindable var model = model
+    NavigationSplitView {
+      Sidebar(selection: $model.section)
+        .navigationSplitViewColumnWidth(min: Self.sidebarMin, ideal: Self.sidebarIdeal, max: Self.sidebarMax)
+    } detail: {
+      ZStack(alignment: .bottom) {
+        ApertureBackground()
+        detail
+          .id(section)
+          .transition(.opacity.combined(with: .move(edge: .bottom)))
+        if let toast = model.toast {
+          CommandToast(command: toast)
+            .padding(.bottom, Tokens.Space.xl)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+      }
+      .animation(Tokens.Motion.standard, value: section)
+      .animation(Tokens.Motion.standard, value: model.toast)
+      .navigationTitle(Text(section.title))
+      .navigationSubtitle(Text(verbatim: subtitle))
+      .toolbar { DayToolbar() }
     }
+  }
 
-    @ViewBuilder private var detail: some View {
-        switch section {
-        case .overview: OverviewView()
-        case .chart: ComingNext(section: .chart)
-        case .trades: ComingNext(section: .trades)
-        case .risk: ComingNext(section: .risk)
-        case .lab: ComingNext(section: .lab)
-        }
+  @ViewBuilder private var detail: some View {
+    switch section {
+    case .overview: OverviewView()
+    case .chart: ComingNext(section: .chart)
+    case .trades: ComingNext(section: .trades)
+    case .risk: ComingNext(section: .risk)
+    case .lab: ComingNext(section: .lab)
     }
+  }
 
-    private var subtitle: String {
-        let day = model.isLive ? "Today · \(Format.dayLabel(model.today))" : "Recorded day · \(Format.dayLabel(model.shownDay))"
-        guard let status = model.status else { return day }
-        return "\(day) · \(status.environment) · \(status.strategy.name) v\(status.strategy.version)"
-    }
+  private var subtitle: String {
+    let day = model.isLive
+      ? String(localized: L10n.Common.todayDay(Format.dayLabel(model.today)))
+      : String(localized: L10n.Common.recordedDay(Format.dayLabel(model.shownDay)))
+    guard let status = model.status else { return day }
+    return "\(day) · \(status.environment) · \(Format.strategy(status.strategy))"
+  }
 }
 
 /// The sidebar list plus the bot's state at the bottom.
 private struct Sidebar: View {
-    @Environment(AppModel.self) private var model
-    @Binding var selection: AppSection
+  @Environment(AppModel.self) private var model
+  @Binding var selection: AppSection
 
-    var body: some View {
-        List(selection: Binding(get: { selection }, set: { if let value = $0 { selection = value } })) {
-            Section("Operator") {
-                ForEach(AppSection.allCases) { item in
-                    Label(item.title, systemImage: item.symbol)
-                        .badge(badge(for: item))
-                        .tag(item)
-                }
-            }
+  var body: some View {
+    List(selection: Binding(get: { selection }, set: { if let value = $0 { selection = value } })) {
+      Section(String(localized: L10n.Common.operatorTitle)) {
+        ForEach(AppSection.allCases) { item in
+          Label { Text(item.title) } icon: { Image(systemName: item.symbol) }
+            .badge(badge(for: item))
+            .tag(item)
         }
-        .listStyle(.sidebar)
-        .safeAreaInset(edge: .bottom) { BotStateCard().padding(12) }
+      }
     }
+    .listStyle(.sidebar)
+    .safeAreaInset(edge: .bottom) { BotStateCard().padding(Tokens.Space.m) }
+  }
 
-    private func badge(for item: AppSection) -> Int {
-        item == .trades ? model.shownTradeCount : 0
-    }
+  private func badge(for item: AppSection) -> Int {
+    item == .trades ? model.shownTradeCount : 0
+  }
 }
 
 /// Bot state at the foot of the sidebar: a pulsing dot while it runs.
 private struct BotStateCard: View {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            CardLabel("Bot")
-            HStack(spacing: 8) {
-                PulseDot(color, pulsing: model.status?.botState == .running && model.isLive)
-                Text(stateText).font(.callout.weight(.semibold)).foregroundStyle(color)
-            }
-            if let run = model.status?.runId {
-                Text("run \(run.prefix(8))").font(.caption.monospaced()).foregroundStyle(Palette.dim)
-            }
-            Text(model.baseURL.host() ?? model.baseURL.absoluteString)
-                .font(.caption.monospaced()).foregroundStyle(Palette.dim)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .apertureCard(radius: 12)
-    }
+  /// Characters of the run id shown; enough to tell runs apart.
+  static let runIdPrefix = 8
 
-    private var stateText: String {
-        if model.fetchError != nil { return "API unreachable" }
-        guard let response = model.response else { return "connecting…" }
-        guard let status = response.status else { return "unavailable" }
-        if response.stale { return "stale (\(status.botState.rawValue))" }
-        return status.entryStop ? "\(status.botState.rawValue) · entries paused" : status.botState.rawValue
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      CardLabel(L10n.Common.bot)
+      HStack(spacing: Tokens.Space.s) {
+        PulseDot(color, pulsing: model.status?.botState == .running && model.isLive)
+        Text(verbatim: stateText).font(Tokens.Typography.callout.weight(.semibold)).foregroundStyle(color)
+      }
+      if let run = model.status?.runId {
+        Text(L10n.Root.run(String(run.prefix(Self.runIdPrefix))))
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      Text(verbatim: model.baseURL.host() ?? model.baseURL.absoluteString)
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textQuaternary)
     }
+    .padding(Tokens.Space.m)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .apertureCard(radius: Tokens.Radius.large)
+  }
 
-    private var color: Color {
-        guard let response = model.response, let status = response.status, !response.stale,
-              model.fetchError == nil else { return Palette.redStrong }
-        switch status.botState {
-        case .running: return status.entryStop ? Palette.amberStrong : Palette.tealStrong
-        case .starting, .stopping: return Palette.amberStrong
-        case .stopped: return Palette.dim
-        }
+  private var stateText: String {
+    if model.fetchError != nil { return String(localized: L10n.Root.apiUnreachable) }
+    guard let response = model.response else { return String(localized: L10n.Root.connecting) }
+    guard let status = response.status else { return String(localized: L10n.Common.unavailable) }
+    if response.stale { return String(localized: L10n.Root.stale(status.botState.title)) }
+    return status.entryStop ? String(localized: L10n.Root.statePaused(status.botState.title)) : status.botState.title
+  }
+
+  private var color: Color {
+    guard let response = model.response, let status = response.status, !response.stale,
+      model.fetchError == nil else { return Palette.lossText }
+    switch status.botState {
+    case .running: return status.entryStop ? Palette.warningText : Palette.accentText
+    case .starting, .stopping: return Palette.warningText
+    case .stopped: return Palette.textQuaternary
     }
+  }
 }
 
 /// Toolbar: ‹ day › with a menu of recorded days, and Today.
 private struct DayToolbar: ToolbarContent {
-    @Environment(AppModel.self) private var model
+  @Environment(AppModel.self) private var model
 
-    var body: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigation) {
-            Button { model.showPreviousDay() } label: { Label("Previous Day", systemImage: "chevron.left") }
-                .disabled(model.previousDay == nil)
-                .help("Previous trading day (⌘[)")
-            Menu {
-                Button("Today") { model.showToday() }
-                if !model.days.isEmpty { Divider() }
-                ForEach(model.days.filter { $0.day != model.today }) { day in
-                    Button("\(Format.dayLabel(day.day))   \(Money.signed(day.resultGrossUsd.value))   \(day.trades) trades") {
-                        model.selectedDay = day.day
-                    }
-                }
-            } label: {
-                Text(model.isLive ? "Today · \(Format.dayLabel(model.today))" : Format.dayLabel(model.shownDay))
-                    .font(.callout.monospaced())
-            }
-            .help("Pick a recorded trading day")
-            Button { model.showNextDay() } label: { Label("Next Day", systemImage: "chevron.right") }
-                .disabled(model.isLive)
-                .help("Next trading day (⌘])")
+  /// SF Symbols of the previous and next day buttons.
+  static let previousSymbol = "chevron.left"
+  static let nextSymbol = "chevron.right"
+
+  var body: some ToolbarContent {
+    ToolbarItemGroup(placement: .navigation) {
+      Button { model.showPreviousDay() } label: { Label(String(localized: L10n.Toolbar.previousDay), systemImage: Self.previousSymbol) }
+        .disabled(model.previousDay == nil)
+        .help(Text(L10n.Toolbar.previousDayHelp))
+      Menu {
+        Button(String(localized: L10n.Common.today)) { model.showToday() }
+        if !model.days.isEmpty { Divider() }
+        ForEach(model.days.filter { $0.day != model.today }) { day in
+          Button {
+            model.selectedDay = day.day
+          } label: {
+            Text(L10n.Toolbar.dayRow(Format.dayLabel(day.day), Money.signed(day.resultGrossUsd.value), day.trades))
+          }
         }
-        ToolbarItem(placement: .primaryAction) {
-            if !model.isLive {
-                Button("Today") { model.showToday() }.help("Back to the live day (⌘T)")
-            }
+      } label: {
+        Group {
+          if model.isLive {
+            Text(L10n.Common.todayDay(Format.dayLabel(model.today)))
+          } else {
+            Text(verbatim: Format.dayLabel(model.shownDay))
+          }
         }
+        .font(Tokens.Typography.calloutMono)
+      }
+      .help(Text(L10n.Toolbar.pickDayHelp))
+      Button { model.showNextDay() } label: { Label(String(localized: L10n.Toolbar.nextDay), systemImage: Self.nextSymbol) }
+        .disabled(model.isLive)
+        .help(Text(L10n.Toolbar.nextDayHelp))
     }
+    ToolbarItem(placement: .primaryAction) {
+      if !model.isLive {
+        Button(String(localized: L10n.Common.today)) { model.showToday() }.help(Text(L10n.Toolbar.todayHelp))
+      }
+    }
+  }
 }
 
 /// The result of a command the operator sent, shown at the bottom of the window.
 struct CommandToast: View {
-    let command: SentCommand
+  let command: SentCommand
 
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: symbol).foregroundStyle(color)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(headline).font(.callout.weight(.semibold))
-                if let detail { Text(detail).font(.caption).foregroundStyle(Palette.muted) }
-            }
+  /// Floating shadow under the toast: blur and downward offset, in points.
+  static let shadowRadius: CGFloat = 12
+  static let shadowOffset: CGFloat = 6
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.m) {
+      Image(systemName: symbol).foregroundStyle(color)
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        Text(verbatim: headline).font(Tokens.Typography.callout.weight(.semibold))
+        if let detail {
+          Text(verbatim: detail).font(Tokens.Typography.caption).foregroundStyle(Palette.textTertiary)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(.regularMaterial, in: Capsule())
-        .overlay(Capsule().strokeBorder(color.opacity(0.5)))
-        .shadow(radius: 12, y: 6)
+      }
     }
+    .padding(.horizontal, Tokens.Space.l)
+    .padding(.vertical, Tokens.Space.m)
+    .background(.regularMaterial, in: Capsule())
+    .overlay(Capsule().strokeBorder(color.opacity(Tokens.Opacity.border)))
+    .shadow(radius: Self.shadowRadius, y: Self.shadowOffset)
+  }
 
-    private var headline: String {
-        switch command.outcome {
-        case nil: return "\(command.title) queued for the bot"
-        case .done: return "\(command.title): done"
-        case .refused: return "\(command.title): refused"
-        }
+  private var headline: String {
+    switch command.outcome {
+    case nil: return String(localized: L10n.Toast.queued(command.title))
+    case .done: return String(localized: L10n.Toast.done(command.title))
+    case .refused: return String(localized: L10n.Toast.refused(command.title))
     }
+  }
 
-    private var detail: String? {
-        if let cause = command.cause { return cause }
-        if let warning = command.warning { return "Warning: \(warning)" }
-        return command.outcome == nil ? "The result appears here when the bot has handled it." : nil
-    }
+  private var detail: String? {
+    if let cause = command.cause { return cause }
+    if let warning = command.warning { return String(localized: L10n.Toast.warning(warning)) }
+    return command.outcome == nil ? String(localized: L10n.Toast.resultLater) : nil
+  }
 
-    private var symbol: String {
-        switch command.outcome {
-        case nil: return "clock.arrow.circlepath"
-        case .done: return "checkmark.circle.fill"
-        case .refused: return "xmark.octagon.fill"
-        }
-    }
+  /// SF Symbols of a queued, done and refused command.
+  static let queuedSymbol = "clock.arrow.circlepath"
+  static let doneSymbol = "checkmark.circle.fill"
+  static let refusedSymbol = "xmark.octagon.fill"
 
-    private var color: Color {
-        switch command.outcome {
-        case nil: return Palette.blueStrong
-        case .done: return Palette.greenStrong
-        case .refused: return Palette.redStrong
-        }
+  private var symbol: String {
+    switch command.outcome {
+    case nil: return Self.queuedSymbol
+    case .done: return Self.doneSymbol
+    case .refused: return Self.refusedSymbol
     }
+  }
+
+  private var color: Color {
+    switch command.outcome {
+    case nil: return Palette.infoText
+    case .done: return Palette.profitText
+    case .refused: return Palette.lossText
+    }
+  }
 }
 
 /// A section that arrives in the next update of the app.
 struct ComingNext: View {
-    let section: AppSection
+  let section: AppSection
 
-    var body: some View {
-        ContentUnavailableView {
-            Label(section.title, systemImage: section.symbol)
-        } description: {
-            Text("This section is being rebuilt to the approved design and arrives in the next update.")
-        }
+  var body: some View {
+    ContentUnavailableView {
+      Label { Text(section.title) } icon: { Image(systemName: section.symbol) }
+    } description: {
+      Text(L10n.Section.comingNext)
     }
+  }
 }
