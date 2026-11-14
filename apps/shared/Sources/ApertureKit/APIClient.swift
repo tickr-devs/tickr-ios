@@ -71,6 +71,11 @@ public struct APIClient: Sendable {
         try await perform(request(path: "/commands/pending", body: nil), expect: 200)
     }
 
+    /// Risk limits and session times from the bot's config, as the API loaded them.
+    public func settings() async throws -> SettingsV1 {
+        try await perform(request(path: "/settings", body: nil), expect: 200)
+    }
+
     /// Every New York date with records, newest first.
     public func days() async throws -> DaysV1 {
         try await perform(request(path: "/days", body: nil), expect: 200)

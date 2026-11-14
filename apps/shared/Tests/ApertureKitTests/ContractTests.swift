@@ -39,6 +39,7 @@ final class ContractTests: XCTestCase {
             "days-v1": { try roundTrip(DaysV1.self, $0) },
             "day-v1": { try roundTrip(DayV1.self, $0) },
             "bars-v1": { try roundTrip(BarsV1.self, $0) },
+            "settings-v1": { try roundTrip(SettingsV1.self, $0) },
         ]
         for name in names {
             let schema = String(name.prefix { $0 != "." })
@@ -55,7 +56,7 @@ final class ContractTests: XCTestCase {
             .map { String($0.dropLast(".schema.json".count)) }
         XCTAssertEqual(Set(names), ["status-v1", "command-v1", "status-response-v1",
                                     "command-accepted-v1", "pending-commands-v1", "error-v1",
-                                    "days-v1", "day-v1", "bars-v1"])
+                                    "days-v1", "day-v1", "bars-v1", "settings-v1"])
     }
 
     func testFullStatusValues() throws {
@@ -109,6 +110,13 @@ final class ContractTests: XCTestCase {
         XCTAssertEqual(day.barSymbols, ["ABCD", "WXYZ"])
         let days = try Wire.decoder().decode(DaysV1.self, from: fixture("days-v1.json"))
         XCTAssertEqual(days.days.map(\.hasBars), [true, false])
+    }
+
+    func testSettingsValues() throws {
+        let settings = try Wire.decoder().decode(SettingsV1.self, from: fixture("settings-v1.json"))
+        XCTAssertEqual(settings.risk.maxDailyLossUsd.text, "300")
+        XCTAssertEqual(settings.risk.maxOpenPositions, 1)
+        XCTAssertEqual(settings.session.lastEntryMinutesBeforeClose, 15)
     }
 
     func testWireDate() throws {
