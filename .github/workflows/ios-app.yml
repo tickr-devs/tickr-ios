@@ -35,15 +35,19 @@ jobs:
           curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
           unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/xcodegen/bin" >> "$GITHUB_PATH"
-      # The committed Aperture.xcodeproj must be exactly what project.yml generates.
+      # The committed Aperture.xcodeproj must be exactly what project.yml generates. git status
+      # also catches files the generator deleted or added (a staged diff would hide deletions).
       - name: Check the committed Xcode project matches project.yml
         run: |
           xcodegen generate
-          git add --intent-to-add --all .
-          if ! git diff --exit-code -- .; then
+          changes=$(git status --porcelain --untracked-files=all -- .)
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            git diff -- .
             echo "::error::Aperture.xcodeproj differs from project.yml: run xcodegen in apps/ios and commit"
             exit 1
           fi
+          test -f "Aperture.xcodeproj/xcshareddata/xcschemes/Aperture iOS.xcscheme"
       # Built through the root workspace, which is what the owner opens in Xcode.
       - name: Build for the iOS Simulator (unsigned)
         run: |

@@ -11,6 +11,9 @@ options:
   # The Xcode release the owner uses. It becomes LastUpgradeCheck, so Xcode does not offer to
   # "update to recommended settings"; never accept such an offer in Xcode: put the setting here.
   xcodeVersion: "27.2"
+  # XcodeGen rewrites the whole Aperture.xcodeproj and drops any scheme it does not generate;
+  # put back the hand-kept shared scheme (see the note at the end of this file).
+  postGenCommand: git checkout -- "Aperture.xcodeproj/xcshareddata/xcschemes"
 attributes:
   LastSwiftUpdateCheck: "2720"
 packages:
@@ -67,14 +70,7 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
         ENABLE_PREVIEWS: YES
-# The scheme is named for the platform so it stays distinct from "Aperture macOS" in the root
-# Aperture.xcworkspace.
-schemes:
-  Aperture iOS:
-    build:
-      targets:
-        Aperture: all
-    run:
-      config: Debug
-    archive:
-      config: Release
+# No schemes here: the shared scheme "Aperture iOS" (named for the platform so it stays distinct
+# from "Aperture macOS" in the root Aperture.xcworkspace) is kept by hand in Xcode's own format in
+# Aperture.xcodeproj/xcshareddata/xcschemes, so building in Xcode leaves the tree clean.
+# postGenCommand above restores it after every `xcodegen generate`; change it in Xcode and commit.
