@@ -618,6 +618,11 @@ enum ChartText {
     LocalizedStringResource("chart.indicator.ema", defaultValue: "EMA \(period)", table: ChartText.table)
   }
 
+  /// The ATR pane toggle and label, with its period in bars.
+  static func atr(_ period: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.indicator.atr", defaultValue: "ATR \(period)", table: ChartText.table)
+  }
+
   /// The crosshair readout of one candle: open, high, low, close, volume (already formatted).
   static func readout(_ open: String, _ high: String, _ low: String, _ close: String, _ volume: String)
     -> LocalizedStringResource {

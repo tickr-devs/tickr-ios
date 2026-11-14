@@ -29,6 +29,8 @@ final class ChartModel {
   var symbol: String?
   var timeframe = Timeframe.m1 { didSet { rebuild() } }
   private(set) var series: ChartSeries?
+  /// The ATR line for `series`, one value per candle.
+  private(set) var atr: [Double?] = []
   /// Number of the newest load of the days or a day (see `begin()`).
   @ObservationIgnored private var latestRequest = 0
 
@@ -137,6 +139,7 @@ final class ChartModel {
 
   private func rebuild() {
     series = bars.map { ChartSeries(bars: $0.bars, timeframe: timeframe) }
+    atr = bars.map { ChartSeries.atr(bars: $0.bars, timeframe: timeframe) } ?? []
   }
 
   private func neighbour(_ step: Int) -> WireDate? {

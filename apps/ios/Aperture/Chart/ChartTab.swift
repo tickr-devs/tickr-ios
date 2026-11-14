@@ -66,7 +66,7 @@ struct ChartTab: View {
           DayHeader(chart: chart, url: url)
           SymbolChips(chart: chart, url: url)
           if let series = chart.series, !series.candles.isEmpty {
-            CandleChart(series: series, trades: chart.trades, lines: lines)
+            CandleChart(series: series, atr: chart.atr, trades: chart.trades, lines: lines)
             ChartControls(chart: chart, lines: $lines)
             DayTrades(trades: chart.trades)
           } else {
@@ -241,19 +241,24 @@ private struct ChartControls: View {
         Text(ChartText.timeframe)
       }
       .pickerStyle(.segmented)
-      HStack(spacing: Tokens.Space.s) {
-        Toggle(isOn: $lines.vwap) { Text(ChartText.vwap) }
-          .tint(Palette.seriesVWAP)
-        Toggle(isOn: $lines.fastEMA) { Text(ChartText.ema(Indicators.fastEMAPeriod)) }
-          .tint(Palette.seriesFastEMA)
-        Toggle(isOn: $lines.slowEMA) { Text(ChartText.ema(Indicators.slowEMAPeriod)) }
-          .tint(Palette.seriesSlowEMA)
-        Toggle(isOn: $lines.volume) { Text(ChartText.volume) }
-          .tint(Palette.info)
+      ScrollView(.horizontal) {
+        HStack(spacing: Tokens.Space.s) {
+          Toggle(isOn: $lines.vwap) { Text(ChartText.vwap) }
+            .tint(Palette.seriesVWAP)
+          Toggle(isOn: $lines.fastEMA) { Text(ChartText.ema(Indicators.fastEMAPeriod)) }
+            .tint(Palette.seriesFastEMA)
+          Toggle(isOn: $lines.slowEMA) { Text(ChartText.ema(Indicators.slowEMAPeriod)) }
+            .tint(Palette.seriesSlowEMA)
+          Toggle(isOn: $lines.volume) { Text(ChartText.volume) }
+            .tint(Palette.info)
+          Toggle(isOn: $lines.atr) { Text(ChartText.atr(Indicators.atrPeriod)) }
+            .tint(Palette.seriesATR)
+        }
+        .toggleStyle(.button)
+        .buttonStyle(.bordered)
+        .font(Tokens.Typography.captionMono)
       }
-      .toggleStyle(.button)
-      .buttonStyle(.bordered)
-      .font(Tokens.Typography.captionMono)
+      .scrollIndicators(.hidden)
     }
     .sensoryFeedback(.selection, trigger: chart.timeframe)
   }

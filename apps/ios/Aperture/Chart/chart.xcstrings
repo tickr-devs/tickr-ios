@@ -137,6 +137,23 @@
         }
       }
     },
+    "chart.indicator.atr": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ATR %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ATR %lld"
+          }
+        }
+      }
+    },
     "chart.indicator.ema": {
       "extractionState": "manual",
       "localizations": {
