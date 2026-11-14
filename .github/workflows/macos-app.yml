@@ -9,18 +9,15 @@ on:
       - "Aperture.xcworkspace/**"
       - ".github/workflows/macos-app.yml"
       - ".swiftlint.yml"
-      - "apps/scripts/**"
-  push:
-    branches: [main]
-    paths:
-      - "apps/macos/**"
-      - "apps/shared/**"
-      - "tests/api/fixtures/**"
-      - "src/aperture/api/schema/**"
-      - "Aperture.xcworkspace/**"
-      - ".github/workflows/macos-app.yml"
-      - ".swiftlint.yml"
-      - "apps/scripts/**"
+  workflow_dispatch:
+  # Weekly build of main, so a conflict between two separately green pull requests shows up.
+  schedule:
+    - cron: "0 12 * * 1"
+# One run per pull request: a new push cancels the run still going for the previous one. macOS
+# runner minutes cost ten times Linux ones.
+concurrency:
+  group: macos-app-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   build-and-test:
     runs-on: macos-latest
@@ -40,6 +37,17 @@ jobs:
           swiftlint version
           swiftlint lint --strict --quiet --config .swiftlint.yml
       - run: swift --version
+      - name: Toolchain id for the build cache
+        run: echo "XCODE_ID=$(xcodebuild -version | head -1 | tr ' ' '-')" >> "$GITHUB_ENV"
+      # SwiftPM build folders, so unchanged modules are not compiled again.
+      - name: Cache SwiftPM builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/shared/.build
+            apps/macos/.build
+          key: spm-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Aperture/**') }}
+          restore-keys: spm-${{ runner.os }}-${{ env.XCODE_ID }}-
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared
         run: swift test

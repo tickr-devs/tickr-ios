@@ -6,13 +6,15 @@ on:
       - "apps/shared/**"
       - ".github/workflows/ios-app.yml"
       - "Aperture.xcworkspace/**"
-  push:
-    branches: [main]
-    paths:
-      - "apps/ios/**"
-      - "apps/shared/**"
-      - ".github/workflows/ios-app.yml"
-      - "Aperture.xcworkspace/**"
+  workflow_dispatch:
+  # Weekly build of main, so a conflict between two separately green pull requests shows up.
+  schedule:
+    - cron: "0 12 * * 1"
+# One run per pull request: a new push cancels the run still going for the previous one. macOS
+# runner minutes cost ten times Linux ones.
+concurrency:
+  group: ios-app-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: macos-latest
