@@ -11,6 +11,8 @@ struct SettingsView: View {
   @Environment(AppModel.self) private var model
   @State private var draft = ""
   @FocusState private var editing: Bool
+  @State private var showPairing = false
+  @State private var confirmForget = false
 
   var body: some View {
     Form {
@@ -34,6 +36,10 @@ struct SettingsView: View {
           Text(connectionState.text).foregroundStyle(connectionState.color)
         } label: {
           Text(L10n.Settings.status)
+        }
+        Button { showPairing = true } label: { Text(L10n.Pair.start) }
+        if model.connection.token != nil {
+          Button(role: .destructive) { confirmForget = true } label: { Text(L10n.Pair.forget) }
         }
       } header: {
         Text(L10n.Settings.botOnMac)
@@ -81,6 +87,17 @@ struct SettingsView: View {
     }
     .navigationTitle(Text(L10n.Settings.title))
     .onAppear { draft = model.connection.address }
+    .onChange(of: model.connection.address) { _, address in draft = address }
+    .sheet(isPresented: $showPairing) { PairingSheet() }
+    .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {
+      Button(role: .destructive) {
+        model.connection = Connection(address: model.connection.address)
+      } label: {
+        Text(L10n.Pair.forget)
+      }
+    } message: {
+      Text(L10n.Pair.forgetMessage)
+    }
   }
 
   private func row<Value: View>(_ label: LocalizedStringResource, @ViewBuilder value: () -> Value) -> some View {
@@ -91,17 +108,82 @@ struct SettingsView: View {
     }
   }
 
+  /// Saves the typed address; the paired token stays only while the address keeps the paired origin.
   private func save() {
     guard draft.isEmpty || Connection(address: draft).url != nil else { return }
-    model.connection = Connection(address: draft)
+    model.connection = model.connection.moved(to: draft)
     editing = false
   }
 
   private var connectionState: (text: LocalizedStringResource, color: Color) {
     if !model.isConfigured { return (L10n.Settings.noAddress, .secondary) }
+    if model.connection.isRemote && model.connection.bearer == nil { return (L10n.Pair.notPaired, Palette.warningText) }
     if model.fetchError != nil { return (L10n.Settings.notReachable, Palette.lossText) }
     if model.response == nil { return (L10n.Settings.connecting, .secondary) }
     if model.status == nil || model.response?.stale == true { return (L10n.Settings.notCurrent, Palette.warningText) }
     return (L10n.Settings.connected, Palette.profitText)
+  }
+}
+
+/// Paste the pairing link the Mac left in its pairing file. Opening the link on the phone works too.
+private struct PairingSheet: View {
+  /// Lines the pasted link may take before the field scrolls.
+  static let linkLines = 3...6
+
+  @Environment(AppModel.self) private var model
+  @Environment(\.dismiss) private var dismiss
+  @State private var text = ""
+
+  var body: some View {
+    let pairing = Pairing.parse(text)
+    NavigationStack {
+      Form {
+        Section {
+          TextField(text: $text, prompt: Text(L10n.Pair.prompt), axis: .vertical) {
+            Text(L10n.Pair.title)
+          }
+          .textInputAutocapitalization(.never)
+          .autocorrectionDisabled()
+          .font(.footnote.monospaced())
+          .lineLimit(Self.linkLines)
+          PasteButton(payloadType: String.self) { strings in
+            if let first = strings.first { text = first }
+          }
+        } footer: {
+          Text(L10n.Pair.sheetFooter)
+        }
+        if let pairing {
+          Section {
+            LabeledContent {
+              Text(verbatim: Connection.displayHost(pairing.url) ?? Format.missing)
+            } label: {
+              Text(L10n.Pair.address)
+            }
+          } header: {
+            Text(L10n.Pair.mac)
+          }
+        } else if !text.isEmpty {
+          Section {
+            Text(L10n.Pair.invalid).foregroundStyle(Palette.lossText)
+          }
+        }
+      }
+      .navigationTitle(Text(L10n.Pair.title))
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button { dismiss() } label: { Text(L10n.Common.cancel) }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button {
+            if let pairing { model.pair(pairing) }
+            dismiss()
+          } label: {
+            Text(L10n.Pair.pair)
+          }
+          .disabled(pairing == nil)
+        }
+      }
+    }
   }
 }

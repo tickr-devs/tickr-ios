@@ -36,6 +36,8 @@ final class AppModel {
   var notice: Notice?
   var selectedTab: AppTab = .home
   var selectedSymbol: String?
+  /// A pairing link opened from outside (AirDrop), waiting for the owner to confirm.
+  var pendingPairing: Pairing?
 
   @ObservationIgnored private var pollTask: Task<Void, Never>?
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
@@ -93,7 +95,7 @@ final class AppModel {
       return
     }
     do {
-      let fresh = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: url)).status()
+      let fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
       response = fresh
       fetchError = nil
       resolveAwaited(fresh)
@@ -133,7 +135,7 @@ final class AppModel {
       return
     }
     do {
-      let accepted = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: url)).send(command)
+      let accepted = try await Container.shared.apiClient(connection.endpoint(for: url)).send(command)
       awaited[accepted.command.commandId] = command.kind
       if let warning = accepted.warning {
         notice = Notice(L10n.Notice.queuedWarning(title, warning), tone: .failure)
@@ -144,6 +146,18 @@ final class AppModel {
       notice = Notice(L10n.Notice.failed(title, Self.describe(error)), tone: .failure)
     }
     await refresh()
+  }
+
+  /// Uses a pairing link: the Mac's HTTPS address and its token replace the current connection.
+  /// Refused, with the earlier connection kept, when the Keychain does not take the token.
+  func pair(_ pairing: Pairing) {
+    guard Container.shared.keychain().saveToken(pairing.token) else {
+      notice = Notice(L10n.Pair.notSaved, tone: .failure)
+      return
+    }
+    connection = Connection(pairing)
+    notice = Notice(L10n.Pair.paired(Connection.displayHost(pairing.url) ?? String(localized: L10n.Pair.thisMac)),
+      tone: .success)
   }
 
   private func resolveAwaited(_ fresh: StatusResponseV1) {

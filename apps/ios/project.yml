@@ -55,6 +55,10 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
+        # aperture://pair?... links from `python -m aperture.api pair` open the app to pair.
+        CFBundleURLTypes:
+          - CFBundleURLName: local.aperture.pair
+            CFBundleURLSchemes: [aperture]
         # Plain HTTP is allowed only to local addresses (the Simulator reaches the Mac's API on
         # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
         NSAppTransportSecurity:

@@ -415,6 +415,75 @@ enum L10n {
     }
   }
 
+  enum Pair {
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("pair.title", defaultValue: "Pair with Mac", bundle: L10n.bundle)
+    }
+    static var start: LocalizedStringResource {
+      LocalizedStringResource("pair.start", defaultValue: "Pair with Mac…", bundle: L10n.bundle)
+    }
+    static var pair: LocalizedStringResource {
+      LocalizedStringResource("pair.pair", defaultValue: "Pair", bundle: L10n.bundle)
+    }
+    static var forget: LocalizedStringResource {
+      LocalizedStringResource("pair.forget", defaultValue: "Forget Pairing", bundle: L10n.bundle)
+    }
+    static var forgetTitle: LocalizedStringResource {
+      LocalizedStringResource("pair.forgetTitle", defaultValue: "Forget the pairing?", bundle: L10n.bundle)
+    }
+    static var forgetMessage: LocalizedStringResource {
+      LocalizedStringResource("pair.forgetMessage",
+        defaultValue: "The phone deletes its token and can no longer reach the bot remotely until you pair again.",
+        bundle: L10n.bundle)
+    }
+    static func ask(_ host: String) -> LocalizedStringResource {
+      LocalizedStringResource("pair.ask", defaultValue: "Pair with \(host)?", bundle: L10n.bundle)
+    }
+    static var askMessage: LocalizedStringResource {
+      LocalizedStringResource("pair.askMessage",
+        defaultValue: "The phone will read the bot's status from this address and can send commands. Any earlier pairing is replaced.",
+        bundle: L10n.bundle)
+    }
+    static var thisMac: LocalizedStringResource {
+      LocalizedStringResource("pair.thisMac", defaultValue: "this Mac", bundle: L10n.bundle)
+    }
+    static func paired(_ host: String) -> LocalizedStringResource {
+      LocalizedStringResource("pair.paired", defaultValue: "Paired with \(host).", bundle: L10n.bundle)
+    }
+    static var notALink: LocalizedStringResource {
+      LocalizedStringResource("pair.notALink",
+        defaultValue: "That link is not an Aperture pairing link.",
+        bundle: L10n.bundle)
+    }
+    static var notSaved: LocalizedStringResource {
+      LocalizedStringResource("pair.notSaved",
+        defaultValue: "Not paired: the phone could not keep the token in its Keychain.",
+        bundle: L10n.bundle)
+    }
+    static var invalid: LocalizedStringResource {
+      LocalizedStringResource("pair.invalid",
+        defaultValue: "This is not a pairing link.",
+        bundle: L10n.bundle)
+    }
+    static var prompt: LocalizedStringResource {
+      LocalizedStringResource("pair.prompt", defaultValue: "aperture://pair?…", bundle: L10n.bundle)
+    }
+    static var sheetFooter: LocalizedStringResource {
+      LocalizedStringResource("pair.sheetFooter",
+        defaultValue: "On the Mac run `python -m aperture.api --config config/bot.toml pair`, then AirDrop the pairing file it names to this phone and paste the link here.",
+        bundle: L10n.bundle)
+    }
+    static var mac: LocalizedStringResource {
+      LocalizedStringResource("pair.mac", defaultValue: "Mac", bundle: L10n.bundle)
+    }
+    static var address: LocalizedStringResource {
+      LocalizedStringResource("pair.address", defaultValue: "Address", bundle: L10n.bundle)
+    }
+    static var notPaired: LocalizedStringResource {
+      LocalizedStringResource("pair.notPaired", defaultValue: "Not paired", bundle: L10n.bundle)
+    }
+  }
+
   enum Settings {
     static var title: LocalizedStringResource {
       LocalizedStringResource("settings.title", defaultValue: "Settings", bundle: L10n.bundle)
@@ -430,7 +499,7 @@ enum L10n {
     }
     static var addressFooter: LocalizedStringResource {
       LocalizedStringResource("settings.addressFooter",
-        defaultValue: "The address of the bot's local API. In the Simulator the Mac's own address works. On the phone, use the HTTPS address that Tailscale gives the Mac (see apps/ios/README.md).",
+        defaultValue: "In the Simulator the Mac's own address works. On the phone, pair with the link that `python -m aperture.api pair` leaves on the Mac; it reaches the Mac through Tailscale over HTTPS. The token stays in this phone's Keychain and goes only to the paired address.",
         bundle: L10n.bundle)
     }
     static var bot: LocalizedStringResource {

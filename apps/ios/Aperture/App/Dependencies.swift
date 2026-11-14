@@ -17,4 +17,9 @@ extension Container {
   var chartModel: Factory<ChartModel> {
     self { ChartModel() }
   }
+
+  /// Where the paired API token lives: this phone's Keychain.
+  var keychain: Factory<Keychain> {
+    self { Keychain() }
+  }
 }

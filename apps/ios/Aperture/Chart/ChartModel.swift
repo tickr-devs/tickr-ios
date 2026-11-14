@@ -42,9 +42,9 @@ final class ChartModel {
   var previousDay: WireDate? { neighbour(1) }
   var nextDay: WireDate? { neighbour(-1) }
 
-  /// The bot's API at `url`, from the container.
+  /// The bot's API at `url`, from the container, with the paired token only where it may go.
   private func client(_ url: URL) -> APIClient {
-    Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
+    Container.shared.apiClient(Container.shared.appModel().connection.endpoint(for: url))
   }
 
   /// Load the days list and the newest day, keeping the chosen day and symbol when still listed.

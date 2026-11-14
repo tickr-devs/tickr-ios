@@ -1463,6 +1463,312 @@
         }
       }
     },
+    "pair.address": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адрес"
+          }
+        }
+      }
+    },
+    "pair.ask": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair with %@?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Связать с %@?"
+          }
+        }
+      }
+    },
+    "pair.askMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The phone will read the bot's status from this address and can send commands. Any earlier pairing is replaced."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Телефон будет читать статус бота по этому адресу и сможет отправлять команды. Прежняя связь будет заменена."
+          }
+        }
+      }
+    },
+    "pair.forget": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forget Pairing"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забыть связь"
+          }
+        }
+      }
+    },
+    "pair.forgetMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The phone deletes its token and can no longer reach the bot remotely until you pair again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Телефон удалит свой токен и не сможет обращаться к боту удалённо, пока вы снова не свяжете его с Mac."
+          }
+        }
+      }
+    },
+    "pair.forgetTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forget the pairing?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забыть связь с Mac?"
+          }
+        }
+      }
+    },
+    "pair.invalid": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is not a pairing link."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это не ссылка для связи."
+          }
+        }
+      }
+    },
+    "pair.mac": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac"
+          }
+        }
+      }
+    },
+    "pair.notALink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That link is not an Aperture pairing link."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это не ссылка для связи с Aperture."
+          }
+        }
+      }
+    },
+    "pair.notPaired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not paired"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не связан"
+          }
+        }
+      }
+    },
+    "pair.notSaved": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not paired: the phone could not keep the token in its Keychain."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Связь не установлена: телефону не удалось сохранить токен в Связке ключей."
+          }
+        }
+      }
+    },
+    "pair.pair": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Связать"
+          }
+        }
+      }
+    },
+    "pair.paired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paired with %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Связано с %@."
+          }
+        }
+      }
+    },
+    "pair.prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aperture://pair?…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aperture://pair?…"
+          }
+        }
+      }
+    },
+    "pair.sheetFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the Mac run `python -m aperture.api --config config/bot.toml pair`, then AirDrop the pairing file it names to this phone and paste the link here."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На Mac выполните `python -m aperture.api --config config/bot.toml pair`, затем отправьте через AirDrop на этот телефон файл, который он назовёт, и вставьте ссылку сюда."
+          }
+        }
+      }
+    },
+    "pair.start": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair with Mac…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Связать с Mac…"
+          }
+        }
+      }
+    },
+    "pair.thisMac": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "this Mac"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "этим Mac"
+          }
+        }
+      }
+    },
+    "pair.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair with Mac"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Связать с Mac"
+          }
+        }
+      }
+    },
     "positions.chain": {
       "extractionState": "manual",
       "localizations": {
@@ -1826,13 +2132,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The address of the bot's local API. In the Simulator the Mac's own address works. On the phone, use the HTTPS address that Tailscale gives the Mac (see apps/ios/README.md)."
+            "value": "In the Simulator the Mac's own address works. On the phone, pair with the link that `python -m aperture.api pair` leaves on the Mac; it reaches the Mac through Tailscale over HTTPS. The token stays in this phone's Keychain and goes only to the paired address."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Адрес локального API бота. В симуляторе подходит собственный адрес Mac. На телефоне используйте HTTPS-адрес, который Tailscale выдаёт Mac (см. apps/ios/README.md)."
+            "value": "В симуляторе подходит собственный адрес Mac. На телефоне свяжите его с Mac по ссылке, которую оставляет `python -m aperture.api pair`: телефон обращается к Mac через Tailscale по HTTPS. Токен хранится в Связке ключей телефона и отправляется только на связанный адрес."
           }
         }
       }
