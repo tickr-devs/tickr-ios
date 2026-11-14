@@ -42,12 +42,17 @@ final class ChartModel {
   var previousDay: WireDate? { neighbour(1) }
   var nextDay: WireDate? { neighbour(-1) }
 
+  /// The bot's API at `url`, from the container.
+  private func client(_ url: URL) -> APIClient {
+    Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
+  }
+
   /// Load the days list and the newest day, keeping the chosen day and symbol when still listed.
   func load(_ url: URL, preferring preferred: String?) async {
     let request = begin()
     phase = .loading
     do {
-      let listed = try await APIClient(baseURL: url).days().days
+      let listed = try await client(url).days().days
       guard request == latestRequest else { return }
       days = listed
       if selectedDay == nil || !days.contains(where: { $0.day == selectedDay }) {
@@ -109,7 +114,7 @@ final class ChartModel {
       rebuild()
       return
     }
-    let loaded = try await APIClient(baseURL: url).day(selectedDay)
+    let loaded = try await client(url).day(selectedDay)
     guard request == latestRequest else { return }
     day = loaded
     let candidates = [preferred, symbol, loaded.trades.last?.symbol].compactMap { $0 }
@@ -123,7 +128,7 @@ final class ChartModel {
       rebuild()
       return
     }
-    let loaded = try await APIClient(baseURL: url).bars(symbol: symbol, day: selectedDay)
+    let loaded = try await client(url).bars(symbol: symbol, day: selectedDay)
     // A slower answer for a symbol or day no longer chosen is dropped.
     guard symbol == self.symbol, selectedDay == self.selectedDay else { return }
     bars = loaded

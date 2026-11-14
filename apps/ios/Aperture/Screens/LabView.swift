@@ -5,44 +5,47 @@ import SwiftUI
 /// Strategy lab: the active strategy now; observer versions, replays and refusal counts arrive with
 /// the API additions for them.
 struct LabView: View {
+  /// Order in which the blocks rise in (`rise(step:)`).
+  private enum Order: Int { case active = 1, observers = 3 }
+
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    Screen("Strategy lab") {
+    Screen(L10n.Lab.title) {
       ConnectionPrompt()
       if let status = model.status {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
           HStack {
-            CardLabel("Active strategy")
+            CardLabel(L10n.Lab.active)
             Spacer()
-            Text("trades")
-              .font(.system(size: 10, design: .monospaced))
-              .padding(.horizontal, 6)
-              .padding(.vertical, 2)
-              .foregroundStyle(Palette.tealStrong)
-              .background(Palette.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 6))
+            Text(L10n.Lab.trades)
+              .font(Tokens.Typography.annotation)
+              .padding(.horizontal, Tokens.Space.s)
+              .padding(.vertical, Tokens.Space.xxs)
+              .foregroundStyle(Palette.accentText)
+              .background(Palette.accent.opacity(Tokens.Opacity.glow),
+                in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
           }
-          HStack(spacing: 8) {
-            PulseDot(Palette.teal)
-            Text("\(status.strategy.name) v\(status.strategy.version)")
-              .font(.system(size: 15, weight: .semibold, design: .monospaced))
+          HStack(spacing: Tokens.Space.s) {
+            PulseDot(Palette.accent)
+            Text(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version))
+              .font(.subheadline.monospaced().weight(.semibold))
             Spacer()
-            Text(Money.signed(status.resultTodayGrossUsd.value))
-              .font(.system(size: 15, weight: .bold, design: .monospaced))
+            Text(verbatim: Money.signed(status.resultTodayGrossUsd.value))
+              .font(.subheadline.monospaced().bold())
               .foregroundStyle(Palette.result(status.resultTodayGrossUsd.value))
           }
         }
-        .padding(14)
+        .padding(Tokens.Space.l)
         .apertureCard()
-        .rise(0.05)
+        .rise(step: Order.active.rawValue)
 
         ContentUnavailableView {
-          Label("Observers and replays", systemImage: "sparkles")
+          Label { Text(L10n.Lab.observers) } icon: { Image(systemName: "sparkles") }
         } description: {
-          Text("How each observer version would have traded today, replays of past days and why signals "
-            + "were refused appear here once the bot's API publishes them. Approving a new version stays on the Mac.")
+          Text(L10n.Lab.observersBody)
         }
-        .rise(0.15)
+        .rise(step: Order.observers.rawValue)
       }
     }
   }

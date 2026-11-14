@@ -11,6 +11,11 @@ struct Notice: Identifiable, Equatable {
   let id = UUID()
   let text: String
   let tone: Tone
+
+  init(_ text: LocalizedStringResource, tone: Tone) {
+    self.text = String(localized: text)
+    self.tone = tone
+  }
 }
 
 /// Polls GET /status while the app is on screen and queues operator commands. The phone shows what
@@ -35,15 +40,17 @@ final class AppModel {
   @ObservationIgnored private var pollTask: Task<Void, Never>?
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
   @ObservationIgnored private var awaited: [String: CommandKind] = [:]
-  /// Used only until the first answer gives the server's poll_seconds.
-  @ObservationIgnored private let initialPollSeconds: Double = 3
+  /// Seconds between reads until the first answer gives the server's poll_seconds.
+  static let initialPollSeconds = 3.0
+  /// Shortest wait between two reads, whatever the server asks for.
+  static let minimumPollSeconds = 1.0
 
   var status: StatusV1? { response?.status }
   var isConfigured: Bool { connection.url != nil }
 
   var headline: Headline {
     guard isConfigured else {
-      return Headline(text: "Not connected. Add your Mac's address in Settings.", severity: .attention)
+      return Headline(text: String(localized: L10n.Connect.notConnected), severity: .attention)
     }
     return Headline.make(response: response, fetchError: fetchError)
   }
@@ -61,8 +68,8 @@ final class AppModel {
         guard let self else { return }
         await self.refresh()
         let seconds = self.response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
-          ?? self.initialPollSeconds
-        try? await Task.sleep(for: .seconds(max(seconds, 1)))
+          ?? Self.initialPollSeconds
+        try? await Task.sleep(for: .seconds(max(seconds, Self.minimumPollSeconds)))
       }
     }
   }
@@ -102,11 +109,11 @@ final class AppModel {
   func send(_ command: OperatorCommand, confirmOwner: (() async -> Biometrics.Outcome)? = nil) async {
     let title = Board.commandTitle(command.kind)
     guard !sending else {
-      notice = Notice(text: "\(title) not sent: another command is being sent.", tone: .failure)
+      notice = Notice(L10n.Notice.busy(title), tone: .failure)
       return
     }
     guard canCommand, let url = connection.url else {
-      notice = Notice(text: "\(title) not sent: the bot's status is not current.", tone: .failure)
+      notice = Notice(L10n.Notice.notCurrent(title), tone: .failure)
       return
     }
     sending = true
@@ -116,25 +123,25 @@ final class AppModel {
       case .confirmed: break
       case .declined: return
       case .unavailable(let cause):
-        notice = Notice(text: "\(title) not sent: owner not confirmed (\(cause)).", tone: .failure)
+        notice = Notice(L10n.Notice.notConfirmed(title, cause), tone: .failure)
         return
       }
     }
     await refresh()
     guard isFresh, connection.url == url else {
-      notice = Notice(text: "\(title) not sent: the bot's status went out of date.", tone: .failure)
+      notice = Notice(L10n.Notice.wentStale(title), tone: .failure)
       return
     }
     do {
       let accepted = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: url)).send(command)
       awaited[accepted.command.commandId] = command.kind
       if let warning = accepted.warning {
-        notice = Notice(text: "\(title) queued. \(warning)", tone: .failure)
+        notice = Notice(L10n.Notice.queuedWarning(title, warning), tone: .failure)
       } else {
-        notice = Notice(text: "\(title) queued for the bot.", tone: .info)
+        notice = Notice(L10n.Notice.queued(title), tone: .info)
       }
     } catch {
-      notice = Notice(text: "\(title) not sent: \(Self.describe(error))", tone: .failure)
+      notice = Notice(L10n.Notice.failed(title, Self.describe(error)), tone: .failure)
     }
     await refresh()
   }
@@ -144,8 +151,10 @@ final class AppModel {
       guard awaited.removeValue(forKey: record.commandId) != nil else { continue }
       let title = Board.commandTitle(record.kind)
       switch record.outcome {
-      case .done: notice = Notice(text: "\(title): done.", tone: .success)
-      case .refused: notice = Notice(text: "\(title) refused: \(record.cause ?? "no cause given")", tone: .failure)
+      case .done: notice = Notice(L10n.Notice.done(title), tone: .success)
+      case .refused:
+        let cause = record.cause ?? String(localized: L10n.Notice.noCause)
+        notice = Notice(L10n.Notice.refused(title, cause), tone: .failure)
       }
     }
   }

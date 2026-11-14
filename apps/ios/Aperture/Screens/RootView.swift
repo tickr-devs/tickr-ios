@@ -8,19 +8,19 @@ struct RootView: View {
     @Bindable var model = model
     TabView(selection: $model.selectedTab) {
       NavigationStack { HomeView() }
-        .tabItem { Label("Home", systemImage: "square.grid.2x2") }
+        .tabItem { Label { Text(L10n.App.home) } icon: { Image(systemName: "square.grid.2x2") } }
         .tag(AppTab.home)
       NavigationStack { PositionsView() }
-        .tabItem { Label("Positions", systemImage: "lock.shield") }
+        .tabItem { Label { Text(L10n.App.positions) } icon: { Image(systemName: "lock.shield") } }
         .tag(AppTab.positions)
       NavigationStack { ChartTab() }
-        .tabItem { Label("Chart", systemImage: "chart.xyaxis.line") }
+        .tabItem { Label { Text(L10n.App.chart) } icon: { Image(systemName: "chart.xyaxis.line") } }
         .tag(AppTab.chart)
       NavigationStack { ActivityView() }
-        .tabItem { Label("Activity", systemImage: "list.bullet.rectangle") }
+        .tabItem { Label { Text(L10n.App.activity) } icon: { Image(systemName: "list.bullet.rectangle") } }
         .tag(AppTab.activity)
       NavigationStack { LabView() }
-        .tabItem { Label("Lab", systemImage: "sparkles") }
+        .tabItem { Label { Text(L10n.App.lab) } icon: { Image(systemName: "sparkles") } }
         .tag(AppTab.lab)
     }
     .modifier(NoticeOverlay())

@@ -7,7 +7,7 @@ import SwiftUI
 /// symbol with the chips, the timeframe under the chart; touch and hold the chart for a candle.
 struct ChartTab: View {
   @Environment(AppModel.self) private var app
-  @State private var chart = ChartModel()
+  @State private var chart = Container.shared.chartModel()
   @State private var lines = CandleChart.Lines()
 
   var body: some View {

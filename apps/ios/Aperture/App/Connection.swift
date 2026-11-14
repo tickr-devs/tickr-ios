@@ -2,7 +2,12 @@ import Foundation
 
 /// Where the phone finds the bot's local API. Stored on the phone only.
 struct Connection: Equatable {
+  /// UserDefaults key of the saved address.
   static let defaultsKey = "apiBaseURL"
+  /// URL schemes the bot's local API answers on.
+  static let schemes: Set<String> = ["http", "https"]
+  /// The API's loopback address, which the Simulator reaches because it shares the Mac's network.
+  static let simulatorAddress = "http://127.0.0.1:8766"
 
   var address: String
 
@@ -10,15 +15,14 @@ struct Connection: Equatable {
   var url: URL? {
     let trimmed = address.trimmingCharacters(in: .whitespacesAndNewlines)
     guard let url = URL(string: trimmed), let scheme = url.scheme?.lowercased(),
-      scheme == "http" || scheme == "https", url.host != nil else { return nil }
+      Self.schemes.contains(scheme), url.host != nil else { return nil }
     return url
   }
 
   static func load(_ defaults: UserDefaults = .standard) -> Connection {
     if let saved = defaults.string(forKey: defaultsKey) { return Connection(address: saved) }
     #if targetEnvironment(simulator)
-    // The Simulator shares the Mac's network, so the API's loopback address works as is.
-    return Connection(address: "http://127.0.0.1:8766")
+    return Connection(address: simulatorAddress)
     #else
     return Connection(address: "")
     #endif

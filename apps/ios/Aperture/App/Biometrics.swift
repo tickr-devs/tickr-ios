@@ -13,7 +13,7 @@ enum Biometrics {
     let context = LAContext()
     var error: NSError?
     guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
-      return .unavailable(error?.localizedDescription ?? "Face ID and passcode are not available")
+      return .unavailable(error?.localizedDescription ?? String(localized: L10n.Connect.faceIDUnavailable))
     }
     do {
       return try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
