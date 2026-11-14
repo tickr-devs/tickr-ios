@@ -1,6 +1,8 @@
 // swift-tools-version:5.9
-// Aperture operator app for macOS. Contract models, API client and design pieces come from the
-// shared package in apps/shared (also used by the iOS app in apps/ios).
+// Aperture operator app for macOS, buildable without Xcode (`swift build`, scripts/make-app.sh).
+// In Xcode open Aperture.xcworkspace at the repository root instead: ApertureMac.xcodeproj builds
+// the same sources (folder Aperture/) as a signed app. Contract models, API client and design
+// pieces come from the shared package in apps/shared (also used by the iOS app in apps/ios).
 import PackageDescription
 
 let package = Package(
@@ -13,11 +15,12 @@ let package = Package(
         .package(name: "ApertureShared", path: "../shared"),
     ],
     targets: [
-        .target(
-            name: "ApertureUI",
-            dependencies: [.product(name: "ApertureKit", package: "ApertureShared")]),
         .executableTarget(
             name: "ApertureMac",
-            dependencies: ["ApertureUI", .product(name: "ApertureKit", package: "ApertureShared")]),
+            dependencies: [
+                .product(name: "ApertureKit", package: "ApertureShared"),
+                .product(name: "ApertureDesign", package: "ApertureShared"),
+            ],
+            path: "Aperture"),
     ]
 )

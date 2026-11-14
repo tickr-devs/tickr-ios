@@ -6,6 +6,7 @@ on:
       - "apps/shared/**"
       - "tests/api/fixtures/**"
       - "src/aperture/api/schema/**"
+      - "Aperture.xcworkspace/**"
       - ".github/workflows/macos-app.yml"
   push:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - "apps/shared/**"
       - "tests/api/fixtures/**"
       - "src/aperture/api/schema/**"
+      - "Aperture.xcworkspace/**"
       - ".github/workflows/macos-app.yml"
 jobs:
   build-and-test:
@@ -30,3 +32,9 @@ jobs:
         run: |
           swift build
           scripts/make-app.sh
+      - name: Xcode workspace builds the macOS app (what the owner opens in Xcode)
+        run: |
+          xcodebuild -version
+          xcodebuild -workspace Aperture.xcworkspace -scheme "Aperture macOS" \
+            -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
+            CODE_SIGNING_ALLOWED=NO build

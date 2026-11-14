@@ -1,6 +1,5 @@
 import AppKit
 import ApertureKit
-import ApertureUI
 import SwiftUI
 
 /// macOS shell: a menu-bar item that is always visible plus a status window.

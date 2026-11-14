@@ -15,12 +15,28 @@ the three operator commands. It never talks to the broker.
 | Path | What |
 |---|---|
 | `../shared` | Shared Swift package (see `apps/shared/README.md`): contract models and API client (`ApertureKit`), palette and animated pieces (`ApertureDesign`). |
-| `Sources/ApertureUI` | SwiftUI views and the polling model. |
-| `Sources/ApertureMac` | macOS shell: menu-bar extra + window. |
+| `Aperture/` | The app's Swift sources (views, polling model, menu-bar extra, window). |
+| `ApertureMac.xcodeproj` | Xcode project: target and scheme `Aperture macOS`, builds `Aperture.app` from `Aperture/`. |
+| `Support/Info.plist` | Info.plist keys Xcode cannot generate (local-network HTTP to the API). |
+| `Package.swift` | The same sources as a Swift package, for `swift build` and `scripts/make-app.sh` without Xcode. |
 
-## Run on your Mac
+## Open in Xcode
 
-Needs Xcode 15 or newer (or the Swift 5.9+ command line tools) and macOS 14+.
+Needs Xcode 16 or newer and macOS 14+.
+
+```sh
+open Aperture.xcworkspace        # at the repository root
+```
+
+The workspace holds the macOS app (`apps/macos/ApertureMac.xcodeproj`) and the shared package
+(`apps/shared`); the iOS app's project joins it when it is committed. Pick the scheme `Aperture macOS` and
+"My Mac", then Run (⌘R). Signing is automatic and signs to run locally; no Apple ID is needed
+for the Mac app. New Swift files dropped into `apps/macos/Aperture/` are picked up without
+editing the project. Start the API first (below), or the app shows "unavailable".
+
+## Run without Xcode
+
+Needs the Swift 5.9+ command line tools and macOS 14+.
 
 ```sh
 # 1. Start the API (the bot writes data/status.json; without the bot the app shows "unavailable").
@@ -35,8 +51,6 @@ apps/macos/scripts/make-app.sh && open apps/macos/build/Aperture.app
 # Tests (contract models and shared code)
 cd apps/shared && swift test
 ```
-
-To develop in Xcode: `open apps/macos/Package.swift`, pick the `ApertureMac` scheme, Run.
 
 The app talks to `http://127.0.0.1:8766` (the `[api]` port in `config/bot.toml`). If you change
 the port: `defaults write local.aperture.operator apiBaseURL http://127.0.0.1:<port>` for the
