@@ -63,4 +63,15 @@ struct VersionCurvesTests {
     #expect(try VersionCurve.simulated(try observer([], result: nil))?.total == nil)
     #expect(try VersionCurve.simulated(try observer([], result: "0", truncated: true))?.total == nil)
   }
+
+  @Test("The trading strategy's total is the bot's day result, not the sum of the listed trades")
+  func activeTotal() throws {
+    let response = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json"))
+    let status = try #require(response.status)
+    let reported = try #require(Decimal(string: "123.45"))
+    let curve = VersionCurve.active(name: "price-action", version: "1", trades: status.tradesToday, total: reported)
+    #expect(curve.points.count == status.tradesToday.count)
+    #expect(curve.points.last?.total == status.tradesToday.map(\.resultGrossUsd.value).reduce(0, +))
+    #expect(curve.total == reported)
+  }
 }
