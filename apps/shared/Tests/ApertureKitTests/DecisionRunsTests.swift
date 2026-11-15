@@ -19,7 +19,7 @@ struct DecisionRunsTests {
     // The admission as the bot records it: a skipped ENTER here is a refused one, an observer's
     // ENTER is never evaluated, any other verdict has none.
     let refused = #""admission": "refused", "refusal_cause": "POSITION_LIMIT_REACHED: limit 1", "refusal": "#
-      + #"{"code": "POSITION_LIMIT_REACHED", "message": "limit 1", "since": null, "until": null}"#
+      + #"{"code": "POSITION_LIMIT_REACHED", "message": "limit 1", "since": null, "until": null, "params": {}}"#
     let admission = switch (action, observer, skipped) {
     case ("ENTER", true, _): #""admission": "not_evaluated", "refusal_cause": null, "refusal": null"#
     case ("ENTER", false, true): refused

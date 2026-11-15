@@ -77,7 +77,7 @@ struct SkippedGroupsTests {
       {"at": "2026-11-13T16:\(String(format: "%02d", minute)):00.000Z", "symbol": "\(symbol)",
        "strategy": {"name": "price-action", "version": "2"}, "admission": "refused",
        "refusal_cause": null,
-       "refusal": {"code": "\(code)", "message": "m\(minute)", "since": null, "until": null},
+       "refusal": {"code": "\(code)", "message": "m\(minute)", "since": null, "until": null, "params": {}},
        "entry_price": null, "stop_price": null, "checks": [],
        "prices_after": [], "prices_after_cause": "none",
        "what_if": {"result_gross_usd": null, "result_r": null, "exit_reason": null, "cause": "none"}}
@@ -124,7 +124,8 @@ struct SkippedGroupsTests {
       {"at": "2026-11-13T16:30:00.000Z", "symbol": "MVLD", "strategy": {"name": "price-action", "version": "2"},
        "admission": "refused", "refusal_cause": "SYMBOL_COOLDOWN: MVLD closed at a loss",
        "refusal": {"code": "SYMBOL_COOLDOWN", "message": "MVLD closed at a loss",
-                   "since": "2026-11-13T16:26:30.000Z", "until": "2026-11-13T16:56:30.000Z"},
+                   "since": "2026-11-13T16:26:30.000Z", "until": "2026-11-13T16:56:30.000Z",
+                   "params": {"symbol": "MVLD", "until": "11:56"}},
        "entry_price": null, "stop_price": null, "checks": [],
        "prices_after": [], "prices_after_cause": "none",
        "what_if": {"result_gross_usd": null, "result_r": null, "exit_reason": null, "cause": "none"}}

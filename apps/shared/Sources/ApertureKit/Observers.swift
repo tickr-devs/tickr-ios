@@ -100,8 +100,10 @@ public struct RefusalV1: Codable, Hashable, Sendable {
   public let message: String
   public let since: WireTime?
   public let until: WireTime?
+  /// The values `message` names, by name (docs/api.md, `refusal` → `params`).
+  public let params: [String: String]
 
-  enum CodingKeys: String, CodingKey { case code, message, since, until }
+  enum CodingKeys: String, CodingKey { case code, message, since, until, params }
 
   public init(from decoder: Decoder) throws {
     let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -109,6 +111,7 @@ public struct RefusalV1: Codable, Hashable, Sendable {
     message = try c.decode(String.self, forKey: .message)
     since = try c.decodeNullable(WireTime.self, forKey: .since)
     until = try c.decodeNullable(WireTime.self, forKey: .until)
+    params = try c.decode([String: String].self, forKey: .params)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -117,6 +120,7 @@ public struct RefusalV1: Codable, Hashable, Sendable {
     try c.encode(message, forKey: .message)
     try c.encodeNullable(since, forKey: .since)
     try c.encodeNullable(until, forKey: .until)
+    try c.encode(params, forKey: .params)
   }
 }
 

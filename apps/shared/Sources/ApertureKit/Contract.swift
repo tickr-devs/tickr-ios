@@ -20,11 +20,6 @@ public enum CommandKind: String, Codable, Sendable, CaseIterable {
 
 public enum CommandOutcome: String, Codable, Sendable { case done, refused }
 
-public struct Gate: Codable, Hashable, Sendable {
-  public let open: Bool
-  public let cause: String
-}
-
 public struct StrategyId: Codable, Hashable, Sendable {
   public let name: String
   public let version: String
@@ -36,17 +31,21 @@ public struct EntryBlock: Codable, Hashable, Sendable {
   /// False for an ordinary state that passes on its own (a position is already open, the time
   /// is outside the entry window): show it calmly, not as a warning.
   public let attention: Bool
+  /// The values `text` names, by name (docs/api.md, "Reason codes"); empty when it names none.
+  public let params: [String: String]
 
   enum CodingKeys: String, CodingKey {
     case cause
     case text
     case attention
+    case params
   }
 
-  public init(cause: String, text: String, attention: Bool) {
+  public init(cause: String, text: String, attention: Bool, params: [String: String] = [:]) {
     self.cause = cause
     self.text = text
     self.attention = attention
+    self.params = params
   }
 
   /// `attention` was added after version 1 shipped: a block written by an older bot has no
@@ -56,13 +55,9 @@ public struct EntryBlock: Codable, Hashable, Sendable {
     cause = try c.decode(String.self, forKey: .cause)
     text = try c.decode(String.self, forKey: .text)
     attention = try c.decodeIfPresent(Bool.self, forKey: .attention) ?? true
+    // Added after version 1 shipped, like `attention`.
+    params = try c.decodeIfPresent([String: String].self, forKey: .params) ?? [:]
   }
-}
-
-public struct Fence: Codable, Hashable, Sendable {
-  public let kind: String
-  public let since: WireTime
-  public let text: String
 }
 
 public struct Freshness: Codable, Hashable, Sendable {
