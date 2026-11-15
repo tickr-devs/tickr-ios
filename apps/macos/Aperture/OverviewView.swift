@@ -226,15 +226,13 @@ private struct DayResult: View {
 
   /// Width of the result's sparkline, in points.
   static let sparklineWidth: CGFloat = 200
-  /// Smallest scale a long result shrinks to before it truncates.
-  static let minimumScale = 0.7
 
   var body: some View {
     VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
       CardLabel(L10n.Overview.dayResult)
       MoneyText(value: counted, usd: true, font: Tokens.Typography.display)
         .lineLimit(1)
-        .minimumScaleFactor(Self.minimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
       Text(verbatim: subtitle).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
       DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
         .frame(width: Self.sparklineWidth, height: Tokens.Size.sparkline)

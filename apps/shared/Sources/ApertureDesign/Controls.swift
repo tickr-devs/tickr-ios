@@ -150,9 +150,3 @@ public struct InfoCaption: View {
     .font(Tokens.Typography.caption)
   }
 }
-
-/// Fixed values of the generic controls above (generic types cannot hold static constants).
-enum ControlMetrics {
-  /// Smallest scale a chip's value may shrink to before it truncates.
-  static let minimumScale = 0.7
-}

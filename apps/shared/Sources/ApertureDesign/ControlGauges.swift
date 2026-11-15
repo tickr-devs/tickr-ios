@@ -83,7 +83,7 @@ public struct MiniRing: View {
         .font(Tokens.Typography.annotationBold)
         .foregroundStyle(Palette.textPrimary)
         .lineLimit(1)
-        .minimumScaleFactor(ControlMetrics.minimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
         .padding(Tokens.Stroke.gauge)
     }
     .padding(Tokens.Stroke.gauge / 2)

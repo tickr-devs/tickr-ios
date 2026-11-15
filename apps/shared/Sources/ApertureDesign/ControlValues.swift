@@ -28,7 +28,7 @@ public struct MetricChip<Value: View>: View {
         .font(Tokens.Typography.chipValue)
         .foregroundStyle(Palette.textPrimary)
         .lineLimit(1)
-        .minimumScaleFactor(ControlMetrics.minimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
         .contentTransition(.numericText())
     }
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -153,7 +153,7 @@ public struct IconMetric: View {
         .font(compact ? Tokens.Typography.captionMono : Tokens.Typography.chipValue)
         .foregroundStyle(color)
         .lineLimit(1)
-        .minimumScaleFactor(ControlMetrics.minimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
         .contentTransition(.numericText())
     }
     .frame(maxWidth: compact ? nil : .infinity, alignment: .leading)

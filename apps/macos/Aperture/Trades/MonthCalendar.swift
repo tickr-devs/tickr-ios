@@ -113,8 +113,6 @@ struct MonthCalendar: View {
 private struct CalendarDay: View {
   /// Height of a day's cell, in points.
   static let height: CGFloat = 36
-  /// Smallest scale the result may shrink to before it truncates.
-  static let minimumScale = 0.6
 
   let cell: DayCalendar.Cell
   let isToday: Bool
@@ -133,7 +131,7 @@ private struct CalendarDay: View {
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.result(result))
             .lineLimit(1)
-            .minimumScaleFactor(Self.minimumScale)
+            .minimumScaleFactor(Tokens.Shrink.tight)
         }
       }
       .frame(maxWidth: .infinity, minHeight: Self.height)

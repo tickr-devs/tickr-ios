@@ -77,7 +77,7 @@ private struct WatchingRow: View {
           .foregroundStyle(Palette.textTertiary)
           // One line at ordinary sizes; at large ones it wraps rather than cutting the figures.
           .lineLimit(typeSize.stacksRows ? nil : 1)
-          .minimumScaleFactor(StatTile.minimumScale)
+          .minimumScaleFactor(Tokens.Shrink.standard)
       }
       if let closeness {
         ProgressView(value: min(max(closeness, 0), 1))

@@ -286,8 +286,6 @@ private struct DayPicker: View {
 private struct DayCell: View {
   /// Height of a day's cell, in points: a comfortable touch target.
   static let height: CGFloat = 46
-  /// Smallest scale the result may shrink to before it truncates.
-  static let minimumScale = 0.6
 
   let cell: DayCalendar.Cell
   let isToday: Bool
@@ -306,7 +304,7 @@ private struct DayCell: View {
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.result(result))
             .lineLimit(1)
-            .minimumScaleFactor(Self.minimumScale)
+            .minimumScaleFactor(Tokens.Shrink.tight)
         } else if isToday {
           PulseDot(Palette.accent, size: Tokens.Size.dotSmall)
         }
@@ -411,7 +409,7 @@ private struct DayCard: View {
           .font(Tokens.Typography.metric)
           .foregroundStyle(Palette.result(figures.result))
           .lineLimit(1)
-          .minimumScaleFactor(StatTile.minimumScale)
+          .minimumScaleFactor(Tokens.Shrink.standard)
           .contentTransition(.numericText(value: NSDecimalNumber(decimal: shown).doubleValue))
           .accessibilityLabel(Text(verbatim: Money.signedUSD(figures.result)))
         Text(figures.counts)
@@ -620,7 +618,7 @@ private struct TradesList: View {
     Text(verbatim: symbol)
       .font(Tokens.Typography.calloutMono.bold())
       .lineLimit(1)
-      .minimumScaleFactor(StatTile.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
   }
 
   private func timeText(_ time: String) -> some View {
@@ -628,7 +626,7 @@ private struct TradesList: View {
       .font(Tokens.Typography.annotation)
       .foregroundStyle(Palette.textQuaternary)
       .lineLimit(1)
-      .minimumScaleFactor(StatTile.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
   }
 
   private func resultText(_ result: String, tone: Tone) -> some View {
@@ -636,7 +634,7 @@ private struct TradesList: View {
       .font(Tokens.Typography.calloutMono.bold())
       .foregroundStyle(tone.text)
       .lineLimit(1)
-      .minimumScaleFactor(StatTile.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
   }
 
   private func row(
@@ -776,7 +774,7 @@ private struct SkippedRow: View {
       .font(Tokens.Typography.bodyMono.bold())
       .foregroundStyle(Palette.textPrimary)
       .lineLimit(1)
-      .minimumScaleFactor(StatTile.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
   }
 
   private var tagPill: some View {
@@ -1010,7 +1008,7 @@ private struct Journal: View {
       .font(Tokens.Typography.annotation)
       .foregroundStyle(Palette.textQuaternary)
       .lineLimit(1)
-      .minimumScaleFactor(StatTile.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
   }
 
   private func dot(_ event: Board.Event) -> some View {
@@ -1022,7 +1020,7 @@ private struct Journal: View {
       .font(Tokens.Typography.annotationBold)
       .foregroundStyle(event.tone.color)
       .lineLimit(1)
-      .minimumScaleFactor(StatTile.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
   }
 
   private func text(_ event: Board.Event) -> some View {

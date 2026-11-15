@@ -130,9 +130,6 @@ extension HomeView {
 /// The session the status describes: "today" only when it is today's New York date on the bot's
 /// clock, else the last session (a weekend, a day off), which is never shown as live.
 private struct DayLine: View {
-  /// Smallest scale the day may shrink to before it truncates.
-  static let minimumScale = 0.7
-
   @Environment(AppModel.self) private var model
   @Environment(\.dynamicTypeSize) private var typeSize
   let days: HomeDayModel
@@ -148,7 +145,7 @@ private struct DayLine: View {
           .accessibilityLabel(Text(L10n.Home.previousDay))
         day
           .lineLimit(1)
-          .minimumScaleFactor(Self.minimumScale)
+          .minimumScaleFactor(Tokens.Shrink.standard)
         Spacer(minLength: 0)
         if !stacked { trailing }
         Button { days.forward() } label: { Image(systemName: "chevron.right") }
@@ -204,8 +201,6 @@ private struct DayLine: View {
 private struct Summary: View {
   /// Side of the result ring, in points.
   static let ringSide: CGFloat = 136
-  /// Smallest scale the result may shrink to inside the ring.
-  static let minimumScale = 0.6
   /// Symbol of a closed trading gate.
   static let gateClosedSymbol = "lock.fill"
   /// Symbols of the entries glyph: allowed, paused by the owner, calm "not now", blocked.
@@ -237,7 +232,7 @@ private struct Summary: View {
             .font(Tokens.Typography.metric)
             .foregroundStyle(result < 0 ? Palette.seriesATRText : Palette.profitText)
             .contentTransition(.numericText(value: NSDecimalNumber(decimal: result).doubleValue))
-            .minimumScaleFactor(Self.minimumScale)
+            .minimumScaleFactor(Tokens.Shrink.tight)
             .lineLimit(1)
           Group {
             if let stats {
@@ -249,7 +244,7 @@ private struct Summary: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
           .lineLimit(1)
-          .minimumScaleFactor(Self.minimumScale)
+          .minimumScaleFactor(Tokens.Shrink.tight)
         }
         .padding(Tokens.Space.l)
       }
@@ -636,7 +631,7 @@ private struct LiveFlowCard: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textTertiary)
         .lineLimit(1)
-        .minimumScaleFactor(FlowDot.minimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
       Group {
         if stage.value != nil || stage.flag == nil {
           Text(verbatim: stage.value ?? Format.missing)
@@ -651,7 +646,7 @@ private struct LiveFlowCard: View {
         }
       }
       .lineLimit(1)
-      .minimumScaleFactor(FlowDot.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
       pool(stage)
     }
     // .contain, not .combine: the refused tray inside stays a button VoiceOver can activate.
@@ -679,7 +674,7 @@ private struct LiveFlowCard: View {
         }
       }
       .lineLimit(1)
-      .minimumScaleFactor(FlowDot.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
       pool(stage)
     }
     // .contain, not .combine: the refused tray inside stays a button VoiceOver can activate.
@@ -880,8 +875,6 @@ private struct FlowDot: View {
   /// Diameter of the dot and blur of its glow, in points.
   static let size: CGFloat = 11
   static let glow: CGFloat = 6
-  /// Smallest scale a stage's value shrinks to.
-  static let minimumScale = 0.7
 
   var body: some View {
     PulseDot(color, size: Self.size, pulsing: lit, event: event)

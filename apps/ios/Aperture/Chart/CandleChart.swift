@@ -82,8 +82,6 @@ struct CandleChart: View {
   /// Width every pane gives its scale labels, so the plot areas of all panes are equally wide
   /// and candles, volume and studies line up.
   static let axisLabelWidth: CGFloat = 50
-  /// Smallest scale the readout line may shrink to before it truncates.
-  static let readoutMinimumScale = 0.7
   /// Size of a watch or entry mark on its candle, in points.
   static let eventSize: CGFloat = 60
   /// Length of the leader line of the high and low labels, in points.
@@ -134,7 +132,7 @@ struct CandleChart: View {
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(selected == nil ? Palette.textQuaternary : Palette.textSecondary)
         .lineLimit(1)
-        .minimumScaleFactor(Self.readoutMinimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
       legend(priceLegend)
       VStack(spacing: 0) {
         priceChart
@@ -504,7 +502,7 @@ struct CandleChart: View {
       .font(Tokens.Typography.annotation)
       .monospacedDigit()
       .lineLimit(1)
-      .minimumScaleFactor(Self.readoutMinimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
       .padding(.top, Tokens.Space.xxs)
     }
   }
@@ -652,7 +650,7 @@ struct CandleChart: View {
       .font(Tokens.Typography.annotationBold)
       .foregroundStyle(Palette.surface)
       .lineLimit(1)
-      .minimumScaleFactor(Self.readoutMinimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
       .padding(.horizontal, Tokens.Space.xxs)
       .frame(width: axisWidth, alignment: .leading)
       .background(tag.fill, in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
@@ -718,7 +716,7 @@ struct CandleChart: View {
       .font(Tokens.Typography.annotation)
       .foregroundStyle(colour)
       .lineLimit(1)
-      .minimumScaleFactor(Self.readoutMinimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
       .frame(width: axisWidth, alignment: .leading)
   }
 
@@ -869,7 +867,7 @@ private struct PaneAxes: ViewModifier {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
         .lineLimit(1)
-        .minimumScaleFactor(CandleChart.readoutMinimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
         .frame(width: axisWidth, alignment: .leading)
     }
   }

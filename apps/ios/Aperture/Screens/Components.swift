@@ -207,9 +207,6 @@ struct ConnectionPrompt: View {
 
 /// A label and a value in a small card, used in rows of three.
 struct StatTile: View {
-  /// Smallest scale a value may shrink to before it truncates (also used by the watching card).
-  static let minimumScale = 0.7
-
   let label: LocalizedStringResource
   let value: String
   var color: Color = Palette.textPrimary

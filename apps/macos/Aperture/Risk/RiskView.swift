@@ -62,8 +62,6 @@ private struct LossRoomCard: View {
 
   /// Diameter of the ring, in points.
   static let ringSize: CGFloat = 220
-  /// Smallest scale the amount in the ring shrinks to.
-  static let amountMinimumScale = 0.5
   /// Room left below this share of the limit turns the ring amber, below `alarm` red.
   static let calm = 0.5
   static let alarm = 0.2
@@ -101,7 +99,7 @@ private struct LossRoomCard: View {
               // One line inside the ring, shrinking for a long amount ("248.40 USD" wrapped).
               MoneyText(value: room, usd: true, font: Tokens.Typography.hero, colored: false, signed: false)
                 .lineLimit(1)
-                .minimumScaleFactor(Self.amountMinimumScale)
+                .minimumScaleFactor(Tokens.Shrink.most)
                 .contentTransition(.numericText())
             } else {
               Text(verbatim: Format.missing).font(Tokens.Typography.hero)
@@ -296,8 +294,6 @@ private struct PositionSlots: View {
   static let tileMinWidth: CGFloat = 84
   /// Height of a tile, so free and taken tiles line up, in points.
   static let tileHeight: CGFloat = 64
-  /// Smallest scale a tile's text shrinks to before it truncates.
-  static let textMinimumScale = 0.8
 
   private var free: Int { max(0, limit - positions.count) }
 
@@ -347,7 +343,7 @@ private struct PositionSlots: View {
         .foregroundStyle(colors.text)
     }
     .lineLimit(1)
-    .minimumScaleFactor(Self.textMinimumScale)
+    .minimumScaleFactor(Tokens.Shrink.slight)
     .padding(Tokens.Space.s)
     .frame(maxWidth: .infinity, minHeight: Self.tileHeight, alignment: .topLeading)
     .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.medium))

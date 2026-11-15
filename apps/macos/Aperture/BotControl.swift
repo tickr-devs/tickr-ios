@@ -136,8 +136,6 @@ struct BotControls: View {
   @State private var confirming: BotAction?
   var compact = false
 
-  /// Smallest a button's title shrinks to before it truncates, as a share of its size.
-  static let titleMinimumScale = 0.8
   /// Button columns in the menu-bar panel and on Overview.
   static let compactColumns = 3
   static let columns = 2
@@ -199,7 +197,7 @@ struct BotControls: View {
         Label {
           Text(verbatim: action.needsConfirmation ? "\(action.title)…" : action.title)
             .lineLimit(1)
-            .minimumScaleFactor(Self.titleMinimumScale)
+            .minimumScaleFactor(Tokens.Shrink.slight)
         } icon: {
           Image(systemName: action.symbol)
         }

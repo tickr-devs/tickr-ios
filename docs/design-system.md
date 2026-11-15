@@ -139,6 +139,18 @@ and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` �
 | `medium` | 0.70 | Inactive elements, pulse start |
 | `overlay` | 0.85 | Readouts over content |
 
+## Text shrink (`Tokens.Shrink`)
+
+How far a line of text may shrink to fit (`minimumScaleFactor`) before it truncates. A screen picks
+a step; it does not define its own factor.
+
+| Token | Value | Use |
+|---|---|---|
+| `slight` | 0.8 | Button titles, tile text |
+| `standard` | 0.7 | Figures, values and day labels in cards, chips and charts |
+| `tight` | 0.6 | Results in tight cells: calendar day cells, the day ring, the day's figures (Trades) |
+| `most` | 0.5 | A large amount inside a ring |
+
 ## Sizes (`Tokens.Size`)
 
 | Token | pt | Use |

@@ -320,8 +320,6 @@ private struct ReplayCard: View {
   static let rDigits = 2
   static let percentDigits = 0
   static let factorDigits = 2
-  /// Smallest scale a figure shrinks to before it truncates.
-  static let figureMinimumScale = 0.7
 
   private var replay: LabReplayV1? { model.labReplay }
   private var running: Bool { replay?.state == .running }
@@ -442,7 +440,7 @@ private struct ReplayCard: View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
       value
         .lineLimit(1)
-        .minimumScaleFactor(Self.figureMinimumScale)
+        .minimumScaleFactor(Tokens.Shrink.standard)
       Text(title)
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textTertiary)

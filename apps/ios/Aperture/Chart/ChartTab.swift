@@ -202,9 +202,6 @@ struct ChartTab: View {
 /// The symbol and the day picker, the screen's top bar. At large text sizes the day goes under
 /// the symbol, so the arrows stay on screen.
 private struct DayBar: View {
-  /// Smallest scale the day may shrink to before it truncates.
-  static let minimumScale = 0.7
-
   @Environment(\.dynamicTypeSize) private var typeSize
   let chart: ChartModel
   let url: URL
@@ -286,7 +283,7 @@ private struct DayBar: View {
           .imageScale(.small)
       }
       .lineLimit(1)
-      .minimumScaleFactor(Self.minimumScale)
+      .minimumScaleFactor(Tokens.Shrink.standard)
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textTertiary)
     }
@@ -295,9 +292,6 @@ private struct DayBar: View {
 
 /// The symbol's last price and change over the day, with the day's range and volume.
 private struct DayHeader: View {
-  /// Smallest scale a figure may shrink to before it truncates.
-  static let minimumScale = 0.7
-
   let chart: ChartModel
 
   var body: some View {
@@ -329,7 +323,7 @@ private struct DayHeader: View {
             .font(Tokens.Typography.calloutMono)
             .foregroundStyle(tone)
             .lineLimit(1)
-            .minimumScaleFactor(Self.minimumScale)
+            .minimumScaleFactor(Tokens.Shrink.standard)
           }
           Spacer(minLength: Tokens.Space.s)
           Grid(alignment: .leading, horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.xxs) {

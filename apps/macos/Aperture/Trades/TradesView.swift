@@ -248,9 +248,6 @@ private struct DayRow: View {
 private struct DayStatsRow: View {
   @Environment(AppModel.self) private var model
 
-  /// Figures shrink to this share of their size before they truncate.
-  static let figureMinimumScale = 0.6
-
   private var results: [Decimal] { model.shownTrades.map(\.resultGrossUsd.value) }
 
   private var averageR: Decimal? {
@@ -269,7 +266,7 @@ private struct DayStatsRow: View {
       }
     }
     .lineLimit(1)
-    .minimumScaleFactor(Self.figureMinimumScale)
+    .minimumScaleFactor(Tokens.Shrink.tight)
   }
 
   private var result: some View {
