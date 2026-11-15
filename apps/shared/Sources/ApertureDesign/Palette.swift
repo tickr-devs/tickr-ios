@@ -42,6 +42,11 @@ public enum Palette {
   /// Live and brand: running bot, live flow, the logo, focus.
   public static let accent = Color(light: 0x0EA5A0, dark: 0x2DD4BF)
   public static let accentText = Color(light: 0x0B766F, dark: 0x5EEAD4)
+  /// Fill of a primary button, and the text drawn on it (4.5:1 in both appearances).
+  public static let accentFill = Color(light: 0x0B766F, dark: 0x2DD4BF)
+  public static let onAccent = Color(light: 0xFFFFFF, dark: 0x04131A)
+  /// The light sheen across the top of a filled control.
+  public static let sheen = Color(light: 0xFFFFFF, dark: 0xFFFFFF)
   /// Money gained, a verified stop, healthy state.
   public static let profit = Color(light: 0x10B981, dark: 0x34D399)
   public static let profitText = Color(light: 0x047857, dark: 0x6EE7B7)

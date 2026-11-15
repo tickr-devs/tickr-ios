@@ -50,37 +50,6 @@ struct PlannedTag: View {
   }
 }
 
-/// A badge: a mono label in a role colour on a tinted, outlined tag.
-struct Badge: View {
-  let text: Text
-  let color: Color
-
-  init(_ title: LocalizedStringResource, color: Color) {
-    self.text = Text(title)
-    self.color = color
-  }
-
-  /// A badge showing data (an environment name, a protocol value), not a sentence.
-  init(verbatim text: String, color: Color) {
-    self.text = Text(verbatim: text)
-    self.color = color
-  }
-
-  var body: some View {
-    text
-      .textCase(.uppercase)
-      .font(Tokens.Typography.badge)
-      .tracking(Tokens.Typography.badgeTracking)
-      .padding(.horizontal, Tokens.Space.s)
-      .padding(.vertical, Tokens.Space.xs)
-      .foregroundStyle(color)
-      .background(color.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
-      .overlay(
-        RoundedRectangle(cornerRadius: Tokens.Radius.small)
-          .strokeBorder(color.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
-  }
-}
-
 /// A money value whose digits roll when it changes.
 struct MoneyText: View {
   let value: Decimal

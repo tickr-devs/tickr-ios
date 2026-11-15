@@ -100,6 +100,12 @@ public enum Tokens {
     public static let button = Font.system(.body, weight: .semibold)
     /// Tabs and chips that name a symbol or a value (position tabs).
     public static let chip = Font.system(.callout, design: .monospaced, weight: .bold)
+    /// Compact buttons inline in a row or a card header.
+    public static let buttonCompact = Font.system(.callout, weight: .semibold)
+    /// The figure of a metric chip, an icon metric and a large delta tag.
+    public static let chipValue = Font.system(.headline, design: .monospaced, weight: .bold)
+    /// Chevrons and direction triangles beside a figure or a button title.
+    public static let chevron = Font.system(.caption2, weight: .bold)
     /// Body text and values in rows: the platform's text styles, so Dynamic Type applies.
     public static let body = Font.body
     public static let bodyMono = Font.body.monospaced()
@@ -121,6 +127,8 @@ public enum Tokens {
     public static let bold: CGFloat = 2
     /// Rings (loss room, results).
     public static let ring: CGFloat = 12
+    /// Track and fill of a small gauge ring (`MiniRing`).
+    public static let gauge: CGFloat = 5
     /// Dash pattern of a level line (stop, entry), in points: dash, gap.
     public static let dash: [CGFloat] = [5, 4]
     /// Dash pattern of planned (BACKLOG) outlines and the crosshair.
@@ -184,6 +192,22 @@ public enum Tokens {
     public static let ringHalo: CGFloat = 60
     /// How far a view rises while it fades in.
     public static let riseOffset: CGFloat = 12
+    /// Smallest comfortable touch target (Apple HIG): large buttons are at least this tall.
+    public static let touchTarget: CGFloat = 44
+    /// Round icon buttons, regular and compact.
+    public static let iconButton: CGFloat = 36
+    public static let iconButtonCompact: CGFloat = 28
+    /// State glyph tiles (`StateGlyph`), regular and compact.
+    public static let glyph: CGFloat = 30
+    public static let glyphCompact: CGFloat = 22
+    /// Column of the leading symbol in a `ValueRow`, so labels line up.
+    public static let rowSymbol: CGFloat = 16
+    /// Small gauge ring (`MiniRing`).
+    public static let miniRing: CGFloat = 52
+    /// Widest a hint bubble gets before its text wraps.
+    public static let hintMaxWidth: CGFloat = 260
+    /// Blur of the accent glow under a primary button.
+    public static let glowRadius: CGFloat = 8
   }
 
   /// Motion: every animation uses one of these curves or durations.
@@ -206,6 +230,12 @@ public enum Tokens {
     public static let pulseSeconds = 2.4
     /// How far a pulse ring grows, as a multiple of the dot.
     public static let pulseScale: CGFloat = 2.2
+    /// How much a button shrinks while pressed.
+    public static let pressScale: CGFloat = 0.97
+    /// Seconds the pointer rests on a view before its hint appears.
+    public static let hintDelay = 0.45
+    /// How far a live state glyph's pulse outline grows.
+    public static let glyphPulseScale: CGFloat = 1.35
     /// Seconds of one breath of a glow (rings, alarms).
     public static let breatheSeconds = 2.4
     /// How much a breathing glow grows.
