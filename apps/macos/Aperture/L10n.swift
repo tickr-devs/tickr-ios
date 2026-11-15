@@ -1690,5 +1690,71 @@ enum L10n {
       LocalizedStringResource("watching.noCheck", defaultValue: "No deciding check recorded", bundle: L10n.bundle)
     }
   }
+  enum EntrySent {
+    /// Label: how the entry order of a position or trade was sent.
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("entrySent.title", defaultValue: "Entry sent", bundle: L10n.bundle)
+    }
+    /// Safety row: every entry today was sent exactly once (one send per decision).
+    static var safetyRow: LocalizedStringResource {
+      LocalizedStringResource("entrySent.safetyRow", defaultValue: "Entries sent once", bundle: L10n.bundle)
+    }
+    /// The entry was sent exactly once.
+    static var once: LocalizedStringResource {
+      LocalizedStringResource("entrySent.once", defaultValue: "Once", bundle: L10n.bundle)
+    }
+    /// Alarm: the entry was sent other than once.
+    static func times(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("entrySent.times", defaultValue: "\(count) sends", bundle: L10n.bundle)
+    }
+    /// The bot has no send record for the entry.
+    static var notRecorded: LocalizedStringResource {
+      LocalizedStringResource("entrySent.notRecorded", defaultValue: "Not recorded", bundle: L10n.bundle)
+    }
+    /// Sends and the send's latest state.
+    static func withOutcome(_ sent: String, _ outcome: String) -> LocalizedStringResource {
+      LocalizedStringResource("entrySent.withOutcome", defaultValue: "\(sent) · \(outcome)", bundle: L10n.bundle)
+    }
+    /// Safety row value: every entry today was sent once.
+    static func allOnce(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("entrySent.allOnce", defaultValue: "All \(count) once", bundle: L10n.bundle)
+    }
+    /// Safety row alarm: an entry sent other than once.
+    static func breach(_ symbol: String, _ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("entrySent.breach", defaultValue: "\(symbol): \(count) sends", bundle: L10n.bundle)
+    }
+    /// Safety row: entries without a send record.
+    static func unrecorded(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("entrySent.unrecorded", defaultValue: "Not recorded: \(count)", bundle: L10n.bundle)
+    }
+    /// Safety row: entries sent once whose outcome the broker has not confirmed yet.
+    static func awaiting(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("entrySent.awaiting", defaultValue: "\(count) awaiting the broker", bundle: L10n.bundle)
+    }
+    /// Send outcome: recorded, not sent yet.
+    static var intent: LocalizedStringResource {
+      LocalizedStringResource("entrySent.intent", defaultValue: "not sent yet", bundle: L10n.bundle)
+    }
+    /// Send outcome: sent, no broker answer.
+    static var attempted: LocalizedStringResource {
+      LocalizedStringResource("entrySent.attempted", defaultValue: "no answer", bundle: L10n.bundle)
+    }
+    /// Send outcome: the broker acknowledged the order.
+    static var acknowledged: LocalizedStringResource {
+      LocalizedStringResource("entrySent.acknowledged", defaultValue: "acknowledged", bundle: L10n.bundle)
+    }
+    /// Send outcome: the broker refused the order.
+    static var refused: LocalizedStringResource {
+      LocalizedStringResource("entrySent.refused", defaultValue: "refused", bundle: L10n.bundle)
+    }
+    /// Send outcome: unknown; the broker is read, never resent.
+    static var unknown: LocalizedStringResource {
+      LocalizedStringResource("entrySent.unknown", defaultValue: "outcome unknown", bundle: L10n.bundle)
+    }
+    /// Send outcome: no send was recorded.
+    static var absent: LocalizedStringResource {
+      LocalizedStringResource("entrySent.absent", defaultValue: "no send", bundle: L10n.bundle)
+    }
+  }
   // END Screens
 }

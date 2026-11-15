@@ -317,6 +317,14 @@ private struct TradeDetailCard: View {
                   notRecorded
                 }
               }
+              GridRow {
+                let sent = EntrySent.line(trade.entry, cause: trade.entryCause)
+                Text(L10n.EntrySent.title).foregroundStyle(Palette.textSecondary)
+                Text(verbatim: sent.text)
+                  .font(Tokens.Typography.bodyMono)
+                  .foregroundStyle(sent.color)
+                  .help(sent.help.map { Text(verbatim: $0) } ?? Text(L10n.EntrySent.title))
+              }
               excursion(L10n.Trades.maeAtLeast, trade.maeUsd)
               excursion(L10n.Trades.mfeAtLeast, trade.mfeUsd)
             }

@@ -581,6 +581,9 @@ private struct PositionDetail: View {
           ?? Format.missing)
       StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing)
       StatLine(L10n.Position.opened, value: Format.marketTime(row.position.openedAt.date))
+      let sent = EntrySent.line(row.position.entry, cause: row.position.entryCause)
+      StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color)
+        .help(sent.help.map { Text(verbatim: $0) } ?? Text(L10n.EntrySent.title))
     }
   }
 
@@ -803,7 +806,7 @@ private struct SafetyCard: View {
     }
   }
 
-  private enum RowID: Hashable { case status, stops, reconcile, stream, read, foreign, pause }
+  private enum RowID: Hashable { case status, stops, entries, reconcile, stream, read, foreign, pause }
 
   private struct Row: Identifiable {
     let id: RowID
@@ -821,11 +824,16 @@ private struct SafetyCard: View {
     let verified = positions.filter { $0.stop.state == .verified }.count
     let foreign = status.fences.contains { $0.kind == Self.foreignExposureKind }
     let stream = status.freshness.stream
+    let entries = positions.map { (symbol: $0.symbol, entry: $0.entry) }
+      + status.tradesToday.map { (symbol: $0.symbol, entry: $0.entry) }
+    let sent = EntrySent.summary(entries)
     return [
       Row(id: .stops, label: L10n.Safety.brokerStops,
         value: positions.isEmpty
           ? String(localized: L10n.Common.noPosition) : String(localized: L10n.Safety.verified(verified, positions.count)),
         color: verified == positions.count ? Palette.profitText : Palette.lossText),
+      Row(id: .entries, label: L10n.EntrySent.safetyRow,
+        value: sent?.text ?? String(localized: L10n.Common.none), color: sent?.color ?? Palette.textQuaternary),
       Row(id: .reconcile, label: L10n.Safety.reconciliation,
         value: status.fences.isEmpty
           ? String(localized: L10n.Safety.noFences) : String(localized: L10n.Common.fences(status.fences.count)),
