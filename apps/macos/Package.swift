@@ -27,7 +27,7 @@ let package = Package(
         .product(name: "TickrDesign", package: "TickrShared"),
       ],
       path: "Tickr",
-      // The app icon is compiled by Xcode (actool); a `swift build` app has the generic icon.
+      // The app icon is compiled by actool (Xcode, or scripts/make-app.sh), not by SwiftPM.
       exclude: ["AppIcon.icon"],
       resources: [.process("Localizable.xcstrings")],
       // The same language settings as the Xcode project (SWIFT_APPROACHABLE_CONCURRENCY and

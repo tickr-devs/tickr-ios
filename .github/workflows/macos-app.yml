@@ -62,6 +62,8 @@ jobs:
           swift build
           swift test
           scripts/make-app.sh
+          scripts/check-app-bundle.sh build/Tickr.app
+          scripts/check-deployment-target.sh
       # Builds the app as the owner does in Xcode and runs its UI tests (apps/macos/TickrUITests)
       # against the contract fixtures; ad-hoc signed, because a UI test runner must be signed.
       - name: Xcode workspace builds the macOS app and runs its UI tests

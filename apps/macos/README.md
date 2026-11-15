@@ -47,6 +47,8 @@ python -m tickr.api --config config/bot.toml
 cd apps/macos && swift run TickrMac
 
 # 2b. Or build an app bundle and open it
+# (actool compiles Tickr/AppIcon.icon into Assets.car and AppIcon.icns, as the Xcode build does;
+#  scripts/check-app-bundle.sh, run in CI, fails if the bundle lacks the icon)
 apps/macos/scripts/make-app.sh && open apps/macos/build/Tickr.app
 
 # Tests (contract models and shared code)
