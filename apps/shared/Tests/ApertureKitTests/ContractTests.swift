@@ -330,4 +330,22 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(headline.severity == .alarm)
     #expect(headline.text.hasPrefix("Local API not reachable"))
   }
+
+  /// A stale status read again is older but no new state: its pulse key stays, though its text
+  /// counts the age.
+  @Test func staleStatusReadAgainKeepsItsPulse() throws {
+    let older = try #require(String(data: try fixture("status-response-v1.stale.json"), encoding: .utf8))
+      .replacingOccurrences(of: "\"age_seconds\": \"42.500\"", with: "\"age_seconds\": \"43.500\"")
+    let first = Headline.make(response: try response("status-response-v1.stale.json"), fetchError: nil)
+    let second = Headline.make(
+      response: try Wire.decoder().decode(StatusResponseV1.self, from: Data(older.utf8)), fetchError: nil)
+    #expect(first.text != second.text)
+    #expect(first.pulse == .stale)
+    #expect(second.pulse == first.pulse)
+  }
+
+  @Test func freshHeadlinePulsesOnItsText() throws {
+    let headline = Headline.make(response: try response("status-response-v1.minimal.json"), fetchError: nil)
+    #expect(headline.pulse == .text(headline.text))
+  }
 }

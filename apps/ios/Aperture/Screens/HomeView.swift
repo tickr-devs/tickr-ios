@@ -227,6 +227,8 @@ private struct Summary: View {
     // A recorded day says so, in the highlight colour and without a pulse; the live headline is about today.
     let text = past == nil ? headline.text : String(localized: L10n.Home.recordedDay)
     let tint = past == nil ? headline.severity.tint : Palette.highlightText
+    // A stale status's text counts its age; read again it is no new event.
+    let pulse: Headline.Pulse = past == nil ? headline.pulse : .text(text)
     RowStack(spacing: Tokens.Space.l) {
       ResultRing(fraction: stats?.winShare ?? 0, color: result < 0 ? Palette.seriesATR : Palette.accent) {
         VStack(spacing: Tokens.Space.xxs) {
@@ -258,7 +260,7 @@ private struct Summary: View {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
           PulseDot(tint, pulsing: past == nil && (headline.severity != .ok || model.response?.stale == false),
-            event: text)
+            event: pulse)
           Text(verbatim: text)
             .font(.subheadline.bold())
             .foregroundStyle(tint)
@@ -289,7 +291,7 @@ private struct Summary: View {
           .accessibilityLabel(Text(verbatim: subline(status)))
         }
       }
-      .animation(.default, value: text)
+      .animation(.default, value: pulse)
     }
   }
 

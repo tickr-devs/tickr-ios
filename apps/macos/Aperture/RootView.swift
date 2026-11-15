@@ -263,7 +263,7 @@ struct ConnectionStatus: View {
       HStack(spacing: Tokens.Space.s) {
         // Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
         PulseDot(Self.color(hasStatus: model.status != nil, stale: model.response?.stale, failed: model.fetchError != nil),
-          size: Tokens.Size.dotSmall, pulsing: isFresh, event: model.headline.text)
+          size: Tokens.Size.dotSmall, pulsing: isFresh, event: model.headline.pulse)
         Text(verbatim: text(now: model.botTime(context.date)))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
