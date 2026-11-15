@@ -559,6 +559,23 @@
         }
       }
     },
+    "kit.event.exitAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ @ %@ %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ по %@ %@"
+          }
+        }
+      }
+    },
     "kit.event.fence" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -606,6 +623,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ОТКРЫТА"
+          }
+        }
+      }
+    },
+    "kit.event.quantityAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@ @ %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@ по %@"
           }
         }
       }

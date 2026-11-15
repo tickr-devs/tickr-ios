@@ -6,6 +6,17 @@ enum L10n {
   /// The package's resource bundle, which holds the String Catalog.
   static var bundle: LocalizedStringResource.BundleDescription { .atURL(Bundle.module.bundleURL) }
 
+  // MARK: Event texts (Board.events)
+
+  /// An entry or an open position: "ABCD 54 @ 28.30", in the cards' own wording.
+  static func eventQuantityAt(_ symbol: String, _ quantity: String, _ price: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.event.quantityAt", defaultValue: "\(symbol) \(quantity) @ \(price)", bundle: bundle)
+  }
+  /// An exit with its result: "ABCD @ 29.10 +43.20".
+  static func eventExitAt(_ symbol: String, _ price: String, _ result: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.event.exitAt", defaultValue: "\(symbol) @ \(price) \(result)", bundle: bundle)
+  }
+
   // MARK: Event tags (Board.events)
 
   /// Event tag: a trade was entered.

@@ -64,18 +64,20 @@ public enum Board {
     for (index, trade) in status.tradesToday.enumerated() {
       events.append(Event(
         id: "\(tradeID)\(index)\(enterID)", time: trade.openedAt.date, tag: String(localized: L10n.tagEnter),
-        text: "\(trade.symbol) \(trade.quantity) @ \(trade.entryPrice)", tone: .teal))
+        text: String(localized: L10n.eventQuantityAt(trade.symbol, trade.quantity.text, trade.entryPrice.text)),
+        tone: .teal))
       let result = trade.resultGrossUsd.value
       events.append(Event(
         id: "\(tradeID)\(index)\(exitID)", time: trade.closedAt.date, tag: exitReasonTitle(trade.exitReason).uppercased(),
-        text: "\(trade.symbol) @ \(trade.exitPrice) \(signed(trade.resultGrossUsd))",
+        text: String(localized: L10n.eventExitAt(trade.symbol, trade.exitPrice.text, signed(trade.resultGrossUsd))),
         tone: result > 0 ? .green : result < 0 ? .red : .muted))
     }
     for position in status.positions {
       events.append(Event(
         id: "\(positionID)\(position.symbol)\(openID)", time: position.openedAt.date,
         tag: String(localized: L10n.tagOpen),
-        text: "\(position.symbol) \(position.quantity) @ \(position.entryPrice)", tone: .teal))
+        text: String(localized: L10n.eventQuantityAt(position.symbol, position.quantity.text, position.entryPrice.text)),
+        tone: .teal))
       events.append(Event(
         id: "\(positionID)\(position.symbol)\(stopID)", time: position.openedAt.date,
         tag: stopTag(position.stop.state),
