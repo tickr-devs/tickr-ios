@@ -1,4 +1,4 @@
-# Aperture operator app (iOS)
+# Tickr operator app (iOS)
 
 A SwiftUI iPhone app over the bot's local API (`docs/api.md`). Like the macOS app, it never talks to
 the broker: it shows what the bot wrote and queues operator commands that the bot decides on.
@@ -26,13 +26,13 @@ membership (APNs); they are added once that exists.
 Needs a Mac with Xcode 16 or newer. The Xcode project is committed, so nothing else is needed:
 
 ```sh
-open apps/ios/Aperture.xcodeproj
+open apps/ios/Tickr.xcodeproj
 ```
 
-(or open the root `Aperture.xcworkspace` to have the iOS and macOS apps side by side).
+(or open the root `Tickr.xcworkspace` to have the iOS and macOS apps side by side).
 
-Pick the `Aperture iOS` scheme and an iPhone Simulator, Run. With the API running on the same Mac
-(`python -m aperture.api --config config/bot.toml`) the Simulator reaches it at
+Pick the `Tickr iOS` scheme and an iPhone Simulator, Run. With the API running on the same Mac
+(`python -m tickr.api --config config/bot.toml`) the Simulator reaches it at
 `http://127.0.0.1:8766`, the default address there. To try Face ID in the Simulator: Features ›
 Face ID › Enrolled, then Matching Face when asked.
 
@@ -48,7 +48,7 @@ The token is kept in the phone's Keychain (this device only) and sent only over 
 address it was paired with.
 
 The project is generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen).
-Swift files under `Aperture/` are picked up automatically; only after changing `project.yml` run
+Swift files under `Tickr/` are picked up automatically; only after changing `project.yml` run
 XcodeGen 2.46.0 (the version CI uses): `cd apps/ios && xcodegen` and commit the result. CI fails when the
 committed project differs from what `project.yml` generates.
 

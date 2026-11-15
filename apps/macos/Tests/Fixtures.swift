@@ -1,6 +1,6 @@
-@testable import ApertureKit
-@testable import ApertureMac
 import Foundation
+@testable import TickrKit
+@testable import TickrMac
 
 /// The repository's contract fixtures (tests/api/fixtures): the same folder the previews read.
 let fixturesDir = FixtureProtocol.folder

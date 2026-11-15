@@ -35,7 +35,7 @@ jobs:
           path: |
             apps/shared/.build
             apps/macos/.build
-          key: spm-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Aperture/**') }}
+          key: spm-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
           restore-keys: spm-${{ runner.os }}-${{ env.XCODE_ID }}-
       - name: Layout sweep
         run: apps/macos/scripts/layout-sweep.sh "$RUNNER_TEMP/layout-sweep"
@@ -47,8 +47,8 @@ jobs:
           path: ${{ runner.temp }}/layout-sweep
           if-no-files-found: ignore
   # Every tab, scrolled through, in English and Russian at three Dynamic Type sizes, on the
-  # smallest, a standard and the largest iPhone, against `aperture demo`
-  # (apps/ios/Tests/ApertureUITests/LayoutSweepUITests.swift). The pictures are kept as the run's artifact.
+  # smallest, a standard and the largest iPhone, against `tickr demo`
+  # (apps/ios/Tests/TickrUITests/LayoutSweepUITests.swift). The pictures are kept as the run's artifact.
   ios:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'layout-sweep')
     runs-on: macos-latest
@@ -75,7 +75,7 @@ jobs:
       - name: Start the demo bot API (port 8776, config/demo.toml)
         run: |
           python -m pip install -q -e .
-          aperture demo > "$RUNNER_TEMP/demo.log" 2>&1 &
+          tickr demo > "$RUNNER_TEMP/demo.log" 2>&1 &
           for _ in $(seq 60); do
             curl -sf http://127.0.0.1:8776/status > /dev/null && exit 0
             sleep 1
@@ -107,8 +107,8 @@ jobs:
         run: |
           args=()
           for id in $SWEEP_DEVICES; do args+=("-destination" "id=$id"); done
-          xcodebuild test -project Aperture.xcodeproj -scheme "Aperture iOS Screen Tour" \
-            "${args[@]}" -only-testing:ApertureUITests/LayoutSweepUITests \
+          xcodebuild test -project Tickr.xcodeproj -scheme "Tickr iOS Screen Tour" \
+            "${args[@]}" -only-testing:TickrUITests/LayoutSweepUITests \
             -resultBundlePath "$RUNNER_TEMP/sweep.xcresult" CODE_SIGNING_ALLOWED=NO \
             > "$RUNNER_TEMP/sweep.log" 2>&1 || { grep -E "error:|failed|Fail" "$RUNNER_TEMP/sweep.log" | tail -n 60; exit 1; }
           tail -n 5 "$RUNNER_TEMP/sweep.log"

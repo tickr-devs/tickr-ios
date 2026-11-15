@@ -1,0 +1,419 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A9E00000000000000000000D /* TickrKit in Frameworks */ = {isa = PBXBuildFile; productRef = A9E00000000000000000000B /* TickrKit */; };
+		A9E00000000000000000000E /* TickrDesign in Frameworks */ = {isa = PBXBuildFile; productRef = A9E00000000000000000000C /* TickrDesign */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A9E000000000000000000005 /* Tickr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tickr.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9E000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A9E000000000000000000020 /* TickrUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TickrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A9E000000000000000000004 /* Tickr */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tickr;
+			sourceTree = "<group>";
+		};
+		A9E000000000000000000021 /* TickrUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TickrUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXContainerItemProxy section */
+		A9E000000000000000000026 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9E000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A9E000000000000000000006;
+			remoteInfo = "Tickr macOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A9E000000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9E00000000000000000000D /* TickrKit in Frameworks */,
+				A9E00000000000000000000E /* TickrDesign in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9E000000000000000000024 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A9E000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				A9E000000000000000000004 /* Tickr */,
+				A9E000000000000000000021 /* TickrUITests */,
+				A9E000000000000000000015 /* Support */,
+				A9E000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A9E000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A9E000000000000000000005 /* Tickr.app */,
+				A9E000000000000000000020 /* TickrUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A9E000000000000000000015 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				A9E000000000000000000016 /* Info.plist */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A9E000000000000000000006 /* Tickr macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9E000000000000000000012 /* Build configuration list for PBXNativeTarget "Tickr macOS" */;
+			buildPhases = (
+				A9E000000000000000000007 /* Sources */,
+				A9E000000000000000000008 /* Frameworks */,
+				A9E000000000000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A9E000000000000000000004 /* Tickr */,
+			);
+			name = "Tickr macOS";
+			packageProductDependencies = (
+				A9E00000000000000000000B /* TickrKit */,
+				A9E00000000000000000000C /* TickrDesign */,
+			);
+			productName = Tickr;
+			productReference = A9E000000000000000000005 /* Tickr.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A9E000000000000000000022 /* Tickr macOS UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9E000000000000000000028 /* Build configuration list for PBXNativeTarget "Tickr macOS UITests" */;
+			buildPhases = (
+				A9E000000000000000000023 /* Sources */,
+				A9E000000000000000000024 /* Frameworks */,
+				A9E000000000000000000025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A9E000000000000000000027 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A9E000000000000000000021 /* TickrUITests */,
+			);
+			name = "Tickr macOS UITests";
+			productName = TickrUITests;
+			productReference = A9E000000000000000000020 /* TickrUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A9E000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2720;
+				LastUpgradeCheck = 2720;
+				TargetAttributes = {
+					A9E000000000000000000006 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					A9E000000000000000000022 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = A9E000000000000000000006;
+					};
+				};
+			};
+			buildConfigurationList = A9E00000000000000000000F /* Build configuration list for PBXProject "TickrMac" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				ru,
+			);
+			mainGroup = A9E000000000000000000002;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A9E00000000000000000000A /* XCLocalSwiftPackageReference "../shared" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A9E000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A9E000000000000000000006 /* Tickr macOS */,
+				A9E000000000000000000022 /* Tickr macOS UITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A9E000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9E000000000000000000025 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A9E000000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9E000000000000000000023 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A9E000000000000000000027 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A9E000000000000000000006 /* Tickr macOS */;
+			targetProxy = A9E000000000000000000026 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A9E000000000000000000010 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+			};
+			name = Debug;
+		};
+		A9E000000000000000000011 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+			};
+			name = Release;
+		};
+		A9E000000000000000000013 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Support/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Tickr;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator;
+				PRODUCT_NAME = Tickr;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A9E000000000000000000014 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Support/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Tickr;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator;
+				PRODUCT_NAME = Tickr;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		A9E000000000000000000029 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "Tickr macOS";
+			};
+			name = Debug;
+		};
+		A9E00000000000000000002A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "Tickr macOS";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A9E00000000000000000000F /* Build configuration list for PBXProject "TickrMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9E000000000000000000010 /* Debug */,
+				A9E000000000000000000011 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9E000000000000000000012 /* Build configuration list for PBXNativeTarget "Tickr macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9E000000000000000000013 /* Debug */,
+				A9E000000000000000000014 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9E000000000000000000028 /* Build configuration list for PBXNativeTarget "Tickr macOS UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9E000000000000000000029 /* Debug */,
+				A9E00000000000000000002A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A9E00000000000000000000A /* XCLocalSwiftPackageReference "../shared" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../shared;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A9E00000000000000000000B /* TickrKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TickrKit;
+		};
+		A9E00000000000000000000C /* TickrDesign */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TickrDesign;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A9E000000000000000000001 /* Project object */;
+}

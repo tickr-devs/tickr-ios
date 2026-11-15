@@ -1,8 +1,8 @@
-@testable import ApertureKit
-@testable import ApertureMac
-import ApertureDesign
 import Foundation
 import Testing
+import TickrDesign
+@testable import TickrKit
+@testable import TickrMac
 
 @Suite("One send per decision, as the app shows it")
 struct EntrySentTests {

@@ -1,14 +1,14 @@
 #!/bin/sh
-# Build Aperture.app from the Swift package (release build, unsigned, for this Mac only).
-# Usage: apps/macos/scripts/make-app.sh   -> apps/macos/build/Aperture.app
+# Build Tickr.app from the Swift package (release build, unsigned, for this Mac only).
+# Usage: apps/macos/scripts/make-app.sh   -> apps/macos/build/Tickr.app
 set -eu
 cd "$(dirname "$0")/.."
-swift build -c release --product ApertureMac
-BIN="$(swift build -c release --show-bin-path)/ApertureMac"
-APP="build/Aperture.app"
+swift build -c release --product TickrMac
+BIN="$(swift build -c release --show-bin-path)/TickrMac"
+APP="build/Tickr.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
-cp "$BIN" "$APP/Contents/MacOS/Aperture"
+cp "$BIN" "$APP/Contents/MacOS/Tickr"
 # The String Catalogs (app and shared package) are compiled into SwiftPM resource bundles.
 mkdir -p "$APP/Contents/Resources"
 cp -R "$(swift build -c release --show-bin-path)"/*.bundle "$APP/Contents/Resources/"
@@ -18,8 +18,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key><string>Tickr</string>
-  <key>CFBundleIdentifier</key><string>local.aperture.operator</string>
-  <key>CFBundleExecutable</key><string>Aperture</string>
+  <key>CFBundleIdentifier</key><string>local.tickr.operator</string>
+  <key>CFBundleExecutable</key><string>Tickr</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>0.1</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>

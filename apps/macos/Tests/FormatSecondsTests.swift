@@ -1,6 +1,6 @@
-@testable import ApertureMac
 import Foundation
 import Testing
+@testable import TickrMac
 
 @Suite("Seconds as the app shows them")
 struct FormatSecondsTests {

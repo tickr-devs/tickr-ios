@@ -1,8 +1,8 @@
-@testable import ApertureKit
-@testable import ApertureMac
-import ApertureDesign
 import Foundation
 import Testing
+import TickrDesign
+@testable import TickrKit
+@testable import TickrMac
 
 @Suite("An open position's price and R, fresh or as of the newest bar")
 struct PositionRowTests {

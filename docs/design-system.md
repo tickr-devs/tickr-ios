@@ -1,10 +1,10 @@
-# Aperture design system
+# Tickr design system
 
 The single definition of how the operator apps (macOS and iOS) look and move. It is derived from
 the approved design canvas. Code follows it one to one:
 
-- Colours: `apps/shared/Sources/ApertureDesign/Palette.swift`.
-- Everything else: `apps/shared/Sources/ApertureDesign/Tokens.swift`.
+- Colours: `apps/shared/Sources/TickrDesign/Palette.swift`.
+- Everything else: `apps/shared/Sources/TickrDesign/Tokens.swift`.
 - Changing a value means changing this table and the Swift file in the same pull request.
 
 ## Rules
@@ -202,11 +202,11 @@ a step; it does not define its own factor.
 
 | Component | Where | Rule |
 |---|---|---|
-| Card | `apertureCard()` + `CardLabel` | `surface`, `Radius.card` (iOS) or `Radius.large` (Mac), `Space.l` padding, `separator` border; light mode adds `shadow`. Cards sharing a grid row are one height (`filling()` on the Mac) |
+| Card | `tickrCard()` + `CardLabel` | `surface`, `Radius.card` (iOS) or `Radius.large` (Mac), `Space.l` padding, `separator` border; light mode adds `shadow`. Cards sharing a grid row are one height (`filling()` on the Mac) |
 | Card grid (Mac) | `Grid` of cards | Fills the window's width: equal columns of at least `Size.gridColumnMin`, `Space.l` apart; a narrower window stacks into fewer columns |
 | Section label | `CardLabel` | `Typography.label`, uppercase, `textQuaternary` |
 | Stat row | label … value | label `callout` `textTertiary`, value `bodyMono` |
-| Badge | `Badge` (ApertureDesign) | A fact (exit reason, environment, version): `Typography.badge`, tone text colour, `Opacity.wash` fill, `Opacity.border` stroke, `Radius.small`; `planned:` draws it dashed |
+| Badge | `Badge` (TickrDesign) | A fact (exit reason, environment, version): `Typography.badge`, tone text colour, `Opacity.wash` fill, `Opacity.border` stroke, `Radius.small`; `planned:` draws it dashed |
 | Command button | bot controls | `ActionButtonStyle` below |
 | Live-flow chips (Mac) | `Marquee` | The screeners' symbols scroll across the top of the live flow: symbol in `chip`, below it the screener and change % in `annotation`, coloured by screener (gainers `profitText`, top actives `infoText`, losers `seriesATRText`; left out of the universe `textQuaternary`, struck through); `surfaceSunken` fill, `separator` hairline, `Radius.medium`. The event ticker runs under the chips, alone while there are none |
 | Watching row (Mac) | `WatchingRow` | `surfaceSunken` box with `separator` hairline, `Radius.medium`: symbol in `chip`, verdict `Badge`, time in `annotation`; the deciding check in `captionMono`; closeness as a `barThin` capsule in the verdict colour, a dashed `dashFine` outline when unknown |
@@ -256,10 +256,10 @@ breaks upward, with a spark at its end.
 
 - `apps/scripts/make_brand_assets.py` writes every brand file from one description, with colours
   from `Palette.swift`: the Icon Composer icon `AppIcon.icon` of each app (light, dark and tinted;
-  the system adds Liquid Glass) and the iOS launch screen in `apps/ios/Aperture/Assets.xcassets`
+  the system adds Liquid Glass) and the iOS launch screen in `apps/ios/Tickr/Assets.xcassets`
   (`LaunchBackground` = `background`, `LaunchMark`). Change the script and run it; never edit the
   generated files. `tests/test_brand_assets.py` fails when they differ.
-- In the apps the same line is `BrandMark` (ApertureDesign): it draws itself on appear and its
+- In the apps the same line is `BrandMark` (TickrDesign): it draws itself on appear and its
   spark then pulses (a shine runs up the line, a ring leaves the spark) while the bot's data is
   current (macOS Overview header, iOS Home bar); still otherwise and with Reduce Motion.
 - iOS opening (`LaunchHandoff`): the app starts exactly as the launch screen, flashes the spark

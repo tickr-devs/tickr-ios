@@ -1,7 +1,7 @@
-@testable import ApertureMac
-import ApertureKit
 import Foundation
 import Testing
+import TickrKit
+@testable import TickrMac
 
 @MainActor
 @Suite("Clean-day mark on the Trades calendar and day list")

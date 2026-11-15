@@ -1,0 +1,502 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		27CEFA4A2D48B4F273E8B0A2 /* TickrKit in Frameworks */ = {isa = PBXBuildFile; productRef = 86B51C088C14AA5D96ACD6BA /* TickrKit */; };
+		3F866FEB0A2FA91E6E8B686C /* TickrDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 4AA495158B683614736F354B /* TickrDesign */; };
+		650452331623CB514EA7765C /* LayoutSweepUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E4290BF0B075822E3AB8FC /* LayoutSweepUITests.swift */; };
+		BCF5F0DD9CD326D009134257 /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D30AC1328B866D41295586E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8804777B56E9EE7633919BAF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 987D98E178E330760BB74690;
+			remoteInfo = Tickr;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		445FB381029F292DF0F650AC /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		B5E62E73C277781A649F0A49 /* shared */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shared; path = ../shared; sourceTree = SOURCE_ROOT; };
+		CCBF14049F8F57EDFC1AADE2 /* Tickr.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Tickr.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3E4290BF0B075822E3AB8FC /* LayoutSweepUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSweepUITests.swift; sourceTree = "<group>"; };
+		D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
+		F77B0309379A40BBAF7EB73B /* TickrUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TickrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B79D422D225C32F1DB66EB55 /* Tickr */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Tickr;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5B8488319C0514308DFC87C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27CEFA4A2D48B4F273E8B0A2 /* TickrKit in Frameworks */,
+				3F866FEB0A2FA91E6E8B686C /* TickrDesign in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2922D4083BCBB034730EB86D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCBF14049F8F57EDFC1AADE2 /* Tickr.app */,
+				F77B0309379A40BBAF7EB73B /* TickrUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		497FC29AB0BE0BAAE3F7C8B6 = {
+			isa = PBXGroup;
+			children = (
+				4FFC108459AE4DFC72419D97 /* Config */,
+				CB4BC9FDA91A98BE8B3D7382 /* Packages */,
+				E111708A95C6BE725400E8B3 /* Tests */,
+				B79D422D225C32F1DB66EB55 /* Tickr */,
+				2922D4083BCBB034730EB86D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4FFC108459AE4DFC72419D97 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				445FB381029F292DF0F650AC /* Signing.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		9408FC83A713BAA369A6B5DE /* TickrUITests */ = {
+			isa = PBXGroup;
+			children = (
+				D3E4290BF0B075822E3AB8FC /* LayoutSweepUITests.swift */,
+				D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */,
+			);
+			path = TickrUITests;
+			sourceTree = "<group>";
+		};
+		CB4BC9FDA91A98BE8B3D7382 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				B5E62E73C277781A649F0A49 /* shared */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		E111708A95C6BE725400E8B3 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				9408FC83A713BAA369A6B5DE /* TickrUITests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		05C7421E8E3C88E2B3FFB775 /* TickrUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D8FF3386F43CC4791D79758 /* Build configuration list for PBXNativeTarget "TickrUITests" */;
+			buildPhases = (
+				17D979E47AFD68427EB343AD /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C37EC262A14FEFADD7A9745C /* PBXTargetDependency */,
+			);
+			name = TickrUITests;
+			packageProductDependencies = (
+			);
+			productName = TickrUITests;
+			productReference = F77B0309379A40BBAF7EB73B /* TickrUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		987D98E178E330760BB74690 /* Tickr */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 02FB6AE56ADD78FC073F0D4A /* Build configuration list for PBXNativeTarget "Tickr" */;
+			buildPhases = (
+				17D2C55E5D79959CF7B31CDA /* Sources */,
+				12104435624436A088E6DC0C /* Resources */,
+				5B8488319C0514308DFC87C2 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B79D422D225C32F1DB66EB55 /* Tickr */,
+			);
+			name = Tickr;
+			packageProductDependencies = (
+				86B51C088C14AA5D96ACD6BA /* TickrKit */,
+				4AA495158B683614736F354B /* TickrDesign */,
+			);
+			productName = Tickr;
+			productReference = CCBF14049F8F57EDFC1AADE2 /* Tickr.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8804777B56E9EE7633919BAF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2720;
+				LastUpgradeCheck = 2720;
+				TargetAttributes = {
+					05C7421E8E3C88E2B3FFB775 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = 987D98E178E330760BB74690;
+					};
+					987D98E178E330760BB74690 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 41A69F55DA343104582F2BB9 /* Build configuration list for PBXProject "Tickr" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 497FC29AB0BE0BAAE3F7C8B6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B82AAD336AC555CCD1EAC44E /* XCLocalSwiftPackageReference "../shared" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2922D4083BCBB034730EB86D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				987D98E178E330760BB74690 /* Tickr */,
+				05C7421E8E3C88E2B3FFB775 /* TickrUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		12104435624436A088E6DC0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		17D2C55E5D79959CF7B31CDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D979E47AFD68427EB343AD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				650452331623CB514EA7765C /* LayoutSweepUITests.swift in Sources */,
+				BCF5F0DD9CD326D009134257 /* ScreenTourUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C37EC262A14FEFADD7A9745C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 987D98E178E330760BB74690 /* Tickr */;
+			targetProxy = D30AC1328B866D41295586E7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		59D91C7622C3CE437D257C18 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Tickr;
+			};
+			name = Debug;
+		};
+		980EA8A646B3CCB5313DB812 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 445FB381029F292DF0F650AC /* Signing.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Support/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		AC16527AF96722190C24C228 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 0.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		C8E3FA20699775DCD2D19370 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Tickr;
+			};
+			name = Release;
+		};
+		CF4782974F919CA97D093239 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 445FB381029F292DF0F650AC /* Signing.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Support/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		FF1DD9CADCF6F4FCDAD28FE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 0.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		02FB6AE56ADD78FC073F0D4A /* Build configuration list for PBXNativeTarget "Tickr" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				980EA8A646B3CCB5313DB812 /* Debug */,
+				CF4782974F919CA97D093239 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		41A69F55DA343104582F2BB9 /* Build configuration list for PBXProject "Tickr" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF1DD9CADCF6F4FCDAD28FE7 /* Debug */,
+				AC16527AF96722190C24C228 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6D8FF3386F43CC4791D79758 /* Build configuration list for PBXNativeTarget "TickrUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				59D91C7622C3CE437D257C18 /* Debug */,
+				C8E3FA20699775DCD2D19370 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		B82AAD336AC555CCD1EAC44E /* XCLocalSwiftPackageReference "../shared" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../shared;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4AA495158B683614736F354B /* TickrDesign */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TickrDesign;
+		};
+		86B51C088C14AA5D96ACD6BA /* TickrKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TickrKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8804777B56E9EE7633919BAF /* Project object */;
+}

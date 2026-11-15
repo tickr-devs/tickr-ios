@@ -7,7 +7,7 @@ on:
       - "apps/ios/**"
       - "apps/shared/**"
       - ".github/workflows/ios-app.yml"
-      - "Aperture.xcworkspace/**"
+      - "Tickr.xcworkspace/**"
   workflow_dispatch:
   # Weekly build of main, so a conflict between two separately green pull requests shows up.
   schedule:
@@ -41,7 +41,7 @@ jobs:
           curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
           unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/xcodegen/bin" >> "$GITHUB_PATH"
-      # The committed Aperture.xcodeproj must be exactly what project.yml generates. git status
+      # The committed Tickr.xcodeproj must be exactly what project.yml generates. git status
       # also catches files the generator deleted or added (a staged diff would hide deletions).
       - name: Check the committed Xcode project matches project.yml
         run: |
@@ -50,16 +50,16 @@ jobs:
           if [ -n "$changes" ]; then
             echo "$changes"
             git diff -- .
-            echo "::error::Aperture.xcodeproj differs from project.yml: run xcodegen in apps/ios and commit"
+            echo "::error::Tickr.xcodeproj differs from project.yml: run xcodegen in apps/ios and commit"
             exit 1
           fi
-          test -f "Aperture.xcodeproj/xcshareddata/xcschemes/Aperture iOS.xcscheme"
+          test -f "Tickr.xcodeproj/xcshareddata/xcschemes/Tickr iOS.xcscheme"
       # Built through the root workspace, which is what the owner opens in Xcode.
       - name: Build for the iOS Simulator (unsigned)
         run: |
           if ! xcodebuild build \
-              -workspace ../../Aperture.xcworkspace \
-              -scheme 'Aperture iOS' \
+              -workspace ../../Tickr.xcworkspace \
+              -scheme 'Tickr iOS' \
               -destination 'generic/platform=iOS Simulator' \
               -configuration Debug \
               CODE_SIGNING_ALLOWED=NO > build.log 2>&1; then

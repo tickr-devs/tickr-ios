@@ -15,7 +15,7 @@ text     No words in code. A string literal holding a letter may appear only
            in a documented constant;
          - in an `@available` attribute (messages for developers).
          So `Text("Overview")`, `Button("Quit")`, `return "Flatten All"`,
-         `Text(verbatim: "Aperture")` and `case overview = "Overview of the day"` all fail.
+         `Text(verbatim: "Tickr")` and `case overview = "Overview of the day"` all fail.
          Interpolations and punctuation (" · ") pass.
 numbers  No magic numbers: see check_swift_literals.py.
 indent   2-space indentation: no tabs, every indent even, and a line indents at most 2 deeper
@@ -50,7 +50,7 @@ ROOTS = ("apps/shared", "apps/macos", "apps/ios")
 SKIPPED_FILES = {"Package.swift", "Package@swift-6.0.swift"}
 # Folders of test targets: only the legacy rule applies inside them. Listed one by one, so a
 # product folder can't escape the text and number rules by a name that merely ends in "Tests".
-TEST_DIRS = {"Tests", "ApertureUITests"}
+TEST_DIRS = {"Tests", "TickrUITests"}
 BUILD_DIRS = {".build", "build", "DerivedData", "SourcePackages"}
 SKIPPED_DIRS = TEST_DIRS | BUILD_DIRS
 L10N_FILE = "L10n.swift"

@@ -5,13 +5,13 @@ The mark is a price line drawn as a tick (the name Tickr) that breaks upward, wi
 its end. One description here produces every file, so the macOS and iOS icons and the launch
 screen never drift apart:
 
-- `apps/macos/Aperture/AppIcon.icon` and `apps/ios/Aperture/AppIcon.icon`: the layered icon
+- `apps/macos/Tickr/AppIcon.icon` and `apps/ios/Tickr/AppIcon.icon`: the layered icon
   (light, dark and tinted appearances; the system adds Liquid Glass and the tinted rendering).
-- `apps/ios/Aperture/Assets.xcassets`: `LaunchBackground` (the window background, so the launch
+- `apps/ios/Tickr/Assets.xcassets`: `LaunchBackground` (the window background, so the launch
   screen hands over to the first screen without a flash) and `LaunchMark` (the mark).
 
-Colours come from `apps/shared/Sources/ApertureDesign/Palette.swift`. The in-app mark
-(`BrandMark` in ApertureDesign) draws the same line from the same points. Files are committed;
+Colours come from `apps/shared/Sources/TickrDesign/Palette.swift`. The in-app mark
+(`BrandMark` in TickrDesign) draws the same line from the same points. Files are committed;
 `tests/test_brand_assets.py` fails when they differ from this script's output.
 Usage: make_brand_assets.py
 """
@@ -25,14 +25,14 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-PALETTE = REPO / "apps/shared/Sources/ApertureDesign/Palette.swift"
-ICON_DIRS = (REPO / "apps/macos/Aperture/AppIcon.icon", REPO / "apps/ios/Aperture/AppIcon.icon")
-IOS_ASSETS = REPO / "apps/ios/Aperture/Assets.xcassets"
+PALETTE = REPO / "apps/shared/Sources/TickrDesign/Palette.swift"
+ICON_DIRS = (REPO / "apps/macos/Tickr/AppIcon.icon", REPO / "apps/ios/Tickr/AppIcon.icon")
+IOS_ASSETS = REPO / "apps/ios/Tickr/Assets.xcassets"
 
 # Icon canvas in points (Icon Composer draws on 1024 x 1024).
 CANVAS = 1024
 # The tick: points of the price line as shares of the canvas, left to right. Same as
-# BrandMark.points in apps/shared/Sources/ApertureDesign/BrandMark.swift.
+# BrandMark.points in apps/shared/Sources/TickrDesign/BrandMark.swift.
 POINTS = ((0.205, 0.51), (0.39, 0.70), (0.50, 0.575), (0.565, 0.625), (0.81, 0.285))
 # Line width, spark radius and the bottom of the fading area under the line, as canvas shares.
 LINE_WIDTH = 0.084

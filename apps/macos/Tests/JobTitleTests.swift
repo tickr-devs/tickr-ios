@@ -1,6 +1,6 @@
-@testable import ApertureMac
 import Foundation
 import Testing
+@testable import TickrMac
 
 @MainActor
 @Suite("Launchd job names in Settings")

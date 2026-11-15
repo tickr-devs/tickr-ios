@@ -1,5 +1,5 @@
-@testable import ApertureMac
 import Testing
+@testable import TickrMac
 
 /// The notify mode's command line (the bot runs `<executable> --notify-alert TITLE TEXT`).
 @Suite struct AlertRequestTests {

@@ -1,5 +1,5 @@
 # Per-user Xcode state; the project itself is committed.
-Aperture.xcodeproj/xcuserdata/
-Aperture.xcodeproj/project.xcworkspace/xcuserdata/
+Tickr.xcodeproj/xcuserdata/
+Tickr.xcodeproj/project.xcworkspace/xcuserdata/
 # Personal signing settings (team id); see Config/Signing.xcconfig.
 Config/Local.xcconfig

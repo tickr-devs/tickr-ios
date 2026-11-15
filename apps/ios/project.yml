@@ -1,23 +1,23 @@
-# XcodeGen spec for the Aperture iOS app. The generated Aperture.xcodeproj IS committed so the
+# XcodeGen spec for the Tickr iOS app. The generated Tickr.xcodeproj IS committed so the
 # app opens in Xcode as is; after editing this file run `xcodegen` and commit the result (CI fails
-# when the two differ). Sources are a synchronized folder, so adding a Swift file under Aperture/
+# when the two differ). Sources are a synchronized folder, so adding a Swift file under Tickr/
 # needs no project change.
-name: Aperture
+name: Tickr
 options:
-  bundleIdPrefix: local.aperture
+  bundleIdPrefix: local.tickr
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
   # The Xcode release the owner uses. It becomes LastUpgradeCheck, so Xcode does not offer to
   # "update to recommended settings"; never accept such an offer in Xcode: put the setting here.
   xcodeVersion: "27.2"
-  # XcodeGen rewrites the whole Aperture.xcodeproj and drops any scheme it does not generate;
+  # XcodeGen rewrites the whole Tickr.xcodeproj and drops any scheme it does not generate;
   # put back the hand-kept shared scheme (see the note at the end of this file).
-  postGenCommand: git checkout -- "Aperture.xcodeproj/xcshareddata/xcschemes"
+  postGenCommand: git checkout -- "Tickr.xcodeproj/xcshareddata/xcschemes"
 attributes:
   LastSwiftUpdateCheck: "2720"
 packages:
-  ApertureShared:
+  TickrShared:
     path: ../shared
 settings:
   base:
@@ -34,17 +34,17 @@ settings:
     SWIFT_APPROACHABLE_CONCURRENCY: YES
     SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY: YES
 targets:
-  Aperture:
+  Tickr:
     type: application
     platform: iOS
     sources:
-      - path: Aperture
+      - path: Tickr
         type: syncedFolder
     dependencies:
-      - package: ApertureShared
-        product: ApertureKit
-      - package: ApertureShared
-        product: ApertureDesign
+      - package: TickrShared
+        product: TickrKit
+      - package: TickrShared
+        product: TickrDesign
     info:
       path: Support/Info.plist
       properties:
@@ -60,10 +60,10 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
-        # aperture://pair?... links from `python -m aperture.api pair` open the app to pair.
+        # tickr://pair?... links from `python -m tickr.api pair` open the app to pair.
         CFBundleURLTypes:
-          - CFBundleURLName: local.aperture.pair
-            CFBundleURLSchemes: [aperture]
+          - CFBundleURLName: local.tickr.pair
+            CFBundleURLSchemes: [tickr]
         # Plain HTTP is allowed only to local addresses (the Simulator reaches the Mac's API on
         # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
         NSAppTransportSecurity:
@@ -74,39 +74,39 @@ targets:
       Release: Config/Signing.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: local.aperture.ios
+        PRODUCT_BUNDLE_IDENTIFIER: local.tickr.ios
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
         ENABLE_PREVIEWS: YES
-  # Walks every screen against a running bot API and keeps screenshots (Tests/ApertureUITests).
-  ApertureUITests:
+  # Walks every screen against a running bot API and keeps screenshots (Tests/TickrUITests).
+  TickrUITests:
     type: bundle.ui-testing
     platform: iOS
     sources:
-      - path: Tests/ApertureUITests
+      - path: Tests/TickrUITests
     dependencies:
-      - target: Aperture
+      - target: Tickr
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: local.aperture.ios.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: local.tickr.ios.uitests
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         GENERATE_INFOPLIST_FILE: YES
-        TEST_TARGET_NAME: Aperture
-# No schemes here: the shared scheme "Aperture iOS" (named for the platform so it stays distinct
-# from "Aperture macOS" in the root Aperture.xcworkspace) is kept by hand in Xcode's own format in
-# Aperture.xcodeproj/xcshareddata/xcschemes, so building in Xcode leaves the tree clean.
+        TEST_TARGET_NAME: Tickr
+# No schemes here: the shared scheme "Tickr iOS" (named for the platform so it stays distinct
+# from "Tickr macOS" in the root Tickr.xcworkspace) is kept by hand in Xcode's own format in
+# Tickr.xcodeproj/xcshareddata/xcschemes, so building in Xcode leaves the tree clean.
 # postGenCommand above restores it after every `xcodegen generate`; change it in Xcode and commit.
 
-# The screen tour has its own generated scheme, so "Aperture iOS" stays as kept by hand.
+# The screen tour has its own generated scheme, so "Tickr iOS" stays as kept by hand.
 schemes:
-  Aperture iOS Screen Tour:
+  Tickr iOS Screen Tour:
     build:
       targets:
-        Aperture: all
-        ApertureUITests: [test]
+        Tickr: all
+        TickrUITests: [test]
     test:
       config: Debug
       targets:
-        - ApertureUITests
+        - TickrUITests

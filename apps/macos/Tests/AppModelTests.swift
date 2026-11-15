@@ -1,9 +1,9 @@
-@testable import ApertureMac
-import ApertureKit
 import FactoryTesting
 import Foundation
 import Synchronization
 import Testing
+import TickrKit
+@testable import TickrMac
 
 /// Answers the API reads the app model makes from canned bodies by path, and records the
 /// symbols whose bars were asked for. Shared state, so the suite runs one test at a time.

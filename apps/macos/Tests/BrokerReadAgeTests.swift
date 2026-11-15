@@ -1,7 +1,7 @@
-@testable import ApertureMac
-import ApertureDesign
 import Foundation
 import Testing
+import TickrDesign
+@testable import TickrMac
 
 @Suite("Age of the last broker read on the Safety card")
 struct BrokerReadAgeTests {

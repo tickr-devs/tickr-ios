@@ -1,4 +1,4 @@
-// Screen capture for the macOS screen tour (apps/macos/ApertureUITests/ScreenTourUITests.swift).
+// Screen capture for the macOS screen tour (apps/macos/TickrUITests/ScreenTourUITests.swift).
 //
 // macOS grants screen recording per app, and a UI test runner is a new app on every build, so
 // XCUIScreen screenshots would need a new permission each time. Instead this script, started from
@@ -6,10 +6,10 @@
 // the tour drops `<name>.request` files into a folder and waits; this writes `<name>.png` of the
 // app's window and then `<name>.done`.
 //
-// Usage: swift apps/scripts/tour_capture.swift <folder> [bundle id, default local.aperture.operator]
+// Usage: swift apps/scripts/tour_capture.swift <folder> [bundle id, default local.tickr.operator]
 // The app is found by bundle id, not by name: its display name (Tickr) is not its process name.
 // The sandboxed test runner can only write inside its container, so <folder> is
-// ~/Library/Containers/local.aperture.operator.uitests.xctrunner/Data/tmp/<TOUR_CAPTURE name>.
+// ~/Library/Containers/local.tickr.operator.uitests.xctrunner/Data/tmp/<TOUR_CAPTURE name>.
 // Stops when `<folder>/stop` appears (the tour writes it when it ends).
 
 import AppKit
@@ -22,7 +22,7 @@ guard arguments.count >= 2 else {
   exit(2)
 }
 let folder = URL(fileURLWithPath: arguments[1], isDirectory: true)
-let bundleID = arguments.count >= 3 ? arguments[2] : "local.aperture.operator"
+let bundleID = arguments.count >= 3 ? arguments[2] : "local.tickr.operator"
 let poll: UInt32 = 200_000  // microseconds between looks at the folder
 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
 // A folder reused from an earlier run: its stop, answers and pictures would end this run at once

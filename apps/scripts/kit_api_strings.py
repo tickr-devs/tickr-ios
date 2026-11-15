@@ -1,4 +1,4 @@
-"""ApertureKit strings for the bot's codes (ApiText), in English and Russian.
+"""TickrKit strings for the bot's codes (ApiText), in English and Russian.
 
 `python3 apps/scripts/kit_api_strings.py` writes ApiCodes.swift, L10n+Codes.swift (a part of
 the kit's L10n) and the kit's catalog entries; run apps/scripts/format_xcstrings.py after it.
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-KIT = ROOT / "apps/shared/Sources/ApertureKit"
+KIT = ROOT / "apps/shared/Sources/TickrKit"
 
 # (swift name, key, english, russian, doc)
 S = []

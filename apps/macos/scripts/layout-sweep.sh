@@ -1,5 +1,5 @@
 #!/bin/sh
-# Layout sweep of the macOS app (Aperture/Previews/LayoutSweep.swift): every screen at several
+# Layout sweep of the macOS app (Tickr/Previews/LayoutSweep.swift): every screen at several
 # window sizes, Chart inspector closed and open, in English and Russian, on the fixture data.
 # Fails when the app crashes or hangs (for example AppKit's "Update Constraints in Window" loop
 # while the window is resized). Needs a logged-in macOS session; no Screen Recording permission.
@@ -12,7 +12,7 @@ mkdir -p "$OUT"
 OUT="$(cd "$OUT" && pwd)"
 # Seconds one language may take before the run counts as hung.
 LIMIT=420
-swift build --product ApertureMac
+swift build --product TickrMac
 # A bare executable has no bundle that declares Russian, so macOS would show it in English
 # whatever -AppleLanguages says. Wrap the debug build in a minimal app that declares both
 # languages, with its own bundle id, so its settings never touch the real app's.
@@ -20,7 +20,7 @@ swift build --product ApertureMac
 APP="build/LayoutSweep.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
-cp "$(swift build --show-bin-path)/ApertureMac" "$APP/Contents/MacOS/ApertureMac"
+cp "$(swift build --show-bin-path)/TickrMac" "$APP/Contents/MacOS/TickrMac"
 mkdir -p "$APP/Contents/Resources"
 cp -R "$(swift build --show-bin-path)"/*.bundle "$APP/Contents/Resources/"
 cat > "$APP/Contents/Info.plist" <<'PLIST'
@@ -29,8 +29,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key><string>Tickr</string>
-  <key>CFBundleIdentifier</key><string>local.aperture.layoutsweep</string>
-  <key>CFBundleExecutable</key><string>ApertureMac</string>
+  <key>CFBundleIdentifier</key><string>local.tickr.layoutsweep</string>
+  <key>CFBundleExecutable</key><string>TickrMac</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
   <key>CFBundleLocalizations</key><array><string>en</string><string>ru</string></array>
@@ -38,12 +38,12 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </dict>
 </plist>
 PLIST
-BIN="$APP/Contents/MacOS/ApertureMac"
+BIN="$APP/Contents/MacOS/TickrMac"
 status=0
 for lang in en ru; do
   rm -rf "${OUT:?}/$lang"
   mkdir -p "$OUT/$lang"
-  APERTURE_FIXTURES=1 APERTURE_LAYOUT_SWEEP="$OUT/$lang" \
+  TICKR_FIXTURES=1 TICKR_LAYOUT_SWEEP="$OUT/$lang" \
     "$BIN" -AppleLanguages "($lang)" -AppleLocale "${lang}_US" -ApplePersistenceIgnoreState YES \
     -appearance dark > "$OUT/$lang.log" 2>&1 &
   pid=$!

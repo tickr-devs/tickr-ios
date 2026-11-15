@@ -1,7 +1,7 @@
-@testable import ApertureKit
-@testable import ApertureMac
 import Foundation
 import Testing
+@testable import TickrKit
+@testable import TickrMac
 
 @Suite("Chart plot lookups")
 struct ChartPlotTests {

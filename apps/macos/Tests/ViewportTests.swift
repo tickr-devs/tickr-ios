@@ -1,6 +1,6 @@
-@testable import ApertureMac
 import Foundation
 import Testing
+@testable import TickrMac
 
 @Suite("Chart zoom")
 struct ViewportTests {
