@@ -98,11 +98,15 @@ public struct APIClient: Sendable {
   static let performancePath = "/performance"
   static let flowPath = "/flow"
   static let watchingPath = "/watching"
+  static let chartPath = "/chart"
   /// Query item names of the bars read.
   static let symbolQuery = "symbol"
   static let dateQuery = "date"
   static let fromQuery = "from"
   static let toQuery = "to"
+  /// Query item names of the chart read.
+  static let intervalQuery = "interval"
+  static let rangeQuery = "range"
   /// HTTP methods, header names and the media type the API speaks.
   static let get = "GET"
   static let post = "POST"
@@ -170,6 +174,12 @@ public struct APIClient: Sendable {
   /// The symbols the strategy is watching closely on `day`, closest to an entry first.
   public func watching(day: WireDate) async throws -> WatchingV1 {
     try await perform(request(path: Self.watchingPath, query: [(Self.dateQuery, day.text)], body: nil), expect: Self.ok)
+  }
+
+  /// Candles of any US stock from market data, `interval` long over `range`, oldest first.
+  public func chart(symbol: String, interval: ChartInterval, range: ChartRange) async throws -> ChartV1 {
+    try await perform(request(path: Self.chartPath, query: [(Self.symbolQuery, symbol),
+      (Self.intervalQuery, interval.rawValue), (Self.rangeQuery, range.rawValue)], body: nil), expect: Self.ok)
   }
 
   public func pendingCommands() async throws -> PendingCommandsV1 {
