@@ -88,7 +88,6 @@ private struct DecisionRow: View {
         Text(verbatim: reason)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.warningText)
-          .help(Text(verbatim: decision.refusal?.code ?? reason))
       }
       if let entry = decision.entryPrice, let stop = decision.stopPrice {
         Text(L10n.Chart.entryStop(Format.price(entry.value), Format.price(stop.value)))

@@ -48,6 +48,16 @@ struct SkippedGroupsTests {
     #expect(RefusalCause("setup no longer valid").detail.isEmpty)
   }
 
+  @Test("A code is told apart from prose the bot wrote without one")
+  func hasCode() {
+    #expect(RefusalCause(Self.cooldown).hasCode)
+    #expect(RefusalCause("NEW_RULE_2: x").hasCode)
+    #expect(RefusalCause("NEW_RULE").hasCode)
+    #expect(!RefusalCause("setup no longer valid").hasCode)
+    #expect(!RefusalCause("Setup: no longer valid").hasCode)
+    #expect(!RefusalCause("").hasCode)
+  }
+
   @Test("Times parse with and without fractions of a second")
   func times() {
     let times = RefusalCause(Self.cooldown).times

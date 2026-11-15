@@ -112,6 +112,8 @@ private struct RefusalsCard: View {
               Group {
                 if let code = count.cause?.known {
                   Text(L10n.Cause.title(code))
+                } else if let cause = count.cause, cause.hasCode {
+                  Text(L10n.Cause.other)
                 } else if let cause = count.cause {
                   Text(verbatim: cause.code)
                 } else {
@@ -142,7 +144,7 @@ private struct RefusalsCard: View {
   /// The cause in words, for its glyph's hint.
   private func causeText(_ count: RefusalCount) -> Text {
     if let code = count.cause?.known { return Text(L10n.Cause.title(code)) }
-    if let cause = count.cause { return Text(verbatim: cause.code) }
+    if let cause = count.cause { return cause.hasCode ? Text(L10n.Cause.other) : Text(verbatim: cause.code) }
     return Text(L10n.Lab.noCause)
   }
 }

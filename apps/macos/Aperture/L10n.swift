@@ -1690,6 +1690,10 @@ enum L10n {
   }
   /// A refused entry in words: the rule behind its code, and the detail of a pause after a loss.
   enum Cause {
+    /// Title of a refusal whose code this app has no words for; the bot's detail follows it.
+    static var other: LocalizedStringResource {
+      LocalizedStringResource("cause.other", defaultValue: "Other reason", bundle: L10n.bundle)
+    }
     /// What the rule behind `code` is.
     static func title(_ code: RefusalCode) -> LocalizedStringResource {
       switch code {

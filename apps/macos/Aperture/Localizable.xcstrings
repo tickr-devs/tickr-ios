@@ -919,6 +919,23 @@
         }
       }
     },
+    "cause.other" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other reason"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другая причина"
+          }
+        }
+      }
+    },
     "cause.outsideSession" : {
       "extractionState" : "manual",
       "localizations" : {

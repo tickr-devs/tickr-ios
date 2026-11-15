@@ -181,7 +181,7 @@ private struct RefusalsCard: View {
                 .tint(Palette.warning)
                 .accessibilityHidden(true)
             }
-            .help(Text(verbatim: count.cause?.code ?? String(localized: L10n.Lab.noCause)))
+            .help(help(count.cause))
             .accessibilityElement(children: .combine)
           }
         } else if let error = model.skippedError {
@@ -196,8 +196,14 @@ private struct RefusalsCard: View {
 
   private func title(_ cause: RefusalCause?) -> Text {
     if let code = cause?.known { return Text(L10n.Cause.title(code)) }
-    if let cause { return Text(verbatim: cause.code) }
+    if let cause { return cause.hasCode ? Text(L10n.Cause.other) : Text(verbatim: cause.code) }
     return Text(L10n.Lab.noCause)
+  }
+
+  /// The tooltip: the bot's detail of the first refusal with this cause, else the title.
+  private func help(_ cause: RefusalCause?) -> Text {
+    guard let cause, cause.hasCode, !cause.detail.isEmpty else { return title(cause) }
+    return Text(verbatim: cause.readable(time: Format.marketMinute))
   }
 }
 

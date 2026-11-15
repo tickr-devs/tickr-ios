@@ -103,6 +103,17 @@ public struct RefusalCause: Hashable, Sendable {
   /// The code, when the apps know it.
   public var known: RefusalCode? { RefusalCode(rawValue: code) }
 
+  /// Whether the text starts with a machine code ("SYMBOL_COOLDOWN") rather than being the bot's
+  /// prose without one. A code is never shown to a person: one the apps do not know reads as
+  /// "Other reason" followed by its detail; prose without a code is shown as written.
+  public var hasCode: Bool {
+    code.contains(where: \.isLetter)
+      && code.allSatisfy { ($0.isLetter && $0.isUppercase) || $0.isNumber || $0 == Self.codeJoiner }
+  }
+
+  /// Joins the words of a code ("SYMBOL_COOLDOWN").
+  static let codeJoiner: Character = "_"
+
   /// The ISO-8601 times in `detail`, in the order written.
   public var times: [Date] {
     detail.split(separator: " ").compactMap { Self.parse(Self.split($0).time) }
