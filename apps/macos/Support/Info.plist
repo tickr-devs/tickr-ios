@@ -5,6 +5,9 @@
 	<!-- The product name people see (menus, About, Dock); the target and module keep their code name. -->
 	<key>CFBundleName</key>
 	<string>Tickr</string>
+	<!-- The bot's alerts stay on screen until dismissed (System Settings can still change it). -->
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
 	<!-- Keys Xcode cannot generate from build settings; the rest is generated (GENERATE_INFOPLIST_FILE). -->
 	<!-- The bot's API is plain HTTP on 127.0.0.1 only. -->
 	<key>NSAppTransportSecurity</key>

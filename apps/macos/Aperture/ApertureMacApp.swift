@@ -18,7 +18,7 @@ enum Defaults {
 
 /// macOS shell: the main window with a sidebar, the standard Settings window (⌘,) and a
 /// menu-bar extra. Appearance follows the system (Defaults.appearance can force one for the tour).
-@main
+/// Started by `Launcher` (AlertCommand.swift), which first handles the bot's notify mode.
 @MainActor
 struct ApertureMacApp: App {
   /// Smallest and first size of the main window, in points. The smallest fits a 1024-point-wide
@@ -37,6 +37,15 @@ struct ApertureMacApp: App {
     #endif
     let model = Container.shared.appModel()
     model.start()
+    // The bot shows its alerts through this app (AlertCommand.swift): ask once, here, where the
+    // question can be seen. Not in the UI tests' fixture mode, where nobody could answer.
+    var asksForNotifications = AlertPoster.available
+    #if DEBUG
+    asksForNotifications = asksForNotifications && !PreviewAPI.servesFixtures
+    #endif
+    if asksForNotifications {
+      Task { await AlertPoster().requestPermission() }
+    }
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.
     NSApplication.shared.setActivationPolicy(.regular)
