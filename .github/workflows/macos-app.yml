@@ -40,14 +40,16 @@ jobs:
       - name: Toolchain id for the build cache
         run: echo "XCODE_ID=$(xcodebuild -version | head -1 | tr ' ' '-')" >> "$GITHUB_ENV"
       # SwiftPM build folders, so unchanged modules are not compiled again.
+      # Key prefix v2: caches from before the repo rename hold absolute .../Aperture paths that break
+      # the module cache under .../Tickr.
       - name: Cache SwiftPM builds
         uses: actions/cache@v4
         with:
           path: |
             apps/shared/.build
             apps/macos/.build
-          key: spm-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
-          restore-keys: spm-${{ runner.os }}-${{ env.XCODE_ID }}-
+          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
+          restore-keys: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared
         run: swift test
