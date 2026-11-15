@@ -2014,6 +2014,38 @@ enum L10n {
     static var observersNote: LocalizedStringResource {
       LocalizedStringResource("lab.observersNote", defaultValue: "Shadow versions see the same data live and record their decisions without trading.", bundle: L10n.bundle)
     }
+    /// Name of the Lab chart: each version's gross result through the day.
+    static var curves: LocalizedStringResource {
+      LocalizedStringResource("lab.curves", defaultValue: "Today if each version traded", bundle: L10n.bundle)
+    }
+    /// Footnote of the Lab chart.
+    static var curvesNote: LocalizedStringResource {
+      LocalizedStringResource("lab.curvesNote", defaultValue: "Gross USD by trade close · each line ends at the version's reported result · dashed: trade list incomplete · no line: the reason", bundle: L10n.bundle)
+    }
+    /// Legend row of the active strategy's line.
+    static func activeLine(_ name: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.activeLine", defaultValue: "\(name) · active", bundle: L10n.bundle)
+    }
+    /// Chart axis: time of day.
+    static var curveTime: LocalizedStringResource {
+      LocalizedStringResource("lab.curveTime", defaultValue: "Time", bundle: L10n.bundle)
+    }
+    /// Chart axis: gross result in USD.
+    static var curveResult: LocalizedStringResource {
+      LocalizedStringResource("lab.curveResult", defaultValue: "Result", bundle: L10n.bundle)
+    }
+    /// Chart series: a strategy version.
+    static var curveVersion: LocalizedStringResource {
+      LocalizedStringResource("lab.curveVersion", defaultValue: "Version", bundle: L10n.bundle)
+    }
+    /// Observer row: why its line is dashed.
+    static func tradesIncomplete(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.tradesIncomplete", defaultValue: "Trade list incomplete: \(cause)", bundle: L10n.bundle)
+    }
+    /// Cause of an incomplete trade list: the server cut it short.
+    static var tradesTruncated: LocalizedStringResource {
+      LocalizedStringResource("lab.tradesTruncated", defaultValue: "the bot listed only part of the trades", bundle: L10n.bundle)
+    }
     /// Card title: replaying recorded days.
     static var replay: LocalizedStringResource {
       LocalizedStringResource("lab.replay", defaultValue: "Replay", bundle: L10n.bundle)
