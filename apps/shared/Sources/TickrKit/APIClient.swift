@@ -113,6 +113,10 @@ public struct APIClient: Sendable {
   static let jobsPath = "/jobs"
   static let journalPath = "/journal"
   static let labReplayPath = "/lab/replay"
+  /// Body keys of a Lab replay start: the folder to replay, the one to compare it with, the day.
+  static let labVersionKey = "version"
+  static let labCompareKey = "compare"
+  static let labDayKey = "day"
   /// Remote port only: redeem a pairing link's one-time code for the bearer token.
   static let pairPath = "/pair"
   /// Body key of the pairing code.
@@ -227,10 +231,18 @@ public struct APIClient: Sendable {
     try await perform(request(path: Self.labReplayPath, body: nil), expect: Self.ok)
   }
 
-  /// Start a Lab replay. Accepted (202) answers the replay as it now stands; the API refuses a
-  /// start while one runs with 409 `conflict`, thrown as `APIError.refused`.
-  public func startLabReplay() async throws -> LabReplayV1 {
-    let body = try JSONSerialization.data(withJSONObject: [String: String]())
+  /// Start a Lab replay of strategy folder `version` (the active one when nil), then of
+  /// `compare` over the same window, over the last sessions or over `day` only. Accepted (202)
+  /// answers the replay as it now stands; the API refuses a start while one runs, or a choice it
+  /// does not offer, with 409 `conflict`, thrown as `APIError.refused`.
+  public func startLabReplay(
+    version: String? = nil, compare: String? = nil, day: WireDate? = nil
+  ) async throws -> LabReplayV1 {
+    var fields: [String: String] = [:]
+    fields[Self.labVersionKey] = version
+    fields[Self.labCompareKey] = compare
+    fields[Self.labDayKey] = day?.text
+    let body = try JSONSerialization.data(withJSONObject: fields)
     return try await perform(request(path: Self.labReplayPath, body: body), expect: Self.accepted)
   }
 

@@ -174,6 +174,18 @@ final class StubProtocol: URLProtocol {
     #expect(sent == [:])
   }
 
+  @Test func labReplayComparesOneDay() async throws {
+    StubProtocol.answer = try (202, fixture("lab-replay-v1.running.json"))
+    let started = try await client.startLabReplay(
+      version: "price-action-v1", compare: "volume-shock-v1", day: try WireDate("2026-11-13"))
+    #expect(started.compare?.state == .running)
+    #expect(started.day?.text == "2026-11-13")
+    #expect(started.versions.first?.role == .active)
+    let body = try #require(StubProtocol.seenBodies.last)
+    let sent = try JSONSerialization.jsonObject(with: body) as? [String: String]
+    #expect(sent == ["version": "price-action-v1", "compare": "volume-shock-v1", "day": "2026-11-13"])
+  }
+
   @Test func redeemPairingPostsTheCodeWithoutAToken() async throws {
     let remote = APIClient(baseURL: try #require(URL(string: "https://mac.ts.net")), session: StubProtocol.session())
     StubProtocol.answer = try (200, fixture("paired-v1.json"))
