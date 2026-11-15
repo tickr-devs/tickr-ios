@@ -57,8 +57,18 @@ final class ChartModel {
   /// Number of the newest load of the days or a day (see `begin()`).
   @ObservationIgnored private var latestRequest = 0
 
-  /// Symbols with captured bars on the chosen day.
-  var symbols: [String] { day?.barSymbols ?? [] }
+  /// Symbols with captured bars on the chosen day: open positions first, then the symbols traded
+  /// that day, then the rest.
+  var symbols: [String] {
+    guard let day else { return [] }
+    return ChartSymbols.ordered(day.barSymbols, open: openSymbols, traded: day.trades.map(\.symbol))
+  }
+  /// Symbols of the positions the bot holds, when the chosen day is the day of its status.
+  var openSymbols: [String] {
+    guard let status = Container.shared.appModel().status,
+      selectedDay == WireDate(newYorkDateOf: status.writtenAt.date) else { return [] }
+    return status.positions.map(\.symbol)
+  }
   /// Trades of the chosen symbol closed on the chosen day.
   var trades: [DayTrade] { day?.trades.filter { $0.symbol == symbol } ?? [] }
   /// Whether the chosen day is today in New York, so its bars still grow.
@@ -142,8 +152,10 @@ final class ChartModel {
     let loaded = try await client(url).day(selectedDay)
     guard request == latestRequest else { return }
     day = loaded
-    let candidates = [preferred, symbol, loaded.trades.last?.symbol].compactMap { $0 }
-    symbol = candidates.first(where: loaded.barSymbols.contains) ?? loaded.barSymbols.first
+    // The symbol asked for or already shown, else the first chip: an open position, else the
+    // symbol traded last.
+    let candidates = [preferred, symbol].compactMap { $0 }
+    symbol = candidates.first(where: loaded.barSymbols.contains) ?? symbols.first
     try await loadBars(url)
   }
 

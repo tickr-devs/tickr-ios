@@ -27,7 +27,7 @@ struct ChartTab: View {
     .navigationTitle(Text(ChartText.title))
     .task(id: app.connection.url) {
       guard let url = app.connection.url else { return }
-      await chart.load(url, preferring: app.selectedSymbol)
+      await chart.load(url, preferring: app.selectedSymbol ?? app.status?.positions.first?.symbol)
     }
     .task(id: liveKey) { await followToday() }
     .refreshable {
@@ -190,8 +190,10 @@ private struct DayHeader: View {
   }
 }
 
-/// One chip per symbol with captured bars that day; a dot marks symbols the bot traded.
+/// One chip per symbol with captured bars that day, open positions first: a pulsing dot marks an
+/// open position, a plain dot a symbol the bot traded.
 private struct SymbolChips: View {
+  @Environment(AppModel.self) private var app
   let chart: ChartModel
   let url: URL
 
@@ -200,16 +202,23 @@ private struct SymbolChips: View {
       HStack(spacing: Tokens.Space.s) {
         ForEach(chart.symbols, id: \.self) { symbol in
           let selected = symbol == chart.symbol
+          let open = chart.openSymbols.contains(symbol)
           let traded = chart.day?.trades.contains { $0.symbol == symbol } ?? false
           Button {
             Task { await chart.show(symbol: symbol, from: url) }
           } label: {
             HStack(spacing: Tokens.Space.xs) {
+              if open {
+                // Pulses only while the status saying it is open is current.
+                PulseDot(Palette.accent, size: Tokens.Size.dotSmall, pulsing: app.response?.stale == false)
+                  .accessibilityLabel(Text(ChartText.openPosition))
+              }
               Text(symbol)
               if traded {
                 Circle()
                   .fill(Palette.info)
                   .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+                  .accessibilityLabel(Text(ChartText.traded))
               }
             }
             .font(Tokens.Typography.calloutMono)

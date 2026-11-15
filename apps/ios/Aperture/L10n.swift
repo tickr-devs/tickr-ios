@@ -890,6 +890,16 @@ enum ChartText {
     defaultValue: "Entries and exits only")
   static let observer = LocalizedStringResource("chart.decisions.observer",
     defaultValue: "observer")
+  static let tradingStrategy = LocalizedStringResource("chart.decisions.strategyLabel",
+    defaultValue: "Trading strategy")
+  static let noStrategyDecisions = LocalizedStringResource("chart.decisions.noStrategy",
+    defaultValue: "The trading strategy recorded nothing on this symbol that day.")
+  static let observers = LocalizedStringResource("chart.decisions.observers",
+    defaultValue: "Observers · never trade")
+  static let openPosition = LocalizedStringResource("chart.symbol.open",
+    defaultValue: "open position")
+  static let traded = LocalizedStringResource("chart.symbol.traded",
+    defaultValue: "traded that day")
   static let verdictIgnore = LocalizedStringResource("chart.verdict.ignore",
     defaultValue: "IGNORE")
   static let verdictWatch = LocalizedStringResource("chart.verdict.watch",
@@ -912,5 +922,8 @@ enum ChartText {
   }
   static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
     LocalizedStringResource("chart.decisions.strategy", defaultValue: "\(name) v\(version)")
+  }
+  static func repeats(_ count: Int, _ since: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.decisions.repeats", defaultValue: "×\(count) in a row since \(since)")
   }
 }

@@ -3,8 +3,9 @@ import ApertureKit
 import SwiftUI
 
 /// Why the bot acted here: what the trading strategy and its observers decided on the chosen
-/// symbol that day (GET /decisions), each decision with the checks behind it. Entries and exits
-/// show first; the bar-by-bar watching and holding open on request.
+/// symbol that day (GET /decisions), each decision with the checks behind it. The trading
+/// strategy leads, observers follow under their own label; the same verdict repeated bar after
+/// bar is one row with a count. Entries and exits show first; watching and holding open on request.
 struct DecisionsCard: View {
   let decisions: DecisionsV1?
   let failure: String?
@@ -14,25 +15,28 @@ struct DecisionsCard: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       CardLabel(ChartText.decisions)
       if let decisions {
-        let all = Array(decisions.decisions.reversed())
-        let key = all.filter { $0.action == .enter || $0.action == .exit }
-        let shown = showsAll ? all : key
-        if all.isEmpty {
+        let list = DecisionList(decisions.decisions, everything: showsAll)
+        if list.total == 0 {
           note(ChartText.noDecisions)
-        } else if shown.isEmpty {
-          note(ChartText.noEntries)
-        }
-        LazyVStack(alignment: .leading, spacing: Tokens.Space.s) {
-          ForEach(shown, id: \.self) { decision in
-            DecisionRow(decision: decision)
-              .transition(.opacity.combined(with: .move(edge: .top)))
+        } else {
+          CardLabel(ChartText.tradingStrategy)
+          if list.strategy.isEmpty {
+            note(showsAll ? ChartText.noStrategyDecisions : ChartText.noEntries)
           }
         }
-        if all.count > key.count {
+        runs(list.strategy)
+        if !list.observers.isEmpty {
+          CardLabel(ChartText.observers)
+            .padding(.top, Tokens.Space.s)
+          ForEach(list.observers, id: \.self) { observer in
+            runs(observer)
+          }
+        }
+        if list.total > list.key {
           Button {
             showsAll.toggle()
           } label: {
-            Text(showsAll ? ChartText.keyDecisions : ChartText.allDecisions(all.count))
+            Text(showsAll ? ChartText.keyDecisions : ChartText.allDecisions(list.total))
           }
           .buttonStyle(.borderless)
           .font(Tokens.Typography.captionMono)
@@ -49,6 +53,15 @@ struct DecisionsCard: View {
     .animation(Tokens.Motion.standard, value: showsAll)
   }
 
+  private func runs(_ runs: [DecisionRun]) -> some View {
+    LazyVStack(alignment: .leading, spacing: Tokens.Space.s) {
+      ForEach(runs, id: \.self) { run in
+        DecisionRow(run: run)
+          .transition(.opacity.combined(with: .move(edge: .top)))
+      }
+    }
+  }
+
   private func note(_ text: LocalizedStringResource) -> some View {
     Text(text)
       .font(Tokens.Typography.callout)
@@ -56,10 +69,13 @@ struct DecisionsCard: View {
   }
 }
 
-/// One decision: time, action, strategy (observers marked) and, when opened, its checks.
+/// One decision, or a run of the same one: time, action, strategy (observers marked), how many
+/// bars in a row and since when, and, when opened, the checks of the newest one.
 private struct DecisionRow: View {
-  let decision: DecisionV1
+  let run: DecisionRun
   @State private var open = false
+
+  private var decision: DecisionV1 { run.latest }
 
   var body: some View {
     DisclosureGroup(isExpanded: $open) {
@@ -75,24 +91,31 @@ private struct DecisionRow: View {
       }
       .padding(.top, Tokens.Space.xs)
     } label: {
-      HStack(spacing: Tokens.Space.s) {
-        Text(decision.at.date, format: ChartFormat.time)
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textTertiary)
-        Text(decision.action.title)
-          .font(Tokens.Typography.annotationBold)
-          .padding(.horizontal, Tokens.Space.s)
-          .padding(.vertical, Tokens.Space.xxs)
-          .foregroundStyle(decision.action.color)
-          .background(decision.action.color.opacity(Tokens.Opacity.wash), in: Capsule())
-        Text(ChartText.strategy(decision.strategy.name, decision.strategy.version))
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textSecondary)
-          .lineLimit(1)
-        if decision.observer {
-          Text(ChartText.observer)
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        HStack(spacing: Tokens.Space.s) {
+          Text(decision.at.date, format: ChartFormat.time)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textTertiary)
+          Text(decision.action.title)
+            .font(Tokens.Typography.annotationBold)
+            .padding(.horizontal, Tokens.Space.s)
+            .padding(.vertical, Tokens.Space.xxs)
+            .foregroundStyle(decision.action.color)
+            .background(decision.action.color.opacity(Tokens.Opacity.wash), in: Capsule())
+          Text(ChartText.strategy(decision.strategy.name, decision.strategy.version))
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textSecondary)
+            .lineLimit(1)
+          if decision.observer {
+            Text(ChartText.observer)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.highlight)
+          }
+        }
+        if run.count > 1 {
+          Text(ChartText.repeats(run.count, run.earliest.at.date.formatted(ChartFormat.time)))
             .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.highlight)
+            .foregroundStyle(Palette.textQuaternary)
         }
       }
     }

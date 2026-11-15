@@ -885,6 +885,23 @@
         }
       }
     },
+    "chart.decisions.noStrategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The trading strategy recorded nothing on this symbol that day."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговая стратегия ничего не записала по этому символу в тот день."
+          }
+        }
+      }
+    },
     "chart.decisions.observer" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -902,6 +919,40 @@
         }
       }
     },
+    "chart.decisions.observers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Observers · never trade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наблюдатели · не торгуют"
+          }
+        }
+      }
+    },
+    "chart.decisions.repeats" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "×%lld in a row since %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "×%lld подряд с %@"
+          }
+        }
+      }
+    },
     "chart.decisions.strategy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -915,6 +966,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ v%@"
+          }
+        }
+      }
+    },
+    "chart.decisions.strategyLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading strategy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговая стратегия"
           }
         }
       }
@@ -1255,6 +1323,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Стоп"
+          }
+        }
+      }
+    },
+    "chart.symbol.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open position"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "открытая позиция"
+          }
+        }
+      }
+    },
+    "chart.symbol.traded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "traded that day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "были сделки в тот день"
           }
         }
       }
