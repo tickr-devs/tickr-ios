@@ -81,7 +81,7 @@ private struct DecisionRow: View {
     DisclosureGroup(isExpanded: $open) {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         if let entry = decision.entryPrice, let stop = decision.stopPrice {
-          Text(ChartText.entryStop(entry.text, stop.text))
+          Text(ChartText.entryStop(Money.price(entry.value), Money.price(stop.value)))
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textSecondary)
         }

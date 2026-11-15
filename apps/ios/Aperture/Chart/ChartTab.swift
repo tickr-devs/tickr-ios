@@ -565,9 +565,9 @@ private struct DayTrades: View {
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textTertiary)
             HStack(spacing: Tokens.Space.xs) {
-              Text(trade.entryPrice.description)
+              Text(verbatim: Money.price(trade.entryPrice.value))
               Image(systemName: "arrow.right").imageScale(.small)
-              Text(trade.exitPrice.description)
+              Text(verbatim: Money.price(trade.exitPrice.value))
             }
             .font(Tokens.Typography.bodyMono)
             .foregroundStyle(Palette.textSecondary)

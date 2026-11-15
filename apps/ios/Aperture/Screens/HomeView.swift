@@ -346,7 +346,7 @@ private struct PositionRow: View {
                 .fixedSize()
             }
             Label {
-              Text(verbatim: position.stop.price?.text ?? Format.missing)
+              Text(verbatim: position.stop.price.map { Money.price($0.value) } ?? Format.missing)
             } icon: {
               Image(systemName: StopGlyph.levelSymbol)
             }
@@ -388,7 +388,7 @@ private struct PositionRow: View {
                   .foregroundStyle(Palette.warningText)
               }
             }
-            Text(L10n.Common.quantityAt(position.quantity.text, position.entryPrice.text))
+            Text(L10n.Common.quantityAt(position.quantity.text, Money.price(position.entryPrice.value)))
               .font(Tokens.Typography.calloutMono.weight(.semibold))
               .foregroundStyle(Palette.textPrimary)
             Text(L10n.Home.since(Format.time(position.openedAt.date)))
@@ -414,7 +414,7 @@ private struct PositionRow: View {
 
   private var stopLine: LocalizedStringResource {
     switch position.stop.state {
-    case .verified: return L10n.Home.stopVerified(position.stop.price?.text ?? "")
+    case .verified: return L10n.Home.stopVerified(position.stop.price.map { Money.price($0.value) } ?? Format.missing)
     case .pending: return L10n.Home.stopPending
     case .missing: return L10n.Home.noStop
     case .unknown: return L10n.Home.stopUnknown

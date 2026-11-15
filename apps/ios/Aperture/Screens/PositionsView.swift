@@ -210,7 +210,7 @@ private struct PositionDetail: View {
             .accessibilityElement(children: .combine)
           }
         }
-        Text(L10n.Positions.shares(position.quantity.text, position.entryPrice.text,
+        Text(L10n.Positions.shares(position.quantity.text, Money.price(position.entryPrice.value),
           Format.clock(position.openedAt.date)))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
@@ -503,10 +503,11 @@ private struct ProtectionChain: View {
     let state = position.stop.state
     return [
       (L10n.Positions.entrySent, entryDetail, entryProven),
-      (L10n.Positions.filled(position.quantity.text, position.entryPrice.text),
+      (L10n.Positions.filled(position.quantity.text, Money.price(position.entryPrice.value)),
         Format.clock((position.entry.filledAt ?? position.openedAt).date), true),
       // No time: the status does not say when the stop was sent, and its order id means nothing here.
-      (L10n.Positions.stopSent(position.stop.price?.text ?? ""), "", state == .pending || state == .verified),
+      (L10n.Positions.stopSent(position.stop.price.map { Money.price($0.value) } ?? Format.missing), "",
+        state == .pending || state == .verified),
       (L10n.Positions.stopWorking, Board.stopStateTitle(state), state.isProtected),
       (L10n.Positions.reconciled, brokerReadAt.map(Format.clock) ?? Format.missing, brokerReadAt != nil && reconciled),
     ]

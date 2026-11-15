@@ -484,8 +484,8 @@ private struct TradeLine {
     closedAt = trade.closedAt.date
     exitReason = trade.exitReason
     quantity = trade.quantity.text
-    entryPrice = trade.entryPrice.text
-    exitPrice = trade.exitPrice.text
+    entryPrice = Money.price(trade.entryPrice.value)
+    exitPrice = Money.price(trade.exitPrice.value)
     result = trade.resultGrossUsd.value
     let planned = trade.plannedLossUsd.value
     resultR = planned == 0 ? nil : trade.resultGrossUsd.value / planned
@@ -504,8 +504,8 @@ private struct TradeLine {
     closedAt = trade.closedAt.date
     exitReason = trade.exitReason
     quantity = trade.quantity.text
-    entryPrice = trade.entryPrice.text
-    exitPrice = trade.exitPrice.text
+    entryPrice = Money.price(trade.entryPrice.value)
+    exitPrice = Money.price(trade.exitPrice.value)
     result = trade.resultGrossUsd.value
     resultR = trade.resultR
     stopAfter = trade.stopConfirmedAfterSeconds?.value
@@ -560,10 +560,10 @@ private struct TradesList: View {
         let state = position.stop.state
         row(symbol: position.symbol, time: String(localized: L10n.Activity.openSince(Format.time(position.openedAt.date))),
           tag: String(localized: L10n.Activity.openTag), tagSymbol: Self.openSymbol, tone: .accent,
-          result: String(localized: L10n.Common.quantityAt(position.quantity.text, position.entryPrice.text)),
+          result: String(localized: L10n.Common.quantityAt(position.quantity.text, Money.price(position.entryPrice.value))),
           figures: [
             Figure(symbol: StopGlyph.stateSymbol(state), label: L10n.Activity.hintStop,
-              value: position.stop.price?.text ?? Format.missing, tone: StopGlyph.stateTone(state)),
+              value: position.stop.price.map { Money.price($0.value) } ?? Format.missing, tone: StopGlyph.stateTone(state)),
           ],
           stopState: state)
           .rise(step: ActivityView.Order.list.rawValue)
