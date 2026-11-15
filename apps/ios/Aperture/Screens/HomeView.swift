@@ -6,7 +6,7 @@ import SwiftUI
 /// open positions and the health of the bot's inputs. The power button opens bot control.
 struct HomeView: View {
   /// Order in which the blocks rise in (`rise(step:)`); open positions follow one step apart.
-  private enum Order: Int { case day = 1, summary, ticker, positions, health = 6 }
+  private enum Order: Int { case day = 1, summary, risk, ticker, positions, health = 7 }
 
   @Environment(AppModel.self) private var model
   @State private var showControl = false
@@ -17,6 +17,7 @@ struct HomeView: View {
       DayLine().rise(step: Order.day.rawValue)
       Summary().rise(step: Order.summary.rawValue)
       if let status = model.status {
+        RiskLink(status: status).rise(step: Order.risk.rawValue)
         let events = Board.events(status)
         if !events.isEmpty {
           Ticker(events.map { TickerItem(id: $0.id, tag: $0.tag, text: $0.text, tone: $0.tone.ticker) },
@@ -67,7 +68,51 @@ struct HomeView: View {
       }
     }
     .botControl(isPresented: $showControl)
-    .refreshable { await model.refresh() }
+    .refreshable { await model.refreshAll() }
+  }
+}
+
+/// The room left under the daily loss limit and whether entries are allowed; opens Risk.
+private struct RiskLink: View {
+  let status: StatusV1
+
+  private var allowed: Bool { status.entriesAllowed }
+
+  var body: some View {
+    NavigationLink {
+      RiskView()
+    } label: {
+      HStack(spacing: Tokens.Space.s) {
+        Group {
+          if allowed {
+            Image(systemName: "checkmark.shield").foregroundStyle(Palette.profitText)
+          } else {
+            Image(systemName: "exclamationmark.shield").foregroundStyle(Palette.warningText)
+          }
+        }
+        .transition(.scale.combined(with: .opacity))
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          Text(L10n.Risk.room)
+            .font(Tokens.Typography.callout)
+            .foregroundStyle(Palette.textSecondary)
+          Text(allowed ? L10n.Risk.allowed : L10n.Risk.blocked)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(allowed ? Palette.textQuaternary : Palette.warningText)
+        }
+        Spacer()
+        Text(verbatim: RiskFormat.amount(status.dailyRoomUsd?.value))
+          .font(Tokens.Typography.calloutMono.bold())
+          .foregroundStyle(Palette.textPrimary)
+          .contentTransition(.numericText())
+        Image(systemName: "chevron.forward")
+          .imageScale(.small)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      .padding(.horizontal, Tokens.Space.l)
+      .padding(.vertical, Tokens.Space.m)
+      .apertureCard()
+    }
+    .buttonStyle(.plain)
   }
 }
 

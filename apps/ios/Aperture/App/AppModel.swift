@@ -32,6 +32,10 @@ final class AppModel {
   }
   private(set) var response: StatusResponseV1?
   private(set) var fetchError: String?
+  /// The bot's configuration (GET /settings): risk limits and session. Read once per address.
+  private(set) var settings: SettingsV1?
+  /// Why the settings could not be read, if they could not.
+  private(set) var settingsError: String?
   private(set) var sending = false
   var notice: Notice?
   var selectedTab: AppTab = .home
@@ -85,6 +89,8 @@ final class AppModel {
     stop()
     response = nil
     fetchError = nil
+    settings = nil
+    settingsError = nil
     start()
   }
 
@@ -101,6 +107,28 @@ final class AppModel {
       resolveAwaited(fresh)
     } catch {
       fetchError = Self.describe(error)
+      return
+    }
+    if settings == nil { await refreshSettings(url) }
+  }
+
+  /// Pull to refresh: the status, and the settings read again, since the owner may have changed
+  /// config/bot.toml and restarted the bot.
+  func refreshAll() async {
+    await refresh()
+    guard let url = connection.url, fetchError == nil else { return }
+    await refreshSettings(url)
+  }
+
+  /// Reads the bot's configuration; the answer is dropped when the address changed meanwhile.
+  private func refreshSettings(_ url: URL) async {
+    do {
+      let read = try await Container.shared.apiClient(connection.endpoint(for: url)).settings()
+      guard connection.url == url else { return }
+      settings = read
+      settingsError = nil
+    } catch {
+      if connection.url == url { settingsError = Self.describe(error) }
     }
   }
 

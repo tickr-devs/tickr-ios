@@ -347,6 +347,110 @@ enum L10n {
     }
   }
 
+  enum Risk {
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("risk.title", defaultValue: "Risk", bundle: L10n.bundle)
+    }
+    static var room: LocalizedStringResource {
+      LocalizedStringResource("risk.room", defaultValue: "Daily loss room", bundle: L10n.bundle)
+    }
+    static var left: LocalizedStringResource {
+      LocalizedStringResource("risk.left", defaultValue: "left", bundle: L10n.bundle)
+    }
+    static var limit: LocalizedStringResource {
+      LocalizedStringResource("risk.limit", defaultValue: "Daily loss limit", bundle: L10n.bundle)
+    }
+    static var realizedLoss: LocalizedStringResource {
+      LocalizedStringResource("risk.realizedLoss", defaultValue: "Realized loss", bundle: L10n.bundle)
+    }
+    static var reservations: LocalizedStringResource {
+      LocalizedStringResource("risk.reservations", defaultValue: "Reserved by open trades", bundle: L10n.bundle)
+    }
+    static var resultToday: LocalizedStringResource {
+      LocalizedStringResource("risk.resultToday", defaultValue: "Net result today", bundle: L10n.bundle)
+    }
+    static func roomNote(_ amount: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.roomNote",
+        defaultValue: "The limit counts the net day result: profits offset losses. Open trades reserve their planned loss. Below \(amount) of room the bot opens nothing new.",
+        bundle: L10n.bundle)
+    }
+    static var entries: LocalizedStringResource {
+      LocalizedStringResource("risk.entries", defaultValue: "New entries", bundle: L10n.bundle)
+    }
+    static var allowed: LocalizedStringResource {
+      LocalizedStringResource("risk.allowed", defaultValue: "Allowed", bundle: L10n.bundle)
+    }
+    static var blocked: LocalizedStringResource {
+      LocalizedStringResource("risk.blocked", defaultValue: "Blocked", bundle: L10n.bundle)
+    }
+    static var pausedByYou: LocalizedStringResource {
+      LocalizedStringResource("risk.pausedByYou", defaultValue: "Operator pause", bundle: L10n.bundle)
+    }
+    static var tradingGate: LocalizedStringResource {
+      LocalizedStringResource("risk.tradingGate", defaultValue: "Trading gate", bundle: L10n.bundle)
+    }
+    static var gateOpen: LocalizedStringResource {
+      LocalizedStringResource("risk.gateOpen", defaultValue: "open", bundle: L10n.bundle)
+    }
+    static var gateClosed: LocalizedStringResource {
+      LocalizedStringResource("risk.gateClosed", defaultValue: "closed", bundle: L10n.bundle)
+    }
+    static var yes: LocalizedStringResource {
+      LocalizedStringResource("risk.yes", defaultValue: "yes", bundle: L10n.bundle)
+    }
+    static var no: LocalizedStringResource {
+      LocalizedStringResource("risk.no", defaultValue: "no", bundle: L10n.bundle)
+    }
+    static var fences: LocalizedStringResource {
+      LocalizedStringResource("risk.fences", defaultValue: "Fences", bundle: L10n.bundle)
+    }
+    static var noFences: LocalizedStringResource {
+      LocalizedStringResource("risk.noFences", defaultValue: "No fences: the bot raised no blocks.", bundle: L10n.bundle)
+    }
+    static func since(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.since", defaultValue: "since \(time)", bundle: L10n.bundle)
+    }
+    static var limits: LocalizedStringResource {
+      LocalizedStringResource("risk.limits", defaultValue: "Limits", bundle: L10n.bundle)
+    }
+    static var plannedLoss: LocalizedStringResource {
+      LocalizedStringResource("risk.plannedLoss", defaultValue: "Planned loss per trade", bundle: L10n.bundle)
+    }
+    static var notionalCap: LocalizedStringResource {
+      LocalizedStringResource("risk.notionalCap", defaultValue: "Position size cap", bundle: L10n.bundle)
+    }
+    static var minRoom: LocalizedStringResource {
+      LocalizedStringResource("risk.minRoom", defaultValue: "No entries below room", bundle: L10n.bundle)
+    }
+    static var openPositions: LocalizedStringResource {
+      LocalizedStringResource("risk.openPositions", defaultValue: "Open positions at most", bundle: L10n.bundle)
+    }
+    static var quoteAge: LocalizedStringResource {
+      LocalizedStringResource("risk.quoteAge", defaultValue: "Oldest usable quote", bundle: L10n.bundle)
+    }
+    static func seconds(_ value: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.seconds", defaultValue: "\(value) s", bundle: L10n.bundle)
+    }
+    static var settingsFailed: LocalizedStringResource {
+      LocalizedStringResource("risk.settingsFailed", defaultValue: "Couldn't read the bot's settings", bundle: L10n.bundle)
+    }
+    static var session: LocalizedStringResource {
+      LocalizedStringResource("risk.session", defaultValue: "Session · New York", bundle: L10n.bundle)
+    }
+    static var lastEntry: LocalizedStringResource {
+      LocalizedStringResource("risk.lastEntry", defaultValue: "Last entry", bundle: L10n.bundle)
+    }
+    static var flatten: LocalizedStringResource {
+      LocalizedStringResource("risk.flatten", defaultValue: "Close everything", bundle: L10n.bundle)
+    }
+    static var halfDays: LocalizedStringResource {
+      LocalizedStringResource("risk.halfDays", defaultValue: "Half days", bundle: L10n.bundle)
+    }
+    static func beforeClose(_ minutes: Int) -> LocalizedStringResource {
+      LocalizedStringResource("risk.beforeClose", defaultValue: "\(minutes) min before close", bundle: L10n.bundle)
+    }
+  }
+
   enum Activity {
     static var calendar: LocalizedStringResource {
       LocalizedStringResource("activity.calendar", defaultValue: "Calendar", bundle: L10n.bundle)

@@ -66,6 +66,11 @@ extension StreamHealth {
   }
 }
 
+extension StatusV1 {
+  /// The bot may open a position now: no entry block, no operator pause, and the trading gate open.
+  var entriesAllowed: Bool { entryBlock == nil && !entryStop && tradingGate.open }
+}
+
 extension DecimalString {
   var signedMoney: String { Money.signed(value) }
 }
