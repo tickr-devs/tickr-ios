@@ -240,7 +240,7 @@ private struct Summary: View {
             }
             if !status.tradingGate.open {
               StateGlyph(Self.gateClosedSymbol, tone: .warning,
-                label: L10n.Home.gateClosed(status.tradingGate.cause), style: .compact)
+                label: L10n.Home.gateClosed(ApiText.gate(status.tradingGate)), style: .compact)
             }
             Badge(verbatim: status.strategy.version, tone: .highlight)
           }
@@ -260,7 +260,7 @@ private struct Summary: View {
         : L10n.Home.stopIs(position.symbol, Board.stopStateTitle(position.stop.state)))
     }
     parts.append(L10n.Home.strategy(status.strategy.name, status.strategy.version))
-    if !status.tradingGate.open { parts.append(L10n.Home.gateClosed(status.tradingGate.cause)) }
+    if !status.tradingGate.open { parts.append(L10n.Home.gateClosed(ApiText.gate(status.tradingGate))) }
     return parts.map { String(localized: $0) }.joined(separator: " ")
   }
 }
@@ -511,7 +511,7 @@ private struct LiveFlowCard: View {
         }
         .font(Tokens.Typography.annotation)
         ForEach(status.fences, id: \.kind) { fence in
-          Label { Text(verbatim: fence.text) } icon: { Image(systemName: "exclamationmark.triangle.fill") }
+          Label { Text(verbatim: ApiText.fenceWithDetail(fence)) } icon: { Image(systemName: "exclamationmark.triangle.fill") }
             .font(.caption)
             .foregroundStyle(Palette.warningText)
         }
@@ -665,7 +665,7 @@ private struct LatestEventLine: View {
     }
     let refusal = skipped?.signals.filter { $0.admission == .refused }.max { $0.at.date < $1.at.date }.map {
       LatestEventLine(time: $0.at.date, tag: String(localized: L10n.Flow.refusedTag),
-        text: [$0.symbol, $0.refusal?.message ?? $0.refusalCause].compactMap { $0 }.joined(separator: Self.gap),
+        text: [$0.symbol, $0.refusal.map(ApiText.refusal) ?? $0.refusalCause].compactMap { $0 }.joined(separator: Self.gap),
         color: Palette.warning)
     }
     guard let event, let refusal else { return event ?? refusal }

@@ -74,7 +74,7 @@ struct SettingsView: View {
             StatusPill(open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed, tone: open ? .profit : .warning)
           }
           if !open {
-            InfoCaption(verbatim: status.tradingGate.cause, tone: .warning)
+            InfoCaption(verbatim: ApiText.gate(status.tradingGate), tone: .warning)
           }
           SettingsRow(L10n.Settings.strategy, systemImage: Self.strategySymbol, tone: .highlight) {
             Badge(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version), tone: .highlight)

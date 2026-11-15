@@ -20,7 +20,7 @@ struct PositionsView: View {
             Label { Text(L10n.Positions.none) } icon: { BrandMark.empty() }
           } description: {
             if let block = status.entryBlock {
-              Text(verbatim: block.text)
+              Text(verbatim: ApiText.entryBlock(block))
             } else {
               Text(L10n.Positions.watching)
             }

@@ -68,7 +68,7 @@ private struct WatchingRow: View {
           .foregroundStyle(Palette.textQuaternary)
       }
       if let check = row.decisiveCheck {
-        Text(verbatim: [check.rule, check.measured?.text ?? Format.missing, check.operator,
+        Text(verbatim: [ApiText.rule(check.rule), check.measured?.text ?? Format.missing, check.operator,
           check.threshold?.text ?? Format.missing].joined(separator: ChartFormat.space))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textTertiary)

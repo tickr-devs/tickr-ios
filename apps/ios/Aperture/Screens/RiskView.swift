@@ -152,13 +152,18 @@ private struct GateCard: View {
           .contentTransition(.opacity)
       }
       if let block = status.entryBlock {
-        Text(verbatim: block.text)
+        let title = ApiText.entryBlock(block)
+        Text(verbatim: title)
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textPrimary)
           .fixedSize(horizontal: false, vertical: true)
-        Text(verbatim: block.cause)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
+        // The bot's own detail under the translated cause; nothing when the title already is it.
+        if title != block.text, !block.text.isEmpty {
+          Text(verbatim: block.text)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
       }
       RiskLine(label: L10n.Risk.pausedByYou,
         value: String(localized: status.entryStop ? L10n.Risk.yes : L10n.Risk.no),
@@ -167,7 +172,7 @@ private struct GateCard: View {
         value: String(localized: status.tradingGate.open ? L10n.Risk.gateOpen : L10n.Risk.gateClosed),
         color: status.tradingGate.open ? Palette.profitText : Palette.warningText)
       if !status.tradingGate.open {
-        Text(verbatim: status.tradingGate.cause)
+        Text(verbatim: ApiText.gate(status.tradingGate))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }
@@ -191,7 +196,7 @@ private struct FencesCard: View {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
           Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Palette.warning)
           VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            Text(verbatim: fence.text)
+            Text(verbatim: ApiText.fenceWithDetail(fence))
               .font(Tokens.Typography.callout)
               .foregroundStyle(Palette.textPrimary)
               .fixedSize(horizontal: false, vertical: true)
