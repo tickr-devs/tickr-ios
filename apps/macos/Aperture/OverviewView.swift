@@ -260,11 +260,9 @@ private struct LiveFlowCard: View {
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textQuaternary)
     } content: {
-      Ticker(model.tickerItems, moving: model.isLive)
-        .frame(height: Tokens.Size.ticker)
+      ScreenerChips()
       Pipeline(stages: stages, moving: model.isLive)
         .frame(height: Pipeline.height)
-      ScreenerChips()
     }
   }
 
@@ -279,20 +277,20 @@ private struct LiveFlowCard: View {
     let stopColor = stopVerified ? Palette.profit : Palette.loss
     let stopText = stopVerified ? Palette.profitText : Palette.lossText
     return [
-      .init(id: .screeners, name: L10n.Flow.screeners, value: count(.screeners), symbol: Self.screenersSymbol,
+      .init(id: .screeners, name: L10n.Flow.screeners, value: count(.screeners, L10n.Flow.seen), symbol: Self.screenersSymbol,
         color: Palette.accent, text: Palette.accentText),
-      .init(id: .universe, name: L10n.Flow.universe, value: count(.universe), symbol: Self.universeSymbol,
+      .init(id: .universe, name: L10n.Flow.universe, value: count(.universe, L10n.Flow.stocks), symbol: Self.universeSymbol,
         color: Palette.seriesUniverse, text: Palette.seriesATRText),
       .init(id: .strategy, name: L10n.Common.strategy,
-        value: count(.strategy) ?? status.map { Format.strategy($0.strategy) },
+        value: count(.strategy, L10n.Flow.decided) ?? status.map { Format.strategy($0.strategy) },
         symbol: Self.strategySymbol, color: Palette.highlight, text: Palette.highlightText),
       // A live entry block outranks the day's count: it is what the operator must see first.
       .init(id: .risk, name: L10n.Common.risk,
-        value: status?.entryBlock.map { _ in String(localized: L10n.Flow.blocked) } ?? count(.risk)
+        value: status?.entryBlock.map { _ in String(localized: L10n.Flow.blocked) } ?? count(.risk, L10n.Flow.passed)
           ?? status.map { _ in String(localized: L10n.Flow.entriesAllowed) },
         symbol: Self.riskSymbol, color: Palette.warning, text: Palette.warningText),
       .init(id: .order, name: L10n.Flow.order,
-        value: count(.order) ?? status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
+        value: count(.order, L10n.Flow.filled) ?? status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
         symbol: Self.orderSymbol, color: Palette.info, text: Palette.infoText),
       .init(id: .stop, name: L10n.Flow.brokerStop,
         value: position.map { $0.stop.state.title } ?? stopsVerified
@@ -305,9 +303,10 @@ private struct LiveFlowCard: View {
 }
 
 extension LiveFlowCard {
-  /// "12 symbols": how many symbols reached `stage` on the shown day; nil without a flow.
-  fileprivate func count(_ stage: FlowStage) -> String? {
-    model.flow?.stages.first { $0.stage == stage }.map { String(localized: L10n.Screener.symbols($0.count)) }
+  /// "412 seen": how many symbols reached `stage` on the shown day, in the stage's word; nil
+  /// without a flow.
+  fileprivate func count(_ stage: FlowStage, _ word: (Int) -> LocalizedStringResource) -> String? {
+    model.flow?.stages.first { $0.stage == stage }.map { String(localized: word($0.count)) }
   }
 
   /// "1 of 2 verified": the day's trades whose broker stop was confirmed; nil without trades.

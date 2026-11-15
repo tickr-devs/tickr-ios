@@ -171,6 +171,8 @@ public enum Tokens {
     public static let bar: CGFloat = 8
     /// Height of the ticker strip.
     public static let ticker: CGFloat = 22
+    /// Least width of a symbol chip in the live flow (symbol over screener and change).
+    public static let flowChip: CGFloat = 96
     /// Width of a side column of cards on wide screens.
     public static let sideColumn: CGFloat = 320
     /// Widest a screen's content grows before it centres.

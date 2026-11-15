@@ -2092,6 +2092,74 @@
         }
       }
     },
+    "flow.chipActives" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "actives"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "активные"
+          }
+        }
+      }
+    },
+    "flow.chipGainers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gainers"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "рост"
+          }
+        }
+      }
+    },
+    "flow.chipLosers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "losers"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "падение"
+          }
+        }
+      }
+    },
+    "flow.chipSkipped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "skipped"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пропуск"
+          }
+        }
+      }
+    },
     "flow.closedCount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2109,6 +2177,23 @@
         }
       }
     },
+    "flow.decided" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld decided"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "решений: %lld"
+          }
+        }
+      }
+    },
     "flow.entriesAllowed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2122,6 +2207,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "входы разрешены"
+          }
+        }
+      }
+    },
+    "flow.filled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld filled"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "исполнено: %lld"
           }
         }
       }
@@ -2211,6 +2313,23 @@
         }
       }
     },
+    "flow.passed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld passed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "прошли: %lld"
+          }
+        }
+      }
+    },
     "flow.quietTag" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2275,6 +2394,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Скринеры"
+          }
+        }
+      }
+    },
+    "flow.seen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld seen"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "найдено: %lld"
+          }
+        }
+      }
+    },
+    "flow.stocks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld stocks"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "акций: %lld"
           }
         }
       }
@@ -5080,23 +5233,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "подтверждено %1$lld из %2$lld"
-          }
-        }
-      }
-    },
-    "screener.symbols" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld symbols"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "тикеров: %lld"
           }
         }
       }
