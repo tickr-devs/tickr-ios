@@ -109,6 +109,14 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   public let entry: EntrySend
   /// Why the bot has no entry send record for the trade; nil when it has one.
   public let entryCause: String?
+  /// Prices at set minutes after the exit, oldest first; empty with `pricesAfterCause` when none.
+  public let pricesAfter: [PriceAfterV1]
+  public let pricesAfterCause: String?
+  /// How far the price went on in the trade's favour after the exit, in USD and in R; nil with
+  /// `overshootCause`.
+  public let overshootUsd: DecimalString?
+  public let overshootR: DecimalString?
+  public let overshootCause: String?
 
   public var id: String { tradeId }
 
@@ -128,6 +136,11 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     case mfeUsd = "mfe_usd"
     case entry
     case entryCause = "entry_cause"
+    case pricesAfter = "prices_after"
+    case pricesAfterCause = "prices_after_cause"
+    case overshootUsd = "overshoot_usd"
+    case overshootR = "overshoot_r"
+    case overshootCause = "overshoot_cause"
   }
 
   public init(from decoder: Decoder) throws {
@@ -148,6 +161,11 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     mfeUsd = try c.decodeNullable(DecimalString.self, forKey: .mfeUsd)
     entry = try c.decode(EntrySend.self, forKey: .entry)
     entryCause = try c.decodeNullable(String.self, forKey: .entryCause)
+    pricesAfter = try c.decode([PriceAfterV1].self, forKey: .pricesAfter)
+    pricesAfterCause = try c.decodeNullable(String.self, forKey: .pricesAfterCause)
+    overshootUsd = try c.decodeNullable(DecimalString.self, forKey: .overshootUsd)
+    overshootR = try c.decodeNullable(DecimalString.self, forKey: .overshootR)
+    overshootCause = try c.decodeNullable(String.self, forKey: .overshootCause)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -168,6 +186,11 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     try c.encodeNullable(mfeUsd, forKey: .mfeUsd)
     try c.encode(entry, forKey: .entry)
     try c.encodeNullable(entryCause, forKey: .entryCause)
+    try c.encode(pricesAfter, forKey: .pricesAfter)
+    try c.encodeNullable(pricesAfterCause, forKey: .pricesAfterCause)
+    try c.encodeNullable(overshootUsd, forKey: .overshootUsd)
+    try c.encodeNullable(overshootR, forKey: .overshootR)
+    try c.encodeNullable(overshootCause, forKey: .overshootCause)
   }
 
   /// Result in R (result / planned loss), nil when the planned loss is zero.

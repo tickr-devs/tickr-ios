@@ -15,7 +15,8 @@ struct ObserverSummaryTests {
     let json = """
       {"name": "price-action", "version": "2", "decisions": [\(list.joined(separator: ","))],
        "result_gross_usd": \(result.map { "\"\($0)\"" } ?? "null"),
-       "result_cause": \(cause.map { "\"\($0)\"" } ?? "null")}
+       "result_cause": \(cause.map { "\"\($0)\"" } ?? "null"),
+       "trades": null, "trades_cause": "none", "trades_truncated": false}
       """
     return try Wire.decoder().decode(ObserverV1.self, from: Data(json.utf8))
   }
