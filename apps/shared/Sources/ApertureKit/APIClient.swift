@@ -94,6 +94,7 @@ public struct APIClient: Sendable {
   static let accountPath = "/account"
   static let observersPath = "/observers"
   static let decisionsPath = "/decisions"
+  static let skippedPath = "/skipped"
   /// Query item names of the bars read.
   static let symbolQuery = "symbol"
   static let dateQuery = "date"
@@ -141,6 +142,12 @@ public struct APIClient: Sendable {
   public func decisions(symbol: String, day: WireDate) async throws -> DecisionsV1 {
     try await perform(request(path: Self.decisionsPath, query: [(Self.symbolQuery, symbol), (Self.dateQuery, day.text)],
       body: nil),
+      expect: Self.ok)
+  }
+
+  /// The active strategy's ENTERs on `day` that did not become a position, oldest first.
+  public func skipped(day: WireDate) async throws -> SkippedV1 {
+    try await perform(request(path: Self.skippedPath, query: [(Self.dateQuery, day.text)], body: nil),
       expect: Self.ok)
   }
 

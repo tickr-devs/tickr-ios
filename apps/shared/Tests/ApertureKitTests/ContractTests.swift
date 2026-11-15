@@ -43,6 +43,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       "explain-v1": { try roundTrip(ExplainV1.self, $0) },
       "observers-v1": { try roundTrip(ObserversV1.self, $0) },
       "decisions-v1": { try roundTrip(DecisionsV1.self, $0) },
+      "skipped-v1": { try roundTrip(SkippedV1.self, $0) },
       "account-v1": { try roundTrip(AccountV1.self, $0) },
       "account-response-v1": { try roundTrip(AccountResponseV1.self, $0) },
     ]
@@ -62,7 +63,19 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(Set(names) == ["status-v1", "command-v1", "status-response-v1",
       "command-accepted-v1", "pending-commands-v1", "error-v1",
       "days-v1", "day-v1", "bars-v1", "settings-v1", "explain-v1",
-      "observers-v1", "decisions-v1", "account-v1", "account-response-v1"])
+      "observers-v1", "decisions-v1", "skipped-v1", "account-v1", "account-response-v1"])
+  }
+
+  @Test func skippedSignalsAndAdmissions() throws {
+    let skipped = try Wire.decoder().decode(SkippedV1.self, from: fixture("skipped-v1.json"))
+    #expect(skipped.signals.map(\.admission) == [.refused, .notEvaluated])
+    #expect(skipped.signals.first?.refusalCause?.hasPrefix("POSITION_LIMIT_REACHED") == true)
+    #expect(skipped.signals.last?.entryPrice == nil)
+    let decisions = try Wire.decoder().decode(DecisionsV1.self, from: fixture("decisions-v1.json"))
+    #expect(decisions.decisions.map(\.admission) == [.notApplicable, .notEvaluated, .refused])
+    let observers = try Wire.decoder().decode(ObserversV1.self, from: fixture("observers-v1.json"))
+    #expect(observers.observers.first?.resultGrossUSD?.text == "-12.4000")
+    #expect(observers.observers.last?.resultCause == "no captured bars for 2026-11-16")
   }
 
   @Test func fullStatusValues() throws {

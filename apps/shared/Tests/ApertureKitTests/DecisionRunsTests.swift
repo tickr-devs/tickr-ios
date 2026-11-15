@@ -16,13 +16,22 @@ struct DecisionRunsTests {
     failed: String? = nil
   ) throws -> DecisionV1 {
     let levels = skipped ? #""entry_price": "12.40", "stop_price": "12.10""# : #""entry_price": null, "stop_price": null"#
+    // The admission as the bot records it: a skipped ENTER here is a refused one, an observer's
+    // ENTER is never evaluated, any other verdict has none.
+    let refused = #""admission": "refused", "refusal_cause": "POSITION_LIMIT_REACHED: limit 1""#
+    let admission = switch (action, observer, skipped) {
+    case ("ENTER", true, _): #""admission": "not_evaluated", "refusal_cause": null"#
+    case ("ENTER", false, true): refused
+    case ("ENTER", false, false): #""admission": "taken", "refusal_cause": null"#
+    default: #""admission": "not_applicable", "refusal_cause": null"#
+    }
     let checks = failed.map {
       #"[{"rule": "\#($0)", "measured": null, "operator": "is", "threshold": null, "passed": false, "note": ""}]"#
     } ?? "[]"
     let json = """
       {"at": "2026-11-16T15:\(String(format: "%02d", minute)):00.000Z", "action": "\(action)",
        "strategy": {"name": "\(name)", "version": "\(version)"}, "observer": \(observer),
-       "checks": \(checks), \(levels)}
+       "checks": \(checks), \(levels), \(admission)}
       """
     return try Wire.decoder().decode(DecisionV1.self, from: Data(json.utf8))
   }

@@ -50,13 +50,16 @@ struct ChartMarkersTests {
     let candle = Candle(start: start, end: start.addingTimeInterval(60), open: 12.3, high: 12.4, low: 12.2,
       close: 12.35, volume: 1000)
     let marks = ChartMarkers.decisionMarks(decisions: decisions, candles: [candle])
-    #expect(marks.map(\.action) == [.exit, .enter])
+    #expect(marks.map(\.action) == [.exit, .enter, .enter])
     #expect(marks[0].price == 12.35)
     #expect(marks[0].observer == false)
     #expect(marks[1].price == ChartMarkers.double(try #require(decisions[1].entryPrice).value))
     #expect(marks[1].observer == true)
     #expect(marks[0].hollow == false)
     #expect(marks[1].hollow == true)
+    // The fixture's third decision: the strategy's own ENTER, refused by the platform.
+    #expect(marks[2].observer == false)
+    #expect(marks[2].skipped == true)
   }
 
   @Test("The strategy's ENTER with a what-if entry was not taken: it is marked skipped and hollow")
@@ -77,7 +80,7 @@ struct ChartMarkersTests {
   @Test("A decision with no price and no candle around it has no mark; WATCH is never marked")
   func decisionWithoutCandle() throws {
     let marks = ChartMarkers.decisionMarks(decisions: try decisions(), candles: [])
-    #expect(marks.map(\.action) == [.enter])
+    #expect(marks.map(\.action) == [.enter, .enter])
     let watch = try fixture(DecisionsV1.self, "decisions-v1.json").decisions.filter { $0.action == .watch }
     #expect(ChartMarkers.decisionMarks(decisions: watch, candles: []).isEmpty)
   }
