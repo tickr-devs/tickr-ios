@@ -390,15 +390,27 @@ struct CandleChart: View {
     }
   }
 
-  /// The time scale under the bottom pane: 24-hour market time ("14:30"), whatever the Mac's
-  /// clock setting.
-  private var timeAxis: some AxisContent {
-    AxisMarks(values: .automatic) { value in
-      AxisGridLine()
-      AxisTick()
-      AxisValueLabel {
-        if let date = value.as(Date.self) {
-          Text(verbatim: Format.marketMinute(date))
+  /// The time scale under the bottom pane: on one day, 24-hour market time ("14:30") whatever
+  /// the Mac's clock setting; over a longer range, where each session, week, month or quarter
+  /// begins (the candles sit back to back there, so clock times would not read).
+  @AxisContentBuilder private var timeAxis: some AxisContent {
+    if plot.axisMarks.isEmpty {
+      AxisMarks(values: .automatic) { value in
+        AxisGridLine()
+        AxisTick()
+        AxisValueLabel {
+          if let date = value.as(Date.self) {
+            Text(verbatim: Format.marketMinute(date))
+          }
+        }
+      }
+    } else {
+      let labels = Dictionary(plot.axisMarks.map { ($0.time, $0.text) }, uniquingKeysWith: { first, _ in first })
+      AxisMarks(values: plot.axisMarks.map(\.time)) { value in
+        AxisGridLine()
+        AxisTick()
+        AxisValueLabel {
+          Text(verbatim: value.as(Date.self).flatMap { labels[$0] } ?? Format.missing)
         }
       }
     }
@@ -594,7 +606,7 @@ private struct SharedAxis: ViewModifier {
       .chartOverlay { proxy in
         ZStack {
           AxisTags(tags: tags, proxy: proxy)
-          Crosshair(pointer: pointer, candles: chart.plot.candles, pane: pane, showsTime: showsTime, proxy: proxy)
+          Crosshair(pointer: pointer, plot: chart.plot, pane: pane, showsTime: showsTime, proxy: proxy)
         }
       }
   }
@@ -665,10 +677,12 @@ private struct AxisTags: View {
 /// pointer redraws a few lines instead of the whole chart.
 private struct Crosshair: View {
   let pointer: ChartPointer
-  let candles: [Candle]
+  let plot: ChartPlot
   let pane: ChartPane
   let showsTime: Bool
   let proxy: ChartProxy
+
+  private var candles: [Candle] { plot.candles }
 
   var body: some View {
     GeometryReader { geometry in
@@ -683,7 +697,7 @@ private struct Crosshair: View {
             .frame(width: Tokens.Stroke.hairline, height: bottom - top)
             .position(x: frame.minX + x, y: (top + bottom) / 2)
           if showsTime {
-            TagPlate(text: Format.marketMinute(candles[index].start), color: Palette.textSecondary)
+            TagPlate(text: plot.timeText(index), color: Palette.textSecondary)
               .fixedSize()
               .position(x: frame.minX + x, y: frame.maxY + Tokens.Space.s)
           }
@@ -742,7 +756,7 @@ private struct ChartReadout: View {
       let tone = candle.isUp ? Palette.profitText : Palette.lossText
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         HStack(spacing: Tokens.Space.m) {
-          Text(verbatim: Format.marketMinute(candle.start))
+          Text(verbatim: plot.timeText(index))
             .font(Tokens.Typography.annotationBold)
             .foregroundStyle(Palette.textSecondary)
           value(L10n.Chart.open, CandleChart.price(candle.open), color: tone)

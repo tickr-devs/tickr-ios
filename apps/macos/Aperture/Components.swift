@@ -249,6 +249,45 @@ enum Format {
       timeZone: newYork, calendar: calendar))
   }
 
+  /// Date styles of a chart over several sessions or months, in New York time and the person's
+  /// language.
+  private static func chartStyle(_ style: Date.FormatStyle) -> Date.FormatStyle {
+    var style = style
+    style.timeZone = newYork
+    return style
+  }
+
+  /// "Fri 13": the session a five-day axis label starts.
+  static func chartSessionDay(_ date: Date) -> String {
+    date.formatted(chartStyle(Date.FormatStyle().weekday(.abbreviated).day()))
+  }
+
+  /// "Fri 13 14:30": a candle of a five-day chart.
+  static func chartSessionMinute(_ date: Date) -> String {
+    "\(chartSessionDay(date)) \(marketMinute(date))"
+  }
+
+  /// "Fri Nov 13": a daily candle.
+  static func chartDay(_ date: Date) -> String {
+    date.formatted(chartStyle(Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day()))
+  }
+
+  /// "Nov 9": a weekly candle (its Monday), or the week a one-month axis label starts.
+  static func chartMonthDay(_ date: Date) -> String {
+    date.formatted(chartStyle(Date.FormatStyle().month(.abbreviated).day()))
+  }
+
+  /// "Nov 2026": a monthly candle.
+  static func chartMonthYear(_ date: Date) -> String {
+    date.formatted(chartStyle(Date.FormatStyle().month(.abbreviated).year()))
+  }
+
+  /// "Nov" on a long axis; "2026" where a year begins.
+  static func chartMonth(_ date: Date) -> String {
+    let january = WireDate.newYork.component(.month, from: date) == 1
+    return date.formatted(chartStyle(january ? Date.FormatStyle().year() : Date.FormatStyle().month(.abbreviated)))
+  }
+
   /// "Fri Nov 13" in the person's language.
   static func dayLabel(_ day: WireDate) -> String {
     var style = Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day()

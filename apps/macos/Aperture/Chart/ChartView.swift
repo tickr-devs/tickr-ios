@@ -10,6 +10,7 @@ struct ChartView: View {
   @State private var viewport = Viewport()
   @AppStorage(Keys.symbol) private var picked = ""
   @AppStorage(Keys.timeframe) private var timeframe: Timeframe = .m1
+  @AppStorage(Keys.range) private var range: ChartRange = .oneDay
   @AppStorage(Keys.vwap) private var showVWAP = true
   @AppStorage(Keys.fastEMA) private var showFastEMA = true
   @AppStorage(Keys.slowEMA) private var showSlowEMA = true
@@ -29,6 +30,8 @@ struct ChartView: View {
     static let symbol = "chart.symbol"
     /// The candle timeframe.
     static let timeframe = "chart.timeframe"
+    /// How far back the chart reaches.
+    static let range = "chart.range"
     /// Whether the VWAP line is drawn.
     static let vwap = "chart.vwap"
     /// Whether the fast EMA line is drawn.
@@ -70,6 +73,8 @@ struct ChartView: View {
     let symbol: String?
     let day: WireDate
     let live: Bool
+    let range: ChartRange
+    let interval: Timeframe
   }
 
   var body: some View {
@@ -93,7 +98,10 @@ struct ChartView: View {
       }
     }
     .animation(Tokens.Motion.standard, value: showDecisions)
-    .task(id: LoadKey(baseURL: model.baseURL, symbol: symbol, day: model.shownDay, live: model.isLive)) {
+    .task(id: LoadKey(
+      baseURL: model.baseURL, symbol: symbol, day: model.shownDay, live: model.isLive, range: range,
+      interval: interval)
+    ) {
       await keepLoading()
     }
   }
@@ -112,6 +120,13 @@ struct ChartView: View {
   /// The picked symbol while it has something to show, else the first that does.
   private var symbol: String? { symbols.contains(picked) ? picked : symbols.first }
 
+  /// The picked interval while the range offers it, else the range's shortest.
+  private var interval: Timeframe { range.intervals.contains(timeframe) ? timeframe : range.intervals.first ?? .m1 }
+
+  /// Whether the chart shows the shown day's recorded bars (with trades and decisions), not a
+  /// longer range of market data.
+  private var showsDay: Bool { range == .oneDay }
+
   private func keepLoading() async {
     chart.clear()
     chart.hasSymbol = symbol != nil
@@ -120,6 +135,19 @@ struct ChartView: View {
     let baseURL = model.baseURL
     let day = model.shownDay
     let live = model.isLive
+    guard showsDay else {
+      let shownRange = range
+      let shownInterval = interval
+      // Market data over several sessions or months: it reaches today whatever day is shown, and
+      // only intraday candles (five sessions) still change during the day.
+      repeat {
+        await chart.loadRange(baseURL: baseURL, symbol: symbol, interval: shownInterval, range: shownRange)
+        await chart.loadDecisions(baseURL: baseURL, symbol: symbol, day: day)
+        guard shownInterval.isIntraday else { return }
+        try? await Task.sleep(for: .seconds(Pace.chartSeconds))
+      } while !Task.isCancelled
+      return
+    }
     repeat {
       await chart.load(baseURL: baseURL, symbol: symbol, day: day)
       await chart.loadDecisions(baseURL: baseURL, symbol: symbol, day: day)
@@ -138,6 +166,7 @@ struct ChartView: View {
       ViewThatFits(in: .horizontal) {
         HStack(spacing: Tokens.Space.m) {
           symbolPicker
+          rangePicker
           timeframePicker
           stylePicker
           Spacer(minLength: Tokens.Space.m)
@@ -152,6 +181,7 @@ struct ChartView: View {
             decisionsToggle
           }
           HStack(spacing: Tokens.Space.m) {
+            rangePicker
             timeframePicker
             stylePicker
           }
@@ -174,9 +204,34 @@ struct ChartView: View {
     .disabled(symbols.isEmpty)
   }
 
+  private var rangePicker: some View {
+    Picker(selection: $range) {
+      ForEach(ChartRange.allCases, id: \.self) { item in
+        Text(Self.title(item)).tag(item)
+      }
+    } label: {
+      Text(L10n.Chart.rangeLabel)
+    }
+    .pickerStyle(.segmented)
+    .labelsHidden()
+    .fixedSize()
+    .help(Text(L10n.Chart.rangeHelp))
+  }
+
+  /// "Day", "5D", "1M": the range as charting apps name it.
+  static func title(_ range: ChartRange) -> LocalizedStringResource {
+    switch range {
+    case .oneDay: L10n.Chart.rangeDay
+    case .fiveDays: L10n.Chart.rangeFiveDays
+    case .oneMonth: L10n.Chart.rangeOneMonth
+    case .threeMonths: L10n.Chart.rangeThreeMonths
+    case .oneYear: L10n.Chart.rangeOneYear
+    }
+  }
+
   private var timeframePicker: some View {
-    Picker(selection: $timeframe) {
-      ForEach(ChartRange.oneDay.intervals) { item in
+    Picker(selection: Binding(get: { interval }, set: { timeframe = $0 })) {
+      ForEach(range.intervals) { item in
         Text(Self.title(item)).tag(item)
       }
     } label: {
@@ -274,8 +329,9 @@ struct ChartView: View {
 
   // MARK: Content
 
-  /// The shown bars as candles and lines; built once per new bars or timeframe (ChartModel).
-  private var plot: ChartPlot? { chart.plot(timeframe: timeframe) }
+  /// The shown bars or range as candles and lines; built once per new read, range or interval
+  /// (ChartModel).
+  private var plot: ChartPlot? { chart.plot(timeframe: interval, range: range) }
 
   private var candleCount: Int { plot?.candles.count ?? 0 }
 
@@ -287,20 +343,25 @@ struct ChartView: View {
           style: style, vwap: showVWAP, fastEMA: showFastEMA, slowEMA: showSlowEMA,
           movingAverages: showMovingAverages, bollinger: showBollinger, volume: showVolume,
           macd: showMACD, rsi: showRSI, stochastic: showStochastic, atr: showATR),
-        marks: ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol }),
+        marks: showsDay ? ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol }) : [],
         levels: ChartMarkers.levels(position: model.positions.first { $0.id == symbol }),
-        decisions: showDecisions
+        decisions: showDecisions && showsDay
           ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], candles: plot.candles) : [],
         live: model.isLive,
         viewport: $viewport)
-        .id(ChartID(symbol: symbol, day: model.shownDay, timeframe: timeframe))
+        .id(ChartID(symbol: symbol, day: model.shownDay, timeframe: interval, range: range))
         .transition(.opacity)
     } else if symbol == nil {
       empty(L10n.Chart.noSymbols, detail: L10n.Chart.noSymbolsDetail, symbol: "chart.xyaxis.line")
     } else if let error = chart.error {
-      empty(L10n.Chart.barsUnavailable, detail: L10n.Chart.barsUnavailableDetail(error), symbol: "wifi.exclamationmark")
-    } else if chart.loading || chart.bars == nil {
+      empty(
+        L10n.Chart.barsUnavailable,
+        detail: showsDay ? L10n.Chart.barsUnavailableDetail(error) : L10n.Chart.candlesUnavailableDetail(error),
+        symbol: "wifi.exclamationmark")
+    } else if chart.loading || !chart.hasRead(timeframe: interval, range: range) {
       ProgressView { Text(L10n.Chart.loading) }
+    } else if !showsDay, let cause = chart.rangeCause {
+      empty(L10n.Chart.noBars, detail: L10n.Chart.noCandlesDetail(cause), symbol: "chart.bar.xaxis")
     } else {
       empty(L10n.Chart.noBars, detail: L10n.Chart.noBarsDetail, symbol: "chart.bar.xaxis")
     }
@@ -315,11 +376,12 @@ struct ChartView: View {
   }
 }
 
-/// Identity of a drawn chart: a new symbol, day or timeframe redraws it from the start.
+/// Identity of a drawn chart: a new symbol, day, timeframe or range redraws it from the start.
 private struct ChartID: Hashable {
   let symbol: String
   let day: WireDate
   let timeframe: Timeframe
+  let range: ChartRange
 }
 
 /// Which lines and panes the chart draws, and how it draws the price.

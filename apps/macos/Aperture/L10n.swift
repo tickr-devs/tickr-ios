@@ -971,6 +971,38 @@ enum L10n {
     static var intervalMonth: LocalizedStringResource {
       LocalizedStringResource("chart.intervalMonth", defaultValue: "M", bundle: L10n.bundle)
     }
+    /// Label of the range picker (how far back the chart reaches).
+    static var rangeLabel: LocalizedStringResource {
+      LocalizedStringResource("chart.rangeLabel", defaultValue: "Range", bundle: L10n.bundle)
+    }
+    /// Tooltip of the range picker.
+    static var rangeHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.rangeHelp", defaultValue: "How far back the chart reaches: the shown day, five sessions, or months of daily candles", bundle: L10n.bundle)
+    }
+    /// Range segments: the shown day, five sessions, one and three months, one year.
+    static var rangeDay: LocalizedStringResource {
+      LocalizedStringResource("chart.range.day", defaultValue: "Day", bundle: L10n.bundle)
+    }
+    static var rangeFiveDays: LocalizedStringResource {
+      LocalizedStringResource("chart.range.fiveDays", defaultValue: "5D", bundle: L10n.bundle)
+    }
+    static var rangeOneMonth: LocalizedStringResource {
+      LocalizedStringResource("chart.range.oneMonth", defaultValue: "1M", bundle: L10n.bundle)
+    }
+    static var rangeThreeMonths: LocalizedStringResource {
+      LocalizedStringResource("chart.range.threeMonths", defaultValue: "3M", bundle: L10n.bundle)
+    }
+    static var rangeOneYear: LocalizedStringResource {
+      LocalizedStringResource("chart.range.oneYear", defaultValue: "1Y", bundle: L10n.bundle)
+    }
+    /// Market data (GET /chart) could not be read for a range beyond one day.
+    static func candlesUnavailableDetail(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.candlesUnavailableDetail", defaultValue: "Market data is not available: \(cause)", bundle: L10n.bundle)
+    }
+    /// Market data answered with no candles for the range.
+    static func noCandlesDetail(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.noCandlesDetail", defaultValue: "Market data has no candles for this symbol and range: \(cause)", bundle: L10n.bundle)
+    }
     /// Tooltip of the interval picker.
     static var timeframeHelp: LocalizedStringResource {
       LocalizedStringResource("chart.timeframeHelp", defaultValue: "Candle length", bundle: L10n.bundle)

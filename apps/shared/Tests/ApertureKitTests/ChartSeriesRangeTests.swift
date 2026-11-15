@@ -83,6 +83,17 @@ struct ChartSeriesRangeTests {
     #expect(line[Indicators.atrPeriod - 1] == 0)
   }
 
+  @Test("Axis labels go where a session, week, month or quarter begins")
+  func axisBoundaries() throws {
+    let date = { (text: String) in try WireTime(text).date }
+    let sessions = try ["2026-11-13T19:30:00.000Z", "2026-11-13T20:00:00.000Z", "2026-11-16T14:30:00.000Z"].map(date)
+    #expect(ChartAxis.boundaries(sessions, range: .fiveDays, timeframe: .h1) == [0, 2])
+    let months = try (1...12).map { try date(String(format: "2026-%02d-01T05:00:00.000Z", $0)) }
+    #expect(ChartAxis.boundaries(months, range: .oneYear, timeframe: .mo1) == [0, 3, 6, 9])
+    #expect(ChartAxis.boundaries(months, range: .oneYear, timeframe: .d1).count == 12)
+    #expect(ChartAxis.boundaries([], range: .oneMonth, timeframe: .d1).isEmpty)
+  }
+
   @Test("Every offered interval is one GET /chart serves for its range")
   func offeredPairsAreServed() {
     for range in ChartRange.allCases {

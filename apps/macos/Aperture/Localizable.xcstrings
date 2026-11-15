@@ -1361,6 +1361,23 @@
         }
       }
     },
+    "chart.candlesUnavailableDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data is not available: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные недоступны: %@"
+          }
+        }
+      }
+    },
     "chart.change" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1905,6 +1922,23 @@
         }
       }
     },
+    "chart.noCandlesDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data has no candles for this symbol and range: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В рыночных данных нет свечей по этой бумаге за этот период: %@"
+          }
+        }
+      }
+    },
     "chart.noDecisions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2003,6 +2037,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "О"
+          }
+        }
+      }
+    },
+    "chart.range.day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "День"
+          }
+        }
+      }
+    },
+    "chart.range.fiveDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5D"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5Д"
+          }
+        }
+      }
+    },
+    "chart.range.oneMonth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1M"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1М"
+          }
+        }
+      }
+    },
+    "chart.range.oneYear" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1Y"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1Г"
+          }
+        }
+      }
+    },
+    "chart.range.threeMonths" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3M"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3М"
+          }
+        }
+      }
+    },
+    "chart.rangeHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How far back the chart reaches: the shown day, five sessions, or months of daily candles"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Насколько далеко назад показывает график: выбранный день, пять сессий или месяцы дневных свечей"
+          }
+        }
+      }
+    },
+    "chart.rangeLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Range"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Период"
           }
         }
       }

@@ -309,3 +309,33 @@ public enum Indicators {
     }
   }
 }
+
+/// Where the time axis of a range beyond one day puts its labels.
+public enum ChartAxis {
+  /// Months between labels on a year of monthly candles: one label a quarter.
+  static let quarterMonths = 3
+
+  /// Indices of the candles that open a new session over five days, a new week over a month, a
+  /// new month over three months or a year (a new quarter for monthly candles), the first candle
+  /// included. `starts` are the candles' real opening times, oldest first.
+  public static func boundaries(_ starts: [Date], range: ChartRange, timeframe: Timeframe) -> [Int] {
+    let calendar = WireDate.newYork
+    func period(_ date: Date) -> Int {
+      switch range {
+      case .oneDay, .fiveDays: return calendar.ordinality(of: .day, in: .era, for: date) ?? 0
+      case .oneMonth: return calendar.component(.weekOfYear, from: date)
+      case .threeMonths, .oneYear:
+        let month = calendar.component(.month, from: date) - 1
+        return timeframe == .mo1 ? month / quarterMonths : month
+      }
+    }
+    var indices: [Int] = []
+    var previous: Int?
+    for (index, start) in starts.enumerated() {
+      let current = period(start)
+      if current != previous { indices.append(index) }
+      previous = current
+    }
+    return indices
+  }
+}

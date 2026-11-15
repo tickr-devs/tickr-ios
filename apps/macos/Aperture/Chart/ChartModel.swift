@@ -3,11 +3,14 @@ import Foundation
 import Observation
 
 /// Bars and strategy decisions of the symbol the Chart screen shows, read from the bot's local
-/// API. The two reads fail independently: a missing decision list never hides the candles.
+/// API, or its candles over a longer range (GET /chart). The reads fail independently: a missing
+/// decision list never hides the candles.
 @MainActor @Observable
 final class ChartModel {
   /// The last bars read for the shown symbol and day.
   private(set) var bars: BarsV1?
+  /// The last candles read for the shown symbol over a range beyond one day.
+  private(set) var rangeChart: ChartV1?
   /// Why the last read failed, if it did.
   private(set) var error: String?
   /// A read is in flight.
@@ -23,14 +26,53 @@ final class ChartModel {
   /// The last plot built, reused while the bars and the timeframe stay the same.
   @ObservationIgnored private var cachedPlot: ChartPlot?
 
-  /// Candles, lines and ATR of the shown bars in `timeframe`, or nil while there are no bars.
-  /// Built once per new bars or timeframe; every redraw in between reuses it.
-  func plot(timeframe: Timeframe) -> ChartPlot? {
-    guard let bars, !bars.bars.isEmpty else { return nil }
-    if let cachedPlot, cachedPlot.revision == revision, cachedPlot.timeframe == timeframe { return cachedPlot }
-    let plot = ChartPlot(bars: bars.bars, timeframe: timeframe, revision: revision)
+  /// Candles, lines and ATR of the shown day's bars in `timeframe`, or over `range` of the
+  /// candles read from GET /chart; nil while there are none. Built once per new read, range or
+  /// timeframe; every redraw in between reuses it.
+  func plot(timeframe: Timeframe, range: ChartRange = .oneDay) -> ChartPlot? {
+    if let cachedPlot, cachedPlot.revision == revision, cachedPlot.timeframe == timeframe, cachedPlot.range == range {
+      return cachedPlot
+    }
+    let plot: ChartPlot
+    if range == .oneDay {
+      guard let bars, !bars.bars.isEmpty else { return nil }
+      plot = ChartPlot(bars: bars.bars, timeframe: timeframe, revision: revision)
+    } else {
+      guard let rangeChart, rangeChart.range == range, rangeChart.interval == timeframe, !rangeChart.bars.isEmpty else {
+        return nil
+      }
+      plot = ChartPlot(chart: rangeChart, revision: revision)
+    }
     cachedPlot = plot
     return plot
+  }
+
+  /// Whether the last read for `range` in `timeframe` has answered, with candles or without.
+  func hasRead(timeframe: Timeframe, range: ChartRange) -> Bool {
+    range == .oneDay ? bars != nil : rangeChart.map { $0.range == range && $0.interval == timeframe } ?? false
+  }
+
+  /// Why the read for a range beyond one day brought no candles, when the bot said.
+  var rangeCause: String? { rangeChart?.cause }
+
+  /// Reads the candles of `symbol` in `interval` over `range` (GET /chart). A cancelled read
+  /// changes nothing; a refusal (503 while market data is off) shows its cause.
+  func loadRange(baseURL: URL, symbol: String, interval: Timeframe, range: ChartRange) async {
+    let client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
+    loading = true
+    defer { loading = false }
+    do {
+      let fresh = try await client.chart(symbol: symbol, interval: interval, range: range)
+      guard !Task.isCancelled else { return }
+      if fresh != rangeChart {
+        rangeChart = fresh
+        revision += 1
+      }
+      error = nil
+    } catch {
+      guard !Task.isCancelled, !(error is CancellationError) else { return }
+      self.error = error.localizedDescription
+    }
   }
 
   /// Reads the M1 bars of `symbol` on `day` from the API at `baseURL`. A cancelled read changes
@@ -70,9 +112,10 @@ final class ChartModel {
     }
   }
 
-  /// Forgets the shown bars and decisions when the symbol or day changes.
+  /// Forgets the shown bars, candles and decisions when the symbol, day or range changes.
   func clear() {
     bars = nil
+    rangeChart = nil
     revision += 1
     cachedPlot = nil
     error = nil

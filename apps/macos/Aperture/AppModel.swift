@@ -12,6 +12,9 @@ enum Pace {
   static let historySeconds: Double = 30
   /// Bars of the open positions (one new M1 bar a minute).
   static let barsSeconds: Double = 15
+  /// Candles of a range beyond one day (GET /chart): the bot keeps them a while, and the
+  /// shortest candle there is five minutes long.
+  static let chartSeconds: Double = 60
   /// The day's flow (screener chips, stage counts, stops, reconciliation) and the symbols the
   /// strategy is watching closely; both change with every decision.
   static let flowSeconds: Double = 5
