@@ -32,6 +32,12 @@ struct ChartPlot: Sendable {
   let rsi: [Double?]
   let stochasticK: [Double?]
   let stochasticD: [Double?]
+  /// Mean volume of the last `volumeAveragePeriod` candles, for the volume pane's average line
+  /// and relative volume.
+  let volumeAverage: [Double?]
+
+  /// Candles the volume average spans.
+  static let volumeAveragePeriod = 20
 
   /// One day's M1 bars (GET /bars) in `timeframe`, on the day's own clock.
   init(bars: [BarV1], timeframe: Timeframe, revision: Int) {
@@ -70,6 +76,7 @@ struct ChartPlot: Sendable {
     rsi = studies.rsi
     stochasticK = studies.stochastic.map { $0?.k }
     stochasticD = studies.stochastic.map { $0?.d }
+    volumeAverage = Studies.sma(series.candles.map(\.volume), period: Self.volumeAveragePeriod)
   }
 
   var timeframe: Timeframe { series.timeframe }
@@ -175,6 +182,7 @@ final class ChartPointer {
 /// The stacked panes of the chart, top to bottom.
 enum ChartPane: Hashable, Sendable {
   case price
+  case volume
   case macd
   case rsi
   case stochastic

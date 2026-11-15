@@ -69,6 +69,9 @@ public enum Palette {
   public static let highlight = Color(light: 0x8B5CF6, dark: 0xA78BFA)
   public static let highlightText = Color(light: 0x6D28D9, dark: 0xC4B5FD)
 
+  /// An unselected chip's fill (ranges, intervals, studies; selected chips take `selection`).
+  public static let chipFill = Color(light: 0xF3F6FD, dark: 0x111834)
+
   // MARK: chart series
 
   /// VWAP line.

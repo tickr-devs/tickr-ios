@@ -77,11 +77,45 @@ struct ChartMarkersTests {
     #expect(String(localized: mark.label) == String(localized: expected))
   }
 
-  @Test("A decision with no price and no candle around it has no mark; WATCH is never marked")
+  @Test("The strategy's first WATCH is marked at its candle's close; a WATCH after IGNORE bars is the same watch")
+  func watchMarks() throws {
+    let url = fixturesDir.appendingPathComponent("decisions-v1.json")
+    let watch = try Wire.decoder().decode(DecisionsV1.self, from: Data(contentsOf: url)).decisions
+      .filter { $0.action == .watch }
+    let first = try #require(watch.first)
+    let start = first.at.date
+    let candle = Candle(start: start, end: start.addingTimeInterval(60), open: 12.3, high: 12.4, low: 12.2,
+      close: 12.35, volume: 1000)
+    // The same WATCH twice in a row (as after an IGNORE bar in between) is one mark.
+    let marks = ChartMarkers.decisionMarks(decisions: watch + watch, candles: [candle])
+    #expect(marks.map(\.action) == [.watch])
+    #expect(marks[0].price == 12.35)
+    #expect(marks[0].id == 0)
+  }
+
+  @Test("A decision with no price and no candle around it has no mark; a WATCH without a candle neither")
   func decisionWithoutCandle() throws {
     let marks = ChartMarkers.decisionMarks(decisions: try decisions(), candles: [])
     #expect(marks.map(\.action) == [.enter, .enter])
     let watch = try fixture(DecisionsV1.self, "decisions-v1.json").decisions.filter { $0.action == .watch }
     #expect(ChartMarkers.decisionMarks(decisions: watch, candles: []).isEmpty)
+  }
+
+  @Test("The highest high and lowest low on screen are plain tags on the price axis, one for a flat stretch")
+  @MainActor
+  func extremeTags() {
+    let start = Date(timeIntervalSince1970: 0)
+    let candles = [(12.40, 12.10), (12.80, 12.30), (12.50, 11.90)].enumerated().map { index, range in
+      Candle(start: start.addingTimeInterval(Double(index) * 60), end: start.addingTimeInterval(Double(index + 1) * 60),
+        open: 12.3, high: range.0, low: range.1, close: 12.3, volume: 1000)
+    }
+    let tags = CandleChart.extremeTags(candles, in: candles.indices)
+    #expect(tags.map(\.value) == [12.80, 11.90])
+    #expect(tags.filter { !$0.plain }.isEmpty)
+    #expect(tags[0].text == String(localized: L10n.Chart.highTag(CandleChart.price(12.80))))
+    // Only the candles on screen count.
+    #expect(CandleChart.extremeTags(candles, in: 0..<1).map(\.value) == [12.40, 12.10])
+    let flat = [Candle(start: start, end: start.addingTimeInterval(60), open: 5, high: 5, low: 5, close: 5, volume: 1)]
+    #expect(CandleChart.extremeTags(flat, in: flat.indices).count == 1)
   }
 }

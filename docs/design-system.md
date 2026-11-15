@@ -52,6 +52,7 @@ contrast on `surface` in both appearances.
 | `warning` / `warningText` | Paused, blocked, stale, closed gate, environment chip | `#F59E0B` / `#B45309` | `#FBBF24` / `#FCD34D` |
 | `info` / `infoText` | Entries, orders, commands in flight | `#3B82F6` / `#1D4ED8` | `#60A5FA` / `#93C5FD` |
 | `highlight` / `highlightText` | Recorded day, BACKLOG, observers | `#8B5CF6` / `#6D28D9` | `#A78BFA` / `#C4B5FD` |
+| `chipFill` | Unselected chip (ranges, intervals, studies); a selected chip takes `selection` with an `info` outline | `#F3F6FD` | `#111834` |
 | `accentFill` / `onAccent` | Primary button fill and its text | `#0B766F` / `#FFFFFF` | `#2DD4BF` / `#04131A` |
 | `sheen` | Light gradient across a filled control (at `Opacity.wash`) | `#FFFFFF` | `#FFFFFF` |
 | `seriesVWAP` | VWAP line | = `warning` | = `warning` |
@@ -81,7 +82,8 @@ A money result uses `profitText` above zero, `lossText` below and `textTertiary`
 
 | Token | pt | Use |
 |---|---|---|
-| `small` | 6 | Badges, tags, chips |
+| `small` | 6 | Badges, tags |
+| `chip` | 8 | Chips and tabs (ranges, intervals, studies, position tabs) |
 | `medium` | 10 | Banners, inset panels |
 | `large` | 14 | Small cards (sidebar, menu-bar panel) |
 | `card` | 18 | Standard cards |
@@ -99,6 +101,9 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `hero` | 34 pt bold mono | The one key figure of a screen inside a card |
 | `panelFigure` | 32 pt bold mono, tracking −1 | The day result in the Mac menu-bar panel |
 | `metric` | 24 pt bold mono | Large figures in cards |
+| `heading` | 22 pt bold | A screen's heading in its content ("Today · Mon, Nov 16" on Trades) |
+| `quote` | 20 pt semibold mono | A price beside a symbol heading (the Chart's last price) |
+| `figure` | 18 pt bold mono | Figures in compact tiles and stat rows (Trades' day figures, performance) |
 | `body` / `bodyMono` | `.body` | Values in rows |
 | `callout` / `calloutMono` | `.callout` | Labels, explanations |
 | `caption` / `captionMono` | `.caption` | Secondary notes |
@@ -118,7 +123,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 
 Sizes above are the Mac's (macOS has no Dynamic Type). On iOS every role follows a text style, so
 Dynamic Type scales it: `label`, `badge`, `annotation` → `.caption2`; `metric` → `.title2`; `hero`
-and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` → `.subheadline`;
+and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`; `figure` → `.headline`; `title` and `subtitle` → `.title`; `symbol` → `.subheadline`;
 `stageSymbol` → `.title3`; `panelFigure` → `.largeTitle`; `symbolCompact` → `.footnote`. At the default text size these match the design within a point or two.
 
 ## Lines (`Tokens.Stroke`)
@@ -143,6 +148,7 @@ and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` �
 | `faint` | 0.35 | Volume bars, inactive fills |
 | `shadow` | 0.12 | Light card shadow |
 | `border` | 0.45 | Accent-tinted borders |
+| `muted` | 0.55 | An off chip among on ones (the Chart's studies) |
 | `medium` | 0.70 | Inactive elements, pulse start |
 | `overlay` | 0.85 | Readouts over content |
 
@@ -174,7 +180,7 @@ a step; it does not define its own factor.
 | `ticker` | 22 | Ticker strip height |
 | `flowMark` | 7 | A symbol's dot on the live flow board |
 | `flowChip` | 96 | Least width of a live-flow symbol chip |
-| `sideColumn` | 320 | Side column of cards |
+| `sideColumn` | 378 | Side column of cards |
 | `contentMaxWidth` | 1500 | Content stops growing and centres |
 | `shadowRadius` / `shadowOffset` | 10 / 6 | Light card shadow |
 | `riseOffset` | 12 | Rise-in distance |
@@ -261,7 +267,8 @@ still reads it. Every control takes a `Tone`.
 | sizes | `.compact` (inline), `.regular`, `.large` (phone sheets, at least `Size.touchTarget` tall) | `Typography.buttonCompact` / `button` |
 | `.buttonStyle(.icon(tone))` | One-symbol actions, the bot's command toolbar | `Size.iconButton` circle (`iconButtonCompact`), tone wash and border; needs a `hint` |
 | `IconToolbar` | A row of icon buttons | Sunken capsule, `separatorStrong` border |
-| `.buttonStyle(.chip(selected:))` | One of a few choices side by side (position tabs) | `Typography.chip`, `Radius.small`; selected: tone wash and border |
+| `.buttonStyle(.chip(selected:))` | One of a few choices side by side (position tabs, the Chart's ranges and intervals) | `Typography.label` in `textTertiary` on `chipFill`, `separatorStrong` hairline, `Radius.chip`, `Space.s` × 6 pt padding; selected: `textPrimary` on `selection` with a tone outline |
+| `.toggleStyle(.chip)` | An on/off choice among chips (the Chart's studies, trade marks) | The chip above, title uppercase; on: `textPrimary` on `selection` with the `separatorStrong` hairline; off: the plain chip at `Opacity.muted` |
 | `StateGlyph` | A state without a word (stop verified, paused, stream fresh, gate closed) | SF Symbol on a `Size.glyph` tile in the tone, `Opacity.glow` fill; `live` pulses the outline (`Motion.glyphPulseScale`) |
 | `StatusPill` | A state that needs its word (bot running, an exit reason) | Capsule, `PulseDot` (one pulse per `event` while live) or a `systemImage` in its place, `Typography.badge` uppercase |
 | `IconMetric` | A figure named by a symbol (entry, stop, quantity, time) | Symbol in the tone, `Typography.chipValue` figure, sunken `Radius.medium` chip; the name is its hint. `compact`: a `Radius.small` chip that fits its figure (`captionMono`), in rows under a list item |

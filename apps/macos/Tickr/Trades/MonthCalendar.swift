@@ -2,8 +2,9 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// A trading month, Monday to Friday, each recorded day tinted by its gross result. Clicking a
-/// recorded day (or today) shows it; the arrows step through the months that hold records.
+/// A trading month, Monday to Friday: the month and its total result on top, then a tile per
+/// weekday with its gross result, trade count and clean-day dot. Clicking a recorded day (or
+/// today) shows it; the arrows step through the months that hold records.
 struct MonthCalendar: View {
   @Environment(AppModel.self) private var model
   @State private var month: DayCalendar.Month?
@@ -14,9 +15,9 @@ struct MonthCalendar: View {
   var body: some View {
     let shown = month ?? DayCalendar.Month(model.shownDay)
     let months = DayCalendar.months(model.days, including: model.today)
-    VStack(spacing: Tokens.Space.s) {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
       header(shown, months: months)
-      Grid(horizontalSpacing: Tokens.Space.xxs, verticalSpacing: Tokens.Space.xxs) {
+      Grid(horizontalSpacing: Tokens.Space.xs + Tokens.Space.xxs, verticalSpacing: Tokens.Space.xs + Tokens.Space.xxs) {
         GridRow {
           ForEach(weekdays, id: \.self) { name in
             Text(verbatim: name)
@@ -49,49 +50,70 @@ struct MonthCalendar: View {
 
   /// What the cells' corner dots mean.
   private var legend: some View {
-    // One line per dot, so a narrow column wraps the words instead of clipping them.
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      HStack(spacing: Tokens.Space.xs) {
-        dot(Palette.profit)
-        Text(L10n.Trades.cleanLegend)
-      }
-      HStack(spacing: Tokens.Space.xs) {
-        dot(Palette.warning)
-        Text(L10n.Trades.needsLook)
-      }
+    ViewThatFits(in: .horizontal) {
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) { cleanItem; lookItem }
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) { cleanItem; lookItem }
     }
     .font(Tokens.Typography.annotation)
     .foregroundStyle(Palette.textQuaternary)
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
-  private func dot(_ color: Color) -> some View {
-    Circle().fill(color).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+  private var cleanItem: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      CleanDot(verdict: .clean)
+      Text(L10n.Trades.cleanLegend)
+    }
   }
 
+  private var lookItem: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      CleanDot(verdict: .notClean)
+      Text(L10n.Trades.needsLook)
+    }
+  }
+
+  /// "NOVEMBER 2026 · DAY RESULT" with the month arrows, and the month's total on the right.
   private func header(_ shown: DayCalendar.Month, months: [DayCalendar.Month]) -> some View {
     // Months run newest first: the previous one is later in the list.
     let index = months.firstIndex(of: shown)
     let previous = index.flatMap { months.indices.contains($0 + 1) ? months[$0 + 1] : nil }
     let next = index.flatMap { $0 > 0 ? months[$0 - 1] : nil }
-    return HStack(spacing: Tokens.Space.s) {
-      Button { month = previous } label: { Image(systemName: "chevron.backward") }
-        .disabled(previous == nil)
-        .help(Text(L10n.Trades.previousMonth))
-        .accessibilityLabel(Text(L10n.Trades.previousMonth))
-      Spacer(minLength: 0)
+    let total = monthTotal(shown)
+    return HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       if let first = shown.firstDay {
-        Text(first, format: .dateTime.month(.wide).year())
-          .font(Tokens.Typography.calloutMono.bold())
+        CardLabel(L10n.Trades.monthLabel(first.formatted(.dateTime.month(.wide).year())))
+          .lineLimit(1)
           .contentTransition(.opacity)
       }
-      Spacer(minLength: 0)
-      Button { month = next } label: { Image(systemName: "chevron.forward") }
-        .disabled(next == nil)
-        .help(Text(L10n.Trades.nextMonth))
-        .accessibilityLabel(Text(L10n.Trades.nextMonth))
+      HStack(spacing: Tokens.Space.xxs) {
+        Button { month = previous } label: { Image(systemName: "chevron.backward") }
+          .disabled(previous == nil)
+          .help(Text(L10n.Trades.previousMonth))
+          .accessibilityLabel(Text(L10n.Trades.previousMonth))
+        Button { month = next } label: { Image(systemName: "chevron.forward") }
+          .disabled(next == nil)
+          .help(Text(L10n.Trades.nextMonth))
+          .accessibilityLabel(Text(L10n.Trades.nextMonth))
+      }
+      .font(Tokens.Typography.chevron)
+      .foregroundStyle(Palette.textQuaternary)
+      .buttonStyle(.borderless)
+      Spacer(minLength: Tokens.Space.s)
+      if let total {
+        Text(L10n.Trades.monthTotal(Money.signed(total)))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.result(total))
+          .lineLimit(1)
+          .fixedSize()
+      }
     }
-    .buttonStyle(.borderless)
+  }
+
+  /// Sum of the month's recorded day results; nil when the month has none.
+  private func monthTotal(_ shown: DayCalendar.Month) -> Decimal? {
+    let results = model.days.filter { DayCalendar.Month($0.day) == shown }.map(\.resultGrossUsd.value)
+    return results.isEmpty ? nil : results.reduce(0, +)
   }
 
   private func select(_ day: WireDate) {
@@ -109,10 +131,27 @@ struct MonthCalendar: View {
   }
 }
 
-/// One weekday: its number and, when the bot recorded it, its gross result.
+/// A day's clean-day mark: a green dot when clean, an amber ring when it needs a look.
+struct CleanDot: View {
+  let verdict: CleanVerdict
+
+  var body: some View {
+    Group {
+      if verdict == .clean {
+        Circle().fill(Palette.profit)
+      } else {
+        Circle().strokeBorder(Palette.warning, lineWidth: Tokens.Stroke.regular)
+      }
+    }
+    .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+  }
+}
+
+/// One weekday tile: its number and clean dot on top, then, when the bot recorded it, its gross
+/// result to the cent and its trade count.
 private struct CalendarDay: View {
-  /// Height of a day's cell, in points.
-  static let height: CGFloat = 36
+  /// Height of a day's tile, in points.
+  static let height: CGFloat = 62
 
   let cell: DayCalendar.Cell
   let isToday: Bool
@@ -120,45 +159,56 @@ private struct CalendarDay: View {
   let action: () -> Void
 
   var body: some View {
-    let result = cell.summary?.resultGrossUsd.value
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small)
+    let summary = cell.summary
+    let result = summary?.resultGrossUsd.value
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     Button(action: action) {
-      VStack(spacing: 0) {
-        Text(cell.day.day, format: .number)
-          .font(Tokens.Typography.annotationBold)
-        if let result {
-          Text(verbatim: Money.signed(result, fractionDigits: 0))
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        HStack(spacing: 0) {
+          Text(cell.day.day, format: .number)
             .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textTertiary)
+          Spacer(minLength: 0)
+          if let clean = summary?.clean, clean.verdict != .unknown {
+            CleanDot(verdict: clean.verdict)
+          }
+        }
+        Spacer(minLength: 0)
+        if let summary, let result {
+          Text(verbatim: Money.signed(result))
+            .font(Tokens.Typography.calloutMono.bold())
             .foregroundStyle(Palette.result(result))
-            .lineLimit(1)
-            .minimumScaleFactor(Tokens.Shrink.tight)
+          Text(L10n.Trades.tradeCount(summary.trades))
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
         }
       }
-      .frame(maxWidth: .infinity, minHeight: Self.height)
-      .foregroundStyle(result == nil && !isToday ? Palette.textQuaternary : Palette.textPrimary)
+      .lineLimit(1)
+      .minimumScaleFactor(Tokens.Shrink.tight)
+      .padding(Tokens.Space.xs + Tokens.Space.xxs)
+      .frame(maxWidth: .infinity, minHeight: Self.height, maxHeight: Self.height, alignment: .topLeading)
       .background {
-        if let result { shape.fill(Palette.result(result).opacity(Tokens.Opacity.wash)) }
+        if let result {
+          shape.fill(Palette.result(result).opacity(Tokens.Opacity.wash))
+        } else {
+          shape.fill(Palette.surface)
+        }
       }
       .overlay {
         if selected {
-          shape.strokeBorder(isToday ? Palette.accent : Palette.info, lineWidth: Tokens.Stroke.regular)
+          shape.strokeBorder(Palette.info, lineWidth: Tokens.Stroke.bold)
         } else if isToday {
-          shape.strokeBorder(Palette.accent.opacity(Tokens.Opacity.faint), lineWidth: Tokens.Stroke.thin)
+          shape.strokeBorder(Palette.accent, lineWidth: Tokens.Stroke.thin)
+        } else {
+          shape.strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
         }
       }
-      .overlay(alignment: .topTrailing) {
-        if let clean = cell.summary?.clean, clean.verdict != .unknown {
-          Circle()
-            .fill(clean.verdict == .clean ? Palette.profit : Palette.warning)
-            .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-            .padding(Tokens.Space.xxs)
-        }
-      }
+      .shadow(color: selected ? Palette.info.opacity(Tokens.Opacity.border) : .clear, radius: Tokens.Space.xs)
       .contentShape(shape)
     }
     .buttonStyle(.plain)
     .disabled(result == nil && !isToday)
-    .help(Text(verbatim: cell.summary.map { Format.dayLabel(cell.day) + Format.lineSeparator + CleanMark.text($0.clean) }
+    .help(Text(verbatim: summary.map { Format.dayLabel(cell.day) + Format.lineSeparator + CleanMark.text($0.clean) }
       ?? Format.dayLabel(cell.day)))
     .accessibilityLabel(Text(verbatim: Format.dayLabel(cell.day)))
     .accessibilityValue(result.map { Text(verbatim: Money.signedUSD($0)) } ?? Text(L10n.Trades.noRecords))

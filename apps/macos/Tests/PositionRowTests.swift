@@ -17,6 +17,22 @@ struct PositionRowTests {
     let fresh = PositionRow(position: position, lastBarClose: close, lastBarAt: Date(), closes: [], latestClose: close)
     #expect(fresh.resultR == fresh.latestResultR)
   }
+
+  @Test("In the trades table a stale open position shows its figures as of that bar, greyed")
+  func staleTradeRow() throws {
+    let position = try #require(try fixture(StatusResponseV1.self, "status-response-v1.json").status?.position)
+    let close = position.entryPrice.value + 1
+    let stale = TradeRow.open(
+      PositionRow(position: position, lastBarClose: nil, lastBarAt: Date(), closes: [], latestClose: close))
+    #expect(stale.isStale)
+    #expect(stale.result != nil)
+    #expect(stale.resultR != nil)
+    #expect(stale.resultRColor == Palette.textQuaternary)
+    let fresh = TradeRow.open(
+      PositionRow(position: position, lastBarClose: close, lastBarAt: Date(), closes: [], latestClose: close))
+    #expect(!fresh.isStale)
+    #expect(fresh.resultRColor == Palette.result(try #require(fresh.resultR)))
+  }
 }
 
 @Suite("When the newest captured bar is still the current price")

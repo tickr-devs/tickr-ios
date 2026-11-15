@@ -29,6 +29,8 @@ public enum Tokens {
   public enum Radius {
     /// Badges, tags, small chips.
     public static let small: CGFloat = 6
+    /// Chips and tabs (ranges, intervals, studies, position tabs).
+    public static let chip: CGFloat = 8
     /// Banners, inset panels, menus.
     public static let medium: CGFloat = 10
     /// Small cards (sidebar, menu-bar panel).
@@ -68,6 +70,12 @@ public enum Tokens {
     public static let panelFigureTracking: CGFloat = -1
     /// SF Symbols inside a compact round icon button.
     public static let symbolCompactSize: CGFloat = 13
+    /// A screen's heading in its content ("Today · Mon, Nov 16" on Trades).
+    public static let headingSize: CGFloat = 22
+    /// A price beside a symbol heading (the Chart's last price).
+    public static let quoteSize: CGFloat = 20
+    /// Figures in compact tiles and stat rows (Trades' day figures, performance figures).
+    public static let figureSize: CGFloat = 18
 
     #if os(iOS)
     // iOS: each role follows a text style, so Dynamic Type (Settings › Display & Brightness ›
@@ -83,6 +91,9 @@ public enum Tokens {
     public static let display = Font.system(.largeTitle, design: .monospaced, weight: .bold)
     public static let title = Font.system(.title, weight: .bold)
     public static let subtitle = Font.system(.title, design: .monospaced, weight: .medium)
+    public static let heading = Font.system(.title2, weight: .bold)
+    public static let quote = Font.system(.title3, design: .monospaced, weight: .semibold)
+    public static let figure = Font.system(.headline, design: .monospaced, weight: .bold)
     /// SF Symbols inside a round icon well.
     public static let symbol = Font.system(.subheadline, weight: .semibold)
     /// SF Symbols inside a live-flow stage.
@@ -100,6 +111,9 @@ public enum Tokens {
     public static let display = Font.system(size: displaySize, weight: .bold, design: .monospaced)
     public static let title = Font.system(size: titleSize, weight: .bold)
     public static let subtitle = Font.system(size: subtitleSize, weight: .medium, design: .monospaced)
+    public static let heading = Font.system(size: headingSize, weight: .bold)
+    public static let quote = Font.system(size: quoteSize, weight: .semibold, design: .monospaced)
+    public static let figure = Font.system(size: figureSize, weight: .bold, design: .monospaced)
     /// SF Symbols inside a round icon well.
     public static let symbol = Font.system(size: Size.iconWellSymbol, weight: .semibold)
     /// SF Symbols inside a live-flow stage.
@@ -164,6 +178,8 @@ public enum Tokens {
     public static let faint = 0.35
     /// Borders tinted with an accent, secondary marks.
     public static let border = 0.45
+    /// An off chip among on ones (the Chart's studies).
+    public static let muted = 0.55
     /// Visible but not dominant: inactive elements, pulse rings at start.
     public static let medium = 0.7
     /// Light-mode card shadow.
@@ -228,7 +244,7 @@ public enum Tokens {
     /// Least width of a symbol chip in the live flow (symbol over screener and change).
     public static let flowChip: CGFloat = 96
     /// Width of a side column of cards on wide screens.
-    public static let sideColumn: CGFloat = 320
+    public static let sideColumn: CGFloat = 378
     /// Widest a screen's content grows before it centres.
     public static let contentMaxWidth: CGFloat = 1500
     /// Card shadow in light mode: blur radius and downward offset.

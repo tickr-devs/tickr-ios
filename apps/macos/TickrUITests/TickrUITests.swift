@@ -187,15 +187,20 @@ final class TickrUITests: XCTestCase {
   func testChartShowsTheDecisions() {
     let app = launch()
     open(Self.sections[1], in: app)
+    // The rail is shown by default: its explain card lists the latest decision's checks. A check
+    // row reads as one accessibility element, so its rule is part of a longer value.
+    let check = app.staticTexts.matching(NSPredicate(format: "value CONTAINS %@", Self.decisionRule)).firstMatch
+    XCTAssertTrue(check.waitForExistence(timeout: Self.timeout), "decision check\n\(app.debugDescription)")
+    // The open rail fits beside the chart: nothing is pushed off screen.
+    XCTAssertTrue(app.descendants(matching: .any)[Self.rowPrefix + Self.sections[0]].firstMatch.isHittable,
+      "sidebar pushed off screen\n\(app.debugDescription)")
+    // The toggle hides the rail and shows it again.
     let toggle = app.descendants(matching: .any)[Self.decisionsToggle].firstMatch
     XCTAssertTrue(toggle.waitForExistence(timeout: Self.timeout))
     toggle.click()
-    // A check row reads as one accessibility element, so its rule is part of a longer value.
-    let check = app.staticTexts.matching(NSPredicate(format: "value CONTAINS %@", Self.decisionRule))
-    XCTAssertTrue(check.firstMatch.waitForExistence(timeout: Self.timeout), "decision check\n\(app.debugDescription)")
-    // The open inspector fits beside the chart: nothing is pushed off screen.
-    XCTAssertTrue(app.descendants(matching: .any)[Self.rowPrefix + Self.sections[0]].firstMatch.isHittable,
-      "sidebar pushed off screen\n\(app.debugDescription)")
+    XCTAssertTrue(check.waitForNonExistence(timeout: Self.timeout), "rail still shown\n\(app.debugDescription)")
+    toggle.click()
+    XCTAssertTrue(check.waitForExistence(timeout: Self.timeout), "rail not shown again\n\(app.debugDescription)")
   }
 
   @MainActor

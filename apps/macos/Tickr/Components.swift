@@ -125,12 +125,20 @@ extension EnvironmentValues {
   /// Whether cards grow to the height they are offered (cards sharing a grid row), instead of
   /// hugging their content.
   @Entry var cardFills = false
+  /// Whether a card's header leads with the glowing tone tick (the Overview board); the other
+  /// screens' designs label their cards plainly.
+  @Entry var cardTicks = true
 }
 
 extension View {
   /// Cards in this view grow to the height they are offered, so a grid row's cards line up.
   func filling() -> some View {
     environment(\.cardFills, true)
+  }
+
+  /// Cards in this view label themselves plainly, without the tone tick.
+  func plainCardLabels() -> some View {
+    environment(\.cardTicks, false)
   }
 }
 
@@ -146,6 +154,7 @@ extension View {
 /// A card: a section header (glowing tick in the card's tone, label, accessory), then the content.
 struct Card<Trailing: View, Content: View>: View {
   @Environment(\.cardFills) private var fills
+  @Environment(\.cardTicks) private var ticks
   let title: Text
   var tint: Color?
   var tone: Tone
@@ -168,7 +177,21 @@ struct Card<Trailing: View, Content: View>: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      SectionHeader(title, tone: tone) { trailing }
+      if ticks {
+        SectionHeader(title, tone: tone) { trailing }
+      } else {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+          title
+            .textCase(.uppercase)
+            .font(Tokens.Typography.label)
+            .tracking(Tokens.Typography.labelTracking)
+            .foregroundStyle(Palette.textQuaternary)
+            .lineLimit(1)
+            .accessibilityAddTraits(.isHeader)
+          Spacer(minLength: Tokens.Space.s)
+          trailing
+        }
+      }
       // A card sharing a row of a set height scrolls under its header when its content is taller.
       if fills {
         ScrollsWhenTall {

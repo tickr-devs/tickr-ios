@@ -166,8 +166,11 @@ private struct IconButtonBody: View {
 }
 
 /// A selectable chip: one of a few choices shown side by side (a position's tab, a day, a range).
-/// The selected one is outlined and washed in its tone.
+/// The design's chip: mono `label` text in `textTertiary` on `chipFill` with a `separatorStrong`
+/// hairline; the selected one in `textPrimary` on `selection`, outlined in its tone.
 public struct ChipButtonStyle: ButtonStyle {
+  @Environment(\.isEnabled) private var enabled
+  @State private var hovered = false
   let selected: Bool
   let tone: Tone
 
@@ -177,21 +180,70 @@ public struct ChipButtonStyle: ButtonStyle {
   }
 
   public func makeBody(configuration: Configuration) -> some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.chip, style: .continuous)
     configuration.label
       .labelStyle(ControlLabelStyle())
-      .font(Tokens.Typography.chip)
-      .foregroundStyle(selected ? Palette.textPrimary : Palette.textSecondary)
+      .font(Tokens.Typography.label)
+      .lineLimit(1)
+      .foregroundStyle(selected || hovered ? Palette.textPrimary : Palette.textTertiary)
       .padding(.horizontal, Tokens.Space.s)
-      .padding(.vertical, Tokens.Space.xs)
-      .background(selected ? tone.fill.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
+      .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
+      .background(selected ? Palette.selection : Palette.chipFill, in: shape)
       .overlay(shape.strokeBorder(selected ? tone.fill : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
       .contentShape(shape)
+      .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
       .animation(Tokens.Motion.quick, value: selected)
+      .animation(Tokens.Motion.quick, value: hovered)
+      .onHover { hovered = $0 }
       .accessibilityAddTraits(selected ? .isSelected : [])
   }
+}
+
+/// An on/off chip (a chart study, the trade marks), uppercase as the design's chips: on is
+/// `textPrimary` on `selection` with the chip's hairline, off is the plain chip at `Opacity.muted`.
+public struct ChipToggleStyle: ToggleStyle {
+  public init() {}
+
+  public func makeBody(configuration: Configuration) -> some View {
+    Button {
+      configuration.isOn.toggle()
+    } label: {
+      configuration.label.textCase(.uppercase)
+    }
+    .buttonStyle(ChipToggleButton(isOn: configuration.isOn))
+    .accessibilityAddTraits(configuration.isOn ? .isSelected : [])
+  }
+}
+
+/// The button inside a `ChipToggleStyle`.
+private struct ChipToggleButton: ButtonStyle {
+  @Environment(\.isEnabled) private var enabled
+  let isOn: Bool
+
+  func makeBody(configuration: Configuration) -> some View {
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.chip, style: .continuous)
+    configuration.label
+      .labelStyle(ControlLabelStyle())
+      .font(Tokens.Typography.label)
+      .lineLimit(1)
+      .foregroundStyle(isOn ? Palette.textPrimary : Palette.textTertiary)
+      .padding(.horizontal, Tokens.Space.s)
+      .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
+      .background(isOn ? Palette.selection : Palette.chipFill, in: shape)
+      .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+      .contentShape(shape)
+      .opacity(!enabled ? Tokens.Opacity.faint : isOn ? 1 : Tokens.Opacity.muted)
+      .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
+      .animation(Tokens.Motion.quick, value: configuration.isPressed)
+      .animation(Tokens.Motion.quick, value: isOn)
+  }
+}
+
+public extension ToggleStyle where Self == ChipToggleStyle {
+  /// `.toggleStyle(.chip)`.
+  static var chip: ChipToggleStyle { ChipToggleStyle() }
 }
 
 public extension ButtonStyle where Self == ActionButtonStyle {

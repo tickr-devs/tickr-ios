@@ -212,19 +212,31 @@ public struct Ticker: View {
     Marquee(moving: moving && !items.isEmpty, content: items, speed: speed) { row }
   }
 
+  /// The design's ticker pills: a ringed dot and the bold tag in the event's colour, then the
+  /// text, on a `surface` capsule with a hairline.
   private var row: some View {
-    HStack(spacing: Tokens.Space.xl) {
+    HStack(spacing: Tokens.Space.s) {
       ForEach(items) { item in
-        HStack(spacing: Tokens.Space.s) {
+        HStack(spacing: Tokens.Space.xs) {
+          Circle()
+            .fill(item.tone.color)
+            .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+            .padding(Tokens.Space.xxs)
+            .overlay(Circle().strokeBorder(item.tone.color.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.regular))
           Text(item.tag).fontWeight(.bold).foregroundStyle(item.tone.color)
           Text(item.text).foregroundStyle(Palette.textTertiary)
         }
         .font(Tokens.Typography.annotation)
         .lineLimit(1)
         .fixedSize()
+        .padding(.leading, Tokens.Space.xxs)
+        .padding(.trailing, Tokens.Space.s)
+        .padding(.vertical, Tokens.Space.xxs / 2)
+        .background(Palette.surface, in: Capsule())
+        .overlay(Capsule().strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
       }
     }
-    .padding(.trailing, Tokens.Space.xl)
+    .padding(.trailing, Tokens.Space.s)
   }
 
 }

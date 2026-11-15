@@ -74,7 +74,8 @@ struct ChartLevel: Identifiable {
   }
 }
 
-/// A strategy's ENTER or EXIT decision, drawn as a diamond at its time: filled for one the
+/// Where the trading strategy began watching a symbol, or its ENTER or EXIT decision, drawn as a
+/// diamond at its time: filled for one the
 /// trading strategy acted on, hollow for an observer's (a shadow strategy that never trades) or a
 /// skipped ENTER (refused, so never bought), which is also drawn muted.
 struct DecisionMark: Identifiable {
@@ -107,7 +108,7 @@ enum ChartMarkers {
         ChartMark(
           id: ChartMark.ID(trade: trade.tradeId, kind: .entry), time: trade.openedAt.date,
           price: double(trade.entryPrice.value),
-          label: L10n.Chart.buyMark(Format.quantity(trade.quantity.value))),
+          label: L10n.Chart.buyMark(Format.quantity(trade.quantity.value), Format.price(trade.entryPrice.value))),
         ChartMark(
           id: ChartMark.ID(trade: trade.tradeId, kind: exitKind), time: trade.closedAt.date,
           price: double(trade.exitPrice.value),
@@ -135,12 +136,23 @@ enum ChartMarkers {
     return levels
   }
 
-  /// A mark per ENTER or EXIT decision. A skipped ENTER sits at its what-if entry; otherwise a
-  /// mark sits at the close of the candle it was made in. A decision outside every candle has no
-  /// mark.
+  /// A mark per ENTER or EXIT decision, and one where the trading strategy began watching (the
+  /// first WATCH since the day began or since its last ENTER or EXIT; observers never trade, so
+  /// their WATCH is left out). A skipped
+  /// ENTER sits at its what-if entry; otherwise a mark sits at the close of the candle it was made
+  /// in. A decision outside every candle has no mark.
   static func decisionMarks(decisions: [DecisionV1], candles: [Candle]) -> [DecisionMark] {
-    decisions.enumerated().compactMap { index, decision in
-      guard decision.action == .enter || decision.action == .exit else { return nil }
+    // The strategy's own decisions that change something: an IGNORE or HOLD between two WATCH
+    // bars does not start a new watch.
+    let strategy = decisions.indices.filter {
+      !decisions[$0].observer && decisions[$0].action != .ignore && decisions[$0].action != .hold
+    }
+    let watchStarts = Set(strategy.enumerated().compactMap { position, index -> Int? in
+      guard decisions[index].action == .watch else { return nil }
+      return position > 0 && decisions[strategy[position - 1]].action == .watch ? nil : index
+    })
+    return decisions.enumerated().compactMap { index, decision in
+      guard decision.action == .enter || decision.action == .exit || watchStarts.contains(index) else { return nil }
       let at = decision.at.date
       let candle = candles.last { $0.start <= at && at < $0.end }
       guard let price = decision.entryPrice.map({ double($0.value) }) ?? candle?.close else { return nil }

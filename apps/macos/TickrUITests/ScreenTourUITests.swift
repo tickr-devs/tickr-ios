@@ -42,6 +42,8 @@ final class ScreenTourUITests: XCTestCase {
   private static let screenPrefix = "screen-"
   /// The Chart's decisions toggle (ChartView.decisionsToggleID).
   private static let decisionsToggle = "chart-decisions"
+  /// The Chart rail's explain card (ChartExplainCard.contentID): present while the rail is shown.
+  private static let explainCard = "chart-decisions-list"
   /// Prefix of a flatten button id (BotAction.flattenPrefix).
   private static let flattenPrefix = "flatten-"
   /// English texts of the standard menus and buttons the tour uses.
@@ -132,10 +134,14 @@ final class ScreenTourUITests: XCTestCase {
   private func decisions() {
     let toggle = app.descendants(matching: .any)[Self.decisionsToggle].firstMatch
     guard toggle.waitForExistence(timeout: Self.wait) else { return }
-    toggle.click()
-    sleep(Self.settle)
+    // The rail is shown by default (ChartView.Keys.decisions): open it only while it is hidden.
+    let hidden = !app.descendants(matching: .any)[Self.explainCard].firstMatch.exists
+    if hidden {
+      toggle.click()
+      sleep(Self.settle)
+    }
     shot("chart-decisions")
-    toggle.click()
+    if hidden { toggle.click() }
   }
 
   private func tradeRow() {

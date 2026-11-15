@@ -46,4 +46,20 @@ struct ViewportTests {
     viewport.fit()
     #expect(viewport == Viewport())
   }
+
+  @Test("A chart opens on its newest candles; a range shorter than that shows whole")
+  func opening() {
+    let viewport = Viewport.opening
+    let long = Viewport.openingCandles * 4
+    #expect(viewport.shown(total: long) == Viewport.openingCandles)
+    #expect(viewport.shown(total: Viewport.openingCandles) == nil)
+    var short = Viewport.opening
+    short.zoomOut(total: Viewport.minimumVisible)
+    #expect(short.visible == nil)
+    // Zooming in on a short range starts from the whole range, not from the opening window.
+    let total = Viewport.minimumVisible * 2
+    var zooming = Viewport.opening
+    zooming.zoomIn(total: total)
+    #expect((zooming.visible ?? total) < total)
+  }
 }

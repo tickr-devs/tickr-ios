@@ -60,12 +60,28 @@ struct CleanBadge: View {
     }
   }
 
-  private func badge(_ title: LocalizedStringResource, symbol: String, color: Color) -> some View {
-    HStack(spacing: Tokens.Space.xs) {
+  /// The design's day badge: the symbol and the words in one outlined, washed chip (Trades);
+  /// the plain badge without the symbol (the Overview header).
+  @ViewBuilder private func badge(_ title: LocalizedStringResource, symbol: String, color: Color) -> some View {
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+    Group {
       if showsSymbol {
-        Image(systemName: symbol).foregroundStyle(color)
+        HStack(spacing: Tokens.Space.xs) {
+          Image(systemName: symbol)
+          Text(title)
+            .textCase(.uppercase)
+            .tracking(Tokens.Typography.badgeTracking)
+            .lineLimit(1)
+        }
+        .font(Tokens.Typography.badge)
+        .foregroundStyle(color)
+        .padding(.horizontal, Tokens.Space.s)
+        .padding(.vertical, Tokens.Space.xs)
+        .background(color.opacity(Tokens.Opacity.wash), in: shape)
+        .overlay(shape.strokeBorder(color.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
+      } else {
+        Badge(title, color: color)
       }
-      Badge(title, color: color)
     }
     .help(Text(verbatim: CleanMark.text(clean)))
     .accessibilityElement(children: .combine)

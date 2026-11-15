@@ -1366,8 +1366,161 @@ enum L10n {
         bundle: L10n.bundle)
     }
     /// Entry mark of a trade with its quantity.
-    static func buyMark(_ quantity: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.buyMark", defaultValue: "Buy \(quantity)", bundle: L10n.bundle)
+    static func buyMark(_ quantity: String, _ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.buyMark", defaultValue: "Buy \(quantity) @ \(price)", bundle: L10n.bundle)
+    }
+    /// The volume pane's name: the newest candle's volume, the span of the average and the
+    /// relative volume (the newest volume over the average).
+    static func volumePane(_ volume: String, _ period: Int, _ ratio: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.volumePane",
+        defaultValue: "VOL \(volume) · avg \(period) · rel. volume \(ratio)×", bundle: L10n.bundle)
+    }
+    /// The volume pane's name before its average has a value.
+    static func volumePaneShort(_ volume: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.volumePaneShort", defaultValue: "VOL \(volume)", bundle: L10n.bundle)
+    }
+    /// Name of the volume pane's average line (VoiceOver).
+    static func volumeAverage(_ period: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.volumeAverage", defaultValue: "Average volume \(period)", bundle: L10n.bundle)
+    }
+    /// Name of the study chips drawn over the price.
+    static var onPrice: LocalizedStringResource {
+      LocalizedStringResource("chart.onPrice", defaultValue: "On price", bundle: L10n.bundle)
+    }
+    static var onPriceHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.onPriceHelp", defaultValue: "Lines drawn over the price", bundle: L10n.bundle)
+    }
+    /// Name of the study chips with a pane of their own.
+    static var panes: LocalizedStringResource {
+      LocalizedStringResource("chart.panes", defaultValue: "Panes", bundle: L10n.bundle)
+    }
+    static var panesHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.panesHelp", defaultValue: "Indicators with a pane of their own under the price",
+        bundle: L10n.bundle)
+    }
+    /// Chip of the ATR pane.
+    static var atrChip: LocalizedStringResource {
+      LocalizedStringResource("chart.atrChip", defaultValue: "ATR", bundle: L10n.bundle)
+    }
+    /// Label of the slider that scrolls a zoomed chart through its history.
+    static var scrollHistory: LocalizedStringResource {
+      LocalizedStringResource("chart.scrollHistory", defaultValue: "scroll history", bundle: L10n.bundle)
+    }
+    static var scrollHistoryHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.scrollHistoryHelp",
+        defaultValue: "Zoom in, then slide to move through the earlier candles", bundle: L10n.bundle)
+    }
+    /// The pill shown while the chart follows the live day.
+    static var live: LocalizedStringResource {
+      LocalizedStringResource("chart.live", defaultValue: "Live", bundle: L10n.bundle)
+    }
+    static var liveHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.liveHelp", defaultValue: "Live: new bars are added as they arrive",
+        bundle: L10n.bundle)
+    }
+    /// Chip that shows or hides the trades and the decisions on the price pane.
+    static var tradesChip: LocalizedStringResource {
+      LocalizedStringResource("chart.tradesChip", defaultValue: "Trades", bundle: L10n.bundle)
+    }
+    static var tradesChipHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.tradesChipHelp",
+        defaultValue: "Show the bot's trades, its open position's levels and its decisions on the chart",
+        bundle: L10n.bundle)
+    }
+    /// Help of the symbol menu in the header.
+    static var symbolHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.symbolHelp", defaultValue: "Pick the symbol to chart", bundle: L10n.bundle)
+    }
+    /// Help of the change beside the last price.
+    static var dayChangeHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.dayChangeHelp", defaultValue: "Change from the previous close, as the screeners report it",
+        bundle: L10n.bundle)
+    }
+    /// The right rail's symbol list: the open positions, the watched symbols and the candidates.
+    static var rail: LocalizedStringResource {
+      LocalizedStringResource("chart.rail", defaultValue: "Positions · watch · candidates", bundle: L10n.bundle)
+    }
+    /// Count of open positions in the rail's header.
+    static func railCount(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.railCount", defaultValue: "\(count) positions", bundle: L10n.bundle)
+    }
+    static var railPosition: LocalizedStringResource {
+      LocalizedStringResource("chart.railPosition", defaultValue: "Position", bundle: L10n.bundle)
+    }
+    static var railWatch: LocalizedStringResource {
+      LocalizedStringResource("chart.railWatch", defaultValue: "Watch", bundle: L10n.bundle)
+    }
+    static var railCandidate: LocalizedStringResource {
+      LocalizedStringResource("chart.railCandidate", defaultValue: "Candidate", bundle: L10n.bundle)
+    }
+    /// A position's stop in the rail; ✓ once the broker confirmed it.
+    static func railStop(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.railStop", defaultValue: "stop \(price) ✓", bundle: L10n.bundle)
+    }
+    static func railStopUnverified(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.railStopUnverified", defaultValue: "stop \(price) ?", bundle: L10n.bundle)
+    }
+    /// When the strategy last decided to watch the symbol.
+    static func railSince(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.railSince", defaultValue: "since \(time)", bundle: L10n.bundle)
+    }
+    /// A candidate's screener and change, "gainers +16.6%".
+    static func railScreener(_ screener: String, _ change: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.railScreener", defaultValue: "\(screener) \(change)", bundle: L10n.bundle)
+    }
+    static var sourceGainers: LocalizedStringResource {
+      LocalizedStringResource("chart.sourceGainers", defaultValue: "gainers", bundle: L10n.bundle)
+    }
+    static var sourceLosers: LocalizedStringResource {
+      LocalizedStringResource("chart.sourceLosers", defaultValue: "losers", bundle: L10n.bundle)
+    }
+    static var sourceActives: LocalizedStringResource {
+      LocalizedStringResource("chart.sourceActives", defaultValue: "actives", bundle: L10n.bundle)
+    }
+    static var railEmpty: LocalizedStringResource {
+      LocalizedStringResource("chart.railEmpty", defaultValue: "No positions, watched symbols or candidates yet",
+        bundle: L10n.bundle)
+    }
+    /// Title of the explain card: the symbol and the time of the decision shown.
+    static func explain(_ symbol: String, _ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.explain", defaultValue: "Explain \(symbol) · \(time)", bundle: L10n.bundle)
+    }
+    /// The explain card's hint under its checks.
+    static var explainHint: LocalizedStringResource {
+      LocalizedStringResource("chart.explainHint", defaultValue: "hover a candle: its decision and every check",
+        bundle: L10n.bundle)
+    }
+    /// The explain card's title while there is no decision to explain.
+    static func explainSymbol(_ symbol: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.explainSymbol", defaultValue: "Explain \(symbol)", bundle: L10n.bundle)
+    }
+    /// The card with the shown symbol's open position.
+    static var positionOnChart: LocalizedStringResource {
+      LocalizedStringResource("chart.positionOnChart", defaultValue: "Position on chart", bundle: L10n.bundle)
+    }
+    static var positionEntry: LocalizedStringResource {
+      LocalizedStringResource("chart.positionEntry", defaultValue: "entry", bundle: L10n.bundle)
+    }
+    /// "10:42 · 12.34 × 10": when, at what price and how many shares.
+    static func positionEntryValue(_ time: String, _ price: String, _ quantity: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.positionEntryValue", defaultValue: "\(time) · \(price) × \(quantity)",
+        bundle: L10n.bundle)
+    }
+    static var positionStop: LocalizedStringResource {
+      LocalizedStringResource("chart.positionStop", defaultValue: "stop", bundle: L10n.bundle)
+    }
+    static func positionStopVerified(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.positionStopVerified", defaultValue: "\(price) · verified", bundle: L10n.bundle)
+    }
+    static func positionStopUnverified(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.positionStopUnverified", defaultValue: "\(price) · not verified",
+        bundle: L10n.bundle)
+    }
+    static var positionNoStop: LocalizedStringResource {
+      LocalizedStringResource("chart.positionNoStop", defaultValue: "none", bundle: L10n.bundle)
+    }
+    static var positionRNow: LocalizedStringResource {
+      LocalizedStringResource("chart.positionRNow", defaultValue: "R now", bundle: L10n.bundle)
     }
     /// Exit mark of a trade with its result.
     static func exitMark(_ result: String) -> LocalizedStringResource {
@@ -1396,6 +1549,14 @@ enum L10n {
     /// Readout: low.
     static var low: LocalizedStringResource {
       LocalizedStringResource("chart.low", defaultValue: "L", bundle: L10n.bundle)
+    }
+    /// The highest high on screen, on the price axis.
+    static func highTag(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.highTag", defaultValue: "H \(price)", bundle: L10n.bundle)
+    }
+    /// The lowest low on screen, on the price axis.
+    static func lowTag(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.lowTag", defaultValue: "L \(price)", bundle: L10n.bundle)
     }
     /// Readout: close.
     static var close: LocalizedStringResource {
@@ -1537,9 +1698,10 @@ enum L10n {
     static var open: LocalizedStringResource {
       LocalizedStringResource("trades.open", defaultValue: "Open", bundle: L10n.bundle)
     }
-    /// Under the open positions when none has closed today.
-    static var noClosedTrades: LocalizedStringResource {
-      LocalizedStringResource("trades.noClosedTrades", defaultValue: "No closed trades yet.", bundle: L10n.bundle)
+    /// VoiceOver label of an open position's OPEN tag in the trades table.
+    static func openPosition(_ symbol: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.openPosition", defaultValue: "Open position \(symbol): show on Chart",
+        bundle: L10n.bundle)
     }
     /// Badge: the entry was never put to the platform's checks.
     static var notEvaluated: LocalizedStringResource {
@@ -1620,18 +1782,14 @@ enum L10n {
     static var maxDrawdown: LocalizedStringResource {
       LocalizedStringResource("trades.maxDrawdown", defaultValue: "Max drawdown", bundle: L10n.bundle)
     }
-    /// Performance figure: sum of results, in R.
-    static var totalR: LocalizedStringResource {
-      LocalizedStringResource("trades.totalR", defaultValue: "Total", bundle: L10n.bundle)
-    }
     /// A percentage.
     static func percent(_ value: String) -> LocalizedStringResource {
       LocalizedStringResource("trades.percent", defaultValue: "\(value)%", bundle: L10n.bundle)
     }
-    /// Counts under the performance figures.
-    static func performanceCounts(_ trades: Int, _ wins: Int, _ losses: Int, _ scratches: Int) -> LocalizedStringResource {
-      LocalizedStringResource("trades.performanceCounts",
-        defaultValue: "Trades: \(trades) · \(wins) W · \(losses) L · \(scratches) flat",
+    /// The performance counts, and that the figures are gross.
+    static func performanceLine(_ trades: Int, _ wins: Int, _ losses: Int, _ scratches: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.performanceLine",
+        defaultValue: "\(trades) trades · \(wins) W · \(losses) L · \(scratches) flat · gross, before fees",
         bundle: L10n.bundle)
     }
     /// Trades left out of every performance figure, with why.
@@ -1652,9 +1810,38 @@ enum L10n {
       LocalizedStringResource("trades.cumulativeR", defaultValue: "Cumulative R", bundle: L10n.bundle)
     }
     /// Footnote of the performance card.
-    static var grossNote: LocalizedStringResource {
-      LocalizedStringResource("trades.grossNote", defaultValue: "Gross: before fees. 1 R is each trade's planned loss.",
+    /// The performance card's note on what 1 R is.
+    static var oneRNote: LocalizedStringResource {
+      LocalizedStringResource("trades.oneRNote", defaultValue: "1 R = planned loss", bundle: L10n.bundle)
+    }
+    /// The heading of the live day.
+    static func dayTitleToday(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.dayTitleToday", defaultValue: "\(day) · today", bundle: L10n.bundle)
+    }
+    /// The calendar card's label: the month, then what its tiles show.
+    static func monthLabel(_ month: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.monthLabel", defaultValue: "\(month) · day result", bundle: L10n.bundle)
+    }
+    /// The month's total result beside the calendar's label.
+    static func monthTotal(_ result: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.monthTotal", defaultValue: "month \(result)", bundle: L10n.bundle)
+    }
+    /// A calendar day's closed trades.
+    static func tradeCount(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.tradeCount", defaultValue: "\(count) trades", bundle: L10n.bundle)
+    }
+    /// What clicking the closed trades does.
+    static var tradesHint: LocalizedStringResource {
+      LocalizedStringResource("trades.tradesHint", defaultValue: "click: details · double-click: show on Chart",
         bundle: L10n.bundle)
+    }
+    /// The order of the day list and what clicking a day does.
+    static var allDaysHint: LocalizedStringResource {
+      LocalizedStringResource("trades.allDaysHint", defaultValue: "newest first · click: open day", bundle: L10n.bundle)
+    }
+    /// What clicking a skipped signal does.
+    static var notTakenHint: LocalizedStringResource {
+      LocalizedStringResource("trades.notTakenHint", defaultValue: "click: show on Chart", bundle: L10n.bundle)
     }
     /// Calendar button and VoiceOver: show the month before.
     static var previousMonth: LocalizedStringResource {
