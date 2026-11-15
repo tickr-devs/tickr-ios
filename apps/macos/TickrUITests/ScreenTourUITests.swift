@@ -158,7 +158,8 @@ final class ScreenTourUITests: XCTestCase {
     let window = app.windows.element(boundBy: 0)
     guard window.waitForExistence(timeout: Self.wait) else { return }
     sleep(1)
-    let tabs = window.toolbars.buttons
+    // The design's own tab strip (SettingsTabBar), not a toolbar: its buttons by their ids.
+    let tabs = window.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "settings-tab-"))
     for index in 0..<tabs.count {
       tabs.element(boundBy: index).click()
       sleep(1)

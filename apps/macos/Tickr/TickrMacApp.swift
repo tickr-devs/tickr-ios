@@ -11,8 +11,9 @@ enum Defaults {
   static let demoDay = "demoDay"
   /// Whether the menu-bar extra is shown.
   static let showMenuBarExtra = "showMenuBarExtra"
-  /// Appearance forced for every window, `light` or `dark`; unset follows the system. Not in
-  /// Settings: the screen tour sets it as a launch argument (`-appearance light`).
+  /// Appearance forced for every window, `light` or `dark`; unset or empty follows the system.
+  /// Chosen in Settings › General (Appearance · theme); the screen tour sets it as a launch
+  /// argument (`-appearance light`), which wins over the stored choice.
   static let appearance = "appearance"
   static let light = "light"
   static let dark = "dark"
@@ -54,10 +55,16 @@ struct TickrMacApp: App {
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.
     NSApplication.shared.setActivationPolicy(.regular)
-    switch UserDefaults.standard.string(forKey: Defaults.appearance) {
-    case Defaults.light: NSApplication.shared.appearance = NSAppearance(named: .aqua)
-    case Defaults.dark: NSApplication.shared.appearance = NSAppearance(named: .darkAqua)
-    default: break
+    NSApplication.shared.appearance = Self.appearance(UserDefaults.standard.string(forKey: Defaults.appearance))
+  }
+
+  /// The appearance every window takes for a stored choice (Defaults.appearance); nil follows
+  /// the system.
+  static func appearance(_ choice: String?) -> NSAppearance? {
+    switch choice {
+    case Defaults.light: NSAppearance(named: .aqua)
+    case Defaults.dark: NSAppearance(named: .darkAqua)
+    default: nil
     }
   }
 
