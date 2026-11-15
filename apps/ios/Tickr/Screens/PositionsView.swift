@@ -311,7 +311,8 @@ private struct LevelsCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack {
+      // The label, then its note; the note goes under it at large text sizes.
+      RowStack {
         CardLabel(L10n.Positions.riskBand)
         Spacer()
         if marks == nil {
@@ -343,8 +344,9 @@ private struct LevelsCard: View {
           line(L10n.Positions.entryLevel(Money.plain(entry)), color: Palette.textQuaternary,
             textColor: Palette.textTertiary, y: entryY, width: width)
           if let stop {
+            // The lower level's label hangs under its line, so the two labels never meet.
             line(L10n.Positions.stopLevel(Money.plain(stop)), color: Palette.loss, textColor: Palette.lossText,
-              y: height * level(of: stop), width: width)
+              y: height * level(of: stop), width: width, below: stop < entry)
           }
           if let marks {
             price(marks, width: width, height: height)
@@ -397,8 +399,10 @@ private struct LevelsCard: View {
     .frame(width: width, height: height)
   }
 
-  private func line(_ text: LocalizedStringResource, color: Color, textColor: Color, y: CGFloat, width: CGFloat)
-    -> some View {
+  /// A dashed level across the width with its label just above it, or just under it when `below`.
+  private func line(
+    _ text: LocalizedStringResource, color: Color, textColor: Color, y: CGFloat, width: CGFloat, below: Bool = false
+  ) -> some View {
     ZStack(alignment: .leading) {
       Path { path in
         path.move(to: .zero)
@@ -412,7 +416,7 @@ private struct LevelsCard: View {
         .foregroundStyle(textColor)
         .padding(.horizontal, Tokens.Space.xs)
         .background(Palette.surface)
-        .offset(x: Tokens.Space.xs, y: -Self.labelLift)
+        .offset(x: Tokens.Space.xs, y: below ? Self.labelLift : -Self.labelLift)
     }
     .offset(y: y)
   }

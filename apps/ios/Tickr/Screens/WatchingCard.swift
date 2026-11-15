@@ -10,7 +10,8 @@ struct WatchingCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack {
+      // The label, then its note; the note goes under it at large text sizes.
+      RowStack {
         CardLabel(L10n.Watching.title)
         Spacer()
         if let watching, watching.total > watching.rows.count {

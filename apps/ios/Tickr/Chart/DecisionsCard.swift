@@ -92,11 +92,14 @@ private struct DecisionRow: View {
       .padding(.top, Tokens.Space.xs)
     } label: {
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        HStack(spacing: Tokens.Space.s) {
+        // Time, action, strategy and the observer mark wrap as whole pieces at large text sizes.
+        ChipFlow(spacing: Tokens.Space.s) {
           Text(decision.at.date, format: ChartFormat.time)
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textTertiary)
+            .lineLimit(1)
           Text(decision.action.title)
+            .lineLimit(1)
             .font(Tokens.Typography.annotationBold)
             .padding(.horizontal, Tokens.Space.s)
             .padding(.vertical, Tokens.Space.xxs)
@@ -110,6 +113,7 @@ private struct DecisionRow: View {
             Text(ChartText.observer)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.highlight)
+              .lineLimit(1)
           }
         }
         if run.count > 1 {

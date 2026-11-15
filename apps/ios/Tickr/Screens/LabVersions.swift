@@ -30,7 +30,8 @@ struct VersionsCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack {
+      // The label, then its note; the note goes under it at large text sizes.
+      RowStack {
         CardLabel(L10n.Lab.versions)
         Spacer()
         Text(L10n.Lab.noOrders)
@@ -70,19 +71,24 @@ struct VersionsCard: View {
           .foregroundStyle(Palette.textTertiary)
       }
       ForEach(curves) { curve in
-        HStack(spacing: Tokens.Space.s) {
-          Capsule().fill(color(curve)).frame(width: Self.swatchWidth, height: Self.swatchHeight)
-          Text(L10n.Common.strategyVersion(curve.name, curve.version))
-            .font(Tokens.Typography.calloutMono)
-            .foregroundStyle(Palette.textPrimary)
-          Text(curve.observer ? L10n.Lab.observerRole : L10n.Lab.activeRole)
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(color(curve))
-          Spacer()
+        // The name and role, then the total; at large text sizes the total goes under them.
+        RowStack(spacing: Tokens.Space.s) {
+          HStack(spacing: Tokens.Space.s) {
+            Capsule().fill(color(curve)).frame(width: Self.swatchWidth, height: Self.swatchHeight)
+            Text(L10n.Common.strategyVersion(curve.name, curve.version))
+              .font(Tokens.Typography.calloutMono)
+              .foregroundStyle(Palette.textPrimary)
+            Text(curve.observer ? L10n.Lab.observerRole : L10n.Lab.activeRole)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(color(curve))
+          }
+          Spacer(minLength: 0)
           if let total = curve.total {
             Text(verbatim: Money.signed(total))
               .font(Tokens.Typography.calloutMono.bold())
               .foregroundStyle(Palette.result(total))
+              .lineLimit(1)
+              .fixedSize()
           } else {
             Text(L10n.Lab.partial)
               .font(Tokens.Typography.annotation)

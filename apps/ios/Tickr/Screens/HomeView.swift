@@ -201,6 +201,8 @@ private struct DayLine: View {
 private struct Summary: View {
   /// Side of the result ring, in points.
   static let ringSide: CGFloat = 136
+  /// Lines the wins and losses may take inside the ring ("1 в плюс · 5 в минусе" wraps in Russian).
+  static let winsLossesLines = 2
   /// Symbol of a closed trading gate.
   static let gateClosedSymbol = "lock.fill"
   /// Symbols of the entries glyph: allowed, paused by the owner, calm "not now", blocked.
@@ -243,7 +245,8 @@ private struct Summary: View {
           }
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .lineLimit(1)
+          .multilineTextAlignment(.center)
+          .lineLimit(Self.winsLossesLines)
           .minimumScaleFactor(Tokens.Shrink.tight)
         }
         .padding(Tokens.Space.l)
@@ -538,7 +541,8 @@ private struct LiveFlowCard: View {
       NavigationLink {
         RiskView()
       } label: {
-        HStack {
+        // The label, then its note; the note goes under it at large text sizes.
+        RowStack {
           CardLabel(L10n.Flow.title)
           Spacer()
           if !current {
@@ -801,9 +805,11 @@ private struct LatestEventLine: View {
   }
 
   var body: some View {
-    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+    // At large text sizes the time, the tag and the text each take a line, so none is cut short.
+    RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       Text(L10n.Home.clockET(Format.clock(time)))
         .foregroundStyle(Palette.textQuaternary)
+        .fixedSize()
       // The tag is short and says what happened: it never gives way; the text wraps instead.
       Text(verbatim: tag).bold().textCase(.uppercase).foregroundStyle(color).fixedSize()
       Text(verbatim: text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)

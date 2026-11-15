@@ -24,16 +24,20 @@ struct LabView: View {
       ConnectionPrompt()
       if let status = model.status {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          HStack {
+          // The label, then its note; the note goes under it at large text sizes.
+          RowStack {
             CardLabel(L10n.Lab.active)
             Spacer()
             StatusPill(L10n.Lab.trades, systemImage: Self.tradesSymbol, tone: .accent)
           }
-          HStack(spacing: Tokens.Space.s) {
-            PulseDot(Palette.accent, pulsing: model.response?.stale == false, event: status.strategy)
-            Text(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version))
-              .font(.subheadline.monospaced().weight(.semibold))
-            Spacer()
+          // The result goes under the name at large text sizes, so neither breaks mid-word.
+          RowStack(spacing: Tokens.Space.s) {
+            HStack(spacing: Tokens.Space.s) {
+              PulseDot(Palette.accent, pulsing: model.response?.stale == false, event: status.strategy)
+              Text(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version))
+                .font(.subheadline.monospaced().weight(.semibold))
+            }
+            Spacer(minLength: 0)
             DeltaTag(status.resultTodayGrossUsd.value, text: Money.signed(status.resultTodayGrossUsd.value))
           }
         }
@@ -190,12 +194,14 @@ private struct ObserverRow: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      HStack(spacing: Tokens.Space.s) {
-        StateGlyph(LabView.observerSymbol, tone: .highlight,
-          label: L10n.Common.strategyVersion(summary.name, summary.version), style: .compact)
-        Text(L10n.Common.strategyVersion(summary.name, summary.version))
-          .font(.subheadline.monospaced().weight(.semibold))
-        Spacer()
+      RowStack(spacing: Tokens.Space.s) {
+        HStack(spacing: Tokens.Space.s) {
+          StateGlyph(LabView.observerSymbol, tone: .highlight,
+            label: L10n.Common.strategyVersion(summary.name, summary.version), style: .compact)
+          Text(L10n.Common.strategyVersion(summary.name, summary.version))
+            .font(.subheadline.monospaced().weight(.semibold))
+        }
+        Spacer(minLength: 0)
         if let result = summary.result {
           DeltaTag(result, text: Money.signed(result))
         } else {

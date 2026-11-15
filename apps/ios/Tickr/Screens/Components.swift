@@ -134,9 +134,9 @@ enum Format {
 }
 
 extension DynamicTypeSize {
-  /// Rows of several parts (a symbol, figures, a tag) stack their parts from the largest standard
-  /// text size up, so words and figures stay whole instead of breaking letter by letter.
-  var stacksRows: Bool { self >= .xxxLarge }
+  /// Rows of several parts (a symbol, figures, a tag) stack their parts from XXL up, so words and
+  /// figures stay whole instead of breaking letter by letter (Russian names need it from XXL).
+  var stacksRows: Bool { self >= .xxLarge }
 }
 
 /// A row at ordinary text sizes that becomes a leading-aligned column when the text size
