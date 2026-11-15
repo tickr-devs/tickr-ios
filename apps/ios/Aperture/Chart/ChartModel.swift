@@ -69,6 +69,18 @@ final class ChartModel {
       selectedDay == WireDate(newYorkDateOf: status.writtenAt.date) else { return [] }
     return status.positions.map(\.symbol)
   }
+  /// The bot's open position on the chosen symbol, when the chosen day is the day of its status
+  /// and that status is fresh; an old status proves nothing about what is open now.
+  var openPosition: Position? {
+    let app = Container.shared.appModel()
+    guard app.isFresh, let symbol, openSymbols.contains(symbol) else { return nil }
+    return app.status?.positions.first { $0.symbol == symbol }
+  }
+  /// Where the trading strategy began watching and said enter on the chosen symbol's candles.
+  var events: [ChartEvent] {
+    guard let series, let decisions = shownDecisions else { return [] }
+    return ChartEvent.make(decisions.decisions, candles: series.candles)
+  }
   /// Trades of the chosen symbol closed on the chosen day.
   var trades: [DayTrade] { day?.trades.filter { $0.symbol == symbol } ?? [] }
   /// Whether the chosen day is today in New York on the bot's clock, so its bars still grow.

@@ -885,6 +885,76 @@
         }
       }
     },
+    "chart.bars" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld bar"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld bars"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld свечи"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld свечей"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld свеча"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld свечи"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chart.caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ · drag to scroll · touch and hold to read"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ · листайте · удерживайте, чтобы прочитать свечу"
+          }
+        }
+      }
+    },
     "chart.day" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1140,6 +1210,23 @@
         }
       }
     },
+    "chart.event.refused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry refused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход отклонён"
+          }
+        }
+      }
+    },
     "chart.exit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1170,23 +1257,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не удалось загрузить график"
-          }
-        }
-      }
-    },
-    "chart.hint" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch and hold the chart to read a candle."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нажмите и удерживайте график, чтобы увидеть свечу."
           }
         }
       }
@@ -1272,6 +1342,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Онлайн"
+          }
+        }
+      }
+    },
+    "chart.live.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrolls to the newest candle."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прокручивает к последней свече."
           }
         }
       }
@@ -1578,6 +1665,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "График"
+          }
+        }
+      }
+    },
+    "chart.todayLive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "today · live"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "сегодня · онлайн"
           }
         }
       }

@@ -3,8 +3,10 @@ import ApertureKit
 import Charts
 import SwiftUI
 
-/// Candles with the bot's indicator lines, the trades' entry, exit and stop, and volume underneath.
-/// Scrolls sideways through the day; touch and hold to read one candle.
+/// Candles with the bot's indicator lines, the trades' entry, exit and stop, the strategy's watch and
+/// entry marks, and volume underneath. Scrolls sideways through the day; touch and hold to read
+/// one candle. Which stretch of the day is on screen lives in `viewport`, so the controls under the
+/// chart can zoom it and bring back the newest candle.
 struct CandleChart: View {
   /// Which lines are drawn.
   struct Lines: Equatable {
@@ -28,12 +30,6 @@ struct CandleChart: View {
   static let volumeHeight: CGFloat = 64
   /// Share of a candle's time slot its body fills; the rest is the gap between candles.
   static let bodyShare = 0.64
-  /// Candles on screen when the chart opens, and the fewest and most zooming allows.
-  static let defaultVisible = 40.0
-  static let fewestVisible = 15.0
-  static let mostVisible = 390.0
-  /// How much one zoom step changes the number of candles on screen.
-  static let zoomStep = 1.5
   /// Space above and below the visible prices, as a share of their range.
   static let pricePadding = 0.08
   /// Value labels on the volume and ATR panes' scales.
@@ -43,28 +39,29 @@ struct CandleChart: View {
   static let axisLabelWidth: CGFloat = 44
   /// Smallest scale the readout line may shrink to before it truncates.
   static let readoutMinimumScale = 0.7
+  /// Size of a watch or entry mark on its candle, in points.
+  static let eventSize: CGFloat = 60
 
   let series: ChartSeries
   /// The ATR line, one value per candle of `series`.
   let atr: [Double?]
   let trades: [DayTrade]
+  /// The bot's open position on this symbol, when the chart is of its status's day.
+  let position: Position?
+  /// The trading strategy's watch and entry marks.
+  let events: [ChartEvent]
   let lines: Lines
+  @Binding var viewport: ChartViewport
 
-  @State private var visible = CandleChart.defaultVisible
-  @State private var scroll = Date.distantPast
   @State private var selected: Date?
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack {
-        readout
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(selected == nil ? Palette.textQuaternary : Palette.textSecondary)
-          .lineLimit(1)
-          .minimumScaleFactor(Self.readoutMinimumScale)
-        Spacer(minLength: Tokens.Space.s)
-        zoomButtons
-      }
+      readout
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(selected == nil ? Palette.textQuaternary : Palette.textSecondary)
+        .lineLimit(1)
+        .minimumScaleFactor(Self.readoutMinimumScale)
       priceChart
         .frame(height: Self.priceHeight)
       if lines.volume {
@@ -81,11 +78,11 @@ struct CandleChart: View {
     .padding(Tokens.Space.l)
     .apertureCard()
     .animation(Tokens.Motion.standard, value: lines)
-    .onAppear { followEnd() }
-    .onChange(of: series.timeframe) { followEnd() }
+    .onAppear { viewport.followEnd(series) }
+    .onChange(of: series.timeframe) { viewport.followEnd(series) }
     .onChange(of: series.candles.last) { old, _ in
       // Keep following the newest candle when it was already in view.
-      if let old, old.end >= scroll.addingTimeInterval(window) { followEnd() }
+      if let old, old.end >= viewport.scroll.addingTimeInterval(window) { viewport.followEnd(series) }
     }
     .sensoryFeedback(.selection, trigger: selectedCandle)
   }
@@ -103,8 +100,14 @@ struct CandleChart: View {
       ForEach(trades) { trade in
         tradeMarks(trade)
       }
+      if let position {
+        positionMarks(position)
+      }
+      ForEach(events) { event in
+        eventMark(event)
+      }
       if let candle = selectedCandle {
-        RuleMark(x: .value(String(localized: ChartText.axisTime), middle(candle)))
+        RuleMark(x: .value(Plot.time, middle(candle)))
           .foregroundStyle(Palette.textTertiary)
           .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
       }
@@ -119,8 +122,17 @@ struct CandleChart: View {
           axisLabel(value, ChartFormat.price, Palette.textQuaternary)
         }
       }
+      // Coloured tags over the scale: the last price, entries and stops.
+      let tags = priceTags
+      AxisMarks(position: .trailing, values: tags.map(\.price)) { value in
+        AxisValueLabel {
+          if tags.indices.contains(value.index) {
+            priceTag(tags[value.index])
+          }
+        }
+      }
     }
-    .modifier(Scrolling(window: window, domain: timeDomain, scroll: $scroll))
+    .modifier(Scrolling(window: window, domain: timeDomain, scroll: $viewport.scroll))
     .chartXSelection(value: $selected)
     .chartPlotStyle { $0.background(Palette.surfaceSunken) }
     .accessibilityLabel(Text(ChartText.title))
@@ -129,21 +141,23 @@ struct CandleChart: View {
   private var volumeChart: some View {
     Chart(series.candles) { candle in
       RectangleMark(
-        xStart: .value(String(localized: ChartText.axisTime), bodyStart(candle)),
-        xEnd: .value(String(localized: ChartText.axisTime), bodyEnd(candle)),
-        yStart: .value(String(localized: ChartText.volume), 0),
-        yEnd: .value(String(localized: ChartText.volume), candle.volume))
-        .foregroundStyle((candle.isUp ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.faint))
+        xStart: .value(Plot.time, bodyStart(candle)),
+        xEnd: .value(Plot.time, bodyEnd(candle)),
+        yStart: .value(Plot.volume, 0),
+        yEnd: .value(Plot.volume, candle.volume))
+        .foregroundStyle((candle.isUp ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.border))
     }
     .chartXAxis(.hidden)
     .chartYAxis {
-      AxisMarks(position: .trailing, values: .automatic(desiredCount: Self.paneAxisMarks)) { value in
+      // No scale, as in the design; an empty label as wide as the price scale keeps the bars under
+      // their candles.
+      AxisMarks(position: .trailing, values: [Double.zero]) { _ in
         AxisValueLabel {
-          axisLabel(value, ChartFormat.volume, Palette.textQuaternary)
+          Color.clear.frame(width: Self.axisLabelWidth)
         }
       }
     }
-    .modifier(Scrolling(window: window, domain: timeDomain, scroll: $scroll))
+    .modifier(Scrolling(window: window, domain: timeDomain, scroll: $viewport.scroll))
     .accessibilityHidden(true)
   }
 
@@ -153,8 +167,8 @@ struct CandleChart: View {
       ForEach(Array(zip(series.candles, atr)), id: \.0.id) { candle, value in
         if let value {
           LineMark(
-            x: .value(String(localized: ChartText.axisTime), middle(candle)),
-            y: .value(String(localized: ChartText.atr(Indicators.atrPeriod)), value))
+            x: .value(Plot.time, middle(candle)),
+            y: .value(Plot.atr, value))
             .foregroundStyle(Palette.seriesATR)
             .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.regular))
         }
@@ -169,7 +183,7 @@ struct CandleChart: View {
       }
     }
     .chartYScale(domain: .automatic(includesZero: false))
-    .modifier(Scrolling(window: window, domain: timeDomain, scroll: $scroll))
+    .modifier(Scrolling(window: window, domain: timeDomain, scroll: $viewport.scroll))
     .overlay(alignment: .topLeading) {
       Text(ChartText.atr(Indicators.atrPeriod))
         .font(Tokens.Typography.badge)
@@ -183,24 +197,24 @@ struct CandleChart: View {
   private func candleMarks(_ candle: Candle) -> some ChartContent {
     let colour = candle.isUp ? Palette.profit : Palette.loss
     RuleMark(
-      x: .value(String(localized: ChartText.axisTime), middle(candle)),
-      yStart: .value(String(localized: ChartText.axisPrice), candle.low),
-      yEnd: .value(String(localized: ChartText.axisPrice), candle.high))
+      x: .value(Plot.time, middle(candle)),
+      yStart: .value(Plot.price, candle.low),
+      yEnd: .value(Plot.price, candle.high))
       .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin))
       .foregroundStyle(colour)
     if candle.open == candle.close {
       RuleMark(
-        xStart: .value(String(localized: ChartText.axisTime), bodyStart(candle)),
-        xEnd: .value(String(localized: ChartText.axisTime), bodyEnd(candle)),
-        y: .value(String(localized: ChartText.axisPrice), candle.close))
+        xStart: .value(Plot.time, bodyStart(candle)),
+        xEnd: .value(Plot.time, bodyEnd(candle)),
+        y: .value(Plot.price, candle.close))
         .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.regular))
         .foregroundStyle(colour)
     } else {
       RectangleMark(
-        xStart: .value(String(localized: ChartText.axisTime), bodyStart(candle)),
-        xEnd: .value(String(localized: ChartText.axisTime), bodyEnd(candle)),
-        yStart: .value(String(localized: ChartText.axisPrice), candle.open),
-        yEnd: .value(String(localized: ChartText.axisPrice), candle.close))
+        xStart: .value(Plot.time, bodyStart(candle)),
+        xEnd: .value(Plot.time, bodyEnd(candle)),
+        yStart: .value(Plot.price, candle.open),
+        yEnd: .value(Plot.price, candle.close))
         .foregroundStyle(colour)
     }
   }
@@ -211,9 +225,9 @@ struct CandleChart: View {
       ForEach(Array(zip(series.candles, values)), id: \.0.id) { candle, value in
         if let value {
           LineMark(
-            x: .value(String(localized: ChartText.axisTime), middle(candle)),
-            y: .value(String(localized: ChartText.axisPrice), value),
-            series: .value(String(localized: ChartText.axisLine), id))
+            x: .value(Plot.time, middle(candle)),
+            y: .value(Plot.price, value),
+            series: .value(Plot.line, id))
             .foregroundStyle(colour)
             .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.regular))
             .interpolationMethod(.monotone)
@@ -226,37 +240,107 @@ struct CandleChart: View {
   private func tradeMarks(_ trade: DayTrade) -> some ChartContent {
     let entry = ChartFormat.double(trade.entryPrice)
     let exit = ChartFormat.double(trade.exitPrice)
-    RuleMark(y: .value(String(localized: ChartText.entry), entry))
-      .foregroundStyle(Palette.info.opacity(Tokens.Opacity.border))
-      .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
-      .annotation(position: .top, alignment: .leading) {
-        levelTag(ChartText.entry, entry, Palette.infoText)
-      }
-    if let stop = trade.stopPrice.map(ChartFormat.double) {
-      RuleMark(y: .value(String(localized: ChartText.stop), stop))
-        .foregroundStyle(Palette.loss.opacity(Tokens.Opacity.border))
-        .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
-        .annotation(position: .bottom, alignment: .leading) {
-          levelTag(ChartText.stop, stop, Palette.lossText)
-        }
-    }
+    levelLines(entry: entry, stop: trade.stopPrice.map(ChartFormat.double))
     PointMark(
-      x: .value(String(localized: ChartText.axisTime), trade.openedAt.date),
-      y: .value(String(localized: ChartText.entry), entry))
+      x: .value(Plot.time, trade.openedAt.date),
+      y: .value(Plot.entry, entry))
       .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info) }
     PointMark(
-      x: .value(String(localized: ChartText.axisTime), trade.closedAt.date),
-      y: .value(String(localized: ChartText.exit), exit))
+      x: .value(Plot.time, trade.closedAt.date),
+      y: .value(Plot.exit, exit))
       .symbol { marker(Image(systemName: "arrowtriangle.down.fill"), Palette.result(trade.resultGrossUsd.value)) }
   }
 
-  private func levelTag(_ title: LocalizedStringResource, _ price: Double, _ colour: Color) -> some View {
-    HStack(spacing: Tokens.Space.xxs) {
-      Text(title)
-      Text(price, format: ChartFormat.price)
+  /// The open position's entry and stop, with the entry marked at its time.
+  @ChartContentBuilder
+  private func positionMarks(_ position: Position) -> some ChartContent {
+    let entry = ChartFormat.double(position.entryPrice)
+    levelLines(entry: entry, stop: position.stop.price.map(ChartFormat.double),
+      protected: position.stop.state.isProtected)
+    PointMark(
+      x: .value(Plot.time, position.openedAt.date),
+      y: .value(Plot.entry, entry))
+      .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info) }
+  }
+
+  /// Dashed lines across the chart at an entry and its stop; a stop the broker has not proven
+  /// working is amber, not red.
+  @ChartContentBuilder
+  private func levelLines(entry: Double, stop: Double?, protected: Bool = true) -> some ChartContent {
+    RuleMark(y: .value(Plot.entry, entry))
+      .foregroundStyle(Palette.info.opacity(Tokens.Opacity.border))
+      .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
+    if let stop {
+      RuleMark(y: .value(Plot.stop, stop))
+        .foregroundStyle(Self.stopColour(protected: protected).opacity(Tokens.Opacity.border))
+        .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
     }
-    .font(Tokens.Typography.badge)
-    .foregroundStyle(colour)
+  }
+
+  /// A dot on the candle where the strategy began watching (amber), said enter (blue) or was
+  /// refused an entry (grey).
+  private func eventMark(_ event: ChartEvent) -> some ChartContent {
+    PointMark(
+      x: .value(Plot.time, event.candle.addingTimeInterval(series.timeframe.seconds / 2)),
+      y: .value(Plot.price, event.price))
+      .symbolSize(Self.eventSize)
+      .foregroundStyle(Self.colour(event.kind))
+      .accessibilityLabel(Text(Self.title(event.kind)))
+  }
+
+  static func stopColour(protected: Bool) -> Color {
+    protected ? Palette.loss : Palette.warning
+  }
+
+  static func colour(_ kind: ChartEvent.Kind) -> Color {
+    switch kind {
+    case .watch: Palette.warning
+    case .enter: Palette.info
+    case .refused: Palette.textQuaternary
+    }
+  }
+
+  static func title(_ kind: ChartEvent.Kind) -> LocalizedStringResource {
+    switch kind {
+    case .watch: ChartText.verdictWatch
+    case .enter: ChartText.verdictEnter
+    case .refused: ChartText.refusedEntry
+    }
+  }
+
+  /// A level shown as a coloured tag over the price scale.
+  struct PriceTag: Hashable {
+    let price: Double
+    let fill: Color
+  }
+
+  /// The last close, then each entry and stop on the chart (the trades' and the open position's).
+  private var priceTags: [PriceTag] {
+    var tags: [PriceTag] = []
+    var levels = trades.map { (ChartFormat.double($0.entryPrice), $0.stopPrice.map(ChartFormat.double), true) }
+    if let position {
+      levels.append((ChartFormat.double(position.entryPrice), position.stop.price.map(ChartFormat.double),
+        position.stop.state.isProtected))
+    }
+    for (entry, stop, protected) in levels {
+      tags.append(PriceTag(price: entry, fill: Palette.info))
+      if let stop { tags.append(PriceTag(price: stop, fill: Self.stopColour(protected: protected))) }
+    }
+    if let last = series.candles.last {
+      tags.append(PriceTag(price: last.close, fill: last.isUp ? Palette.profit : Palette.loss))
+    }
+    return tags
+  }
+
+  private func priceTag(_ tag: PriceTag) -> some View {
+    Text(tag.price, format: ChartFormat.price)
+      .font(Tokens.Typography.annotationBold)
+      .foregroundStyle(Palette.surface)
+      .lineLimit(1)
+      .minimumScaleFactor(Self.readoutMinimumScale)
+      .padding(.horizontal, Tokens.Space.xxs)
+      .frame(width: Self.axisLabelWidth, alignment: .leading)
+      .background(tag.fill, in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
   }
 
   private func marker(_ image: Image, _ colour: Color) -> some View {
@@ -296,28 +380,8 @@ struct CandleChart: View {
         candle.low.formatted(ChartFormat.price), candle.close.formatted(ChartFormat.price),
         candle.volume.formatted(ChartFormat.volume)))
     } else {
-      Text(ChartText.hint)
-    }
-  }
-
-  private var zoomButtons: some View {
-    HStack(spacing: Tokens.Space.xs) {
-      Button { zoom(by: Self.zoomStep) } label: { Image(systemName: "minus.magnifyingglass") }
-        .disabled(visible >= min(Self.mostVisible, Double(series.candles.count)))
-        .accessibilityLabel(Text(ChartText.zoomOut))
-      Button { zoom(by: 1 / Self.zoomStep) } label: { Image(systemName: "plus.magnifyingglass") }
-        .disabled(visible <= Self.fewestVisible)
-        .accessibilityLabel(Text(ChartText.zoomIn))
-    }
-    .buttonStyle(.borderless)
-    .foregroundStyle(Palette.infoText)
-  }
-
-  private func zoom(by factor: Double) {
-    let end = scroll.addingTimeInterval(window)
-    withAnimation(Tokens.Motion.quick) {
-      visible = min(max(visible * factor, Self.fewestVisible), Self.mostVisible)
-      scroll = end.addingTimeInterval(-window)
+      Text(ChartText.caption(String(localized: ChartFormat.title(series.timeframe)),
+        String(localized: ChartText.bars(viewport.barsShown(series)))))
     }
   }
 
@@ -330,20 +394,22 @@ struct CandleChart: View {
   }
 
   /// Seconds of the day on screen.
-  private var window: TimeInterval { visible * series.timeframe.seconds }
+  private var window: TimeInterval { viewport.window(series) }
 
   private var selectedCandle: Candle? {
     guard let selected else { return nil }
     return series.candles.first { $0.start <= selected && selected < $0.end }
   }
 
-  /// Prices of the candles on screen, with a little room above and below.
+  /// Prices of the candles on screen and the open position's entry and stop, with a little room
+  /// above and below.
   private var priceDomain: ClosedRange<Double> {
-    let end = scroll.addingTimeInterval(window)
-    let shown = series.candles.filter { $0.end > scroll && $0.start < end }
+    let end = viewport.scroll.addingTimeInterval(window)
+    let shown = series.candles.filter { $0.end > viewport.scroll && $0.start < end }
     let candles = shown.isEmpty ? series.candles : shown
-    let low = candles.map(\.low).min() ?? 0
-    let high = candles.map(\.high).max() ?? 1
+    let levels = [position?.entryPrice, position?.stop.price].compactMap { $0.map(ChartFormat.double) }
+    let low = (candles.map(\.low) + levels).min() ?? 0
+    let high = (candles.map(\.high) + levels).max() ?? 1
     let pad = max(high - low, high * Self.pricePadding) * Self.pricePadding
     return (low - pad)...(high + pad)
   }
@@ -359,12 +425,65 @@ struct CandleChart: View {
   private func bodyEnd(_ candle: Candle) -> Date {
     candle.end.addingTimeInterval(-series.timeframe.seconds * (1 - Self.bodyShare) / 2)
   }
+}
+
+/// Which stretch of the day the chart shows: how many candles fit on screen and where the view
+/// starts. Kept by the Chart tab so its controls can zoom and follow the newest candle.
+struct ChartViewport: Equatable {
+  /// Candles on screen when the chart opens, and the fewest and most zooming allows.
+  static let defaultVisible = 40.0
+  static let fewestVisible = 15.0
+  static let mostVisible = 390.0
+  /// How much one zoom step changes the number of candles on screen.
+  static let zoomStep = 1.5
+
+  var visible = ChartViewport.defaultVisible
+  var scroll = Date.distantPast
+
+  /// Seconds of the day on screen.
+  func window(_ series: ChartSeries) -> TimeInterval { visible * series.timeframe.seconds }
+
+  /// Candles on screen: the zoom, or all of them when the day has fewer.
+  func barsShown(_ series: ChartSeries) -> Int {
+    min(Int(visible.rounded()), series.candles.count)
+  }
+
+  func canZoomOut(_ series: ChartSeries) -> Bool {
+    visible < min(Self.mostVisible, Double(series.candles.count))
+  }
+
+  var canZoomIn: Bool { visible > Self.fewestVisible }
+
+  /// Whether the newest candle is on screen.
+  func showsEnd(_ series: ChartSeries) -> Bool {
+    guard let last = series.candles.last else { return true }
+    return last.end <= scroll.addingTimeInterval(window(series))
+  }
+
+  /// Show `factor` times as many candles, keeping the right edge where it is.
+  mutating func zoom(by factor: Double, _ series: ChartSeries) {
+    let end = scroll.addingTimeInterval(window(series))
+    visible = min(max(visible * factor, Self.fewestVisible), Self.mostVisible)
+    scroll = end.addingTimeInterval(-window(series))
+  }
 
   /// Scroll so the newest candle sits at the right edge.
-  private func followEnd() {
+  mutating func followEnd(_ series: ChartSeries) {
     guard let last = series.candles.last, let first = series.candles.first else { return }
-    scroll = max(first.start, last.end.addingTimeInterval(-window))
+    scroll = max(first.start, last.end.addingTimeInterval(-window(series)))
   }
+}
+
+/// Names of the plotted values, read by VoiceOver; built once, not for every mark.
+private enum Plot {
+  static let time = String(localized: ChartText.axisTime)
+  static let price = String(localized: ChartText.axisPrice)
+  static let line = String(localized: ChartText.axisLine)
+  static let volume = String(localized: ChartText.volume)
+  static let entry = String(localized: ChartText.entry)
+  static let stop = String(localized: ChartText.stop)
+  static let exit = String(localized: ChartText.exit)
+  static let atr = String(localized: ChartText.atr(Indicators.atrPeriod))
 }
 
 /// Both panes scroll together through the day and show the same stretch of time.

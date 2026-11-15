@@ -928,8 +928,11 @@ enum ChartText {
     defaultValue: "Volume")
   static let zoomIn = LocalizedStringResource("chart.zoomIn", defaultValue: "Zoom in")
   static let zoomOut = LocalizedStringResource("chart.zoomOut", defaultValue: "Zoom out")
-  static let hint = LocalizedStringResource("chart.hint",
-    defaultValue: "Touch and hold the chart to read a candle.")
+  static let liveHint = LocalizedStringResource("chart.live.hint",
+    defaultValue: "Scrolls to the newest candle.")
+  static let todayLive = LocalizedStringResource("chart.todayLive", defaultValue: "today · live")
+  static let refusedEntry = LocalizedStringResource("chart.event.refused",
+    defaultValue: "Entry refused")
   static let trades = LocalizedStringResource("chart.trades", defaultValue: "Trades")
   static let noTrades = LocalizedStringResource("chart.noTrades",
     defaultValue: "No closed trades on this symbol this day.")
@@ -948,6 +951,18 @@ enum ChartText {
   /// The ATR pane toggle and label, with its period in bars.
   static func atr(_ period: Int) -> LocalizedStringResource {
     LocalizedStringResource("chart.indicator.atr", defaultValue: "ATR \(period)")
+  }
+
+  /// The line above the chart while no candle is read: timeframe and candles on screen (both
+  /// already formatted), and how to move and read the chart.
+  static func caption(_ timeframe: String, _ bars: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.caption",
+      defaultValue: "\(timeframe) · \(bars) · drag to scroll · touch and hold to read")
+  }
+
+  /// Candles on screen, for `caption`.
+  static func bars(_ count: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.bars", defaultValue: "\(count) bars")
   }
 
   /// The crosshair readout of one candle: open, high, low, close, volume (already formatted).

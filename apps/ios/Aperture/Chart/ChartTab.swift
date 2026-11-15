@@ -9,6 +9,7 @@ struct ChartTab: View {
   @Environment(AppModel.self) private var app
   @State private var chart = Container.shared.chartModel()
   @State private var lines = CandleChart.Lines()
+  @State private var viewport = ChartViewport()
 
   var body: some View {
     ScrollView {
@@ -66,8 +67,9 @@ struct ChartTab: View {
           DayHeader(chart: chart, url: url)
           SymbolChips(chart: chart, url: url)
           if let series = chart.series, !series.candles.isEmpty {
-            CandleChart(series: series, atr: chart.atr, trades: chart.trades, lines: lines)
-            ChartControls(chart: chart, lines: $lines)
+            CandleChart(series: series, atr: chart.atr, trades: chart.trades, position: chart.openPosition,
+              events: chart.events, lines: lines, viewport: $viewport)
+            ChartControls(chart: chart, series: series, lines: $lines, viewport: $viewport)
             DayTrades(trades: chart.trades)
             DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
           } else {
@@ -174,12 +176,14 @@ private struct DayHeader: View {
     } label: {
       HStack(spacing: Tokens.Space.xs) {
         if chart.isToday {
-          PulseDot(Palette.accent)
-          Text(ChartText.live)
-            .foregroundStyle(Palette.accentText)
+          PulseDot(Palette.accent, size: Tokens.Size.dotSmall)
         }
         if let day = chart.selectedDay {
           Text(day.noonInNewYork, format: ChartFormat.day)
+        }
+        if chart.isToday {
+          Text(ChartText.todayLive)
+            .foregroundStyle(Palette.accentText)
         }
         Image(systemName: "chevron.up.chevron.down")
           .imageScale(.small)
@@ -221,11 +225,9 @@ private struct SymbolChips: View {
                   .accessibilityLabel(Text(ChartText.traded))
               }
             }
-            .font(Tokens.Typography.calloutMono)
+            .chip(on: selected)
           }
-          .buttonStyle(.bordered)
-          .buttonBorderShape(.capsule)
-          .tint(selected ? Palette.info : Palette.textTertiary)
+          .buttonStyle(.plain)
           .accessibilityAddTraits(selected ? .isSelected : [])
         }
       }
@@ -235,22 +237,48 @@ private struct SymbolChips: View {
   }
 }
 
-/// Timeframe and which lines the chart draws.
+/// Timeframe, zoom and the way back to the newest candle, then which lines the chart draws.
 private struct ChartControls: View {
   let chart: ChartModel
+  let series: ChartSeries
   @Binding var lines: CandleChart.Lines
+  @Binding var viewport: ChartViewport
 
   var body: some View {
     @Bindable var chart = chart
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      Picker(selection: $chart.timeframe) {
+      HStack(spacing: Tokens.Space.s) {
         ForEach(Timeframe.allCases) { timeframe in
-          Text(ChartFormat.title(timeframe)).tag(timeframe)
+          let selected = timeframe == chart.timeframe
+          Button { chart.timeframe = timeframe } label: {
+            Text(ChartFormat.title(timeframe)).chip(on: selected)
+          }
+          .buttonStyle(.plain)
+          .accessibilityAddTraits(selected ? .isSelected : [])
         }
-      } label: {
-        Text(ChartText.timeframe)
+        Spacer(minLength: Tokens.Space.s)
+        Group {
+          Button { zoom(by: ChartViewport.zoomStep) } label: { Image(systemName: "minus") }
+            .disabled(!viewport.canZoomOut(series))
+            .accessibilityLabel(Text(ChartText.zoomOut))
+          Button { zoom(by: 1 / ChartViewport.zoomStep) } label: { Image(systemName: "plus") }
+            .disabled(!viewport.canZoomIn)
+            .accessibilityLabel(Text(ChartText.zoomIn))
+        }
+        .buttonStyle(.borderless)
+        .frame(minWidth: Tokens.Size.iconWell, minHeight: Tokens.Size.iconWell)
+        if chart.isToday {
+          let following = viewport.showsEnd(series)
+          Button {
+            withAnimation(Tokens.Motion.quick) { viewport.followEnd(series) }
+          } label: {
+            Text(ChartText.live).textCase(.uppercase).chip(on: following, tint: Palette.accent, text: Palette.accentText)
+          }
+          .buttonStyle(.plain)
+          .accessibilityHint(Text(ChartText.liveHint))
+          .accessibilityAddTraits(following ? .isSelected : [])
+        }
       }
-      .pickerStyle(.segmented)
       ScrollView(.horizontal) {
         HStack(spacing: Tokens.Space.s) {
           Toggle(isOn: $lines.vwap) { Text(ChartText.vwap) }
@@ -264,13 +292,59 @@ private struct ChartControls: View {
           Toggle(isOn: $lines.atr) { Text(ChartText.atr(Indicators.atrPeriod)) }
             .tint(Palette.seriesATR)
         }
-        .toggleStyle(.button)
-        .buttonStyle(.bordered)
-        .font(Tokens.Typography.captionMono)
+        .toggleStyle(ChipToggleStyle())
       }
       .scrollIndicators(.hidden)
     }
+    .foregroundStyle(Palette.infoText)
     .sensoryFeedback(.selection, trigger: chart.timeframe)
+  }
+
+  private func zoom(by factor: Double) {
+    withAnimation(Tokens.Motion.quick) { viewport.zoom(by: factor, series) }
+  }
+}
+
+/// The design's capsule chip: monospaced, with a coloured border and wash while it is on.
+private struct ChipLook: ViewModifier {
+  let on: Bool
+  let tint: Color
+  let text: Color
+
+  func body(content: Content) -> some View {
+    content
+      .font(Tokens.Typography.captionMono)
+      .foregroundStyle(on ? text : Palette.textTertiary)
+      .padding(.horizontal, Tokens.Space.m)
+      .padding(.vertical, Tokens.Space.s)
+      .background(on ? tint.opacity(Tokens.Opacity.wash) : Palette.surface, in: Capsule())
+      .overlay {
+        Capsule().strokeBorder(on ? tint : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin)
+      }
+      .contentShape(Capsule())
+  }
+}
+
+private extension View {
+  func chip(on: Bool, tint: Color = Palette.info, text: Color = Palette.infoText) -> some View {
+    modifier(ChipLook(on: on, tint: tint, text: text))
+  }
+}
+
+/// A line toggle as a chip: a dot of the line's colour (the toggle's tint), blue border when on.
+private struct ChipToggleStyle: ToggleStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    Button { configuration.isOn.toggle() } label: {
+      HStack(spacing: Tokens.Space.xs) {
+        Circle()
+          .fill(.tint)
+          .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+        configuration.label
+      }
+      .chip(on: configuration.isOn)
+    }
+    .buttonStyle(.plain)
+    .accessibilityAddTraits(configuration.isOn ? .isSelected : [])
   }
 }
 
