@@ -231,6 +231,10 @@ enum L10n {
   }
 
   enum Home {
+    /// The latest event's New York time on Home: "14:06:09 ET".
+    static func clockET(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.clockET", defaultValue: "\(time) ET", bundle: L10n.bundle)
+    }
     static var previousDay: LocalizedStringResource {
       LocalizedStringResource("home.previousDay", defaultValue: "Previous trading day", bundle: L10n.bundle)
     }

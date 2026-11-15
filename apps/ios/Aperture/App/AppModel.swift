@@ -44,6 +44,10 @@ final class AppModel {
   private(set) var flow: FlowV1?
   /// Why the flow could not be read, if it could not.
   private(set) var flowError: String?
+  /// Today's skipped signals (GET /skipped), read with the flow: where a refused symbol stopped.
+  private(set) var skipped: SkippedV1?
+  /// The day the last /flow answer (or failure) was for; until it is today the flow is pending.
+  private(set) var flowAnsweredDay: WireDate?
   private(set) var sending = false
   var notice: Notice?
   var selectedTab: AppTab = .home
@@ -128,6 +132,8 @@ final class AppModel {
     accountError = nil
     flow = nil
     flowError = nil
+    skipped = nil
+    flowAnsweredDay = nil
     start()
   }
 
@@ -199,21 +205,31 @@ final class AppModel {
   func refreshFlow() async {
     guard let url = connection.url else { return }
     let day = today
+    let client = Container.shared.apiClient(connection.endpoint(for: url))
     do {
-      let read = try await Container.shared.apiClient(connection.endpoint(for: url)).flow(day: day)
+      let read = try await client.flow(day: day)
       guard connection.url == url, day == today else { return }
       flow = read
       flowError = nil
+      flowAnsweredDay = day
     } catch is CancellationError {
       return
     } catch {
       // Old counts prove nothing about the day now.
-      if connection.url == url {
-        flow = nil
-        flowError = Self.describe(error)
-      }
+      guard connection.url == url, day == today else { return }
+      flow = nil
+      flowError = Self.describe(error)
+      flowAnsweredDay = day
     }
+    // The refusals only place refused symbols on the board; without them they stay where they
+    // stopped, so a failed read is not an error of its own.
+    let refusals = try? await client.skipped(day: day)
+    guard connection.url == url, day == today else { return }
+    skipped = refusals
   }
+
+  /// The first /flow answer for today has not come yet (a new address, a new day).
+  var flowPending: Bool { flowAnsweredDay != today }
 
   /// Reads today's live flow every `flowSeconds` until cancelled; used while Home is on screen.
   func followFlow() async {
