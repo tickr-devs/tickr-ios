@@ -37,6 +37,9 @@ struct ApertureMacApp: App {
     #endif
     let model = Container.shared.appModel()
     model.start()
+    #if DEBUG
+    LayoutSweep.startIfAsked(model: model)
+    #endif
     // The bot shows its alerts through this app (AlertCommand.swift): ask once, here, where the
     // question can be seen. Not in the UI tests' fixture mode, where nobody could answer.
     var asksForNotifications = AlertPoster.available

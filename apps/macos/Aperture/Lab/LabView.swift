@@ -51,13 +51,17 @@ private struct ActiveStrategyCard: View {
               .font(Tokens.Typography.metric)
               .foregroundStyle(Palette.textPrimary)
           }
+          .fixedSize()
           VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
             CardLabel(L10n.Lab.shownDayResult)
             MoneyText(value: model.shownResult, usd: true, font: Tokens.Typography.metric)
           }
-          Spacer(minLength: Tokens.Space.l)
+          .fixedSize()
+          // The figures keep their one line; the curve takes the room left, so it neither squeezes
+          // them in a narrow window nor leaves a gap before it in a wide one.
           DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
-            .frame(width: Tokens.Size.sideColumn, height: Tokens.Size.sparkline)
+            .frame(maxWidth: .infinity)
+            .frame(height: Tokens.Size.sparkline)
         }
         Footnote(L10n.Lab.swapNote)
       }
@@ -229,15 +233,22 @@ extension Verdict {
 
 /// Replays of a recorded day: skipped signals as if entered, or another strategy.
 private struct ReplayCard: View {
+  @ViewBuilder private var buttons: some View {
+    Button {} label: { Label { Text(L10n.Lab.replayDay) } icon: { Image(systemName: "play.circle") } }
+    Button {} label: { Label { Text(L10n.Lab.skippedSignals) } icon: { Image(systemName: "arrow.uturn.right") } }
+    Button {} label: { Label { Text(L10n.Lab.compare) } icon: { Image(systemName: "square.split.2x1") } }
+  }
+
   var body: some View {
     Card(L10n.Lab.replay, trailing: { PlannedTag(.backlog) }) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         Footnote(L10n.Lab.replayNote)
-        HStack(spacing: Tokens.Space.s) {
-          Button {} label: { Label { Text(L10n.Lab.replayDay) } icon: { Image(systemName: "play.circle") } }
-          Button {} label: { Label { Text(L10n.Lab.skippedSignals) } icon: { Image(systemName: "arrow.uturn.right") } }
-          Button {} label: { Label { Text(L10n.Lab.compare) } icon: { Image(systemName: "square.split.2x1") } }
+        // In a row while they fit whole; one under another rather than cut mid-word.
+        ViewThatFits(in: .horizontal) {
+          HStack(spacing: Tokens.Space.s) { buttons }
+          VStack(alignment: .leading, spacing: Tokens.Space.s) { buttons }
         }
+        .lineLimit(1)
         .disabled(true)
       }
     }

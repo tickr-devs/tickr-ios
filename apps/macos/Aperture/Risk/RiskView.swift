@@ -62,6 +62,8 @@ private struct LossRoomCard: View {
 
   /// Diameter of the ring, in points.
   static let ringSize: CGFloat = 220
+  /// Smallest scale the amount in the ring shrinks to.
+  static let amountMinimumScale = 0.5
   /// Room left below this share of the limit turns the ring amber, below `alarm` red.
   static let calm = 0.5
   static let alarm = 0.2
@@ -96,7 +98,10 @@ private struct LossRoomCard: View {
         ResultRing(fraction: fraction, color: color) {
           VStack(spacing: Tokens.Space.xxs) {
             if let room {
+              // One line inside the ring, shrinking for a long amount ("248.40 USD" wrapped).
               MoneyText(value: room, usd: true, font: Tokens.Typography.hero, colored: false, signed: false)
+                .lineLimit(1)
+                .minimumScaleFactor(Self.amountMinimumScale)
                 .contentTransition(.numericText())
             } else {
               Text(verbatim: Format.missing).font(Tokens.Typography.hero)

@@ -1,0 +1,116 @@
+name: layout-sweep
+# Every screen of both apps at several sizes, in English and Russian (macOS: window sizes and a
+# resize drag that fails on a layout loop; iOS: three iPhones and three Dynamic Type sizes). Costly
+# on macOS runners, so it runs only when asked: the `layout-sweep` label on a pull request, a
+# manual run, or weekly on main. The pictures are kept as the run's artifacts.
+on:
+  pull_request:
+    types: [labeled, synchronize, reopened]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 13 * * 1"
+concurrency:
+  group: layout-sweep-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  # Every screen at several window sizes, Chart inspector closed and open, in English and Russian
+  # (apps/macos/scripts/layout-sweep.sh). Fails when a resize crashes or hangs the app; the
+  # pictures are kept as the run's artifact for checking overlaps and clipped text.
+  macos:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'layout-sweep')
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select the newest installed Xcode
+        run: |
+          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
+      - name: Toolchain id for the build cache
+        run: echo "XCODE_ID=$(xcodebuild -version | head -1 | tr ' ' '-')" >> "$GITHUB_ENV"
+      - name: Cache SwiftPM builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/shared/.build
+            apps/macos/.build
+          key: spm-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Aperture/**') }}
+          restore-keys: spm-${{ runner.os }}-${{ env.XCODE_ID }}-
+      - name: Layout sweep
+        run: apps/macos/scripts/layout-sweep.sh "$RUNNER_TEMP/layout-sweep"
+      - name: Keep the pictures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-layout-sweep
+          path: ${{ runner.temp }}/layout-sweep
+          if-no-files-found: ignore
+  # Every tab, scrolled through, in English and Russian at three Dynamic Type sizes, on the
+  # smallest, a standard and the largest iPhone, against `aperture demo`
+  # (apps/ios/Tests/ApertureUITests/LayoutSweepUITests.swift). The pictures are kept as the run's artifact.
+  ios:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'layout-sweep')
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select the newest Xcode
+        run: |
+          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -n 1)
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Start the demo bot API (port 8776, config/demo.toml)
+        run: |
+          python -m pip install -q -e .
+          aperture demo > "$RUNNER_TEMP/demo.log" 2>&1 &
+          for _ in $(seq 60); do
+            curl -sf http://127.0.0.1:8776/status > /dev/null && exit 0
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/demo.log"
+          exit 1
+      - name: Pick the iPhones (smallest, standard, largest)
+        run: |
+          # By simulator id on the newest iOS runtime, so xcodebuild finds exactly that device.
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, re, subprocess
+          data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"]))
+          runtimes = [r for r in data["devices"] if ".iOS-" in r and data["devices"][r]]
+          newest = max(runtimes, key=lambda r: [int(x) for x in re.findall(r"\d+", r.split("iOS-")[1])])
+          devices = data["devices"][newest]
+          def pick(pattern):
+              return next((d for d in devices if re.search(pattern, d["name"])), None)
+          chosen = [pick(r"iPhone (SE|1\de)"), pick(r"^iPhone \d+$"), pick(r"Pro Max")]
+          ids = " ".join(d["udid"] for d in chosen if d)
+          print(f"SWEEP_DEVICES={ids}")
+          print("picked:", newest, [d["name"] for d in chosen if d], file=__import__("sys").stderr)
+          PY
+      - name: Layout sweep
+        working-directory: apps/ios
+        env:
+          TEST_RUNNER_SWEEP_API: http://127.0.0.1:8776
+        run: |
+          args=()
+          for id in $SWEEP_DEVICES; do args+=("-destination" "id=$id"); done
+          xcodebuild test -project Aperture.xcodeproj -scheme "Aperture iOS Screen Tour" \
+            "${args[@]}" -only-testing:ApertureUITests/LayoutSweepUITests \
+            -resultBundlePath "$RUNNER_TEMP/sweep.xcresult" CODE_SIGNING_ALLOWED=NO \
+            > "$RUNNER_TEMP/sweep.log" 2>&1 || { grep -E "error:|failed|Fail" "$RUNNER_TEMP/sweep.log" | tail -n 60; exit 1; }
+          tail -n 5 "$RUNNER_TEMP/sweep.log"
+      - name: Export the pictures
+        if: always()
+        run: |
+          [ -d "$RUNNER_TEMP/sweep.xcresult" ] || exit 0
+          xcrun xcresulttool export attachments --path "$RUNNER_TEMP/sweep.xcresult" \
+            --output-path "$RUNNER_TEMP/ios-layout-sweep"
+      - name: Keep the pictures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-layout-sweep
+          path: ${{ runner.temp }}/ios-layout-sweep
+          if-no-files-found: ignore

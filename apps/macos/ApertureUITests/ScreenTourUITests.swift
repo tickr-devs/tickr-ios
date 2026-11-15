@@ -104,6 +104,8 @@ final class ScreenTourUITests: XCTestCase {
   }
 
   override func tearDown() async throws {
+    // Each run starts a new copy of the app; close it, or copies pile up between runs.
+    app.terminate()
     if let captureDir {  // ends tour_capture.swift, also after a failure
       FileManager.default.createFile(atPath: captureDir.appending(path: "stop").path, contents: nil)
     }

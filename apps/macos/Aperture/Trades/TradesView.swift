@@ -9,6 +9,14 @@ struct TradesView: View {
   @Environment(AppModel.self) private var model
   @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   @State private var selection: DayTrade.ID?
+  /// Whether the screen is wide enough for the days column beside the trades.
+  @State private var sideBySide = true
+
+  /// Narrowest screen, in points, that shows the days column beside the trades: the column, the
+  /// four figures of the day at full size and the trades table's columns at their least widths.
+  /// Narrower, the days follow the trades (the toolbar's day picker stays at the top). Measured on
+  /// the screen's own width, which the window sets, so the choice never feeds back into it.
+  static let sideBySideMinWidth: CGFloat = 1180
 
   /// Entrance order of the screen's parts.
   private enum Order: Int {
@@ -21,32 +29,57 @@ struct TradesView: View {
     ScrollView {
       content
     }
+    .onGeometryChange(for: Bool.self) { [threshold = Self.sideBySideMinWidth] in $0.size.width >= threshold } action: {
+      sideBySide = $0
+    }
     .onChange(of: model.shownDay) { selection = nil }
   }
 
   private var content: some View {
-    HStack(alignment: .top, spacing: Tokens.Space.l) {
-      DaysColumn()
-        .frame(width: Tokens.Size.sideColumn)
-        .rise(step: Order.days.rawValue)
-      VStack(alignment: .leading, spacing: Tokens.Space.l) {
-        DayStatsRow()
-          .rise(step: Order.stats.rawValue)
-        PerformanceCard()
-          .rise(step: Order.performance.rawValue)
-        TradesTable(selection: $selection, showOnChart: showOnChart)
-          .rise(step: Order.trades.rawValue)
-        TradeDetailCard(trade: model.shownTrades.first { $0.id == selection })
-          .rise(step: Order.detail.rawValue)
-        NotTakenCard(showOnChart: showOnChart)
-          .rise(step: Order.notTaken.rawValue)
-        WhatIfCard()
-          .rise(step: Order.whatIf.rawValue)
+    Group {
+      if sideBySide {
+        HStack(alignment: .top, spacing: Tokens.Space.l) {
+          days.frame(width: Tokens.Size.sideColumn)
+          dayDetail
+        }
+      } else {
+        VStack(alignment: .leading, spacing: Tokens.Space.l) {
+          dayDetail
+          days
+        }
       }
     }
     .padding(Tokens.Space.xl)
     .frame(maxWidth: Tokens.Size.contentMaxWidth)
     .frame(maxWidth: .infinity)
+  }
+
+  private var days: some View {
+    DaysColumn().rise(step: Order.days.rawValue)
+  }
+
+  /// The shown day's figures, trades and replays. Beside the days column, the performance card
+  /// follows the figures as on the design; in the narrower stacked layout the trades come first
+  /// after the figures, so the day's trades are on the first screen of a small window.
+  private var dayDetail: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.l) {
+      DayStatsRow()
+        .rise(step: Order.stats.rawValue)
+      if sideBySide { performance }
+      TradesTable(selection: $selection, showOnChart: showOnChart)
+        .rise(step: Order.trades.rawValue)
+      TradeDetailCard(trade: model.shownTrades.first { $0.id == selection })
+        .rise(step: Order.detail.rawValue)
+      if !sideBySide { performance }
+      NotTakenCard(showOnChart: showOnChart)
+        .rise(step: Order.notTaken.rawValue)
+      WhatIfCard()
+        .rise(step: Order.whatIf.rawValue)
+    }
+  }
+
+  private var performance: some View {
+    PerformanceCard().rise(step: Order.performance.rawValue)
   }
 
   /// Opens the Chart on `symbol` (the shown day stays).
@@ -111,6 +144,13 @@ private struct DayBars: View {
   /// Share of a day's slot its bar fills.
   static let barShare = 0.6
 
+  /// One slot per day the bars cover, oldest first: empty slots before the recorded days, so a
+  /// few days draw as thin bars on the right, not as one bar across the whole card.
+  private var slots: [String] {
+    let empty = (0..<max(0, DaysColumn.shownDays - days.count)).map { "\($0)" }
+    return empty + days.map(\.day.text)
+  }
+
   var body: some View {
     Chart(days) { day in
       let result = NSDecimalNumber(decimal: day.resultGrossUsd.value).doubleValue
@@ -121,6 +161,7 @@ private struct DayBars: View {
         .foregroundStyle(Palette.result(day.resultGrossUsd.value).opacity(day.day == shown ? 1 : Tokens.Opacity.faint))
         .clipShape(.rect(cornerRadius: Tokens.Radius.small / 2))
     }
+    .chartXScale(domain: slots)
     .chartXAxis(.hidden)
     .chartYAxis(.hidden)
     .animation(Tokens.Motion.standard, value: shown)
@@ -179,36 +220,54 @@ private struct DayStatsRow: View {
     return values.reduce(0, +) / Decimal(values.count)
   }
 
+  /// Four figures in a row; two rows of two when the row would have to shrink them.
   var body: some View {
-    HStack(spacing: Tokens.Space.l) {
-      Stat(L10n.Trades.resultGross) {
-        MoneyText(value: model.shownResult, usd: true, font: Tokens.Typography.metric)
-      }
-      Stat(L10n.Trades.trades) {
-        Text(L10n.Trades.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses))
-          .font(Tokens.Typography.metric)
-          .foregroundStyle(Palette.textPrimary)
-      }
-      Stat(L10n.Trades.averageR) {
-        Text(verbatim: averageR.map(Risk.text) ?? Format.missing)
-          .font(Tokens.Typography.metric)
-          .foregroundStyle(averageR.map(Palette.result) ?? Palette.textQuaternary)
-      }
-      Stat(L10n.Trades.bestWorst) {
-        HStack(spacing: Tokens.Space.s) {
-          if let best = results.max(), let worst = results.min() {
-            MoneyText(value: best, usd: true, font: Tokens.Typography.metric)
-            MoneyText(value: worst, usd: true, font: Tokens.Typography.metric)
-          } else {
-            Text(verbatim: Format.missing)
-              .font(Tokens.Typography.metric)
-              .foregroundStyle(Palette.textQuaternary)
-          }
-        }
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: Tokens.Space.l) { result; trades; average; bestWorst }
+      Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
+        GridRow { result; trades }
+        GridRow { average; bestWorst }
       }
     }
     .lineLimit(1)
     .minimumScaleFactor(Self.figureMinimumScale)
+  }
+
+  private var result: some View {
+    Stat(L10n.Trades.resultGross) {
+      MoneyText(value: model.shownResult, usd: true, font: Tokens.Typography.metric)
+    }
+  }
+
+  private var trades: some View {
+    Stat(L10n.Trades.trades) {
+      Text(L10n.Trades.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses))
+        .font(Tokens.Typography.metric)
+        .foregroundStyle(Palette.textPrimary)
+    }
+  }
+
+  private var average: some View {
+    Stat(L10n.Trades.averageR) {
+      Text(verbatim: averageR.map(Risk.text) ?? Format.missing)
+        .font(Tokens.Typography.metric)
+        .foregroundStyle(averageR.map(Palette.result) ?? Palette.textQuaternary)
+    }
+  }
+
+  private var bestWorst: some View {
+    Stat(L10n.Trades.bestWorst) {
+      HStack(spacing: Tokens.Space.s) {
+        if let best = results.max(), let worst = results.min() {
+          MoneyText(value: best, usd: true, font: Tokens.Typography.metric)
+          MoneyText(value: worst, usd: true, font: Tokens.Typography.metric)
+        } else {
+          Text(verbatim: Format.missing)
+            .font(Tokens.Typography.metric)
+            .foregroundStyle(Palette.textQuaternary)
+        }
+      }
+    }
   }
 }
 
@@ -233,9 +292,40 @@ private struct TradesTable: View {
   @Binding var selection: DayTrade.ID?
   let showOnChart: (String) -> Void
 
-  /// The table's height, in points: about eight rows; a busier day scrolls inside the table.
-  /// Fixed, because the screen scrolls and a table has no height of its own.
+  /// Least and preferred widths of the table's columns, in points: the least keeps a time, a
+  /// symbol, a price or a figure whole in a narrow window; the preferred share out a wide one.
+  private enum Column {
+    /// Least and preferred width of each column, in points: the preferred widths add up to
+    /// what a 1000-point window leaves the table, so every column shows without scrolling.
+    static let timeMin: CGFloat = 56
+    static let time: CGFloat = 64
+    static let symbolMin: CGFloat = 52
+    static let symbol: CGFloat = 60
+    static let quantityMin: CGFloat = 36
+    static let quantity: CGFloat = 44
+    static let priceMin: CGFloat = 56
+    static let price: CGFloat = 64
+    static let reasonMin: CGFloat = 96
+    static let reason: CGFloat = 130
+    static let figureMin: CGFloat = 48
+    static let figure: CGFloat = 56
+    static let moneyMin: CGFloat = 76
+    static let money: CGFloat = 88
+  }
+
+  /// The table's height, in points: at most about eight rows; a busier day scrolls inside the
+  /// table. Set from the trade count, because the screen scrolls and a table has no height of its
+  /// own; a fixed height left empty striped rows under a day of two trades.
   static let height: CGFloat = 280
+  /// Height of the header and of one row, and the fewest rows the table is tall for, in points.
+  static let headerHeight: CGFloat = 32
+  static let rowHeight: CGFloat = 28
+  static let fewestRows = 2
+
+  private var tableHeight: CGFloat {
+    let rows = CGFloat(max(model.shownTrades.count, Self.fewestRows))
+    return min(Self.height, Self.headerHeight + rows * Self.rowHeight)
+  }
 
   var body: some View {
     Card(L10n.Trades.tradesOfDay) {
@@ -254,7 +344,7 @@ private struct TradesTable: View {
         .frame(height: Self.height)
       } else {
         table
-          .frame(height: Self.height)
+          .frame(height: tableHeight)
       }
     }
   }
@@ -264,32 +354,41 @@ private struct TradesTable: View {
       TableColumn(Text(L10n.Trades.closed)) { trade in
         Text(verbatim: Format.marketTime(trade.closedAt.date)).font(Tokens.Typography.calloutMono)
       }
+      .width(min: Column.timeMin, ideal: Column.time)
       TableColumn(Text(L10n.Trades.symbol)) { trade in
         Text(verbatim: trade.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
       }
+      .width(min: Column.symbolMin, ideal: Column.symbol)
       TableColumn(Text(L10n.Trades.quantity)) { trade in
         Text(verbatim: Format.quantity(trade.quantity.value)).font(Tokens.Typography.calloutMono)
       }
+      .width(min: Column.quantityMin, ideal: Column.quantity)
       TableColumn(Text(L10n.Trades.entry)) { trade in
         Text(verbatim: Format.price(trade.entryPrice.value)).font(Tokens.Typography.calloutMono)
       }
+      .width(min: Column.priceMin, ideal: Column.price)
       TableColumn(Text(L10n.Trades.exit)) { trade in
         Text(verbatim: Format.price(trade.exitPrice.value)).font(Tokens.Typography.calloutMono)
       }
+      .width(min: Column.priceMin, ideal: Column.price)
       TableColumn(Text(L10n.Trades.stop)) { trade in
         Text(verbatim: Format.price(trade.stopPrice?.value)).font(Tokens.Typography.calloutMono)
       }
+      .width(min: Column.priceMin, ideal: Column.price)
       TableColumn(Text(L10n.Trades.reason)) { trade in
         Badge(verbatim: Board.exitReasonTitle(trade.exitReason), color: Palette.textTertiary)
       }
+      .width(min: Column.reasonMin, ideal: Column.reason)
       TableColumn(Text(L10n.Trades.resultR)) { trade in
         Text(verbatim: trade.resultR.map(Risk.text) ?? Format.missing)
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(trade.resultR.map(Palette.result) ?? Palette.textQuaternary)
       }
+      .width(min: Column.figureMin, ideal: Column.figure)
       TableColumn(Text(L10n.Trades.result)) { trade in
         MoneyText(value: trade.resultGrossUsd.value, usd: true, font: Tokens.Typography.calloutMono)
       }
+      .width(min: Column.moneyMin, ideal: Column.money)
     }
     .contextMenu(forSelectionType: DayTrade.ID.self) { ids in
       if let trade = trade(ids) {

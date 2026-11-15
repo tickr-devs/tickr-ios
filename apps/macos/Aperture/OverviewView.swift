@@ -13,13 +13,28 @@ struct OverviewView: View {
 
   /// Columns of the three-column grid the Positions card spans.
   static let positionsColumns = 2
+  /// Narrowest screen, in points, with the day's result beside the header: the mark, the name,
+  /// its badges and the result column. Measured on the screen's width, which the window sets, so
+  /// the choice never feeds back into it.
+  static let headerBesideResultMinWidth: CGFloat = 1000
+
+  @State private var headerBesideResult = true
 
   var body: some View {
     ScrollView {
       VStack(spacing: Tokens.Space.l) {
-        HStack(alignment: .top, spacing: Tokens.Space.xl) {
-          Header().rise(step: Order.header.rawValue)
-          DayResult().frame(width: Tokens.Size.dayResultWidth).rise(step: Order.result.rawValue)
+        // The day's result beside the header; under it on a narrower screen (side by side they
+        // were wider than a 1000-point window and pushed every card off the right edge).
+        if headerBesideResult {
+          HStack(alignment: .top, spacing: Tokens.Space.xl) {
+            Header().rise(step: Order.header.rawValue)
+            DayResult().frame(width: Tokens.Size.dayResultWidth).rise(step: Order.result.rawValue)
+          }
+        } else {
+          VStack(alignment: .leading, spacing: Tokens.Space.l) {
+            Header().rise(step: Order.header.rawValue)
+            DayResult().rise(step: Order.result.rawValue)
+          }
         }
         LiveFlowCard().rise(step: Order.flow.rawValue)
         WatchingCard().rise(step: Order.watching.rawValue)
@@ -58,6 +73,9 @@ struct OverviewView: View {
       }
       .padding(Tokens.Space.xl)
     }
+    .onGeometryChange(for: Bool.self) { [threshold = Self.headerBesideResultMinWidth] in $0.size.width >= threshold } action: {
+      headerBesideResult = $0
+    }
   }
 
   private var positions: some View {
@@ -82,8 +100,6 @@ struct OverviewView: View {
 private struct Header: View {
   @Environment(AppModel.self) private var model
 
-  /// Lines the banner's detail may wrap to.
-  static let detailLines = 2
   /// Symbols of the trading gate, open and closed.
   static let gateOpenSymbol = "lock.open.fill"
   static let gateClosedSymbol = "lock.fill"
@@ -134,8 +150,12 @@ private struct Header: View {
     return HStack(spacing: Tokens.Space.m) {
       PulseDot(content.color, pulsing: model.isLive, event: content.title)
       Text(verbatim: content.title).font(Tokens.Typography.button).foregroundStyle(content.color)
+        .lineLimit(1)
+        .fixedSize()
       if let detail = content.detail {
-        Text(verbatim: detail).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary).lineLimit(Self.detailLines)
+        // Wraps to as many lines as it needs: a narrow window cut the cause of a block mid-sentence.
+        Text(verbatim: detail).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
     .padding(Tokens.Space.m)

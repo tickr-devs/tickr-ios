@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AC76DE1E718A1FC2C80A35C3 /* LayoutSweepUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA09643889BCE516D40E1EC /* LayoutSweepUITests.swift */; };
 		C592BF68238DEACECCB98410 /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C57B7EAF279211DD8DED155 /* ScreenTourUITests.swift */; };
 		C95E10CD71CC5EADB26FF004 /* ApertureKit in Frameworks */ = {isa = PBXBuildFile; productRef = 992B82DCBD72AB904C2A558D /* ApertureKit */; };
 		E4B899E8C6524F5900D68522 /* ApertureDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 0056EA7ED268F14182406A71 /* ApertureDesign */; };
@@ -27,6 +28,7 @@
 		561AE48F32E9BF69A1449448 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		5B5AD9996EF4117D4AB3F7D4 /* shared */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shared; path = ../shared; sourceTree = SOURCE_ROOT; };
 		6C57B7EAF279211DD8DED155 /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
+		ACA09643889BCE516D40E1EC /* LayoutSweepUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSweepUITests.swift; sourceTree = "<group>"; };
 		DCCA12F70EFA0BF397190B91 /* ApertureUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ApertureUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -78,6 +80,7 @@
 		B605A5F5CC45BFDD811D1039 /* ApertureUITests */ = {
 			isa = PBXGroup;
 			children = (
+				ACA09643889BCE516D40E1EC /* LayoutSweepUITests.swift */,
 				6C57B7EAF279211DD8DED155 /* ScreenTourUITests.swift */,
 			);
 			path = ApertureUITests;
@@ -216,6 +219,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AC76DE1E718A1FC2C80A35C3 /* LayoutSweepUITests.swift in Sources */,
 				C592BF68238DEACECCB98410 /* ScreenTourUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
