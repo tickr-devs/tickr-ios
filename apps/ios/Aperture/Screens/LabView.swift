@@ -6,6 +6,13 @@ import SwiftUI
 /// with the symbols it would have entered, how often the bot agreed and its simulated result.
 /// Approving a version stays on the Mac.
 struct LabView: View {
+  /// Symbol of the version that places orders.
+  static let tradesSymbol = "bolt.fill"
+  /// Symbol of a shadow version that only watches.
+  static let observerSymbol = "eye.fill"
+  /// Symbol in front of a warning that the data is a failed or last read.
+  static let warningSymbol = "exclamationmark.triangle.fill"
+
   /// Order in which the blocks rise in (`rise(step:)`).
   private enum Order: Int { case active = 1, versions, observers, refusals, later }
 
@@ -20,22 +27,14 @@ struct LabView: View {
           HStack {
             CardLabel(L10n.Lab.active)
             Spacer()
-            Text(L10n.Lab.trades)
-              .font(Tokens.Typography.annotation)
-              .padding(.horizontal, Tokens.Space.s)
-              .padding(.vertical, Tokens.Space.xxs)
-              .foregroundStyle(Palette.accentText)
-              .background(Palette.accent.opacity(Tokens.Opacity.glow),
-                in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
+            StatusPill(L10n.Lab.trades, systemImage: Self.tradesSymbol, tone: .accent)
           }
           HStack(spacing: Tokens.Space.s) {
-            PulseDot(Palette.accent)
+            PulseDot(Palette.accent, pulsing: model.response?.stale == false, event: status.writtenAt.date)
             Text(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version))
               .font(.subheadline.monospaced().weight(.semibold))
             Spacer()
-            Text(verbatim: Money.signed(status.resultTodayGrossUsd.value))
-              .font(.subheadline.monospaced().bold())
-              .foregroundStyle(Palette.result(status.resultTodayGrossUsd.value))
+            DeltaTag(status.resultTodayGrossUsd.value, text: Money.signed(status.resultTodayGrossUsd.value))
           }
         }
         .padding(Tokens.Space.l)
@@ -49,9 +48,7 @@ struct LabView: View {
           .rise(step: Order.observers.rawValue)
         RefusalsCard(counts: lab.refusals, failure: lab.refusalsFailure)
           .rise(step: Order.refusals.rawValue)
-        Text(L10n.Lab.later)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
+        InfoCaption(L10n.Lab.later)
           .rise(step: Order.later.rawValue)
       }
     }
@@ -97,20 +94,19 @@ private struct RefusalsCard: View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       CardLabel(L10n.Lab.refusals)
       if let failure {
-        Text(counts == nil ? L10n.Lab.refusalsFailed(failure) : L10n.Watching.stale(failure))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.warningText)
+        InfoCaption(counts == nil ? L10n.Lab.refusalsFailed(failure) : L10n.Watching.stale(failure),
+          systemImage: LabView.warningSymbol, tone: .warning)
       }
       if let counts {
         if counts.isEmpty {
-          Text(L10n.Lab.noRefusals)
-            .font(Tokens.Typography.callout)
-            .foregroundStyle(Palette.textTertiary)
+          InfoCaption(L10n.Lab.noRefusals)
         }
         let most = Double(counts.first?.count ?? 1)
         ForEach(counts) { count in
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            HStack(alignment: .firstTextBaseline) {
+          VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+            HStack(spacing: Tokens.Space.s) {
+              StateGlyph(count.cause?.known?.symbol ?? RefusalCode.unknownSymbol, tone: .warning,
+                label: causeText(count), style: .compact)
               Group {
                 if let code = count.cause?.known {
                   Text(L10n.Cause.title(code))
@@ -127,8 +123,7 @@ private struct RefusalsCard: View {
                 .font(Tokens.Typography.calloutMono.bold())
                 .foregroundStyle(Palette.textPrimary)
             }
-            ProgressView(value: Double(count.count), total: most)
-              .tint(Palette.warning)
+            MeterBar(fraction: Double(count.count) / most, tone: .warning)
               .accessibilityHidden(true)
           }
           .accessibilityElement(children: .combine)
@@ -140,6 +135,13 @@ private struct RefusalsCard: View {
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .apertureCard()
+  }
+
+  /// The cause in words, for its glyph's hint.
+  private func causeText(_ count: RefusalCount) -> Text {
+    if let code = count.cause?.known { return Text(L10n.Cause.title(code)) }
+    if let cause = count.cause { return Text(verbatim: cause.code) }
+    return Text(L10n.Lab.noCause)
   }
 }
 
@@ -155,23 +157,17 @@ private struct ObserversCard: View {
       if let observers = lab.observers {
         // A failed refresh after a good read: the rows stay, marked as the last read.
         if let failure = lab.failure {
-          Text(L10n.Lab.failed(failure))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.warningText)
+          InfoCaption(L10n.Lab.failed(failure), systemImage: LabView.warningSymbol, tone: .warning)
         }
         if observers.observers.isEmpty {
-          Text(L10n.Lab.noObservers)
-            .font(Tokens.Typography.callout)
-            .foregroundStyle(Palette.textTertiary)
+          InfoCaption(L10n.Lab.noObservers)
         }
         ForEach(observers.observers.map { ObserverSummary($0, traded: traded) }) { summary in
           ObserverRow(summary: summary)
             .transition(.opacity.combined(with: .move(edge: .top)))
         }
       } else if let failure = lab.failure {
-        Text(L10n.Lab.failed(failure))
-          .font(Tokens.Typography.callout)
-          .foregroundStyle(Palette.warningText)
+        InfoCaption(L10n.Lab.failed(failure), systemImage: LabView.warningSymbol, tone: .warning)
       } else {
         ProgressView().frame(maxWidth: .infinity)
       }
@@ -183,41 +179,34 @@ private struct ObserversCard: View {
 }
 
 private struct ObserverRow: View {
+  /// Symbol of the overlap with what the bot traded.
+  static let agreementSymbol = "circle.lefthalf.filled"
+
   let summary: ObserverSummary
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
-        Image(systemName: "eye").foregroundStyle(Palette.highlight)
+        StateGlyph(LabView.observerSymbol, tone: .highlight,
+          label: L10n.Common.strategyVersion(summary.name, summary.version), style: .compact)
         Text(L10n.Common.strategyVersion(summary.name, summary.version))
           .font(.subheadline.monospaced().weight(.semibold))
         Spacer()
         if let result = summary.result {
-          Text(verbatim: Money.signed(result))
-            .font(.subheadline.monospaced().bold())
-            .foregroundStyle(Palette.result(result))
+          DeltaTag(result, text: Money.signed(result))
         } else {
-          Text(L10n.Lab.noResult)
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
+          Badge(L10n.Lab.noResult, tone: .neutral)
         }
       }
       if summary.result == nil, let cause = summary.resultCause {
-        Text(verbatim: cause)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
+        InfoCaption(verbatim: cause)
       }
       if let agreement = summary.agreement {
-        ProgressView(value: agreement)
-          .tint(Palette.highlight)
-        Text(L10n.Lab.agreement(summary.shared.count, summary.entered.count,
-          summary.entered.joined(separator: Format.separator)))
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textTertiary)
+        MeterBar(fraction: agreement, tone: .highlight)
+        InfoCaption(L10n.Lab.agreement(summary.shared.count, summary.entered.count,
+          summary.entered.joined(separator: Format.separator)), systemImage: Self.agreementSymbol, tone: .highlight)
       } else {
-        Text(L10n.Lab.noEntries)
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textTertiary)
+        InfoCaption(L10n.Lab.noEntries)
       }
     }
     .accessibilityElement(children: .combine)

@@ -27,6 +27,40 @@ public enum RefusalCode: String, Sendable, CaseIterable {
   case dailyCeiling = "DAILY_CEILING"
   case entryBudget = "ENTRY_BUDGET_UNAVAILABLE"
   case stopBudget = "STOP_BUDGET_UNAVAILABLE"
+
+  /// SF Symbols of the refusal families: the gate or an operator pause, a broker read or
+  /// reconciliation, exposure the bot did not open, the session's hours, the bot's own position or
+  /// order, a pause after a loss, a setup gone, the quote, the price window, size and loss limits,
+  /// and the request budget; and of a cause this app has no words for.
+  public static let gateSymbol = "lock.fill"
+  public static let brokerSymbol = "arrow.triangle.2.circlepath"
+  public static let exposureSymbol = "person.crop.circle.badge.questionmark"
+  public static let sessionSymbol = "clock"
+  public static let ownSymbol = "square.stack.fill"
+  public static let cooldownSymbol = "pause.circle.fill"
+  public static let setupSymbol = "xmark.circle"
+  public static let quoteSymbol = "waveform.path.ecg"
+  public static let priceSymbol = "arrow.up.and.down"
+  public static let sizeSymbol = "scalemass.fill"
+  public static let budgetSymbol = "speedometer"
+  public static let unknownSymbol = "questionmark.circle"
+
+  /// The symbol of this refusal's family, for a row or a glyph next to its words.
+  public var symbol: String {
+    switch self {
+    case .gateClosed, .entryStop: return Self.gateSymbol
+    case .notReconciled, .brokerReadMissing, .brokerReadStale: return Self.brokerSymbol
+    case .unresolvedExposure, .foreignExposure: return Self.exposureSymbol
+    case .halfDay, .outsideSession, .afterLastEntry: return Self.sessionSymbol
+    case .ownPosition, .ownOrder, .positionLimit: return Self.ownSymbol
+    case .cooldown: return Self.cooldownSymbol
+    case .setupInvalidated: return Self.setupSymbol
+    case .quoteMissing, .quoteStale: return Self.quoteSymbol
+    case .priceOutside: return Self.priceSymbol
+    case .quantityBelowOne, .notionalOverCap, .plannedLossOver, .dailyCeiling: return Self.sizeSymbol
+    case .entryBudget, .stopBudget: return Self.budgetSymbol
+    }
+  }
 }
 
 /// The single recorded cause of a refused entry, "CODE: detail", as the bot writes it

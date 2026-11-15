@@ -137,4 +137,12 @@ struct SkippedGroupsTests {
     #expect(cause.until == pause.until)
     #expect(RefusalCount.make([signal]).first?.cause?.until == pause.until)
   }
+
+  @Test("Each refusal family has its symbol")
+  func refusalSymbols() {
+    #expect(RefusalCode.gateClosed.symbol == RefusalCode.gateSymbol)
+    #expect(RefusalCode.cooldown.symbol == RefusalCode.cooldownSymbol)
+    #expect(RefusalCode.quoteStale.symbol == RefusalCode.quoteSymbol)
+    #expect(RefusalCode.dailyCeiling.symbol == RefusalCode.sizeSymbol)
+  }
 }
