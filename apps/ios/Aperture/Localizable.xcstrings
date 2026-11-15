@@ -3609,6 +3609,23 @@
         }
       }
     },
+    "flow.more" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        }
+      }
+    },
     "flow.notCurrent" : {
       "extractionState" : "manual",
       "localizations" : {

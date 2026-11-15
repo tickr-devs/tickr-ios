@@ -52,7 +52,8 @@ struct HomeView: View {
             .apertureCard()
             .rise(step: Order.positions.rawValue)
         }
-        LiveFlowCard(status: status, flow: model.flow?.day == model.today ? model.flow : nil,
+        let todayFlow = model.flow?.day == model.today ? model.flow : nil
+        LiveFlowCard(status: status, flow: todayFlow, marks: FlowBoard.marks(flow: todayFlow, skipped: nil),
           maxPositions: model.settings?.risk.maxOpenPositions,
           current: model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today)
           .rise(step: Order.flow.rawValue)
@@ -350,20 +351,44 @@ private struct PositionRow: View {
   }
 }
 
-/// The live flow as on the design: the stages a setup passes, each a breathing dot in its colour
-/// with what the bot reports for it, and the bot's inputs (quote stream, last broker read) below.
+/// The live flow as on the design: the stages a setup passes, each a dot in its colour with what
+/// the bot reports for it, today's symbols as small dots under the stage they reached (a dot moves
+/// on only when a new read moves it), and the bot's inputs (quote stream, last broker read) below.
 /// A status that is stale, failed or from an earlier session shows still, faint dots and says so.
 /// Tapping it opens Risk (the room and why entries are blocked).
 private struct LiveFlowCard: View {
   let status: StatusV1
   /// Today's flow: stage counts and the day's stops; nil until read.
   let flow: FlowV1?
+  /// Today's symbols, each at the furthest stage it reached; empty until the flow is read.
+  let marks: [FlowMark]
   let maxPositions: Int?
   /// The status is fresh and describes today's session.
   let current: Bool
 
   /// The stages, in the order a setup passes them.
-  private enum StageID: Int { case screen = 0, stocks, strategy, risk, order, stop }
+  private enum StageID: Int {
+    case screen = 0, stocks, strategy, risk, order, stop
+
+    /// The flow stage whose symbols sit under this one.
+    var flowStage: FlowStage {
+      switch self {
+      case .screen: .screeners
+      case .stocks: .universe
+      case .strategy: .strategy
+      case .risk: .risk
+      case .order: .order
+      case .stop: .stop
+      }
+    }
+  }
+
+  @Namespace private var board
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+  /// Symbol dots per row under a stage, and the most shown before "+N".
+  static let poolColumns = 3
+  static let poolCap = 9
 
   private struct Stage: Identifiable {
     let id: StageID
@@ -438,6 +463,8 @@ private struct LiveFlowCard: View {
             column(stage)
           }
         }
+        // A symbol's dot flies to its next stage only when a new read moves it.
+        .animation(reduceMotion ? nil : Tokens.Motion.standard, value: marks)
         HStack(spacing: Tokens.Space.s) {
           StateGlyph(Self.streamSymbol, tone: streamTone,
             label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
@@ -495,8 +522,61 @@ private struct LiveFlowCard: View {
         .lineLimit(1)
         .minimumScaleFactor(FlowDot.minimumScale)
         .contentTransition(.numericText())
+      pool(stage)
     }
     .accessibilityElement(children: .combine)
+  }
+
+  /// Today's symbols at this stage as small dots (left-out ones as outlines), "+N" past the cap.
+  @ViewBuilder
+  private func pool(_ stage: Stage) -> some View {
+    let here = current ? marks.filter { $0.stage == stage.id.flowStage } : []
+    if !here.isEmpty {
+      VStack(spacing: Tokens.Space.xxs) {
+        LazyVGrid(columns: Array(repeating: GridItem(.fixed(Tokens.Size.dotSmall), spacing: Tokens.Space.xxs),
+          count: Self.poolColumns), spacing: Tokens.Space.xxs) {
+          ForEach(here.prefix(Self.poolCap)) { mark in
+            SymbolDot(mark: mark, color: stage.color)
+              .matchedGeometryEffect(id: mark.id, in: board)
+              .transition(.scale.combined(with: .opacity))
+          }
+        }
+        if here.count > Self.poolCap {
+          Text(L10n.Flow.more(here.count - Self.poolCap))
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+        }
+      }
+      .accessibilityHidden(true)
+    }
+  }
+}
+
+/// One of today's symbols on the live flow: filled in its stage's colour, amber while its broker
+/// stop waits, red when it was never confirmed; an outline when the universe left it out. A long
+/// press names it and why.
+private struct SymbolDot: View {
+  let mark: FlowMark
+  let color: Color
+
+  /// Joins the symbol and its note in the hint.
+  static let separator = "\n"
+
+  var body: some View {
+    let fill: Color = switch mark.tone {
+    case .normal: color
+    case .pending: Palette.warning
+    case .alarm: Palette.loss
+    }
+    Group {
+      if mark.refused {
+        Circle().strokeBorder(Palette.loss, lineWidth: Tokens.Stroke.regular)
+      } else {
+        Circle().fill(fill)
+      }
+    }
+    .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+    .hint(verbatim: [mark.id, mark.note].compactMap { $0 }.joined(separator: Self.separator))
   }
 }
 
