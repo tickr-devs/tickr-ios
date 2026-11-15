@@ -27,6 +27,8 @@ public struct BrandMark: View {
   let size: CGFloat
   let live: Bool
   let tone: Tone
+  /// How the line draws itself on appear; nil shows it drawn at once.
+  let drawing: Animation?
 
   /// Points of the line as shares of the mark's side, left to right (POINTS in make_brand_assets.py).
   static let start = CGPoint(x: 0.205, y: 0.51)
@@ -53,10 +55,16 @@ public struct BrandMark: View {
   static let areaIn = 0.45
   static let areaOut = 0.6
 
-  public init(size: CGFloat = Tokens.Size.logo, live: Bool, tone: Tone = .brand) {
+  /// `drawsIn` false shows the mark already drawn: where an opening animation has just put it.
+  public init(size: CGFloat = Tokens.Size.logo, live: Bool, tone: Tone = .brand, drawsIn: Bool = true) {
+    self.init(size: size, live: live, tone: tone, drawing: drawsIn ? Tokens.Motion.draw.delay(Self.drawDelay) : nil)
+  }
+
+  init(size: CGFloat, live: Bool, tone: Tone, drawing: Animation?) {
     self.size = size
     self.live = live
     self.tone = tone
+    self.drawing = drawing
   }
 
   /// The illustration of an empty screen: large and still.
@@ -124,11 +132,12 @@ public struct BrandMark: View {
   }
 
   private func appear() {
-    guard !reduceMotion else {
+    guard !reduceMotion, let drawing else {
       drawn = 1
+      settled = true
       return
     }
-    withAnimation(Tokens.Motion.draw.delay(Self.drawDelay)) {
+    withAnimation(drawing) {
       drawn = 1
     } completion: {
       settled = true

@@ -250,7 +250,12 @@ breaks upward, with a spark at its end.
   current (macOS Overview header, iOS Home bar); still otherwise and with Reduce Motion.
 - iOS opening (`LaunchHandoff`): the app starts exactly as the launch screen, flashes the spark
   once, then flies the mark into Home's bar mark while the background fades (`launchHoldSeconds`,
-  `launchFly`). Reduce Motion: a cross-fade (`launchFadeSeconds`). macOS has no launch screen.
+  `launchFly`). Reduce Motion: a cross-fade (`launchFadeSeconds`).
+- macOS opening (`BrandOpening`, macOS has no launch screen): the first window of a launch opens
+  on the background with the mark (`openingMark`) in its centre, the line draws itself
+  (`openingDrawSeconds`), then the mark flies into Overview's header mark (`openingFly`) as the
+  background fades. Once per launch (`AppModel.openingPlayed`), not on reopening the window.
+  Reduce Motion: the same cross-fade.
 - Empty screens (nothing yet, no trades, bot unreachable) use `BrandMark.empty()` as the
   `ContentUnavailableView` illustration, muted (`.muted`) when the bot cannot be reached. Errors
   keep a warning SF Symbol, so they never look like a calm empty state.

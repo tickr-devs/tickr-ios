@@ -174,6 +174,8 @@ public enum Tokens {
     public static let logoSmall: CGFloat = 26
     /// The brand mark as the illustration of an empty screen.
     public static let emptyMark: CGFloat = 88
+    /// The brand mark in the centre of the macOS opening (BrandOpening).
+    public static let openingMark: CGFloat = 120
     /// The brand mark on the iOS launch screen (LAUNCH_MARK in apps/scripts/make_brand_assets.py).
     public static let launchMark: CGFloat = 160
     /// Height of a sparkline and of a progress bar.
@@ -249,6 +251,11 @@ public enum Tokens {
     public static let launchHoldSeconds = 0.45
     public static let launchFlySeconds = 0.75
     public static let launchFly = Animation.smooth(duration: launchFlySeconds)
+    /// macOS opening (BrandOpening): seconds for the centred mark to draw itself, then its flight
+    /// into the Overview header.
+    public static let openingDrawSeconds = 0.6
+    public static let openingFlySeconds = 0.45
+    public static let openingFly = Animation.smooth(duration: openingFlySeconds)
     /// The cross-fade that replaces the opening animation under Reduce Motion.
     public static let launchFadeSeconds = 0.35
     /// Seconds for one turn of the radar sweep.

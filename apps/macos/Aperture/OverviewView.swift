@@ -90,7 +90,14 @@ private struct Header: View {
 
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
-      BrandMark(live: model.isCurrent)
+      // Drawn at once while the opening flies the mark here; it draws itself on later visits.
+      BrandMark(live: model.isCurrent, drawsIn: model.openingPlayed)
+        .onGeometryChange(for: CGPoint.self) { proxy in
+          let frame = proxy.frame(in: .global)
+          return CGPoint(x: frame.midX, y: frame.midY)
+        } action: { centre in
+          model.overviewMarkCentre = centre
+        }
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         HStack(spacing: Tokens.Space.m) {
           HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
