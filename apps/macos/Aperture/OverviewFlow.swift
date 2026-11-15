@@ -166,8 +166,6 @@ struct WatchingCard: View {
 
   /// Display cap on the rows shown (not an API limit); the card says how many there are in all.
   static let shown = 6
-  /// Width of a closeness bar, in points.
-  static let barWidth: CGFloat = 120
   /// Accessibility id of the card, for the UI tests.
   static let id = "overview-watching"
 
@@ -183,7 +181,7 @@ struct WatchingCard: View {
         if watching.rows.isEmpty {
           Footnote(L10n.Watching.none)
         } else {
-          Grid(alignment: .leading, horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.s) {
+          VStack(spacing: Tokens.Space.s) {
             ForEach(watching.rows.prefix(Self.shown), id: \.symbol) { row in
               WatchingRow(row: row)
             }
@@ -200,17 +198,28 @@ struct WatchingCard: View {
   }
 }
 
+/// One watched symbol as the design draws it: a sunken box with the symbol, its verdict tag and
+/// the time on top, the deciding check below, and a thin bar of how close it is to passing.
 private struct WatchingRow: View {
   let row: WatchingRowV1
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
-    GridRow {
-      Text(verbatim: row.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
-      Badge(row.verdict.title, color: row.verdict.color)
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      HStack(spacing: Tokens.Space.s) {
+        Text(verbatim: row.symbol)
+          .font(Tokens.Typography.chip)
+          .foregroundStyle(Palette.textPrimary)
+        Badge(row.verdict.title, color: row.verdict.color)
+        Spacer(minLength: 0)
+        Text(verbatim: Format.marketMinute(row.at.date))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
       Group {
         if let check = row.decisiveCheck {
           Text(verbatim: check.comparisonText)
-            .foregroundStyle(Palette.textSecondary)
+            .foregroundStyle(Palette.textTertiary)
             .help(Text(verbatim: check.note))
         } else {
           Text(L10n.Watching.noCheck).foregroundStyle(Palette.textQuaternary)
@@ -219,25 +228,38 @@ private struct WatchingRow: View {
       .font(Tokens.Typography.captionMono)
       .lineLimit(1)
       closeness
-      Text(verbatim: Format.marketMinute(row.at.date))
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textQuaternary)
+    }
+    .padding(.horizontal, Tokens.Space.s)
+    .padding(.vertical, Tokens.Space.s)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
     }
   }
 
-  @ViewBuilder private var closeness: some View {
-    if let value = row.closeness?.value {
-      ProgressView(value: NSDecimalNumber(decimal: value).doubleValue)
-        .tint(Palette.accent)
-        .frame(width: WatchingCard.barWidth)
-        .accessibilityLabel(Text(L10n.Watching.closeness))
-        .help(Text(L10n.Watching.closeness))
-    } else {
-      Text(verbatim: Format.missing)
-        .foregroundStyle(Palette.textQuaternary)
-        .frame(width: WatchingCard.barWidth, alignment: .leading)
-        .help(row.closenessCause.map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness))
+  /// How close the deciding check is to passing, as a thin bar in the verdict's colour; empty
+  /// with the cause as its tooltip when the bot cannot say.
+  private var closeness: some View {
+    let share = row.closeness.map { min(max(NSDecimalNumber(decimal: $0.value).doubleValue, 0), 1) }
+    return GeometryReader { proxy in
+      ZStack(alignment: .leading) {
+        if let share {
+          Capsule().fill(Palette.separator)
+          Capsule().fill(row.verdict.color).frame(width: proxy.size.width * share)
+        } else {
+          // Unknown is a dashed outline, never an empty track that reads as 0 %.
+          Capsule().strokeBorder(Palette.separatorStrong,
+            style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+        }
+      }
     }
+    .frame(height: Tokens.Size.barThin)
+    .animation(reduceMotion ? nil : Tokens.Motion.fill, value: share)
+    .help(share == nil ? row.closenessCause.map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness)
+      : Text(L10n.Watching.closeness))
+    .accessibilityLabel(Text(L10n.Watching.closeness))
+    .accessibilityValue(share.map { Text($0, format: .percent) } ?? Text(verbatim: Format.missing))
   }
 }
 

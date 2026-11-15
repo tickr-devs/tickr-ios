@@ -177,6 +177,8 @@ public enum Tokens {
     /// Height of a sparkline and of a progress bar.
     public static let sparkline: CGFloat = 34
     public static let bar: CGFloat = 8
+    /// Height of a thin progress bar inside a row (Watching closely).
+    public static let barThin: CGFloat = 4
     /// Height of the ticker strip.
     public static let ticker: CGFloat = 22
     /// Least width of a symbol chip in the live flow (symbol over screener and change).
