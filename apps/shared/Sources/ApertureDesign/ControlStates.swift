@@ -2,31 +2,34 @@ import SwiftUI
 
 // MARK: - states
 
-/// A state in a capsule: a dot (pulsing while `live`) and a short uppercase word. For things that
-/// are true now: the bot running, entries paused, a stop verified or missing.
+/// A state in a capsule: a dot and a short uppercase word. For things that are true now: the bot
+/// running, entries paused, a stop verified or missing. While `live`, the dot pulses once each time
+/// `event` changes (a new status read); it never loops.
 public struct StatusPill: View {
   let title: Text
   let tone: Tone
   let live: Bool
+  let event: AnyHashable?
 
-  public init(_ title: LocalizedStringResource, tone: Tone, live: Bool = false) {
-    self.init(Text(title), tone: tone, live: live)
+  public init(_ title: LocalizedStringResource, tone: Tone, live: Bool = false, event: AnyHashable? = nil) {
+    self.init(Text(title), tone: tone, live: live, event: event)
   }
 
   /// A state word that is already localized, or data (an environment name).
-  public init(verbatim title: String, tone: Tone, live: Bool = false) {
-    self.init(Text(verbatim: title), tone: tone, live: live)
+  public init(verbatim title: String, tone: Tone, live: Bool = false, event: AnyHashable? = nil) {
+    self.init(Text(verbatim: title), tone: tone, live: live, event: event)
   }
 
-  public init(_ title: Text, tone: Tone, live: Bool = false) {
+  public init(_ title: Text, tone: Tone, live: Bool = false, event: AnyHashable? = nil) {
     self.title = title
     self.tone = tone
     self.live = live
+    self.event = event
   }
 
   public var body: some View {
     HStack(spacing: Tokens.Space.xs) {
-      PulseDot(tone.fill, size: Tokens.Size.dotSmall, pulsing: live)
+      PulseDot(tone.fill, size: Tokens.Size.dotSmall, pulsing: live, event: event)
       title
         .textCase(.uppercase)
         .font(Tokens.Typography.badge)
@@ -96,14 +99,14 @@ public struct Badge: View {
 
 /// A state drawn as a symbol on a tinted tile, no word on screen: a shield for a verified stop, a
 /// pause for paused entries, a waveform for the quote stream. Its `label` is read by VoiceOver and
-/// shown as the pointer's tooltip. `live` pulses the outline.
+/// shown as the pointer's tooltip. While `live`, the outline pulses once each time `event` changes
+/// (a new read that still finds the stop missing); it never loops.
 public struct StateGlyph: View {
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var pulsing = false
   let systemImage: String
   let tone: Tone
   let label: Text
   let live: Bool
+  let event: AnyHashable?
   let style: Style
 
   /// A rounded tile, a circle (the bot's own state), or a small tile inside a row.
@@ -111,15 +114,21 @@ public struct StateGlyph: View {
     case tile, round, compact
   }
 
-  public init(_ systemImage: String, tone: Tone, label: LocalizedStringResource, live: Bool = false, style: Style = .tile) {
-    self.init(systemImage, tone: tone, label: Text(label), live: live, style: style)
+  public init(
+    _ systemImage: String, tone: Tone, label: LocalizedStringResource, live: Bool = false, event: AnyHashable? = nil,
+    style: Style = .tile
+  ) {
+    self.init(systemImage, tone: tone, label: Text(label), live: live, event: event, style: style)
   }
 
-  public init(_ systemImage: String, tone: Tone, label: Text, live: Bool = false, style: Style = .tile) {
+  public init(
+    _ systemImage: String, tone: Tone, label: Text, live: Bool = false, event: AnyHashable? = nil, style: Style = .tile
+  ) {
     self.systemImage = systemImage
     self.tone = tone
     self.label = label
     self.live = live
+    self.event = event
     self.style = style
   }
 
@@ -134,17 +143,7 @@ public struct StateGlyph: View {
       .frame(width: side, height: side)
       .background(tone.fill.opacity(Tokens.Opacity.glow), in: shape)
       .overlay(shape.strokeBorder(tone.fill.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
-      .overlay {
-        if live && !reduceMotion {
-          shape
-            .stroke(tone.fill, lineWidth: Tokens.Stroke.bold)
-            .scaleEffect(pulsing ? Tokens.Motion.glyphPulseScale : 1)
-            .opacity(pulsing ? 0 : Tokens.Opacity.medium)
-            .animation(.easeOut(duration: Tokens.Motion.pulseSeconds).repeatForever(autoreverses: false),
-              value: pulsing)
-            .onAppear { pulsing = true }
-        }
-      }
+      .eventPulse(shape, color: tone.fill, scale: Tokens.Motion.glyphPulseScale, event: live ? event : nil)
       .animation(Tokens.Motion.quick, value: tone)
       .hint(label)
       .accessibilityElement()

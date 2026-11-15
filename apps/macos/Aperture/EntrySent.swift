@@ -28,20 +28,20 @@ enum EntrySent {
   /// The Safety card's row over today's entries (open positions and closed trades): the first
   /// entry sent other than once, else how many have no record, else how many await the broker's
   /// answer, else all once; nil without entries.
-  static func summary(_ entries: [(symbol: String, entry: EntrySend)]) -> (text: String, color: Color)? {
+  static func summary(_ entries: [(symbol: String, entry: EntrySend)]) -> (text: String, tone: Tone)? {
     guard !entries.isEmpty else { return nil }
     if let breach = entries.first(where: { $0.entry.sentOtherThanOnce }), let sends = breach.entry.sends {
-      return (String(localized: L10n.EntrySent.breach(breach.symbol, sends)), Palette.lossText)
+      return (String(localized: L10n.EntrySent.breach(breach.symbol, sends)), .loss)
     }
     let unrecorded = entries.filter { $0.entry.sends == nil }.count
     if unrecorded > 0 {
-      return (String(localized: L10n.EntrySent.unrecorded(unrecorded)), Palette.warningText)
+      return (String(localized: L10n.EntrySent.unrecorded(unrecorded)), .warning)
     }
     let awaiting = entries.filter { awaitsBroker($0.entry) }.count
     if awaiting > 0 {
-      return (String(localized: L10n.EntrySent.awaiting(awaiting)), Palette.warningText)
+      return (String(localized: L10n.EntrySent.awaiting(awaiting)), .warning)
     }
-    return (String(localized: L10n.EntrySent.allOnce(entries.count)), Palette.profitText)
+    return (String(localized: L10n.EntrySent.allOnce(entries.count)), .profit)
   }
 }
 

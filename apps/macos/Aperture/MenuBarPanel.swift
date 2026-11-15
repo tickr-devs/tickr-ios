@@ -139,6 +139,7 @@ private struct MenuPositions: View {
 
 /// One open position: result so far, a bar from the stop up, stop, entry and last.
 struct MenuPosition: View {
+  @Environment(AppModel.self) private var model
   let position: Position
   /// The position with its latest bar; nil until a fresh bar arrives.
   let row: PositionRow?
@@ -178,7 +179,7 @@ struct MenuPosition: View {
       }
       StopTargetBar(progress: progress)
       HStack {
-        StopBadge(state: position.stop.state)
+        StopBadge(state: position.stop.state, compact: true, read: model.status?.freshness.lastBrokerReadAt?.date)
         Spacer()
         Text(L10n.MenuBar.entry(Format.price(position.entryPrice.value)))
         Spacer()
@@ -314,6 +315,11 @@ private struct MenuFooter: View {
   @Environment(AppModel.self) private var model
   @Environment(\.openWindow) private var openWindow
 
+  /// Symbols of the footer's actions.
+  static let openSymbol = "macwindow"
+  static let settingsSymbol = "gearshape"
+  static let quitSymbol = "power"
+
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       HStack {
@@ -328,18 +334,26 @@ private struct MenuFooter: View {
             .contentTransition(.numericText())
         }
       }
-      HStack(spacing: Tokens.Space.m) {
+      HStack(spacing: Tokens.Space.s) {
         Button {
           openWindow(id: WindowID.main)
           NSApplication.shared.activate()
         } label: {
-          Text(L10n.App.openApp)
+          Label { Text(L10n.App.openApp) } icon: { Image(systemName: Self.openSymbol) }
         }
-        SettingsLink { Text(L10n.App.settings) }
+        .buttonStyle(.action(.primary, size: .compact))
         Spacer()
-        Button { NSApplication.shared.terminate(nil) } label: { Text(L10n.App.quit) }
+        SettingsLink {
+          Label { Text(L10n.App.settings) } icon: { Image(systemName: Self.settingsSymbol) }
+        }
+        .buttonStyle(.icon(compact: true))
+        .hint(L10n.App.settings)
+        Button { NSApplication.shared.terminate(nil) } label: {
+          Label { Text(L10n.App.quit) } icon: { Image(systemName: Self.quitSymbol) }
+        }
+        .buttonStyle(.icon(compact: true))
+        .hint(L10n.App.quit)
       }
-      .buttonStyle(.link)
     }
   }
 }

@@ -83,29 +83,26 @@ struct StatLine: View {
   let label: Text
   let value: String
   var color: Color = Palette.textPrimary
+  var symbol: String?
 
-  init(_ label: LocalizedStringResource, value: String, color: Color = Palette.textPrimary) {
+  init(_ label: LocalizedStringResource, value: String, color: Color = Palette.textPrimary, symbol: String? = nil) {
     self.label = Text(label)
     self.value = value
     self.color = color
+    self.symbol = symbol
   }
 
-  init(label: Text, value: String, color: Color = Palette.textPrimary) {
+  init(label: Text, value: String, color: Color = Palette.textPrimary, symbol: String? = nil) {
     self.label = label
     self.value = value
     self.color = color
+    self.symbol = symbol
   }
 
   var body: some View {
-    HStack {
-      label.foregroundStyle(Palette.textTertiary)
-      Spacer(minLength: Tokens.Space.m)
-      Text(verbatim: value)
-        .font(Tokens.Typography.bodyMono)
-        .foregroundStyle(color)
-        .contentTransition(.numericText())
+    ValueRow(label, systemImage: symbol) {
+      Text(verbatim: value).foregroundStyle(color)
     }
-    .font(Tokens.Typography.callout)
   }
 }
 
@@ -131,34 +128,27 @@ extension View {
   }
 }
 
-/// A card: section label on top, optional trailing accessory, then the content.
+/// A card: a section header (glowing tick in the card's tone, label, accessory), then the content.
 struct Card<Trailing: View, Content: View>: View {
   @Environment(\.cardFills) private var fills
   let title: Text
   var tint: Color?
+  var tone: Tone
   let trailing: Trailing
   let content: Content
 
-  init(_ title: LocalizedStringResource, tint: Color? = nil, @ViewBuilder trailing: () -> Trailing,
+  init(_ title: LocalizedStringResource, tint: Color? = nil, tone: Tone = .accent, @ViewBuilder trailing: () -> Trailing,
     @ViewBuilder content: () -> Content) {
     self.title = Text(title)
     self.tint = tint
+    self.tone = tone
     self.trailing = trailing()
     self.content = content()
   }
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack(alignment: .firstTextBaseline) {
-        title
-          .textCase(.uppercase)
-          .font(Tokens.Typography.label)
-          .tracking(Tokens.Typography.labelTracking)
-          .foregroundStyle(Palette.textQuaternary)
-          .accessibilityAddTraits(.isHeader)
-        Spacer()
-        trailing
-      }
+      SectionHeader(title, tone: tone) { trailing }
       content
     }
     .padding(Tokens.Space.l)
@@ -168,37 +158,33 @@ struct Card<Trailing: View, Content: View>: View {
 }
 
 extension Card where Trailing == EmptyView {
-  init(_ title: LocalizedStringResource, tint: Color? = nil, @ViewBuilder content: () -> Content) {
-    self.init(title, tint: tint, trailing: { EmptyView() }, content: content)
+  init(_ title: LocalizedStringResource, tint: Color? = nil, tone: Tone = .accent, @ViewBuilder content: () -> Content) {
+    self.init(title, tint: tint, tone: tone, trailing: { EmptyView() }, content: content)
   }
 }
 
-/// The design's command button: an outlined, softly filled rounded rectangle; a destructive one
-/// is drawn in the loss colour. Used for the bot controls on Overview and in the menu bar.
-struct CommandButtonStyle: ButtonStyle {
-  @Environment(\.isEnabled) private var enabled
-  var destructive = false
-  var compact = false
+/// A quiet "Details ›" action in a card header or under a message: the ghost button with a
+/// chevron, optionally led by a symbol.
+struct MoreButton: View {
+  let title: Text
+  var systemImage: String?
+  let action: () -> Void
 
-  /// How much a button shrinks while pressed.
-  static let pressedScale = 0.97
+  init(_ title: LocalizedStringResource, systemImage: String? = nil, action: @escaping () -> Void) {
+    self.title = Text(title)
+    self.systemImage = systemImage
+    self.action = action
+  }
 
-  func makeBody(configuration: Configuration) -> some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-    let color = destructive ? Palette.lossText : Palette.textPrimary
-    configuration.label
-      .font(Tokens.Typography.button)
-      .foregroundStyle(color)
-      .padding(.horizontal, Tokens.Space.m)
-      .padding(.vertical, compact ? Tokens.Space.s : Tokens.Space.m)
-      .background(destructive ? Palette.loss.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
-      .overlay(
-        shape.strokeBorder(destructive ? Palette.loss.opacity(Tokens.Opacity.border) : Palette.separatorStrong,
-          lineWidth: Tokens.Stroke.thin))
-      .contentShape(shape)
-      .opacity(enabled ? 1 : Tokens.Opacity.faint)
-      .scaleEffect(configuration.isPressed ? Self.pressedScale : 1)
-      .animation(Tokens.Motion.quick, value: configuration.isPressed)
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: Tokens.Space.xs) {
+        if let systemImage { Image(systemName: systemImage) }
+        title
+        Chevron()
+      }
+    }
+    .buttonStyle(.action(.ghost, size: .compact))
   }
 }
 
@@ -219,7 +205,13 @@ struct Footnote: View {
   }
 
   var body: some View {
-    text.font(Tokens.Typography.caption).foregroundStyle(color)
+    Label {
+      text.foregroundStyle(color)
+    } icon: {
+      Image(systemName: InfoCaption.infoSymbol).foregroundStyle(color.opacity(Tokens.Opacity.overlay))
+    }
+    .labelStyle(ControlLabelStyle())
+    .font(Tokens.Typography.caption)
   }
 }
 

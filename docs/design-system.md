@@ -176,13 +176,13 @@ and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` �
 | `fill` | spring 1.2 s, damping 0.9 | Rings, bars, counters filling |
 | `draw` | ease-out 1.4 s | Lines and charts drawing themselves |
 | `stagger` | 0.05 s | Delay between cards of a screen |
-| `pulseSeconds` / `pulseScale` | 2.4 s / ×2.2 | "Live" pulse ring |
-| `breatheSeconds` / `breatheScale` | 2.4 s / ×1.08 | Glows and alarms breathing |
+| `pulseSeconds` / `pulseScale` | 2.4 s / ×2.2 | One pulse ring per real event (never a loop) |
+| `breatheSeconds` / `breatheScale` | 2.4 s / ×1.08 | One swell of a glow when its value changes (never a loop) |
 | `rotationSeconds` | 4 s per turn | Radar sweep |
 | `tickerSpeed` | 22 pt/s | Event ticker (edges fade over 6% of its width) |
 | `pipelineSeconds` | 4.2 s | Light travelling the live flow |
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
-| `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph |
+| `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event |
 | `hintDelay` | 0.45 s | Hover before a hint appears (Mac) |
 
 ## Components
@@ -200,7 +200,7 @@ and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` �
 | Live-flow stage | pipeline | `Size.stage` circle, `Stroke.bold` ring and a soft glow in the stage colour; name in the stage's text colour |
 | Accent | `.tint` | `info` for links, selection and system controls on both apps, never the system blue |
 | Planned tag | BACKLOG / NEEDS API | `highlightText`, dashed `dashFine` outline, `Radius.small` |
-| Pulse dot | `PulseDot` | `Size.dot`, ring per `pulseSeconds` while live |
+| Pulse dot | `PulseDot` | `Size.dot`; while `pulsing`, one ring of `pulseSeconds` each time its `event` changes (a new status read, a fill). Still without an event: nothing on screen moves except on real events |
 | Banner | headline | role text colour, `Opacity.wash` fill, `Radius.medium`, `Space.m` padding |
 
 ## Controls (`Controls.swift`)

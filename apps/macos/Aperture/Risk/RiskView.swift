@@ -77,6 +77,12 @@ private struct LossRoomCard: View {
     return NSDecimalNumber(decimal: room / limit).doubleValue
   }
 
+  /// Symbols of the loss-room figures.
+  static let limitSymbol = "gauge.with.dots.needle.67percent"
+  static let resultSymbol = "plusminus"
+  static let realizedSymbol = "arrow.down.right"
+  static let reservationsSymbol = "lock.circle"
+
   private var color: Color {
     if room == nil { return Palette.textQuaternary }
     if fraction < Self.alarm { return Palette.loss }
@@ -102,12 +108,12 @@ private struct LossRoomCard: View {
         .frame(maxWidth: .infinity)
         .modifier(AlarmPulse(active: room != nil && fraction < Self.alarm))
         VStack(spacing: Tokens.Space.s) {
-          StatLine(L10n.Risk.limit, value: limit.map(Format.usd) ?? Format.missing)
+          StatLine(L10n.Risk.limit, value: limit.map(Format.usd) ?? Format.missing, symbol: Self.limitSymbol)
           StatLine(
             L10n.Risk.resultToday, value: result.map(Money.signedUSD) ?? Format.missing,
-            color: result.map(Palette.result) ?? Palette.textQuaternary)
-          StatLine(L10n.Risk.realizedLoss, value: amount(model.status?.realizedLossTodayUsd))
-          StatLine(L10n.Risk.reservations, value: amount(model.status?.openReservationsUsd))
+            color: result.map(Palette.result) ?? Palette.textQuaternary, symbol: Self.resultSymbol)
+          StatLine(L10n.Risk.realizedLoss, value: amount(model.status?.realizedLossTodayUsd), symbol: Self.realizedSymbol)
+          StatLine(L10n.Risk.reservations, value: amount(model.status?.openReservationsUsd), symbol: Self.reservationsSymbol)
         }
         if model.status != nil && room == nil {
           Footnote(L10n.Risk.roomNotReported, color: Palette.warningText)
@@ -135,8 +141,9 @@ private struct EntryGateCard: View {
   }
 
   var body: some View {
-    Card(L10n.Risk.entryGate, tint: allowed ? nil : Palette.warning, trailing: {
-      Badge(allowed ? L10n.Risk.allowed : L10n.Risk.blocked, color: allowed ? Palette.profitText : Palette.warningText)
+    Card(L10n.Risk.entryGate, tint: allowed ? nil : Palette.warning, tone: allowed ? .profit : .warning, trailing: {
+      StatusPill(allowed ? L10n.Risk.allowed : L10n.Risk.blocked, tone: allowed ? .profit : .warning, live: allowed,
+        event: model.status?.freshness.lastBrokerReadAt?.date)
     }) {
       if let status = model.status {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {

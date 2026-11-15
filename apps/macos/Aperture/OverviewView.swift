@@ -84,6 +84,9 @@ private struct Header: View {
 
   /// Lines the banner's detail may wrap to.
   static let detailLines = 2
+  /// Symbols of the trading gate, open and closed.
+  static let gateOpenSymbol = "lock.open.fill"
+  static let gateClosedSymbol = "lock.fill"
 
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
@@ -102,14 +105,10 @@ private struct Header: View {
           #endif
           if let status = model.status {
             Badge(verbatim: status.environment, color: Palette.warningText)
-            Group {
-              if status.tradingGate.open {
-                Badge(L10n.Overview.gateOpen, color: Palette.profitText)
-              } else {
-                Badge(L10n.Overview.gateClosed, color: Palette.warningText)
-              }
-            }
-            .help(Text(verbatim: status.tradingGate.cause))
+            let open = status.tradingGate.open
+            StateGlyph(open ? Self.gateOpenSymbol : Self.gateClosedSymbol, tone: open ? .profit : .warning,
+              label: Text(verbatim: String(localized: open ? L10n.Overview.gateOpen : L10n.Overview.gateClosed)
+                + Format.lineSeparator + status.tradingGate.cause))
           }
         }
         banner
@@ -479,8 +478,7 @@ private struct PositionsCard: View {
             PositionTab(row: row, selected: row.id == shown?.id) { selected = row.id }
           }
         }
-        Button(String(localized: L10n.Position.openChart)) { model.section = .chart }
-          .buttonStyle(.link)
+        MoreButton(L10n.Position.openChart, systemImage: AppSection.chartSymbol) { model.section = .chart }
           .disabled(rows.isEmpty)
       }
     } content: {
@@ -514,27 +512,23 @@ private struct PositionTab: View {
   let action: () -> Void
 
   var body: some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
     Button(action: action) {
       HStack(spacing: Tokens.Space.xs) {
+        Circle()
+          .fill(row.position.stop.state == .verified ? Palette.profit : Palette.loss)
+          .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
         Text(verbatim: row.position.symbol).foregroundStyle(Palette.textPrimary)
         if let value = row.unrealized {
           Text(verbatim: Money.signed(value)).foregroundStyle(Palette.result(value))
         }
       }
-      .font(Tokens.Typography.chip)
-      .padding(.horizontal, Tokens.Space.s)
-      .padding(.vertical, Tokens.Space.xs)
-      .background(selected ? Palette.info.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
-      .overlay(shape.strokeBorder(selected ? Palette.info : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-      .contentShape(shape)
     }
-    .buttonStyle(.plain)
-    .accessibilityAddTraits(selected ? .isSelected : [])
+    .buttonStyle(.chip(selected: selected))
   }
 }
 
 private struct PositionDetail: View {
+  @Environment(AppModel.self) private var model
   let row: PositionRow
 
   /// Smallest size of the price chart, and width of the figures column, in points.
@@ -547,51 +541,84 @@ private struct PositionDetail: View {
       MiniChart(closes: row.closes, entry: row.entry, stop: row.stop)
         .frame(minWidth: Self.chartMinWidth, minHeight: Self.chartMinHeight)
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        HStack {
+        HStack(spacing: Tokens.Space.s) {
+          StopBadge(state: row.position.stop.state, read: model.status?.freshness.lastBrokerReadAt?.date)
           Text(verbatim: row.position.symbol).font(Tokens.Typography.metric)
           Spacer()
-          StopBadge(state: row.position.stop.state)
-        }
-        figures
-        Divider()
-        HStack {
-          Text(L10n.Position.unrealized).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-          Spacer()
           if let value = row.unrealized {
-            MoneyText(value: value, font: Tokens.Typography.metric)
+            DeltaTag(value, text: Money.signed(value), large: true)
+              .hint(L10n.Position.unrealized)
           } else {
             Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
           }
         }
+        Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
+          GridRow {
+            IconMetric(Self.entrySymbol, label: L10n.Position.entry, value: Format.price(row.entry), tone: .info)
+            IconMetric(Self.stopSymbol, label: L10n.Position.stop, value: Format.price(row.stop),
+              tone: row.position.stop.state == .verified ? .profit : .loss)
+          }
+          GridRow {
+            IconMetric(Self.quantitySymbol, label: L10n.Position.quantity, value: Format.quantity(row.quantity))
+            IconMetric(Self.openedSymbol, label: L10n.Position.opened,
+              value: Format.marketMinute(row.position.openedAt.date))
+          }
+        }
+        if let range = stopToLast {
+          MeterBar(fraction: range.fraction, tone: range.tone, marks: [
+            MeterMark(Format.price(row.stop), tone: .loss),
+            MeterMark(Format.price(row.lastBarClose)),
+          ])
+          .hint(L10n.Position.chartLabel)
+        }
+        figures
       }
       .frame(width: Self.figuresWidth)
     }
   }
 
+  /// Symbols of the position's figures.
+  static let entrySymbol = "arrow.right.to.line"
+  static let stopSymbol = "shield.lefthalf.filled"
+  static let quantitySymbol = "number"
+  static let openedSymbol = "clock"
+  static let lastBarSymbol = "chart.bar.xaxis"
+  static let maxLossSymbol = "arrow.down.to.line"
+  static let rSymbol = "scalemass"
+  static let sentSymbol = "paperplane"
+  /// The stop-to-price meter spans this many risks (entry minus stop) above the stop, so the entry
+  /// sits half way and a full meter is a 1 R gain.
+  static let meterRisks: Decimal = 2
+
   private var figures: some View {
     VStack(spacing: Tokens.Space.s) {
-      StatLine(L10n.Position.quantity, value: Format.quantity(row.quantity))
-      StatLine(L10n.Position.entry, value: Format.price(row.entry))
-      StatLine(label: lastBarLabel, value: lastBarValue, color: isStale ? Palette.textQuaternary : Palette.textPrimary)
+      StatLine(label: lastBarLabel, value: lastBarValue, color: isStale ? Palette.textQuaternary : Palette.textPrimary,
+        symbol: Self.lastBarSymbol)
         .help(staleHelp)
-      StatLine(L10n.Position.stop, value: Format.price(row.stop),
-        color: row.position.stop.state == .verified ? Palette.profitText : Palette.lossText)
       StatLine(L10n.Position.maxLoss,
         value: Risk.plannedLoss(entry: row.entry, stop: row.stop, quantity: row.quantity).map { Money.plain($0) }
-          ?? Format.missing)
+          ?? Format.missing, symbol: Self.maxLossSymbol)
         .help(Text(L10n.Position.maxLossHelp))
       if isStale, let time = row.lastBarAt {
         StatLine(label: Text(L10n.Position.rAt(Format.marketMinute(time))),
-          value: row.latestResultR.map(Risk.text) ?? Format.missing, color: Palette.textQuaternary)
+          value: row.latestResultR.map(Risk.text) ?? Format.missing, color: Palette.textQuaternary, symbol: Self.rSymbol)
           .help(staleHelp)
       } else {
-        StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing)
+        StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing, symbol: Self.rSymbol)
       }
-      StatLine(L10n.Position.opened, value: Format.marketTime(row.position.openedAt.date))
       let sent = EntrySent.line(row.position.entry, cause: row.position.entryCause)
-      StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color)
-        .help(sent.help.map { Text(verbatim: $0) } ?? Text(L10n.EntrySent.title))
+      StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color, symbol: Self.sentSymbol)
+        .hint(sent.help.map { Text(verbatim: $0) } ?? Text(L10n.EntrySent.title))
     }
+  }
+
+  /// Where the last close sits between the stop (empty) and the entry's mirror above it (full):
+  /// half way is the entry. Nothing without a stop or a close.
+  private var stopToLast: (fraction: Double, tone: Tone)? {
+    guard let stop = row.stop, let last = row.lastBarClose, row.entry > stop else { return nil }
+    let span = (row.entry - stop) * Self.meterRisks
+    let fraction = NSDecimalNumber(decimal: (last - stop) / span).doubleValue
+    return (fraction, last >= row.entry ? .profit : .warning)
   }
 
   private var lastBarLabel: Text {
@@ -614,12 +641,32 @@ private struct PositionDetail: View {
   }
 }
 
+/// A position's protection as a shield glyph: green when the broker stop is verified, red otherwise,
+/// pulsing once per broker read that still finds it unprotected; the state's words are its hint.
 struct StopBadge: View {
   let state: StopState
+  var compact = false
+  /// The bot's last broker read: an unprotected stop pulses once per read that still finds it so.
+  var read: Date?
+
+  /// Symbols of the stop states.
+  static let verifiedSymbol = "checkmark.shield.fill"
+  static let pendingSymbol = "hourglass"
+  static let missingSymbol = "xmark.shield.fill"
+  static let unknownSymbol = "exclamationmark.shield.fill"
 
   var body: some View {
-    Badge(verbatim: state.title, color: state == .verified ? Palette.profitText : Palette.lossText)
-      .modifier(AlarmPulse(active: state != .verified))
+    StateGlyph(symbol, tone: state == .verified ? .profit : state == .pending ? .warning : .loss,
+      label: Text(verbatim: state.title), live: state != .verified, event: read, style: compact ? .compact : .tile)
+  }
+
+  private var symbol: String {
+    switch state {
+    case .verified: return Self.verifiedSymbol
+    case .pending: return Self.pendingSymbol
+    case .missing: return Self.missingSymbol
+    case .unknown: return Self.unknownSymbol
+    }
   }
 }
 
@@ -753,7 +800,7 @@ private struct EmptyPositions: View {
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)
         if !model.isLive {
-          Button(String(localized: L10n.Position.openTrades)) { model.section = .trades }.buttonStyle(.link)
+          MoreButton(L10n.Position.openTrades, systemImage: AppSection.tradesSymbol) { model.section = .trades }
         }
       }
       Spacer()
@@ -810,12 +857,12 @@ private struct SafetyCard: View {
         VStack(spacing: Tokens.Space.s) {
           ForEach(rows(now: model.botTime(context.date))) { row in
             HStack(spacing: Tokens.Space.s) {
-              Circle().fill(row.color).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+              StateGlyph(row.symbol, tone: row.tone, label: row.label, style: .compact)
               Text(row.label).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
               Spacer()
               Text(verbatim: row.value)
                 .font(Tokens.Typography.calloutMono)
-                .foregroundStyle(row.color)
+                .foregroundStyle(row.tone.text)
                 .lineLimit(1)
                 .contentTransition(.numericText())
             }
@@ -831,13 +878,38 @@ private struct SafetyCard: View {
     let id: RowID
     let label: LocalizedStringResource
     let value: String
-    let color: Color
+    let tone: Tone
+
+    /// Symbols of the rows.
+    static let statusSymbol = "questionmark.circle"
+    static let stopsSymbol = "checkmark.shield"
+    static let entriesSymbol = "paperplane"
+    static let reconcileSymbol = "arrow.triangle.2.circlepath"
+    static let streamSymbol = "waveform.path.ecg"
+    static let readSymbol = "building.columns"
+    static let foreignSymbol = "person.crop.circle.badge.questionmark"
+    static let foreignOrdersSymbol = "doc.badge.ellipsis"
+    static let pauseSymbol = "pause.circle"
+
+    var symbol: String {
+      switch id {
+      case .status: return Self.statusSymbol
+      case .stops: return Self.stopsSymbol
+      case .entries: return Self.entriesSymbol
+      case .reconcile: return Self.reconcileSymbol
+      case .stream: return Self.streamSymbol
+      case .read: return Self.readSymbol
+      case .foreign: return Self.foreignSymbol
+      case .foreignOrders: return Self.foreignOrdersSymbol
+      case .pause: return Self.pauseSymbol
+      }
+    }
   }
 
   private func rows(now: Date) -> [Row] {
     guard model.isLive, let status = model.status else {
       let value = String(localized: model.isLive ? L10n.Common.unavailable : L10n.Safety.recordedDay)
-      return [Row(id: .status, label: L10n.Safety.status, value: value, color: Palette.textQuaternary)]
+      return [Row(id: .status, label: L10n.Safety.status, value: value, tone: .neutral)]
     }
     let positions = Board.positions(status)
     let verified = positions.filter { $0.stop.state == .verified }.count
@@ -852,27 +924,27 @@ private struct SafetyCard: View {
       Row(id: .stops, label: L10n.Safety.brokerStops,
         value: positions.isEmpty
           ? String(localized: L10n.Common.noPosition) : String(localized: L10n.Safety.verified(verified, positions.count)),
-        color: verified == positions.count ? Palette.profitText : Palette.lossText),
+        tone: verified == positions.count ? .profit : .loss),
       Row(id: .entries, label: L10n.EntrySent.safetyRow,
-        value: sent?.text ?? String(localized: L10n.Common.none), color: sent?.color ?? Palette.textQuaternary),
+        value: sent?.text ?? String(localized: L10n.Common.none), tone: sent?.tone ?? .neutral),
       Row(id: .reconcile, label: L10n.Safety.reconciliation,
         value: status.fences.isEmpty
           ? String(localized: L10n.Safety.noFences) : String(localized: L10n.Common.fences(status.fences.count)),
-        color: status.fences.isEmpty ? Palette.profitText : Palette.warningText),
+        tone: status.fences.isEmpty ? .profit : .warning),
       Row(id: .stream, label: L10n.Safety.quoteStream, value: stream.title,
-        color: stream == .fresh ? Palette.profitText : stream == .off ? Palette.textQuaternary : Palette.warningText),
+        tone: stream == .fresh ? .profit : stream == .off ? .neutral : .warning),
       Row(id: .read, label: L10n.Safety.lastBrokerRead,
         value: Format.age(since: status.freshness.lastBrokerReadAt?.date, now: now),
-        color: BrokerReadAge.color(since: status.freshness.lastBrokerReadAt?.date, now: now)),
+        tone: BrokerReadAge.tone(since: status.freshness.lastBrokerReadAt?.date, now: now)),
       Row(id: .foreign, label: L10n.Safety.foreignPositions,
         value: String(localized: foreign ? L10n.Safety.present : L10n.Common.none),
-        color: foreign ? Palette.lossText : Palette.profitText),
+        tone: foreign ? .loss : .profit),
       Row(id: .foreignOrders, label: L10n.Safety.foreignOrders,
         value: String(localized: foreignOrders ? L10n.Safety.present : L10n.Common.none),
-        color: foreignOrders ? Palette.lossText : Palette.profitText),
+        tone: foreignOrders ? .loss : .profit),
       Row(id: .pause, label: L10n.Safety.entryPause,
         value: String(localized: status.entryStop ? L10n.Common.on : L10n.Common.off),
-        color: status.entryStop ? Palette.warningText : Palette.textQuaternary),
+        tone: status.entryStop ? .warning : .neutral),
     ]
   }
 }
@@ -883,13 +955,11 @@ private struct BotCard: View {
   var body: some View {
     Card(L10n.Common.bot) {
       if let status = model.status {
-        HStack(spacing: Tokens.Space.s) {
-          PulseDot(status.botState == .running ? Palette.accent : Palette.textQuaternary, size: Tokens.Size.dotSmall,
-            pulsing: status.botState == .running && model.isLive)
-          Text(verbatim: status.entryStop ? String(localized: L10n.Common.entriesPaused) : status.botState.title)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
-        }
+        let running = status.botState == .running
+        let isCurrent = model.isLive && model.fetchError == nil && model.response?.stale == false
+        StatusPill(verbatim: status.entryStop ? String(localized: L10n.Common.entriesPaused) : status.botState.title,
+          tone: status.entryStop ? .warning : running ? .accent : .neutral,
+          live: running && isCurrent, event: status.writtenAt.date)
       }
     } content: {
       BotControls()
@@ -908,9 +978,16 @@ private struct RiskRoomCard: View {
   @Environment(AppModel.self) private var model
   @State private var shown: Double = 0
 
+  /// Symbols of the risk figures.
+  static let resultSymbol = "plusminus"
+  static let positionsSymbol = "square.stack.3d.up"
+  static let plannedLossSymbol = "arrow.down.to.line"
+  static let capSymbol = "dollarsign.circle"
+  static let reservationsSymbol = "lock.circle"
+
   var body: some View {
     Card(L10n.RiskRoom.title) {
-      Button { model.section = .risk } label: { Text(L10n.RiskRoom.details) }.buttonStyle(.link)
+      MoreButton(L10n.RiskRoom.details) { model.section = .risk }
     } content: {
       if let risk = model.settings?.risk {
         let limit = risk.maxDailyLossUsd.value
@@ -927,12 +1004,15 @@ private struct RiskRoomCard: View {
         }
         bar(fraction: fraction)
         VStack(spacing: Tokens.Space.s) {
-          StatLine(L10n.RiskRoom.netResult, value: Money.signed(model.shownResult), color: Palette.result(model.shownResult))
-          StatLine(L10n.RiskRoom.positions, value: String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions)))
-          StatLine(L10n.RiskRoom.plannedLoss, value: Money.plain(risk.plannedLossUsd.value))
-          StatLine(L10n.RiskRoom.notionalCap, value: Money.plain(risk.positionNotionalCapUsd.value))
+          StatLine(L10n.RiskRoom.netResult, value: Money.signed(model.shownResult), color: Palette.result(model.shownResult),
+            symbol: Self.resultSymbol)
+          let count = String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions))
+          StatLine(L10n.RiskRoom.positions, value: count, symbol: Self.positionsSymbol)
+          StatLine(L10n.RiskRoom.plannedLoss, value: Money.plain(risk.plannedLossUsd.value), symbol: Self.plannedLossSymbol)
+          StatLine(L10n.RiskRoom.notionalCap, value: Money.plain(risk.positionNotionalCapUsd.value), symbol: Self.capSymbol)
           StatLine(L10n.RiskRoom.reservations,
-            value: model.status?.openReservationsUsd.map { Money.plain($0.value) } ?? Format.missing)
+            value: model.status?.openReservationsUsd.map { Money.plain($0.value) } ?? Format.missing,
+            symbol: Self.reservationsSymbol)
         }
       } else if let error = model.settingsError {
         Footnote(verbatim: error)
@@ -963,7 +1043,7 @@ private struct ObserversCard: View {
 
   var body: some View {
     Card(L10n.Observers.title) {
-      Button { model.section = .lab } label: { Text(L10n.RiskRoom.details) }.buttonStyle(.link)
+      MoreButton(L10n.RiskRoom.details) { model.section = .lab }
     } content: {
       if let observers = model.observers?.observers {
         if observers.isEmpty {

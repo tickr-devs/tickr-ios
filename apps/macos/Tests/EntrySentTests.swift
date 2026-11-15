@@ -35,7 +35,7 @@ struct EntrySentTests {
       #expect(EntrySent.line(waiting, cause: nil).color == Palette.warningText)
       let entries = [(symbol: "ABCD", entry: waiting), (symbol: "EFGH", entry: try entry(sends: 1))]
       #expect(EntrySent.summary(entries)?.text == String(localized: L10n.EntrySent.awaiting(1)))
-      #expect(EntrySent.summary(entries)?.color == Palette.warningText)
+      #expect(EntrySent.summary(entries)?.tone == .warning)
     }
   }
 
@@ -54,6 +54,6 @@ struct EntrySentTests {
     let status = try fixture(StatusV1.self, "status-v1.example.json")
     let entries = Board.positions(status).map { (symbol: $0.symbol, entry: $0.entry) }
       + status.tradesToday.map { (symbol: $0.symbol, entry: $0.entry) }
-    #expect(EntrySent.summary(entries)?.color == Palette.profitText)
+    #expect(EntrySent.summary(entries)?.tone == .profit)
   }
 }

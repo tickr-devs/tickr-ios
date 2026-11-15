@@ -17,4 +17,12 @@ struct BrokerReadAgeTests {
       == Palette.lossText)
     #expect(BrokerReadAge.color(since: nil, now: now) == Palette.lossText)
   }
+
+  @Test("The tone follows the same thresholds")
+  func tone() {
+    let now = Date()
+    #expect(BrokerReadAge.tone(since: now, now: now) == .profit)
+    #expect(BrokerReadAge.tone(since: now.addingTimeInterval(-BrokerReadAge.blockingSeconds), now: now) == .warning)
+    #expect(BrokerReadAge.tone(since: nil, now: now) == .loss)
+  }
 }
