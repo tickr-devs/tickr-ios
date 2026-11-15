@@ -131,8 +131,8 @@ struct BotControl: ViewModifier {
     Task { await Self.confirmAndSend(command, model: model) }
   }
 
-  /// Face ID for anything that cancels, closes or stops; pausing and resuming entries is safe
-  /// without it. The model checks freshness before and after Face ID.
+  /// Face ID for anything that cancels, closes, stops or lets the bot trade again; only pausing
+  /// entries is safe without it. The model checks freshness before and after Face ID.
   static func confirmAndSend(_ command: OperatorCommand, model: AppModel) async {
     let reason = String(localized: L10n.Control.reason(Board.commandTitle(command.kind)))
     if needsOwner(command) {
@@ -142,10 +142,11 @@ struct BotControl: ViewModifier {
     }
   }
 
-  /// Whether `command` needs the owner's Face ID or passcode: all but pausing and resuming entries.
+  /// Whether `command` needs the owner's Face ID or passcode: all but pausing entries. Resuming
+  /// entries lets the bot open trades again, so an unlocked phone alone is not enough for it.
   static func needsOwner(_ command: OperatorCommand) -> Bool {
     switch command {
-    case .entryStop: return false
+    case .entryStop(let on): return !on
     case .cancelOwnOrders, .flatten, .flattenSymbol, .stopBot, .emergency: return true
     }
   }
