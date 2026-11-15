@@ -734,6 +734,14 @@ enum L10n {
       LocalizedStringResource("activity.excursion", defaultValue: "MAE \(mae) · MFE \(mfe) (at least)",
         bundle: L10n.bundle)
     }
+    /// Leads the prices after a signal: "after 1m +0.12 · 5m −0.30".
+    static var after: LocalizedStringResource {
+      LocalizedStringResource("activity.after", defaultValue: "after", bundle: L10n.bundle)
+    }
+    /// Minutes after a signal, short: "5m".
+    static func minutesAfter(_ minutes: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.minutesAfter", defaultValue: "\(minutes)m", bundle: L10n.bundle)
+    }
     /// What a skipped signal would have made, from the bot's replay: "would have made +$12.30 · +0.8 R".
     static func wouldHaveMade(_ result: String) -> LocalizedStringResource {
       LocalizedStringResource("activity.wouldHaveMade", defaultValue: "would have made \(result)", bundle: L10n.bundle)

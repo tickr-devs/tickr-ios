@@ -796,7 +796,7 @@ private struct SkippedRow: View {
         CauseText(cause: cause)
       }
       ChipFlow {
-        Badge(L10n.Activity.whatIfTag, tone: .highlight, planned: true)
+        Badge(L10n.Activity.whatIfTag, tone: .highlight)
         IconMetric(TradesList.entrySymbol, label: L10n.Activity.hintWhatIfEntry,
           value: signal.entryPrice.map { Money.price($0.value) } ?? Format.missing, compact: true)
         IconMetric(TradesList.stopSymbol, label: L10n.Activity.hintWhatIfStop,
@@ -806,11 +806,43 @@ private struct SkippedRow: View {
       .accessibilityLabel(Text(L10n.Activity.whatIf(signal.entryPrice.map { Money.price($0.value) } ?? Format.missing,
         signal.stopPrice.map { Money.price($0.value) } ?? Format.missing)))
       ReplayLine(whatIf: signal.whatIf)
+      AfterLine(prices: signal.pricesAfter)
     }
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)
     .apertureCard()
     .accessibilityElement(children: .combine)
+  }
+}
+
+/// Where the price went after a signal, per share: "after 1m +0.12 · 5m −0.30 · 15m —". Each
+/// change in its direction's colour; a minute with no captured bar shows a dash. Nothing when the
+/// bot sent no prices.
+private struct AfterLine: View {
+  let prices: [PriceAfterV1]
+
+  private var line: AttributedString {
+    var text = AttributedString(String(localized: L10n.Activity.after))
+    text.swiftUI.foregroundColor = Palette.textQuaternary
+    for (index, point) in prices.enumerated() {
+      let lead = (index == 0 ? ChartFormat.space : Format.separator)
+        + String(localized: L10n.Activity.minutesAfter(point.minutes)) + ChartFormat.space
+      var label = AttributedString(lead)
+      label.swiftUI.foregroundColor = Palette.textQuaternary
+      let change = point.changeUsd?.value
+      var value = AttributedString(change.map { Money.signed($0) } ?? Format.missing)
+      value.swiftUI.foregroundColor = change.map(Palette.result) ?? Palette.textQuaternary
+      text += label + value
+    }
+    return text
+  }
+
+  var body: some View {
+    if !prices.isEmpty {
+      Text(line)
+        .font(Tokens.Typography.captionMono)
+        .fixedSize(horizontal: false, vertical: true)
+    }
   }
 }
 

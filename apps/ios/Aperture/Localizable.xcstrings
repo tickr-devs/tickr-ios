@@ -86,6 +86,23 @@
         }
       }
     },
+    "activity.after" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "after"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "после"
+          }
+        }
+      }
+    },
     "activity.backToToday" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -422,6 +439,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Загружаю день…"
+          }
+        }
+      }
+    },
+    "activity.minutesAfter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldm"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld мин"
           }
         }
       }
