@@ -24,6 +24,13 @@ struct CandleChart: View {
 
   /// Height of each study pane (MACD, RSI, stochastic, ATR), in points.
   static let paneHeight: CGFloat = 96
+  /// Least heights of the price pane and of a study pane, in points: with many studies in a
+  /// short window the study panes shrink first, never the price pane below its least height.
+  static let priceMinHeight: CGFloat = 240
+  static let paneMinHeight: CGFloat = 56
+  /// Most decisions on screen that are labelled; with more, only their diamonds are drawn, and
+  /// the labels no longer pile up over the candles.
+  static let decisionLabelLimit = 3
   /// Share of a candle's slot its body fills; the rest is the gap between candles.
   static let bodyShare = 0.66
   /// Space above and below the visible prices, as a share of their range.
@@ -69,15 +76,14 @@ struct CandleChart: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       ChartReadout(plot: plot, lines: lines, pointer: pointer)
-      VStack(spacing: 0) {
+      PaneStack(priceMinimum: Self.priceMinHeight, paneHeight: Self.paneHeight, paneMinimum: Self.paneMinHeight) {
         priceChart
-          .frame(maxHeight: .infinity)
         ForEach(studyPanes, id: \.self) { pane in
           studyChart(pane)
-            .frame(height: Self.paneHeight)
             .overlay(alignment: .top) {
               Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.hairline)
             }
+            .overlay(alignment: .topLeading) { paneName(pane) }
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
       }
@@ -178,12 +184,14 @@ struct CandleChart: View {
               .foregroundStyle(mark.color)
           }
           .annotation(position: .top, overflowResolution: Self.keepInside) {
-            Text(mark.label)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(mark.color)
-              .padding(.horizontal, Tokens.Space.xxs)
-              .background(Palette.surface.opacity(Tokens.Opacity.overlay), in: .rect(cornerRadius: Tokens.Radius.small))
-              .fixedSize()
+            if labelsDecisions {
+              Text(mark.label)
+                .font(Tokens.Typography.annotation)
+                .foregroundStyle(mark.color)
+                .padding(.horizontal, Tokens.Space.xxs)
+                .background(Palette.surface.opacity(Tokens.Opacity.overlay), in: .rect(cornerRadius: Tokens.Radius.small))
+                .fixedSize()
+            }
           }
       }
       if let last = candles.last {
@@ -308,6 +316,29 @@ struct CandleChart: View {
     case .price:
       EmptyView()
     }
+  }
+
+  /// Whether the decisions on screen are few enough to label.
+  private var labelsDecisions: Bool {
+    let shown = windowStart...windowStart.addingTimeInterval(visibleLength)
+    return decisions.filter { shown.contains($0.time) }.count <= Self.decisionLabelLimit
+  }
+
+  /// The study's name in the pane's top left corner.
+  private func paneName(_ pane: ChartPane) -> some View {
+    Group {
+      switch pane {
+      case .macd: Text(L10n.Chart.macd)
+      case .rsi: Text(L10n.Chart.rsi(Studies.rsiPeriod))
+      case .stochastic: Text(L10n.Chart.stochastic)
+      case .atr: Text(L10n.Chart.atr(Indicators.atrPeriod))
+      case .price: EmptyView()
+      }
+    }
+    .font(Tokens.Typography.annotationBold)
+    .foregroundStyle(Palette.textTertiary)
+    .padding(Tokens.Space.xs)
+    .allowsHitTesting(false)
   }
 
   /// Dashed lines at an oscillator's overbought and oversold levels.

@@ -157,10 +157,7 @@ struct ChartView: View {
           }
         }
       }
-      ScrollView(.horizontal) {
-        indicatorToggles
-      }
-      .scrollIndicators(.never)
+      indicatorToggles
     }
     .animation(Tokens.Motion.quick, value: symbols)
   }
@@ -219,7 +216,7 @@ struct ChartView: View {
 
   /// Lines over the price (the bot's own first, then the studies), then the panes below it.
   private var indicatorToggles: some View {
-    HStack(spacing: Tokens.Space.xs) {
+    ChipFlow(spacing: Tokens.Space.xs) {
       Toggle(isOn: $showVWAP) { Text(L10n.Chart.vwap) }
       Toggle(isOn: $showFastEMA) { Text(L10n.Chart.ema(Indicators.fastEMAPeriod)) }
       Toggle(isOn: $showSlowEMA) { Text(L10n.Chart.ema(Indicators.slowEMAPeriod)) }
@@ -228,7 +225,7 @@ struct ChartView: View {
       Toggle(isOn: $showBollinger) { Text(L10n.Chart.bollinger) }
         .help(Text(L10n.Chart.bollingerHelp(Studies.bollingerPeriod)))
       Toggle(isOn: $showVolume) { Text(L10n.Chart.volume) }
-      Divider().frame(height: Self.separatorHeight)
+      Rectangle().fill(Palette.separator).frame(width: Tokens.Stroke.hairline, height: Self.separatorHeight)
       Toggle(isOn: $showMACD) { Text(L10n.Chart.macd) }
         .help(Text(L10n.Chart.macdHelp(Studies.macdFast, Studies.macdSlow, Studies.macdSignal)))
       Toggle(isOn: $showRSI) { Text(L10n.Chart.rsiChip) }
