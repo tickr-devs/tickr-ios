@@ -45,6 +45,8 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       "decisions-v1": { try roundTrip(DecisionsV1.self, $0) },
       "skipped-v1": { try roundTrip(SkippedV1.self, $0) },
       "performance-v1": { try roundTrip(PerformanceV1.self, $0) },
+      "flow-v1": { try roundTrip(FlowV1.self, $0) },
+      "watching-v1": { try roundTrip(WatchingV1.self, $0) },
       "account-v1": { try roundTrip(AccountV1.self, $0) },
       "account-response-v1": { try roundTrip(AccountResponseV1.self, $0) },
     ]
@@ -64,7 +66,28 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(Set(names) == ["status-v1", "command-v1", "status-response-v1",
       "command-accepted-v1", "pending-commands-v1", "error-v1",
       "days-v1", "day-v1", "bars-v1", "settings-v1", "explain-v1",
-      "observers-v1", "decisions-v1", "skipped-v1", "performance-v1", "account-v1", "account-response-v1"])
+      "observers-v1", "decisions-v1", "skipped-v1", "performance-v1",
+      "flow-v1", "watching-v1", "account-v1", "account-response-v1"])
+  }
+
+  @Test func flowStagesChipsAndCauses() throws {
+    let flow = try Wire.decoder().decode(FlowV1.self, from: fixture("flow-v1.json"))
+    #expect(flow.stages.map(\.stage) == FlowStage.allCases)
+    #expect(flow.chips.first?.sources == [.gainers, .topActives])
+    #expect(flow.chips.first { $0.symbol == "SPY" }?.excludedCause?.hasPrefix("SECURITY_TYPE_NOT_ALLOWED") == true)
+    #expect(flow.reconcile.agreement == .match)
+    #expect(flow.stops.map(\.state) == [.verified, .neverVerified, .pending])
+    let empty = try Wire.decoder().decode(FlowV1.self, from: fixture("flow-v1.empty.json"))
+    #expect(empty.reconcile.agreement == nil)
+    #expect(empty.reconcile.agreementCause != nil)
+  }
+
+  @Test func watchingRowsAndDecisiveChecks() throws {
+    let watching = try Wire.decoder().decode(WatchingV1.self, from: fixture("watching-v1.json"))
+    #expect(watching.rows.map(\.symbol) == ["ABCD", "WXYZ", "EFGH"])
+    #expect(watching.rows.first?.decisiveCheck?.rule == "ask_above_trigger")
+    #expect(watching.rows.last?.closeness == nil)
+    #expect(watching.rows.last?.closenessCause != nil)
   }
 
   @Test func performanceFiguresAndCauses() throws {

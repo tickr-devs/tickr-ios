@@ -96,6 +96,8 @@ public struct APIClient: Sendable {
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
   static let performancePath = "/performance"
+  static let flowPath = "/flow"
+  static let watchingPath = "/watching"
   /// Query item names of the bars read.
   static let symbolQuery = "symbol"
   static let dateQuery = "date"
@@ -158,6 +160,16 @@ public struct APIClient: Sendable {
   public func performance(from: WireDate, to: WireDate) async throws -> PerformanceV1 {
     try await perform(request(path: Self.performancePath, query: [(Self.fromQuery, from.text), (Self.toQuery, to.text)],
       body: nil), expect: Self.ok)
+  }
+
+  /// The day's live flow: screener chips, stage counts, stops and the latest reconciliation.
+  public func flow(day: WireDate) async throws -> FlowV1 {
+    try await perform(request(path: Self.flowPath, query: [(Self.dateQuery, day.text)], body: nil), expect: Self.ok)
+  }
+
+  /// The symbols the strategy is watching closely on `day`, closest to an entry first.
+  public func watching(day: WireDate) async throws -> WatchingV1 {
+    try await perform(request(path: Self.watchingPath, query: [(Self.dateQuery, day.text)], body: nil), expect: Self.ok)
   }
 
   public func pendingCommands() async throws -> PendingCommandsV1 {
