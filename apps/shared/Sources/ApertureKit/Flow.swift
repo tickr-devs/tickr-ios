@@ -216,15 +216,64 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
   }
 }
 
+/// What can hold the size of an entry below what the strategy asked for.
+public enum SizeBinding: String, Codable, Sendable, CaseIterable {
+  /// Sized down to fit the room left under the daily loss limit.
+  case dailyRoom = "daily_room"
+}
+
+/// The latest entry size the bot worked out today: for which symbol and decision, the quantity, and
+/// what bound it, if anything did.
+public struct LatestSizeV1: Codable, Hashable, Sendable {
+  public let symbol: String
+  public let at: WireTime
+  public let strategy: StrategyId
+  public let verdict: Verdict
+  public let quantity: DecimalString
+  /// Nil when nothing held the size down.
+  public let binding: SizeBinding?
+  public let bindingCause: String?
+
+  enum CodingKeys: String, CodingKey {
+    case symbol, at, strategy, verdict, quantity, binding
+    case bindingCause = "binding_cause"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    symbol = try c.decode(String.self, forKey: .symbol)
+    at = try c.decode(WireTime.self, forKey: .at)
+    strategy = try c.decode(StrategyId.self, forKey: .strategy)
+    verdict = try c.decode(Verdict.self, forKey: .verdict)
+    quantity = try c.decode(DecimalString.self, forKey: .quantity)
+    binding = try c.decodeNullable(SizeBinding.self, forKey: .binding)
+    bindingCause = try c.decodeNullable(String.self, forKey: .bindingCause)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(symbol, forKey: .symbol)
+    try c.encode(at, forKey: .at)
+    try c.encode(strategy, forKey: .strategy)
+    try c.encode(verdict, forKey: .verdict)
+    try c.encode(quantity, forKey: .quantity)
+    try c.encodeNullable(binding, forKey: .binding)
+    try c.encodeNullable(bindingCause, forKey: .bindingCause)
+  }
+}
+
 /// The symbols the strategy is watching closely on the day, closest first; `total` counts them all.
 public struct WatchingV1: Codable, Hashable, Sendable {
   public let day: WireDate
   public let total: Int
   public let rows: [WatchingRowV1]
+  /// The latest entry size today, or nil before the first.
+  public let latestSize: LatestSizeV1?
   public let apiVersion: Int
 
   enum CodingKeys: String, CodingKey {
     case day, total, rows
+    case latestSize = "latest_size"
     case apiVersion = "api_version"
   }
 
@@ -234,6 +283,7 @@ public struct WatchingV1: Codable, Hashable, Sendable {
     day = try c.decode(WireDate.self, forKey: .day)
     total = try c.decode(Int.self, forKey: .total)
     rows = try c.decode([WatchingRowV1].self, forKey: .rows)
+    latestSize = try c.decodeNullable(LatestSizeV1.self, forKey: .latestSize)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -241,6 +291,7 @@ public struct WatchingV1: Codable, Hashable, Sendable {
     try c.encode(day, forKey: .day)
     try c.encode(total, forKey: .total)
     try c.encode(rows, forKey: .rows)
+    try c.encodeNullable(latestSize, forKey: .latestSize)
     try c.encode(apiVersion, forKey: .apiVersion)
   }
 }

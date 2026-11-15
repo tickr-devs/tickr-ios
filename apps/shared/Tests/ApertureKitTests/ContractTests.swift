@@ -94,6 +94,17 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(watching.rows.last?.closenessCause != nil)
   }
 
+  @Test func watchingLatestSize() throws {
+    let room = try Wire.decoder().decode(WatchingV1.self, from: fixture("watching-v1.daily-room.json"))
+    let size = try #require(room.latestSize)
+    #expect(size.symbol == "QRST")
+    #expect(size.verdict == .watch)
+    #expect(size.binding == .dailyRoom)
+    #expect(size.bindingCause == nil)
+    let empty = try Wire.decoder().decode(WatchingV1.self, from: fixture("watching-v1.empty.json"))
+    #expect(empty.latestSize == nil)
+  }
+
   @Test func chartBarsAndCause() throws {
     let chart = try Wire.decoder().decode(ChartV1.self, from: fixture("chart-v1.json"))
     #expect(chart.interval == .m5)
