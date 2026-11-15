@@ -14,7 +14,7 @@ struct LabView: View {
   static let warningSymbol = "exclamationmark.triangle.fill"
 
   /// Order in which the blocks rise in (`rise(step:)`).
-  private enum Order: Int { case active = 1, versions, observers, refusals, later }
+  private enum Order: Int { case active = 1, versions, replay, observers, refusals, later }
 
   @Environment(AppModel.self) private var model
   @State private var lab = Container.shared.labModel()
@@ -44,6 +44,8 @@ struct LabView: View {
         VersionsCard(curves: curves(status), missing: missing,
           end: WireDate(newYorkDateOf: status.writtenAt.date) == model.today ? model.botNow : status.writtenAt.date)
           .rise(step: Order.versions.rawValue)
+        LabReplayCard(lab: lab, url: model.connection.url)
+          .rise(step: Order.replay.rawValue)
         ObserversCard(lab: lab, traded: Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol)))
           .rise(step: Order.observers.rawValue)
         RefusalsCard(counts: lab.refusals, failure: lab.refusalsFailure)
