@@ -39,7 +39,7 @@ final class RadarSweepView: NSView {
 
   override init(frame: CGRect) {
     super.init(frame: frame)
-    // A layer-hosting view, flipped so angles turn clockwise from +x as in SwiftUI.
+    // A layer-hosting view.
     let host = CALayer()
     host.isGeometryFlipped = true
     layer = host
@@ -89,8 +89,9 @@ final class RadarSweepView: NSView {
     }
     guard sweep.animation(forKey: Self.turnKey) == nil else { return }
     let turn = CABasicAnimation(keyPath: Self.rotationPath)
+    // Clockwise on screen, so the bright edge leads and the fade trails behind it, like a radar.
     turn.fromValue = 0
-    turn.toValue = Geometry.fullTurn
+    turn.toValue = -Geometry.fullTurn
     turn.duration = Tokens.Motion.rotationSeconds
     turn.timingFunction = CAMediaTimingFunction(name: .linear)
     // decorative: the empty-positions radar is an ornament; it shows no data (owner, 2026-11-15).
