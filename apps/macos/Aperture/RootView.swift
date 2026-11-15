@@ -164,7 +164,7 @@ private struct BotStateCard: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       CardLabel(L10n.Common.bot)
       HStack(spacing: Tokens.Space.s) {
-        PulseDot(color, pulsing: model.status?.botState == .running && model.isLive)
+        PulseDot(color, pulsing: model.isLive, event: model.status?.botState)
         Text(verbatim: stateText).font(Tokens.Typography.callout.weight(.semibold)).foregroundStyle(color)
       }
       if let run = model.status?.runId {
@@ -268,7 +268,7 @@ private struct ConnectionStatus: View {
     TimelineView(.periodic(from: .now, by: Self.tick)) { context in
       HStack(spacing: Tokens.Space.s) {
         // Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
-        PulseDot(model.headline.severity.color, size: Tokens.Size.dotSmall, pulsing: isFresh)
+        PulseDot(model.headline.severity.color, size: Tokens.Size.dotSmall, pulsing: isFresh, event: model.headline.text)
         Text(verbatim: text(now: model.botTime(context.date)))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)

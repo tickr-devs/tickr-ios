@@ -389,6 +389,28 @@ def settings_violations(path: Path) -> list[tuple[int, str]]:
     return found
 
 
+# Motion that runs on its own clock: a repeating animation or a TimelineView redrawn every frame.
+# The owner's rule (docs/design-system.md, "Motion"): anything that reads as data or activity
+# moves only when the bot's data changes. Pure decoration (the brand mark, an empty-state
+# ornament) may loop, marked `// decorative: <why>` on the same line or the line above.
+LOOP = re.compile(
+    r"\.repeatForever\(|TimelineView\(\s*\.animation\b"
+    r"|\brepeatCount\s*=\s*(?:Float)?\.(?:infinity|greatestFiniteMagnitude)\b"
+)
+DECORATIVE = "// decorative:"
+
+
+def loop_violations(path: Path) -> list[tuple[int, str]]:
+    """Self-running motion without a decorative marker (comments ignored)."""
+    found, in_block, previous = [], False, ""
+    for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        code, in_block = check_swift_literals.strip(raw, in_block)
+        if LOOP.search(code) and DECORATIVE not in raw and DECORATIVE not in previous:
+            found.append((number, code.strip()))
+        previous = raw
+    return found
+
+
 def number_violations(path: Path) -> list[tuple[int, str]]:
     if path.name in check_swift_literals.SKIPPED_FILES:
         return []
@@ -409,6 +431,9 @@ RULES = {
     "indent": (indent_violations, "indent with 2 spaces"),
     "catalog": (catalog_violations, "text without a Russian translation in a String Catalog"),
     "legacy": (legacy_violations, "outdated API: use the current Apple stack (CLAUDE.md)"),
+    "loop": (loop_violations,
+      "motion on its own clock; move only on a real data change, "
+      "or mark it `// decorative: <why>`"),
 }
 
 

@@ -62,7 +62,7 @@ struct EventPulse<S: Shape>: ViewModifier {
 
 extension View {
   /// One pulse of `shape`'s outline per change of `event`; still without one.
-  func eventPulse<S: Shape>(_ shape: S, color: Color, scale: CGFloat, event: AnyHashable?) -> some View {
+  public func eventPulse<S: Shape>(_ shape: S, color: Color, scale: CGFloat, event: AnyHashable?) -> some View {
     modifier(EventPulse(shape: shape, color: color, scale: scale, event: event))
   }
 }

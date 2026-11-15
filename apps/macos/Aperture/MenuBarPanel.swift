@@ -40,7 +40,7 @@ private struct StatusBanner: View {
   var body: some View {
     let color = model.headline.severity.color
     HStack(spacing: Tokens.Space.s) {
-      PulseDot(color, pulsing: true)
+      PulseDot(color, event: model.headline.text)
       Text(verbatim: model.headline.text)
         .font(Tokens.Typography.callout.weight(.semibold))
         .foregroundStyle(color)
@@ -227,13 +227,10 @@ private struct StopTargetBar: View {
   }
 }
 
-/// The stages a setup passes, as dots that pulse one after another while the bot runs.
+/// The stages a setup passes, as dots: bright while the bot runs, dim otherwise. They move only
+/// when the bot's state changes (one pulse), never on a timer.
 private struct FlowDots: View {
   @Environment(AppModel.self) private var model
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-  /// Seconds between the pulses of neighbouring dots.
-  static let pulseOffset = 0.25
 
   private struct Stage: Identifiable {
     let id: Int
@@ -261,14 +258,16 @@ private struct FlowDots: View {
   }
 
   private var moving: Bool {
-    model.status?.botState == .running && model.fetchError == nil && !reduceMotion
+    model.status?.botState == .running && model.fetchError == nil
   }
 
   var body: some View {
     HStack(spacing: Tokens.Space.xs) {
       ForEach(stages) { stage in
         VStack(spacing: Tokens.Space.xs) {
-          FlowDot(color: stage.color, delay: Double(stage.id) * Self.pulseOffset, moving: moving)
+          // Still unless the bot's state changes: the dots show the stages, not activity.
+          PulseDot(stage.color, pulsing: moving, event: model.status?.botState)
+            .opacity(moving ? 1 : Tokens.Opacity.medium)
           Text(stage.name)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textTertiary)
@@ -277,35 +276,6 @@ private struct FlowDots: View {
         }
         .frame(maxWidth: .infinity)
       }
-    }
-  }
-}
-
-/// A dot that glows and grows, then settles, over and over while `moving`.
-private struct FlowDot: View {
-  let color: Color
-  let delay: Double
-  let moving: Bool
-  @State private var lit = false
-
-  var body: some View {
-    Circle()
-      .fill(color)
-      .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
-      .shadow(color: color, radius: lit ? Tokens.Space.s : Tokens.Space.xxs)
-      .scaleEffect(lit ? Tokens.Motion.breatheScale : 1)
-      .opacity(lit || !moving ? 1 : Tokens.Opacity.medium)
-      .onAppear { pulse() }
-      .onChange(of: moving) { pulse() }
-  }
-
-  private func pulse() {
-    guard moving else {
-      withAnimation(Tokens.Motion.quick) { lit = false }
-      return
-    }
-    withAnimation(.easeInOut(duration: Tokens.Motion.breatheSeconds / 2).repeatForever().delay(delay)) {
-      lit = true
     }
   }
 }

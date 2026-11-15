@@ -383,7 +383,7 @@ private struct LevelsCard: View {
         .trim(from: 0, to: drawn ? 1 : 0)
         .stroke(color, style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round, lineJoin: .round))
       if let last = points.last {
-        PulseDot(color, size: Tokens.Size.dotSmall, pulsing: current)
+        PulseDot(color, size: Tokens.Size.dotSmall, pulsing: current, event: points.count)
           .position(last)
       }
     }

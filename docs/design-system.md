@@ -21,7 +21,7 @@ the approved design canvas. Code follows it one to one:
    - Protocol values from the bot (`exit_reason`, fence `kind`) are shown through a localized title and never translated in place.
 3. **System appearance only.** Light and dark follow macOS/iOS; there is no theme switch. Light is designed on its own (soft glows and a tinted shadow), not as an inverted dark.
 4. **Components carry the spacing.** Cards, rows, section labels, badges and tags come from shared components. A screen arranges components; it does not restyle them.
-5. **Motion has meaning and respects Reduce Motion.** Every animation uses a `Tokens.Motion` curve. With Reduce Motion on, every piece shows its still final state.
+5. **Motion has meaning and respects Reduce Motion.** Every animation uses a `Tokens.Motion` curve. With Reduce Motion on, every piece shows its still final state. Anything that reads as data or activity (status dots, flow stages, alarms, counts) moves only when the bot's data changes: one pulse, flight or fade per real event, still in between, never on a timer. Only pure ornament may loop (the brand mark's spark, the empty-positions radar, the ticker's scroll), marked `// decorative: <why>` in code; the `loop` rule of `check_swift_rules.py` rejects any other `repeatForever`, `TimelineView(.animation)` or Core Animation `repeatCount = .infinity` (owner, 2026-11-15).
 6. **Formatting: Swift uses 2-space indentation.**
    - `.editorconfig`, SwiftLint's `indentation_width` (shared package) and the rules check (rule `indent`, every app) enforce it.
    - Planned with each app's move: the Xcode projects' text settings get the same values, so Xcode indents with 2.
@@ -181,7 +181,6 @@ and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` �
 | `breatheSeconds` / `breatheScale` | 2.4 s / ×1.08 | One swell of a glow when its value changes (never a loop) |
 | `rotationSeconds` | 4 s per turn | Radar sweep |
 | `tickerSpeed` | 22 pt/s | Event ticker (edges fade over 6% of its width) |
-| `pipelineSeconds` | 4.2 s | Light travelling the live flow |
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
 | `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event |
 | `hintDelay` | 0.45 s | Hover before a hint appears (Mac) |

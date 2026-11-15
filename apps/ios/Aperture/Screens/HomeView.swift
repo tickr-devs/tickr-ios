@@ -487,7 +487,7 @@ private struct LiveFlowCard: View {
 
   private func column(_ stage: Stage) -> some View {
     VStack(spacing: Tokens.Space.xs) {
-      FlowDot(color: stage.color, delay: Double(stage.id.rawValue) * FlowDot.stagger, lit: stage.value != nil)
+      FlowDot(color: stage.color, lit: stage.value != nil, event: stage.value)
       Text(stage.name).font(Tokens.Typography.annotation).foregroundStyle(Palette.textTertiary)
       Text(verbatim: stage.value ?? Format.missing)
         .font(Tokens.Typography.annotationBold)
@@ -500,38 +500,24 @@ private struct LiveFlowCard: View {
   }
 }
 
-/// A live-flow stage: a glowing dot that breathes, each stage a little after the one before, so
-/// light seems to run along the flow. Still with Reduce Motion, faint for an unreported stage.
+/// A live-flow stage: a glowing dot, faint for an unreported stage. It moves only on a real
+/// event: one pulse each time the stage's value changes (a new count, a verified stop).
 private struct FlowDot: View {
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var bright = false
   let color: Color
-  let delay: Double
   let lit: Bool
+  /// The stage's value; a change plays one pulse.
+  let event: String?
 
-  /// Seconds between neighbouring stages' breaths.
-  static let stagger = 0.25
   /// Diameter of the dot and blur of its glow, in points.
   static let size: CGFloat = 11
   static let glow: CGFloat = 6
   /// Smallest scale a stage's value shrinks to.
   static let minimumScale = 0.7
-  /// Size of the dot at its dimmest, as a share of its full size.
-  static let restScale = 0.8
 
   var body: some View {
-    Circle()
-      .fill(color)
-      .frame(width: Self.size, height: Self.size)
+    PulseDot(color, size: Self.size, pulsing: lit, event: event)
       .shadow(color: lit ? color : .clear, radius: Self.glow)
-      .opacity(lit ? (bright || reduceMotion ? 1 : Tokens.Opacity.faint) : Tokens.Opacity.faint)
-      .scaleEffect(bright || reduceMotion || !lit ? 1 : Self.restScale)
-      .onAppear {
-        guard lit, !reduceMotion else { return }
-        withAnimation(.easeInOut(duration: Tokens.Motion.breatheSeconds / 2).repeatForever(autoreverses: true).delay(delay)) {
-          bright = true
-        }
-      }
+      .opacity(lit ? 1 : Tokens.Opacity.faint)
       .accessibilityHidden(true)
   }
 }

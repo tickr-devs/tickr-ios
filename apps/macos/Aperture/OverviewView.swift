@@ -132,7 +132,7 @@ private struct Header: View {
     let content = content
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     return HStack(spacing: Tokens.Space.m) {
-      PulseDot(content.color, pulsing: model.isLive)
+      PulseDot(content.color, pulsing: model.isLive, event: content.title)
       Text(verbatim: content.title).font(Tokens.Typography.button).foregroundStyle(content.color)
       if let detail = content.detail {
         Text(verbatim: detail).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary).lineLimit(Self.detailLines)
@@ -176,33 +176,19 @@ private struct Header: View {
   }
 }
 
-/// A soft red glow that breathes around something that needs attention now.
+/// A steady red glow around something that needs attention now. It fades in when the alarm
+/// starts and out when it ends, and stays still in between: motion only on a real change.
 struct AlarmPulse: ViewModifier {
   let active: Bool
-  @State private var on = false
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-  /// Blur radius of the glow at its weakest and strongest, in points.
-  static let glowRest: CGFloat = 2
-  static let glowPeak: CGFloat = 10
+  /// Blur radius of the glow, in points.
+  static let glow: CGFloat = 10
 
   func body(content: Content) -> some View {
     content
-      .shadow(
-        color: active ? Palette.loss.opacity(on ? Tokens.Opacity.medium : Tokens.Opacity.wash) : .clear,
-        radius: on ? Self.glowPeak : Self.glowRest)
-      .onAppear { breathe(active) }
-      .onChange(of: active) { _, now in
-        on = false
-        breathe(now)
-      }
-  }
-
-  private func breathe(_ now: Bool) {
-    guard now, !reduceMotion else { return }
-    withAnimation(.easeInOut(duration: Tokens.Motion.breatheSeconds / 2).repeatForever(autoreverses: true)) {
-      on = true
-    }
+      .shadow(color: active ? Palette.loss.opacity(Tokens.Opacity.medium) : .clear, radius: Self.glow)
+      .animation(reduceMotion ? nil : Tokens.Motion.standard, value: active)
   }
 }
 
@@ -356,7 +342,7 @@ extension Board.Event.Tone {
   }
 }
 
-/// The stages a setup passes through, with light travelling along the line between them.
+/// The stages a setup passes through, on one line. A stage moves only when its value changes.
 private struct Pipeline: View {
   /// The stages, in the order a setup passes them.
   enum StageID: Hashable { case screeners, universe, strategy, risk, order, stop, reconcile }
@@ -375,19 +361,11 @@ private struct Pipeline: View {
   }
 
   let stages: [Stage]
+  /// The shown day is today: a stage whose value changes pulses once. On a past day nothing moves.
   let moving: Bool
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   /// Height of the whole pipeline: stage circle, name and value.
   static let height: CGFloat = 104
-  /// Lights travelling along the line at once, evenly spaced.
-  static let lights = 3
-  /// Share of the trip over which a light fades in at the start and out at the end.
-  static let fadeShare = 0.08
-  /// Blur of a light's glow, in points.
-  static let glow: CGFloat = 6
-  /// Seconds between the pulses of neighbouring stages, so they do not beat together.
-  static let pulseOffset = 0.35
   /// Blur of the soft glow around a reporting stage, in points.
   static let stageGlow: CGFloat = 9
 
@@ -400,35 +378,17 @@ private struct Pipeline: View {
         Capsule().fill(Palette.separatorStrong)
           .frame(width: width, height: Tokens.Stroke.bold)
           .offset(x: inset, y: (Tokens.Size.stage - Tokens.Stroke.bold) / 2)
-        if moving && !reduceMotion {
-          TimelineView(.animation) { context in
-            lights(time: context.date.timeIntervalSinceReferenceDate, inset: inset, width: width)
-          }
-        }
       }
       HStack(spacing: 0) {
-        ForEach(Array(stages.enumerated()), id: \.element.id) { index, stage in
-          column(stage, index: index)
+        ForEach(stages) { stage in
+          column(stage)
         }
       }
     }
     .accessibilityElement(children: .combine)
   }
 
-  private func lights(time: TimeInterval, inset: CGFloat, width: CGFloat) -> some View {
-    ForEach(0..<Self.lights, id: \.self) { index in
-      let phase = (time / Tokens.Motion.pipelineSeconds + Double(index) / Double(Self.lights))
-        .truncatingRemainder(dividingBy: 1)
-      Circle()
-        .fill(Palette.accent)
-        .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
-        .shadow(color: Palette.accent.opacity(Tokens.Opacity.medium), radius: Self.glow)
-        .opacity(min(phase, 1 - phase, Self.fadeShare) / Self.fadeShare)
-        .offset(x: inset + width * phase - Tokens.Size.dot / 2, y: (Tokens.Size.stage - Tokens.Size.dot) / 2)
-    }
-  }
-
-  private func column(_ stage: Stage, index: Int) -> some View {
+  private func column(_ stage: Stage) -> some View {
     let reported = stage.value != nil
     let strength = reported ? 1 : Tokens.Opacity.faint
     return VStack(spacing: Tokens.Space.s) {
@@ -442,13 +402,9 @@ private struct Pipeline: View {
       }
       .frame(width: Tokens.Size.stage, height: Tokens.Size.stage)
       .shadow(color: reported ? stage.color.opacity(Tokens.Opacity.faint) : .clear, radius: Self.stageGlow)
-      .overlay {
-        if reported && moving {
-          PulseDot(stage.color, size: Tokens.Size.stage, pulsing: true)
-            .opacity(Tokens.Opacity.faint)
-            .animation(.default.delay(Double(index) * Self.pulseOffset), value: moving)
-        }
-      }
+      // One pulse when the stage's value changes (a new count, a verified stop): a real event.
+      .eventPulse(Circle(), color: stage.color, scale: Tokens.Motion.pulseScale,
+        event: reported && moving ? stage.value : nil)
       Text(stage.name)
         .textCase(.uppercase)
         .font(Tokens.Typography.annotationBold)
@@ -731,7 +687,7 @@ private struct MiniChart: View {
                 .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.bold, lineJoin: .round))
             }
             PointMark(x: .value(Self.barKey, values.count - 1), y: .value(Self.priceKey, last))
-              .symbol { PulseDot(Palette.accent) }
+              .symbol { PulseDot(Palette.accent, event: values.count) }
           }
           .plain(bars: bars, prices: domain)
           .reveal(drawn)
@@ -830,6 +786,7 @@ private struct Radar: View {
   static let sweep = Angle.degrees(90)
 
   var body: some View {
+    // decorative: the empty-positions radar is an ornament; it shows no data (owner, 2026-11-15).
     TimelineView(.animation(paused: reduceMotion)) { context in
       let turn = context.date.timeIntervalSinceReferenceDate
         .truncatingRemainder(dividingBy: Tokens.Motion.rotationSeconds) / Tokens.Motion.rotationSeconds

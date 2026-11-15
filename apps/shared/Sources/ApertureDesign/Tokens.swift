@@ -262,7 +262,5 @@ public enum Tokens {
     public static let rotationSeconds = 4.0
     /// Points per second of the event ticker.
     public static let tickerSpeed = 22.0
-    /// Seconds a light takes to travel the whole pipeline.
-    public static let pipelineSeconds = 4.2
   }
 }
