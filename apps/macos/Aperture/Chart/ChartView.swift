@@ -142,7 +142,6 @@ struct ChartView: View {
       // only intraday candles (five sessions) still change during the day.
       repeat {
         await chart.loadRange(baseURL: baseURL, symbol: symbol, interval: shownInterval, range: shownRange)
-        await chart.loadDecisions(baseURL: baseURL, symbol: symbol, day: day)
         guard shownInterval.isIntraday else { return }
         try? await Task.sleep(for: .seconds(Pace.chartSeconds))
       } while !Task.isCancelled
@@ -347,7 +346,8 @@ struct ChartView: View {
         levels: ChartMarkers.levels(position: model.positions.first { $0.id == symbol }),
         decisions: showDecisions && showsDay
           ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], candles: plot.candles) : [],
-        live: model.isLive,
+        // Only the shown live day and intraday ranges reaching today still change.
+        live: model.isLive && (showsDay || interval.isIntraday),
         viewport: $viewport)
         .id(ChartID(symbol: symbol, day: model.shownDay, timeframe: interval, range: range))
         .transition(.opacity)
