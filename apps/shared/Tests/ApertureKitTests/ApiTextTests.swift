@@ -88,14 +88,16 @@ struct ApiTextTests {
     #expect(stop.contains("12.5") && !stop.contains("{"))
   }
 
-  @Test("Order values and check rules translate; unknown ones stay as sent")
+  @Test("Order values and check rules translate; unknown ones read as words, never as the code")
   func values() {
     #expect(ApiText.orderSide("SELL") == String(localized: L10n.orderSideSell))
     #expect(ApiText.orderType("STOP_LOSS") == String(localized: L10n.orderTypeStopLoss))
     #expect(ApiText.orderStatus("ACCEPTED") == String(localized: L10n.orderStatusAccepted))
-    #expect(ApiText.orderStatus("WEIRD") == "WEIRD")
+    #expect(ApiText.orderStatus("WEIRD") == String(localized: L10n.orderStatusOther))
+    #expect(ApiText.orderSide("SHORT") == String(localized: L10n.orderSideOther))
+    #expect(ApiText.orderType("TRAILING") == String(localized: L10n.orderTypeOther))
     #expect(ApiText.rule("spread_ratio") == String(localized: L10n.ruleSpreadRatio))
-    #expect(ApiText.rule("new_rule") == "new_rule")
+    #expect(ApiText.rule("new_rule") == String(localized: L10n.ruleOther))
   }
 
   @Test("The headline is built from codes, with the status age in whole seconds")

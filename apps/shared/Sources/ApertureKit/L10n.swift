@@ -244,4 +244,23 @@ enum L10n {
     LocalizedStringResource("kit.wire.unsupportedVersion",
       defaultValue: "unsupported \(key) \(value), this app reads \(expected)", bundle: bundle)
   }
+
+  // MARK: Codes this app does not know (ApiText)
+
+  /// A broker order's side this app does not know.
+  static var orderSideOther: LocalizedStringResource {
+    LocalizedStringResource("kit.orderOther.side", defaultValue: "Unknown side", bundle: bundle)
+  }
+  /// A broker order's type this app does not know.
+  static var orderTypeOther: LocalizedStringResource {
+    LocalizedStringResource("kit.orderOther.type", defaultValue: "Unknown type", bundle: bundle)
+  }
+  /// A broker order's status this app does not know.
+  static var orderStatusOther: LocalizedStringResource {
+    LocalizedStringResource("kit.orderOther.status", defaultValue: "Unknown status", bundle: bundle)
+  }
+  /// A strategy check whose rule this app does not know (a newer strategy).
+  static var ruleOther: LocalizedStringResource {
+    LocalizedStringResource("kit.ruleOther", defaultValue: "Other check", bundle: bundle)
+  }
 }

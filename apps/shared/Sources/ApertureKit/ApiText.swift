@@ -84,21 +84,24 @@ public enum ApiText {
     refusalDetail(code: refusal.code, params: refusal.params) ?? refusal.message
   }
 
+  /// A broker order's side, type and status in words; a value this app does not know reads as
+  /// "Unknown side", "Unknown type" or "Unknown status", never as the broker's code.
   public static func orderSide(_ raw: String) -> String {
-    OrderSide(rawValue: raw).map { String(localized: $0.title) } ?? raw
+    String(localized: OrderSide(rawValue: raw)?.title ?? L10n.orderSideOther)
   }
 
   public static func orderType(_ raw: String) -> String {
-    OrderKind(rawValue: raw).map { String(localized: $0.title) } ?? raw
+    String(localized: OrderKind(rawValue: raw)?.title ?? L10n.orderTypeOther)
   }
 
   public static func orderStatus(_ raw: String) -> String {
-    OrderStatus(rawValue: raw).map { String(localized: $0.title) } ?? raw
+    String(localized: OrderStatus(rawValue: raw)?.title ?? L10n.orderStatusOther)
   }
 
-  /// A strategy check's rule; a rule this app does not know (a newer strategy) reads as named.
+  /// A strategy check's rule; a rule this app does not know (a newer strategy) reads as
+  /// "Other check", never as the strategy's key.
   public static func rule(_ raw: String) -> String {
-    CheckRule(rawValue: raw).map { String(localized: $0.title) } ?? raw
+    String(localized: CheckRule(rawValue: raw)?.title ?? L10n.ruleOther)
   }
 }
 

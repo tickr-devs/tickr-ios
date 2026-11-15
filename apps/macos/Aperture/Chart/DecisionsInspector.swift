@@ -123,12 +123,11 @@ private struct CheckRow: View {
       .accessibilityLabel(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
         // The rule in words (ApiText), wrapped between them over a few lines rather than cut
-        // mid-word; the bot's own name is the hint.
+        // mid-word.
         Text(verbatim: ApiText.rule(check.rule))
           .font(Tokens.Typography.captionMono)
           .lineLimit(DecisionsInspector.ruleLines)
           .fixedSize(horizontal: false, vertical: true)
-          .help(Text(verbatim: check.rule))
         Text(verbatim: comparison)
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)

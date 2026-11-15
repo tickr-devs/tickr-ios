@@ -2268,6 +2268,57 @@
         }
       }
     },
+    "kit.orderOther.side" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown side"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестная сторона"
+          }
+        }
+      }
+    },
+    "kit.orderOther.status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown status"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестный статус"
+          }
+        }
+      }
+    },
+    "kit.orderOther.type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown type"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестный тип"
+          }
+        }
+      }
+    },
     "kit.prose.all_checks_passed" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). all_checks_passed",
       "extractionState" : "manual",
@@ -4064,6 +4115,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Расстояние до стопа"
+          }
+        }
+      }
+    },
+    "kit.ruleOther" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other check"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другая проверка"
           }
         }
       }
