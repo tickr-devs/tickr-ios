@@ -717,7 +717,7 @@ private struct SafetyCard: View {
     Card(L10n.Safety.title) {
       TimelineView(.periodic(from: .now, by: Self.tick)) { context in
         VStack(spacing: Tokens.Space.s) {
-          ForEach(rows(now: context.date)) { row in
+          ForEach(rows(now: model.botTime(context.date))) { row in
             HStack(spacing: Tokens.Space.s) {
               Circle().fill(row.color).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
               Text(row.label).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
@@ -817,7 +817,7 @@ private struct RiskRoomCard: View {
         let fraction = room.map { limit > 0 ? NSDecimalNumber(decimal: $0 / limit).doubleValue : 0 } ?? 0
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
           if let room {
-            MoneyText(value: room, font: Tokens.Typography.metric, colored: false)
+            MoneyText(value: room, font: Tokens.Typography.metric, colored: false, signed: false)
           } else {
             Text(verbatim: Format.missing).font(Tokens.Typography.metric).foregroundStyle(Palette.textQuaternary)
           }

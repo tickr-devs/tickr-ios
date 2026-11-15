@@ -85,13 +85,24 @@ struct MoneyText: View {
   var usd = false
   var font: Font = Tokens.Typography.bodyMono
   var colored = true
+  /// A result carries its sign ("+12.40"); an amount such as the room left does not ("292.00").
+  var signed = true
 
   var body: some View {
-    Text(verbatim: usd ? Money.signedUSD(value) : Money.signed(value))
+    Text(verbatim: text)
       .font(font)
       .foregroundStyle(colored ? Palette.result(value) : Palette.textPrimary)
       .contentTransition(.numericText(value: NSDecimalNumber(decimal: value).doubleValue))
       .animation(Tokens.Motion.quick, value: value)
+  }
+
+  private var text: String {
+    switch (signed, usd) {
+    case (true, true): Money.signedUSD(value)
+    case (true, false): Money.signed(value)
+    case (false, true): Format.usd(value)
+    case (false, false): Money.plain(value)
+    }
   }
 }
 

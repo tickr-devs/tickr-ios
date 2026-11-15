@@ -71,6 +71,10 @@ public final class AppModel {
   @ObservationIgnored private var client: APIClient
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
+  /// How far the bot's clock is ahead of this Mac's, from the last status's `served_at`. The
+  /// bot's clock decides what "today" is and how old its reads are: the Mac's clock can drift,
+  /// and `aperture demo` plays a past day on a clock of its own.
+  public private(set) var botClockOffset: TimeInterval = 0
 
   // Live state.
   public private(set) var response: StatusResponseV1?
@@ -114,7 +118,12 @@ public final class AppModel {
 
   public var status: StatusV1? { response?.status }
   public var headline: Headline { Headline.make(response: response, fetchError: fetchError) }
-  public var today: WireDate { WireDate(newYorkDateOf: now()) }
+  /// This moment on the bot's clock.
+  public var botNow: Date { botTime(now()) }
+  /// A moment of this Mac's clock (a TimelineView's tick) on the bot's clock.
+  public func botTime(_ local: Date) -> Date { local.addingTimeInterval(botClockOffset) }
+  /// The bot's trading day: today in New York on the bot's clock.
+  public var today: WireDate { WireDate(newYorkDateOf: botNow) }
   public var isLive: Bool { selectedDay == nil || selectedDay == today }
   public var shownDay: WireDate { selectedDay ?? today }
 
@@ -129,7 +138,7 @@ public final class AppModel {
       let since = position.openedAt.date.addingTimeInterval(-Self.barSeconds)
       let bars = barsBySymbol[position.symbol]?.bars.filter { $0.start.date >= since } ?? []
       let last = barsBySymbol[position.symbol]?.bars.last
-      let fresh = last.map { barIsFresh(start: $0.start.date, now: now()) } ?? false
+      let fresh = last.map { barIsFresh(start: $0.start.date, now: botNow) } ?? false
       return PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
         closes: bars.map(\.close.value))
     }
@@ -161,6 +170,8 @@ public final class AppModel {
 
   /// Length of one captured bar (M1).
   static let barSeconds: TimeInterval = 60
+  /// A change of the bot's clock offset smaller than this (network delay) is ignored, in seconds.
+  static let clockToleranceSeconds: TimeInterval = 2
 
   /// Trades of the shown day: live from status for today, else from the day document.
   public var shownTrades: [DayTrade] {
@@ -270,8 +281,18 @@ public final class AppModel {
 
   public func refreshStatus() async {
     do {
-      response = try await client.status()
+      let fresh = try await client.status()
+      let dayBefore = today
+      response = fresh
       fetchError = nil
+      followBotClock(servedAt: fresh.servedAt.date)
+      if today != dayBefore {
+        // The bot's day is not the one assumed so far (the first status, a demo day, a new
+        // session): today's trades and bars belong to the new day.
+        todayDocument = nil
+        barsBySymbol = [:]
+        await refreshHistory()
+      }
       resolveSentCommands()
       // Counts come from status, the trade list from /days/<today>: when status shows a
       // trade the list lacks, read the list now instead of waiting for the history poll.
@@ -282,6 +303,13 @@ public final class AppModel {
       fetchError = Self.describe(error)
     }
     if settings == nil { await refreshSettings() }
+  }
+
+  /// Takes the bot's clock from a status served at `servedAt`. Network delay moves the offset by
+  /// milliseconds on every poll; only a larger change is taken, so views don't redraw for it.
+  private func followBotClock(servedAt: Date) {
+    let offset = servedAt.timeIntervalSince(now())
+    if abs(offset - botClockOffset) > Self.clockToleranceSeconds { botClockOffset = offset }
   }
 
   public func refreshSettings() async {

@@ -68,7 +68,7 @@ private struct LossRoomCard: View {
         ResultRing(fraction: fraction, color: color) {
           VStack(spacing: Tokens.Space.xxs) {
             if let room {
-              MoneyText(value: room, usd: true, font: Tokens.Typography.hero, colored: false)
+              MoneyText(value: room, usd: true, font: Tokens.Typography.hero, colored: false, signed: false)
                 .contentTransition(.numericText())
             } else {
               Text(verbatim: Format.missing).font(Tokens.Typography.hero)
@@ -235,7 +235,7 @@ private struct SessionCard: View {
     Card(L10n.Risk.session) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         TimelineView(.periodic(from: .now, by: Self.tick)) { context in
-          Text(context.date, format: .dateTime.hour().minute().second().timeZone(.exemplarLocation))
+          Text(model.botTime(context.date), format: .dateTime.hour().minute().second().timeZone(.exemplarLocation))
             .environment(\.timeZone, Format.newYork)
             .font(Tokens.Typography.metric)
             .monospacedDigit()
