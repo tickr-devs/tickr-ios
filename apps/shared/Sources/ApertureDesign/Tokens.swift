@@ -251,6 +251,11 @@ public enum Tokens {
     public static let launchHoldSeconds = 0.45
     public static let launchFlySeconds = 0.75
     public static let launchFly = Animation.smooth(duration: launchFlySeconds)
+    /// Seconds the window shows the plain background before the mark starts drawing.
+    public static let openingDelaySeconds = 0.15
+    /// Seconds the opening waits for its window to come to the front; then it plays anyway, so a
+    /// window opened in the background is never left covered.
+    public static let openingWaitSeconds = 1.0
     /// macOS opening (BrandOpening): seconds for the centred mark to draw itself, then its flight
     /// into the Overview header.
     public static let openingDrawSeconds = 0.6

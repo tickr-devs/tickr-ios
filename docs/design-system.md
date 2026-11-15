@@ -252,8 +252,9 @@ breaks upward, with a spark at its end.
   `launchFly`). Reduce Motion: a cross-fade (`launchFadeSeconds`).
 - macOS opening (`BrandOpening`, macOS has no launch screen): the first window of a launch opens
   on the background with the mark (`openingMark`) in its centre, the line draws itself
-  (`openingDrawSeconds`), then the mark flies into Overview's header mark (`openingFly`) as the
-  background fades. Once per launch (`AppModel.openingPlayed`), not on reopening the window.
+  (`openingDrawSeconds`, once the window is on screen and key), then the mark flies into
+  Overview's header mark (`openingFly`) over the still plain background, and only then does the
+  background fade. Once per launch (`AppModel.openingPlayed`), not on reopening the window.
   Reduce Motion: the same cross-fade.
 - Empty screens (nothing yet, no trades, bot unreachable) use `BrandMark.empty()` as the
   `ContentUnavailableView` illustration, muted (`.muted`) when the bot cannot be reached. Errors

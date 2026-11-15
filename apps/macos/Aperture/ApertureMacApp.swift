@@ -68,7 +68,7 @@ struct ApertureMacApp: App {
       RootView()
         .overlay {
           if !model.openingPlayed {
-            BrandOpening(target: { model.overviewMarkCentre }, finished: { model.openingPlayed = true })
+            BrandOpening(target: model.overviewMarkCentre, finished: { model.openingPlayed = true })
           }
         }
         .environment(model)
