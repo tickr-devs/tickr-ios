@@ -239,6 +239,32 @@ enum L10n {
     LocalizedStringResource("kit.wire.nullableKeyMissing", defaultValue: "nullable key must be present",
       bundle: bundle)
   }
+  /// Contract error detail; argument: the field's path ("positions.0.stop").
+  static func fieldMissing(_ field: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.wire.fieldMissing", defaultValue: "field \(field) is missing", bundle: bundle)
+  }
+  /// Contract error detail; argument: the field's path.
+  static func fieldNull(_ field: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.wire.fieldNull", defaultValue: "field \(field) is null", bundle: bundle)
+  }
+  /// Contract error detail; argument: the field's path.
+  static func fieldWrongType(_ field: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.wire.fieldWrongType", defaultValue: "field \(field) has the wrong type",
+      bundle: bundle)
+  }
+  /// Contract error detail; argument: the field's path. A value this app cannot read (an unknown case, a number out of range).
+  static func fieldUnknownValue(_ field: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.wire.fieldUnknownValue",
+      defaultValue: "field \(field) has a value this app cannot read", bundle: bundle)
+  }
+  /// Contract error detail; arguments: the field's path, what is wrong with its value.
+  static func fieldInvalid(_ field: String, _ cause: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.wire.fieldInvalid", defaultValue: "field \(field): \(cause)", bundle: bundle)
+  }
+  /// Contract error detail: the answer could not be read as JSON at all.
+  static var notJSON: LocalizedStringResource {
+    LocalizedStringResource("kit.wire.notJSON", defaultValue: "the answer is not valid JSON", bundle: bundle)
+  }
   /// Contract error detail; arguments: version key, version received, version this app reads.
   static func unsupportedVersion(_ key: String, _ value: Int, _ expected: Int) -> LocalizedStringResource {
     LocalizedStringResource("kit.wire.unsupportedVersion",

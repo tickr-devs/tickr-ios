@@ -73,10 +73,10 @@ public struct WireDate: Codable, Hashable, Comparable, Sendable, CustomStringCon
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     guard let text = try? container.decode(String.self) else {
-      throw DecodingError.dataCorruptedError(in: container, debugDescription: String(localized: L10n.expectedDate))
+      throw Wire.corrupted(container.codingPath, String(localized: L10n.expectedDate))
     }
     do { try self.init(text) } catch {
-      throw DecodingError.dataCorruptedError(in: container, debugDescription: "\(error)")
+      throw Wire.corrupted(container.codingPath, "\(error)")
     }
   }
 

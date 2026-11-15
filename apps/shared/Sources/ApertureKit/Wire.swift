@@ -20,6 +20,44 @@ public enum Wire {
   /// The fixed locale that reads wire decimals ("." as the separator, whatever the user's locale).
   static let posixLocale = "en_US_POSIX"
 
+  /// Joins the keys of a field's path in a contract error ("positions.0.stop").
+  static let pathSeparator = "."
+
+  /// A value that breaks a wire rule. Its cause, in the person's language, rides along as the
+  /// underlying `ContractError`, so `detail(_:)` can show it.
+  static func corrupted(_ codingPath: [any CodingKey], _ message: String) -> DecodingError {
+    .dataCorrupted(.init(codingPath: codingPath, debugDescription: message, underlyingError: ContractError(message)))
+  }
+
+  /// Why an answer could not be read, in the person's language: the field and what is wrong
+  /// with it. `String(describing:)` would show Swift's English debug form of a DecodingError.
+  static func detail(_ error: Error) -> String {
+    guard let error = error as? DecodingError else { return error.localizedDescription }
+    switch error {
+    case .keyNotFound(let key, let context):
+      return String(localized: L10n.fieldMissing(path(context.codingPath + [key])))
+    case .valueNotFound(_, let context):
+      return String(localized: L10n.fieldNull(path(context.codingPath)))
+    case .typeMismatch(_, let context):
+      // A wrong type at the top has no field to name: the answer as a whole is not what was asked for.
+      if context.codingPath.isEmpty { return String(localized: L10n.notJSON) }
+      return String(localized: L10n.fieldWrongType(path(context.codingPath)))
+    case .dataCorrupted(let context):
+      if let own = context.underlyingError as? ContractError {
+        return String(localized: L10n.fieldInvalid(path(context.codingPath), own.message))
+      }
+      if context.codingPath.isEmpty { return String(localized: L10n.notJSON) }
+      return String(localized: L10n.fieldUnknownValue(path(context.codingPath)))
+    @unknown default:
+      return error.localizedDescription
+    }
+  }
+
+  /// "positions.0.stop": keys by name, array elements by index.
+  static func path(_ keys: [any CodingKey]) -> String {
+    keys.map { $0.intValue.map(String.init) ?? $0.stringValue }.joined(separator: pathSeparator)
+  }
+
   /// Whether all of `text` matches the anchored regular expression `pattern`.
   static func matches(_ pattern: String, _ text: String) -> Bool {
     text.range(of: pattern, options: .regularExpression) != nil
@@ -52,11 +90,10 @@ public struct DecimalString: Codable, Hashable, Sendable, CustomStringConvertibl
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     guard let text = try? container.decode(String.self) else {
-      throw DecodingError.dataCorruptedError(
-        in: container, debugDescription: String(localized: L10n.expectedDecimal))
+      throw Wire.corrupted(container.codingPath, String(localized: L10n.expectedDecimal))
     }
     do { try self.init(text) } catch {
-      throw DecodingError.dataCorruptedError(in: container, debugDescription: "\(error)")
+      throw Wire.corrupted(container.codingPath, "\(error)")
     }
   }
 
@@ -86,10 +123,10 @@ public struct WireTime: Codable, Hashable, Sendable, CustomStringConvertible {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     guard let text = try? container.decode(String.self) else {
-      throw DecodingError.dataCorruptedError(in: container, debugDescription: String(localized: L10n.expectedTime))
+      throw Wire.corrupted(container.codingPath, String(localized: L10n.expectedTime))
     }
     do { try self.init(text) } catch {
-      throw DecodingError.dataCorruptedError(in: container, debugDescription: "\(error)")
+      throw Wire.corrupted(container.codingPath, "\(error)")
     }
   }
 
@@ -120,9 +157,7 @@ extension KeyedDecodingContainer {
   func decodeVersion(forKey key: Key, expected: Int) throws -> Int {
     let value = try decode(Int.self, forKey: key)
     guard value == expected else {
-      throw DecodingError.dataCorruptedError(
-        forKey: key, in: self,
-        debugDescription: String(localized: L10n.unsupportedVersion(key.stringValue, value, expected)))
+      throw Wire.corrupted(codingPath + [key], String(localized: L10n.unsupportedVersion(key.stringValue, value, expected)))
     }
     return value
   }

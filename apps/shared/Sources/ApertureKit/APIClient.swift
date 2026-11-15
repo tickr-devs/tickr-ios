@@ -291,7 +291,7 @@ public struct APIClient: Sendable {
     do {
       return try decoder.decode(T.self, from: data)
     } catch {
-      throw APIError.contract(String(describing: error))
+      throw APIError.contract(Wire.detail(error))
     }
   }
 }

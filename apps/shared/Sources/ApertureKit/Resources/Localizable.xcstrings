@@ -4374,6 +4374,108 @@
         }
       }
     },
+    "kit.wire.fieldInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "field %1$@: %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "поле %1$@: %2$@"
+          }
+        }
+      }
+    },
+    "kit.wire.fieldMissing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "field %@ is missing"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нет поля %@"
+          }
+        }
+      }
+    },
+    "kit.wire.fieldNull" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "field %@ is null"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "поле %@ равно null"
+          }
+        }
+      }
+    },
+    "kit.wire.fieldUnknownValue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "field %@ has a value this app cannot read"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "в поле %@ значение, которое приложение не может прочитать"
+          }
+        }
+      }
+    },
+    "kit.wire.fieldWrongType" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "field %@ has the wrong type"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "у поля %@ неверный тип"
+          }
+        }
+      }
+    },
+    "kit.wire.notJSON" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the answer is not valid JSON"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ответ — некорректный JSON"
+          }
+        }
+      }
+    },
     "kit.wire.nullableKeyMissing" : {
       "extractionState" : "manual",
       "localizations" : {
