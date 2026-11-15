@@ -1624,6 +1624,24 @@ enum L10n {
     }
   }
   enum Lab {
+    /// Card: refused signals of the shown day, counted by cause.
+    static var refusals: LocalizedStringResource {
+      LocalizedStringResource("lab.refusals", defaultValue: "Why signals were refused", bundle: L10n.bundle)
+    }
+    static var noRefusals: LocalizedStringResource {
+      LocalizedStringResource("lab.noRefusals", defaultValue: "No signal was refused.", bundle: L10n.bundle)
+    }
+    static var noCause: LocalizedStringResource {
+      LocalizedStringResource("lab.noCause", defaultValue: "No cause recorded", bundle: L10n.bundle)
+    }
+    /// An observer's entries the bot also took.
+    static func agreement(_ shared: Int, _ entered: Int, _ symbols: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.agreement",
+        defaultValue: "bot also traded \(shared) of \(entered): \(symbols)", bundle: L10n.bundle)
+    }
+    static var noEntries: LocalizedStringResource {
+      LocalizedStringResource("lab.noEntries", defaultValue: "would not have entered", bundle: L10n.bundle)
+    }
     /// Card title: the strategy the bot trades with.
     static var activeStrategy: LocalizedStringResource {
       LocalizedStringResource("lab.activeStrategy", defaultValue: "Active strategy", bundle: L10n.bundle)

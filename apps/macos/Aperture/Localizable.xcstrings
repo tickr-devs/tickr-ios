@@ -3119,6 +3119,23 @@
         }
       }
     },
+    "lab.agreement" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bot also traded %1$lld of %2$lld: %3$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "бот тоже торговал %1$lld из %2$lld: %3$@"
+          }
+        }
+      }
+    },
     "lab.closedWinsLosses" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3199,6 +3216,57 @@
         }
       }
     },
+    "lab.noCause" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No cause recorded"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Причина не записана"
+          }
+        }
+      }
+    },
+    "lab.noEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "would not have entered"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не вошёл бы"
+          }
+        }
+      }
+    },
+    "lab.noRefusals" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No signal was refused."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ни один сигнал не отклонён."
+          }
+        }
+      }
+    },
     "lab.observers" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3263,6 +3331,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Наблюдатели недоступны: API бота не ответил."
+          }
+        }
+      }
+    },
+    "lab.refusals" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why signals were refused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему сигналы отклонены"
           }
         }
       }

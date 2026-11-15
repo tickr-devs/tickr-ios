@@ -7,7 +7,7 @@ import SwiftUI
 struct LabView: View {
   /// Entrance order of the cards.
   private enum Order: Int {
-    case active = 0, observers, replay, advisor
+    case active = 0, observers, refusals, replay, advisor
   }
 
   var body: some View {
@@ -16,9 +16,12 @@ struct LabView: View {
         ActiveStrategyCard().rise(step: Order.active.rawValue)
         HStack(alignment: .top, spacing: Tokens.Space.l) {
           ObserversCard().rise(step: Order.observers.rawValue)
-          ReplayCard().rise(step: Order.replay.rawValue)
+          RefusalsCard().rise(step: Order.refusals.rawValue)
         }
-        AdvisorCard().rise(step: Order.advisor.rawValue)
+        HStack(alignment: .top, spacing: Tokens.Space.l) {
+          ReplayCard().rise(step: Order.replay.rawValue)
+          AdvisorCard().rise(step: Order.advisor.rawValue)
+        }
       }
       .padding(Tokens.Space.xl)
       .frame(maxWidth: Tokens.Size.contentMaxWidth)
@@ -75,7 +78,7 @@ private struct ObserversCard: View {
             Footnote(L10n.Lab.observersEmpty)
           }
           ForEach(observers, id: \.self) { observer in
-            ObserverRow(observer: observer, live: model.isLive)
+            ObserverRow(observer: observer, live: model.isLive, traded: traded)
               .transition(.opacity)
           }
         } else if model.observersError != nil {
@@ -86,12 +89,76 @@ private struct ObserversCard: View {
       .animation(Tokens.Motion.standard, value: model.observers)
     }
   }
+
+  /// Symbols the bot traded or holds on the observers' day, to compare each observer's entries
+  /// with; nil while that day's trades are not read, so no row claims the bot traded none.
+  private var traded: Set<String>? {
+    guard let day = model.observers?.day else { return nil }
+    if model.isLive {
+      guard let status = model.status, day == model.today else { return nil }
+      return Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol))
+    }
+    guard let document = model.dayDocument, document.day == day else { return nil }
+    return Set(document.trades.map(\.symbol))
+  }
+}
+
+/// Why the active strategy's signals were refused on the shown day: one bar per cause, the most
+/// frequent first (GET /skipped, counted by `RefusalCount`).
+private struct RefusalsCard: View {
+  @Environment(AppModel.self) private var model
+
+  var body: some View {
+    Card(L10n.Lab.refusals) {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        if let signals = model.skipped?.signals {
+          let counts = RefusalCount.make(signals)
+          if counts.isEmpty {
+            Footnote(L10n.Lab.noRefusals)
+          }
+          let most = Double(counts.first?.count ?? 1)
+          ForEach(counts) { count in
+            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+              HStack(alignment: .firstTextBaseline) {
+                title(count.cause)
+                  .font(Tokens.Typography.callout)
+                  .foregroundStyle(Palette.textSecondary)
+                Spacer()
+                Text(verbatim: String(count.count))
+                  .font(Tokens.Typography.calloutMono.bold())
+                  .foregroundStyle(Palette.textPrimary)
+              }
+              ProgressView(value: Double(count.count), total: most)
+                .tint(Palette.warning)
+                .accessibilityHidden(true)
+            }
+            .help(Text(verbatim: count.cause?.code ?? String(localized: L10n.Lab.noCause)))
+            .accessibilityElement(children: .combine)
+          }
+        } else if let error = model.skippedError {
+          Footnote(L10n.Trades.notTakenUnavailable(error), color: Palette.warningText)
+        } else {
+          ProgressView().controlSize(.small)
+        }
+      }
+      .animation(Tokens.Motion.standard, value: model.skipped)
+    }
+  }
+
+  private func title(_ cause: RefusalCause?) -> Text {
+    if let code = cause?.known { return Text(L10n.Cause.title(code)) }
+    if let cause { return Text(verbatim: cause.code) }
+    return Text(L10n.Lab.noCause)
+  }
 }
 
 /// One observer: name and version, how many decisions it made, the latest one and its result.
 struct ObserverRow: View {
   let observer: ObserverV1
   let live: Bool
+  /// Symbols the bot traded that day; when given, the row says how many of the observer's entries
+  /// the bot also took.
+  var traded: Set<String>?
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
@@ -123,6 +190,26 @@ struct ObserverRow: View {
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textQuaternary)
       }
+      if let traded {
+        agreement(ObserverSummary(observer, traded: traded))
+      }
+    }
+  }
+
+  /// How many of the symbols the observer would have entered the bot also traded, as a bar.
+  @ViewBuilder private func agreement(_ summary: ObserverSummary) -> some View {
+    if let share = summary.agreement {
+      ProgressView(value: share)
+        .tint(Palette.highlight)
+        .accessibilityHidden(true)
+      Text(L10n.Lab.agreement(summary.shared.count, summary.entered.count,
+        summary.entered.joined(separator: Format.listSeparator)))
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textTertiary)
+    } else {
+      Text(L10n.Lab.noEntries)
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textTertiary)
     }
   }
 }
