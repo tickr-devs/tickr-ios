@@ -319,6 +319,24 @@ private struct SymbolChips: View {
   let url: URL
 
   var body: some View {
+    // The chosen symbol stays in view: when the chart opens, and when the symbol or the range
+    // changes (the row was left scrolled to its start, the chosen chip off screen).
+    ScrollViewReader { proxy in
+      chips
+        .onAppear { reveal(proxy, animated: false) }
+        .onChange(of: chart.symbol) { reveal(proxy, animated: true) }
+        .onChange(of: chart.range) { reveal(proxy, animated: false) }
+        .onChange(of: chart.symbols) { reveal(proxy, animated: false) }
+    }
+    .sensoryFeedback(.selection, trigger: chart.symbol)
+  }
+
+  private func reveal(_ proxy: ScrollViewProxy, animated: Bool) {
+    guard let symbol = chart.symbol else { return }
+    withAnimation(animated ? Tokens.Motion.quick : nil) { proxy.scrollTo(symbol, anchor: .center) }
+  }
+
+  private var chips: some View {
     ScrollView(.horizontal) {
       HStack(spacing: Tokens.Space.s) {
         ForEach(chart.symbols, id: \.self) { symbol in
@@ -350,7 +368,6 @@ private struct SymbolChips: View {
       }
     }
     .scrollIndicators(.hidden)
-    .sensoryFeedback(.selection, trigger: chart.symbol)
   }
 }
 

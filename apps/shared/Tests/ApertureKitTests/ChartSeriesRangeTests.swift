@@ -137,6 +137,21 @@ struct ChartSeriesRangeTests {
     #expect(ChartAxis.spaced([], gap: 20).isEmpty)
   }
 
+  @Test("A label hung inward at an end is left out when it would reach its neighbour")
+  func hungLabels() {
+    let origin = Date(timeIntervalSince1970: 0)
+    let shown = origin...origin.addingTimeInterval(100)
+    // 0 hangs right from the left edge; 25 is only 1.25 gaps away: 0 goes.
+    let times = [0, 25, 50, 75].map { origin.addingTimeInterval(TimeInterval($0)) }
+    #expect(ChartAxis.spaced(times, gap: 20, shown: shown) == [1, 2, 3])
+    // With room enough, the edge label stays.
+    let wide = [0, 40, 70].map { origin.addingTimeInterval(TimeInterval($0)) }
+    #expect(ChartAxis.spaced(wide, gap: 20, shown: shown) == [0, 1, 2])
+    // At the right end the same: 99 hangs left and sits 9 after 90.
+    let late = [50, 90, 99].map { origin.addingTimeInterval(TimeInterval($0)) }
+    #expect(ChartAxis.spaced(late, gap: 8, shown: shown) == [0, 1])
+  }
+
   @Test("A label near either end of the shown stretch turns inward")
   func labelAnchors() throws {
     let date = { (text: String) in try WireTime(text).date }

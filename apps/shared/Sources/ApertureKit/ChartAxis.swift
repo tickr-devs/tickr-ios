@@ -75,6 +75,9 @@ public enum ChartAxis {
   static let clockStepMinutes = [5, 10, 15, 30, 60, 120, 240]
   /// Share of the shown stretch, at each end, in which a label turns inward so it is never cut.
   static let edgeShare = 0.12
+  /// Space a label hung inward at an end needs to its neighbour, in label slots: its own width
+  /// plus half the neighbour's.
+  static let hungShare = 1.5
 
   /// Where a time label hangs from its time.
   public enum Anchor: Sendable, Equatable {
@@ -122,6 +125,25 @@ public enum ChartAxis {
         if let before = kept.last, time.timeIntervalSince(times[before]) < gap { kept.removeLast() }
         kept.append(index)
       }
+    }
+    return kept
+  }
+
+  /// Labels of `times` to draw inside `shown`: spaced as `spaced`, then an end label that hangs
+  /// inward (`anchor`) is left out when it would reach its neighbour. A label hung inward covers
+  /// a whole label's width on one side of its time, not half ("Mon 9Tue 10").
+  public static func spaced(
+    _ times: [Date], gap: TimeInterval, shown: ClosedRange<Date>, preferred: (Int) -> Bool = { _ in false }
+  ) -> [Int] {
+    var kept = spaced(times, gap: gap, preferred: preferred)
+    let hungGap = gap * hungShare
+    if kept.count > 1, anchor(of: times[kept[0]], shown: shown) == .leading,
+      times[kept[1]].timeIntervalSince(times[kept[0]]) < hungGap {
+      kept.removeFirst()
+    }
+    if let last = kept.last, let before = kept.dropLast().last, anchor(of: times[last], shown: shown) == .trailing,
+      times[last].timeIntervalSince(times[before]) < hungGap {
+      kept.removeLast()
     }
     return kept
   }

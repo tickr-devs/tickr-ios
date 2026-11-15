@@ -50,6 +50,10 @@ struct CandleChart: View {
   /// this close to a tag hides under it.
   static let tagClearance = 0.05
   static let paneTicks = 3
+  /// Share of a study pane's value range kept free of scale labels at its top and bottom: a
+  /// label there hung over the pane above or below ("2.00" on the volume, "-2.00" on the RSI
+  /// title).
+  static let paneEdgeShare = 0.15
   /// Length of the leader line of the high and low labels, in points.
   static let extremeLeader: CGFloat = 14
   /// Symbols of entry and exit marks.
@@ -282,7 +286,8 @@ struct CandleChart: View {
         line(plot.macd, name: Plot.macd, color: Palette.info)
         line(plot.macdSignal, name: Plot.macdSignal, color: Palette.warning)
       }
-      .chartYAxis { valueAxis(ticks: Self.paneTicks) }
+      .chartYScale(domain: paneSpan([plot.macd, plot.macdSignal, plot.macdHistogram]))
+      .chartYAxis { valueAxis(ticks: Self.paneTicks, span: paneSpan([plot.macd, plot.macdSignal, plot.macdHistogram])) }
       .chartXAxis(bottom ? .automatic : .hidden)
       .chartXAxis { timeAxis }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
@@ -314,7 +319,8 @@ struct CandleChart: View {
       Chart {
         line(plot.atr, name: Plot.atr, color: Palette.seriesATR)
       }
-      .chartYAxis { valueAxis(ticks: Self.paneTicks) }
+      .chartYScale(domain: paneSpan([plot.atr]))
+      .chartYAxis { valueAxis(ticks: Self.paneTicks, span: paneSpan([plot.atr])) }
       .chartXAxis(bottom ? .automatic : .hidden)
       .chartXAxis { timeAxis }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
@@ -382,10 +388,32 @@ struct CandleChart: View {
   /// A pane's value scale on the right, its labels all `axisLabelWidth` wide: scales of different
   /// widths (prices, MACD, RSI) gave each pane a plot area of its own width, so the same minute,
   /// and the crosshair on it, sat at a different x in each pane.
-  private func valueAxis(ticks: Int) -> some AxisContent {
-    AxisMarks(position: .trailing, values: .automatic(desiredCount: ticks)) { value in
-      axisMark(value)
+  /// Labels within `paneEdgeShare` of the top or bottom of `span` are left out (the gridline stays).
+  private func valueAxis(ticks: Int, span: ClosedRange<Double>) -> some AxisContent {
+    let clearance = (span.upperBound - span.lowerBound) * Self.paneEdgeShare
+    let shown = (span.lowerBound + clearance)...(span.upperBound - clearance)
+    return AxisMarks(position: .trailing, values: .automatic(desiredCount: ticks)) { value in
+      AxisGridLine()
+      AxisTick()
+      AxisValueLabel {
+        if let number = value.as(Double.self), shown.contains(number) {
+          Text(verbatim: number.formatted(Self.valueFormat))
+            .frame(width: Self.axisLabelWidth, alignment: .leading)
+        } else {
+          Color.clear.frame(width: Self.axisLabelWidth)
+        }
+      }
     }
+  }
+
+  /// A study's value range over the candles on screen, padded like the prices; a flat or empty
+  /// study gets one unit either side.
+  private func paneSpan(_ lines: [[Double?]]) -> ClosedRange<Double> {
+    let values = visibleIndices.flatMap { index in lines.compactMap { $0[index] } }
+    guard let low = values.min(), let high = values.max() else { return -1...1 }
+    guard high > low else { return (low - 1)...(high + 1) }
+    let pad = (high - low) * Self.pricePadding
+    return (low - pad)...(high + pad)
   }
 
   /// The price scale, its labels left out where a tag (last price, entry, stop) covers them
@@ -456,7 +484,8 @@ struct CandleChart: View {
     let plotWidth = chartWidth - Self.axisLabelWidth
     guard plotWidth > 0 else { return inside }
     let gap = visibleLength * Double(Self.timeLabelSlot / plotWidth)
-    return ChartAxis.spaced(inside.map(\.time), gap: gap, preferred: { inside[$0].major }).map { inside[$0] }
+    return ChartAxis.spaced(inside.map(\.time), gap: gap, shown: shown, preferred: { inside[$0].major })
+      .map { inside[$0] }
   }
 
   /// Where a time label's top hangs from its tick.

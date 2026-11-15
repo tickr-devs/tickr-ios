@@ -698,7 +698,8 @@ struct CandleChart: View {
     let plot = chartWidth - axisWidth
     guard plot > 0 else { return inside }
     let gap = window * Double(labelSlot / plot)
-    return ChartAxis.spaced(inside.map(\.time), gap: gap, preferred: { inside[$0].major }).map { inside[$0] }
+    return ChartAxis.spaced(inside.map(\.time), gap: gap, shown: shown, preferred: { inside[$0].major })
+      .map { inside[$0] }
   }
 
   /// Where a time label's top hangs from its tick.
