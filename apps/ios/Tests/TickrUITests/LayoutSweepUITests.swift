@@ -24,6 +24,9 @@ final class LayoutSweepUITests: XCTestCase {
   private static let settle: UInt32 = 3
   /// Seconds to wait for the tab bar.
   private static let wait: TimeInterval = 15
+  /// Accessibility identifiers of the tab bar's buttons, in order (the app's `AccessibilityID`):
+  /// the app draws the design's own tab bar, so the tabs are found by identifier.
+  private static let tabs = ["tab.home", "tab.positions", "tab.chart", "tab.activity", "tab.lab"]
   /// Most extra pictures taken while scrolling one tab down.
   private static let maxScrolls = 6
 
@@ -43,16 +46,16 @@ final class LayoutSweepUITests: XCTestCase {
           "-apiBaseURL", api, "-AppleLanguages", "(\(language))", "-UIPreferredContentSizeCategoryName", size,
         ]
         app.launch()
-        let tabs = app.tabBars.buttons
-        guard tabs.firstMatch.waitForExistence(timeout: Self.wait) else {
+        let tabs = Self.tabs.map { app.buttons[$0] }
+        guard tabs[0].waitForExistence(timeout: Self.wait) else {
           XCTFail("no tab bar (\(language), \(size))")
           app.terminate()
           continue
         }
         sleep(Self.settle)
         let prefix = "\(language)-\(size.replacingOccurrences(of: "UICTContentSizeCategory", with: ""))"
-        for index in 0..<tabs.count {
-          tabs.element(boundBy: index).tap()
+        for (index, tab) in tabs.enumerated() {
+          tab.tap()
           sleep(Self.settle)
           capture(app, "\(prefix)-tab\(index)")
         }

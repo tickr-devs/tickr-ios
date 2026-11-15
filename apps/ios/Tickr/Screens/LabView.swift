@@ -17,11 +17,12 @@ struct LabView: View {
   private enum Order: Int { case active = 1, versions, replay, advisor, observers, refusals, later }
 
   @Environment(AppModel.self) private var model
+  @Environment(\.dynamicTypeSize) private var typeSize
   @State private var lab = Container.shared.labModel()
   @State private var advisor = Container.shared.advisorModel()
 
   var body: some View {
-    Screen(L10n.Lab.title) {
+    Screen(L10n.Lab.title, tab: .lab) {
       ConnectionPrompt()
       if let status = model.status {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
@@ -31,16 +32,44 @@ struct LabView: View {
             Spacer()
             StatusPill(L10n.Lab.trades, systemImage: Self.tradesSymbol, tone: .accent)
           }
-          // The result goes under the name at large text sizes, so neither breaks mid-word.
-          RowStack(spacing: Tokens.Space.s) {
-            HStack(spacing: Tokens.Space.s) {
-              PulseDot(Palette.accent, pulsing: model.response?.stale == false, event: status.strategy)
-              Text(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version))
-                .font(.subheadline.monospaced().weight(.semibold))
+          // As on the design: the name with its version and the day's trades under it; the day's
+          // result with its curve at the right. At large text sizes the result goes under.
+          RowStack(alignment: .top, spacing: Tokens.Space.s) {
+            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+              HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
+                Text(verbatim: status.strategy.name)
+                  .font(.title3.monospaced().bold())
+                  .foregroundStyle(Palette.textPrimary)
+                  .lineLimit(1)
+                  .minimumScaleFactor(Tokens.Shrink.standard)
+                Text(verbatim: L10n.Lab.versionTag(status.strategy.version))
+                  .font(Tokens.Typography.annotation)
+                  .foregroundStyle(Palette.textQuaternary)
+                  .fixedSize()
+              }
+              Text(Self.daySummary(status))
+                .font(Tokens.Typography.annotation)
+                .foregroundStyle(Palette.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
             }
+            .layoutPriority(1)
             Spacer(minLength: 0)
-            DeltaTag(status.resultTodayGrossUsd.value, text: Money.signed(status.resultTodayGrossUsd.value))
+            VStack(alignment: typeSize.stacksRows ? .leading : .trailing, spacing: Tokens.Space.xs) {
+              Text(verbatim: Money.signedUSD(status.resultTodayGrossUsd.value))
+                .font(Tokens.Typography.metric)
+                .foregroundStyle(Palette.result(status.resultTodayGrossUsd.value))
+                .contentTransition(.numericText())
+                .lineLimit(1)
+                .fixedSize()
+              let curve = Self.curve(status)
+              if curve.count > 1 {
+                DrawnSparkline(values: curve, color: Palette.result(status.resultTodayGrossUsd.value))
+                  .frame(width: Self.curveWidth, height: Self.curveHeight)
+                  .accessibilityHidden(true)
+              }
+            }
           }
+          InfoCaption(L10n.Lab.modules)
         }
         .padding(Tokens.Space.l)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -88,6 +117,27 @@ struct LabView: View {
     (lab.observers?.observers ?? []).filter { $0.trades == nil }.map { observer in
       let cause = ApiText.prose(observer.tradesCauseCodes, text: observer.tradesCause) ?? Format.missing
       return String(localized: L10n.Lab.noTrades(observer.name, observer.version, cause))
+    }
+  }
+
+  /// Size of the active strategy's day curve, in points, as on the design.
+  static let curveWidth: CGFloat = 70
+  static let curveHeight: CGFloat = 20
+
+  /// "today · 3 closed · 2 W · 1 L · 1 open".
+  static func daySummary(_ status: StatusV1) -> LocalizedStringResource {
+    let results = status.tradesToday.map(\.resultGrossUsd.value)
+    return L10n.Lab.daySummary(results.count, results.filter { $0 > 0 }.count, results.filter { $0 < 0 }.count,
+      status.positions.count)
+  }
+
+  /// The day's realized result after each closed trade, from zero.
+  static func curve(_ status: StatusV1) -> [Double] {
+    let sorted = status.tradesToday.sorted { $0.closedAt.date < $1.closedAt.date }
+    var total = Decimal.zero
+    return [0] + sorted.map { trade in
+      total += trade.resultGrossUsd.value
+      return NSDecimalNumber(decimal: total).doubleValue
     }
   }
 

@@ -13,7 +13,7 @@ struct RiskView: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    Screen(L10n.Risk.title) {
+    Screen(L10n.Risk.title, back: L10n.App.home) {
       ConnectionPrompt()
       if let status = model.status {
         RoomCard(status: status, risk: model.settings?.risk).rise(step: Order.room.rawValue)

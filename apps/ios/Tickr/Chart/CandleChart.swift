@@ -21,7 +21,7 @@ struct CandleChart: View {
     var volume = true
     var macd = false
     var stochastic = false
-    var rsi = true
+    var rsi = false
     var atr = false
 
     /// The study panes under the price pane, top to bottom.
@@ -64,6 +64,13 @@ struct CandleChart: View {
     case atr
   }
 
+  /// Colours of the two EMA lines as the iOS design draws them: the fast one violet, the slow
+  /// one teal (the swap keeps the fast line apart from the rising candles' green).
+  static var fastEMAColour: Color { Palette.highlight }
+  static var slowEMAColour: Color { Palette.accent }
+  /// Side of an entry or exit marker, a filled circle with its direction inside, in points.
+  static let markerSide: CGFloat = 16
+
   /// Height of the price pane, in points.
   static let priceHeight: CGFloat = 300
   /// Height of each study pane, in points.
@@ -82,7 +89,7 @@ struct CandleChart: View {
   /// and candles, volume and studies line up.
   static let axisLabelWidth: CGFloat = 50
   /// Size of a watch or entry mark on its candle, in points.
-  static let eventSize: CGFloat = 60
+  static let eventSize: CGFloat = 250
   /// Length of the leader line of the high and low labels, in points.
   static let extremeLeader: CGFloat = 12
   /// Room above a study pane's line for its legend, as a share of the pane's value range.
@@ -112,6 +119,8 @@ struct CandleChart: View {
   /// The trading strategy's watch and entry marks.
   let events: [ChartEvent]
   let lines: Lines
+  /// The range's name for the caption ("Day · 1m · 40 bars …").
+  var rangeTitle: LocalizedStringResource = ChartText.rangeDay
   /// Beyond one day the whole range is on screen (zoom in to read closer); one day opens on
   /// the newest candles.
   var fitsAll = false
@@ -210,8 +219,8 @@ struct CandleChart: View {
         }
       }
       if showsVWAP { lineMarks(.vwap, series.vwap, Palette.seriesVWAP) }
-      if lines.fastEMA { lineMarks(.fastEMA, series.fastEMA, Palette.seriesFastEMA) }
-      if lines.slowEMA { lineMarks(.slowEMA, series.slowEMA, Palette.seriesSlowEMA) }
+      if lines.fastEMA { lineMarks(.fastEMA, series.fastEMA, CandleChart.fastEMAColour) }
+      if lines.slowEMA { lineMarks(.slowEMA, series.slowEMA, CandleChart.slowEMAColour) }
       extremes(scale)
       ForEach(trades) { trade in
         tradeMarks(trade)
@@ -454,11 +463,11 @@ struct CandleChart: View {
     if showsVWAP { items.append(LegendItem(name: ChartText.vwap, value: series.vwap[index], colour: Palette.seriesVWAP)) }
     if lines.fastEMA {
       items.append(LegendItem(name: ChartText.ema(Indicators.fastEMAPeriod), value: series.fastEMA[index],
-        colour: Palette.seriesFastEMA))
+        colour: CandleChart.fastEMAColour))
     }
     if lines.slowEMA {
       items.append(LegendItem(name: ChartText.ema(Indicators.slowEMAPeriod), value: series.slowEMA[index],
-        colour: Palette.seriesSlowEMA))
+        colour: CandleChart.slowEMAColour))
     }
     if lines.movingAverages {
       for (offset, period) in Studies.movingAveragePeriods.enumerated() {
@@ -673,8 +682,10 @@ struct CandleChart: View {
 
   private func marker(_ image: Image, _ colour: Color) -> some View {
     image
-      .font(Tokens.Typography.badge)
-      .foregroundStyle(colour)
+      .font(Tokens.Typography.chevron)
+      .foregroundStyle(Palette.onAccent)
+      .frame(width: Self.markerSide, height: Self.markerSide)
+      .background(colour, in: Circle())
   }
 
   /// Clock times on one day; beyond one day, where each session, week, month or quarter begins.
@@ -751,7 +762,7 @@ struct CandleChart: View {
         }
       }
     } else {
-      Text(ChartText.caption(String(localized: ChartFormat.title(series.timeframe)),
+      Text(ChartText.caption(String(localized: rangeTitle), String(localized: ChartFormat.title(series.timeframe)),
         String(localized: ChartText.bars(viewport.barsShown(series)))))
     }
   }

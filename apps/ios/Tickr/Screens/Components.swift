@@ -113,13 +113,19 @@ enum Format {
       timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork))
   }
 
-  /// "Fri, Nov 13" in the person's language: the New York day, as the bot keeps its sessions,
-  /// whatever the phone's time zone (noon in New York is already the next day from UTC+7 eastward).
+  /// "Fri Nov 13" in the person's language, as the design writes a day (weekday, then the date,
+  /// no comma): the New York day, as the bot keeps its sessions, whatever the phone's time zone
+  /// (noon in New York is already the next day from UTC+7 eastward).
   static func day(_ date: Date) -> String {
-    var style = Date.FormatStyle.dateTime.weekday(.abbreviated).month(.abbreviated).day()
-    style.timeZone = WireDate.newYork.timeZone
-    return date.formatted(style)
+    var weekday = Date.FormatStyle.dateTime.weekday(.abbreviated)
+    var monthDay = Date.FormatStyle.dateTime.month(.abbreviated).day()
+    weekday.timeZone = WireDate.newYork.timeZone
+    monthDay.timeZone = WireDate.newYork.timeZone
+    return date.formatted(weekday) + daySpace + date.formatted(monthDay)
   }
+
+  /// Between a day's weekday and its date.
+  static let daySpace = " "
 
   static func timeOrDash(_ time: WireTime?) -> String {
     time.map { clock($0.date) } ?? missing
@@ -161,29 +167,398 @@ struct RowStack<Content: View>: View {
   }
 }
 
-/// Every tab draws on the same background and keeps its own navigation stack.
-struct Screen<Content: View>: View {
-  @Environment(\.dynamicTypeSize) private var typeSize
+/// Every screen draws on the same background. A tab's own screen (`tab` set) has the design's
+/// compact title row at the top of its content, with its actions on the same row, and no navigation
+/// bar; a screen pushed onto a tab draws the design's "‹ Home" over the same title row
+/// (`PushedHeader`), with no navigation bar either.
+struct Screen<Leading: View, Actions: View, Content: View>: View {
   let title: LocalizedStringResource
+  let tab: AppTab?
+  /// A pushed screen's way back: the name of the screen under it ("‹ Home").
+  let back: LocalizedStringResource?
+  let leading: Leading
+  let actions: Actions
   let content: Content
 
-  init(_ title: LocalizedStringResource, @ViewBuilder content: () -> Content) {
+  init(
+    _ title: LocalizedStringResource, tab: AppTab? = nil, back: LocalizedStringResource? = nil,
+    @ViewBuilder leading: () -> Leading, @ViewBuilder actions: () -> Actions, @ViewBuilder content: () -> Content
+  ) {
     self.title = title
+    self.tab = tab
+    self.back = back
+    self.leading = leading()
+    self.actions = actions()
     self.content = content()
   }
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: Tokens.Space.m) { content }
-        .padding(.horizontal, Tokens.Space.l)
-        .padding(.bottom, Tokens.Space.xl)
+    let scroll = ScrollView {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        if tab != nil {
+          TitleRow(title: title) { leading } actions: { actions }
+        } else {
+          PushedHeader(title: title, back: back) { leading } actions: { actions }
+        }
+        content
+      }
+      .padding(.horizontal, Tokens.Space.l)
+      .padding(.bottom, Tokens.Space.xl)
     }
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
-    .navigationTitle(Text(title))
-    // A large title cannot wrap or shrink: at accessibility sizes it would be cut ("Лаборатор…"),
-    // so the title sits in the bar, where it fits whole.
-    .toolbarTitleDisplayMode(typeSize.isAccessibilitySize ? .inline : .automatic)
+    if let tab {
+      scroll.tabRoot(tab)
+    } else {
+      scroll.pushedScreen(title)
+    }
+  }
+}
+
+/// A pushed screen's top, as on the design's Settings: "‹ Home" (blue chevron and the name of the
+/// screen under it, no glass circle), then the screen's title row, as on the tabs.
+struct PushedHeader<Leading: View, Actions: View>: View {
+  let title: LocalizedStringResource
+  /// The screen under this one; nil reads "Back".
+  let back: LocalizedStringResource?
+  var action: DismissAction?
+  let leading: Leading
+  let actions: Actions
+
+  init(
+    title: LocalizedStringResource, back: LocalizedStringResource?, action: DismissAction? = nil,
+    @ViewBuilder leading: () -> Leading, @ViewBuilder actions: () -> Actions
+  ) {
+    self.title = title
+    self.back = back
+    self.action = action
+    self.leading = leading()
+    self.actions = actions()
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      BackButton(title: back ?? L10n.Common.back, action: action)
+      TitleRow(title: title) { leading } actions: { actions }
+    }
+  }
+}
+
+extension PushedHeader where Leading == EmptyView, Actions == EmptyView {
+  init(title: LocalizedStringResource, back: LocalizedStringResource?, action: DismissAction? = nil) {
+    self.init(title: title, back: back, action: action, leading: { EmptyView() }, actions: { EmptyView() })
+  }
+}
+
+/// "‹ Home": the way back from a pushed screen, drawn as on the design instead of the system's
+/// glass circle. The edge swipe still goes back (`EdgeSwipeBack`).
+struct BackButton: View {
+  /// Symbol of the way back.
+  static let symbol = "chevron.left"
+
+  @Environment(\.dismiss) private var dismiss
+  let title: LocalizedStringResource
+  /// The screen's own dismiss, for a header inside a form, whose rows see another one.
+  var action: DismissAction?
+
+  var body: some View {
+    Button {
+      (action ?? dismiss)()
+    } label: {
+      HStack(spacing: Tokens.Space.xxs) {
+        Image(systemName: Self.symbol).fontWeight(.semibold)
+        Text(title).lineLimit(1)
+      }
+      .font(.body)
+      .foregroundStyle(Palette.infoText)
+      .frame(minHeight: Tokens.Size.touchTarget)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(Text(L10n.Common.backTo(String(localized: title))))
+    .accessibilityIdentifier(AccessibilityID.back)
+  }
+}
+
+extension View {
+  /// A pushed screen draws its own top (`PushedHeader`): no navigation bar and no tab bar; the
+  /// title stays the screen's name for VoiceOver and the app switcher.
+  func pushedScreen(_ title: LocalizedStringResource) -> some View {
+    toolbarVisibility(.hidden, for: .navigationBar)
+      .navigationTitle(Text(title))
+      .background { EdgeSwipeBack() }
+  }
+}
+
+extension Screen where Leading == EmptyView {
+  init(
+    _ title: LocalizedStringResource, tab: AppTab? = nil, back: LocalizedStringResource? = nil,
+    @ViewBuilder actions: () -> Actions, @ViewBuilder content: () -> Content
+  ) {
+    self.init(title, tab: tab, back: back, leading: { EmptyView() }, actions: actions, content: content)
+  }
+}
+
+extension Screen where Leading == EmptyView, Actions == EmptyView {
+  init(
+    _ title: LocalizedStringResource, tab: AppTab? = nil, back: LocalizedStringResource? = nil,
+    @ViewBuilder content: () -> Content
+  ) {
+    self.init(title, tab: tab, back: back, leading: { EmptyView() }, actions: { EmptyView() }, content: content)
+  }
+}
+
+/// Layout constants of `SegmentChips` (a generic type cannot keep its own).
+enum SegmentLayout {
+  /// Largest text size of the segments' titles.
+  static let largestText = DynamicTypeSize.xxxLarge
+}
+
+/// A tab screen's title row as on the design: the title in `Typography.title`, the screen's
+/// actions as plain icons at the end of the same row. At large text sizes the actions take the line
+/// under the title, which shrinks to fit its one line.
+struct TitleRow<Leading: View, Actions: View>: View {
+  @Environment(\.dynamicTypeSize) private var typeSize
+  let title: LocalizedStringResource
+  let leading: Leading
+  let actions: Actions
+
+  init(title: LocalizedStringResource, @ViewBuilder leading: () -> Leading, @ViewBuilder actions: () -> Actions) {
+    self.title = title
+    self.leading = leading()
+    self.actions = actions()
+  }
+
+  var body: some View {
+    let stacked = typeSize.stacksRows
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      HStack(spacing: Tokens.Space.s) {
+        leading
+        Text(title)
+          .font(Tokens.Typography.title)
+          .foregroundStyle(Palette.textPrimary)
+          // One line: a long word shrinks rather than breaking ("Лаборато-рия").
+          .lineLimit(1)
+          .minimumScaleFactor(stacked ? Tokens.Shrink.tight : Tokens.Shrink.slight)
+          .accessibilityAddTraits(.isHeader)
+        Spacer(minLength: Tokens.Space.s)
+        if !stacked { actionRow }
+      }
+      if stacked { actionRow }
+    }
+    .padding(.top, Tokens.Space.s)
+  }
+
+  private var actionRow: some View {
+    HStack(spacing: Tokens.Space.m) { actions }
+      .buttonStyle(.borderless)
+      .tint(Palette.infoText)
+  }
+}
+
+extension View {
+  /// A tab's own screen: no navigation bar (the screen draws its title row), the tab's name as the
+  /// title a pushed screen's back button shows ("‹ Home"), and the design's tab bar under it. Pushed
+  /// screens have no tab bar, as on the design's Settings.
+  func tabRoot(_ tab: AppTab) -> some View {
+    toolbarVisibility(.hidden, for: .navigationBar)
+      .navigationTitle(Text(tab.title))
+      .safeAreaInset(edge: .bottom, spacing: 0) { TickrTabBar() }
+  }
+}
+
+extension AppTab {
+  /// All tabs, in the order of the tab bar.
+  static var ordered: [AppTab] { [.home, .positions, .chart, .activity, .lab] }
+
+  /// The tab's name in the tab bar.
+  var title: LocalizedStringResource {
+    switch self {
+    case .home: return L10n.App.home
+    case .positions: return L10n.App.positions
+    case .chart: return L10n.App.chart
+    case .activity: return L10n.App.activity
+    case .lab: return L10n.App.lab
+    }
+  }
+
+  /// The tab's outline glyph, the design's own drawing.
+  var glyph: DesignGlyph {
+    switch self {
+    case .home: return .home
+    case .positions: return .positions
+    case .chart: return .chart
+    case .activity: return .activity
+    case .lab: return .lab
+    }
+  }
+
+  /// The tab button's accessibility identifier (`AccessibilityID`).
+  var identifier: String {
+    switch self {
+    case .home: return AccessibilityID.tabHome
+    case .positions: return AccessibilityID.tabPositions
+    case .chart: return AccessibilityID.tabChart
+    case .activity: return AccessibilityID.tabActivity
+    case .lab: return AccessibilityID.tabLab
+    }
+  }
+}
+
+/// The phone's bottom safe-area inset (the home indicator's strip), read once at the root: the tab
+/// bar floats at the design's distance from the screen's edge rather than from the safe area.
+extension EnvironmentValues {
+  @Entry var screenBottomInset: CGFloat = 0
+}
+
+/// The design's tab bar: a floating capsule on a blurred surface with a hairline and a soft shadow;
+/// each tab an outline symbol over its name, the selected one in `infoText` on an `info` wash.
+struct TickrTabBar: View {
+  /// Height of the capsule, its distance from the screen's sides and bottom edge, in points.
+  static let height: CGFloat = 58
+  static let sideInset: CGFloat = 20
+  static let bottomGap: CGFloat = 22
+  /// Largest text size of the tab names.
+  static let largestText = DynamicTypeSize.xLarge
+  /// Least width of one tab, in points.
+  static let tabWidth: CGFloat = 56
+  /// Wash under the selected tab, a share of `info`.
+  static let selectedWash = 0.16
+  /// Shadow under the capsule: share of `shadow`, blur and drop, in points.
+  static let shadowShare = 0.25
+  static let shadowBlur: CGFloat = 15
+  static let shadowDrop: CGFloat = 10
+
+  @Environment(AppModel.self) private var model
+  @Environment(\.screenBottomInset) private var bottomInset
+
+  var body: some View {
+    HStack(spacing: 0) {
+      ForEach(AppTab.ordered, id: \.self) { tab in
+        button(tab).frame(maxWidth: .infinity)
+      }
+    }
+    .padding(.horizontal, Tokens.Space.xs)
+    .frame(minHeight: Self.height)
+    .background(.ultraThinMaterial, in: Capsule())
+    .background(Palette.surface.opacity(Tokens.Opacity.overlay), in: Capsule())
+    .overlay(Capsule().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+    .shadow(color: Palette.shadow.opacity(Self.shadowShare), radius: Self.shadowBlur, y: Self.shadowDrop)
+    .padding(.horizontal, Self.sideInset)
+    // From the screen's bottom edge, not from the top of the home indicator's strip.
+    .padding(.bottom, Self.bottomGap - bottomInset)
+    // As the system tab bar: its text stops growing at a large size, and a long press shows a
+    // tab's name in the large-content viewer at accessibility sizes.
+    .dynamicTypeSize(...Self.largestText)
+    .accessibilityElement(children: .contain)
+    .accessibilityAddTraits(.isTabBar)
+  }
+
+  private func button(_ tab: AppTab) -> some View {
+    let selected = model.selectedTab == tab
+    return Button {
+      model.selectedTab = tab
+    } label: {
+      VStack(spacing: Tokens.Space.xs) {
+        DesignGlyphView(tab.glyph, side: Tokens.Size.tabGlyph)
+        Text(tab.title)
+          .font(.caption2.weight(.medium))
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.Shrink.standard)
+      }
+      .foregroundStyle(selected ? Palette.infoText : Palette.textSecondary)
+      .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
+      .frame(minWidth: Self.tabWidth)
+      .padding(.horizontal, Tokens.Space.xs)
+      .background {
+        if selected {
+          Capsule().fill(Palette.info.opacity(Self.selectedWash))
+        }
+      }
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .accessibilityShowsLargeContentViewer {
+      Label { Text(tab.title) } icon: { DesignGlyphView(tab.glyph, side: Tokens.Size.tabGlyph) }
+    }
+    .accessibilityAddTraits(selected ? [.isSelected] : [])
+    .accessibilityIdentifier(tab.identifier)
+  }
+}
+
+/// One of a few choices side by side as the design draws them, as equal segments on a card:
+/// `tinted` washes the chosen one in `info` with its text in `infoText` (the chart's range),
+/// `raised` sets it on a sunken tile with a hairline (Activity's panes), `filled` draws it solid in
+/// `info` (the Lab's replay span).
+struct SegmentChips<Value: Hashable>: View {
+  enum Style { case tinted, raised, filled }
+
+  let options: [(value: Value, title: Text)]
+  @Binding var selection: Value
+  var style = Style.tinted
+  /// Accessibility identifier of each segment (UI tests find the panes by it).
+  var identifier: String?
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      ForEach(Array(options.enumerated()), id: \.offset) { _, option in
+        let chosen = option.value == selection
+        Button {
+          selection = option.value
+        } label: {
+          option.title
+            .font(font)
+            .lineLimit(1)
+            .minimumScaleFactor(Tokens.Shrink.standard)
+            .foregroundStyle(chosen ? chosenText : Palette.textSecondary)
+            .frame(maxWidth: .infinity, minHeight: Tokens.Size.iconButton)
+            .padding(.horizontal, Tokens.Space.xs)
+            .background {
+              if chosen {
+                let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                shape.fill(chosenFill)
+                  .overlay { if style == .raised { shape.strokeBorder(Palette.separator) } }
+              }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(chosen ? [.isSelected] : [])
+        .accessibilityIdentifier(identifier ?? "")
+      }
+    }
+    .padding(Tokens.Space.xs)
+    .background(Palette.surface, in: RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous))
+    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+      .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
+    .animation(Tokens.Motion.quick, value: selection)
+    // Equal segments in one row: past this size a title would be cut ("Де…"), as a system
+    // segmented control's titles stop growing too.
+    .dynamicTypeSize(...SegmentLayout.largestText)
+  }
+
+  private var font: Font {
+    switch style {
+    case .tinted: return Tokens.Typography.captionMono.bold()
+    case .raised: return .footnote.weight(.semibold)
+    case .filled: return Tokens.Typography.buttonCompact
+    }
+  }
+
+  private var chosenText: Color {
+    switch style {
+    case .tinted: return Palette.infoText
+    case .raised: return Palette.textPrimary
+    case .filled: return Palette.onAccent
+    }
+  }
+
+  private var chosenFill: Color {
+    switch style {
+    case .tinted: return Palette.info.opacity(Tokens.Opacity.wash)
+    case .raised: return Palette.surfaceSunken
+    case .filled: return Palette.info
+    }
   }
 }
 
@@ -213,40 +588,54 @@ struct ConnectionPrompt: View {
   }
 }
 
-/// A label and a value in a small card, used in rows of three.
+/// A label and a value in a small card, used in rows of three, as on the design: the section label
+/// over a bold mono figure, no rail.
 struct StatTile: View {
   let label: LocalizedStringResource
   let value: String
   var color: Color = Palette.textPrimary
 
   var body: some View {
-    MetricChip(label, value: value, tone: tone, color: color)
-  }
-
-  /// The chip's rail: the value's colour when it carries a meaning, else none.
-  private var tone: Tone? {
-    switch color {
-    case Palette.profitText: return .profit
-    case Palette.lossText: return .loss
-    case Palette.warningText: return .warning
-    default: return nil
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      CardLabel(label)
+        .lineLimit(1)
+        .minimumScaleFactor(Tokens.Shrink.slight)
+      Text(verbatim: value)
+        .font(.subheadline.monospaced().bold())
+        .foregroundStyle(color)
+        .lineLimit(1)
+        .minimumScaleFactor(Tokens.Shrink.standard)
+        .contentTransition(.numericText())
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .padding(.horizontal, Tokens.Space.m)
+    .padding(.vertical, Tokens.Space.s)
+    .tickrCard(radius: Tokens.Radius.large)
+    .accessibilityElement(children: .combine)
   }
 }
 
 /// The environment badge (SANDBOX / PRODUCTION) from the status document.
 struct EnvironmentBadge: View {
+  /// The environment name of the demo day.
+  static let demo = "demo"
+
   let environment: String
 
   var body: some View {
+    // As on the design: Sandbox in amber; the demo day in violet with a dashed edge, so it never
+    // passes for a real environment.
+    let demo = environment == Self.demo
+    let tone = demo ? Palette.highlight : Palette.warning
     Text(verbatim: ApiText.environment(environment).uppercased())
       .font(Tokens.Typography.badge)
       .tracking(Tokens.Typography.badgeTracking)
       .padding(.horizontal, Tokens.Space.s)
       .padding(.vertical, Tokens.Space.xs)
-      .foregroundStyle(Palette.warningText)
-      .background(Palette.warning.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
-      .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.small).strokeBorder(Palette.warning.opacity(Tokens.Opacity.border)))
+      .foregroundStyle(demo ? Palette.highlightText : Palette.warningText)
+      .background(tone.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
+      .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.small).strokeBorder(tone.opacity(Tokens.Opacity.border),
+        style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: demo ? Tokens.Stroke.dashFine : [])))
       .accessibilityLabel(Text(L10n.Connect.environment(ApiText.environment(environment))))
   }
 }
@@ -312,11 +701,11 @@ struct StopGlyph: View {
   var price: DecimalString?
 
   /// Symbols of the stop states, and of a stop level next to a price.
-  static let verifiedSymbol = "checkmark.shield.fill"
+  static let verifiedSymbol = "shield.fill"
   static let pendingSymbol = "hourglass"
   static let missingSymbol = "xmark.shield.fill"
   static let unknownSymbol = "exclamationmark.shield.fill"
-  static let levelSymbol = "shield.lefthalf.filled"
+  static let levelSymbol = "shield"
 
   var body: some View {
     StateGlyph(glyph, tone: tone, label: Text(verbatim: symbol + Format.separator + Board.stopStateTitle(state)),
@@ -368,25 +757,90 @@ struct SettingsIcon: View {
   }
 }
 
-/// A form row with a `SettingsIcon` in front of its label and any value view after it.
-struct SettingsRow<Value: View>: View {
-  let label: LocalizedStringResource
+/// A settings section as the design's card: the section's label inside the card with its glowing
+/// tick (and an accessory at the end, such as a state pill), the rows, and its note last.
+struct SettingsCard<Accessory: View, Content: View>: View {
+  let title: LocalizedStringResource
+  var note: LocalizedStringResource?
+  let accessory: Accessory
+  let content: Content
+
+  init(
+    _ title: LocalizedStringResource, note: LocalizedStringResource? = nil,
+    @ViewBuilder accessory: () -> Accessory, @ViewBuilder content: () -> Content
+  ) {
+    self.title = title
+    self.note = note
+    self.accessory = accessory()
+    self.content = content()
+  }
+
+  var body: some View {
+    Section {
+      SectionHeader(title) { accessory }
+      content
+      if let note {
+        InfoCaption(note)
+      }
+    }
+    .listRowBackground(Palette.surface)
+  }
+}
+
+extension SettingsCard where Accessory == EmptyView {
+  init(_ title: LocalizedStringResource, note: LocalizedStringResource? = nil, @ViewBuilder content: () -> Content) {
+    self.init(title, note: note, accessory: { EmptyView() }, content: content)
+  }
+}
+
+/// A form row with a `SettingsIcon` in front of its label, an optional line under the label, and
+/// any value view after it.
+struct SettingsRow<Value: View, Subtitle: View>: View {
+  let label: Text
   let systemImage: String
   let tone: Tone
   let value: Value
+  let subtitle: Subtitle
 
-  init(_ label: LocalizedStringResource, systemImage: String, tone: Tone, @ViewBuilder value: () -> Value) {
+  init(
+    _ label: LocalizedStringResource, systemImage: String, tone: Tone, @ViewBuilder value: () -> Value,
+    @ViewBuilder subtitle: () -> Subtitle
+  ) {
+    self.init(Text(label), systemImage: systemImage, tone: tone, value: value, subtitle: subtitle)
+  }
+
+  /// A row whose label is already localized (a state written in sentence case).
+  init(
+    _ label: Text, systemImage: String, tone: Tone, @ViewBuilder value: () -> Value,
+    @ViewBuilder subtitle: () -> Subtitle
+  ) {
     self.label = label
     self.systemImage = systemImage
     self.tone = tone
     self.value = value()
+    self.subtitle = subtitle()
   }
 
   var body: some View {
     LabeledContent {
       value
     } label: {
-      Label { Text(label) } icon: { SettingsIcon(systemImage, tone: tone) }
+      Label {
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          label
+          subtitle
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+        }
+      } icon: {
+        SettingsIcon(systemImage, tone: tone)
+      }
     }
+  }
+}
+
+extension SettingsRow where Subtitle == EmptyView {
+  init(_ label: LocalizedStringResource, systemImage: String, tone: Tone, @ViewBuilder value: () -> Value) {
+    self.init(label, systemImage: systemImage, tone: tone, value: value) { EmptyView() }
   }
 }

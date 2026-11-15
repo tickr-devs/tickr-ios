@@ -140,8 +140,10 @@ public enum Tokens {
     public static let thin: CGFloat = 1
     /// Indicator lines, outlines that must read at a glance.
     public static let regular: CGFloat = 1.5
-    /// Price lines and sparklines.
+    /// Price lines and sparklines; also the design's own outline glyphs on their 24-point grid.
     public static let bold: CGFloat = 2
+    /// The design's power glyph, on its 24-point grid (`DesignGlyph.power`).
+    public static let glyphHeavy: CGFloat = 2.2
     /// Rings (loss room, results).
     public static let ring: CGFloat = 12
     /// Track and fill of a small gauge ring (`MiniRing`).
@@ -210,6 +212,12 @@ public enum Tokens {
     public static let launchMark: CGFloat = 160
     /// Height of a sparkline and of a progress bar.
     public static let sparkline: CGFloat = 34
+    /// A tab bar glyph (`DesignGlyph`), as on the iOS boards.
+    public static let tabGlyph: CGFloat = 24
+    /// Home's title-row action glyphs (power, settings), as on the iOS Home board.
+    public static let headerGlyph: CGFloat = 16
+    /// A glyph inside a chip-height button (the chart-type buttons), as on the iOS Chart board.
+    public static let chipGlyph: CGFloat = 14
     public static let bar: CGFloat = 8
     /// Height of a thin progress bar inside a row (Watching closely).
     public static let barThin: CGFloat = 4

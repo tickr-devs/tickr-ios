@@ -229,7 +229,7 @@ struct AdvisorProposalView: View {
   @State private var ownerFailure: String?
 
   var body: some View {
-    Screen(AdvisorWords.page) {
+    Screen(AdvisorWords.page, back: L10n.App.lab) {
       if let run = advisor.run(runID) {
         header(run)
         StepPath(AdvisorLook.steps(run, settings: model.settings))

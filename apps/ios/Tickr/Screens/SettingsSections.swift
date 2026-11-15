@@ -11,14 +11,10 @@ struct EnvironmentSection: View {
   let status: StatusV1
 
   var body: some View {
-    Section {
+    SettingsCard(L10n.Settings.environment, note: L10n.Settings.environmentFooter) {
       SettingsRow(L10n.Settings.environment, systemImage: Self.symbol, tone: .warning) {
         StatusPill(verbatim: ApiText.environment(status.environment), tone: .warning)
       }
-    } header: {
-      Text(L10n.Settings.environment)
-    } footer: {
-      Text(L10n.Settings.environmentFooter)
     }
   }
 }
@@ -33,7 +29,7 @@ struct SessionSection: View {
   let session: SessionSettings?
 
   var body: some View {
-    Section {
+    SettingsCard(L10n.Settings.session, note: L10n.Settings.sessionFooter) {
       SessionBar()
         .padding(.vertical, Tokens.Space.s)
       if let session {
@@ -44,10 +40,6 @@ struct SessionSection: View {
           Text(L10n.Risk.beforeClose(session.flattenMinutesBeforeClose))
         }
       }
-    } header: {
-      Text(L10n.Settings.session)
-    } footer: {
-      Text(L10n.Settings.sessionFooter)
     }
   }
 }
@@ -149,7 +141,10 @@ struct PreflightSection: View {
 
   var body: some View {
     let results = Preflight.run(status: model.response, readFailed: model.fetchError != nil, account: model.account)
-    Section {
+    SettingsCard(L10n.Settings.preflight) {
+      StatusPill(summary(results), tone: summaryTone(results))
+        .contentTransition(.opacity)
+    } content: {
       ForEach(results) { result in
         HStack(spacing: Tokens.Space.m) {
           icon(result.outcome)
@@ -172,13 +167,6 @@ struct PreflightSection: View {
         Text(L10n.Settings.accountFailed(failure))
           .font(.footnote)
           .foregroundStyle(Palette.warningText)
-      }
-    } header: {
-      HStack {
-        Text(L10n.Settings.preflight)
-        Spacer()
-        StatusPill(summary(results), tone: summaryTone(results))
-          .contentTransition(.opacity)
       }
     }
   }

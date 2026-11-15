@@ -42,7 +42,8 @@ struct VersionsCard: View {
       if let start {
         Chart {
           RuleMark(y: .value(String(localized: L10n.Lab.result), 0))
-            .foregroundStyle(Palette.separator)
+            .foregroundStyle(Palette.separatorStrong)
+            .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
           ForEach(curves) { curve in
             let points = [VersionCurve.Point(at: start, total: 0)] + curve.points
               + [VersionCurve.Point(at: max(end, curve.points.last?.at ?? start), total: curve.points.last?.total ?? 0)]
@@ -54,16 +55,22 @@ struct VersionsCard: View {
                 .foregroundStyle(color(curve))
                 .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.bold, dash: curve.complete ? [] : Tokens.Stroke.dash))
             }
-          }
-        }
-        .chartXAxis {
-          AxisMarks { value in
-            AxisGridLine()
-            AxisValueLabel {
-              if let date = value.as(Date.self) { Text(verbatim: Format.time(date)) }
+            // A glowing dot where the line ends, as on the design.
+            if let last = points.last {
+              PointMark(x: .value(String(localized: L10n.Lab.time), last.at),
+                y: .value(String(localized: L10n.Lab.result), NSDecimalNumber(decimal: last.total).doubleValue))
+                .symbol {
+                  Circle()
+                    .fill(color(curve))
+                    .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
+                    .shadow(color: color(curve), radius: Tokens.Size.glowRadius / 2)
+                }
             }
           }
         }
+        // As on the design: the lines alone, no axes or grid.
+        .chartXAxis(.hidden)
+        .chartYAxis(.hidden)
         .frame(height: Self.chartHeight)
         .accessibilityHidden(true)
       } else {

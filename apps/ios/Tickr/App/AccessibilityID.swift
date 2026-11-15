@@ -12,4 +12,14 @@ enum AccessibilityID {
   static let botControlCancel = "botControl.cancel"
   /// Activity toolbar button that shows or hides the calendar.
   static let calendar = "activity.calendar"
+  /// The tab bar's buttons.
+  static let tabHome = "tab.home"
+  static let tabPositions = "tab.positions"
+  static let tabChart = "tab.chart"
+  static let tabActivity = "tab.activity"
+  static let tabLab = "tab.lab"
+  /// A pushed screen's own back button ("‹ Home").
+  static let back = "nav.back"
+  /// Each pane chip of Activity (Trades, Not taken, Journal).
+  static let activitySection = "activity.section"
 }

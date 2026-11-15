@@ -2,8 +2,8 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Settings, behind the gear on Home: where the bot is, what the bot reports about itself, and
-/// what this phone does. A standard grouped form, as iOS settings are.
+/// Settings, behind the gear on Home: what the bot reports about itself, what this phone does, and
+/// where the bot is. A grouped form whose sections are the design's cards, with no tab bar.
 struct SettingsView: View {
   /// Info.plist key of the app's marketing version.
   static let versionKey = "CFBundleShortVersionString"
@@ -12,9 +12,8 @@ struct SettingsView: View {
   static let pairSymbol = "qrcode"
   static let forgetSymbol = "link.badge.minus"
   static let stateSymbol = "power"
-  static let gateOpenSymbol = "lock.open.fill"
   static let gateClosedSymbol = "lock.fill"
-  static let strategySymbol = "cpu"
+  static let configSymbol = "doc.plaintext.fill"
   static let lockScreenSymbol = "bell.badge.fill"
   static let appSymbol = "app.fill"
   static let contractSymbol = "doc.text.fill"
@@ -23,76 +22,36 @@ struct SettingsView: View {
   static let demoDayID = "settings-demo-day"
 
   @Environment(AppModel.self) private var model
+  @Environment(\.dismiss) private var dismiss
   @State private var draft = ""
   @FocusState private var editing: Bool
   @State private var showPairing = false
   @State private var confirmForget = false
+  @State private var showControl = false
 
   var body: some View {
     Form {
       Section {
-        TextField(text: $draft, prompt: Text(verbatim: Connection.simulatorAddress)) {
-          Text(L10n.Settings.botOnMac)
-        }
-        .keyboardType(.URL)
-        .textContentType(.URL)
-        .textInputAutocapitalization(.never)
-        .autocorrectionDisabled()
-        .focused($editing)
-        .submitLabel(.done)
-        .onSubmit(save)
-        .font(.body.monospaced())
-        if draft != model.connection.address {
-          Button(action: save) { Text(L10n.Settings.saveAddress) }
-            .disabled(!draft.isEmpty && Connection(address: draft).url == nil)
-        }
-        SettingsRow(L10n.Settings.status, systemImage: Self.statusSymbol, tone: connectionState.tone) {
-          StatusPill(connectionState.text, tone: connectionState.tone)
-        }
-        Button { showPairing = true } label: {
-          Label { Text(L10n.Pair.start) } icon: { SettingsIcon(Self.pairSymbol, tone: .info) }
-        }
-        if model.connection.token != nil {
-          Button(role: .destructive) { confirmForget = true } label: {
-            Label { Text(L10n.Pair.forget) } icon: { SettingsIcon(Self.forgetSymbol, tone: .loss) }
-          }
-        }
-      } header: {
-        Text(L10n.Settings.botOnMac)
-      } footer: {
-        Text(L10n.Settings.addressFooter)
+        PushedHeader(title: L10n.Settings.title, back: L10n.App.home, action: dismiss)
       }
+      .listRowBackground(Color.clear)
+      .listRowInsets(EdgeInsets())
+      // As on the design: where the bot is, then the bot itself.
+      connectionCard
+      if let status = model.status { botCard(status) }
 
-      Section {
+      // The demo day switch (#411), in the design's card style.
+      SettingsCard(L10n.Settings.demoDay, note: L10n.Settings.demoDayFooter) {
         Toggle(isOn: Binding(get: { model.connection.demo }, set: { model.connection = model.connection.demo($0) })) {
           Label { Text(L10n.Settings.demoDay) } icon: { SettingsIcon(Self.demoSymbol, tone: .warning) }
         }
         .tint(Palette.warning)
         .accessibilityIdentifier(Self.demoDayID)
-      } footer: {
-        Text(L10n.Settings.demoDayFooter)
       }
 
-      if let status = model.status {
-        Section {
-          let running = status.botState == .running
-          SettingsRow(L10n.Settings.state, systemImage: Self.stateSymbol, tone: running ? .accent : .neutral) {
-            StatusPill(status.botState.title, tone: running ? .accent : .neutral,
-              live: running && model.response?.stale == false, event: status.botState)
-          }
-          let open = status.tradingGate.open
-          SettingsRow(L10n.Settings.gate, systemImage: open ? Self.gateOpenSymbol : Self.gateClosedSymbol,
-            tone: open ? .profit : .warning) {
-            StatusPill(open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed, tone: open ? .profit : .warning)
-          }
-          if !open {
-            InfoCaption(verbatim: ApiText.gate(status.tradingGate), tone: .warning)
-          }
-          SettingsRow(L10n.Settings.strategy, systemImage: Self.strategySymbol, tone: .highlight) {
-            Badge(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version), tone: .highlight)
-          }
-        } header: {
-          Text(L10n.Settings.bot)
+      SettingsCard(L10n.Settings.notifications, note: L10n.Settings.notificationsFooter) {
+        SettingsRow(L10n.Settings.lockScreen, systemImage: Self.lockScreenSymbol, tone: .warning) {
+          Badge(L10n.Settings.notYet, tone: .highlight, planned: true)
         }
       }
 
@@ -100,22 +59,12 @@ struct SettingsView: View {
         EnvironmentSection(status: status)
       }
       if model.isConfigured {
-        PreflightSection()
         SessionSection(session: model.settings?.session)
+        PreflightSection()
         JobsSection()
       }
 
-      Section {
-        SettingsRow(L10n.Settings.lockScreen, systemImage: Self.lockScreenSymbol, tone: .warning) {
-          Badge(L10n.Settings.notYet, tone: .highlight, planned: true)
-        }
-      } header: {
-        Text(L10n.Settings.notifications)
-      } footer: {
-        Text(L10n.Settings.notificationsFooter)
-      }
-
-      Section {
+      SettingsCard(L10n.Settings.about) {
         SettingsRow(L10n.Settings.app, systemImage: Self.appSymbol, tone: .accent) {
           Text(verbatim: Bundle.main.object(forInfoDictionaryKey: Self.versionKey) as? String ?? Format.missing)
             .font(.body.monospaced())
@@ -123,15 +72,20 @@ struct SettingsView: View {
         SettingsRow(L10n.Settings.contract, systemImage: Self.contractSymbol, tone: .info) {
           Text(L10n.Settings.contractVersion(Wire.apiVersion))
         }
-      } header: {
-        Text(L10n.Settings.about)
       }
     }
-    .navigationTitle(Text(L10n.Settings.title))
+    .scrollContentBackground(.hidden)
+    .background(TickrBackground())
+    .listSectionSpacing(Tokens.Space.m)
+    // The header row is the top: no extra form margin above it.
+    .contentMargins(.top, 0, for: .scrollContent)
+    .pushedScreen(L10n.Settings.title)
     .onAppear { draft = model.connection.address }
     .task(id: model.connection.url) { await model.followAccount() }
     .task(id: model.connection.url) { await model.followJobs() }
+    .task(id: model.connection.url) { await model.refreshConfig() }
     .onChange(of: model.connection.address) { _, address in draft = address }
+    .botControl(isPresented: $showControl)
     .sheet(isPresented: $showPairing) { PairingSheet() }
     .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {
       Button(role: .destructive) {
@@ -141,6 +95,87 @@ struct SettingsView: View {
       }
     } message: {
       Text(L10n.Pair.forgetMessage)
+    }
+  }
+
+  /// The bot as on the design: its state with what it holds and a Stop that opens bot control
+  /// (where the stop is confirmed), the configuration file, then the trading gate and strategy.
+  private func botCard(_ status: StatusV1) -> some View {
+    SettingsCard(L10n.Settings.bot) {
+      let running = status.botState == .running
+      // The state as a row's title, in sentence case ("Running").
+      SettingsRow(Text(verbatim: String(localized: status.botState.title).localizedCapitalized),
+        systemImage: Self.stateSymbol, tone: running ? .profit : .neutral) {
+        if running && model.canCommand {
+          Button { showControl = true } label: {
+            Text(L10n.Settings.stop)
+              .font(Tokens.Typography.buttonCompact)
+              .foregroundStyle(Palette.lossText)
+              .padding(.horizontal, Tokens.Space.m)
+              .padding(.vertical, Tokens.Space.xs)
+              .background(Palette.loss.opacity(Tokens.Opacity.wash), in: Capsule())
+          }
+          .buttonStyle(.borderless)
+        } else {
+          StatusPill(status.botState.title, tone: running ? .accent : .neutral,
+            live: running && model.response?.stale == false, event: status.botState)
+        }
+      } subtitle: {
+        Text(status.positions.isEmpty ? L10n.Settings.holdsNothing : L10n.Settings.holds(status.positions.count))
+      }
+      NavigationLink {
+        ConfigView()
+      } label: {
+        SettingsRow(L10n.Settings.configuration, systemImage: Self.configSymbol, tone: .neutral) {
+          if let config = model.config {
+            if config.valid {
+              Badge(L10n.Settings.configValid, tone: .profit)
+            } else {
+              Badge(L10n.Settings.configInvalid, tone: .loss)
+            }
+          }
+        }
+      }
+      // As on the design the card holds the bot and its file; a closed trading gate is the one
+      // exception, as it stops every entry (the open gate and the strategy are on Home and Lab).
+      if !status.tradingGate.open {
+        SettingsRow(L10n.Settings.gate, systemImage: Self.gateClosedSymbol, tone: .warning) {
+          StatusPill(L10n.Settings.gateClosed, tone: .warning)
+        }
+        InfoCaption(verbatim: ApiText.gate(status.tradingGate), tone: .warning)
+      }
+    }
+  }
+
+  /// Where the bot is: the address, the connection's state, pairing.
+  private var connectionCard: some View {
+    SettingsCard(L10n.Settings.botOnMac, note: L10n.Settings.addressFooter) {
+      TextField(text: $draft, prompt: Text(verbatim: Connection.simulatorAddress)) {
+        Text(L10n.Settings.botOnMac)
+      }
+      .keyboardType(.URL)
+      .textContentType(.URL)
+      .textInputAutocapitalization(.never)
+      .autocorrectionDisabled()
+      .focused($editing)
+      .submitLabel(.done)
+      .onSubmit(save)
+      .font(.body.monospaced())
+      if draft != model.connection.address {
+        Button(action: save) { Text(L10n.Settings.saveAddress) }
+          .disabled(!draft.isEmpty && Connection(address: draft).url == nil)
+      }
+      SettingsRow(L10n.Settings.status, systemImage: Self.statusSymbol, tone: connectionState.tone) {
+        StatusPill(connectionState.text, tone: connectionState.tone)
+      }
+      Button { showPairing = true } label: {
+        Label { Text(L10n.Pair.start) } icon: { SettingsIcon(Self.pairSymbol, tone: .info) }
+      }
+      if model.connection.token != nil {
+        Button(role: .destructive) { confirmForget = true } label: {
+          Label { Text(L10n.Pair.forget) } icon: { SettingsIcon(Self.forgetSymbol, tone: .loss) }
+        }
+      }
     }
   }
 

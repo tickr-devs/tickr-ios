@@ -7,44 +7,21 @@ struct RootView: View {
 
   var body: some View {
     @Bindable var model = model
-    // Tab icons are outlines, as on the design, rather than the tab bar's default filled variants;
-    // set on each icon so the screens inside keep their own symbol variants.
-    TabView(selection: $model.selectedTab) {
-      Tab(value: AppTab.home) {
-        NavigationStack { HomeView() }
-      } label: {
-        Label { Text(L10n.App.home) } icon: {
-          Image(systemName: "square.grid.2x2").environment(\.symbolVariants, .none)
+    // The design's own tab bar (`TickrTabBar`) sits under each tab's screen; the system bar is
+    // hidden on every screen of every tab.
+    GeometryReader { proxy in
+      TabView(selection: $model.selectedTab) {
+        ForEach(AppTab.ordered, id: \.self) { tab in
+          Tab(value: tab) {
+            NavigationStack { screen(tab) }
+              .toolbarVisibility(.hidden, for: .tabBar)
+          } label: {
+            // The system bar is hidden: its label only names the tab.
+            Text(tab.title)
+          }
         }
       }
-      Tab(value: AppTab.positions) {
-        NavigationStack { PositionsView() }
-      } label: {
-        Label { Text(L10n.App.positions) } icon: {
-          Image(systemName: "lock").environment(\.symbolVariants, .none)
-        }
-      }
-      Tab(value: AppTab.chart) {
-        NavigationStack { ChartTab() }
-      } label: {
-        Label { Text(L10n.App.chart) } icon: {
-          Image(systemName: "chart.line.uptrend.xyaxis").environment(\.symbolVariants, .none)
-        }
-      }
-      Tab(value: AppTab.activity) {
-        NavigationStack { ActivityView() }
-      } label: {
-        Label { Text(L10n.App.activity) } icon: {
-          Image(systemName: "line.3.horizontal").environment(\.symbolVariants, .none)
-        }
-      }
-      Tab(value: AppTab.lab) {
-        NavigationStack { LabView() }
-      } label: {
-        Label { Text(L10n.App.lab) } icon: {
-          Image(systemName: "star").environment(\.symbolVariants, .none)
-        }
-      }
+      .environment(\.screenBottomInset, proxy.safeAreaInsets.bottom)
     }
     .modifier(NoticeOverlay())
     .onOpenURL { url in
@@ -64,6 +41,17 @@ struct RootView: View {
       Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
     } message: { _ in
       Text(L10n.Pair.askMessage)
+    }
+  }
+
+  @ViewBuilder
+  private func screen(_ tab: AppTab) -> some View {
+    switch tab {
+    case .home: HomeView()
+    case .positions: PositionsView()
+    case .chart: ChartTab()
+    case .activity: ActivityView()
+    case .lab: LabView()
     }
   }
 }

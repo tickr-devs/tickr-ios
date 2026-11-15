@@ -44,6 +44,10 @@ final class AppModel {
   private(set) var jobs: JobsV1?
   /// Why the jobs could not be read, if they could not.
   private(set) var jobsError: String?
+  /// The bot's configuration file as on disk (GET /config), read when its page opens.
+  private(set) var config: ConfigV1?
+  /// Why it could not be read, if it could not.
+  private(set) var configError: String?
   /// Today's live flow (GET /flow): stage counts and stops, read while Home is on screen.
   private(set) var flow: FlowV1?
   /// Why the flow could not be read, if it could not.
@@ -136,6 +140,8 @@ final class AppModel {
     accountError = nil
     jobs = nil
     jobsError = nil
+    config = nil
+    configError = nil
     flow = nil
     flowError = nil
     skipped = nil
@@ -220,6 +226,22 @@ final class AppModel {
       if connection.url == url {
         jobs = nil
         jobsError = Self.describe(error) ?? jobsError
+      }
+    }
+  }
+
+  func refreshConfig() async {
+    guard let url = connection.url else { return }
+    do {
+      let read = try await Container.shared.apiClient(connection.endpoint(for: url)).config()
+      guard connection.url == url else { return }
+      config = read
+      configError = nil
+    } catch {
+      // A cancelled read keeps what was shown.
+      if connection.url == url, let described = Self.describe(error) {
+        config = nil
+        configError = described
       }
     }
   }

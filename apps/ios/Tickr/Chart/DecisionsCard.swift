@@ -91,36 +91,42 @@ private struct DecisionRow: View {
       }
       .padding(.top, Tokens.Space.xs)
     } label: {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        // Time, action, strategy and the observer mark wrap as whole pieces at large text sizes.
-        ChipFlow(spacing: Tokens.Space.s) {
-          Text(decision.at.date, format: ChartFormat.time)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
-            .lineLimit(1)
-          Text(decision.action.title)
-            .lineLimit(1)
-            .font(Tokens.Typography.annotationBold)
-            .padding(.horizontal, Tokens.Space.s)
-            .padding(.vertical, Tokens.Space.xxs)
-            .foregroundStyle(decision.action.color)
-            .background(decision.action.color.opacity(Tokens.Opacity.wash), in: Capsule())
-          Text(ChartText.strategy(decision.strategy.name, decision.strategy.version))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textSecondary)
-            .lineLimit(1)
-          if decision.observer {
-            Text(ChartText.observer)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(Palette.highlight)
+      // As the design's rows: a dot in the verdict's colour, what the bot did and which strategy,
+      // and the time at the end; at large text sizes the pieces wrap whole.
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+        Circle()
+          .fill(decision.action.dotColor)
+          .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
+          .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          ChipFlow(spacing: Tokens.Space.xs) {
+            Text(decision.action.title)
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(Palette.textPrimary)
               .lineLimit(1)
+            Text(ChartText.strategy(decision.strategy.name, decision.strategy.version))
+              .font(.footnote)
+              .foregroundStyle(Palette.textSecondary)
+              .lineLimit(1)
+            if decision.observer {
+              Text(ChartText.observer)
+                .font(Tokens.Typography.annotation)
+                .foregroundStyle(Palette.highlightText)
+                .lineLimit(1)
+            }
+          }
+          if run.count > 1 {
+            Text(ChartText.repeats(run.count, run.earliest.at.date.formatted(ChartFormat.time)))
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.textQuaternary)
           }
         }
-        if run.count > 1 {
-          Text(ChartText.repeats(run.count, run.earliest.at.date.formatted(ChartFormat.time)))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-        }
+        Spacer(minLength: Tokens.Space.s)
+        Text(decision.at.date, format: ChartFormat.time)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+          .lineLimit(1)
+          .fixedSize()
       }
     }
     .tint(Palette.textTertiary)
@@ -175,6 +181,17 @@ extension Verdict {
     case .enter: return Palette.accentText
     case .exit: return Palette.info
     case .ignore, .watch, .hold: return Palette.textTertiary
+    }
+  }
+
+  /// The decision's dot, as on the design's chart: entries green, watching amber, exits in the
+  /// info colour, the rest muted.
+  var dotColor: Color {
+    switch self {
+    case .enter: return Palette.profit
+    case .watch: return Palette.warning
+    case .exit: return Palette.info
+    case .ignore, .hold: return Palette.textQuaternary
     }
   }
 }

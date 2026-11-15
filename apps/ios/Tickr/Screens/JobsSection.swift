@@ -18,7 +18,7 @@ struct JobsSection: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    Section {
+    SettingsCard(L10n.Settings.jobs, note: L10n.Settings.jobsFooter) {
       if let jobs = model.jobs {
         service(jobs)
         reconcile(jobs.reconcile)
@@ -36,10 +36,6 @@ struct JobsSection: View {
       } else {
         Text(verbatim: Format.missing).foregroundStyle(Palette.textTertiary)
       }
-    } header: {
-      Text(L10n.Settings.jobs)
-    } footer: {
-      Text(L10n.Settings.jobsFooter)
     }
   }
 

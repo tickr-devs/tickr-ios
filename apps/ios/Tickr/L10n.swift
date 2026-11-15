@@ -32,6 +32,14 @@ enum L10n {
   }
 
   enum Common {
+    /// A pushed screen's way back when the screen under it has no name to show.
+    static var back: LocalizedStringResource {
+      LocalizedStringResource("common.back", defaultValue: "Back", bundle: L10n.bundle)
+    }
+    /// VoiceOver name of the way back: "Back to Home".
+    static func backTo(_ screen: String) -> LocalizedStringResource {
+      LocalizedStringResource("common.backTo", defaultValue: "Back to \(screen)", bundle: L10n.bundle)
+    }
     static var cancel: LocalizedStringResource {
       LocalizedStringResource("common.cancel", defaultValue: "Cancel", bundle: L10n.bundle)
     }
@@ -335,6 +343,10 @@ enum L10n {
     static func since(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("home.since", defaultValue: "since \(time)", bundle: L10n.bundle)
     }
+    /// A position's size and entry on its Home card, short: "10 sh @ 12.34".
+    static func sharesAt(_ quantity: String, _ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.sharesAt", defaultValue: "\(quantity) sh @ \(price)", bundle: L10n.bundle)
+    }
     static func stopVerified(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("home.stopVerified", defaultValue: "stop ✓ \(price)", bundle: L10n.bundle)
     }
@@ -393,6 +405,14 @@ enum L10n {
     static func more(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.more", defaultValue: "+\(count)", bundle: L10n.bundle)
     }
+    /// The position slots in use, on the live flow's header (the link to Risk): "slots 2 of 3".
+    static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.slots", defaultValue: "slots \(used) of \(limit)", bundle: L10n.bundle)
+    }
+    /// The legend of the dashed trays that hold the symbols a stage refused today.
+    static var refusedToday: LocalizedStringResource {
+      LocalizedStringResource("flow.refusedToday", defaultValue: "refused today", bundle: L10n.bundle)
+    }
     /// In place of the slots when the status is stale, failed or from an earlier session.
     static var notCurrent: LocalizedStringResource {
       LocalizedStringResource("flow.notCurrent", defaultValue: "not current", bundle: L10n.bundle)
@@ -405,15 +425,25 @@ enum L10n {
     static func brokerRead(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("flow.brokerRead", defaultValue: "broker read \(time)", bundle: L10n.bundle)
     }
-    /// Open positions against the configured limit: "slots 2 of 3".
-    static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
-      LocalizedStringResource("flow.slots", defaultValue: "slots \(used) of \(limit)", bundle: L10n.bundle)
+    /// How long ago the broker was read, in the live flow's header: "read 3 s", "read 2 min", "read —".
+    static func readSeconds(_ seconds: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.readSeconds", defaultValue: "read \(seconds) s", bundle: L10n.bundle)
+    }
+    static func readMinutes(_ minutes: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.readMinutes", defaultValue: "read \(minutes) min", bundle: L10n.bundle)
+    }
+    static var readNever: LocalizedStringResource {
+      LocalizedStringResource("flow.readNever", defaultValue: "read —", bundle: L10n.bundle)
     }
   }
 
   enum Positions {
     static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
       LocalizedStringResource("positions.slots", defaultValue: "\(used) of \(limit) slots", bundle: L10n.bundle)
+    }
+    /// Under a free slot's chip: "slot 3".
+    static func slotNumber(_ number: Int) -> LocalizedStringResource {
+      LocalizedStringResource("positions.slotNumber", defaultValue: "slot \(number)", bundle: L10n.bundle)
     }
     static var freeSlot: LocalizedStringResource {
       LocalizedStringResource("positions.freeSlot", defaultValue: "free", bundle: L10n.bundle)
@@ -425,9 +455,6 @@ enum L10n {
       LocalizedStringResource("positions.watching",
         defaultValue: "Entries are allowed; the bot is watching for signals.",
         bundle: L10n.bundle)
-    }
-    static var protected: LocalizedStringResource {
-      LocalizedStringResource("positions.protected", defaultValue: "protected", bundle: L10n.bundle)
     }
     static func shares(_ quantity: String, _ price: String, _ time: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.shares",
@@ -477,10 +504,11 @@ enum L10n {
       LocalizedStringResource("positions.last", defaultValue: "last \(price)", bundle: L10n.bundle)
     }
     static func lastAndR(_ price: String, _ r: String) -> LocalizedStringResource {
-      LocalizedStringResource("positions.lastAndR", defaultValue: "last \(price) · \(r) now", bundle: L10n.bundle)
+      LocalizedStringResource("positions.lastAndR", defaultValue: "last \(price) · \(r)", bundle: L10n.bundle)
     }
-    static func entryLevel(_ price: String) -> LocalizedStringResource {
-      LocalizedStringResource("positions.entryLevel", defaultValue: "entry \(price)", bundle: L10n.bundle)
+    /// The entry level's label in the risk band.
+    static var entry: LocalizedStringResource {
+      LocalizedStringResource("positions.entry", defaultValue: "entry", bundle: L10n.bundle)
     }
     static func stopLevel(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.stopLevel", defaultValue: "broker stop \(price)", bundle: L10n.bundle)
@@ -647,6 +675,41 @@ enum L10n {
     }
     static var hintWhen: LocalizedStringResource {
       LocalizedStringResource("activity.hintWhen", defaultValue: "When, and how many times", bundle: L10n.bundle)
+    }
+    /// The day's chips and their hints: closed trades, "2 W", "1 L", "1 open".
+    static var hintClosed: LocalizedStringResource {
+      LocalizedStringResource("activity.hintClosed", defaultValue: "Closed trades", bundle: L10n.bundle)
+    }
+    static var hintWins: LocalizedStringResource {
+      LocalizedStringResource("activity.hintWins", defaultValue: "Trades in profit", bundle: L10n.bundle)
+    }
+    static var hintLosses: LocalizedStringResource {
+      LocalizedStringResource("activity.hintLosses", defaultValue: "Trades at a loss", bundle: L10n.bundle)
+    }
+    static var hintOpen: LocalizedStringResource {
+      LocalizedStringResource("activity.hintOpen", defaultValue: "Open positions", bundle: L10n.bundle)
+    }
+    static func chipWins(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.chipWins", defaultValue: "\(count) W", bundle: L10n.bundle)
+    }
+    static func chipLosses(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.chipLosses", defaultValue: "\(count) L", bundle: L10n.bundle)
+    }
+    static func chipOpen(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.chipOpen", defaultValue: "\(count) open", bundle: L10n.bundle)
+    }
+    /// An open position's chips: last price, how many times the entry was sent ("×1"), fill time.
+    static var hintLast: LocalizedStringResource {
+      LocalizedStringResource("activity.hintLast", defaultValue: "Last price", bundle: L10n.bundle)
+    }
+    static var hintSends: LocalizedStringResource {
+      LocalizedStringResource("activity.hintSends", defaultValue: "Times the entry was sent", bundle: L10n.bundle)
+    }
+    static func sends(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.sends", defaultValue: "×\(count)", bundle: L10n.bundle)
+    }
+    static var hintOpened: LocalizedStringResource {
+      LocalizedStringResource("activity.hintOpened", defaultValue: "Filled at", bundle: L10n.bundle)
     }
     static var hintStop: LocalizedStringResource {
       LocalizedStringResource("activity.hintStop", defaultValue: "Broker stop", bundle: L10n.bundle)
@@ -971,6 +1034,21 @@ enum L10n {
   }
 
   enum Lab {
+    /// The active strategy's version beside its name: "v1".
+    static func versionTag(_ version: String) -> String {
+      String(localized: LocalizedStringResource("lab.versionTag", defaultValue: "v\(version)", bundle: L10n.bundle))
+    }
+    /// The active strategy's day under its name: "today · 3 closed · 2 W · 1 L · 1 open".
+    static func daySummary(_ closed: Int, _ wins: Int, _ losses: Int, _ open: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.daySummary",
+        defaultValue: "today · \(closed) closed · \(wins) W · \(losses) L · \(open) open", bundle: L10n.bundle)
+    }
+    /// The note under the active strategy.
+    static var modules: LocalizedStringResource {
+      LocalizedStringResource("lab.modules",
+        defaultValue: "Strategies are swappable modules: they decide, the platform sends orders and holds the risk limits.",
+        bundle: L10n.bundle)
+    }
     static var noCause: LocalizedStringResource {
       LocalizedStringResource("lab.noCause", defaultValue: "No cause recorded", bundle: L10n.bundle)
     }
@@ -982,7 +1060,7 @@ enum L10n {
       LocalizedStringResource("lab.versions", defaultValue: "Today if each version traded", bundle: L10n.bundle)
     }
     static var noOrders: LocalizedStringResource {
-      LocalizedStringResource("lab.noOrders", defaultValue: "observers place no orders", bundle: L10n.bundle)
+      LocalizedStringResource("lab.noOrders", defaultValue: "live · no orders", bundle: L10n.bundle)
     }
     static var result: LocalizedStringResource {
       LocalizedStringResource("lab.result", defaultValue: "Result", bundle: L10n.bundle)
@@ -1043,7 +1121,7 @@ enum L10n {
     }
     /// Button that starts the replay.
     static var replayStart: LocalizedStringResource {
-      LocalizedStringResource("lab.replayStart", defaultValue: "Run Replay", bundle: L10n.bundle)
+      LocalizedStringResource("lab.replayStart", defaultValue: "Run replay", bundle: L10n.bundle)
     }
     /// What the replay is.
     static var replayNote: LocalizedStringResource {
@@ -1129,7 +1207,7 @@ enum L10n {
     }
     /// Button that starts a replay of two versions.
     static var replayStartCompare: LocalizedStringResource {
-      LocalizedStringResource("lab.replayStartCompare", defaultValue: "Run and Compare", bundle: L10n.bundle)
+      LocalizedStringResource("lab.replayStartCompare", defaultValue: "Run and compare", bundle: L10n.bundle)
     }
     /// Picker of the version to replay.
     static var replayVersion: LocalizedStringResource {
@@ -1490,6 +1568,46 @@ enum L10n {
     static var connected: LocalizedStringResource {
       LocalizedStringResource("settings.connected", defaultValue: "Connected", bundle: L10n.bundle)
     }
+    /// The bot row's Stop (opens bot control) and what the bot holds under its state.
+    static var stop: LocalizedStringResource {
+      LocalizedStringResource("settings.stop", defaultValue: "Stop", bundle: L10n.bundle)
+    }
+    static var holdsNothing: LocalizedStringResource {
+      LocalizedStringResource("settings.holdsNothing", defaultValue: "flat", bundle: L10n.bundle)
+    }
+    static func holds(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("settings.holds", defaultValue: "\(count) open", bundle: L10n.bundle)
+    }
+    static var configuration: LocalizedStringResource {
+      LocalizedStringResource("settings.configuration", defaultValue: "Configuration", bundle: L10n.bundle)
+    }
+    static var configValid: LocalizedStringResource {
+      LocalizedStringResource("settings.configValid", defaultValue: "Loads", bundle: L10n.bundle)
+    }
+    static var configInvalid: LocalizedStringResource {
+      LocalizedStringResource("settings.configInvalid", defaultValue: "Does not load", bundle: L10n.bundle)
+    }
+    static var configChanged: LocalizedStringResource {
+      LocalizedStringResource("settings.configChanged", defaultValue: "Changed", bundle: L10n.bundle)
+    }
+    static var configChangedHint: LocalizedStringResource {
+      LocalizedStringResource("settings.configChangedHint",
+        // swiftlint:disable:next line_length
+        defaultValue: "The file differs from the one the bot's API loaded: running processes keep the old values until they restart.",
+        bundle: L10n.bundle)
+    }
+    static var configTop: LocalizedStringResource {
+      LocalizedStringResource("settings.configTop", defaultValue: "Top level", bundle: L10n.bundle)
+    }
+    static var configFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.configFooter",
+        // swiftlint:disable:next line_length
+        defaultValue: "Read-only, as the file is on disk now. Every key with its comment. Credentials appear only as variable names.",
+        bundle: L10n.bundle)
+    }
+    static var configEdit: LocalizedStringResource {
+      LocalizedStringResource("settings.configEdit", defaultValue: "Edit", bundle: L10n.bundle)
+    }
   }
 }
 
@@ -1545,6 +1663,14 @@ enum ChartText {
   static let liveHint = LocalizedStringResource("chart.live.hint",
     defaultValue: "Scrolls to the newest candle.")
   static let todayLive = LocalizedStringResource("chart.todayLive", defaultValue: "today · live")
+  /// The day's high, low and volume beside the price, as on the design: "H", "L", "V".
+  static let highShort = LocalizedStringResource("chart.highShort", defaultValue: "H")
+  static let lowShort = LocalizedStringResource("chart.lowShort", defaultValue: "L")
+  static let volumeShort = LocalizedStringResource("chart.volumeShort", defaultValue: "V")
+  /// VoiceOver reading of the day's high, low and volume.
+  static func dayStats(_ high: String, _ low: String, _ volume: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.dayStats", defaultValue: "Day high \(high), low \(low), volume \(volume)")
+  }
   static let refusedEntry = LocalizedStringResource("chart.event.refused",
     defaultValue: "Entry refused")
   static let trades = LocalizedStringResource("chart.trades", defaultValue: "Trades")
@@ -1561,6 +1687,13 @@ enum ChartText {
   static func ema(_ period: Int) -> LocalizedStringResource {
     LocalizedStringResource("chart.indicator.ema", defaultValue: "EMA \(period)")
   }
+
+  /// The fast EMA's chip under the chart: "EMA9".
+  static func emaChip(_ period: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.indicator.emaChip", defaultValue: "EMA\(period)")
+  }
+  /// The volume bars' chip under the chart.
+  static let volumeChip = LocalizedStringResource("chart.indicator.volumeChip", defaultValue: "VOL")
 
   /// The ATR pane toggle and label, with its period in bars.
   static func atr(_ period: Int) -> LocalizedStringResource {
@@ -1603,19 +1736,11 @@ enum ChartText {
   static func rsi(_ period: Int) -> LocalizedStringResource {
     LocalizedStringResource("chart.indicator.rsi", defaultValue: "RSI\(period)")
   }
-  /// Header: the day's high and low, and its volume.
-  static let highLow = LocalizedStringResource("chart.header.highLow", defaultValue: "H/L")
-  static let dayVolume = LocalizedStringResource("chart.header.volume", defaultValue: "Volume")
-  /// Header: the day's high and low, already formatted ("7.19–5.70").
-  static func range(_ high: String, _ low: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.header.range", defaultValue: "\(high)–\(low)")
-  }
-
   /// The line above the chart while no candle is read: timeframe and candles on screen (both
   /// already formatted), and how to move and read the chart.
-  static func caption(_ timeframe: String, _ bars: String) -> LocalizedStringResource {
+  static func caption(_ range: String, _ timeframe: String, _ bars: String) -> LocalizedStringResource {
     LocalizedStringResource("chart.caption",
-      defaultValue: "\(timeframe) · \(bars) · drag to scroll · touch and hold to read")
+      defaultValue: "\(range) · \(timeframe) · \(bars) · drag to scroll · touch and hold to read")
   }
 
   /// Candles on screen, for `caption`.

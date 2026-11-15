@@ -8,8 +8,7 @@ import TickrKit
 /// open, a run is going, no data) reads as a calm reason that clears once the replay moves on or
 /// after `LabModel.replaySeconds`; the bot never reads the replay.
 struct LabReplayCard: View {
-  /// Symbols of the start button, a refusal and a picker's menu.
-  static let startSymbol = "play.fill"
+  /// Symbols of a refusal and a picker's menu.
   static let refusalSymbol = "info.circle"
   static let menuSymbol = "chevron.down"
   /// Narrowest a figure gets before the figures wrap to another row, in points at the default text
@@ -72,13 +71,21 @@ struct LabReplayCard: View {
         guard let url else { return }
         Task { await lab.startReplay(url, version: first, compare: second, day: chosenDay) }
       } label: {
-        Label {
+        // The design's full-width button: the title alone, a spinner beside it while starting.
+        HStack(spacing: Tokens.Space.s) {
+          if lab.replayStarting { ProgressView() }
           Text(second == nil ? L10n.Lab.replayStart : L10n.Lab.replayStartCompare)
-        } icon: {
-          if lab.replayStarting { ProgressView() } else { Image(systemName: Self.startSymbol) }
         }
+        .font(Tokens.Typography.button)
+        .foregroundStyle(Palette.infoText)
+        .frame(maxWidth: .infinity, minHeight: Tokens.Size.touchTarget)
+        .background(Palette.info.opacity(Tokens.Opacity.wash),
+          in: RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+          .strokeBorder(Palette.info, lineWidth: Tokens.Stroke.thin))
+        .contentShape(Rectangle())
       }
-      .buttonStyle(.action(.secondary))
+      .buttonStyle(.plain)
       .disabled(url == nil || replay == nil || (first == nil && !listsNone) || running || lab.replayStarting
         || (oneDay && chosenDay == nil))
       InfoCaption(L10n.Lab.replayNote)
@@ -135,7 +142,9 @@ struct LabReplayCard: View {
       }
       // Segments while both labels fit; at large text sizes a menu, which wraps nothing away.
       ViewThatFits(in: .horizontal) {
-        daysPicker.pickerStyle(.segmented)
+        SegmentChips(options: [(false, Text(L10n.Lab.replayLastSessions(replay?.sessions ?? .zero))),
+          (true, Text(L10n.Lab.replayOneDay))], selection: $oneDay, style: .filled)
+          .fixedSize(horizontal: false, vertical: true)
         daysPicker.pickerStyle(.menu)
       }
       if oneDay, let days = replay?.days, !days.isEmpty {

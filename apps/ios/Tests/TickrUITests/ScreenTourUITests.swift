@@ -27,6 +27,12 @@ final class ScreenTourUITests: XCTestCase {
     static let risk = "home.risk"
     static let botControlCancel = "botControl.cancel"
     static let calendar = "activity.calendar"
+    /// The tab bar's buttons, in order: the app draws the design's own tab bar.
+    static let tabs = ["tab.home", "tab.positions", "tab.chart", "tab.activity", "tab.lab"]
+    /// Each pane chip of Activity.
+    static let activitySection = "activity.section"
+    /// A pushed screen's own back button ("‹ Home").
+    static let back = "nav.back"
   }
 
   private var app = XCUIApplication()
@@ -42,15 +48,14 @@ final class ScreenTourUITests: XCTestCase {
   }
 
   func testTour() {
-    let tabs = app.tabBars.buttons
-    XCTAssertTrue(tabs.firstMatch.waitForExistence(timeout: Self.wait))
-    for index in 0..<tabs.count {
-      tabs.element(boundBy: index).tap()
+    let tabs = Identifier.tabs.map { app.buttons[$0] }
+    XCTAssertTrue(tabs[0].waitForExistence(timeout: Self.wait))
+    for (index, tab) in tabs.enumerated() {
+      tab.tap()
       sleep(Self.settle)
       capture(screen: "tab\(index)")
       if index == 0 { homeDetails() }
       if index == 3 { activityDetails() }
-      tabs.element(boundBy: index).tap()
     }
   }
 
@@ -72,8 +77,9 @@ final class ScreenTourUITests: XCTestCase {
   }
 
   private func activityDetails() {
-    for index in 0..<app.segmentedControls.buttons.count {
-      app.segmentedControls.buttons.element(boundBy: index).tap()
+    let panes = app.buttons.matching(identifier: Identifier.activitySection)
+    for index in 0..<panes.count {
+      panes.element(boundBy: index).tap()
       sleep(Self.settle)
       capture(screen: "tab3-section\(index)")
     }
@@ -121,8 +127,11 @@ final class ScreenTourUITests: XCTestCase {
     return true
   }
 
+  /// Back with the screen's own "‹ Home" button (the app hides the system bar).
   private func back() {
-    app.navigationBars.buttons.element(boundBy: 0).tap()
+    let button = app.buttons[Identifier.back].firstMatch
+    XCTAssertTrue(button.waitForExistence(timeout: Self.wait), "the pushed screen has no back button")
+    button.tap()
     sleep(Self.settle)
   }
 
