@@ -153,6 +153,13 @@ final class StubProtocol: URLProtocol {
     }
   }
 
+  @Test func journalRead() async throws {
+    StubProtocol.answer = try (200, fixture("journal-v1.json"))
+    let journal = try await client.journal()
+    #expect(journal.lastSeq == journal.rows.last?.seq)
+    #expect(StubProtocol.seen.first?.url?.absoluteString == "http://127.0.0.1:8766/journal")
+  }
+
   @Test func labReplayReadsAndStarts() async throws {
     StubProtocol.answer = try (200, fixture("lab-replay-v1.json"))
     let done = try await client.labReplay()

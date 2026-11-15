@@ -93,6 +93,7 @@ public struct APIClient: Sendable {
   static let barsPath = "/bars"
   static let accountPath = "/account"
   static let jobsPath = "/jobs"
+  static let journalPath = "/journal"
   static let labReplayPath = "/lab/replay"
   static let observersPath = "/observers"
   static let decisionsPath = "/decisions"
@@ -191,6 +192,11 @@ public struct APIClient: Sendable {
   /// What runs on its own on the Mac (reconcile, backup, launchd jobs) and today's session times.
   public func jobs() async throws -> JobsV1 {
     try await perform(request(path: Self.jobsPath, body: nil), expect: Self.ok)
+  }
+
+  /// The latest rows of the bot's journal with their numbers, newest last.
+  public func journal() async throws -> JournalV1 {
+    try await perform(request(path: Self.journalPath, body: nil), expect: Self.ok)
   }
 
   /// The Lab's replay of the current strategy over the recent sessions: idle, running, done with

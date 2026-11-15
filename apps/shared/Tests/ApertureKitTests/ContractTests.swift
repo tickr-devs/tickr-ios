@@ -51,6 +51,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       "account-response-v1": { try roundTrip(AccountResponseV1.self, $0) },
       "chart-v1": { try roundTrip(ChartV1.self, $0) },
       "jobs-v1": { try roundTrip(JobsV1.self, $0) },
+      "journal-v1": { try roundTrip(JournalV1.self, $0) },
       "lab-replay-v1": { try roundTrip(LabReplayV1.self, $0) },
     ]
     for name in names {
@@ -71,7 +72,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       "days-v1", "day-v1", "bars-v1", "settings-v1", "explain-v1",
       "observers-v1", "decisions-v1", "skipped-v1", "performance-v1",
       "flow-v1", "watching-v1", "account-v1", "account-response-v1",
-      "chart-v1", "jobs-v1", "lab-replay-v1"])
+      "chart-v1", "jobs-v1", "journal-v1", "lab-replay-v1"])
   }
 
   @Test func flowStagesChipsAndCauses() throws {
