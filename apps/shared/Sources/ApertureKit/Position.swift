@@ -38,12 +38,15 @@ public struct Position: Codable, Hashable, Sendable {
   public let entry: EntrySend
   /// Why the bot has no entry send record for the position; nil when it has one.
   public let entryCause: String?
+  /// `entry_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let entryCauseCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case symbol, quantity, stop, entry
     case entryPrice = "entry_price"
     case openedAt = "opened_at"
     case entryCause = "entry_cause"
+    case entryCauseCodes = "entry_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -55,6 +58,7 @@ public struct Position: Codable, Hashable, Sendable {
     stop = try c.decode(Stop.self, forKey: .stop)
     entry = try c.decode(EntrySend.self, forKey: .entry)
     entryCause = try c.decodeNullable(String.self, forKey: .entryCause)
+    entryCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .entryCauseCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -66,6 +70,7 @@ public struct Position: Codable, Hashable, Sendable {
     try c.encode(stop, forKey: .stop)
     try c.encode(entry, forKey: .entry)
     try c.encodeNullable(entryCause, forKey: .entryCause)
+    try c.encode(entryCauseCodes, forKey: .entryCauseCodes)
   }
 }
 

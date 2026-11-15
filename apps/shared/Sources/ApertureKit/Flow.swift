@@ -170,6 +170,10 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
   public let closenessCause: String?
   public let quoteAgeSeconds: DecimalString?
   public let quoteAgeCause: String?
+  /// `closeness_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let closenessCauseCodes: [ReasonV1]
+  /// `quote_age_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let quoteAgeCauseCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case symbol, at, strategy, verdict, closeness
@@ -177,6 +181,8 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
     case closenessCause = "closeness_cause"
     case quoteAgeSeconds = "quote_age_seconds"
     case quoteAgeCause = "quote_age_cause"
+    case closenessCauseCodes = "closeness_cause_codes"
+    case quoteAgeCauseCodes = "quote_age_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -190,6 +196,8 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
     closenessCause = try c.decodeNullable(String.self, forKey: .closenessCause)
     quoteAgeSeconds = try c.decodeNullable(DecimalString.self, forKey: .quoteAgeSeconds)
     quoteAgeCause = try c.decodeNullable(String.self, forKey: .quoteAgeCause)
+    closenessCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .closenessCauseCodes) ?? []
+    quoteAgeCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .quoteAgeCauseCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -203,6 +211,8 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
     try c.encodeNullable(closenessCause, forKey: .closenessCause)
     try c.encodeNullable(quoteAgeSeconds, forKey: .quoteAgeSeconds)
     try c.encodeNullable(quoteAgeCause, forKey: .quoteAgeCause)
+    try c.encode(closenessCauseCodes, forKey: .closenessCauseCodes)
+    try c.encode(quoteAgeCauseCodes, forKey: .quoteAgeCauseCodes)
   }
 }
 

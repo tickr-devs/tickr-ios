@@ -18,6 +18,20 @@ public struct CausedDecimal: Hashable, Sendable {
 public struct PerformanceExclusionV1: Codable, Hashable, Sendable {
   public let cause: String
   public let trades: Int
+  /// `cause` as codes (docs/api.md, "Reason codes").
+  public let causeCodes: [ReasonV1]
+
+  enum CodingKeys: String, CodingKey {
+    case cause, trades
+    case causeCodes = "cause_codes"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    cause = try c.decode(String.self, forKey: .cause)
+    trades = try c.decode(Int.self, forKey: .trades)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
+  }
 }
 
 /// One day of the range that has closed trades.
@@ -63,6 +77,18 @@ public struct PerformanceV1: Codable, Hashable, Sendable {
   /// Days with closed trades, oldest first.
   public let days: [PerformanceDayV1]
   public let apiVersion: Int
+  /// `win_rate_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let winRateCauseCodes: [ReasonV1]
+  /// `expectancy_gross_r_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let expectancyGrossRCauseCodes: [ReasonV1]
+  /// `expectancy_gross_usd_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let expectancyGrossUsdCauseCodes: [ReasonV1]
+  /// `average_win_gross_r_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let averageWinGrossRCauseCodes: [ReasonV1]
+  /// `average_loss_gross_r_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let averageLossGrossRCauseCodes: [ReasonV1]
+  /// `profit_factor_gross_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let profitFactorGrossCauseCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case environment, trades, wins, losses, scratches, exclusions, days
@@ -85,6 +111,12 @@ public struct PerformanceV1: Codable, Hashable, Sendable {
     case resultGrossR = "result_gross_r"
     case resultGrossUsd = "result_gross_usd"
     case apiVersion = "api_version"
+    case winRateCauseCodes = "win_rate_cause_codes"
+    case expectancyGrossRCauseCodes = "expectancy_gross_r_cause_codes"
+    case expectancyGrossUsdCauseCodes = "expectancy_gross_usd_cause_codes"
+    case averageWinGrossRCauseCodes = "average_win_gross_r_cause_codes"
+    case averageLossGrossRCauseCodes = "average_loss_gross_r_cause_codes"
+    case profitFactorGrossCauseCodes = "profit_factor_gross_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -109,6 +141,12 @@ public struct PerformanceV1: Codable, Hashable, Sendable {
     resultGrossR = try c.decode(DecimalString.self, forKey: .resultGrossR)
     resultGrossUsd = try c.decode(DecimalString.self, forKey: .resultGrossUsd)
     days = try c.decode([PerformanceDayV1].self, forKey: .days)
+    winRateCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .winRateCauseCodes) ?? []
+    expectancyGrossRCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .expectancyGrossRCauseCodes) ?? []
+    expectancyGrossUsdCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .expectancyGrossUsdCauseCodes) ?? []
+    averageWinGrossRCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .averageWinGrossRCauseCodes) ?? []
+    averageLossGrossRCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .averageLossGrossRCauseCodes) ?? []
+    profitFactorGrossCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .profitFactorGrossCauseCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -133,6 +171,12 @@ public struct PerformanceV1: Codable, Hashable, Sendable {
     try c.encode(resultGrossUsd, forKey: .resultGrossUsd)
     try c.encode(days, forKey: .days)
     try c.encode(apiVersion, forKey: .apiVersion)
+    try c.encode(winRateCauseCodes, forKey: .winRateCauseCodes)
+    try c.encode(expectancyGrossRCauseCodes, forKey: .expectancyGrossRCauseCodes)
+    try c.encode(expectancyGrossUsdCauseCodes, forKey: .expectancyGrossUsdCauseCodes)
+    try c.encode(averageWinGrossRCauseCodes, forKey: .averageWinGrossRCauseCodes)
+    try c.encode(averageLossGrossRCauseCodes, forKey: .averageLossGrossRCauseCodes)
+    try c.encode(profitFactorGrossCauseCodes, forKey: .profitFactorGrossCauseCodes)
   }
 }
 

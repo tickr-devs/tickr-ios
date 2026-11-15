@@ -27,6 +27,10 @@ public struct ObserverV1: Codable, Hashable, Sendable {
   public let tradesCause: String?
   /// Whether the server cut `trades` short (it lists at most a configured number).
   public let tradesTruncated: Bool
+  /// `result_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let resultCauseCodes: [ReasonV1]
+  /// `trades_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let tradesCauseCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case name, version, decisions, trades
@@ -34,6 +38,8 @@ public struct ObserverV1: Codable, Hashable, Sendable {
     case resultCause = "result_cause"
     case tradesCause = "trades_cause"
     case tradesTruncated = "trades_truncated"
+    case resultCauseCodes = "result_cause_codes"
+    case tradesCauseCodes = "trades_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -46,6 +52,8 @@ public struct ObserverV1: Codable, Hashable, Sendable {
     trades = try c.decodeNullable([ObserverTradeV1].self, forKey: .trades)
     tradesCause = try c.decodeNullable(String.self, forKey: .tradesCause)
     tradesTruncated = try c.decode(Bool.self, forKey: .tradesTruncated)
+    resultCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .resultCauseCodes) ?? []
+    tradesCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .tradesCauseCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -58,6 +66,8 @@ public struct ObserverV1: Codable, Hashable, Sendable {
     try c.encodeNullable(trades, forKey: .trades)
     try c.encodeNullable(tradesCause, forKey: .tradesCause)
     try c.encode(tradesTruncated, forKey: .tradesTruncated)
+    try c.encode(resultCauseCodes, forKey: .resultCauseCodes)
+    try c.encode(tradesCauseCodes, forKey: .tradesCauseCodes)
   }
 }
 
@@ -229,6 +239,8 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
   public let pricesAfterCause: String?
   /// What the signal would have made had it been taken.
   public let whatIf: WhatIfV1
+  /// `prices_after_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let pricesAfterCauseCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case at, symbol, strategy, admission, checks
@@ -239,6 +251,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     case pricesAfter = "prices_after"
     case pricesAfterCause = "prices_after_cause"
     case whatIf = "what_if"
+    case pricesAfterCauseCodes = "prices_after_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -255,6 +268,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     pricesAfter = try c.decode([PriceAfterV1].self, forKey: .pricesAfter)
     pricesAfterCause = try c.decodeNullable(String.self, forKey: .pricesAfterCause)
     whatIf = try c.decode(WhatIfV1.self, forKey: .whatIf)
+    pricesAfterCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .pricesAfterCauseCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -271,6 +285,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     try c.encode(pricesAfter, forKey: .pricesAfter)
     try c.encodeNullable(pricesAfterCause, forKey: .pricesAfterCause)
     try c.encode(whatIf, forKey: .whatIf)
+    try c.encode(pricesAfterCauseCodes, forKey: .pricesAfterCauseCodes)
   }
 }
 

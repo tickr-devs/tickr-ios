@@ -13,10 +13,13 @@ public struct PriceAfterV1: Codable, Hashable, Sendable {
   /// Price change from the exit (or the signal's entry) per share, in USD; nil with `cause`.
   public let changeUsd: DecimalString?
   public let cause: String?
+  /// `cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case minutes, at, price, cause
     case changeUsd = "change_usd"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -26,6 +29,7 @@ public struct PriceAfterV1: Codable, Hashable, Sendable {
     price = try c.decodeNullable(DecimalString.self, forKey: .price)
     changeUsd = try c.decodeNullable(DecimalString.self, forKey: .changeUsd)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -35,6 +39,7 @@ public struct PriceAfterV1: Codable, Hashable, Sendable {
     try c.encodeNullable(price, forKey: .price)
     try c.encodeNullable(changeUsd, forKey: .changeUsd)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
 }
 
@@ -54,12 +59,15 @@ public struct WhatIfV1: Codable, Hashable, Sendable {
   public let resultR: DecimalString?
   public let exitReason: WhatIfExit?
   public let cause: String?
+  /// `cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case cause
     case resultGrossUsd = "result_gross_usd"
     case resultR = "result_r"
     case exitReason = "exit_reason"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -68,6 +76,7 @@ public struct WhatIfV1: Codable, Hashable, Sendable {
     resultR = try c.decodeNullable(DecimalString.self, forKey: .resultR)
     exitReason = try c.decodeNullable(WhatIfExit.self, forKey: .exitReason)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -76,6 +85,7 @@ public struct WhatIfV1: Codable, Hashable, Sendable {
     try c.encodeNullable(resultR, forKey: .resultR)
     try c.encodeNullable(exitReason, forKey: .exitReason)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
 }
 
@@ -94,6 +104,8 @@ public struct ObserverTradeV1: Codable, Hashable, Sendable {
   public let resultGrossUsd: DecimalString?
   public let resultR: DecimalString?
   public let cause: String?
+  /// `cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case symbol, at, quantity, cause
@@ -104,6 +116,7 @@ public struct ObserverTradeV1: Codable, Hashable, Sendable {
     case exitReason = "exit_reason"
     case resultGrossUsd = "result_gross_usd"
     case resultR = "result_r"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -119,6 +132,7 @@ public struct ObserverTradeV1: Codable, Hashable, Sendable {
     resultGrossUsd = try c.decodeNullable(DecimalString.self, forKey: .resultGrossUsd)
     resultR = try c.decodeNullable(DecimalString.self, forKey: .resultR)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -134,5 +148,6 @@ public struct ObserverTradeV1: Codable, Hashable, Sendable {
     try c.encodeNullable(resultGrossUsd, forKey: .resultGrossUsd)
     try c.encodeNullable(resultR, forKey: .resultR)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
 }

@@ -4,6 +4,14 @@ import Foundation
 // codes").
 
 /// Reason codes the clients themselves rely on (docs/api.md, "Reason codes").
+/// A cause's code and the values it names: one part of a cause the API wrote in English
+/// (`<field>_codes`, docs/api.md, "Reason codes"). Clients show the English text when the code is
+/// `unrecognized` or one they do not know.
+public struct ReasonV1: Codable, Hashable, Sendable {
+  public let code: String
+  public let params: [String: String]
+}
+
 public enum ReasonCode {
   /// A reason recorded before the bot sent codes (`code` and `params` were added after version 1
   /// shipped); clients show the reason's text.

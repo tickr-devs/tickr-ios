@@ -117,6 +117,12 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   public let overshootUsd: DecimalString?
   public let overshootR: DecimalString?
   public let overshootCause: String?
+  /// `entry_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let entryCauseCodes: [ReasonV1]
+  /// `prices_after_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let pricesAfterCauseCodes: [ReasonV1]
+  /// `overshoot_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
+  public let overshootCauseCodes: [ReasonV1]
 
   public var id: String { tradeId }
 
@@ -141,6 +147,9 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     case overshootUsd = "overshoot_usd"
     case overshootR = "overshoot_r"
     case overshootCause = "overshoot_cause"
+    case entryCauseCodes = "entry_cause_codes"
+    case pricesAfterCauseCodes = "prices_after_cause_codes"
+    case overshootCauseCodes = "overshoot_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -166,6 +175,9 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     overshootUsd = try c.decodeNullable(DecimalString.self, forKey: .overshootUsd)
     overshootR = try c.decodeNullable(DecimalString.self, forKey: .overshootR)
     overshootCause = try c.decodeNullable(String.self, forKey: .overshootCause)
+    entryCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .entryCauseCodes) ?? []
+    pricesAfterCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .pricesAfterCauseCodes) ?? []
+    overshootCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .overshootCauseCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -191,6 +203,9 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     try c.encodeNullable(overshootUsd, forKey: .overshootUsd)
     try c.encodeNullable(overshootR, forKey: .overshootR)
     try c.encodeNullable(overshootCause, forKey: .overshootCause)
+    try c.encode(entryCauseCodes, forKey: .entryCauseCodes)
+    try c.encode(pricesAfterCauseCodes, forKey: .pricesAfterCauseCodes)
+    try c.encode(overshootCauseCodes, forKey: .overshootCauseCodes)
   }
 
   /// Result in R (result / planned loss), nil when the planned loss is zero.
@@ -217,80 +232,6 @@ public struct DaySummary: Codable, Hashable, Sendable, Identifiable {
     case day, trades, wins, losses, clean
     case resultGrossUsd = "result_gross_usd"
     case hasBars = "has_bars"
-  }
-}
-
-/// The clean-day verdict of one date.
-public enum CleanVerdict: String, Codable, Sendable {
-  case clean
-  case notClean = "not_clean"
-  /// The journal cannot tell yet (the day is not over) or at all; `CleanDay.cause` says why.
-  case unknown
-}
-
-/// What made a day not clean.
-public enum CleanCauseKind: String, Codable, Sendable {
-  case reconcileMismatch = "reconcile_mismatch"
-  case unknownOrderOutcome = "unknown_order_outcome"
-  case unprotectedPosition = "unprotected_position"
-  case safetyExit = "safety_exit"
-  case dayEndNotClean = "day_end_not_clean"
-}
-
-/// One reason a day was not clean, with the journal entries that show it.
-public struct CleanCause: Codable, Hashable, Sendable {
-  public let kind: CleanCauseKind
-  public let text: String
-  public let journalSeqs: [Int]
-
-  enum CodingKeys: String, CodingKey {
-    case kind, text
-    case journalSeqs = "journal_seqs"
-  }
-}
-
-/// A date's clean-day verdict and the reconciliation it rests on.
-public struct CleanDay: Codable, Hashable, Sendable {
-  public let verdict: CleanVerdict
-  /// Why the verdict is unknown; nil otherwise.
-  public let cause: String?
-  /// Every reason the day was not clean; empty unless `verdict` is `notClean`.
-  public let causes: [CleanCause]
-  /// Reconciliation passes recorded on the date.
-  public let reconcileRows: Int
-  public let firstReconcileAt: WireTime?
-  public let lastReconcileAt: WireTime?
-  /// Journal entry of the day-end record; nil when there is none.
-  public let dayEndSeq: Int?
-
-  enum CodingKeys: String, CodingKey {
-    case verdict, cause, causes
-    case reconcileRows = "reconcile_rows"
-    case firstReconcileAt = "first_reconcile_at"
-    case lastReconcileAt = "last_reconcile_at"
-    case dayEndSeq = "day_end_seq"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    verdict = try c.decode(CleanVerdict.self, forKey: .verdict)
-    cause = try c.decodeNullable(String.self, forKey: .cause)
-    causes = try c.decode([CleanCause].self, forKey: .causes)
-    reconcileRows = try c.decode(Int.self, forKey: .reconcileRows)
-    firstReconcileAt = try c.decodeNullable(WireTime.self, forKey: .firstReconcileAt)
-    lastReconcileAt = try c.decodeNullable(WireTime.self, forKey: .lastReconcileAt)
-    dayEndSeq = try c.decodeNullable(Int.self, forKey: .dayEndSeq)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var c = encoder.container(keyedBy: CodingKeys.self)
-    try c.encode(verdict, forKey: .verdict)
-    try c.encodeNullable(cause, forKey: .cause)
-    try c.encode(causes, forKey: .causes)
-    try c.encode(reconcileRows, forKey: .reconcileRows)
-    try c.encodeNullable(firstReconcileAt, forKey: .firstReconcileAt)
-    try c.encodeNullable(lastReconcileAt, forKey: .lastReconcileAt)
-    try c.encodeNullable(dayEndSeq, forKey: .dayEndSeq)
   }
 }
 
