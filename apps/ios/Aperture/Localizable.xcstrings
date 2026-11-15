@@ -3896,6 +3896,23 @@
         }
       }
     },
+    "positions.entryConfirmedLater" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown at send, confirmed by the broker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "исход неизвестен при отправке, брокер подтвердил"
+          }
+        }
+      }
+    },
     "positions.entryLevel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3909,6 +3926,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "вход %@"
+          }
+        }
+      }
+    },
+    "positions.entrySends" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sent %lld times"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отправлен раз: %lld"
+          }
+        }
+      }
+    },
+    "positions.entrySent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry sent once"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход отправлен один раз"
           }
         }
       }
@@ -5711,6 +5762,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "тихо"
+          }
+        }
+      }
+    },
+    "watching.closeness" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How close the deciding check is to passing"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Насколько решающая проверка близка к выполнению"
+          }
+        }
+      }
+    },
+    "watching.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the watched symbols: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать список наблюдения: %@"
+          }
+        }
+      }
+    },
+    "watching.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The strategy is not watching any symbol closely."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стратегия сейчас ни за одним символом пристально не следит."
+          }
+        }
+      }
+    },
+    "watching.shown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "watching.stale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last read shown; refresh failed: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показано последнее чтение; обновить не удалось: %@"
+          }
+        }
+      }
+    },
+    "watching.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watching closely"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Под пристальным наблюдением"
           }
         }
       }

@@ -38,6 +38,13 @@ extension Container {
     self { LabModel() }
   }
 
+  /// The symbols the strategy is watching closely, for the Positions tab. A new one each time the
+  /// tab builds its view.
+  @MainActor
+  var watchingModel: Factory<WatchingModel> {
+    self { WatchingModel() }
+  }
+
   /// Where the paired API token lives: this phone's Keychain.
   var keychain: Factory<Keychain> {
     self { Keychain() }

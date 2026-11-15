@@ -407,6 +407,16 @@ enum L10n {
     static func filled(_ quantity: String, _ price: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.filled", defaultValue: "Filled \(quantity) @ \(price)", bundle: L10n.bundle)
     }
+    static var entrySent: LocalizedStringResource {
+      LocalizedStringResource("positions.entrySent", defaultValue: "Entry sent once", bundle: L10n.bundle)
+    }
+    static func entrySends(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("positions.entrySends", defaultValue: "sent \(count) times", bundle: L10n.bundle)
+    }
+    static var entryConfirmedLater: LocalizedStringResource {
+      LocalizedStringResource("positions.entryConfirmedLater",
+        defaultValue: "unknown at send, confirmed by the broker", bundle: L10n.bundle)
+    }
     static func stopSent(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.stopSent", defaultValue: "Stop \(price) sent once", bundle: L10n.bundle)
     }
@@ -708,6 +718,32 @@ enum L10n {
     /// Detail of a pause after a loss: when the losing trade closed and when entries may resume.
     static func cooldownDetail(_ loss: String, _ until: String) -> LocalizedStringResource {
       LocalizedStringResource("cause.cooldownDetail", defaultValue: "loss at \(loss) · no entry before \(until)",
+        bundle: L10n.bundle)
+    }
+  }
+
+  /// The "Watching closely" card (GET /watching).
+  enum Watching {
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("watching.title", defaultValue: "Watching closely", bundle: L10n.bundle)
+    }
+    static var none: LocalizedStringResource {
+      LocalizedStringResource("watching.none", defaultValue: "The strategy is not watching any symbol closely.",
+        bundle: L10n.bundle)
+    }
+    static var closeness: LocalizedStringResource {
+      LocalizedStringResource("watching.closeness", defaultValue: "How close the deciding check is to passing",
+        bundle: L10n.bundle)
+    }
+    static func shown(_ shown: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.shown", defaultValue: "\(shown) of \(total)", bundle: L10n.bundle)
+    }
+    static func failed(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("watching.failed", defaultValue: "Couldn't read the watched symbols: \(cause)",
+        bundle: L10n.bundle)
+    }
+    static func stale(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("watching.stale", defaultValue: "Last read shown; refresh failed: \(cause)",
         bundle: L10n.bundle)
     }
   }

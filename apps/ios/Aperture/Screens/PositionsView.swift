@@ -8,6 +8,7 @@ import SwiftUI
 struct PositionsView: View {
   @Environment(AppModel.self) private var model
   @State private var prices = Container.shared.positionsModel()
+  @State private var watching = Container.shared.watchingModel()
 
   var body: some View {
     Screen(L10n.App.positions) {
@@ -34,14 +35,21 @@ struct PositionsView: View {
               .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
           }
         }
+        WatchingCard(watching: watching.watching, failure: watching.failure)
+          .rise(step: PositionDetail.Order.watching.rawValue)
       }
     }
     .animation(Tokens.Motion.standard, value: model.selectedSymbol)
     .refreshable {
       await model.refresh()
       if let url = model.connection.url, let status = model.status { await prices.load(url, status: status) }
+      if let url = model.connection.url { await watching.load(url, day: model.today) }
     }
     .task(id: model.connection.url) { await model.followAccount() }
+    .task(id: WatchKey(url: model.connection.url, day: model.today)) {
+      guard let url = model.connection.url else { return }
+      await watching.follow(url, day: model.today)
+    }
     .task(id: followKey) {
       guard let url = model.connection.url, let status = model.status, !status.positions.isEmpty else { return }
       await prices.follow(url, status: status)
@@ -52,6 +60,11 @@ struct PositionsView: View {
   private var followKey: FollowKey {
     FollowKey(url: model.connection.url, day: model.status.map { WireDate(newYorkDateOf: $0.writtenAt.date) },
       positions: model.status?.positions ?? [])
+  }
+
+  private struct WatchKey: Hashable {
+    let url: URL?
+    let day: WireDate
   }
 
   private struct FollowKey: Hashable {
@@ -140,7 +153,7 @@ private struct PositionChips: View {
 
 private struct PositionDetail: View {
   /// Order in which the blocks rise in (`rise(step:)`).
-  enum Order: Int { case chips = 1, title, levels, chain, stats, flatten }
+  enum Order: Int { case chips = 1, title, levels, chain, stats, flatten, watching }
 
   /// Height of the Flatten button, in points.
   static let buttonHeight: CGFloat = 50
@@ -457,11 +470,31 @@ private struct ProtectionChain: View {
     }
   }
 
+  /// The entry order went out exactly once and the broker took it: acknowledged, or filled.
+  private var entryProven: Bool {
+    let entry = position.entry
+    return entry.sends == 1 && (entry.latestOutcome == .acknowledged || entry.filledAt != nil)
+  }
+
+  /// When the entry was sent; an alarm when it went out other than once; an unknown outcome the
+  /// broker later confirmed says so; the bot's cause when it has no record.
+  private var entryDetail: String {
+    let entry = position.entry
+    if entry.sentOtherThanOnce, let sends = entry.sends {
+      return String(localized: L10n.Positions.entrySends(sends))
+    }
+    if entry.sendOutcome == .unknown, entry.latestOutcome == .acknowledged {
+      return String(localized: L10n.Positions.entryConfirmedLater)
+    }
+    return entry.sentAt.map { Format.clock($0.date) } ?? position.entryCause ?? Format.missing
+  }
+
   private var steps: [(label: LocalizedStringResource, detail: String, ok: Bool)] {
     let state = position.stop.state
     return [
-      (L10n.Positions.filled(position.quantity.text, position.entryPrice.text), Format.clock(position.openedAt.date),
-        true),
+      (L10n.Positions.entrySent, entryDetail, entryProven),
+      (L10n.Positions.filled(position.quantity.text, position.entryPrice.text),
+        Format.clock((position.entry.filledAt ?? position.openedAt).date), true),
       // No time: the status does not say when the stop was sent, and its order id means nothing here.
       (L10n.Positions.stopSent(position.stop.price?.text ?? ""), "", state == .pending || state == .verified),
       (L10n.Positions.stopWorking, Board.stopStateTitle(state), state.isProtected),
