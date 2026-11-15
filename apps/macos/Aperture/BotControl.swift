@@ -151,8 +151,7 @@ struct BotControls: View {
       }
       .frame(maxWidth: .infinity)
     }
-    .controlSize(compact ? .regular : .large)
-    .tint(action.isDestructive ? Palette.loss : nil)
+    .buttonStyle(CommandButtonStyle(destructive: action.isDestructive, compact: compact))
     .disabled(!model.commandsEnabled || !applicable(action))
     .help(Text(verbatim: action.explanation))
     .accessibilityIdentifier(action.id)

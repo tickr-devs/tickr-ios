@@ -1,4 +1,5 @@
 import AppKit
+import ApertureDesign
 import ApertureKit
 import SwiftUI
 
@@ -57,6 +58,8 @@ struct ApertureMacApp: App {
     Window(String(localized: L10n.App.name), id: WindowID.main) {
       RootView()
         .environment(model)
+        // The design's accent for links, selection and controls (as on iOS), not the system blue.
+        .tint(Palette.info)
         .frame(minWidth: Self.minWidth, minHeight: Self.minHeight)
     }
     .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
@@ -69,11 +72,13 @@ struct ApertureMacApp: App {
     Settings {
       SettingsView()
         .environment(model)
+        .tint(Palette.info)
     }
 
     MenuBarExtra(isInserted: $showMenuBarExtra) {
       MenuBarPanel()
         .environment(model)
+        .tint(Palette.info)
     } label: {
       Image(systemName: model.headline.severity.menuBarSymbol)
     }

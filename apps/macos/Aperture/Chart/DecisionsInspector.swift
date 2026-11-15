@@ -82,7 +82,7 @@ private struct DecisionRow: View {
     }
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .apertureCard()
+    .apertureCard(radius: Tokens.Radius.large)
   }
 }
 

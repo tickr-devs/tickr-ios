@@ -46,9 +46,9 @@ contrast on `surface` in both appearances.
 | `accent` / `accentText` | Live, brand, running bot, focus | `#0EA5A0` / `#0B766F` | `#2DD4BF` / `#5EEAD4` |
 | `profit` / `profitText` | Gains, verified stop, healthy | `#10B981` / `#047857` | `#34D399` / `#6EE7B7` |
 | `loss` / `lossText` | Losses, missing stop, alarm, destructive | `#EF4444` / `#B91C1C` | `#F87171` / `#FCA5A5` |
-| `warning` / `warningText` | Paused, blocked, stale, closed gate | `#F59E0B` / `#B45309` | `#FBBF24` / `#FCD34D` |
+| `warning` / `warningText` | Paused, blocked, stale, closed gate, environment chip | `#F59E0B` / `#B45309` | `#FBBF24` / `#FCD34D` |
 | `info` / `infoText` | Entries, orders, commands in flight | `#3B82F6` / `#1D4ED8` | `#60A5FA` / `#93C5FD` |
-| `highlight` / `highlightText` | Environment, recorded day, BACKLOG, observers | `#8B5CF6` / `#6D28D9` | `#A78BFA` / `#C4B5FD` |
+| `highlight` / `highlightText` | Recorded day, BACKLOG, observers | `#8B5CF6` / `#6D28D9` | `#A78BFA` / `#C4B5FD` |
 | `seriesVWAP` | VWAP line | = `warning` | = `warning` |
 | `seriesFastEMA` | EMA 9 line | = `accent` | = `accent` |
 | `seriesSlowEMA` | EMA 20 line | = `highlight` | = `highlight` |
@@ -87,9 +87,10 @@ in rows uses the platform text styles so Dynamic Type applies.
 
 | Token | Font | Use |
 |---|---|---|
-| `title` | 26 pt bold | Screen header title |
-| `subtitle` | 18 pt medium mono | The word next to a screen title |
-| `hero` | 34 pt bold mono | The one key figure of a screen (day result) |
+| `title` | 28 pt bold | Screen header title (the product name, in `infoText`) |
+| `subtitle` | 28 pt medium mono | The word next to a screen title ("Operator") |
+| `display` | 44 pt bold mono | A headline figure set apart from cards (Overview's day result on the Mac) |
+| `hero` | 34 pt bold mono | The one key figure of a screen inside a card |
 | `metric` | 24 pt bold mono | Large figures in cards |
 | `body` / `bodyMono` | `.body` | Values in rows |
 | `callout` / `calloutMono` | `.callout` | Labels, explanations |
@@ -98,6 +99,9 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `badge` | 10.5 pt bold mono, tracking 0.6 | Badges and tags |
 | `annotation` / `annotationBold` | 10.5 pt mono | Chart axes, ticker, pipeline values |
 | `symbol` | `Size.iconWellSymbol` semibold | SF Symbols in icon wells |
+| `stageSymbol` | 20 pt semibold | SF Symbols in a live-flow stage |
+| `button` | `.body` semibold | Command buttons (bot controls) |
+| `chip` | `.callout` bold mono | Tabs and chips naming a symbol (position tabs) |
 
 ## Lines (`Tokens.Stroke`)
 
@@ -118,7 +122,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `wash` | 0.10 | Banner and badge backgrounds |
 | `glow` | 0.14 | Light background glows |
 | `faint` | 0.35 | Volume bars, inactive fills |
-| `shadow` | 0.16 | Light card shadow |
+| `shadow` | 0.12 | Light card shadow |
 | `border` | 0.45 | Accent-tinted borders |
 | `medium` | 0.70 | Inactive elements, pulse start |
 | `overlay` | 0.85 | Readouts over content |
@@ -128,14 +132,17 @@ in rows uses the platform text styles so Dynamic Type applies.
 | Token | pt | Use |
 |---|---|---|
 | `dot` / `dotSmall` | 8 / 6 | Status dots |
-| `iconWell` / `iconWellSymbol` | 44 / 15 | Round icon wells (pipeline) |
+| `iconWell` / `iconWellSymbol` | 44 / 15 | Round icon wells |
+| `stage` | 52 | Stages of the live flow |
+| `dayResultWidth` | 300 | Overview's day result beside the header |
+| `gridColumnMin` | 300 | Narrowest column of a card grid before it stacks |
 | `logo` / `logoSmall` | 56 / 26 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |
 | `sparkline` | 34 | Sparkline height |
 | `bar` | 8 | Progress bar height |
 | `ticker` | 22 | Ticker strip height |
 | `sideColumn` | 320 | Side column of cards |
 | `contentMaxWidth` | 1500 | Content stops growing and centres |
-| `shadowRadius` / `shadowOffset` | 14 / 8 | Light card shadow |
+| `shadowRadius` / `shadowOffset` | 10 / 6 | Light card shadow |
 | `riseOffset` | 12 | Rise-in distance |
 | `ringHalo` | 60 | Reach of the halo behind a ring |
 
@@ -159,10 +166,14 @@ in rows uses the platform text styles so Dynamic Type applies.
 
 | Component | Where | Rule |
 |---|---|---|
-| Card | `apertureCard()` + `CardLabel` | `surface`, `Radius.card`, `Space.l` padding, `separator` border; light mode adds `shadow` |
+| Card | `apertureCard()` + `CardLabel` | `surface`, `Radius.card` (iOS) or `Radius.large` (Mac), `Space.l` padding, `separator` border; light mode adds `shadow`. Cards sharing a grid row are one height (`filling()` on the Mac) |
+| Card grid (Mac) | `Grid` of cards | Fills the window's width: equal columns of at least `Size.gridColumnMin`, `Space.l` apart; a narrower window stacks into fewer columns |
 | Section label | `CardLabel` | `Typography.label`, uppercase, `textQuaternary` |
 | Stat row | label … value | label `callout` `textTertiary`, value `bodyMono` |
-| Badge | capsule | `Typography.badge`, role text colour, `Opacity.wash` fill, `Opacity.border` stroke |
+| Badge | tag | `Typography.badge`, role text colour, `Opacity.wash` fill, `Opacity.border` stroke, `Radius.small` |
+| Command button | bot controls | `Typography.button`, `surfaceSunken` fill, `separatorStrong` stroke, `Radius.medium`; destructive: `lossText` on a `loss` wash and border |
+| Live-flow stage | pipeline | `Size.stage` circle, `Stroke.bold` ring and a soft glow in the stage colour; name in the stage's text colour |
+| Accent | `.tint` | `info` for links, selection and system controls on both apps, never the system blue |
 | Planned tag | BACKLOG / NEEDS API | `highlightText`, dashed `dashFine` outline, `Radius.small` |
 | Pulse dot | `PulseDot` | `Size.dot`, ring per `pulseSeconds` while live |
 | Banner | headline | role text colour, `Opacity.wash` fill, `Radius.medium`, `Space.m` padding |

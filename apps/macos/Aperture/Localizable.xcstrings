@@ -3135,13 +3135,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Chart"
+            "value" : "Open chart →"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Открыть график"
+            "value" : "Открыть график →"
           }
         }
       }
@@ -3516,6 +3516,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Покупательная способность"
+          }
+        }
+      }
+    },
+    "risk.clock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ET"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ET"
           }
         }
       }
@@ -4172,13 +4189,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Details"
+            "value" : "Details →"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Подробнее"
+            "value" : "Подробнее →"
           }
         }
       }

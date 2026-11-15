@@ -54,10 +54,14 @@ public enum Tokens {
     public static let metricSize: CGFloat = 24
     /// The single most important figure on a screen.
     public static let heroSize: CGFloat = 34
+    /// The headline figure set apart from cards (Overview's day result on the Mac).
+    public static let displaySize: CGFloat = 44
     /// Window and screen titles drawn in content.
-    public static let titleSize: CGFloat = 26
-    /// The mono word next to a screen title ("Operator").
-    public static let subtitleSize: CGFloat = 18
+    public static let titleSize: CGFloat = 28
+    /// The mono word next to a screen title ("Operator"): as large as the title, lighter.
+    public static let subtitleSize: CGFloat = 28
+    /// SF Symbols inside a live-flow stage.
+    public static let stageSymbolSize: CGFloat = 20
 
     public static let label = Font.system(size: labelSize, weight: .semibold, design: .monospaced)
     public static let badge = Font.system(size: badgeSize, weight: .bold, design: .monospaced)
@@ -65,10 +69,17 @@ public enum Tokens {
     public static let annotationBold = Font.system(size: annotationSize, weight: .bold, design: .monospaced)
     public static let metric = Font.system(size: metricSize, weight: .bold, design: .monospaced)
     public static let hero = Font.system(size: heroSize, weight: .bold, design: .monospaced)
+    public static let display = Font.system(size: displaySize, weight: .bold, design: .monospaced)
     public static let title = Font.system(size: titleSize, weight: .bold)
     public static let subtitle = Font.system(size: subtitleSize, weight: .medium, design: .monospaced)
     /// SF Symbols inside a round icon well.
     public static let symbol = Font.system(size: Size.iconWellSymbol, weight: .semibold)
+    /// SF Symbols inside a live-flow stage.
+    public static let stageSymbol = Font.system(size: stageSymbolSize, weight: .semibold)
+    /// Buttons drawn by the apps' own button style (bot controls).
+    public static let button = Font.system(.body, weight: .semibold)
+    /// Tabs and chips that name a symbol or a value (position tabs).
+    public static let chip = Font.system(.callout, design: .monospaced, weight: .bold)
     /// Body text and values in rows: the platform's text styles, so Dynamic Type applies.
     public static let body = Font.body
     public static let bodyMono = Font.body.monospaced()
@@ -109,7 +120,7 @@ public enum Tokens {
     /// Visible but not dominant: inactive elements, pulse rings at start.
     public static let medium = 0.7
     /// Light-mode card shadow.
-    public static let shadow = 0.16
+    public static let shadow = 0.12
     /// Overlays that must stay readable over content (crosshair readout).
     public static let overlay = 0.85
   }
@@ -122,6 +133,12 @@ public enum Tokens {
     public static let dotSmall: CGFloat = 6
     /// Round icon wells (pipeline stages).
     public static let iconWell: CGFloat = 44
+    /// Stages of the live flow, larger than an icon well so the pipeline reads at a glance.
+    public static let stage: CGFloat = 52
+    /// Width of the day result set beside Overview's header.
+    public static let dayResultWidth: CGFloat = 300
+    /// Narrowest a column of a card grid gets before the grid stacks into fewer columns.
+    public static let gridColumnMin: CGFloat = 300
     /// SF Symbols inside an icon well.
     public static let iconWellSymbol: CGFloat = 15
     /// The brand mark (BrandMark) in a header, and small in a panel.
@@ -137,8 +154,8 @@ public enum Tokens {
     /// Widest a screen's content grows before it centres.
     public static let contentMaxWidth: CGFloat = 1500
     /// Card shadow in light mode: blur radius and downward offset.
-    public static let shadowRadius: CGFloat = 14
-    public static let shadowOffset: CGFloat = 8
+    public static let shadowRadius: CGFloat = 10
+    public static let shadowOffset: CGFloat = 6
     /// Reach of the soft halo behind a ring.
     public static let ringHalo: CGFloat = 60
     /// How far a view rises while it fades in.

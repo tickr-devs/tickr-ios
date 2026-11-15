@@ -12,25 +12,47 @@ struct RiskView: View {
 
   var body: some View {
     ScrollView {
-      HStack(alignment: .top, spacing: Tokens.Space.l) {
-        VStack(spacing: Tokens.Space.l) {
-          LossRoomCard().rise(step: Order.lossRoom.rawValue)
-          SessionCard().rise(step: Order.session.rawValue)
+      // The design's grid: three equal columns in two rows, each row's cards one height. A window
+      // too narrow for three columns gets two.
+      ViewThatFits(in: .horizontal) {
+        Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
+          GridRow {
+            lossRoom
+            limits
+            account
+          }
+          GridRow {
+            session
+            gate
+            fences
+          }
         }
-        .frame(width: Tokens.Size.sideColumn)
-        VStack(spacing: Tokens.Space.l) {
-          EntryGateCard().rise(step: Order.gate.rawValue)
-          FencesCard().rise(step: Order.fences.rawValue)
-          HStack(alignment: .top, spacing: Tokens.Space.l) {
-            LimitsCard().rise(step: Order.limits.rawValue)
-            AccountCard().rise(step: Order.account.rawValue)
+        Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
+          GridRow {
+            lossRoom
+            account
+          }
+          GridRow {
+            limits
+            session
+          }
+          GridRow {
+            gate
+            fences
           }
         }
       }
+      .filling()
       .padding(Tokens.Space.xl)
-      .frame(maxWidth: Tokens.Size.contentMaxWidth)
     }
   }
+
+  private var lossRoom: some View { LossRoomCard().gridColumn().rise(step: Order.lossRoom.rawValue) }
+  private var gate: some View { EntryGateCard().gridColumn().rise(step: Order.gate.rawValue) }
+  private var fences: some View { FencesCard().gridColumn().rise(step: Order.fences.rawValue) }
+  private var limits: some View { LimitsCard().gridColumn().rise(step: Order.limits.rawValue) }
+  private var session: some View { SessionCard().gridColumn().rise(step: Order.session.rawValue) }
+  private var account: some View { AccountCard().gridColumn().rise(step: Order.account.rawValue) }
 }
 
 /// The daily loss limit as a ring: the room the bot reports after the net day result (profits
@@ -235,8 +257,7 @@ private struct SessionCard: View {
     Card(L10n.Risk.session) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         TimelineView(.periodic(from: .now, by: Self.tick)) { context in
-          Text(model.botTime(context.date), format: .dateTime.hour().minute().second().timeZone(.exemplarLocation))
-            .environment(\.timeZone, Format.newYork)
+          Text(L10n.Risk.clock(Format.marketTime(model.botTime(context.date))))
             .font(Tokens.Typography.metric)
             .monospacedDigit()
             .contentTransition(.numericText())

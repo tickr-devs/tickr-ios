@@ -50,7 +50,7 @@ struct PlannedTag: View {
   }
 }
 
-/// A capsule badge with a mono label in a role colour.
+/// A badge: a mono label in a role colour on a tinted, outlined tag.
 struct Badge: View {
   let text: Text
   let color: Color
@@ -74,8 +74,10 @@ struct Badge: View {
       .padding(.horizontal, Tokens.Space.s)
       .padding(.vertical, Tokens.Space.xs)
       .foregroundStyle(color)
-      .background(color.opacity(Tokens.Opacity.wash), in: Capsule())
-      .overlay(Capsule().strokeBorder(color.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
+      .background(color.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
+      .overlay(
+        RoundedRectangle(cornerRadius: Tokens.Radius.small)
+          .strokeBorder(color.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
   }
 }
 
@@ -138,8 +140,31 @@ struct StatLine: View {
   }
 }
 
+extension EnvironmentValues {
+  /// Whether cards grow to the height they are offered (cards sharing a grid row), instead of
+  /// hugging their content.
+  @Entry var cardFills = false
+}
+
+extension View {
+  /// Cards in this view grow to the height they are offered, so a grid row's cards line up.
+  func filling() -> some View {
+    environment(\.cardFills, true)
+  }
+}
+
+extension View {
+  /// A cell of a screen's card grid: grows with the window but asks for only a column's least
+  /// width, so a long line (a journal entry) cannot make the grid look too wide to fit.
+  func gridColumn() -> some View {
+    frame(minWidth: Tokens.Size.gridColumnMin, idealWidth: Tokens.Size.gridColumnMin, maxWidth: .infinity,
+      maxHeight: .infinity, alignment: .top)
+  }
+}
+
 /// A card: section label on top, optional trailing accessory, then the content.
 struct Card<Trailing: View, Content: View>: View {
+  @Environment(\.cardFills) private var fills
   let title: Text
   var tint: Color?
   let trailing: Trailing
@@ -168,14 +193,43 @@ struct Card<Trailing: View, Content: View>: View {
       content
     }
     .padding(Tokens.Space.l)
-    .frame(maxWidth: .infinity, alignment: .topLeading)
-    .apertureCard(tint: tint)
+    .frame(maxWidth: .infinity, maxHeight: fills ? .infinity : nil, alignment: .topLeading)
+    .apertureCard(radius: Tokens.Radius.large, tint: tint)
   }
 }
 
 extension Card where Trailing == EmptyView {
   init(_ title: LocalizedStringResource, tint: Color? = nil, @ViewBuilder content: () -> Content) {
     self.init(title, tint: tint, trailing: { EmptyView() }, content: content)
+  }
+}
+
+/// The design's command button: an outlined, softly filled rounded rectangle; a destructive one
+/// is drawn in the loss colour. Used for the bot controls on Overview and in the menu bar.
+struct CommandButtonStyle: ButtonStyle {
+  @Environment(\.isEnabled) private var enabled
+  var destructive = false
+  var compact = false
+
+  /// How much a button shrinks while pressed.
+  static let pressedScale = 0.97
+
+  func makeBody(configuration: Configuration) -> some View {
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+    let color = destructive ? Palette.lossText : Palette.textPrimary
+    configuration.label
+      .font(Tokens.Typography.button)
+      .foregroundStyle(color)
+      .padding(.horizontal, Tokens.Space.m)
+      .padding(.vertical, compact ? Tokens.Space.s : Tokens.Space.m)
+      .background(destructive ? Palette.loss.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
+      .overlay(
+        shape.strokeBorder(destructive ? Palette.loss.opacity(Tokens.Opacity.border) : Palette.separatorStrong,
+          lineWidth: Tokens.Stroke.thin))
+      .contentShape(shape)
+      .opacity(enabled ? 1 : Tokens.Opacity.faint)
+      .scaleEffect(configuration.isPressed ? Self.pressedScale : 1)
+      .animation(Tokens.Motion.quick, value: configuration.isPressed)
   }
 }
 
@@ -212,12 +266,14 @@ enum Format {
   /// Seconds in a minute.
   static let secondsPerMinute = 60
 
-  /// "10:42:08" in New York time (market time).
+  /// "14:42:08" in New York time (market time), 24-hour whatever the Mac's clock setting.
   static func marketTime(_ date: Date?) -> String {
     guard let date else { return missing }
-    var style = Date.FormatStyle(date: .omitted, time: .standard)
-    style.timeZone = newYork
-    return date.formatted(style)
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = newYork
+    return date.formatted(Date.VerbatimFormatStyle(
+      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
+      timeZone: newYork, calendar: calendar))
   }
 
   /// "14:42" in New York time, 24-hour (`.twoDigits(amPM: .omitted)` would show 02:42).

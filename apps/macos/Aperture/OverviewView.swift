@@ -11,62 +11,74 @@ struct OverviewView: View {
   /// The order in which the cards rise in as the screen appears.
   private enum Order: Int { case header = 0, result, flow, positions, middle, right }
 
+  /// Columns of the three-column grid the Positions card spans.
+  static let positionsColumns = 2
+
   var body: some View {
     ScrollView {
       VStack(spacing: Tokens.Space.l) {
-        HStack(alignment: .top, spacing: Tokens.Space.l) {
-          HeaderCard().rise(step: Order.header.rawValue)
-          DayResultCard().frame(width: Tokens.Size.sideColumn).rise(step: Order.result.rawValue)
+        HStack(alignment: .top, spacing: Tokens.Space.xl) {
+          Header().rise(step: Order.header.rawValue)
+          DayResult().frame(width: Tokens.Size.dayResultWidth).rise(step: Order.result.rawValue)
         }
         LiveFlowCard().rise(step: Order.flow.rawValue)
-        // Three columns when the window is wide; a narrow window puts the positions on their own
-        // row and the two side columns below them, so nothing is pushed off screen.
+        // The design's grid: positions over two columns beside safety and the bot, then risk room,
+        // observers and the journal in three equal columns, each row's cards one height. A window
+        // too narrow for three columns stacks the cards instead.
         ViewThatFits(in: .horizontal) {
-          HStack(alignment: .top, spacing: Tokens.Space.l) {
-            positions
-            middleColumn.frame(width: Tokens.Size.sideColumn)
-            rightColumn.frame(width: Tokens.Size.sideColumn)
+          Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
+            GridRow {
+              positions.gridCellColumns(Self.positionsColumns)
+              middleColumn
+            }
+            GridRow {
+              Group {
+                RiskRoomCard().filling()
+                ObserversCard().filling()
+                JournalCard().filling()
+              }
+              .gridColumn()
+              .rise(step: Order.right.rawValue)
+            }
           }
           VStack(spacing: Tokens.Space.l) {
             positions
             HStack(alignment: .top, spacing: Tokens.Space.l) {
               middleColumn
-              rightColumn
+              VStack(spacing: Tokens.Space.l) {
+                RiskRoomCard()
+                ObserversCard()
+                JournalCard()
+              }
+              .rise(step: Order.right.rawValue)
             }
           }
         }
       }
       .padding(Tokens.Space.xl)
-      .frame(maxWidth: Tokens.Size.contentMaxWidth)
-      .frame(maxWidth: .infinity)
     }
   }
 
   private var positions: some View {
-    PositionsCard().rise(step: Order.positions.rawValue)
+    PositionsCard()
+      .filling()
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+      .rise(step: Order.positions.rawValue)
   }
 
   private var middleColumn: some View {
     VStack(spacing: Tokens.Space.l) {
       SafetyCard()
-      BotCard()
+      BotCard().filling()
     }
+    .gridColumn()
     .rise(step: Order.middle.rawValue)
-  }
-
-  private var rightColumn: some View {
-    VStack(spacing: Tokens.Space.l) {
-      RiskRoomCard()
-      ObserversCard()
-      JournalCard()
-    }
-    .rise(step: Order.right.rawValue)
   }
 }
 
 // MARK: header
 
-private struct HeaderCard: View {
+private struct Header: View {
   @Environment(AppModel.self) private var model
 
   /// Lines the banner's detail may wrap to.
@@ -76,9 +88,11 @@ private struct HeaderCard: View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
       BrandMark(live: model.isLive)
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        HStack(spacing: Tokens.Space.s) {
-          Text(verbatim: AppInfo.name).font(Tokens.Typography.title)
-          Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textQuaternary)
+        HStack(spacing: Tokens.Space.m) {
+          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+            Text(verbatim: AppInfo.name).font(Tokens.Typography.title).foregroundStyle(Palette.infoText)
+            Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textPrimary)
+          }
           #if DEBUG
           // Fixture data looks live; say so on the screen it would be mistaken on.
           if PreviewAPI.servesFixtures {
@@ -86,10 +100,10 @@ private struct HeaderCard: View {
           }
           #endif
           if let status = model.status {
-            Badge(verbatim: status.environment, color: Palette.highlightText)
+            Badge(verbatim: status.environment, color: Palette.warningText)
             Group {
               if status.tradingGate.open {
-                Badge(L10n.Overview.gateOpen, color: Palette.accentText)
+                Badge(L10n.Overview.gateOpen, color: Palette.profitText)
               } else {
                 Badge(L10n.Overview.gateClosed, color: Palette.warningText)
               }
@@ -101,9 +115,7 @@ private struct HeaderCard: View {
       }
       Spacer(minLength: 0)
     }
-    .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .apertureCard()
   }
 
   private var banner: some View {
@@ -111,7 +123,7 @@ private struct HeaderCard: View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     return HStack(spacing: Tokens.Space.m) {
       PulseDot(content.color, pulsing: model.isLive)
-      Text(verbatim: content.title).font(.headline).foregroundStyle(content.color)
+      Text(verbatim: content.title).font(Tokens.Typography.button).foregroundStyle(content.color)
       if let detail = content.detail {
         Text(verbatim: detail).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary).lineLimit(Self.detailLines)
       }
@@ -184,21 +196,28 @@ struct AlarmPulse: ViewModifier {
   }
 }
 
-private struct DayResultCard: View {
+/// The day's result beside the header, right-aligned and large, as the design sets it apart
+/// from the cards.
+private struct DayResult: View {
   @Environment(AppModel.self) private var model
   @State private var counted: Decimal = 0
 
+  /// Width of the result's sparkline, in points.
+  static let sparklineWidth: CGFloat = 200
+  /// Smallest scale a long result shrinks to before it truncates.
+  static let minimumScale = 0.7
+
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+    VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
       CardLabel(L10n.Overview.dayResult)
-      MoneyText(value: counted, usd: true, font: Tokens.Typography.hero)
-      Text(verbatim: subtitle).font(Tokens.Typography.captionMono).foregroundStyle(Palette.textQuaternary)
+      MoneyText(value: counted, usd: true, font: Tokens.Typography.display)
+        .lineLimit(1)
+        .minimumScaleFactor(Self.minimumScale)
+      Text(verbatim: subtitle).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
       DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
-        .frame(height: Tokens.Size.sparkline)
+        .frame(width: Self.sparklineWidth, height: Tokens.Size.sparkline)
     }
-    .padding(Tokens.Space.l)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .apertureCard()
+    .frame(maxWidth: .infinity, alignment: .trailing)
     .onAppear { countUp() }
     .onChange(of: model.shownResult) { countUp() }
   }
@@ -267,27 +286,32 @@ private struct LiveFlowCard: View {
 
   private var stages: [Pipeline.Stage] {
     let status = model.isLive ? model.status : nil
-    let position = status.flatMap { Board.positions($0).first }
-    let stopColor = position.map { $0.stop.state == .verified ? Palette.profit : Palette.loss } ?? Palette.profit
+    let positions = status.map(Board.positions) ?? []
+    let position = positions.first { $0.stop.state != .verified } ?? positions.first
+    // Green only while every open position's stop is verified at the broker.
+    let stopVerified = positions.allSatisfy { $0.stop.state == .verified }
+    let stopColor = stopVerified ? Palette.profit : Palette.loss
+    let stopText = stopVerified ? Palette.profitText : Palette.lossText
     return [
-      .init(id: .screeners, name: L10n.Flow.screeners, value: nil, symbol: Self.screenersSymbol, color: Palette.accent),
+      .init(id: .screeners, name: L10n.Flow.screeners, value: nil, symbol: Self.screenersSymbol, color: Palette.accent,
+        text: Palette.accentText),
       .init(id: .universe, name: L10n.Flow.universe, value: nil, symbol: Self.universeSymbol,
-        color: Palette.seriesUniverse),
+        color: Palette.seriesUniverse, text: Palette.seriesATRText),
       .init(id: .strategy, name: L10n.Common.strategy, value: status.map { Format.strategy($0.strategy) },
-        symbol: Self.strategySymbol, color: Palette.highlight),
+        symbol: Self.strategySymbol, color: Palette.highlight, text: Palette.highlightText),
       .init(id: .risk, name: L10n.Common.risk,
         value: status.map { String(localized: $0.entryBlock == nil ? L10n.Flow.entriesAllowed : L10n.Flow.blocked) },
-        symbol: Self.riskSymbol, color: Palette.warning),
+        symbol: Self.riskSymbol, color: Palette.warning, text: Palette.warningText),
       .init(id: .order, name: L10n.Flow.order, value: status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
-        symbol: Self.orderSymbol, color: Palette.info),
+        symbol: Self.orderSymbol, color: Palette.info, text: Palette.infoText),
       .init(id: .stop, name: L10n.Flow.brokerStop,
         value: status.map { _ in position.map { $0.stop.state.title } ?? String(localized: L10n.Common.noPosition) },
-        symbol: Self.stopSymbol, color: stopColor),
+        symbol: Self.stopSymbol, color: stopColor, text: stopText),
       .init(id: .reconcile, name: L10n.Flow.reconcile,
         value: status.map {
           $0.fences.isEmpty ? String(localized: L10n.Flow.match) : String(localized: L10n.Common.fences($0.fences.count))
         },
-        symbol: Self.reconcileSymbol, color: Palette.info),
+        symbol: Self.reconcileSymbol, color: Palette.info, text: Palette.infoText),
     ]
   }
 }
@@ -329,15 +353,17 @@ private struct Pipeline: View {
     /// nil = the API does not report this stage yet.
     let value: String?
     let symbol: String
+    /// Fill colour of the stage (ring, glow) and the colour of its name.
     let color: Color
+    let text: Color
   }
 
   let stages: [Stage]
   let moving: Bool
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-  /// Height of the whole pipeline: icon well, name and value.
-  static let height: CGFloat = 96
+  /// Height of the whole pipeline: stage circle, name and value.
+  static let height: CGFloat = 104
   /// Lights travelling along the line at once, evenly spaced.
   static let lights = 3
   /// Share of the trip over which a light fades in at the start and out at the end.
@@ -346,6 +372,8 @@ private struct Pipeline: View {
   static let glow: CGFloat = 6
   /// Seconds between the pulses of neighbouring stages, so they do not beat together.
   static let pulseOffset = 0.35
+  /// Blur of the soft glow around a reporting stage, in points.
+  static let stageGlow: CGFloat = 9
 
   var body: some View {
     ZStack(alignment: .top) {
@@ -353,9 +381,9 @@ private struct Pipeline: View {
         let inset = proxy.size.width / CGFloat(stages.count) / 2
         // The track runs from the centre of the first stage to the centre of the last.
         let width = proxy.size.width - proxy.size.width / CGFloat(stages.count)
-        Capsule().fill(Palette.separator)
+        Capsule().fill(Palette.separatorStrong)
           .frame(width: width, height: Tokens.Stroke.bold)
-          .offset(x: inset, y: (Tokens.Size.iconWell - Tokens.Stroke.bold) / 2)
+          .offset(x: inset, y: (Tokens.Size.stage - Tokens.Stroke.bold) / 2)
         if moving && !reduceMotion {
           TimelineView(.animation) { context in
             lights(time: context.date.timeIntervalSinceReferenceDate, inset: inset, width: width)
@@ -380,24 +408,27 @@ private struct Pipeline: View {
         .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
         .shadow(color: Palette.accent.opacity(Tokens.Opacity.medium), radius: Self.glow)
         .opacity(min(phase, 1 - phase, Self.fadeShare) / Self.fadeShare)
-        .offset(x: inset + width * phase - Tokens.Size.dot / 2, y: (Tokens.Size.iconWell - Tokens.Size.dot) / 2)
+        .offset(x: inset + width * phase - Tokens.Size.dot / 2, y: (Tokens.Size.stage - Tokens.Size.dot) / 2)
     }
   }
 
   private func column(_ stage: Stage, index: Int) -> some View {
     let reported = stage.value != nil
+    let strength = reported ? 1 : Tokens.Opacity.faint
     return VStack(spacing: Tokens.Space.s) {
       ZStack {
         Circle().fill(Palette.surface)
-        Circle().strokeBorder(stage.color.opacity(reported ? 1 : Tokens.Opacity.faint), lineWidth: Tokens.Stroke.regular)
+        Circle().fill(stage.color.opacity(Tokens.Opacity.wash * strength))
+        Circle().strokeBorder(stage.color.opacity(strength), lineWidth: Tokens.Stroke.bold)
         Image(systemName: stage.symbol)
-          .font(Tokens.Typography.symbol)
+          .font(Tokens.Typography.stageSymbol)
           .foregroundStyle(stage.color.opacity(reported ? 1 : Tokens.Opacity.border))
       }
-      .frame(width: Tokens.Size.iconWell, height: Tokens.Size.iconWell)
+      .frame(width: Tokens.Size.stage, height: Tokens.Size.stage)
+      .shadow(color: reported ? stage.color.opacity(Tokens.Opacity.faint) : .clear, radius: Self.stageGlow)
       .overlay {
         if reported && moving {
-          PulseDot(stage.color, size: Tokens.Size.iconWell, pulsing: true)
+          PulseDot(stage.color, size: Tokens.Size.stage, pulsing: true)
             .opacity(Tokens.Opacity.faint)
             .animation(.default.delay(Double(index) * Self.pulseOffset), value: moving)
         }
@@ -405,7 +436,9 @@ private struct Pipeline: View {
       Text(stage.name)
         .textCase(.uppercase)
         .font(Tokens.Typography.annotationBold)
-        .foregroundStyle(Palette.textSecondary)
+        .tracking(Tokens.Typography.labelTracking)
+        .foregroundStyle(reported ? stage.text : Palette.textQuaternary)
+        .lineLimit(1)
       if let value = stage.value {
         Text(verbatim: value)
           .font(Tokens.Typography.annotation)
@@ -431,18 +464,20 @@ private struct PositionsCard: View {
 
   var body: some View {
     let rows = model.positions
+    let shown = rows.first(where: { $0.id == selected }) ?? rows.first
     Card(title) {
-      Button(String(localized: L10n.Position.openChart)) { model.section = .chart }
-        .buttonStyle(.link)
-        .disabled(rows.isEmpty)
-    } content: {
-      if rows.count > 1 {
-        Picker(String(localized: L10n.Position.picker), selection: Binding(get: { selected ?? rows.first?.id }, set: { selected = $0 })) {
-          ForEach(rows) { row in Text(verbatim: row.position.symbol).tag(Optional(row.id)) }
+      HStack(spacing: Tokens.Space.s) {
+        // One tab per open position with its result, as in the design; a single position needs none.
+        if rows.count > 1 {
+          ForEach(rows) { row in
+            PositionTab(row: row, selected: row.id == shown?.id) { selected = row.id }
+          }
         }
-        .pickerStyle(.segmented)
-        .labelsHidden()
+        Button(String(localized: L10n.Position.openChart)) { model.section = .chart }
+          .buttonStyle(.link)
+          .disabled(rows.isEmpty)
       }
+    } content: {
       if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
         PositionDetail(row: row)
           .id(row.id)
@@ -463,6 +498,33 @@ private struct PositionsCard: View {
       return L10n.Position.titleOfLimit(count, limit)
     }
     return L10n.Position.title(count)
+  }
+}
+
+/// A position's tab on the Positions card: its symbol and open result, outlined when shown.
+private struct PositionTab: View {
+  let row: PositionRow
+  let selected: Bool
+  let action: () -> Void
+
+  var body: some View {
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+    Button(action: action) {
+      HStack(spacing: Tokens.Space.xs) {
+        Text(verbatim: row.position.symbol).foregroundStyle(Palette.textPrimary)
+        if let value = row.unrealized {
+          Text(verbatim: Money.signed(value)).foregroundStyle(Palette.result(value))
+        }
+      }
+      .font(Tokens.Typography.chip)
+      .padding(.horizontal, Tokens.Space.s)
+      .padding(.vertical, Tokens.Space.xs)
+      .background(selected ? Palette.info.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
+      .overlay(shape.strokeBorder(selected ? Palette.info : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+      .contentShape(shape)
+    }
+    .buttonStyle(.plain)
+    .accessibilityAddTraits(selected ? .isSelected : [])
   }
 }
 
