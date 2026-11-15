@@ -174,7 +174,7 @@ struct AppModelTests {
     RouteProtocol.routes.withLock { $0.bodies["/skipped"] = try? Data(contentsOf:
       fixturesDir.appendingPathComponent("skipped-v1.json")) }
     await model.refreshSkipped()
-    #expect(model.skipped?.signals.map(\.admission) == [.refused, .notEvaluated])
+    #expect(model.skipped?.signals.map(\.admission) == [.refused, .refused, .notEvaluated])
     RouteProtocol.routes.withLock { $0.bodies["/skipped"] = nil }
     await model.refreshSkipped()
     #expect(model.skipped == nil)

@@ -119,8 +119,12 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
 
   @Test func skippedSignalsAndAdmissions() throws {
     let skipped = try Wire.decoder().decode(SkippedV1.self, from: fixture("skipped-v1.json"))
-    #expect(skipped.signals.map(\.admission) == [.refused, .notEvaluated])
+    #expect(skipped.signals.map(\.admission) == [.refused, .refused, .notEvaluated])
     #expect(skipped.signals.first?.refusalCause?.hasPrefix("POSITION_LIMIT_REACHED") == true)
+    #expect(skipped.signals.first?.refusal?.code == "POSITION_LIMIT_REACHED")
+    let cooldown = try #require(skipped.signals.first { $0.refusal?.code == "SYMBOL_COOLDOWN" }?.refusal)
+    #expect(cooldown.since != nil && cooldown.until != nil)
+    #expect(skipped.signals.last?.refusal == nil)
     #expect(skipped.signals.last?.entryPrice == nil)
     let decisions = try Wire.decoder().decode(DecisionsV1.self, from: fixture("decisions-v1.json"))
     #expect(decisions.decisions.map(\.admission) == [.notApplicable, .notEvaluated, .refused])

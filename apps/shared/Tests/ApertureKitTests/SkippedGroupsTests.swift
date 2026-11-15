@@ -13,6 +13,7 @@ struct SkippedGroupsTests {
       {"at": "2026-11-13T16:\(String(format: "%02d", minute)):00.000Z", "symbol": "\(symbol)",
        "strategy": {"name": "price-action", "version": "2"}, "admission": "\(admission)",
        "refusal_cause": \(cause.map { "\"\($0)\"" } ?? "null"),
+       "refusal": null,
        "entry_price": "12.345678901234567890123456789", "stop_price": null, "checks": []}
       """
     return try Wire.decoder().decode(SkippedSignalV1.self, from: Data(json.utf8))

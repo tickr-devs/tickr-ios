@@ -78,6 +78,34 @@ public struct StrategyRefV1: Codable, Hashable, Sendable {
   public let version: String
 }
 
+/// Why the platform refused an entry: a code from the schema's closed list, the bot's message,
+/// and the window the refusal covers when it has one (a cooldown has both ends).
+public struct RefusalV1: Codable, Hashable, Sendable {
+  /// An AdmissionCause name, ENGINE_REFUSED or UNKNOWN (uppercase, as the schema lists them).
+  public let code: String
+  public let message: String
+  public let since: WireTime?
+  public let until: WireTime?
+
+  enum CodingKeys: String, CodingKey { case code, message, since, until }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    code = try c.decode(String.self, forKey: .code)
+    message = try c.decode(String.self, forKey: .message)
+    since = try c.decodeNullable(WireTime.self, forKey: .since)
+    until = try c.decodeNullable(WireTime.self, forKey: .until)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(code, forKey: .code)
+    try c.encode(message, forKey: .message)
+    try c.encodeNullable(since, forKey: .since)
+    try c.encodeNullable(until, forKey: .until)
+  }
+}
+
 /// One decision on a symbol, by the trading strategy or an observer, with the checks behind it.
 public struct DecisionV1: Codable, Hashable, Sendable {
   public let at: WireTime
@@ -94,12 +122,15 @@ public struct DecisionV1: Codable, Hashable, Sendable {
   public let admission: Admission
   /// The single "CAUSE: detail" of a refusal; nil otherwise.
   public let refusalCause: String?
+  /// The structured refusal; nil unless the platform refused the entry.
+  public let refusal: RefusalV1?
 
   enum CodingKeys: String, CodingKey {
     case at, action, strategy, observer, checks, admission
     case entryPrice = "entry_price"
     case stopPrice = "stop_price"
     case refusalCause = "refusal_cause"
+    case refusal
   }
 
   public init(from decoder: Decoder) throws {
@@ -113,6 +144,7 @@ public struct DecisionV1: Codable, Hashable, Sendable {
     stopPrice = try c.decodeNullable(DecimalString.self, forKey: .stopPrice)
     admission = try c.decode(Admission.self, forKey: .admission)
     refusalCause = try c.decodeNullable(String.self, forKey: .refusalCause)
+    refusal = try c.decodeNullable(RefusalV1.self, forKey: .refusal)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -126,6 +158,7 @@ public struct DecisionV1: Codable, Hashable, Sendable {
     try c.encodeNullable(stopPrice, forKey: .stopPrice)
     try c.encode(admission, forKey: .admission)
     try c.encodeNullable(refusalCause, forKey: .refusalCause)
+    try c.encodeNullable(refusal, forKey: .refusal)
   }
 }
 
@@ -167,6 +200,8 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
   public let admission: Admission
   /// The single "CAUSE: detail" of a refusal; nil otherwise.
   public let refusalCause: String?
+  /// The structured refusal; nil unless the platform refused the entry.
+  public let refusal: RefusalV1?
   /// What-if entry and stop, each nil when the record does not hold it.
   public let entryPrice: DecimalString?
   public let stopPrice: DecimalString?
@@ -175,6 +210,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
   enum CodingKeys: String, CodingKey {
     case at, symbol, strategy, admission, checks
     case refusalCause = "refusal_cause"
+    case refusal
     case entryPrice = "entry_price"
     case stopPrice = "stop_price"
   }
@@ -186,6 +222,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     strategy = try c.decode(StrategyRefV1.self, forKey: .strategy)
     admission = try c.decode(Admission.self, forKey: .admission)
     refusalCause = try c.decodeNullable(String.self, forKey: .refusalCause)
+    refusal = try c.decodeNullable(RefusalV1.self, forKey: .refusal)
     entryPrice = try c.decodeNullable(DecimalString.self, forKey: .entryPrice)
     stopPrice = try c.decodeNullable(DecimalString.self, forKey: .stopPrice)
     checks = try c.decode([CheckV1].self, forKey: .checks)
@@ -198,6 +235,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     try c.encode(strategy, forKey: .strategy)
     try c.encode(admission, forKey: .admission)
     try c.encodeNullable(refusalCause, forKey: .refusalCause)
+    try c.encodeNullable(refusal, forKey: .refusal)
     try c.encodeNullable(entryPrice, forKey: .entryPrice)
     try c.encodeNullable(stopPrice, forKey: .stopPrice)
     try c.encode(checks, forKey: .checks)

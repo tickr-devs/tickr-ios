@@ -19,7 +19,8 @@ struct ChartEventsTests {
     let json = """
       {"at": "2026-11-16T15:\(String(format: "%02d", minute)):30.000Z", "action": "\(action)",
        "strategy": {"name": "price-action", "version": "2"}, "observer": \(observer), "checks": [],
-       "entry_price": null, "stop_price": null, "admission": "\(admission)", "refusal_cause": null}
+       "entry_price": null, "stop_price": null, "admission": "\(admission)", "refusal_cause": null,
+       "refusal": null}
       """
     return try Wire.decoder().decode(DecisionV1.self, from: Data(json.utf8))
   }

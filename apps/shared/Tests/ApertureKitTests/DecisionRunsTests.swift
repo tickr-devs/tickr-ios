@@ -18,12 +18,13 @@ struct DecisionRunsTests {
     let levels = skipped ? #""entry_price": "12.40", "stop_price": "12.10""# : #""entry_price": null, "stop_price": null"#
     // The admission as the bot records it: a skipped ENTER here is a refused one, an observer's
     // ENTER is never evaluated, any other verdict has none.
-    let refused = #""admission": "refused", "refusal_cause": "POSITION_LIMIT_REACHED: limit 1""#
+    let refused = #""admission": "refused", "refusal_cause": "POSITION_LIMIT_REACHED: limit 1", "refusal": "#
+      + #"{"code": "POSITION_LIMIT_REACHED", "message": "limit 1", "since": null, "until": null}"#
     let admission = switch (action, observer, skipped) {
-    case ("ENTER", true, _): #""admission": "not_evaluated", "refusal_cause": null"#
+    case ("ENTER", true, _): #""admission": "not_evaluated", "refusal_cause": null, "refusal": null"#
     case ("ENTER", false, true): refused
-    case ("ENTER", false, false): #""admission": "taken", "refusal_cause": null"#
-    default: #""admission": "not_applicable", "refusal_cause": null"#
+    case ("ENTER", false, false): #""admission": "taken", "refusal_cause": null, "refusal": null"#
+    default: #""admission": "not_applicable", "refusal_cause": null, "refusal": null"#
     }
     let checks = failed.map {
       #"[{"rule": "\#($0)", "measured": null, "operator": "is", "threshold": null, "passed": false, "note": ""}]"#
