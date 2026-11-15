@@ -781,7 +781,7 @@ private struct RiskRoomCard: View {
 
   var body: some View {
     Card(L10n.RiskRoom.title) {
-      Button(String(localized: L10n.RiskRoom.details)) { model.section = .risk }.buttonStyle(.link)
+      Button { model.section = .risk } label: { Text(L10n.RiskRoom.details) }.buttonStyle(.link)
     } content: {
       if let risk = model.settings?.risk {
         let limit = risk.maxDailyLossUsd.value
@@ -834,7 +834,7 @@ private struct ObserversCard: View {
 
   var body: some View {
     Card(L10n.Observers.title) {
-      Button(String(localized: L10n.RiskRoom.details)) { model.section = .lab }.buttonStyle(.link)
+      Button { model.section = .lab } label: { Text(L10n.RiskRoom.details) }.buttonStyle(.link)
     } content: {
       if let observers = model.observers?.observers {
         if observers.isEmpty {

@@ -171,6 +171,57 @@
         }
       }
     },
+    "bot.emergency": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emergency Stop"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Аварийная остановка"
+          }
+        }
+      }
+    },
+    "bot.emergencyExplanation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three steps in order: pause new entries, cancel the bot's working entry orders, flatten every own position. Each broker stop stays until its closing sale is sent. The bot keeps running."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Три шага по порядку: пауза новых входов, отмена рабочих заявок бота на вход, закрытие всех своих позиций. Брокерский стоп каждой позиции остаётся, пока не отправлена её закрывающая продажа. Бот продолжает работать."
+          }
+        }
+      }
+    },
+    "bot.emergencyQuestion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run the emergency stop?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполнить аварийную остановку?"
+          }
+        }
+      }
+    },
     "bot.flatten": {
       "extractionState": "manual",
       "localizations": {
@@ -432,13 +483,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Needs a new API command: new entries blocked, working entries cancelled, broker stops left resting."
+            "value": "The bot stops and stays stopped until you run aperture clear-stop on this Mac; the app cannot start it again. Working entry orders are cancelled. Open positions stay open under their broker stop, a DAY order: nothing closes them at the session's end. Flatten first to be flat."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нужна новая команда API: новые входы заблокированы, рабочие входы отменены, стопы у брокера остаются на месте."
+            "value": "Бот останавливается и остаётся выключенным, пока вы не выполните aperture clear-stop на этом Mac; приложение запустить его не может. Рабочие заявки на вход отменяются. Открытые позиции остаются под брокерским стопом, а это DAY-ордер: в конце сессии их никто не закроет. Чтобы выйти в кэш, сначала закройте позиции."
           }
         }
       }
@@ -456,6 +507,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Остановить бота?"
+          }
+        }
+      }
+    },
+    "bot.stoppedOpen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. The broker stop is a DAY order and nothing closes these positions at the session's end. To trade again, run aperture clear-stop on this Mac."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Брокерский стоп — DAY-ордер, и в конце сессии эти позиции никто не закроет. Чтобы снова торговать, выполните aperture clear-stop на этом Mac."
+          }
+        }
+      }
+    },
+    "bot.stoppedTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bot Stopped with Open Positions"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бот остановлен с открытыми позициями"
           }
         }
       }

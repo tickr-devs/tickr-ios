@@ -80,7 +80,7 @@ private struct LossRoomCard: View {
         .frame(maxWidth: .infinity)
         .modifier(AlarmPulse(active: room != nil && fraction < Self.alarm))
         VStack(spacing: Tokens.Space.s) {
-          StatLine(L10n.Risk.limit, value: limit.map(Money.signedUSD) ?? Format.missing)
+          StatLine(L10n.Risk.limit, value: limit.map(Format.usd) ?? Format.missing)
           StatLine(
             L10n.Risk.resultToday, value: result.map(Money.signedUSD) ?? Format.missing,
             color: result.map(Palette.result) ?? Palette.textQuaternary)
@@ -99,7 +99,7 @@ private struct LossRoomCard: View {
 extension LossRoomCard {
   /// A USD amount the bot reported, or the missing mark when it did not.
   fileprivate func amount(_ value: DecimalString?) -> String {
-    value.map { Money.signedUSD($0.value) } ?? Format.missing
+    value.map { Format.usd($0.value) } ?? Format.missing
   }
 }
 
@@ -210,10 +210,10 @@ private struct LimitsCard: View {
     Card(L10n.Risk.limits) {
       if let risk = model.settings?.risk {
         VStack(spacing: Tokens.Space.s) {
-          StatLine(L10n.Risk.plannedLoss, value: Money.signedUSD(risk.plannedLossUsd.value))
-          StatLine(L10n.Risk.notionalCap, value: Money.signedUSD(risk.positionNotionalCapUsd.value))
-          StatLine(L10n.Risk.dailyLoss, value: Money.signedUSD(risk.maxDailyLossUsd.value))
-          StatLine(L10n.Risk.minRoom, value: Money.signedUSD(risk.minDailyRoomUsd.value))
+          StatLine(L10n.Risk.plannedLoss, value: Format.usd(risk.plannedLossUsd.value))
+          StatLine(L10n.Risk.notionalCap, value: Format.usd(risk.positionNotionalCapUsd.value))
+          StatLine(L10n.Risk.dailyLoss, value: Format.usd(risk.maxDailyLossUsd.value))
+          StatLine(L10n.Risk.minRoom, value: Format.usd(risk.minDailyRoomUsd.value))
           StatLine(L10n.Risk.openPositions, value: String(risk.maxOpenPositions))
           StatLine(L10n.Risk.quoteAge, value: String(localized: L10n.Risk.seconds(Money.plain(risk.maxQuoteAgeSeconds.value))))
         }
@@ -296,9 +296,9 @@ private struct AccountCard: View {
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.lossText)
       }
-      StatLine(L10n.Risk.equity, value: account.equityUsd.map { Money.signedUSD($0.value) } ?? Format.missing,
+      StatLine(L10n.Risk.equity, value: account.equityUsd.map { Format.usd($0.value) } ?? Format.missing,
         color: account.equityUsd == nil ? Palette.textQuaternary : Palette.textPrimary)
-      StatLine(L10n.Risk.buyingPower, value: account.buyingPowerUsd.map { Money.signedUSD($0.value) } ?? Format.missing,
+      StatLine(L10n.Risk.buyingPower, value: account.buyingPowerUsd.map { Format.usd($0.value) } ?? Format.missing,
         color: account.buyingPowerUsd == nil ? Palette.textQuaternary : Palette.textPrimary)
       if account.equityUsd == nil || account.buyingPowerUsd == nil {
         Footnote(L10n.Risk.balanceNote)

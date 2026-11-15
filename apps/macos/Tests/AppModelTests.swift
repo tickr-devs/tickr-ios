@@ -11,6 +11,7 @@ final class RouteProtocol: URLProtocol {
   struct Routes: Sendable {
     var bodies: [String: Data] = [:]
     var barSymbols: [String] = []
+    var idempotencyKeys: [String?] = []
   }
 
   static let routes = Mutex(Routes())
@@ -30,12 +31,18 @@ final class RouteProtocol: URLProtocol {
       return
     }
     let path = url.path()
+    if request.httpMethod == "POST" {
+      let key = request.value(forHTTPHeaderField: "Idempotency-Key")
+      Self.routes.withLock { $0.idempotencyKeys.append(key) }
+    }
     if path == "/bars", let symbol = URLComponents(url: url, resolvingAgainstBaseURL: false)?
       .queryItems?.first(where: { $0.name == "symbol" })?.value {
       Self.routes.withLock { $0.barSymbols.append(symbol) }
     }
     let body = Self.routes.withLock { $0.bodies[path] }
-    let response = HTTPURLResponse(url: url, statusCode: body == nil ? 404 : 200, httpVersion: "HTTP/1.1",
+    // A queued command answers 202 Accepted, a read 200 OK (docs/api.md).
+    let success = request.httpMethod == "POST" ? 202 : 200
+    let response = HTTPURLResponse(url: url, statusCode: body == nil ? 404 : success, httpVersion: "HTTP/1.1",
       headerFields: ["Content-Type": "application/json"])
     if let response {
       client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
@@ -60,6 +67,23 @@ struct AppModelTests {
     second["symbol"] = "EFGH"
     positions.append(second)
     status["positions"] = positions
+    response["status"] = status
+    return try JSONSerialization.data(withJSONObject: response)
+  }
+
+  /// The status fixture whose recent commands include an obeyed stop-bot with `cause`, under the
+  /// command id of command-accepted-v1.json.
+  static func statusAfterStop(cause: String) throws -> Data {
+    let data = try Data(contentsOf: fixturesDir.appendingPathComponent("status-response-v1.json"))
+    var response = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    var status = try #require(response["status"] as? [String: Any])
+    var commands = try #require(status["recent_commands"] as? [[String: Any]])
+    var record = try #require(commands.first)
+    record["command_id"] = "3f2c9a7e-5b1d-4c8e-9a0f-1e2d3c4b5a69"
+    record["kind"] = "stop-bot"
+    record["cause"] = cause
+    commands.append(record)
+    status["recent_commands"] = commands
     response["status"] = status
     return try JSONSerialization.data(withJSONObject: response)
   }
@@ -103,5 +127,33 @@ struct AppModelTests {
     await model.refreshAccount()
     #expect(model.account == nil)
     #expect(model.accountError != nil)
+  }
+
+  @Test("A stop-bot that left positions open raises the notice, and each send carries a key")
+  func stopWithOpenPositions() async throws {
+    let cause = "1 position(s) left open under their broker stop"
+    let accepted = try Data(contentsOf: fixturesDir.appendingPathComponent("command-accepted-v1.json"))
+    let status = try Self.statusAfterStop(cause: cause)
+    RouteProtocol.routes.withLock {
+      $0.bodies["/status"] = status
+      $0.bodies["/commands/stop-bot"] = accepted
+    }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    #expect(model.stopNotice == nil)
+    await model.send(.stopBot, title: "Stop Bot")
+    #expect(model.stopNotice == cause)
+    let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }
+    #expect(keys.count == 1 && keys.first??.isEmpty == false)
+    model.dismissStopNotice()
+    #expect(model.stopNotice == nil)
+  }
+
+  @Test("Flatten of one symbol closes only that symbol; every action has a command")
+  func actionsMapToCommands() {
+    #expect(BotAction.flatten(symbol: "ABCD").command == .flattenSymbol("ABCD"))
+    #expect(BotAction.flattenAll.command == .flatten)
+    #expect(BotAction.stopBot.command == .stopBot)
+    #expect(BotAction.emergency.command == .emergency)
   }
 }

@@ -2,10 +2,9 @@ import ApertureDesign
 import ApertureKit
 import SwiftUI
 
-/// An operator action as the app offers it. Each maps to one local-API command, or is shown
-/// disabled when the API has no command for it yet.
+/// An operator action as the app offers it. Each maps to one local-API command.
 enum BotAction: Identifiable, Equatable {
-  case pauseEntries, resumeEntries, cancelOrders, flatten(symbol: String), flattenAll, stopBot
+  case pauseEntries, resumeEntries, cancelOrders, flatten(symbol: String), flattenAll, stopBot, emergency
 
   /// Ids of the actions (SwiftUI identity only); a flatten action's id ends with its symbol.
   static let pauseID = "pause"
@@ -14,6 +13,7 @@ enum BotAction: Identifiable, Equatable {
   static let flattenPrefix = "flatten-"
   static let flattenAllID = "flatten-all"
   static let stopID = "stop"
+  static let emergencyID = "emergency"
 
   var id: String {
     switch self {
@@ -23,18 +23,20 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return Self.flattenPrefix + symbol
     case .flattenAll: return Self.flattenAllID
     case .stopBot: return Self.stopID
+    case .emergency: return Self.emergencyID
     }
   }
 
-  /// The API command, nil when there is none yet.
-  var command: OperatorCommand? {
+  /// The API command the action sends.
+  var command: OperatorCommand {
     switch self {
     case .pauseEntries: return .entryStop(on: true)
     case .resumeEntries: return .entryStop(on: false)
     case .cancelOrders: return .cancelOwnOrders
-    // v1 holds at most one position, and the flatten command closes the bot's own position.
-    case .flatten, .flattenAll: return .flatten
-    case .stopBot: return nil
+    case .flatten(let symbol): return .flattenSymbol(symbol)
+    case .flattenAll: return .flatten
+    case .stopBot: return .stopBot
+    case .emergency: return .emergency
     }
   }
 
@@ -46,12 +48,13 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return String(localized: L10n.Bot.flatten(symbol))
     case .flattenAll: return String(localized: L10n.Bot.flattenAll)
     case .stopBot: return String(localized: L10n.Bot.stopBot)
+    case .emergency: return String(localized: L10n.Bot.emergency)
     }
   }
 
   var isDestructive: Bool {
     switch self {
-    case .flatten, .flattenAll, .stopBot: return true
+    case .flatten, .flattenAll, .stopBot, .emergency: return true
     default: return false
     }
   }
@@ -72,6 +75,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return String(localized: L10n.Bot.flattenQuestion(symbol))
     case .flattenAll: return String(localized: L10n.Bot.flattenAllQuestion)
     case .stopBot: return String(localized: L10n.Bot.stopQuestion)
+    case .emergency: return String(localized: L10n.Bot.emergencyQuestion)
     }
   }
 
@@ -89,6 +93,8 @@ enum BotAction: Identifiable, Equatable {
       return String(localized: L10n.Bot.flattenAllExplanation)
     case .stopBot:
       return String(localized: L10n.Bot.stopExplanation)
+    case .emergency:
+      return String(localized: L10n.Bot.emergencyExplanation)
     }
   }
 }
@@ -117,13 +123,12 @@ struct BotControls: View {
             Text(verbatim: action.needsConfirmation ? "\(action.title)…" : action.title)
               .lineLimit(1)
               .minimumScaleFactor(Self.titleMinimumScale)
-            if action.command == nil { PlannedTag(.needsAPI) }
           }
           .frame(maxWidth: .infinity)
         }
         .controlSize(compact ? .regular : .large)
         .tint(action.isDestructive ? Palette.loss : nil)
-        .disabled(action.command == nil || !model.commandsEnabled || !applicable(action))
+        .disabled(!model.commandsEnabled || !applicable(action))
         .help(Text(verbatim: action.explanation))
       }
     }
@@ -145,10 +150,10 @@ struct BotControls: View {
     let paused = model.status?.entryStop ?? false
     var list: [BotAction] = [paused ? .resumeEntries : .pauseEntries, .cancelOrders]
     if compact {
-      list.append(.flattenAll)
+      list += [.flattenAll, .emergency]
     } else {
       list += model.positions.map { .flatten(symbol: $0.position.symbol) }
-      list += [.flattenAll, .stopBot]
+      list += [.flattenAll, .stopBot, .emergency]
     }
     return list
   }
@@ -161,7 +166,6 @@ struct BotControls: View {
   }
 
   private func run(_ action: BotAction) {
-    guard let command = action.command else { return }
-    Task { await model.send(command, title: action.title) }
+    Task { await model.send(action.command, title: action.title) }
   }
 }

@@ -69,6 +69,13 @@ struct RootView: View {
       .navigationSubtitle(Text(verbatim: subtitle))
       .toolbar { DayToolbar() }
     }
+    .alert(Text(L10n.Bot.stoppedTitle), isPresented: Binding(get: { model.stopNotice != nil },
+      set: { if !$0 { model.dismissStopNotice() } }),
+      presenting: model.stopNotice) { _ in
+      Button { model.dismissStopNotice() } label: { Text(L10n.Settings.ok) }
+    } message: { cause in
+      Text(L10n.Bot.stoppedOpen(cause))
+    }
   }
 
   @ViewBuilder private var detail: some View {

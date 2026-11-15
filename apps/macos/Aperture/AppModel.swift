@@ -89,6 +89,9 @@ public final class AppModel {
   public private(set) var sending = false
   public private(set) var sent: [SentCommand] = []
   public private(set) var toast: SentCommand?
+  /// The bot's record of an obeyed stop-bot that left positions open ("N position(s) left open
+  /// under their broker stop"); shown until the operator dismisses it.
+  public private(set) var stopNotice: String?
 
   private var tasks: [Task<Void, Never>] = []
 
@@ -358,7 +361,8 @@ public final class AppModel {
     sending = true
     defer { sending = false }
     do {
-      let accepted = try await client.send(command)
+      // One key per operator action: a repeat of this exact send answers the first, never queues twice.
+      let accepted = try await client.send(command, idempotencyKey: UUID().uuidString)
       let record = SentCommand(id: accepted.command.commandId, kind: command.kind, title: title,
         outcome: nil, cause: nil, warning: accepted.warning)
       sent.insert(record, at: 0)
@@ -376,10 +380,15 @@ public final class AppModel {
       if let record = records.first(where: { $0.commandId == sent[index].id }) {
         sent[index].outcome = record.outcome
         sent[index].cause = record.cause
+        if record.kind == .stopBot, record.outcome == .done, let cause = record.cause {
+          stopNotice = cause
+        }
         show(sent[index])
       }
     }
   }
+
+  public func dismissStopNotice() { stopNotice = nil }
 
   private func show(_ command: SentCommand) {
     toast = command

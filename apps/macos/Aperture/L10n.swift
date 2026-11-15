@@ -246,7 +246,26 @@ enum L10n {
     }
     static var stopExplanation: LocalizedStringResource {
       LocalizedStringResource("bot.stopExplanation",
-        defaultValue: "Needs a new API command: new entries blocked, working entries cancelled, broker stops left resting.",
+        defaultValue: "The bot stops and stays stopped until you run aperture clear-stop on this Mac; the app cannot start it again. Working entry orders are cancelled. Open positions stay open under their broker stop, a DAY order: nothing closes them at the session's end. Flatten first to be flat.",
+        bundle: L10n.bundle)
+    }
+    static var emergency: LocalizedStringResource {
+      LocalizedStringResource("bot.emergency", defaultValue: "Emergency Stop", bundle: L10n.bundle)
+    }
+    static var emergencyQuestion: LocalizedStringResource {
+      LocalizedStringResource("bot.emergencyQuestion", defaultValue: "Run the emergency stop?", bundle: L10n.bundle)
+    }
+    static var emergencyExplanation: LocalizedStringResource {
+      LocalizedStringResource("bot.emergencyExplanation",
+        defaultValue: "Three steps in order: pause new entries, cancel the bot's working entry orders, flatten every own position. Each broker stop stays until its closing sale is sent. The bot keeps running.",
+        bundle: L10n.bundle)
+    }
+    static var stoppedTitle: LocalizedStringResource {
+      LocalizedStringResource("bot.stoppedTitle", defaultValue: "Bot Stopped with Open Positions", bundle: L10n.bundle)
+    }
+    static func stoppedOpen(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("bot.stoppedOpen",
+        defaultValue: "\(cause). The broker stop is a DAY order and nothing closes these positions at the session's end. To trade again, run aperture clear-stop on this Mac.",
         bundle: L10n.bundle)
     }
     static var notSentUntrusted: LocalizedStringResource {
