@@ -91,4 +91,12 @@ struct CandlesTests {
     // A VWAP of the M5 candle itself (typical price (13 + 7 + 7) / 3 = 9) would differ.
     #expect(!near(series.vwap[0], 9))
   }
+
+  @Test("Whole-hour timeframes name their hours")
+  func hours() {
+    #expect(Timeframe.h1.hours == 1)
+    #expect(Timeframe.m30.hours == nil)
+    #expect(Timeframe.m1.hours == nil)
+    #expect(Timeframe.h1.seconds == 3600)
+  }
 }

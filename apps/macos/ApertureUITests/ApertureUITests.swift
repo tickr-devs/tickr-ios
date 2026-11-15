@@ -53,6 +53,21 @@ final class ApertureUITests: XCTestCase {
   static let zoomItem = "Zoom"
   /// English label of the toolbar's sidebar button while the sidebar is hidden.
   static let showSidebar = "Show Sidebar"
+  /// Chart settings (ChartView.Keys) passed as launch arguments: the decisions inspector open
+  /// with every study, the set that once crashed the app in an endless layout loop.
+  static let everyStudyWithInspector = ["-chart.decisions", "YES", "-chart.movingAverages", "YES",
+    "-chart.bollinger", "YES", "-chart.macd", "YES", "-chart.rsi", "YES", "-chart.stochastic", "YES",
+    "-chart.atr", "YES"]
+  /// How long the loaded chart is watched for a crash, in seconds.
+  static let settleSeconds: TimeInterval = 8
+  /// Pointer sweeps across the chart, and where across it each starts and ends (fractions).
+  static let sweeps = 6
+  static let sweepStart = 0.15
+  static let sweepEnd = 0.85
+  /// How long the window takes to narrow, in seconds.
+  static let dragSeconds: TimeInterval = 0.5
+  /// How far the window narrows from its zoomed width, as a fraction of it.
+  static let narrowShare = 0.35
   /// How long an element may take to appear, in seconds (the app polls every few seconds).
   static let timeout: TimeInterval = 10
 
@@ -62,9 +77,9 @@ final class ApertureUITests: XCTestCase {
 
   /// The app, started on the fixture API in English.
   @MainActor
-  private func launch() -> XCUIApplication {
+  private func launch(settings: [String] = []) -> XCUIApplication {
     let app = XCUIApplication()
-    app.launchArguments = Self.languageArguments
+    app.launchArguments = Self.languageArguments + settings
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
     app.launch()
     XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.timeout), "no window after launch")
@@ -207,5 +222,26 @@ final class ApertureUITests: XCTestCase {
     let app = launch()
     open(Self.sections[4], in: app)
     XCTAssertTrue(app.staticTexts[Self.observer].firstMatch.waitForExistence(timeout: Self.timeout))
+  }
+
+  /// The chart with every study and the decisions inspector opens, survives a narrower window
+  /// and pointer sweeps: this set once looped AppKit's layout until it threw.
+  @MainActor
+  func testChartWithEveryStudyAndTheInspectorStaysUp() {
+    let app = launch(settings: Self.everyStudyWithInspector)
+    open(Self.sections[1], in: app)
+    let window = app.windows.firstMatch
+    // Narrow the window by dragging its right edge, the inspector still open.
+    let edge = window.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 0.5))
+    edge.press(forDuration: Self.dragSeconds,
+      thenDragTo: edge.withOffset(CGVector(dx: -window.frame.width * Self.narrowShare, dy: 0)))
+    let screen = app.descendants(matching: .any)[Self.screenPrefix + Self.sections[1]].firstMatch
+    for _ in 0..<Self.sweeps {
+      screen.coordinate(withNormalizedOffset: CGVector(dx: Self.sweepStart, dy: 0.5)).hover()
+      screen.coordinate(withNormalizedOffset: CGVector(dx: Self.sweepEnd, dy: 0.5)).hover()
+    }
+    // The screen must still be there after the watch; a crash takes it away early.
+    XCTAssertFalse(screen.waitForNonExistence(timeout: Self.settleSeconds), "the chart screen went away")
+    XCTAssertEqual(app.state, .runningForeground, "the app quit on the chart")
   }
 }

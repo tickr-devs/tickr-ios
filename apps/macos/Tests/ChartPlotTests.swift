@@ -40,4 +40,27 @@ struct ChartPlotTests {
     #expect(plot.indices(from: try time(4), to: try time(8)).isEmpty)
     #expect(plot.indices(from: try time(20), to: try time(30)).isEmpty)
   }
+
+  @Test("Every study line has one value per candle")
+  func studiesPerCandle() throws {
+    let plot = try plot()
+    let count = plot.candles.count
+    #expect(plot.movingAverages.allSatisfy { $0.count == count })
+    for line in [plot.bollingerUpper, plot.bollingerMiddle, plot.bollingerLower, plot.macd, plot.macdSignal,
+      plot.macdHistogram, plot.rsi, plot.stochasticK, plot.stochasticD] {
+      #expect(line.count == count)
+    }
+  }
+
+  @Test("Leaving a pane clears the hover only when the pointer is still in that pane")
+  @MainActor
+  func hoverAcrossPanes() {
+    let pointer = ChartPointer()
+    pointer.move(in: .price, to: CGPoint(x: 10, y: 20))
+    pointer.move(in: .rsi, to: CGPoint(x: 10, y: 5))
+    pointer.leave(.price)
+    #expect(pointer.hover == ChartHover(pane: .rsi, location: CGPoint(x: 10, y: 5)))
+    pointer.leave(.rsi)
+    #expect(pointer.hover == nil)
+  }
 }

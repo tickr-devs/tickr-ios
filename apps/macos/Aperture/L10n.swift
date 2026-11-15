@@ -940,17 +940,121 @@ enum L10n {
     static var symbol: LocalizedStringResource {
       LocalizedStringResource("chart.symbol", defaultValue: "Symbol", bundle: L10n.bundle)
     }
-    /// Label of the timeframe picker.
+    /// Label of the interval (candle length) picker.
     static var timeframeLabel: LocalizedStringResource {
-      LocalizedStringResource("chart.timeframeLabel", defaultValue: "Timeframe", bundle: L10n.bundle)
+      LocalizedStringResource("chart.timeframeLabel", defaultValue: "Interval", bundle: L10n.bundle)
     }
-    /// A timeframe segment: candle length in minutes.
-    static func timeframe(_ minutes: Int) -> LocalizedStringResource {
-      LocalizedStringResource("chart.timeframe", defaultValue: "M\(minutes)", bundle: L10n.bundle)
+    /// An interval segment: candle length in minutes.
+    static func intervalMinutes(_ minutes: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.intervalMinutes", defaultValue: "\(minutes)m", bundle: L10n.bundle)
     }
-    /// Tooltip of the timeframe picker.
+    /// An interval segment: candle length in hours.
+    static func intervalHours(_ hours: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.intervalHours", defaultValue: "\(hours)h", bundle: L10n.bundle)
+    }
+    /// Tooltip of the interval picker.
     static var timeframeHelp: LocalizedStringResource {
-      LocalizedStringResource("chart.timeframeHelp", defaultValue: "Candle length in minutes", bundle: L10n.bundle)
+      LocalizedStringResource("chart.timeframeHelp", defaultValue: "Candle length", bundle: L10n.bundle)
+    }
+    /// Label of the candles / line picker.
+    static var styleLabel: LocalizedStringResource {
+      LocalizedStringResource("chart.styleLabel", defaultValue: "Chart Type", bundle: L10n.bundle)
+    }
+    /// Chart type: candles.
+    static var candles: LocalizedStringResource {
+      LocalizedStringResource("chart.candles", defaultValue: "Candles", bundle: L10n.bundle)
+    }
+    /// Chart type: a filled line of closes.
+    static var lineStyle: LocalizedStringResource {
+      LocalizedStringResource("chart.lineStyle", defaultValue: "Line", bundle: L10n.bundle)
+    }
+    /// Tooltip of the chart type picker.
+    static var styleHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.styleHelp", defaultValue: "Draw candles or a line of closes", bundle: L10n.bundle)
+    }
+    /// Plotted series name of the close line (VoiceOver).
+    static var closeLine: LocalizedStringResource {
+      LocalizedStringResource("chart.closeLine", defaultValue: "Close", bundle: L10n.bundle)
+    }
+    /// Readout: change from the previous close in price and percent.
+    static func change(_ amount: String, _ percent: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.change", defaultValue: "\(amount) (\(percent))", bundle: L10n.bundle)
+    }
+    /// Toggle of the moving-average lines.
+    static var movingAverageChip: LocalizedStringResource {
+      LocalizedStringResource("chart.movingAverageChip", defaultValue: "MA", bundle: L10n.bundle)
+    }
+    /// A moving-average line in the readout.
+    static func movingAverage(_ period: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.movingAverage", defaultValue: "MA \(period)", bundle: L10n.bundle)
+    }
+    /// Tooltip of the MA toggle.
+    static var movingAverageHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.movingAverageHelp", defaultValue: "Simple moving averages of the candles", bundle: L10n.bundle)
+    }
+    /// Toggle of the Bollinger bands.
+    static var bollinger: LocalizedStringResource {
+      LocalizedStringResource("chart.bollinger", defaultValue: "BOLL", bundle: L10n.bundle)
+    }
+    /// Tooltip of the BOLL toggle.
+    static func bollingerHelp(_ period: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.bollingerHelp", defaultValue: "Bollinger bands around the \(period)-candle average", bundle: L10n.bundle)
+    }
+    /// Readout: upper Bollinger band.
+    static var bollingerUpper: LocalizedStringResource {
+      LocalizedStringResource("chart.bollingerUpper", defaultValue: "UB", bundle: L10n.bundle)
+    }
+    /// Readout: middle Bollinger line.
+    static var bollingerMiddle: LocalizedStringResource {
+      LocalizedStringResource("chart.bollingerMiddle", defaultValue: "MB", bundle: L10n.bundle)
+    }
+    /// Readout: lower Bollinger band.
+    static var bollingerLower: LocalizedStringResource {
+      LocalizedStringResource("chart.bollingerLower", defaultValue: "LB", bundle: L10n.bundle)
+    }
+    /// Toggle of the MACD pane, and the MACD line.
+    static var macd: LocalizedStringResource {
+      LocalizedStringResource("chart.macd", defaultValue: "MACD", bundle: L10n.bundle)
+    }
+    /// Readout: MACD signal line.
+    static var macdSignal: LocalizedStringResource {
+      LocalizedStringResource("chart.macdSignal", defaultValue: "Signal", bundle: L10n.bundle)
+    }
+    /// Readout: MACD histogram.
+    static var macdHistogram: LocalizedStringResource {
+      LocalizedStringResource("chart.macdHistogram", defaultValue: "Hist", bundle: L10n.bundle)
+    }
+    /// Tooltip of the MACD toggle.
+    static func macdHelp(_ fast: Int, _ slow: Int, _ signal: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.macdHelp", defaultValue: "MACD (\(fast), \(slow), \(signal)) pane", bundle: L10n.bundle)
+    }
+    /// Toggle of the RSI pane.
+    static var rsiChip: LocalizedStringResource {
+      LocalizedStringResource("chart.rsiChip", defaultValue: "RSI", bundle: L10n.bundle)
+    }
+    /// The RSI line in the readout.
+    static func rsi(_ period: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.rsi", defaultValue: "RSI \(period)", bundle: L10n.bundle)
+    }
+    /// Tooltip of the RSI toggle.
+    static func rsiHelp(_ period: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.rsiHelp", defaultValue: "RSI (\(period)) pane with overbought and oversold bands", bundle: L10n.bundle)
+    }
+    /// Toggle of the slow stochastic pane.
+    static var stochastic: LocalizedStringResource {
+      LocalizedStringResource("chart.stochastic", defaultValue: "Stoch", bundle: L10n.bundle)
+    }
+    /// Readout: stochastic %K line.
+    static var stochasticK: LocalizedStringResource {
+      LocalizedStringResource("chart.stochasticK", defaultValue: "K", bundle: L10n.bundle)
+    }
+    /// Readout: stochastic %D line.
+    static var stochasticD: LocalizedStringResource {
+      LocalizedStringResource("chart.stochasticD", defaultValue: "D", bundle: L10n.bundle)
+    }
+    /// Tooltip of the Stoch toggle.
+    static func stochasticHelp(_ period: Int, _ smoothing: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.stochasticHelp", defaultValue: "Slow stochastic (\(period), \(smoothing)) pane", bundle: L10n.bundle)
     }
     /// The VWAP line toggle and readout.
     static var vwap: LocalizedStringResource {
@@ -960,7 +1064,7 @@ enum L10n {
     static func ema(_ period: Int) -> LocalizedStringResource {
       LocalizedStringResource("chart.ema", defaultValue: "EMA \(period)", bundle: L10n.bundle)
     }
-    /// The volume pane toggle.
+    /// Toggle of the volume bars along the bottom of the price pane.
     static var volume: LocalizedStringResource {
       LocalizedStringResource("chart.volume", defaultValue: "Volume", bundle: L10n.bundle)
     }

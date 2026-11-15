@@ -1242,6 +1242,91 @@
         }
       }
     },
+    "chart.bollinger" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BOLL"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BOLL"
+          }
+        }
+      }
+    },
+    "chart.bollingerHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bollinger bands around the %lld-candle average"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полосы Боллинджера вокруг средней за %lld свечей"
+          }
+        }
+      }
+    },
+    "chart.bollingerLower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LB"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LB"
+          }
+        }
+      }
+    },
+    "chart.bollingerMiddle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MB"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MB"
+          }
+        }
+      }
+    },
+    "chart.bollingerUpper" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UB"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UB"
+          }
+        }
+      }
+    },
     "chart.buyMark" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1255,6 +1340,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Покупка %@"
+          }
+        }
+      }
+    },
+    "chart.candles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Candles"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свечи"
+          }
+        }
+      }
+    },
+    "chart.change" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@)"
           }
         }
       }
@@ -1306,6 +1425,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "З"
+          }
+        }
+      }
+    },
+    "chart.closeLine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытие"
           }
         }
       }
@@ -1480,6 +1616,57 @@
         }
       }
     },
+    "chart.intervalHours" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldh"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldч"
+          }
+        }
+      }
+    },
+    "chart.intervalMinutes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldm"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldм"
+          }
+        }
+      }
+    },
+    "chart.lineStyle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Линия"
+          }
+        }
+      }
+    },
     "chart.loading" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1510,6 +1697,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Н"
+          }
+        }
+      }
+    },
+    "chart.macd" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MACD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MACD"
+          }
+        }
+      }
+    },
+    "chart.macdHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MACD (%1$lld, %2$lld, %3$lld) pane"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Панель MACD (%1$lld, %2$lld, %3$lld)"
+          }
+        }
+      }
+    },
+    "chart.macdHistogram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hist"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гист"
+          }
+        }
+      }
+    },
+    "chart.macdSignal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signal"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сигнал"
+          }
+        }
+      }
+    },
+    "chart.movingAverage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MA %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MA %lld"
+          }
+        }
+      }
+    },
+    "chart.movingAverageChip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MA"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MA"
+          }
+        }
+      }
+    },
+    "chart.movingAverageHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simple moving averages of the candles"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Простые скользящие средние свечей"
           }
         }
       }
@@ -1650,6 +1956,57 @@
         }
       }
     },
+    "chart.rsi" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI %lld"
+          }
+        }
+      }
+    },
+    "chart.rsiChip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI"
+          }
+        }
+      }
+    },
+    "chart.rsiHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI (%lld) pane with overbought and oversold bands"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Панель RSI (%lld) с полосами перекупленности и перепроданности"
+          }
+        }
+      }
+    },
     "chart.skippedMark" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1663,6 +2020,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ · пропущен"
+          }
+        }
+      }
+    },
+    "chart.stochastic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoch"
+          }
+        }
+      }
+    },
+    "chart.stochasticD" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D"
+          }
+        }
+      }
+    },
+    "chart.stochasticHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slow stochastic (%1$lld, %2$lld) pane"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Панель медленного стохастика (%1$lld, %2$lld)"
+          }
+        }
+      }
+    },
+    "chart.stochasticK" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "K"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "K"
           }
         }
       }
@@ -1718,6 +2143,40 @@
         }
       }
     },
+    "chart.styleHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Draw candles or a line of closes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свечи или линия цен закрытия"
+          }
+        }
+      }
+    },
+    "chart.styleLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart Type"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип графика"
+          }
+        }
+      }
+    },
     "chart.symbol" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1735,36 +2194,19 @@
         }
       }
     },
-    "chart.timeframe" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "M%lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "M%lld"
-          }
-        }
-      }
-    },
     "chart.timeframeHelp" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Candle length in minutes"
+            "value" : "Candle length"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Длина свечи в минутах"
+            "value" : "Длина свечи"
           }
         }
       }
@@ -1775,13 +2217,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Timeframe"
+            "value" : "Interval"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Таймфрейм"
+            "value" : "Интервал"
           }
         }
       }

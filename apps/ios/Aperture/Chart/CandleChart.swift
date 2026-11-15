@@ -540,6 +540,8 @@ enum ChartFormat {
     case .m1: ChartText.m1
     case .m5: ChartText.m5
     case .m15: ChartText.m15
+    case .m30: ChartText.m30
+    case .h1: ChartText.h1
     }
   }
 }

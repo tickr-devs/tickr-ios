@@ -2164,6 +2164,23 @@
         }
       }
     },
+    "chart.timeframe.h1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "H1"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "H1"
+          }
+        }
+      }
+    },
     "chart.timeframe.m1" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2211,6 +2228,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "M15"
+          }
+        }
+      }
+    },
+    "chart.timeframe.m30" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M30"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M30"
           }
         }
       }

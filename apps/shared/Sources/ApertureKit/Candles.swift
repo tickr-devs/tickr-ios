@@ -12,11 +12,20 @@ public enum Timeframe: Int, CaseIterable, Identifiable, Sendable {
   case m1 = 1
   case m5 = 5
   case m15 = 15
+  case m30 = 30
+  case h1 = 60
 
   public var id: Int { rawValue }
 
   /// Seconds in one minute (unit factor).
   static let secondsPerMinute = 60
+
+  /// Minutes in one hour (unit factor).
+  static let minutesPerHour = 60
+
+  /// Whole hours in one candle, or nil when the length is not a whole number of hours (1h reads
+  /// better than 60m).
+  public var hours: Int? { rawValue % Self.minutesPerHour == 0 ? rawValue / Self.minutesPerHour : nil }
 
   /// Length of one candle in seconds.
   public var seconds: TimeInterval { TimeInterval(rawValue * Self.secondsPerMinute) }

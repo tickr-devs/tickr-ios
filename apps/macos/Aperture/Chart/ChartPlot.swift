@@ -2,7 +2,7 @@ import ApertureKit
 import Foundation
 import Observation
 
-/// Candles, lines and ATR of one day's bars in one timeframe. Built once per new bars or timeframe
+/// Candles, lines, ATR and studies of one day's bars in one timeframe. Built once per new bars or timeframe
 /// (`ChartModel.plot(timeframe:)`), not on every redraw: a scroll or a zoom redraws many times a
 /// second, and building the series converts every bar's decimals again.
 struct ChartPlot: Sendable {
@@ -10,11 +10,34 @@ struct ChartPlot: Sendable {
   let revision: Int
   let series: ChartSeries
   let atr: [Double?]
+  /// Moving averages, Bollinger, MACD, RSI and stochastic of the candles, split into one array
+  /// per drawn line so a redraw only looks values up.
+  let movingAverages: [[Double?]]
+  let bollingerUpper: [Double?]
+  let bollingerMiddle: [Double?]
+  let bollingerLower: [Double?]
+  let macd: [Double?]
+  let macdSignal: [Double?]
+  let macdHistogram: [Double?]
+  let rsi: [Double?]
+  let stochasticK: [Double?]
+  let stochasticD: [Double?]
 
   init(bars: [BarV1], timeframe: Timeframe, revision: Int) {
     self.revision = revision
     series = ChartSeries(bars: bars, timeframe: timeframe)
     atr = ChartSeries.atr(bars: bars, timeframe: timeframe)
+    let studies = CandleStudies(candles: series.candles)
+    movingAverages = studies.movingAverages
+    bollingerUpper = studies.bollinger.map { $0?.upper }
+    bollingerMiddle = studies.bollinger.map { $0?.middle }
+    bollingerLower = studies.bollinger.map { $0?.lower }
+    macd = studies.macd.map { $0?.macd }
+    macdSignal = studies.macd.map { $0?.signal }
+    macdHistogram = studies.macd.map { $0?.histogram }
+    rsi = studies.rsi
+    stochasticK = studies.stochastic.map { $0?.k }
+    stochasticD = studies.stochastic.map { $0?.d }
   }
 
   var timeframe: Timeframe { series.timeframe }
@@ -55,4 +78,31 @@ final class ChartPointer {
   /// The pointed time as the chart last reported it; not observed, so the chart reading it back
   /// does not redraw on every pointer move.
   @ObservationIgnored var time: Date?
+  /// The pane under the pointer and where in it, for the horizontal line and its value tag.
+  var hover: ChartHover?
+
+  /// The pointer moved inside `pane`, to `location` in the pane's own coordinates.
+  func move(in pane: ChartPane, to location: CGPoint) {
+    hover = ChartHover(pane: pane, location: location)
+  }
+
+  /// The pointer left `pane`; a move into the next pane may have been reported first.
+  func leave(_ pane: ChartPane) {
+    if hover?.pane == pane { hover = nil }
+  }
+}
+
+/// The stacked panes of the chart, top to bottom.
+enum ChartPane: Hashable, Sendable {
+  case price
+  case macd
+  case rsi
+  case stochastic
+  case atr
+}
+
+/// Where the pointer is: its pane and its place in that pane.
+struct ChartHover: Equatable {
+  let pane: ChartPane
+  let location: CGPoint
 }

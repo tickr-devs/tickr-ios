@@ -15,6 +15,12 @@ struct ChartView: View {
   @AppStorage(Keys.slowEMA) private var showSlowEMA = true
   @AppStorage(Keys.volume) private var showVolume = true
   @AppStorage(Keys.atr) private var showATR = false
+  @AppStorage(Keys.style) private var style: ChartStyle = .candles
+  @AppStorage(Keys.movingAverages) private var showMovingAverages = false
+  @AppStorage(Keys.bollinger) private var showBollinger = false
+  @AppStorage(Keys.macd) private var showMACD = false
+  @AppStorage(Keys.rsi) private var showRSI = true
+  @AppStorage(Keys.stochastic) private var showStochastic = false
   @AppStorage(Keys.decisions) private var showDecisions = false
 
   /// Settings keys of the chart's choices; Trades sets `symbol` for "Show on Chart".
@@ -29,10 +35,22 @@ struct ChartView: View {
     static let fastEMA = "chart.emaFast"
     /// Whether the slow EMA line is drawn.
     static let slowEMA = "chart.emaSlow"
-    /// Whether the volume pane is shown.
+    /// Whether the volume bars are drawn along the bottom of the price pane.
     static let volume = "chart.volume"
     /// Whether the ATR pane is shown.
     static let atr = "chart.atr"
+    /// Candles or a filled close line.
+    static let style = "chart.style"
+    /// Whether the moving-average lines are drawn.
+    static let movingAverages = "chart.movingAverages"
+    /// Whether the Bollinger bands are drawn.
+    static let bollinger = "chart.bollinger"
+    /// Whether the MACD pane is shown.
+    static let macd = "chart.macd"
+    /// Whether the RSI pane is shown.
+    static let rsi = "chart.rsi"
+    /// Whether the stochastic pane is shown.
+    static let stochastic = "chart.stochastic"
     /// Whether the decisions inspector is shown.
     static let decisions = "chart.decisions"
   }
@@ -112,32 +130,37 @@ struct ChartView: View {
 
   // MARK: Controls
 
-  /// One row of controls when the chart is wide; two when it is narrow (a small window, or the
-  /// decisions inspector open), so the controls never push the window past the screen.
+  /// The symbol, interval, chart type, zoom and inspector on top; the indicator chips under them
+  /// in a row that scrolls sideways when the window is narrow, so the chips never widen the
+  /// window and push the sidebar or the inspector off screen.
   private var controls: some View {
-    ViewThatFits(in: .horizontal) {
-      HStack(spacing: Tokens.Space.m) {
-        symbolPicker
-        timeframePicker
-        Divider().frame(height: Self.separatorHeight)
-        indicatorToggles
-        Spacer(minLength: Tokens.Space.m)
-        zoomButtons
-        decisionsToggle
-      }
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      ViewThatFits(in: .horizontal) {
         HStack(spacing: Tokens.Space.m) {
           symbolPicker
           timeframePicker
-          Spacer(minLength: Tokens.Space.m)
-          decisionsToggle
-        }
-        HStack(spacing: Tokens.Space.m) {
-          indicatorToggles
+          stylePicker
           Spacer(minLength: Tokens.Space.m)
           zoomButtons
+          decisionsToggle
+        }
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
+          HStack(spacing: Tokens.Space.m) {
+            symbolPicker
+            Spacer(minLength: Tokens.Space.m)
+            zoomButtons
+            decisionsToggle
+          }
+          HStack(spacing: Tokens.Space.m) {
+            timeframePicker
+            stylePicker
+          }
         }
       }
+      ScrollView(.horizontal) {
+        indicatorToggles
+      }
+      .scrollIndicators(.never)
     }
     .animation(Tokens.Motion.quick, value: symbols)
   }
@@ -157,7 +180,7 @@ struct ChartView: View {
   private var timeframePicker: some View {
     Picker(selection: $timeframe) {
       ForEach(Timeframe.allCases) { item in
-        Text(L10n.Chart.timeframe(item.rawValue)).tag(item)
+        Text(Self.title(item)).tag(item)
       }
     } label: {
       Text(L10n.Chart.timeframeLabel)
@@ -168,12 +191,45 @@ struct ChartView: View {
     .help(Text(L10n.Chart.timeframeHelp))
   }
 
+  /// "1m", "5m", "1h": the interval as charting apps name it.
+  static func title(_ timeframe: Timeframe) -> LocalizedStringResource {
+    timeframe.hours.map(L10n.Chart.intervalHours) ?? L10n.Chart.intervalMinutes(timeframe.rawValue)
+  }
+
+  private var stylePicker: some View {
+    Picker(selection: $style) {
+      Label { Text(L10n.Chart.candles) } icon: { Image(systemName: "chart.bar.fill") }
+        .tag(ChartStyle.candles)
+      Label { Text(L10n.Chart.lineStyle) } icon: { Image(systemName: "chart.xyaxis.line") }
+        .tag(ChartStyle.line)
+    } label: {
+      Text(L10n.Chart.styleLabel)
+    }
+    .pickerStyle(.segmented)
+    .labelStyle(.iconOnly)
+    .labelsHidden()
+    .fixedSize()
+    .help(Text(L10n.Chart.styleHelp))
+  }
+
+  /// Lines over the price (the bot's own first, then the studies), then the panes below it.
   private var indicatorToggles: some View {
     HStack(spacing: Tokens.Space.xs) {
       Toggle(isOn: $showVWAP) { Text(L10n.Chart.vwap) }
       Toggle(isOn: $showFastEMA) { Text(L10n.Chart.ema(Indicators.fastEMAPeriod)) }
       Toggle(isOn: $showSlowEMA) { Text(L10n.Chart.ema(Indicators.slowEMAPeriod)) }
+      Toggle(isOn: $showMovingAverages) { Text(L10n.Chart.movingAverageChip) }
+        .help(Text(L10n.Chart.movingAverageHelp))
+      Toggle(isOn: $showBollinger) { Text(L10n.Chart.bollinger) }
+        .help(Text(L10n.Chart.bollingerHelp(Studies.bollingerPeriod)))
       Toggle(isOn: $showVolume) { Text(L10n.Chart.volume) }
+      Divider().frame(height: Self.separatorHeight)
+      Toggle(isOn: $showMACD) { Text(L10n.Chart.macd) }
+        .help(Text(L10n.Chart.macdHelp(Studies.macdFast, Studies.macdSlow, Studies.macdSignal)))
+      Toggle(isOn: $showRSI) { Text(L10n.Chart.rsiChip) }
+        .help(Text(L10n.Chart.rsiHelp(Studies.rsiPeriod)))
+      Toggle(isOn: $showStochastic) { Text(L10n.Chart.stochastic) }
+        .help(Text(L10n.Chart.stochasticHelp(Studies.stochasticPeriod, Studies.stochasticSmoothing)))
       Toggle(isOn: $showATR) { Text(L10n.Chart.atr(Indicators.atrPeriod)) }
     }
     .toggleStyle(.button)
@@ -226,7 +282,9 @@ struct ChartView: View {
       CandleChart(
         plot: plot,
         lines: ChartLines(
-          vwap: showVWAP, fastEMA: showFastEMA, slowEMA: showSlowEMA, volume: showVolume, atr: showATR),
+          style: style, vwap: showVWAP, fastEMA: showFastEMA, slowEMA: showSlowEMA,
+          movingAverages: showMovingAverages, bollinger: showBollinger, volume: showVolume,
+          macd: showMACD, rsi: showRSI, stochastic: showStochastic, atr: showATR),
         marks: ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol }),
         levels: ChartMarkers.levels(position: model.positions.first { $0.id == symbol }),
         decisions: showDecisions
@@ -262,13 +320,26 @@ private struct ChartID: Hashable {
   let timeframe: Timeframe
 }
 
-/// Which lines and panes the chart draws.
+/// Which lines and panes the chart draws, and how it draws the price.
 struct ChartLines: Equatable {
+  let style: ChartStyle
   let vwap: Bool
   let fastEMA: Bool
   let slowEMA: Bool
+  let movingAverages: Bool
+  let bollinger: Bool
+  /// Volume bars along the bottom of the price pane.
   let volume: Bool
+  let macd: Bool
+  let rsi: Bool
+  let stochastic: Bool
   let atr: Bool
+}
+
+/// How the price pane draws prices. Raw values are the stored setting.
+enum ChartStyle: String, CaseIterable, Sendable {
+  case candles
+  case line
 }
 
 /// The visible window of the chart: how many candles fit, and where it is scrolled.
