@@ -18,7 +18,7 @@ struct RiskView: View {
       if let status = model.status {
         RoomCard(status: status, risk: model.settings?.risk).rise(step: Order.room.rawValue)
         GateCard(status: status).rise(step: Order.gate.rawValue)
-        FencesCard(fences: status.fences).rise(step: Order.fences.rawValue)
+        FencesCard(status: status).rise(step: Order.fences.rawValue)
       }
       LimitsCard(risk: model.settings?.risk, failure: model.settingsError).rise(step: Order.limits.rawValue)
       SessionCard(session: model.settings?.session).rise(step: Order.session.rawValue)
@@ -183,7 +183,8 @@ private struct GateCard: View {
 
 /// Blocks on new entries the bot raised itself, each with its text and since when.
 private struct FencesCard: View {
-  let fences: [Fence]
+  let status: StatusV1
+  private var fences: [Fence] { status.fences }
 
   var body: some View {
     RiskCard(title: L10n.Risk.fences, tint: fences.isEmpty ? nil : Palette.warning) {
@@ -196,7 +197,7 @@ private struct FencesCard: View {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
           Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Palette.warning)
           VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            Text(verbatim: ApiText.fenceWithDetail(fence))
+            Text(verbatim: Board.fenceText(fence, status: status))
               .font(Tokens.Typography.callout)
               .foregroundStyle(Palette.textPrimary)
               .fixedSize(horizontal: false, vertical: true)

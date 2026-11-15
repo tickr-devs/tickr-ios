@@ -40,15 +40,21 @@ public enum ApiText {
     return detail.isEmpty ? title : title + detailSeparator + detail
   }
 
-  /// The fence in words, about `symbol` when the apps know which open position it concerns: the
-  /// symbol first, in place of the bot's internal key (a trade or order id), so it survives a cut
-  /// line. Without a symbol, `fenceWithDetail`.
-  public static func fenceWithDetail(_ fence: Fence, symbol: String?) -> String {
-    guard let symbol else { return fenceWithDetail(fence) }
+  /// The fence's title about `symbol`, when the apps know which position it concerns: the
+  /// symbol first, in place of the bot's internal key (a trade or order id). Without a symbol,
+  /// `fence(_:)`.
+  public static func fence(_ fence: Fence, symbol: String?) -> String {
+    guard let symbol else { return Self.fence(fence) }
     let name = String(fence.kind.prefix { $0 != Fence.keySeparator })
     let title = FenceKind(rawValue: name.replacing("-", with: "_")).map { String(localized: $0.title) } ?? name
+    return symbol + keySeparator + title
+  }
+
+  /// `fence(_:symbol:)` followed by what the fence says, so the symbol survives a cut line.
+  public static func fenceWithDetail(_ fence: Fence, symbol: String?) -> String {
+    let title = Self.fence(fence, symbol: symbol)
     let detail = fenceDetail(fence)
-    return symbol + keySeparator + (detail.isEmpty ? title : title + detailSeparator + detail)
+    return detail.isEmpty ? title : title + detailSeparator + detail
   }
 
   /// The trading gate's cause in the person's language, else the bot's own words.

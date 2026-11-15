@@ -35,19 +35,22 @@ import Testing
     #expect(latest.tone == .amber)
   }
 
-  @Test("A fence keyed by an open position's trade or order names that symbol first")
+  @Test("A fence keyed by a position's or today's trade's order names that symbol first")
   func fenceSymbol() throws {
-    let positions = try status("status-response-v1.json").positions
+    let status = try status("status-response-v1.json")
     func fence(_ kind: String) throws -> Fence {
       let json = #"{"kind":"\#(kind)","since":"2026-11-16T15:00:00.123Z","text":"t","code":"x","params":{}}"#
       return try Wire.decoder().decode(Fence.self, from: Data(json.utf8))
     }
-    #expect(Board.fenceSymbol(try fence("unprotected-timeout:0001"), positions: positions) == "ABCD")
-    #expect(Board.fenceSymbol(try fence("status-unknown:ap-0001-s"), positions: positions) == "ABCD")
-    #expect(Board.fenceSymbol(try fence("unprotected:0002"), positions: positions) == nil)
-    #expect(Board.fenceSymbol(try fence("startup-reconcile"), positions: positions) == nil)
-    #expect(Board.fenceText(try fence("unprotected-timeout:0001"), positions: positions)
+    #expect(Board.fenceSymbol(try fence("unprotected-timeout:0001"), status: status) == "ABCD")
+    #expect(Board.fenceSymbol(try fence("status-unknown:ap-0001-s"), status: status) == "ABCD")
+    #expect(Board.fenceSymbol(try fence("unprotected:0999"), status: status) == nil)
+    #expect(Board.fenceSymbol(try fence("startup-reconcile"), status: status) == nil)
+    #expect(Board.fenceText(try fence("unprotected-timeout:0001"), status: status)
       .hasPrefix("ABCD" + ApiText.keySeparator))
+    #expect(!Board.fenceTitle(try fence("unprotected-timeout:0001"), status: status).contains("0001"))
+    // A closed trade of the day still names the fence after its position is gone.
+    #expect(Board.fenceSymbol(try fence("unprotected-timeout:0002"), status: status) == "WXYZ")
   }
 
   /// The fixture's status with a second open position, EFGH, whose stop is still pending.

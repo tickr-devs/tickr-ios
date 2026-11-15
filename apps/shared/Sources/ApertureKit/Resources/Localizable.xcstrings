@@ -1669,13 +1669,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unknown order status “{status}”"
+            "value" : "The broker reports an order status the bot does not know"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Неизвестный статус ордера «{status}»"
+            "value" : "Брокер сообщает статус ордера, который бот не знает"
           }
         }
       }

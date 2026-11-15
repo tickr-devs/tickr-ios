@@ -41,7 +41,6 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case room
   case seconds
   case state
-  case status
   case stop
   case stopPrice = "stop_price"
   case strategy
@@ -136,7 +135,7 @@ public enum FenceReason: String, CaseIterable, Sendable {
     case .sendOutcomeUnknown: [ReasonSentence(L10n.fenceReasonSendOutcomeUnknown, [])]
     case .crashedDuringSend: [ReasonSentence(L10n.fenceReasonCrashedDuringSend, [])]
     case .orderMissing: [ReasonSentence(L10n.fenceReasonOrderMissing, [])]
-    case .statusUnmapped: [ReasonSentence(L10n.fenceReasonStatusUnmapped, [.status])]
+    case .statusUnmapped: [ReasonSentence(L10n.fenceReasonStatusUnmapped, [])]
     case .stopCoversPart: [ReasonSentence(L10n.fenceReasonStopCoversPart, [.verified, .expected])]
     case .stopsOverPosition: [ReasonSentence(L10n.fenceReasonStopsOverPosition, [.covered, .held])]
     case .unprotectedCloseByHand: [ReasonSentence(L10n.fenceReasonUnprotectedCloseByHand, [.seconds])]

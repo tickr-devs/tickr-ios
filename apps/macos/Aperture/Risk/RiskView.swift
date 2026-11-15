@@ -239,7 +239,8 @@ private struct FencesCard: View {
           HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
             Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Palette.warning)
             VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-              Text(verbatim: ApiText.fence(fence)).foregroundStyle(Palette.textPrimary)
+              Text(verbatim: model.status.map { Board.fenceTitle(fence, status: $0) } ?? ApiText.fence(fence))
+                .foregroundStyle(Palette.textPrimary)
               // What the fence says often tells what to do, so it stays visible; the bot's own
               // words are the tooltip.
               Text(verbatim: ApiText.fenceDetail(fence))

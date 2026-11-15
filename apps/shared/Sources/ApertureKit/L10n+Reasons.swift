@@ -83,10 +83,10 @@ extension L10n {
     LocalizedStringResource("kit.fenceReason.order_missing",
       defaultValue: "An accepted order is not found at the broker", bundle: bundle)
   }
-  /// A fence's cause (`Fence.code`). status_unmapped (values: status)
+  /// A fence's cause (`Fence.code`). status_unmapped
   static var fenceReasonStatusUnmapped: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.status_unmapped",
-      defaultValue: "Unknown order status “{status}”", bundle: bundle)
+      defaultValue: "The broker reports an order status the bot does not know", bundle: bundle)
   }
   /// A fence's cause (`Fence.code`). stop_covers_part (values: verified, expected)
   static var fenceReasonStopCoversPart: LocalizedStringResource {

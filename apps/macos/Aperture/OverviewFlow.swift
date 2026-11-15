@@ -61,7 +61,8 @@ struct LatestEvent: View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
       if let line {
         Text(L10n.Risk.clock(Format.marketTime(line.time))).foregroundStyle(Palette.textQuaternary)
-        Text(verbatim: line.tag).bold().textCase(.uppercase).foregroundStyle(line.color)
+        // The tag says what happened: it never gives way; the text is cut instead.
+        Text(verbatim: line.tag).bold().textCase(.uppercase).foregroundStyle(line.color).fixedSize()
         Text(verbatim: line.text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
       } else {
         Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)

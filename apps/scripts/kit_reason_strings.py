@@ -107,8 +107,8 @@ GROUPS = [
             ),
             (
                 "status_unmapped",
-                "Unknown order status “{status}”",
-                "Неизвестный статус ордера «{status}»",
+                "The broker reports an order status the bot does not know",
+                "Брокер сообщает статус ордера, который бот не знает",
             ),
             (
                 "stop_covers_part",

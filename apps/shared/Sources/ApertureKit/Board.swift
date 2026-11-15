@@ -85,7 +85,7 @@ public enum Board {
     for fence in status.fences {
       events.append(Event(
         id: "\(fenceID)\(fence.kind)", time: fence.since.date, tag: String(localized: L10n.tagFence),
-        text: fenceText(fence, positions: status.positions), tone: .amber))
+        text: fenceText(fence, status: status), tone: .amber))
     }
     for record in status.recentCommands {
       events.append(Event(
@@ -102,23 +102,34 @@ public enum Board {
   /// position whose order carries it.
   static let orderIDSeparator = "-"
 
-  /// The open position a fence is about: the one whose entry or stop order id is the fence's key,
-  /// or carries it as its trade id. Nil when no open position matches (never guessed).
-  public static func fenceSymbol(_ fence: Fence, positions: [Position]) -> String? {
+  /// The symbol a fence is about: the open position, or else today's closed trade, whose entry
+  /// or stop order id is the fence's key or carries it as its trade id. A fence raised while a
+  /// position was unprotected still names it after the exit. Nil when nothing matches (never
+  /// guessed).
+  public static func fenceSymbol(_ fence: Fence, status: StatusV1) -> String? {
     let parts = fence.kind.split(separator: Fence.keySeparator, maxSplits: 1)
     guard parts.count > 1 else { return nil }
     let key = String(parts[1])
     let trade = orderIDSeparator + key + orderIDSeparator
-    return positions.first { position in
-      let ids = [position.entry.clientOrderId, position.stop.clientOrderId].compactMap { $0 }
+    func matches(_ ids: [String?]) -> Bool {
+      let ids = ids.compactMap { $0 }
       return ids.contains(key) || ids.contains { $0.contains(trade) }
-    }?.symbol
+    }
+    if let open = status.positions.first(where: { matches([$0.entry.clientOrderId, $0.stop.clientOrderId]) }) {
+      return open.symbol
+    }
+    return status.tradesToday.first { matches([$0.entry.clientOrderId]) }?.symbol
   }
 
-  /// A fence in words for the event line and the flow card: the symbol it is about first when an
-  /// open position matches, then what it is and what it says.
-  public static func fenceText(_ fence: Fence, positions: [Position]) -> String {
-    ApiText.fenceWithDetail(fence, symbol: fenceSymbol(fence, positions: positions))
+  /// A fence's title for a person: the symbol it is about in place of the bot's key, when known.
+  public static func fenceTitle(_ fence: Fence, status: StatusV1) -> String {
+    ApiText.fence(fence, symbol: fenceSymbol(fence, status: status))
+  }
+
+  /// A fence in words for the event line and the flow card: the symbol it is about first when
+  /// known, then what it is and what it says.
+  public static func fenceText(_ fence: Fence, status: StatusV1) -> String {
+    ApiText.fenceWithDetail(fence, symbol: fenceSymbol(fence, status: status))
   }
 
   /// Between a refused symbol and why it was refused.

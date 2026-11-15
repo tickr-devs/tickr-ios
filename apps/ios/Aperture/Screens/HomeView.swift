@@ -547,7 +547,7 @@ private struct LiveFlowCard: View {
       }
       .font(Tokens.Typography.annotation)
       ForEach(status.fences, id: \.kind) { fence in
-        Label { Text(verbatim: Board.fenceText(fence, positions: status.positions)) } icon: {
+        Label { Text(verbatim: Board.fenceText(fence, status: status)) } icon: {
           Image(systemName: "exclamationmark.triangle.fill")
         }
           .font(.caption)
@@ -731,7 +731,8 @@ private struct LatestEventLine: View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       Text(L10n.Home.clockET(Format.clock(time)))
         .foregroundStyle(Palette.textQuaternary)
-      Text(verbatim: tag).bold().textCase(.uppercase).foregroundStyle(color)
+      // The tag is short and says what happened: it never gives way; the text wraps instead.
+      Text(verbatim: tag).bold().textCase(.uppercase).foregroundStyle(color).fixedSize()
       Text(verbatim: text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
         .lineLimit(Self.textLines)
       Spacer(minLength: 0)
