@@ -339,7 +339,9 @@ private struct DayCard: View {
   /// Size of the day's result curve, in points.
   static let curveSize = CGSize(width: 120, height: 50)
 
-  @State private var drawn = false
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  /// The result as shown: counts up from zero to the day's result when the card appears.
+  @State private var shown = Decimal(0)
   let label: String
   let live: Bool
   let figures: DayFigures
@@ -353,31 +355,32 @@ private struct DayCard: View {
         }
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textTertiary)
-        Text(verbatim: Money.signedUSD(figures.result))
+        Text(verbatim: Money.signedUSD(shown))
           .font(Tokens.Typography.metric)
           .foregroundStyle(Palette.result(figures.result))
-          .contentTransition(.numericText(value: NSDecimalNumber(decimal: figures.result).doubleValue))
+          .contentTransition(.numericText(value: NSDecimalNumber(decimal: shown).doubleValue))
+          .accessibilityLabel(Text(verbatim: Money.signedUSD(figures.result)))
         Text(figures.counts)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }
       Spacer()
-      Sparkline(figures.curve)
-        .trim(from: 0, to: drawn ? 1 : 0)
-        .stroke(Palette.result(figures.result),
-          style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round, lineJoin: .round))
+      DrawnSparkline(values: figures.curve, color: Palette.result(figures.result))
         .frame(width: Self.curveSize.width, height: Self.curveSize.height)
-        .accessibilityHidden(true)
     }
     .padding(.horizontal, Tokens.Space.l)
     .padding(.vertical, Tokens.Space.m)
     .apertureCard()
-    .animation(Tokens.Motion.standard, value: figures)
-    .onAppear { withAnimation(Tokens.Motion.draw) { drawn = true } }
-    .onChange(of: figures.curve.count) { _, _ in
-      // A day whose trades just arrived draws its curve again.
-      drawn = false
-      withAnimation(Tokens.Motion.draw) { drawn = true }
+    .onAppear { count(to: figures.result) }
+    .onChange(of: figures.result) { _, result in count(to: result) }
+  }
+
+  /// Rolls the shown result to `result`; at once when the owner asked for less motion.
+  private func count(to result: Decimal) {
+    if reduceMotion {
+      shown = result
+    } else {
+      withAnimation(Tokens.Motion.fill) { shown = result }
     }
   }
 }
