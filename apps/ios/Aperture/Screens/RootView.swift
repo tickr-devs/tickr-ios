@@ -7,21 +7,23 @@ struct RootView: View {
 
   var body: some View {
     @Bindable var model = model
+    // Tab icons are outlines, as on the design, rather than the tab bar's default filled variants;
+    // set on each icon so the screens inside keep their own symbol variants.
     TabView(selection: $model.selectedTab) {
       NavigationStack { HomeView() }
-        .tabItem { Label { Text(L10n.App.home) } icon: { Image(systemName: "square.grid.2x2") } }
+        .tabItem { Label { Text(L10n.App.home) } icon: { Image(systemName: "square.grid.2x2").environment(\.symbolVariants, .none) } }
         .tag(AppTab.home)
       NavigationStack { PositionsView() }
-        .tabItem { Label { Text(L10n.App.positions) } icon: { Image(systemName: "lock.shield") } }
+        .tabItem { Label { Text(L10n.App.positions) } icon: { Image(systemName: "lock").environment(\.symbolVariants, .none) } }
         .tag(AppTab.positions)
       NavigationStack { ChartTab() }
-        .tabItem { Label { Text(L10n.App.chart) } icon: { Image(systemName: "chart.xyaxis.line") } }
+        .tabItem { Label { Text(L10n.App.chart) } icon: { Image(systemName: "chart.line.uptrend.xyaxis").environment(\.symbolVariants, .none) } }
         .tag(AppTab.chart)
       NavigationStack { ActivityView() }
-        .tabItem { Label { Text(L10n.App.activity) } icon: { Image(systemName: "list.bullet.rectangle") } }
+        .tabItem { Label { Text(L10n.App.activity) } icon: { Image(systemName: "line.3.horizontal").environment(\.symbolVariants, .none) } }
         .tag(AppTab.activity)
       NavigationStack { LabView() }
-        .tabItem { Label { Text(L10n.App.lab) } icon: { Image(systemName: "sparkles") } }
+        .tabItem { Label { Text(L10n.App.lab) } icon: { Image(systemName: "star").environment(\.symbolVariants, .none) } }
         .tag(AppTab.lab)
     }
     .modifier(NoticeOverlay())

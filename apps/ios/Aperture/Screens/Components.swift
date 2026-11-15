@@ -205,8 +205,8 @@ struct EnvironmentBadge: View {
       .padding(.horizontal, Tokens.Space.s)
       .padding(.vertical, Tokens.Space.xs)
       .foregroundStyle(Palette.warningText)
-      .background(Palette.warning.opacity(Tokens.Opacity.wash), in: Capsule())
-      .overlay(Capsule().strokeBorder(Palette.warning.opacity(Tokens.Opacity.border)))
+      .background(Palette.warning.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
+      .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.small).strokeBorder(Palette.warning.opacity(Tokens.Opacity.border)))
       .accessibilityLabel(Text(L10n.Connect.environment(environment)))
   }
 }
