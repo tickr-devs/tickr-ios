@@ -196,10 +196,13 @@ struct PreflightSection: View {
       Image(systemName: "checkmark.circle.fill")
         .foregroundStyle(Palette.profit)
         .symbolEffect(.bounce, value: outcome)
+        .accessibilityLabel(Text(L10n.Access.passed))
     case .failed:
       Image(systemName: "xmark.octagon.fill").foregroundStyle(Palette.loss)
+        .accessibilityLabel(Text(L10n.Access.failed))
     case .unknown:
       Image(systemName: "circle.dashed").foregroundStyle(Palette.textQuaternary)
+        .accessibilityLabel(Text(L10n.Access.checking))
     }
   }
 

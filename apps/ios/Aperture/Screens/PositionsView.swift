@@ -456,6 +456,9 @@ private struct ProtectionChain: View {
                 .font(Tokens.Typography.annotation)
                 .foregroundStyle(Palette.textQuaternary)
             }
+            // The dot's colour says it to the eye; VoiceOver hears it.
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(Text(step.ok ? L10n.Access.proven : L10n.Access.notProven))
           }
         }
       }

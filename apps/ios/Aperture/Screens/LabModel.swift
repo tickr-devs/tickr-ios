@@ -16,14 +16,25 @@ final class LabModel {
   private(set) var refusalsDay: WireDate?
   /// Why they could not be read, if they could not.
   private(set) var refusalsFailure: String?
+  /// The bot everything above came from.
+  @ObservationIgnored private var source: URL?
 
   /// The bot's API at `url`, from the container, with the paired token only where it may go.
   private func client(_ url: URL) -> APIClient {
     Container.shared.apiClient(Container.shared.appModel().connection.endpoint(for: url))
   }
 
-  /// Read the observers and the refusals of `day`.
+  /// Read the observers and the refusals of `day` from the bot at `url`; another bot's answers are
+  /// dropped first.
   func load(_ url: URL, day: WireDate) async {
+    if source != url {
+      observers = nil
+      failure = nil
+      refusals = nil
+      refusalsDay = nil
+      refusalsFailure = nil
+      source = url
+    }
     await loadObservers(url, day: day)
     await loadRefusals(url, day: day)
   }

@@ -95,10 +95,12 @@ private struct RefusalsCard: View {
           VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
             HStack(alignment: .firstTextBaseline) {
               Group {
-                if let code = count.cause.known {
+                if let code = count.cause?.known {
                   Text(L10n.Cause.title(code))
+                } else if let cause = count.cause {
+                  Text(verbatim: cause.code)
                 } else {
-                  Text(verbatim: count.cause.code)
+                  Text(L10n.Lab.noCause)
                 }
               }
               .font(Tokens.Typography.callout)

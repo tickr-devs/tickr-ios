@@ -722,6 +722,25 @@ enum L10n {
     }
   }
 
+  /// What VoiceOver says for states the screen shows only by colour or symbol.
+  enum Access {
+    static var proven: LocalizedStringResource {
+      LocalizedStringResource("access.proven", defaultValue: "proven", bundle: L10n.bundle)
+    }
+    static var notProven: LocalizedStringResource {
+      LocalizedStringResource("access.notProven", defaultValue: "not proven", bundle: L10n.bundle)
+    }
+    static var passed: LocalizedStringResource {
+      LocalizedStringResource("access.passed", defaultValue: "passed", bundle: L10n.bundle)
+    }
+    static var failed: LocalizedStringResource {
+      LocalizedStringResource("access.failed", defaultValue: "failed", bundle: L10n.bundle)
+    }
+    static var checking: LocalizedStringResource {
+      LocalizedStringResource("access.checking", defaultValue: "not checked yet", bundle: L10n.bundle)
+    }
+  }
+
   /// The "Watching closely" card (GET /watching).
   enum Watching {
     static var title: LocalizedStringResource {
@@ -749,6 +768,9 @@ enum L10n {
   }
 
   enum Lab {
+    static var noCause: LocalizedStringResource {
+      LocalizedStringResource("lab.noCause", defaultValue: "No cause recorded", bundle: L10n.bundle)
+    }
     static var refusals: LocalizedStringResource {
       LocalizedStringResource("lab.refusals", defaultValue: "Why signals were refused today", bundle: L10n.bundle)
     }

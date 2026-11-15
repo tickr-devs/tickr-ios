@@ -127,23 +127,24 @@ public struct SkippedGroup: Hashable, Sendable, Identifiable {
 
 /// How many signals each refusal cause refused, most first; for "why signals were refused".
 public struct RefusalCount: Hashable, Sendable, Identifiable {
-  public let cause: RefusalCause
+  /// Nil for refusals the bot recorded without a cause.
+  public let cause: RefusalCause?
   public let count: Int
 
-  public var id: String { cause.code }
+  public var id: String { cause?.code ?? String() }
 
   /// Refused `signals` counted by cause code (each signal once, not merged into runs), the most
-  /// frequent first and ties by code; signals that were not refused are left out.
+  /// frequent first and ties by code; a refusal without a recorded cause is counted under nil,
+  /// never dropped; signals that were not refused are left out.
   public static func make(_ signals: [SkippedSignalV1]) -> [RefusalCount] {
-    var counts: [String: Int] = [:]
+    var counts: [String?: Int] = [:]
     var first: [String: RefusalCause] = [:]
     for signal in signals where signal.admission == .refused {
-      guard let text = signal.refusalCause else { continue }
-      let cause = RefusalCause(text)
-      counts[cause.code, default: 0] += 1
-      if first[cause.code] == nil { first[cause.code] = cause }
+      let cause = signal.refusalCause.map(RefusalCause.init)
+      counts[cause?.code, default: 0] += 1
+      if let cause, first[cause.code] == nil { first[cause.code] = cause }
     }
-    return counts.compactMap { code, count in first[code].map { RefusalCount(cause: $0, count: count) } }
-      .sorted { $0.count != $1.count ? $0.count > $1.count : $0.cause.code < $1.cause.code }
+    return counts.map { code, count in RefusalCount(cause: code.flatMap { first[$0] }, count: count) }
+      .sorted { $0.count != $1.count ? $0.count > $1.count : $0.id < $1.id }
   }
 }
