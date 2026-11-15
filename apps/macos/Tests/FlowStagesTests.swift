@@ -16,12 +16,13 @@ struct FlowStagesTests {
     let stage = FlowStages.reconcile(liveFences: fences, latest: try latest("flow-v1.json"))
     #expect(stage.value == String(localized: L10n.Common.fences(fences.count)))
     #expect(stage.value != String(localized: L10n.Flow.match))
+    #expect(stage.agrees == false)
   }
 
   @Test("Without live fences a match reads as a match")
   func match() throws {
     let stage = FlowStages.reconcile(liveFences: [], latest: try latest("flow-v1.json"))
-    #expect(stage == .init(value: String(localized: L10n.Flow.match), note: nil))
+    #expect(stage == .init(value: String(localized: L10n.Flow.match), note: nil, agrees: true))
   }
 
   @Test("An unknown agreement is not shown as fine; its cause becomes the tooltip")
@@ -30,6 +31,7 @@ struct FlowStagesTests {
     let stage = FlowStages.reconcile(liveFences: [], latest: empty)
     #expect(stage.value == nil)
     #expect(stage.note == empty.agreementCause)
+    #expect(stage.agrees == nil)
     #expect(FlowStages.reconcile(liveFences: nil, latest: nil) == .init(value: nil, note: nil))
   }
 }

@@ -136,6 +136,10 @@ private struct Header: View {
               label: Text(verbatim: String(localized: open ? L10n.Overview.gateOpen : L10n.Overview.gateClosed)
                 + Format.lineSeparator + ApiText.gate(status.tradingGate)))
           }
+          // The shown day's clean-day verdict from the bot's journal, as in the design.
+          if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
+            CleanBadge(clean: clean)
+          }
         }
         banner
       }
@@ -1126,12 +1130,13 @@ private struct RiskRoomCard: View {
   @Environment(AppModel.self) private var model
   @State private var shown: Double = 0
 
+  @State private var shownReserved: Double = 0
+
   /// Symbols of the risk figures.
   static let resultSymbol = "plusminus"
   static let positionsSymbol = "square.stack.3d.up"
-  static let plannedLossSymbol = "arrow.down.to.line"
-  static let capSymbol = "dollarsign.circle"
   static let reservationsSymbol = "lock.circle"
+  static let recordsSymbol = "arrow.triangle.2.circlepath"
 
   var body: some View {
     Card(L10n.RiskRoom.title) {
@@ -1142,6 +1147,8 @@ private struct RiskRoomCard: View {
         // The bot's own room for today; the app never computes one the bot did not report.
         let room = model.dailyRoom
         let fraction = room.map { limit > 0 ? NSDecimalNumber(decimal: $0 / limit).doubleValue : 0 } ?? 0
+        let reservations = model.status?.openReservationsUsd?.value
+        let reserved = reservations.map { limit > 0 ? NSDecimalNumber(decimal: $0 / limit).doubleValue : 0 } ?? 0
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
           if let room {
             MoneyText(value: room, font: Tokens.Typography.metric, colored: false, signed: false)
@@ -1150,17 +1157,21 @@ private struct RiskRoomCard: View {
           }
           Text(L10n.RiskRoom.left(Money.plain(limit))).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
         }
-        bar(fraction: fraction)
+        bar(room: fraction, reserved: reserved)
         VStack(spacing: Tokens.Space.s) {
           StatLine(L10n.RiskRoom.netResult, value: Money.signed(model.shownResult), color: Palette.result(model.shownResult),
             symbol: Self.resultSymbol)
           let count = String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions))
           StatLine(L10n.RiskRoom.positions, value: count, symbol: Self.positionsSymbol)
-          StatLine(L10n.RiskRoom.plannedLoss, value: Money.plain(risk.plannedLossUsd.value), symbol: Self.plannedLossSymbol)
-          StatLine(L10n.RiskRoom.notionalCap, value: Money.plain(risk.positionNotionalCapUsd.value), symbol: Self.capSymbol)
-          StatLine(L10n.RiskRoom.reservations,
-            value: model.status?.openReservationsUsd.map { Money.plain($0.value) } ?? Format.missing,
+          StatLine(L10n.RiskRoom.reservations, value: reservations.map { Money.plain($0) } ?? Format.missing,
+            color: reservations.map { $0 > 0 ? Palette.warningText : Palette.textPrimary } ?? Palette.textQuaternary,
             symbol: Self.reservationsSymbol)
+          let records = FlowStages.reconcile(liveFences: model.isLive ? model.status?.fences : nil,
+            latest: model.flow?.reconcile)
+          StatLine(L10n.RiskRoom.recordsAgree, value: records.value ?? Format.missing,
+            color: records.agrees.map { $0 ? Palette.profitText : Palette.warningText } ?? Palette.textQuaternary,
+            symbol: Self.recordsSymbol)
+            .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
         }
       } else if let error = model.settingsError {
         Footnote(verbatim: error)
@@ -1170,19 +1181,42 @@ private struct RiskRoomCard: View {
     }
   }
 
-  private func bar(fraction: Double) -> some View {
+  /// The room left (the bot's own, already net of the open reservations), then the reservations
+  /// themselves, as in the design: the room in the accent colour, the reservations in amber after it.
+  private func bar(room: Double, reserved: Double) -> some View {
     GeometryReader { proxy in
-      ZStack(alignment: .leading) {
-        Capsule().fill(Palette.separator)
-        Capsule()
-          .fill(LinearGradient(colors: [Palette.loss, Palette.warning, Palette.accent], startPoint: .leading,
-            endPoint: .trailing))
-          .frame(width: proxy.size.width * shown)
+      HStack(spacing: 0) {
+        Rectangle().fill(Palette.accent).frame(width: proxy.size.width * shown)
+        Rectangle().fill(Palette.warning).frame(width: proxy.size.width * shownReserved)
+        Spacer(minLength: 0)
       }
+      .background(Palette.separator)
+      .clipShape(Capsule())
     }
     .frame(height: Tokens.Size.bar)
-    .onAppear { withAnimation(Tokens.Motion.fill) { shown = fraction } }
-    .onChange(of: fraction) { _, value in withAnimation(Tokens.Motion.fill) { shown = value } }
+    .onAppear {
+      withAnimation(Tokens.Motion.fill) {
+        shown = Self.share(room)
+        shownReserved = Self.clamped(reserved, after: Self.share(room))
+      }
+    }
+    .onChange(of: [room, reserved]) { _, values in
+      withAnimation(Tokens.Motion.fill) {
+        shown = Self.share(values[0])
+        shownReserved = Self.clamped(values[1], after: Self.share(values[0]))
+      }
+    }
+    .accessibilityHidden(true)
+  }
+
+  /// A share of the bar, 0...1: the bot's room may be negative after a gap through a stop.
+  static func share(_ value: Double) -> Double {
+    min(max(value, 0), 1)
+  }
+
+  /// The reservations' share, never past the end of the bar.
+  static func clamped(_ reserved: Double, after room: Double) -> Double {
+    min(max(reserved, 0), max(1 - room, 0))
   }
 }
 

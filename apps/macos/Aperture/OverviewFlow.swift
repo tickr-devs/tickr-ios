@@ -11,17 +11,19 @@ enum FlowStages {
   struct Reconcile: Equatable {
     let value: String?
     let note: String?
+    /// The broker and the bot's records agree; false on a fence or a mismatch, nil when unknown.
+    var agrees: Bool?
   }
 
   /// Live fences come first (they come from the status, newer than any reconciliation), then the
   /// latest reconciliation's mismatch or match; without one, unknown with the bot's cause.
   static func reconcile(liveFences: [Fence]?, latest: FlowReconcileV1?) -> Reconcile {
     if let fences = liveFences, !fences.isEmpty {
-      return Reconcile(value: String(localized: L10n.Common.fences(fences.count)), note: nil)
+      return Reconcile(value: String(localized: L10n.Common.fences(fences.count)), note: nil, agrees: false)
     }
     switch latest?.agreement {
-    case .mismatch: return Reconcile(value: String(localized: L10n.Screener.mismatch), note: nil)
-    case .match: return Reconcile(value: String(localized: L10n.Flow.match), note: nil)
+    case .mismatch: return Reconcile(value: String(localized: L10n.Screener.mismatch), note: nil, agrees: false)
+    case .match: return Reconcile(value: String(localized: L10n.Flow.match), note: nil, agrees: true)
     case nil: return Reconcile(value: nil, note: latest?.agreementCause)
     }
   }

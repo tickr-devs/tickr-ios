@@ -6215,40 +6215,6 @@
         }
       }
     },
-    "riskRoom.notionalCap" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "notional cap"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "лимит объёма"
-          }
-        }
-      }
-    },
-    "riskRoom.plannedLoss" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "planned loss / trade"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "плановый убыток / сделка"
-          }
-        }
-      }
-    },
     "riskRoom.positions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6279,6 +6245,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Читаем лимиты…"
+          }
+        }
+      }
+    },
+    "riskRoom.recordsAgree" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "records agree"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "записи сходятся"
           }
         }
       }

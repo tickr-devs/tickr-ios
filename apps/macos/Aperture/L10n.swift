@@ -679,11 +679,8 @@ enum L10n {
     static var positions: LocalizedStringResource {
       LocalizedStringResource("riskRoom.positions", defaultValue: "positions", bundle: L10n.bundle)
     }
-    static var plannedLoss: LocalizedStringResource {
-      LocalizedStringResource("riskRoom.plannedLoss", defaultValue: "planned loss / trade", bundle: L10n.bundle)
-    }
-    static var notionalCap: LocalizedStringResource {
-      LocalizedStringResource("riskRoom.notionalCap", defaultValue: "notional cap", bundle: L10n.bundle)
+    static var recordsAgree: LocalizedStringResource {
+      LocalizedStringResource("riskRoom.recordsAgree", defaultValue: "records agree", bundle: L10n.bundle)
     }
     static var reservations: LocalizedStringResource {
       LocalizedStringResource("riskRoom.reservations", defaultValue: "open reservations", bundle: L10n.bundle)
