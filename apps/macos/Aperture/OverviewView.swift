@@ -572,13 +572,21 @@ private struct PositionDetail: View {
     VStack(spacing: Tokens.Space.s) {
       StatLine(L10n.Position.quantity, value: Format.quantity(row.quantity))
       StatLine(L10n.Position.entry, value: Format.price(row.entry))
-      StatLine(label: lastBarLabel, value: lastBarValue)
+      StatLine(label: lastBarLabel, value: lastBarValue, color: isStale ? Palette.textQuaternary : Palette.textPrimary)
+        .help(staleHelp)
       StatLine(L10n.Position.stop, value: Format.price(row.stop),
         color: row.position.stop.state == .verified ? Palette.profitText : Palette.lossText)
       StatLine(L10n.Position.maxLoss,
         value: Risk.plannedLoss(entry: row.entry, stop: row.stop, quantity: row.quantity).map { Money.plain($0) }
           ?? Format.missing)
-      StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing)
+        .help(Text(L10n.Position.maxLossHelp))
+      if isStale, let time = row.lastBarAt {
+        StatLine(label: Text(L10n.Position.rAt(Format.marketMinute(time))),
+          value: row.latestResultR.map(Risk.text) ?? Format.missing, color: Palette.textQuaternary)
+          .help(staleHelp)
+      } else {
+        StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing)
+      }
       StatLine(L10n.Position.opened, value: Format.marketTime(row.position.openedAt.date))
       let sent = EntrySent.line(row.position.entry, cause: row.position.entryCause)
       StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color)
@@ -594,8 +602,15 @@ private struct PositionDetail: View {
   }
 
   private var lastBarValue: String {
-    if let close = row.lastBarClose { return Format.price(close) }
-    return row.lastBarAt == nil ? Format.missing : String(localized: L10n.Position.old)
+    (row.lastBarClose ?? row.latestClose).map { Format.price($0) } ?? Format.missing
+  }
+
+  /// The newest bar is too old to be the current price: shown greyed, as of its time.
+  private var isStale: Bool { row.lastBarClose == nil && row.latestClose != nil }
+
+  private var staleHelp: Text {
+    guard isStale, let time = row.lastBarAt else { return Text(L10n.Position.lastBarClose) }
+    return Text(L10n.Position.staleHelp(Format.marketMinute(time)))
   }
 }
 

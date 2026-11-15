@@ -1552,9 +1552,21 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld fences"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld fence"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld fences"
+                }
+              }
+            }
           }
         },
         "ru" : {
@@ -1877,7 +1889,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@: %2$lld sends"
+            "value" : "%1$@: sent %2$lld times"
           }
         },
         "ru" : {
@@ -1977,9 +1989,21 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld sends"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld send"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld sends"
+                }
+              }
+            }
           }
         },
         "ru" : {
@@ -2708,9 +2732,21 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld decisions"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld decision"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld decisions"
+                }
+              }
+            }
           }
         },
         "ru" : {
@@ -3356,7 +3392,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld positions · %lld protected by a verified broker stop"
+            "value" : "%lld open · %lld protected by a verified broker stop"
           }
         },
         "ru" : {
@@ -3473,9 +3509,21 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld trades closed this day. Details are in Trades & days."
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade closed this day. Details are in Trades & days."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades closed this day. Details are in Trades & days."
+                }
+              }
+            }
           }
         },
         "ru" : {
@@ -3571,6 +3619,23 @@
         }
       }
     },
+    "position.maxLossHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At the fill price. The daily loss limit reserves the planned loss at the entry order's limit price, so the reservation can be a little higher."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По цене исполнения. Дневной лимит убытка резервирует плановый убыток по лимитной цене входного ордера, поэтому резерв может быть чуть больше."
+          }
+        }
+      }
+    },
     "position.noPosition" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3584,23 +3649,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет позиции"
-          }
-        }
-      }
-    },
-    "position.old" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "old"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "устарело"
           }
         }
       }
@@ -3690,6 +3738,23 @@
         }
       }
     },
+    "position.rAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "R at %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "R на %@"
+          }
+        }
+      }
+    },
     "position.recordedDay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3720,6 +3785,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "R сейчас"
+          }
+        }
+      }
+    },
+    "position.staleHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No bar since %@: the price and R are as of then."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет баров после %@: цена и R на тот момент."
           }
         }
       }
@@ -6688,7 +6770,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@   %@   %lld trades"
+            "value" : "%@   %@   trades: %lld"
           }
         },
         "ru" : {
@@ -7349,9 +7431,21 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Performance in R · %lld days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Performance in R · %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Performance in R · %lld days"
+                }
+              }
+            }
           }
         },
         "ru" : {
@@ -7368,7 +7462,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld trades · %2$lld W · %3$lld L · %4$lld flat"
+            "value" : "Trades: %1$lld · %2$lld W · %3$lld L · %4$lld flat"
           }
         },
         "ru" : {

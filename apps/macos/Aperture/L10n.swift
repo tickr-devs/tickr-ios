@@ -363,7 +363,7 @@ enum L10n {
     }
     static func dayRow(_ day: String, _ result: String, _ trades: Int) -> LocalizedStringResource {
       LocalizedStringResource("toolbar.dayRow",
-        defaultValue: "\(day)   \(result)   \(trades) trades",
+        defaultValue: "\(day)   \(result)   trades: \(trades)",
         bundle: L10n.bundle)
     }
     static var pickDayHelp: LocalizedStringResource {
@@ -419,7 +419,7 @@ enum L10n {
     }
     static func protectedPositions(_ count: Int, _ protected: Int) -> LocalizedStringResource {
       LocalizedStringResource("overview.protectedPositions",
-        defaultValue: "\(count) positions · \(protected) protected by a verified broker stop",
+        defaultValue: "\(count) open · \(protected) protected by a verified broker stop",
         bundle: L10n.bundle)
     }
     static var dayResult: LocalizedStringResource {
@@ -556,8 +556,20 @@ enum L10n {
     static var lastBarClose: LocalizedStringResource {
       LocalizedStringResource("position.lastBarClose", defaultValue: "last bar close", bundle: L10n.bundle)
     }
-    static var old: LocalizedStringResource {
-      LocalizedStringResource("position.old", defaultValue: "old", bundle: L10n.bundle)
+    /// Tooltip of a position's price and R when the newest captured bar is not current.
+    static func staleHelp(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("position.staleHelp",
+        defaultValue: "No bar since \(time): the price and R are as of then.", bundle: L10n.bundle)
+    }
+    /// A position's result in R at the newest captured bar, when that bar is not current.
+    static func rAt(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("position.rAt", defaultValue: "R at \(time)", bundle: L10n.bundle)
+    }
+    /// Tooltip of max loss: why it can differ from the daily limit's reservation.
+    static var maxLossHelp: LocalizedStringResource {
+      LocalizedStringResource("position.maxLossHelp",
+        defaultValue: "At the fill price. The daily loss limit reserves the planned loss at the entry order's limit price, so the reservation can be a little higher.",
+        bundle: L10n.bundle)
     }
     static var chartLabel: LocalizedStringResource {
       LocalizedStringResource("position.chartLabel",
@@ -1239,7 +1251,7 @@ enum L10n {
     }
     /// Counts under the performance figures.
     static func performanceCounts(_ trades: Int, _ wins: Int, _ losses: Int, _ scratches: Int) -> LocalizedStringResource {
-      LocalizedStringResource("trades.performanceCounts", defaultValue: "\(trades) trades · \(wins) W · \(losses) L · \(scratches) flat", bundle: L10n.bundle)
+      LocalizedStringResource("trades.performanceCounts", defaultValue: "Trades: \(trades) · \(wins) W · \(losses) L · \(scratches) flat", bundle: L10n.bundle)
     }
     /// Trades left out of every performance figure, with why.
     static func excluded(_ trades: Int, _ cause: String) -> LocalizedStringResource {
@@ -1764,7 +1776,7 @@ enum L10n {
     }
     /// Safety row alarm: an entry sent other than once.
     static func breach(_ symbol: String, _ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("entrySent.breach", defaultValue: "\(symbol): \(count) sends", bundle: L10n.bundle)
+      LocalizedStringResource("entrySent.breach", defaultValue: "\(symbol): sent \(count) times", bundle: L10n.bundle)
     }
     /// Safety row: entries without a send record.
     static func unrecorded(_ count: Int) -> LocalizedStringResource {
