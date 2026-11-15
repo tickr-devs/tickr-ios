@@ -42,6 +42,9 @@ public enum Palette {
   public static let textTertiary = Color(light: 0x475174, dark: 0xA9B2D3)
   /// Section labels, captions, placeholders ("—").
   public static let textQuaternary = Color(light: 0x5F6A8C, dark: 0x8F99BC)
+  /// Uppercase section labels (card and sidebar headers, metric names): the boards' `.lbl`, a
+  /// touch lighter than `textQuaternary` in light mode, the same in dark.
+  public static let textLabel = Color(light: 0x6A7495, dark: 0x8F99BC)
 
   // MARK: meanings
 
@@ -226,14 +229,14 @@ public struct CardLabel: View {
   let title: Text
   let color: Color
 
-  public init(_ title: LocalizedStringResource, color: Color = Palette.textQuaternary) {
+  public init(_ title: LocalizedStringResource, color: Color = Palette.textLabel) {
     self.title = Text(title)
     self.color = color
   }
 
   /// Text that is already localized or is data (a symbol). Prefer the localized initializer.
   @_disfavoredOverload
-  public init(_ text: String, color: Color = Palette.textQuaternary) {
+  public init(_ text: String, color: Color = Palette.textLabel) {
     self.title = Text(verbatim: text)
     self.color = color
   }

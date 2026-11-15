@@ -90,7 +90,7 @@ public struct SectionHeader<Trailing: View>: View {
         .textCase(.uppercase)
         .font(Tokens.Typography.label)
         .tracking(Tokens.Typography.labelTracking)
-        .foregroundStyle(Palette.textQuaternary)
+        .foregroundStyle(Palette.textLabel)
         .lineLimit(1)
         .accessibilityAddTraits(.isHeader)
       if let count {

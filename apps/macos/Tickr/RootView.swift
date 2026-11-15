@@ -18,14 +18,10 @@ enum AppSection: String, CaseIterable, Identifiable {
     }
   }
 
-  /// SF Symbols of the sections in the sidebar.
-  static let overviewSymbol = "square.grid.2x2"
+  /// SF Symbols of the Overview's buttons that open the Chart and Trades & days (the sidebar
+  /// draws its own `glyph`s).
   static let chartSymbol = "chart.line.uptrend.xyaxis"
   static let tradesSymbol = "text.alignleft"
-  static let riskSymbol = "shield"
-  static let labSymbol = "star"
-  /// SF Symbol of the sidebar's Settings row.
-  static let settingsSymbol = "gearshape"
 
   /// Accessibility ids of a section's sidebar row and its screen (the UI tests find them by these).
   static let rowIDPrefix = "sidebar-"
@@ -33,13 +29,14 @@ enum AppSection: String, CaseIterable, Identifiable {
   var rowID: String { Self.rowIDPrefix + rawValue }
   var screenID: String { Self.screenIDPrefix + rawValue }
 
-  var symbol: String {
+  /// The section's line icon in the sidebar, as the design draws it.
+  var glyph: ShellGlyph.Kind {
     switch self {
-    case .overview: return Self.overviewSymbol
-    case .chart: return Self.chartSymbol
-    case .trades: return Self.tradesSymbol
-    case .risk: return Self.riskSymbol
-    case .lab: return Self.labSymbol
+    case .overview: return .overview
+    case .chart: return .chart
+    case .trades: return .trades
+    case .risk: return .risk
+    case .lab: return .lab
     }
   }
 }
@@ -48,9 +45,10 @@ struct RootView: View {
   @Environment(AppModel.self) private var model
   @Environment(AdvisorModel.self) private var advisor
 
-  /// Sidebar width: least, preferred (the design's) and most, in points.
+  /// Sidebar width: least, preferred and most, in points. The design's sidebar is 237 wide: a
+  /// 212-point column of rows, 12 points of padding on each side and its hairline.
   static let sidebarMin: CGFloat = 200
-  static let sidebarIdeal: CGFloat = 212
+  static let sidebarIdeal: CGFloat = 237
   static let sidebarMax: CGFloat = 260
   /// Least size of a screen, in points: with the sidebar (200) and the inspector (240) it stays
   /// under the window's least size (TickrMacApp.minWidth, minHeight).
@@ -61,15 +59,23 @@ struct RootView: View {
   /// title line gets the room between them (see `WindowLine`).
   @State private var detailWidth: CGFloat = 0
   @State private var stepperWidth: CGFloat = 0
+  /// Whether the sidebar shows: the title bar's sidebar button and View > Hide Sidebar (⌃⌘S)
+  /// switch it.
+  @State private var columns = NavigationSplitViewVisibility.all
 
   private var section: AppSection { model.section }
 
   var body: some View {
     @Bindable var model = model
-    NavigationSplitView {
+    NavigationSplitView(columnVisibility: $columns) {
       Sidebar(selection: $model.section)
-        // The design's title bar has no sidebar button; View > Hide Sidebar (⌃⌘S) still hides it.
+        // The design's own sidebar button right after the window buttons replaces the system's.
         .toolbar(removing: .sidebarToggle)
+        .toolbar {
+          ToolbarItem(placement: .automatic) { SidebarButton(columns: $columns) }
+            .sharedBackgroundVisibility(.hidden)
+          ToolbarSpacer(.flexible)
+        }
         .navigationSplitViewColumnWidth(min: Self.sidebarMin, ideal: Self.sidebarIdeal, max: Self.sidebarMax)
     } detail: {
       ZStack(alignment: .bottom) {
@@ -119,7 +125,10 @@ struct RootView: View {
       .toolbar(removing: .title)
       .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { detailWidth = $0 }
       .toolbar {
-        WindowToolbar(lineWidth: WindowLine.width(detail: detailWidth, stepper: stepperWidth)) { stepperWidth = $0 }
+        WindowToolbar(lineWidth: WindowLine.width(detail: detailWidth, stepper: stepperWidth,
+          sidebarHidden: columns == .detailOnly)) {
+          stepperWidth = $0
+        }
       }
       .toolbarBackground(Palette.titleBar, for: .windowToolbar)
       .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
@@ -162,7 +171,7 @@ private struct Sidebar: View {
             selection = item
             rowsFocused = true
           } label: {
-            SidebarRow(title: item.title, symbol: item.symbol, badge: badge(for: item), selected: selection == item)
+            SidebarRow(title: item.title, glyph: item.glyph, badge: badge(for: item), selected: selection == item)
           }
           .buttonStyle(.plain)
           .accessibilityIdentifier(item.rowID)
@@ -176,7 +185,7 @@ private struct Sidebar: View {
       .focusEffectDisabled()
       .onMoveCommand(perform: move)
       SettingsLink {
-        SidebarRow(title: L10n.Root.settingsRow, symbol: AppSection.settingsSymbol, badge: nil, selected: false)
+        SidebarRow(title: L10n.Root.settingsRow, glyph: .settings, badge: nil, selected: false)
       }
       .buttonStyle(.plain)
       Spacer(minLength: 0)
@@ -225,33 +234,33 @@ private struct Hairline: View {
 /// selected row on a soft tint with a hairline.
 private struct SidebarRow: View {
   let title: LocalizedStringResource
-  let symbol: String
+  let glyph: ShellGlyph.Kind
   let badge: Int?
   let selected: Bool
 
   @State private var hovered = false
 
-  /// Gap between the icon and the title, in points.
+  /// Gap between the icon and the title, and the row's top and bottom padding, in points.
   static let iconGap: CGFloat = 10
+  static let verticalPadding: CGFloat = 9
 
   var body: some View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     HStack(spacing: Self.iconGap) {
-      Image(systemName: symbol)
-        .frame(width: Tokens.Size.rowSymbol)
+      ShellIcon(kind: glyph, size: Tokens.Size.rowSymbol)
       Text(title)
         .lineLimit(1)
         .frame(maxWidth: .infinity, alignment: .leading)
       if let badge {
         Text(verbatim: badge.formatted())
-          .font(Tokens.Typography.annotation)
+          .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textQuaternary)
       }
     }
     .font(Tokens.Typography.body.weight(.medium))
     .foregroundStyle(selected || hovered ? Palette.textPrimary : Palette.textTertiary)
     .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
+    .padding(.vertical, Self.verticalPadding)
     .background {
       if selected {
         shape.fill(Palette.selection)
@@ -338,8 +347,9 @@ private struct BotStateCard: View {
   }
 }
 
-/// The title bar as the design draws it: one centred mono line, and on the right the connection
-/// status, the day stepper ‹ day › and Today.
+/// The title bar as the design draws it (the sidebar button right after the window buttons is
+/// the sidebar column's item, `SidebarButton`): one centred mono line, and on the right the
+/// connection status, the day stepper ‹ day › and Today.
 private struct WindowToolbar: ToolbarContent {
   /// Width of the title line (`WindowLine.width`).
   let lineWidth: CGFloat
@@ -359,7 +369,41 @@ private struct WindowToolbar: ToolbarContent {
   }
 }
 
-/// "tickr — sandbox — price-action-v1 v1 — up to 3 positions", from the status and the settings.
+/// The design's sidebar button: a window outline with the sidebar's edge, in the title bar's
+/// small bordered square; hides the sidebar or shows it again. An item of the sidebar column's
+/// toolbar, ahead of a flexible space, so it sits right after the window buttons, and stays there
+/// while the sidebar is hidden.
+private struct SidebarButton: View {
+  @Binding var columns: NavigationSplitViewVisibility
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+  /// Accessibility id of the button, for the UI tests.
+  static let id = "toolbar-sidebar"
+  /// Size of the glyph, in points.
+  static let glyphSize: CGFloat = 14
+
+  var body: some View {
+    let hidden = columns == .detailOnly
+    Button {
+      // With Reduce Motion the sidebar goes or comes at once (design rule 5).
+      withAnimation(reduceMotion ? nil : Tokens.Motion.standard) { columns = hidden ? .all : .detailOnly }
+    } label: {
+      Label {
+        Text(hidden ? L10n.Toolbar.showSidebar : L10n.Toolbar.hideSidebar)
+      } icon: {
+        ShellIcon(kind: .sidebar, size: Self.glyphSize)
+      }
+    }
+    .buttonStyle(TitleBarButtonStyle(square: true))
+    .help(Text(hidden ? L10n.Toolbar.showSidebar : L10n.Toolbar.hideSidebar))
+    .accessibilityIdentifier(Self.id)
+  }
+}
+
+/// The title bar's line for the shown screen, from live data as the design boards word it:
+/// Overview "tickr — sandbox — price-action-v1 v1 — up to 3 positions", Chart "tickr — sandbox —
+/// chart — ABCD · Day · 1m", Trades & days "… — trades & days — 3 closed", Risk & account
+/// "… — risk & account — 10:47:03 ET", Strategy lab "… — strategy lab — price-action-v1 v1".
 /// The line fills the room between the screen column's leading edge and the right-hand group,
 /// centred in it as the design centres it between the window buttons and the controls. A toolbar
 /// item is as wide as its view asks, so the width is given outright: a line wider than the room
@@ -368,6 +412,7 @@ private struct WindowToolbar: ToolbarContent {
 /// at its end instead.
 private struct WindowLine: View {
   @Environment(AppModel.self) private var model
+  @Environment(ChartModel.self) private var chart
   let width: CGFloat
 
   /// Least width of the line, in points.
@@ -375,28 +420,60 @@ private struct WindowLine: View {
   /// The toolbar's own margins and item spacing around the two items, in points.
   static let toolbarInsets: CGFloat = 40
 
+  /// What the window buttons and the sidebar button take of a screen column that has the whole
+  /// window to itself (the sidebar hidden), in points.
+  static let windowButtonsWidth: CGFloat = 130
+
   /// The room the line gets beside the right-hand group in a screen column `detail` wide.
-  static func width(detail: CGFloat, stepper: CGFloat) -> CGFloat {
-    max(minWidth, detail - stepper - toolbarInsets)
+  static func width(detail: CGFloat, stepper: CGFloat, sidebarHidden: Bool) -> CGFloat {
+    max(minWidth, detail - stepper - toolbarInsets - (sidebarHidden ? windowButtonsWidth : 0))
   }
 
   var body: some View {
-    Text(line)
-      .font(Tokens.Typography.calloutMono)
-      .foregroundStyle(Palette.textQuaternary)
-      .lineLimit(1)
-      .truncationMode(.tail)
-      .frame(width: width)
+    Group {
+      if model.section == .risk, model.status != nil {
+        // The market clock ticks with the bot's clock, once a second.
+        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
+          Text(line(now: model.botTime(context.date)))
+        }
+      } else {
+        Text(line(now: nil))
+      }
+    }
+    .font(Tokens.Typography.calloutMono)
+    .foregroundStyle(Palette.textQuaternary)
+    .lineLimit(1)
+    .truncationMode(.tail)
+    .frame(width: width)
   }
 
-  private var line: LocalizedStringResource {
+  private func line(now: Date?) -> LocalizedStringResource {
     guard let status = model.status else { return L10n.Toolbar.windowLineEmpty }
     let environment = ApiText.environment(status.environment).localizedLowercase
     let strategy = Format.strategy(status.strategy)
-    guard let limit = model.settings?.risk.maxOpenPositions else {
-      return L10n.Toolbar.windowLine(environment, strategy)
+    let section = String(localized: model.section.title).localizedLowercase
+    switch model.section {
+    case .overview:
+      guard let limit = model.settings?.risk.maxOpenPositions else {
+        return L10n.Toolbar.windowLine(environment, strategy)
+      }
+      return L10n.Toolbar.windowLineLimit(environment, strategy, limit)
+    case .chart:
+      guard let shown = chart.shown else { return L10n.Toolbar.windowLineSectionOnly(environment, section) }
+      let range = String(localized: ChartView.title(shown.range))
+      let interval = String(localized: ChartView.title(shown.interval))
+      let detail = [shown.symbol, range, interval].joined(separator: Format.itemSeparator)
+      return L10n.Toolbar.windowLineSection(environment, section, detail)
+    case .trades:
+      let closed = String(localized: L10n.Toolbar.closedTrades(model.shownTradeCount))
+      return L10n.Toolbar.windowLineSection(environment, section, closed)
+    case .risk:
+      guard let now else { return L10n.Toolbar.windowLineSectionOnly(environment, section) }
+      let clock = String(localized: L10n.Risk.clock(Format.marketTime(now)))
+      return L10n.Toolbar.windowLineSection(environment, section, clock)
+    case .lab:
+      return L10n.Toolbar.windowLineSection(environment, section, strategy)
     }
-    return L10n.Toolbar.windowLineLimit(environment, strategy, limit)
   }
 }
 
@@ -405,15 +482,16 @@ private struct WindowLine: View {
 private struct DayStepper: View {
   @Environment(AppModel.self) private var model
 
-  /// SF Symbols of the previous and next day buttons.
-  static let previousSymbol = "chevron.left"
-  static let nextSymbol = "chevron.right"
+  /// The design's glyphs of the previous and next day buttons (text, not symbols).
+  static let previousGlyph = "‹"
+  static let nextGlyph = "›"
   /// Gap between the connection status and the stepper, in points (added to the items' gap).
   static let connectionGap: CGFloat = 10
   /// Least width of the day label, in points, so the arrows keep their place from day to day:
-  /// holds the longest live-day label in 12-point mono, the Russian "ср, 30 сент. · сегодня"
-  /// (22 characters) as well as the English "Wed, Sep 30 · today" (19).
-  static let dayMinWidth: CGFloat = 162
+  /// holds the widest live-day label in 11.5-point mono (`Typography.dayStepper`), the Russian
+  /// "Сб, 28 февр. · сегодня" (157 points; "сент." and "февр." are the longest month
+  /// abbreviations), as well as the English "Wed Jan 28 · today" (128).
+  static let dayMinWidth: CGFloat = 158
   /// Accessibility id of the DEMO chip, for the UI tests, and its symbol.
   static let demoChipID = "toolbar-demo"
   static let demoSymbol = "theatermasks.fill"
@@ -428,7 +506,8 @@ private struct DayStepper: View {
           .accessibilityIdentifier(Self.demoChipID)
       }
       Button { model.showPreviousDay() } label: {
-        Label(String(localized: L10n.Toolbar.previousDay), systemImage: Self.previousSymbol)
+        Text(verbatim: Self.previousGlyph)
+          .accessibilityLabel(Text(L10n.Toolbar.previousDay))
       }
       .buttonStyle(TitleBarButtonStyle(square: true))
       .disabled(model.previousDay == nil)
@@ -446,12 +525,12 @@ private struct DayStepper: View {
       } label: {
         Group {
           if model.isLive {
-            Text(L10n.Toolbar.dayToday(Format.dayLabel(model.today)))
+            Text(L10n.Toolbar.dayToday(Self.label(model.today)))
           } else {
-            Text(verbatim: Format.dayLabel(model.shownDay))
+            Text(verbatim: Self.label(model.shownDay))
           }
         }
-        .font(Tokens.Typography.calloutMono)
+        .font(Tokens.Typography.dayStepper)
         .foregroundStyle(Palette.textPrimary)
         .frame(minWidth: Self.dayMinWidth)
       }
@@ -462,7 +541,8 @@ private struct DayStepper: View {
       .disabled(model.dayLocked)
       .help(Text(model.dayLocked ? L10n.Toolbar.demoHelp : L10n.Toolbar.pickDayHelp))
       Button { model.showNextDay() } label: {
-        Label(String(localized: L10n.Toolbar.nextDay), systemImage: Self.nextSymbol)
+        Text(verbatim: Self.nextGlyph)
+          .accessibilityLabel(Text(L10n.Toolbar.nextDay))
       }
       .buttonStyle(TitleBarButtonStyle(square: true))
       .disabled(model.isLive || model.dayLocked)
@@ -473,10 +553,22 @@ private struct DayStepper: View {
         .help(Text(L10n.Toolbar.todayHelp))
     }
   }
+
+  /// "Mon Nov 16": the design's day, in New York and the person's language.
+  static func label(_ day: WireDate) -> String {
+    let date = day.noonInNewYork
+    func part(_ style: Date.FormatStyle) -> String {
+      var style = style
+      style.timeZone = Format.newYork
+      return date.formatted(style)
+    }
+    return String(localized: L10n.Toolbar.day(part(Date.FormatStyle().weekday(.abbreviated)),
+      part(Date.FormatStyle().month(.abbreviated)), part(Date.FormatStyle().day())))
+  }
 }
 
-/// The title bar's small bordered buttons (‹ › Today): a sunken fill, a strong hairline and the
-/// label in the muted text colour.
+/// The title bar's small bordered buttons (sidebar, ‹ › and Today): the chip fill, a strong
+/// hairline and the label in the muted text colour.
 private struct TitleBarButtonStyle: ButtonStyle {
   /// An icon-only button of the design's fixed size; otherwise the title with side padding.
   let square: Bool
@@ -486,16 +578,18 @@ private struct TitleBarButtonStyle: ButtonStyle {
   /// Size of an icon-only button, in points.
   static let width: CGFloat = 30
   static let height: CGFloat = 26
+  /// Corner radius of the button, in points.
+  static let radius: CGFloat = 7
 
   func makeBody(configuration: Configuration) -> some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+    let shape = RoundedRectangle(cornerRadius: Self.radius, style: .continuous)
     configuration.label
       .labelStyle(.iconOnly)
       .font(Tokens.Typography.buttonCompact)
       .foregroundStyle(Palette.textTertiary)
       .padding(.horizontal, square ? 0 : Tokens.Space.s)
       .frame(minWidth: Self.width, minHeight: Self.height)
-      .background(shape.fill(Palette.surfaceSunken))
+      .background(shape.fill(Palette.chipFill))
       .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
       .contentShape(shape)
       .opacity(isEnabled ? 1 : Tokens.Opacity.faint)
@@ -503,7 +597,7 @@ private struct TitleBarButtonStyle: ButtonStyle {
   }
 }
 
-/// The bot's address and how old its status is ("127.0.0.1 · 3 s ago"), with a dot in the
+/// The bot's address and how old its status is ("127.0.0.1 · age 3 s"), with a dot in the
 /// connection's colour (green while fresh statuses arrive); the tooltip says what the headline says.
 struct ConnectionStatus: View {
   @Environment(AppModel.self) private var model
@@ -512,20 +606,21 @@ struct ConnectionStatus: View {
   static let id = "toolbar-connection"
   /// Width of the item, in points: fixed, so the age ticking from "9 s" to "10 s" or to "1 min"
   /// never changes the toolbar's width, which AppKit would answer with a new layout of the whole
-  /// window every second. Holds "127.0.0.1 · 59 s ago" in English and "127.0.0.1 · 59 с назад" in
-  /// Russian (11-point mono, with the dot), right-aligned so
-  /// the text keeps to the stepper; a longer address is shortened in the middle (the whole line
-  /// is in the tooltip).
-  static let width: CGFloat = 176
+  /// window every second. Holds "127.0.0.1 · age 59 min" in English and "127.0.0.1 · возраст 59
+  /// мин" in Russian (11-point mono, with the dot), right-aligned so the text keeps to the
+  /// stepper; a longer address is shortened in the middle (the whole line is in the tooltip).
+  static let width: CGFloat = 196
+  /// Gap between the dot and the text, in points.
+  static let dotGap: CGFloat = 6
 
   var body: some View {
     TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
-      HStack(spacing: Tokens.Space.s) {
+      HStack(spacing: Self.dotGap) {
         // Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
         PulseDot(Self.color(hasStatus: model.status != nil, stale: model.response?.stale, failed: model.fetchError != nil),
-          size: Tokens.Size.dotSmall, pulsing: isFresh, event: model.headline.pulse)
+          size: Tokens.Size.dot, pulsing: isFresh, event: model.headline.pulse)
         Text(verbatim: text(now: model.botTime(context.date)))
-          .font(Tokens.Typography.label)
+          .font(Tokens.Typography.subheadlineMono)
           .foregroundStyle(Palette.textQuaternary)
           .lineLimit(1)
           .truncationMode(.middle)
@@ -549,7 +644,10 @@ struct ConnectionStatus: View {
   private func text(now: Date) -> String {
     let host = model.baseURL.host() ?? model.baseURL.absoluteString
     guard let written = model.status?.writtenAt.date else { return host }
-    return String(localized: L10n.Toolbar.connection(host, Format.age(since: written, now: now)))
+    let seconds = max(0, Int(now.timeIntervalSince(written)))
+    let age = seconds < Format.secondsShownUpTo
+      ? L10n.Toolbar.ageSeconds(seconds) : L10n.Toolbar.ageMinutes(seconds / Format.secondsPerMinute)
+    return String(localized: L10n.Toolbar.connectionAge(host, String(localized: age)))
   }
 }
 

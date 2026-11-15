@@ -162,6 +162,7 @@ struct ChartView: View {
     let baseURL = model.baseURL
     let day = model.shownDay
     let live = model.isLive
+    chart.shown = ChartModel.Shown(symbol: symbol, range: range, interval: interval)
     guard showsDay else {
       let shownRange = range
       let shownInterval = interval

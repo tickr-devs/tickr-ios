@@ -379,10 +379,6 @@ enum L10n {
     static func dayToday(_ day: String) -> LocalizedStringResource {
       LocalizedStringResource("toolbar.dayToday", defaultValue: "\(day) · today", bundle: L10n.bundle)
     }
-    /// The bot's address and the age of its status ("127.0.0.1 · 3 s ago").
-    static func connection(_ host: String, _ age: String) -> LocalizedStringResource {
-      LocalizedStringResource("toolbar.connection", defaultValue: "\(host) · \(age)", bundle: L10n.bundle)
-    }
     static var previousDay: LocalizedStringResource {
       LocalizedStringResource("toolbar.previousDay", defaultValue: "Previous Day", bundle: L10n.bundle)
     }

@@ -11033,19 +11033,87 @@
         }
       }
     },
-    "toolbar.connection" : {
+    "toolbar.ageMinutes" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@"
+            "value" : "%lld min"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@"
+            "value" : "%lld мин"
+          }
+        }
+      }
+    },
+    "toolbar.ageSeconds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld с"
+          }
+        }
+      }
+    },
+    "toolbar.closedTrades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld closed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыто: %lld"
+          }
+        }
+      }
+    },
+    "toolbar.connectionAge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · age %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · возраст %2$@"
+          }
+        }
+      }
+    },
+    "toolbar.day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ %3$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %3$@ %2$@"
           }
         }
       }
@@ -11114,6 +11182,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Демо-день: только придуманный день. Чтобы выбрать другой день, выключите его в Настройках › Основные."
+          }
+        }
+      }
+    },
+    "toolbar.hideSidebar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide Sidebar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрыть боковую панель"
           }
         }
       }
@@ -11199,6 +11284,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Предыдущий торговый день (⌘[)"
+          }
+        }
+      }
+    },
+    "toolbar.showSidebar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Sidebar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать боковую панель"
           }
         }
       }
@@ -11303,6 +11405,40 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "toolbar.windowLineSection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %1$@ — %2$@ — %3$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %1$@ — %2$@ — %3$@"
+          }
+        }
+      }
+    },
+    "toolbar.windowLineSectionOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %1$@ — %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %1$@ — %2$@"
           }
         }
       }

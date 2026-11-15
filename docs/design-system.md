@@ -45,7 +45,8 @@ contrast on `surface` in both appearances.
 | `textPrimary` | Headlines, primary values | `#0E1430` | `#E7EAF6` |
 | `textSecondary` | Body text in rows and lists | `#262F52` | `#C9CFE6` |
 | `textTertiary` | Labels next to values, explanations | `#475174` | `#A9B2D3` |
-| `textQuaternary` | Section labels, captions, "—" | `#5F6A8C` | `#8F99BC` |
+| `textQuaternary` | Captions, hints, "—" | `#5F6A8C` | `#8F99BC` |
+| `textLabel` | Uppercase section labels: `CardLabel`, card headers, metric names (the boards' `.lbl`); 4.6:1 on `surface` | `#6A7495` | `#8F99BC` |
 | `accent` / `accentText` | Live, brand, running bot, focus | `#0EA5A0` / `#0B766F` | `#2DD4BF` / `#5EEAD4` |
 | `profit` / `profitText` | Gains, verified stop, healthy | `#10B981` / `#047857` | `#34D399` / `#6EE7B7` |
 | `loss` / `lossText` | Losses, missing stop, alarm, destructive | `#EF4444` / `#B91C1C` | `#F87171` / `#FCA5A5` |
@@ -107,8 +108,9 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `body` / `bodyMono` | `.body` | Values in rows |
 | `callout` / `calloutMono` | `.callout` | Labels, explanations |
 | `caption` / `captionMono` | `.caption` | Secondary notes |
-| `subheadlineMono` | `.subheadline` mono | A detail line under a figure or beside a symbol (menu-bar panel) |
+| `subheadlineMono` | `.subheadline` mono | A detail line under a figure or beside a symbol (menu-bar panel); the Mac title bar's connection status |
 | `headingMono` | `.title3` mono | A symbol heading a compact row (menu-bar panel positions) |
+| `dayStepper` | 11.5 pt mono | The Mac title bar's day stepper |
 | `label` | 11 pt semibold mono, uppercase, tracking 0.8 | Card section labels |
 | `badge` | 10.5 pt bold mono, tracking 0.6 | Badges and tags |
 | `annotation` / `annotationBold` | 10.5 pt mono | Chart axes, ticker, pipeline values |
@@ -237,7 +239,7 @@ profit factor with 2 decimals, win rate and confidence in whole percents.
 | Card | `tickrCard()` + `CardLabel` | `surface` (`surfaceSunken` for the Mac journal's console), `Radius.card` (iOS) or `Radius.large` (Mac), `Space.l` padding, `separator` border; light mode adds `shadow`. Cards sharing a grid row are one height (`filling()` on the Mac); in a row of a set height a card scrolls under its header when its content is taller (`ScrollsWhenTall`) |
 | Card grid (Mac) | `Grid` of cards | Fills the window's width: equal columns of at least `Size.gridColumnMin`, `Space.l` apart; a narrower window stacks into fewer columns |
 | Overview grid (Mac) | `WeightedColumns` | As the Main board: Live flow across the width; Watching closely, Positions, Safety with the bot at 1 : 1.4 : 1 in a 298-point row (cards scroll inside). The "Safety · bot" card has the bot's state pill in its header, the safety facts as `surfaceSunken` tiles in two columns (compact glyph, name in `caption`, value in `annotation` in its tone), then every command as small labelled buttons in two columns; the tiles scroll when the card is short, the commands never do; Risk room, Observers, the journal at 1 : 1 : 1.4 filling the rest of the window's height (at least 150 points). Below a 1040-point screen: Positions across, then the cards in two equal columns |
-| Section label | `CardLabel` | `Typography.label`, uppercase, `textQuaternary` |
+| Section label | `CardLabel` | `Typography.label`, uppercase, `textLabel` |
 | Stat row | label … value | label `callout` `textTertiary`, value `bodyMono` |
 | Badge | `Badge` (TickrDesign) | A fact (exit reason, environment, version): `Typography.badge`, tone text colour, `Opacity.wash` fill, `Opacity.border` stroke, `Radius.small`; `planned:` draws it dashed |
 | Command button | bot controls | `ActionButtonStyle` below |

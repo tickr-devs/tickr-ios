@@ -142,8 +142,12 @@ public enum Tokens {
     public static let captionMono = Font.caption.monospaced()
     /// A symbol heading a compact row (the menu-bar panel's positions).
     public static let headingMono = Font.title3.monospaced()
-    /// A detail line under a figure or beside a symbol (trades and room, a size in shares).
+    /// A detail line under a figure or beside a symbol (trades and room, a size in shares); the Mac
+    /// title bar's connection status (11 points on the Mac).
     public static let subheadlineMono = Font.subheadline.monospaced()
+    /// The Mac title bar's day stepper: the shown day in 11.5-point mono.
+    public static let dayStepperSize: CGFloat = 11.5
+    public static let dayStepper = Font.system(size: dayStepperSize, design: .monospaced)
   }
 
   /// Line widths, in points.

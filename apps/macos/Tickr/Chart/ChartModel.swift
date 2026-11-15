@@ -24,6 +24,9 @@ final class ChartModel {
   private(set) var decisionsError: String?
   /// The Chart shows a symbol; without one there are no decisions to ask the bot for.
   var hasSymbol = false
+  /// The symbol, range and interval the chart shows, for the title bar's line; nil until a
+  /// symbol has something to show.
+  var shown: Shown?
   /// Counts the reads that brought different bars; a plot built from an older count is stale.
   @ObservationIgnored private(set) var revision = 0
   /// The last plot built, reused while the bars and the timeframe stay the same.
@@ -131,5 +134,13 @@ final class ChartModel {
     error = nil
     decisions = nil
     decisionsError = nil
+    shown = nil
+  }
+
+  /// What the chart shows: a symbol over a range in candles of an interval.
+  struct Shown: Equatable {
+    let symbol: String
+    let range: ChartRange
+    let interval: Timeframe
   }
 }
