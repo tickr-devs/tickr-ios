@@ -164,11 +164,12 @@ struct ActivityView: View {
       switch section {
       case .trades:
         if let status {
-          TradesList(positions: status.positions,
+          TradesList(activity: activity, url: model.connection.url, positions: status.positions,
             trades: status.tradesToday.map { TradeLine($0, recorded: activity.session?.trades ?? []) },
             empty: (L10n.Activity.noTrades, L10n.Activity.noTradesBody))
         } else {
-          TradesList(positions: [], trades: activity.day?.trades.map(TradeLine.init) ?? [],
+          TradesList(activity: activity, url: model.connection.url, positions: [],
+            trades: activity.day?.trades.map(TradeLine.init) ?? [],
             empty: (L10n.Activity.noTradesThatDay, L10n.Activity.noTradesThatDayBody))
         }
       case .skipped:
@@ -486,7 +487,7 @@ extension DayFigures {
 #endif
 
 /// A closed trade as a row shows it, from today's status or from a recorded day.
-private struct TradeLine {
+private struct TradeLine: Identifiable {
   let symbol: String
   let openedAt: Date
   let closedAt: Date
@@ -544,6 +545,11 @@ private struct TradeLine {
     pricesAfter = trade.pricesAfter
   }
 
+  /// One trade per symbol and opening time.
+  var id: String { symbol + Format.separator + openedAt.formatted(.iso8601) }
+  /// The New York day the trade opened, which the what-if replays.
+  var day: WireDate { WireDate(newYorkDateOf: openedAt) }
+
   /// "stop confirmed in 1.4 s · MAE −12.00 · MFE +30.00 (at least)", or nil with neither: what
   /// VoiceOver reads for the row's metric chips.
   var metrics: String? {
@@ -568,6 +574,8 @@ private struct TradesList: View {
   static let maeSymbol = "arrow.down"
   static let mfeSymbol = "arrow.up"
   static let openSymbol = "circle.fill"
+  /// Symbol of a closed trade's "Another strategy" button.
+  static let anotherSymbol = "arrow.triangle.branch"
 
   /// One figure of a row: a symbol, the figure and its hint.
   struct Figure: Identifiable {
@@ -578,10 +586,15 @@ private struct TradesList: View {
     var id: String { symbol }
   }
 
+  let activity: ActivityModel
+  let url: URL?
   let positions: [Position]
   let trades: [TradeLine]
   /// Title and text shown when there is nothing to list.
   let empty: (title: LocalizedStringResource, body: LocalizedStringResource)
+
+  /// The closed trade whose "Another strategy" sheet is open.
+  @State private var another: TradeLine?
 
   var body: some View {
     let sorted = trades.sorted { $0.closedAt > $1.closedAt }
@@ -605,7 +618,8 @@ private struct TradesList: View {
           tagSymbol: Board.exitReasonSymbol(trade.exitReason),
           tone: Tone.result(trade.result),
           result: Money.signed(trade.result),
-          figures: figures(trade), metrics: metrics(trade), metricsText: trade.metrics, after: trade.pricesAfter)
+          figures: figures(trade), metrics: metrics(trade), metricsText: trade.metrics, after: trade.pricesAfter,
+          another: url == nil ? nil : trade)
           .rise(step: ActivityView.Order.list.rawValue + index)
       }
       if trades.isEmpty && positions.isEmpty {
@@ -616,6 +630,25 @@ private struct TradesList: View {
         }
       }
     }
+    .sheet(item: $another) { trade in
+      if let url {
+        AnotherStrategySheet(activity: activity, url: url, symbol: trade.symbol, day: trade.day,
+          botR: trade.resultR, botUsd: trade.result)
+      }
+    }
+  }
+
+  /// The button that opens "Another strategy" on a closed trade.
+  private func anotherButton(_ trade: TradeLine) -> some View {
+    Button {
+      another = trade
+    } label: {
+      Image(systemName: Self.anotherSymbol)
+        .foregroundStyle(Tone.highlight.text)
+    }
+    .buttonStyle(.borderless)
+    // The row is one VoiceOver element and offers this as its named action instead.
+    .accessibilityHidden(true)
   }
 
   /// Quantity, entry to exit, and the result in R.
@@ -672,7 +705,7 @@ private struct TradesList: View {
   private func row(
     symbol: String, time: String, tag: String, tagSymbol: String, tone: Tone, result: String,
     figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil,
-    after: [PriceAfterV1] = []
+    after: [PriceAfterV1] = [], another: TradeLine? = nil
   ) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // One line while it fits; at large text sizes the symbol and result keep a line of their own
@@ -684,12 +717,14 @@ private struct TradesList: View {
           Spacer(minLength: Tokens.Space.s)
           StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
           resultText(result, tone: tone)
+          if let another { anotherButton(another) }
         }
         VStack(alignment: .leading, spacing: Tokens.Space.xs) {
           HStack(spacing: Tokens.Space.s) {
             headerText(symbol)
             Spacer(minLength: Tokens.Space.s)
             resultText(result, tone: tone)
+            if let another { anotherButton(another) }
           }
           ChipFlow {
             timeText(time)
@@ -698,7 +733,11 @@ private struct TradesList: View {
         }
         // The largest sizes: the result ("53 @ 24.69") gets a line of its own too.
         VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-          headerText(symbol)
+          HStack(spacing: Tokens.Space.s) {
+            headerText(symbol)
+            Spacer(minLength: Tokens.Space.s)
+            if let another { anotherButton(another) }
+          }
           resultText(result, tone: tone)
           ChipFlow {
             timeText(time)
@@ -728,6 +767,15 @@ private struct TradesList: View {
     .padding(.vertical, Tokens.Space.m)
     .tickrCard(radius: Tokens.Radius.card)
     .accessibilityElement(children: .combine)
+    .accessibilityActions {
+      if let another {
+        Button {
+          self.another = another
+        } label: {
+          Text(L10n.Activity.anotherHelp)
+        }
+      }
+    }
   }
 
   /// A row of figure chips that wraps on a narrow screen.

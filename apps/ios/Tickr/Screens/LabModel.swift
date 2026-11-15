@@ -16,8 +16,8 @@ final class LabModel {
   private(set) var refusalsDay: WireDate?
   /// Why they could not be read, if they could not.
   private(set) var refusalsFailure: String?
-  /// The Lab's simulated replay of the active strategy over the recent sessions (GET /lab/replay),
-  /// read while the Lab is open.
+  /// The Lab's simulated replay of a strategy version over the recent sessions or one day, maybe
+  /// compared with a second version (GET /lab/replay), read while the Lab is open.
   private(set) var replay: LabReplayV1?
   /// Why it could not be read, if it could not.
   private(set) var replayFailure: String?
@@ -116,14 +116,15 @@ final class LabModel {
     }
   }
 
-  /// Start the replay once; a refusal (a run going, the session open, no data) is kept as the
-  /// reason, never retried.
-  func startReplay(_ url: URL) async {
+  /// Start the replay once: strategy folder `version` (the active one when nil), then `compare`
+  /// over the same window, over the last sessions or over `day` only. A refusal (a run going, the
+  /// session open, no data, a choice the bot does not offer) is kept as the reason, never retried.
+  func startReplay(_ url: URL, version: String? = nil, compare: String? = nil, day: WireDate? = nil) async {
     resetReplay(for: url)
     replayStarting = true
     defer { replayStarting = false }
     do {
-      let started = try await client(url).startLabReplay()
+      let started = try await client(url).startLabReplay(version: version, compare: compare, day: day)
       guard url == replaySource else { return }
       replay = started
       replayFailure = nil

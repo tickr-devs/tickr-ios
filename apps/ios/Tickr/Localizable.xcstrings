@@ -103,6 +103,142 @@
         }
       }
     },
+    "activity.anotherBot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот"
+          }
+        }
+      }
+    },
+    "activity.anotherHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another strategy on this trade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другая стратегия на этой сделке"
+          }
+        }
+      }
+    },
+    "activity.anotherLeg" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ → %2$@ · %3$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ → %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "activity.anotherNoEntry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entry that day: its rules never said enter."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В тот день входа не было: правила версии ни разу не сказали «вход»."
+          }
+        }
+      }
+    },
+    "activity.anotherNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simulated on that day's captured bars with the version's own stop, exit and size, gross before fees. Outside the session only."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Симуляция на сохранённых барах того дня со своим стопом, выходом и размером версии, до комиссий. Только вне сессии."
+          }
+        }
+      }
+    },
+    "activity.anotherNoVersions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No strategy version to replay: the bot lists none."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет версий для прогона: бот не прислал ни одной."
+          }
+        }
+      }
+    },
+    "activity.anotherSignals" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries: %1$lld filled · %2$lld missed the window · %3$lld too late · %4$lld while in a trade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы: исполнено %1$lld · мимо окна %2$lld · слишком поздно %3$lld · во время сделки %4$lld"
+          }
+        }
+      }
+    },
+    "activity.anotherTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If another version traded %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если бы %@ торговала другая версия"
+          }
+        }
+      }
+    },
     "activity.backToToday" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4918,6 +5054,57 @@
         }
       }
     },
+    "lab.replayCompare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compare with"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сравнить с"
+          }
+        }
+      }
+    },
+    "lab.replayCompareFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ was not replayed: %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ не прогнана: %2$@"
+          }
+        }
+      }
+    },
+    "lab.replayCompareNone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No comparison"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без сравнения"
+          }
+        }
+      }
+    },
     "lab.replayData" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4931,6 +5118,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Данные %@ – %@, сессий: %lld · кончаются %@"
+          }
+        }
+      }
+    },
+    "lab.replayDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "День"
+          }
+        }
+      }
+    },
+    "lab.replayDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дни"
+          }
+        }
+      }
+    },
+    "lab.replayDifference" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difference"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разница"
           }
         }
       }
@@ -5003,6 +5241,35 @@
         }
       }
     },
+    "lab.replayLastSessions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Last %lld session"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Last %lld sessions"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние сессии: %lld"
+          }
+        }
+      }
+    },
     "lab.replayMaxDrawdown" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5037,19 +5304,70 @@
         }
       }
     },
+    "lab.replayMeanRPerTrade" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mean R per trade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "средний R на сделку"
+          }
+        }
+      }
+    },
     "lab.replayNote" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Replays the active strategy over the data fetched on the Mac. Simulated: the bot never reads it."
+            "value" : "Replays a strategy version over the data fetched on the Mac. Simulated: the bot never reads it."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Прогоняет активную стратегию по данным, загруженным на Mac. Это симуляция: бот её не читает."
+            "value" : "Прогоняет версию стратегии по данным, скачанным на Mac. Это симуляция: бот её не читает."
+          }
+        }
+      }
+    },
+    "lab.replayOneDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Один день"
+          }
+        }
+      }
+    },
+    "lab.replayOneDayNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ only: one day proves nothing, read it as an example."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только %@: один день ничего не доказывает, это пример."
           }
         }
       }
@@ -5139,6 +5457,23 @@
         }
       }
     },
+    "lab.replayStartCompare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run and Compare"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогнать и сравнить"
+          }
+        }
+      }
+    },
     "lab.replayState.done" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5207,6 +5542,23 @@
         }
       }
     },
+    "lab.replayThen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Then %@, over the same days"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затем %@, по тем же дням"
+          }
+        }
+      }
+    },
     "lab.replayTrades" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5220,6 +5572,69 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сделки"
+          }
+        }
+      }
+    },
+    "lab.replayTradesAndUsd" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld trade · %2$@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld trades · %2$@"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "сделок: %1$lld · %2$@"
+          }
+        }
+      }
+    },
+    "lab.replayVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия"
+          }
+        }
+      }
+    },
+    "lab.replayVersus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "против"
           }
         }
       }
@@ -5271,6 +5686,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Результат"
+          }
+        }
+      }
+    },
+    "lab.roleActive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "active"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "активная"
+          }
+        }
+      }
+    },
+    "lab.roleCandidate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "candidate"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "кандидат"
+          }
+        }
+      }
+    },
+    "lab.roleObserver" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "observer"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "наблюдатель"
           }
         }
       }
@@ -5343,6 +5809,23 @@
         }
       }
     },
+    "lab.versionName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ v%2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ v%2$@"
+          }
+        }
+      }
+    },
     "lab.versions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5356,6 +5839,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сегодня, если бы торговала каждая версия"
+          }
+        }
+      }
+    },
+    "lab.versionWithRole" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
           }
         }
       }

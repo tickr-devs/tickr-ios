@@ -61,6 +61,29 @@ final class ActivityModel {
     Container.shared.apiClient(Container.shared.appModel().connection.endpoint(for: url))
   }
 
+  /// The strategy versions the bot can replay on a closed trade (from GET /lab/replay), ones that
+  /// do not trade first.
+  func replayableVersions(_ url: URL) async -> Result<[LabVersionV1], WhatIfFailure> {
+    do {
+      let all = try await client(url).labReplay().versions.filter { $0.cause == nil }
+      return .success(all.filter { $0.role != .active } + all.filter { $0.role == .active })
+    } catch {
+      return .failure(WhatIfFailure(cause: ErrorText.text(error)))
+    }
+  }
+
+  /// What strategy folder `version` would have done on `symbol`'s `day` (GET /trades/whatif,
+  /// simulated). A refusal (the session is open) or a failed read is its reason as sent.
+  func whatIf(_ url: URL, symbol: String, day: WireDate, version: String) async -> Result<TradeWhatIfV1, WhatIfFailure> {
+    do {
+      return .success(try await client(url).tradeWhatIf(symbol: symbol, day: day, version: version))
+    } catch APIError.refused(_, _, let cause) {
+      return .failure(WhatIfFailure(cause: cause))
+    } catch {
+      return .failure(WhatIfFailure(cause: ErrorText.text(error)))
+    }
+  }
+
   /// List the recorded days for the calendar.
   /// A different address than before drops the past day chosen on the other Mac.
   func loadDays(_ url: URL) async {
@@ -153,4 +176,10 @@ final class ActivityModel {
     latestRequest += 1
     return latestRequest
   }
+}
+
+/// Why a what-if of another version could not be shown: the bot's refusal or a failed read, as
+/// sent.
+struct WhatIfFailure: Error, Equatable {
+  let cause: String
 }

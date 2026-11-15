@@ -788,6 +788,47 @@ enum L10n {
     static var nothingYet: LocalizedStringResource {
       LocalizedStringResource("activity.nothingYet", defaultValue: "Nothing recorded yet today.", bundle: L10n.bundle)
     }
+    /// Button on a closed trade that opens what another version would have done.
+    static var anotherHelp: LocalizedStringResource {
+      LocalizedStringResource("activity.anotherHelp", defaultValue: "Another strategy on this trade", bundle: L10n.bundle)
+    }
+    /// Title of the Another strategy sheet.
+    static func anotherTitle(_ symbol: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.anotherTitle", defaultValue: "If another version traded \(symbol)", bundle: L10n.bundle)
+    }
+    /// The bot offers no version to replay.
+    static var anotherNoVersions: LocalizedStringResource {
+      LocalizedStringResource("activity.anotherNoVersions",
+        defaultValue: "No strategy version to replay: the bot lists none.",
+        bundle: L10n.bundle)
+    }
+    /// Row of what the bot did.
+    static var anotherBot: LocalizedStringResource {
+      LocalizedStringResource("activity.anotherBot", defaultValue: "The bot", bundle: L10n.bundle)
+    }
+    /// What the sheet's numbers are.
+    static var anotherNote: LocalizedStringResource {
+      LocalizedStringResource("activity.anotherNote",
+        // swiftlint:disable:next line_length
+        defaultValue: "Simulated on that day's captured bars with the version's own stop, exit and size, gross before fees. Outside the session only.",
+        bundle: L10n.bundle)
+    }
+    /// One simulated trade: its times and how it ended.
+    static func anotherLeg(_ opened: String, _ closed: String, _ exit: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.anotherLeg", defaultValue: "\(opened) → \(closed) · \(exit)", bundle: L10n.bundle)
+    }
+    /// The version decided no entry that day.
+    static var anotherNoEntry: LocalizedStringResource {
+      LocalizedStringResource("activity.anotherNoEntry",
+        defaultValue: "No entry that day: its rules never said enter.",
+        bundle: L10n.bundle)
+    }
+    /// What became of the version's entries.
+    static func anotherSignals(_ filled: Int, _ missed: Int, _ late: Int, _ busy: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.anotherSignals",
+        defaultValue: "Entries: \(filled) filled · \(missed) missed the window · \(late) too late · \(busy) while in a trade",
+        bundle: L10n.bundle)
+    }
   }
 
   /// Refusal causes in words (src/tickr/risk/causes.py). A code the app does not know is shown
@@ -986,7 +1027,7 @@ enum L10n {
     /// What the replay is.
     static var replayNote: LocalizedStringResource {
       LocalizedStringResource("lab.replayNote",
-        defaultValue: "Replays the active strategy over the data fetched on the Mac. Simulated: the bot never reads it.",
+        defaultValue: "Replays a strategy version over the data fetched on the Mac. Simulated: the bot never reads it.",
         bundle: L10n.bundle)
     }
     /// Replay states on the card's pill.
@@ -1064,6 +1105,88 @@ enum L10n {
     }
     static func failed(_ cause: String) -> LocalizedStringResource {
       LocalizedStringResource("lab.failed", defaultValue: "Couldn't read the observers: \(cause)", bundle: L10n.bundle)
+    }
+    /// Button that starts a replay of two versions.
+    static var replayStartCompare: LocalizedStringResource {
+      LocalizedStringResource("lab.replayStartCompare", defaultValue: "Run and Compare", bundle: L10n.bundle)
+    }
+    /// Picker of the version to replay.
+    static var replayVersion: LocalizedStringResource {
+      LocalizedStringResource("lab.replayVersion", defaultValue: "Version", bundle: L10n.bundle)
+    }
+    /// Between the two versions of a comparison.
+    static var replayVersus: LocalizedStringResource {
+      LocalizedStringResource("lab.replayVersus", defaultValue: "vs", bundle: L10n.bundle)
+    }
+    /// Picker of the second version.
+    static var replayCompare: LocalizedStringResource {
+      LocalizedStringResource("lab.replayCompare", defaultValue: "Compare with", bundle: L10n.bundle)
+    }
+    /// No second version.
+    static var replayCompareNone: LocalizedStringResource {
+      LocalizedStringResource("lab.replayCompareNone", defaultValue: "No comparison", bundle: L10n.bundle)
+    }
+    /// Picker of the replayed days.
+    static var replayDays: LocalizedStringResource {
+      LocalizedStringResource("lab.replayDays", defaultValue: "Days", bundle: L10n.bundle)
+    }
+    /// Replay over the last sessions, with their number.
+    static func replayLastSessions(_ sessions: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayLastSessions", defaultValue: "Last \(sessions) sessions", bundle: L10n.bundle)
+    }
+    /// Replay over one chosen day.
+    static var replayOneDay: LocalizedStringResource {
+      LocalizedStringResource("lab.replayOneDay", defaultValue: "One day", bundle: L10n.bundle)
+    }
+    /// Picker of the one day.
+    static var replayDay: LocalizedStringResource {
+      LocalizedStringResource("lab.replayDay", defaultValue: "Day", bundle: L10n.bundle)
+    }
+    /// A strategy version: name and version.
+    static func versionName(_ name: String, _ version: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.versionName", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
+    }
+    /// A version with its role.
+    static func versionWithRole(_ name: String, _ role: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.versionWithRole", defaultValue: "\(name) · \(role)", bundle: L10n.bundle)
+    }
+    /// Role of the version that trades.
+    static var roleActive: LocalizedStringResource {
+      LocalizedStringResource("lab.roleActive", defaultValue: "active", bundle: L10n.bundle)
+    }
+    /// Role of a shadow version.
+    static var roleObserver: LocalizedStringResource {
+      LocalizedStringResource("lab.roleObserver", defaultValue: "observer", bundle: L10n.bundle)
+    }
+    /// Role of a version that is neither.
+    static var roleCandidate: LocalizedStringResource {
+      LocalizedStringResource("lab.roleCandidate", defaultValue: "candidate", bundle: L10n.bundle)
+    }
+    /// Under a one-day replay.
+    static func replayOneDayNote(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayOneDayNote",
+        defaultValue: "\(day) only: one day proves nothing, read it as an example.",
+        bundle: L10n.bundle)
+    }
+    /// Under a running comparison: the second version, replayed once the first ends.
+    static func replayThen(_ name: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayThen", defaultValue: "Then \(name), over the same days", bundle: L10n.bundle)
+    }
+    /// Second version minus the first.
+    static var replayDifference: LocalizedStringResource {
+      LocalizedStringResource("lab.replayDifference", defaultValue: "Difference", bundle: L10n.bundle)
+    }
+    /// Under the difference.
+    static var replayMeanRPerTrade: LocalizedStringResource {
+      LocalizedStringResource("lab.replayMeanRPerTrade", defaultValue: "mean R per trade", bundle: L10n.bundle)
+    }
+    /// A version's trades and its result with the bot's limits.
+    static func replayTradesAndUsd(_ trades: Int, _ usd: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayTradesAndUsd", defaultValue: "\(trades) trades · \(usd)", bundle: L10n.bundle)
+    }
+    /// The second version could not be replayed.
+    static func replayCompareFailed(_ name: String, _ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayCompareFailed", defaultValue: "\(name) was not replayed: \(cause)", bundle: L10n.bundle)
     }
   }
 
