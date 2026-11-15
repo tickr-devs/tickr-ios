@@ -264,10 +264,11 @@ struct CandleChart: View {
           }
         }
       }
+      // Each tag is found by its own place on the scale, which no other tag shares.
       AxisMarks(position: .trailing, values: tags.map(\.shownAt)) { value in
         AxisValueLabel {
-          if tags.indices.contains(value.index) {
-            priceTag(tags[value.index])
+          if let place = value.as(Double.self), let tag = tags.first(where: { $0.shownAt == place }) {
+            priceTag(tag)
           }
         }
       }
@@ -711,31 +712,37 @@ struct CandleChart: View {
     let fill: Color
     /// Where on the scale the tag is drawn: at `price`, or pinned to the top or bottom edge of
     /// the price area when `price` is off it, and pushed clear of the other tags
-    /// (`PriceTagPlacement`).
+    /// (`PriceTagPlacement`). No two tags share it.
     let shownAt: Double
   }
 
-  /// Each entry and stop on the chart (the trades' and the open position's), then the last close,
-  /// placed inside the price area of `scale` and apart from each other.
+  /// The last close, then the open position's stop and entry, then each trade's stop and entry,
+  /// latest opened first: the order in which tags are kept when the price area is too short for
+  /// all of them. Placed inside the price area of `scale` and apart from each other; a tag that
+  /// does not fit is left out.
   private func priceTags(_ scale: PriceScale) -> [PriceTag] {
     var tags: [(price: Double, fill: Color)] = []
-    var levels = trades.map { (ChartFormat.double($0.entryPrice), $0.stopPrice.map(ChartFormat.double), true) }
-    if let position {
-      levels.append((ChartFormat.double(position.entryPrice), position.stop.price.map(ChartFormat.double),
-        position.stop.state.isProtected))
-    }
-    for (entry, stop, protected) in levels {
-      tags.append((entry, Palette.info))
-      if let stop { tags.append((stop, Self.stopColour(protected: protected))) }
-    }
     if let last = series.candles.last {
       tags.append((last.close, last.isUp ? Palette.profit : Palette.loss))
+    }
+    var levels = trades.sorted { $0.openedAt.date > $1.openedAt.date }.map {
+      (ChartFormat.double($0.entryPrice), $0.stopPrice.map(ChartFormat.double), true)
+    }
+    if let position {
+      levels.insert((ChartFormat.double(position.entryPrice), position.stop.price.map(ChartFormat.double),
+        position.stop.state.isProtected), at: 0)
+    }
+    for (entry, stop, protected) in levels {
+      if let stop { tags.append((stop, Self.stopColour(protected: protected))) }
+      tags.append((entry, Palette.info))
     }
     // The price area is above the volume bars; half a tag's room keeps the whole tag inside it
     // and a whole one keeps two tags apart.
     let area = (scale.volumeBase + scale.volumeHeight)...scale.domain.upperBound
     let shown = PriceTagPlacement.positions(of: tags.map(\.price), in: area, halfHeight: tagClearance(scale) / 2)
-    return zip(tags, shown).map { PriceTag(price: $0.price, fill: $0.fill, shownAt: $1) }
+    return zip(tags, shown).compactMap { tag, place in
+      place.map { PriceTag(price: tag.price, fill: tag.fill, shownAt: $0) }
+    }
   }
 
   private func priceTag(_ tag: PriceTag) -> some View {
