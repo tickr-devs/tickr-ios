@@ -36,13 +36,20 @@ public struct RefusalCause: Hashable, Sendable {
   public let code: String
   /// What follows the code; empty when nothing does.
   public let detail: String
+  /// The window the refusal covers, when the bot sent it structured (`RefusalV1`); a pause after
+  /// a loss has both ends.
+  public let since: Date?
+  public let until: Date?
 
   /// Between the code and the detail.
   public static let separator = ": "
   /// Punctuation that may follow a time inside a detail ("…16:26:30+00:00;").
   static let trailing: Set<Character> = [";", ",", ")", "."]
 
-  public init(_ text: String) {
+  /// `text` is "CODE: detail"; `refusal`, the same refusal structured, lends its window.
+  public init(_ text: String, refusal: RefusalV1? = nil) {
+    since = refusal?.since?.date
+    until = refusal?.until?.date
     if let range = text.range(of: Self.separator) {
       code = String(text[..<range.lowerBound])
       detail = String(text[range.upperBound...])
@@ -62,6 +69,7 @@ public struct RefusalCause: Hashable, Sendable {
 
   /// A pause after a loss: when the losing trade closed and when entries may resume.
   public var cooldown: (loss: Date, until: Date)? {
+    if known == .cooldown, let since, let until { return (since, until) }
     let times = self.times
     guard known == .cooldown, let loss = times.first, let until = times.last, times.count > 1 else { return nil }
     return (loss, until)
@@ -102,8 +110,8 @@ public struct SkippedGroup: Hashable, Sendable, Identifiable {
   /// The latest signal's cause, nil when it was not refused: its "CODE: detail" text (which holds
   /// the times), else its structured refusal as "CODE: message".
   public var cause: RefusalCause? {
-    latest.refusalCause.map(RefusalCause.init)
-      ?? latest.refusal.map { RefusalCause($0.code + RefusalCause.separator + $0.message) }
+    latest.refusalCause.map { RefusalCause($0, refusal: latest.refusal) }
+      ?? latest.refusal.map { RefusalCause($0.code + RefusalCause.separator + $0.message, refusal: $0) }
   }
 
   /// `signals` as GET /skipped serves them (oldest first), grouped and listed newest first. A
@@ -152,7 +160,7 @@ public struct RefusalCount: Hashable, Sendable, Identifiable {
       let text = signal.refusal.map { $0.code + RefusalCause.separator + $0.message } ?? signal.refusalCause
       let code = SkippedGroup.code(signal)
       counts[code, default: 0] += 1
-      if let code, let text, first[code] == nil { first[code] = RefusalCause(text) }
+      if let code, let text, first[code] == nil { first[code] = RefusalCause(text, refusal: signal.refusal) }
     }
     return counts.map { code, count in RefusalCount(cause: code.flatMap { first[$0] }, count: count) }
       .sorted { $0.count != $1.count ? $0.count > $1.count : $0.id < $1.id }

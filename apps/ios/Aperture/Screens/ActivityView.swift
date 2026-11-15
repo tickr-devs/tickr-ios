@@ -698,6 +698,10 @@ private struct CauseText: View {
         } else if !cause.detail.isEmpty {
           Text(verbatim: cause.readable(time: Format.time))
         }
+        // A refusal that ends at a known time (sent structured) says when entries may resume.
+        if cause.cooldown == nil, let until = cause.until {
+          Text(L10n.Cause.until(Format.time(until)))
+        }
       }
       .font(Tokens.Typography.annotation)
       .foregroundStyle(Palette.textQuaternary)

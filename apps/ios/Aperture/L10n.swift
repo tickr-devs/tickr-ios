@@ -694,6 +694,9 @@ enum L10n {
   /// Refusal causes in words (src/aperture/risk/causes.py). A code the app does not know is shown
   /// as the bot wrote it.
   enum Cause {
+    static func until(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("cause.until", defaultValue: "until \(time)", bundle: L10n.bundle)
+    }
     /// What the rule behind `code` is.
     static func title(_ code: RefusalCode) -> LocalizedStringResource {
       switch code {

@@ -1361,6 +1361,23 @@
         }
       }
     },
+    "cause.until" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "until %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "до %@"
+          }
+        }
+      }
+    },
     "chart.axis.line" : {
       "extractionState" : "manual",
       "localizations" : {

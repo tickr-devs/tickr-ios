@@ -117,4 +117,23 @@ struct SkippedGroupsTests {
     #expect(counts.map(\.cause?.code) == ["SYMBOL_COOLDOWN", nil, "QUOTE_STALE"])
     #expect(counts.map(\.count) == [2, 1, 1])
   }
+
+  @Test("A structured refusal lends its window: the cooldown and its end come from since and until")
+  func window() throws {
+    let json = """
+      {"at": "2026-11-13T16:30:00.000Z", "symbol": "MVLD", "strategy": {"name": "price-action", "version": "2"},
+       "admission": "refused", "refusal_cause": "SYMBOL_COOLDOWN: MVLD closed at a loss",
+       "refusal": {"code": "SYMBOL_COOLDOWN", "message": "MVLD closed at a loss",
+                   "since": "2026-11-13T16:26:30.000Z", "until": "2026-11-13T16:56:30.000Z"},
+       "entry_price": null, "stop_price": null, "checks": [],
+       "prices_after": [], "prices_after_cause": "none",
+       "what_if": {"result_gross_usd": null, "result_r": null, "exit_reason": null, "cause": "none"}}
+      """
+    let signal = try Wire.decoder().decode(SkippedSignalV1.self, from: Data(json.utf8))
+    let cause = try #require(SkippedGroup.make([signal]).first?.cause)
+    let pause = try #require(cause.cooldown)
+    #expect(pause.until.timeIntervalSince(pause.loss) == 1_800)
+    #expect(cause.until == pause.until)
+    #expect(RefusalCount.make([signal]).first?.cause?.until == pause.until)
+  }
 }
