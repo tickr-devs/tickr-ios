@@ -2,10 +2,10 @@ import SwiftUI
 
 /// The macOS app's opening (macOS has no launch screen): the first window of a launch opens on the
 /// plain background with the mark in its centre, the line draws itself, then the mark flies to the
-/// header's mark (`target`, on screen) over the still plain background; only then does the
-/// background fade and the screen show through, the mark giving way to the header's own. The mark
-/// follows the header's mark wherever it moves until the opening is over, so it never lands beside it. It starts
-/// when the window is on screen and in front (key or active), or after `openingWaitSeconds` at the
+/// header's mark (`target`, on screen) while the background fades and the screen shows through
+/// under it; as it lands the header's own mark (hidden until then) takes its place. The mark
+/// follows the header's mark wherever it moves until the opening is over, so it never lands
+/// beside it. It starts when the window is on screen and in front (key or active), or after `openingWaitSeconds` at the
 /// latest, so a window opened in the background is never left covered. Under Reduce Motion it only
 /// cross-fades. Design: the "Бренд Tickr" board, "macOS opening".
 public struct BrandOpening: View {
@@ -53,7 +53,8 @@ public struct BrandOpening: View {
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(Palette.background)
+      // The screen fades in under the mark while it flies.
+      .background(Palette.background.opacity(flown ? 0 : 1))
       .opacity(faded ? 0 : 1)
     }
     .onGeometryChange(for: CGPoint.self) { $0.frame(in: .global).origin } action: { origin = $0 }
@@ -100,7 +101,13 @@ public struct BrandOpening: View {
       finished()
       return
     }
-    withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
+    // Landed on the header's mark, which shows from this frame on (it stays hidden while the
+    // opening plays), so there is never a second mark. With no header on screen it fades out.
+    if target == nil {
+      withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
+    } else {
+      finished()
+    }
   }
 }
 

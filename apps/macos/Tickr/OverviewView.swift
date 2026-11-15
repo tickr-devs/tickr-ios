@@ -108,6 +108,8 @@ private struct Header: View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
       // Drawn at once while the opening flies the mark here; it draws itself on later visits.
       BrandMark(live: model.isCurrent, drawsIn: model.openingPlayed)
+        // Hidden while the launch's opening flies its own mark here; shown as that one lands.
+        .opacity(model.openingPlayed ? 1 : 0)
         .onGeometryChange(for: CGPoint.self) { proxy in
           let frame = proxy.frame(in: .global)
           return CGPoint(x: frame.midX, y: frame.midY)
