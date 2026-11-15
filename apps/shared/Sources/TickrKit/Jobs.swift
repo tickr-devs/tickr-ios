@@ -31,6 +31,38 @@ public struct ReconcileJobV1: Codable, Hashable, Sendable {
   }
 }
 
+/// The nightly fetch of market data for the Lab's replay: when it last finished, the last day it
+/// holds and how many new sessions it added, or why it did not run or stopped.
+public struct NightlyFetchJobV1: Codable, Hashable, Sendable {
+  public let finishedAt: WireTime?
+  public let lastDay: WireDate?
+  public let newSessions: Int?
+  public let cause: String?
+
+  enum CodingKeys: String, CodingKey {
+    case cause
+    case finishedAt = "finished_at"
+    case lastDay = "last_day"
+    case newSessions = "new_sessions"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    finishedAt = try c.decodeNullable(WireTime.self, forKey: .finishedAt)
+    lastDay = try c.decodeNullable(WireDate.self, forKey: .lastDay)
+    newSessions = try c.decodeNullable(Int.self, forKey: .newSessions)
+    cause = try c.decodeNullable(String.self, forKey: .cause)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encodeNullable(finishedAt, forKey: .finishedAt)
+    try c.encodeNullable(lastDay, forKey: .lastDay)
+    try c.encodeNullable(newSessions, forKey: .newSessions)
+    try c.encodeNullable(cause, forKey: .cause)
+  }
+}
+
 /// The database backup: the last good one, the last failure with its error, or why neither is known.
 public struct BackupJobV1: Codable, Hashable, Sendable {
   public let lastAt: WireTime?
@@ -105,6 +137,8 @@ public struct JobsV1: Codable, Hashable, Sendable {
   /// Nil with `sessionCause` on a day with no session (a weekend, a holiday).
   public let session: SessionTimesV1?
   public let sessionCause: String?
+  /// The nightly market-data fetch for the Lab's replay.
+  public let nightlyFetch: NightlyFetchJobV1
   public let apiVersion: Int
 
   enum CodingKeys: String, CodingKey {
@@ -114,6 +148,7 @@ public struct JobsV1: Codable, Hashable, Sendable {
     case statusStale = "status_stale"
     case botStartedAt = "bot_started_at"
     case sessionCause = "session_cause"
+    case nightlyFetch = "nightly_fetch"
     case apiVersion = "api_version"
   }
 
@@ -129,6 +164,7 @@ public struct JobsV1: Codable, Hashable, Sendable {
     launchd = try c.decode([LaunchdJobV1].self, forKey: .launchd)
     session = try c.decodeNullable(SessionTimesV1.self, forKey: .session)
     sessionCause = try c.decodeNullable(String.self, forKey: .sessionCause)
+    nightlyFetch = try c.decode(NightlyFetchJobV1.self, forKey: .nightlyFetch)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -142,6 +178,7 @@ public struct JobsV1: Codable, Hashable, Sendable {
     try c.encode(launchd, forKey: .launchd)
     try c.encodeNullable(session, forKey: .session)
     try c.encodeNullable(sessionCause, forKey: .sessionCause)
+    try c.encode(nightlyFetch, forKey: .nightlyFetch)
     try c.encode(apiVersion, forKey: .apiVersion)
   }
 }
