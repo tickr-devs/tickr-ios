@@ -246,7 +246,9 @@ public struct Marquee<Row: View>: View {
   @Environment(\.locale) private var locale
   @Environment(\.dynamicTypeSize) private var typeSize
   @Environment(\.colorSchemeContrast) private var contrast
-  @State private var picture: CGImage?
+  @State private var picture: [CGImage] = []
+  /// Width of the live row, in points: what the picture's tiles cover.
+  @State private var rowWidth: CGFloat = 0
   let moving: Bool
   /// What the row shows; a change draws the picture again.
   let content: AnyHashable
@@ -271,16 +273,18 @@ public struct Marquee<Row: View>: View {
     let locale: Locale
     let typeSize: DynamicTypeSize
     let contrast: ColorSchemeContrast
+    let width: CGFloat
   }
 
   public var body: some View {
     Group {
       if moving && !reduceMotion {
         ZStack(alignment: .leading) {
-          // The live row, invisible: it gives the strip its height.
+          // The live row, invisible: it gives the strip its height and the picture its width.
           row.fixedSize().hidden()
-          if let picture {
-            MarqueeLayer(image: picture, scale: displayScale, speed: speed)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { rowWidth = $0 }
+          if !picture.isEmpty {
+            MarqueeLayer(tiles: picture, scale: displayScale, speed: speed)
               .accessibilityRepresentation { row }
           }
         }
@@ -303,7 +307,7 @@ public struct Marquee<Row: View>: View {
   private var pictureKey: PictureKey {
     PictureKey(
       content: content, scheme: colorScheme, scale: displayScale, locale: locale, typeSize: typeSize,
-      contrast: contrast)
+      contrast: contrast, width: rowWidth)
   }
 
   /// Draws the row into the picture the layer scrolls. A renderer does not inherit the screen's
@@ -311,13 +315,45 @@ public struct Marquee<Row: View>: View {
   /// set on a view (it is read-only), so a change of it only redraws; the palette has one value
   /// per appearance.
   private func draw() {
-    let renderer = ImageRenderer(
-      content: row.fixedSize()
-        .environment(\.colorScheme, colorScheme)
+    picture = MarqueeTiles.render(
+      row.environment(\.colorScheme, colorScheme)
         .environment(\.locale, locale)
-        .environment(\.dynamicTypeSize, typeSize))
-    renderer.scale = displayScale
-    picture = renderer.cgImage
+        .environment(\.dynamicTypeSize, typeSize),
+      width: rowWidth, scale: displayScale)
+  }
+}
+
+/// A long row drawn as several pictures side by side. A renderer draws a picture wider than its
+/// largest texture as blank (an iPhone's ticker at @3x passed 8,192 pixels and showed nothing,
+/// 2026-11-15), so no tile is wider than `maxPixels`.
+enum MarqueeTiles {
+  /// Widest tile, in pixels: well under the 8,192-pixel texture limit a renderer met on iPhone.
+  static let maxPixels: CGFloat = 4096
+
+  /// Where each tile starts in the row and how wide it is, in points. Every tile but the last is
+  /// a whole number of points, so the tiles meet on pixel edges at any whole display scale.
+  static func spans(width: CGFloat, scale: CGFloat) -> [(x: CGFloat, width: CGFloat)] {
+    guard width > 0, scale > 0 else { return [] }
+    let step = max(1, (maxPixels / scale).rounded(.down))
+    return stride(from: 0, to: width, by: step).map { x in (x: x, width: min(step, width - x)) }
+  }
+
+  /// The row (laid out at its ideal size) as tiles at `scale` pixels per point, left to right.
+  /// Empty when the row has no width yet or a tile could not be drawn.
+  @MainActor
+  static func render(_ row: some View, width: CGFloat, scale: CGFloat) -> [CGImage] {
+    var tiles: [CGImage] = []
+    for span in spans(width: width, scale: scale) {
+      let renderer = ImageRenderer(
+        content: row.fixedSize()
+          .offset(x: -span.x)
+          .frame(width: span.width, alignment: .leading)
+          .clipped())
+      renderer.scale = scale
+      guard let tile = renderer.cgImage else { return [] }
+      tiles.append(tile)
+    }
+    return tiles
   }
 }
 

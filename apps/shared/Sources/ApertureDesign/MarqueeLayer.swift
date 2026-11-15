@@ -10,16 +10,21 @@ import AppKit
 /// Animation. The render server moves it: the app's main thread and SwiftUI do no work per frame,
 /// where a SwiftUI-driven offset (or a TimelineView) recomputed the strip, and with it the screen
 /// around it, on every display frame (Instruments, 2026-11-15).
+///
+/// The picture comes in tiles laid left to right (`MarqueeTiles`): one picture of a long row is
+/// wider than a renderer can draw, and comes out blank.
 struct MarqueeLayer {
-  /// The row as an image, at `scale` pixels per point.
-  let image: CGImage
+  /// The row as images laid side by side, at `scale` pixels per point.
+  let tiles: [CGImage]
   let scale: CGFloat
   /// Points per second.
   let speed: Double
 
   /// Size of the row in points.
   var size: CGSize {
-    CGSize(width: CGFloat(image.width) / scale, height: CGFloat(image.height) / scale)
+    CGSize(
+      width: tiles.reduce(0) { $0 + CGFloat($1.width) } / scale,
+      height: CGFloat(tiles.map(\.height).max() ?? 0) / scale)
   }
 }
 
@@ -41,7 +46,6 @@ final class MarqueeLayerView: PlatformView {
     wantsLayer = true
     #endif
     for copy in [first, second] {
-      copy.contentsGravity = .resize
       strip.addSublayer(copy)
     }
     hostLayer.addSublayer(strip)
@@ -66,15 +70,29 @@ final class MarqueeLayerView: PlatformView {
     CATransaction.begin()
     CATransaction.setDisableActions(true)
     for (index, copy) in [first, second].enumerated() {
-      copy.contents = marquee.image
-      copy.contentsScale = marquee.scale
       copy.frame = CGRect(x: size.width * CGFloat(index), y: 0, width: size.width, height: size.height)
+      copy.sublayers = Self.tileLayers(marquee)
     }
     strip.frame = CGRect(x: 0, y: 0, width: size.width + size.width, height: size.height)
     CATransaction.commit()
     let restart = shown.map { $0.size.width != size.width || $0.speed != marquee.speed } ?? true
     shown = marquee
     if restart || strip.animation(forKey: Self.animationKey) == nil { scroll(width: size.width, speed: marquee.speed) }
+  }
+
+  /// One layer per tile, each at its place in the row.
+  private static func tileLayers(_ marquee: MarqueeLayer) -> [CALayer] {
+    var x: CGFloat = 0
+    return marquee.tiles.map { image in
+      let tile = CALayer()
+      tile.contents = image
+      tile.contentsScale = marquee.scale
+      tile.contentsGravity = .resize
+      let width = CGFloat(image.width) / marquee.scale
+      tile.frame = CGRect(x: x, y: 0, width: width, height: CGFloat(image.height) / marquee.scale)
+      x += width
+      return tile
+    }
   }
 
   private func scroll(width: CGFloat, speed: Double) {
