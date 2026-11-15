@@ -52,6 +52,15 @@ import Testing
     }
   }
 
+  @Test func wrongShapeAtTheTop() {
+    do {
+      _ = try Wire.decoder().decode(StatusV1.self, from: Data("[]".utf8))
+      Issue.record("a list decoded as a status")
+    } catch {
+      #expect(Wire.detail(error) == "the answer has the wrong shape")
+    }
+  }
+
   @Test func pathNamesArrayElementsByIndex() {
     struct Key: CodingKey {
       var stringValue: String

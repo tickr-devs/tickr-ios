@@ -261,6 +261,11 @@ enum L10n {
   static var notJSON: LocalizedStringResource {
     LocalizedStringResource("kit.wire.notJSON", defaultValue: "the answer is not valid JSON", bundle: bundle)
   }
+  /// Contract error detail: the answer is JSON, but not an object of the kind asked for
+  /// (for example a list where one record was expected).
+  static var wrongShape: LocalizedStringResource {
+    LocalizedStringResource("kit.wire.wrongShape", defaultValue: "the answer has the wrong shape", bundle: bundle)
+  }
   /// Contract error detail; arguments: version key, version received, version this app reads.
   static func unsupportedVersion(_ key: String, _ value: Int, _ expected: Int) -> LocalizedStringResource {
     LocalizedStringResource("kit.wire.unsupportedVersion",

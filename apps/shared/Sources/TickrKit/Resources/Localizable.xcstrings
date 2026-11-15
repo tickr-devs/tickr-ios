@@ -4577,6 +4577,23 @@
           }
         }
       }
+    },
+    "kit.wire.wrongShape" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the answer has the wrong shape"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ответ неожиданной формы"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
