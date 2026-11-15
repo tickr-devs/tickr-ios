@@ -290,7 +290,12 @@ struct StopGlyph: View {
       live: !state.isProtected, event: read, style: .compact)
   }
 
-  private var glyph: String {
+  private var glyph: String { Self.stateSymbol(state) }
+
+  private var tone: Tone { Self.stateTone(state) }
+
+  /// The symbol of a stop state: a checked shield, an hourglass, a crossed or an exclaimed shield.
+  static func stateSymbol(_ state: StopState) -> String {
     switch state {
     case .verified: return Self.verifiedSymbol
     case .pending: return Self.pendingSymbol
@@ -299,7 +304,8 @@ struct StopGlyph: View {
     }
   }
 
-  private var tone: Tone {
+  /// The tone of a stop state: green verified, amber pending, red missing or unknown.
+  static func stateTone(_ state: StopState) -> Tone {
     switch state {
     case .verified: return .profit
     case .pending: return .warning

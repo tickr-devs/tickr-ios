@@ -224,8 +224,9 @@ still reads it. Every control takes a `Tone`.
 | `IconToolbar` | A row of icon buttons | Sunken capsule, `separatorStrong` border |
 | `.buttonStyle(.chip(selected:))` | One of a few choices side by side (position tabs) | `Typography.chip`, `Radius.small`; selected: tone wash and border |
 | `StateGlyph` | A state without a word (stop verified, paused, stream fresh, gate closed) | SF Symbol on a `Size.glyph` tile in the tone, `Opacity.glow` fill; `live` pulses the outline (`Motion.glyphPulseScale`) |
-| `StatusPill` | A state that needs its word (bot running) | Capsule, `PulseDot` (pulsing while live), `Typography.badge` uppercase |
-| `IconMetric` | A figure named by a symbol (entry, stop, quantity, time) | Symbol in the tone, `Typography.chipValue` figure, sunken `Radius.medium` chip; the name is its hint |
+| `StatusPill` | A state that needs its word (bot running, an exit reason) | Capsule, `PulseDot` (one pulse per `event` while live) or a `systemImage` in its place, `Typography.badge` uppercase |
+| `IconMetric` | A figure named by a symbol (entry, stop, quantity, time) | Symbol in the tone, `Typography.chipValue` figure, sunken `Radius.medium` chip; the name is its hint. `compact`: a `Radius.small` chip that fits its figure (`captionMono`), in rows under a list item |
+| `ChipFlow` | A row of chips under a list item | Layout that wraps chips onto new lines (`Space.xs` apart) instead of clipping on a narrow phone or at large Dynamic Type |
 | `MetricChip` | A figure whose label must stay visible | Uppercase `label`, `chipValue` figure, unit in `captionMono`, tone rail on the leading edge |
 | `DeltaTag` | A money change | Triangle up or down, signed figure, `Tone.result` wash |
 | `MeterBar` | A share of a whole, a price between two levels | `Size.bar` capsule track, glowing gradient fill that grows on appear (`Motion.fill`), optional `MeterMark` figures under it |

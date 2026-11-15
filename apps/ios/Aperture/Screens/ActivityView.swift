@@ -502,7 +502,8 @@ private struct TradeLine {
     mfe = trade.mfeUsd?.value
   }
 
-  /// "stop confirmed in 1.4 s · MAE −12.00 · MFE +30.00 (at least)", or nil with neither.
+  /// "stop confirmed in 1.4 s · MAE −12.00 · MFE +30.00 (at least)", or nil with neither: what
+  /// VoiceOver reads for the row's metric chips.
   var metrics: String? {
     var parts: [String] = []
     if let stopAfter {
@@ -516,6 +517,25 @@ private struct TradeLine {
 }
 
 private struct TradesList: View {
+  /// Symbols of a trade's figures.
+  static let quantitySymbol = "number"
+  static let entrySymbol = "arrow.right.to.line"
+  static let entryExitSymbol = "arrow.right"
+  static let resultRSymbol = "scalemass"
+  static let stopSymbol = "checkmark.shield"
+  static let maeSymbol = "arrow.down"
+  static let mfeSymbol = "arrow.up"
+  static let openSymbol = "circle.fill"
+
+  /// One figure of a row: a symbol, the figure and its hint.
+  struct Figure: Identifiable {
+    let symbol: String
+    let label: LocalizedStringResource
+    let value: String
+    var tone: Tone?
+    var id: String { symbol }
+  }
+
   let positions: [Position]
   let trades: [TradeLine]
   /// Title and text shown when there is nothing to list.
@@ -525,24 +545,25 @@ private struct TradesList: View {
     let sorted = trades.sorted { $0.closedAt > $1.closedAt }
     VStack(spacing: Tokens.Space.s) {
       ForEach(positions, id: \.symbol) { position in
+        let state = position.stop.state
         row(symbol: position.symbol, time: String(localized: L10n.Activity.openSince(Format.time(position.openedAt.date))),
-          tag: String(localized: L10n.Activity.openTag),
-          color: Palette.accentText,
+          tag: String(localized: L10n.Activity.openTag), tagSymbol: Self.openSymbol, tone: .accent,
           result: String(localized: L10n.Common.quantityAt(position.quantity.text, position.entryPrice.text)),
-          detail: String(localized: L10n.Activity.stopDetail(position.stop.price?.text ?? Format.missing,
-            Board.stopStateTitle(position.stop.state))))
+          figures: [
+            Figure(symbol: StopGlyph.stateSymbol(state), label: L10n.Activity.hintStop,
+              value: position.stop.price?.text ?? Format.missing, tone: StopGlyph.stateTone(state)),
+          ],
+          stopState: state)
           .rise(step: ActivityView.Order.list.rawValue)
       }
       ForEach(Array(sorted.enumerated()), id: \.offset) { index, trade in
-        let detail = String(localized: L10n.Common.quantityAt(trade.quantity, trade.entryPrice))
-          + Format.arrow + trade.exitPrice
         row(symbol: trade.symbol,
           time: Format.time(trade.openedAt) + Format.timeRange + Format.time(trade.closedAt),
           tag: Board.exitReasonTitle(trade.exitReason).uppercased(),
-          color: Palette.result(trade.result),
+          tagSymbol: Board.exitReasonSymbol(trade.exitReason),
+          tone: Tone.result(trade.result),
           result: Money.signed(trade.result),
-          detail: trade.resultR.map { detail + Format.separator + Risk.text($0) } ?? detail,
-          metrics: trade.metrics)
+          figures: figures(trade), metrics: metrics(trade), metricsText: trade.metrics)
           .rise(step: ActivityView.Order.list.rawValue + index)
       }
       if trades.isEmpty && positions.isEmpty {
@@ -555,39 +576,78 @@ private struct TradesList: View {
     }
   }
 
-  private func row(symbol: String, time: String, tag: String, color: Color, result: String, detail: String,
-    metrics: String? = nil) -> some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+  /// Quantity, entry to exit, and the result in R.
+  private func figures(_ trade: TradeLine) -> [Figure] {
+    var list = [
+      Figure(symbol: Self.quantitySymbol, label: L10n.Activity.hintQuantity, value: trade.quantity),
+      Figure(symbol: Self.entryExitSymbol, label: L10n.Activity.hintEntryExit,
+        value: trade.entryPrice + Format.arrow + trade.exitPrice),
+    ]
+    if let r = trade.resultR {
+      list.append(Figure(symbol: Self.resultRSymbol, label: L10n.Activity.hintResultR, value: Risk.text(r),
+        tone: Tone.result(trade.result)))
+    }
+    return list
+  }
+
+  /// Seconds to the confirmed stop, MAE and MFE, when recorded.
+  private func metrics(_ trade: TradeLine) -> [Figure] {
+    var list: [Figure] = []
+    if let after = trade.stopAfter {
+      list.append(Figure(symbol: Self.stopSymbol, label: L10n.Activity.hintStopAfter,
+        value: String(localized: L10n.Risk.seconds(Money.plain(after, fractionDigits: 1))), tone: .profit))
+    }
+    if let mae = trade.mae, let mfe = trade.mfe {
+      list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signed(mae), tone: .loss))
+      list.append(Figure(symbol: Self.mfeSymbol, label: L10n.Activity.hintMfe, value: Money.signed(mfe), tone: .profit))
+    }
+    return list
+  }
+
+  private func row(symbol: String, time: String, tag: String, tagSymbol: String, tone: Tone, result: String,
+    figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
       HStack(spacing: Tokens.Space.s) {
         Text(verbatim: symbol).font(Tokens.Typography.calloutMono.bold())
         Text(verbatim: time).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
         Spacer()
-        Text(verbatim: tag)
-          .font(Tokens.Typography.annotation)
-          .padding(.horizontal, Tokens.Space.s)
-          .padding(.vertical, Tokens.Space.xxs)
-          .foregroundStyle(color)
-          .background(color.opacity(Tokens.Opacity.glow), in: Capsule())
+        StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
         Text(verbatim: result)
           .font(Tokens.Typography.calloutMono.bold())
-          .foregroundStyle(color)
+          .foregroundStyle(tone.text)
       }
-      Text(verbatim: detail)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-      if let metrics {
-        // One line: "(at least)" belongs with the MFE it qualifies.
-        Text(verbatim: metrics)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .lineLimit(1)
-          .minimumScaleFactor(StatTile.minimumScale)
+      ChipFlow {
+        chipViews(figures)
+        // An open position's stop state in words, so pending, missing and unknown never look alike.
+        if let stopState {
+          StatusPill(verbatim: Board.stopStateTitle(stopState), systemImage: StopGlyph.stateSymbol(stopState),
+            tone: StopGlyph.stateTone(stopState))
+            .hint(L10n.Activity.hintStop)
+        }
+      }
+      if !metrics.isEmpty {
+        // VoiceOver reads the sentence ("stop confirmed in 1.4 s · MAE … (at least)").
+        chips(metrics)
+          .accessibilityElement(children: .ignore)
+          .accessibilityLabel(Text(verbatim: metricsText ?? ""))
       }
     }
     .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.m)
     .apertureCard(radius: Tokens.Radius.card)
     .accessibilityElement(children: .combine)
+  }
+
+  /// A row of figure chips that wraps on a narrow screen.
+  private func chips(_ figures: [Figure]) -> some View {
+    ChipFlow { chipViews(figures) }
+  }
+
+  private func chipViews(_ figures: [Figure]) -> some View {
+    ForEach(figures) { figure in
+      IconMetric(figure.symbol, label: figure.label, value: figure.value, tone: figure.tone,
+        color: figure.tone?.text, compact: true)
+    }
   }
 }
 
@@ -632,6 +692,11 @@ private struct NotTaken: View {
 }
 
 private struct SkippedRow: View {
+  /// Symbols of a refusal, a signal made too late, and the time.
+  static let refusedSymbol = "hand.raised.fill"
+  static let tooLateSymbol = "hourglass"
+  static let whenSymbol = "clock"
+
   let group: SkippedGroup
 
   private var refused: Bool { group.latest.admission == .refused }
@@ -651,24 +716,28 @@ private struct SkippedRow: View {
         Text(verbatim: signal.symbol)
           .font(Tokens.Typography.bodyMono.bold())
           .foregroundStyle(Palette.textPrimary)
-        Text(refused ? L10n.Activity.refusedTag : L10n.Activity.tooLateTag)
-          .font(Tokens.Typography.annotationBold)
-          .padding(.horizontal, Tokens.Space.s)
-          .padding(.vertical, Tokens.Space.xxs)
-          .foregroundStyle(refused ? Palette.warningText : Palette.textTertiary)
-          .background((refused ? Palette.warning : Palette.textTertiary).opacity(Tokens.Opacity.wash), in: Capsule())
+        StatusPill(refused ? L10n.Activity.refusedTag : L10n.Activity.tooLateTag,
+          systemImage: refused ? Self.refusedSymbol : Self.tooLateSymbol, tone: refused ? .warning : .neutral)
         Spacer()
-        Text(verbatim: when)
+        Label { Text(verbatim: when) } icon: { Image(systemName: Self.whenSymbol) }
+          .labelStyle(ControlLabelStyle())
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
+          .hint(L10n.Activity.hintWhen)
       }
       if let cause = group.cause {
         CauseText(cause: cause)
       }
-      Text(L10n.Activity.whatIf(signal.entryPrice.map { Money.price($0.value) } ?? Format.missing,
-        signal.stopPrice.map { Money.price($0.value) } ?? Format.missing))
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textQuaternary)
+      ChipFlow {
+        Badge(L10n.Activity.whatIfTag, tone: .highlight, planned: true)
+        IconMetric(TradesList.entrySymbol, label: L10n.Activity.hintWhatIfEntry,
+          value: signal.entryPrice.map { Money.price($0.value) } ?? Format.missing, compact: true)
+        IconMetric(TradesList.stopSymbol, label: L10n.Activity.hintWhatIfStop,
+          value: signal.stopPrice.map { Money.price($0.value) } ?? Format.missing, compact: true)
+      }
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(Text(L10n.Activity.whatIf(signal.entryPrice.map { Money.price($0.value) } ?? Format.missing,
+        signal.stopPrice.map { Money.price($0.value) } ?? Format.missing)))
     }
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)

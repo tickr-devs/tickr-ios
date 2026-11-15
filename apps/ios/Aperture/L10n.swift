@@ -562,6 +562,42 @@ enum L10n {
   }
 
   enum Activity {
+    static var hintQuantity: LocalizedStringResource {
+      LocalizedStringResource("activity.hintQuantity", defaultValue: "Quantity", bundle: L10n.bundle)
+    }
+    static var hintEntryExit: LocalizedStringResource {
+      LocalizedStringResource("activity.hintEntryExit", defaultValue: "Entry → exit", bundle: L10n.bundle)
+    }
+    static var hintResultR: LocalizedStringResource {
+      LocalizedStringResource("activity.hintResultR", defaultValue: "Result in R", bundle: L10n.bundle)
+    }
+    static var hintStopAfter: LocalizedStringResource {
+      LocalizedStringResource("activity.hintStopAfter", defaultValue: "Stop confirmed after the fill", bundle: L10n.bundle)
+    }
+    static var hintMae: LocalizedStringResource {
+      LocalizedStringResource("activity.hintMae", defaultValue: "MAE: worst move against, at least", bundle: L10n.bundle)
+    }
+    static var hintMfe: LocalizedStringResource {
+      LocalizedStringResource("activity.hintMfe", defaultValue: "MFE: best move in favour, at least", bundle: L10n.bundle)
+    }
+    static var hintWhatIfEntry: LocalizedStringResource {
+      LocalizedStringResource("activity.hintWhatIfEntry", defaultValue: "What-if entry", bundle: L10n.bundle)
+    }
+    static var hintWhatIfStop: LocalizedStringResource {
+      LocalizedStringResource("activity.hintWhatIfStop", defaultValue: "What-if stop", bundle: L10n.bundle)
+    }
+    static var hintWhen: LocalizedStringResource {
+      LocalizedStringResource("activity.hintWhen", defaultValue: "When, and how many times", bundle: L10n.bundle)
+    }
+    static var hintStop: LocalizedStringResource {
+      LocalizedStringResource("activity.hintStop", defaultValue: "Broker stop", bundle: L10n.bundle)
+    }
+    static var hintEntry: LocalizedStringResource {
+      LocalizedStringResource("activity.hintEntry", defaultValue: "Entry", bundle: L10n.bundle)
+    }
+    static var whatIfTag: LocalizedStringResource {
+      LocalizedStringResource("activity.whatIfTag", defaultValue: "what-if", bundle: L10n.bundle)
+    }
     static var calendar: LocalizedStringResource {
       LocalizedStringResource("activity.calendar", defaultValue: "Calendar", bundle: L10n.bundle)
     }

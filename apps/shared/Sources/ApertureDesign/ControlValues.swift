@@ -120,39 +120,45 @@ public extension ValueRow where Value == Text {
 }
 
 /// A figure with a symbol in front instead of a label: "→| 131.42", "⛨ 129.80". The label is the
-/// tooltip and what VoiceOver reads.
+/// tooltip and what VoiceOver reads. `compact` draws it as a small chip that fits its content, for
+/// a row of figures under a list item.
 public struct IconMetric: View {
   let systemImage: String
   let label: Text
   let value: String
   let tone: Tone?
   let color: Color
+  let compact: Bool
 
-  public init(_ systemImage: String, label: LocalizedStringResource, value: String, tone: Tone? = nil, color: Color? = nil) {
+  public init(
+    _ systemImage: String, label: LocalizedStringResource, value: String, tone: Tone? = nil, color: Color? = nil,
+    compact: Bool = false
+  ) {
     self.systemImage = systemImage
     self.label = Text(label)
     self.value = value
     self.tone = tone
     self.color = color ?? Palette.textPrimary
+    self.compact = compact
   }
 
   public var body: some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-    HStack(spacing: Tokens.Space.s) {
+    let shape = RoundedRectangle(cornerRadius: compact ? Tokens.Radius.small : Tokens.Radius.medium, style: .continuous)
+    HStack(spacing: compact ? Tokens.Space.xs : Tokens.Space.s) {
       Image(systemName: systemImage)
-        .font(Tokens.Typography.caption.weight(.semibold))
+        .font((compact ? Tokens.Typography.annotation : Tokens.Typography.caption).weight(.semibold))
         .foregroundStyle(tone?.fill ?? Palette.textQuaternary)
         .accessibilityHidden(true)
       Text(verbatim: value)
-        .font(Tokens.Typography.chipValue)
+        .font(compact ? Tokens.Typography.captionMono : Tokens.Typography.chipValue)
         .foregroundStyle(color)
         .lineLimit(1)
         .minimumScaleFactor(ControlMetrics.minimumScale)
         .contentTransition(.numericText())
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.horizontal, Tokens.Space.s)
-    .padding(.vertical, Tokens.Space.s)
+    .frame(maxWidth: compact ? nil : .infinity, alignment: .leading)
+    .padding(.horizontal, compact ? Tokens.Space.xs + Tokens.Space.xxs : Tokens.Space.s)
+    .padding(.vertical, compact ? Tokens.Space.xxs : Tokens.Space.s)
     .background(Palette.surfaceSunken, in: shape)
     .overlay(shape.strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
     .hint(label)

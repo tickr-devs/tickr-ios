@@ -10,9 +10,19 @@ public struct StatusPill: View {
   let tone: Tone
   let live: Bool
   let event: AnyHashable?
+  let systemImage: String?
 
   public init(_ title: LocalizedStringResource, tone: Tone, live: Bool = false, event: AnyHashable? = nil) {
     self.init(Text(title), tone: tone, live: live, event: event)
+  }
+
+  /// A state with a symbol in place of the dot: an exit reason, a refusal.
+  public init(verbatim title: String, systemImage: String, tone: Tone) {
+    self.init(Text(verbatim: title), tone: tone, systemImage: systemImage)
+  }
+
+  public init(_ title: LocalizedStringResource, systemImage: String, tone: Tone) {
+    self.init(Text(title), tone: tone, systemImage: systemImage)
   }
 
   /// A state word that is already localized, or data (an environment name).
@@ -20,16 +30,21 @@ public struct StatusPill: View {
     self.init(Text(verbatim: title), tone: tone, live: live, event: event)
   }
 
-  public init(_ title: Text, tone: Tone, live: Bool = false, event: AnyHashable? = nil) {
+  public init(_ title: Text, tone: Tone, live: Bool = false, event: AnyHashable? = nil, systemImage: String? = nil) {
     self.title = title
     self.tone = tone
     self.live = live
     self.event = event
+    self.systemImage = systemImage
   }
 
   public var body: some View {
     HStack(spacing: Tokens.Space.xs) {
-      PulseDot(tone.fill, size: Tokens.Size.dotSmall, pulsing: live, event: event)
+      if let systemImage {
+        Image(systemName: systemImage).font(Tokens.Typography.badge).accessibilityHidden(true)
+      } else {
+        PulseDot(tone.fill, size: Tokens.Size.dotSmall, pulsing: live, event: event)
+      }
       title
         .textCase(.uppercase)
         .font(Tokens.Typography.badge)
