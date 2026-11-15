@@ -40,6 +40,10 @@ final class AppModel {
   private(set) var account: AccountResponseV1?
   /// Why the broker read could not be fetched, if it could not.
   private(set) var accountError: String?
+  /// Today's live flow (GET /flow): stage counts and stops, read while Home is on screen.
+  private(set) var flow: FlowV1?
+  /// Why the flow could not be read, if it could not.
+  private(set) var flowError: String?
   private(set) var sending = false
   var notice: Notice?
   var selectedTab: AppTab = .home
@@ -61,6 +65,8 @@ final class AppModel {
   static let initialPollSeconds = 3.0
   /// Shortest wait between two reads, whatever the server asks for.
   static let minimumPollSeconds = 1.0
+  /// Seconds between two reads of the live flow (screener passes and decisions change it).
+  static let flowSeconds = 15.0
   /// A change of the bot's clock offset smaller than this (network delay) is ignored, in seconds.
   static let clockToleranceSeconds: TimeInterval = 2
 
@@ -118,6 +124,8 @@ final class AppModel {
     settingsError = nil
     account = nil
     accountError = nil
+    flow = nil
+    flowError = nil
     start()
   }
 
@@ -182,6 +190,34 @@ final class AppModel {
       let seconds = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
         ?? Self.initialPollSeconds
       try? await Task.sleep(for: .seconds(max(seconds, Self.minimumPollSeconds)))
+    }
+  }
+
+  /// Reads today's live flow; the answer is dropped when the address or the day changed meanwhile.
+  func refreshFlow() async {
+    guard let url = connection.url else { return }
+    let day = today
+    do {
+      let read = try await Container.shared.apiClient(connection.endpoint(for: url)).flow(day: day)
+      guard connection.url == url, day == today else { return }
+      flow = read
+      flowError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      // Old counts prove nothing about the day now.
+      if connection.url == url {
+        flow = nil
+        flowError = Self.describe(error)
+      }
+    }
+  }
+
+  /// Reads today's live flow every `flowSeconds` until cancelled; used while Home is on screen.
+  func followFlow() async {
+    while !Task.isCancelled {
+      await refreshFlow()
+      try? await Task.sleep(for: .seconds(Self.flowSeconds))
     }
   }
 

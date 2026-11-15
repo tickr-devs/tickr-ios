@@ -42,7 +42,8 @@ struct HomeView: View {
             .apertureCard()
             .rise(step: Order.positions.rawValue)
         }
-        LiveFlowCard(status: status, maxPositions: model.settings?.risk.maxOpenPositions,
+        LiveFlowCard(status: status, flow: model.flow?.day == model.today ? model.flow : nil,
+          maxPositions: model.settings?.risk.maxOpenPositions,
           current: model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today)
           .rise(step: Order.flow.rawValue)
       }
@@ -71,6 +72,7 @@ struct HomeView: View {
     }
     .botControl(isPresented: $showControl)
     .refreshable { await model.refreshAll() }
+    .task(id: model.connection.url) { await model.followFlow() }
     .task(id: followKey) {
       guard let url = model.connection.url, let status = model.status, !status.positions.isEmpty else { return }
       await prices.follow(url, status: status)
@@ -258,6 +260,8 @@ private struct PositionRow: View {
 /// Tapping it opens Risk (the room and why entries are blocked).
 private struct LiveFlowCard: View {
   let status: StatusV1
+  /// Today's flow: stage counts and the day's stops; nil until read.
+  let flow: FlowV1?
   let maxPositions: Int?
   /// The status is fresh and describes today's session.
   let current: Bool
@@ -276,25 +280,41 @@ private struct LiveFlowCard: View {
   private var stages: [Stage] {
     let positions = status.positions
     let verified = positions.filter { $0.stop.state.isProtected }.count
-    let allProtected = verified == positions.count
+    // Green only while every open position's stop, and every stop of the day's trades the flow
+    // knows, is verified at the broker.
+    let flowVerified = flow?.stops.filter { $0.state == .verified }.count
+    let allProtected = verified == positions.count && flowVerified == flow?.stops.count
     guard current else {
       // Nothing here is live: no counts, no green, nothing breathing.
       return [StageID.screen, .stocks, .strategy, .risk, .order, .stop].map { id in
         Stage(id: id, name: Self.names[id.rawValue], value: nil, color: Palette.textQuaternary)
       }
     }
+    // An open position waiting for its stop shows first; then the day's stops from the flow.
+    let stops: String? = if verified < positions.count || flow?.stops.isEmpty != false {
+      positions.isEmpty ? nil : String(localized: L10n.Flow.stopsVerified(verified, positions.count))
+    } else {
+      flow.map { String(localized: L10n.Flow.stopsVerified(flowVerified ?? 0, $0.stops.count)) }
+    }
     return [
-      Stage(id: .screen, name: L10n.Flow.screen, value: nil, color: Palette.accent),
-      Stage(id: .stocks, name: L10n.Flow.stocks, value: nil, color: Palette.seriesUniverse),
-      Stage(id: .strategy, name: L10n.Flow.strategy, value: status.strategy.version, color: Palette.highlight),
+      Stage(id: .screen, name: L10n.Flow.screen, value: count(.screeners), color: Palette.accent),
+      Stage(id: .stocks, name: L10n.Flow.stocks, value: count(.universe), color: Palette.seriesUniverse),
+      Stage(id: .strategy, name: L10n.Flow.strategy, value: count(.strategy) ?? status.strategy.version,
+        color: Palette.highlight),
       Stage(id: .risk, name: L10n.Flow.risk,
-        value: status.entriesAllowed ? RiskFormat.amount(status.dailyRoomUsd?.value) : String(localized: L10n.Flow.blocked),
+        value: status.entriesAllowed
+          ? count(.risk) ?? RiskFormat.amount(status.dailyRoomUsd?.value) : String(localized: L10n.Flow.blocked),
         color: status.entriesAllowed ? Palette.warning : Palette.loss),
-      Stage(id: .order, name: L10n.Flow.order, value: String(status.tradesToday.count), color: Palette.info),
-      Stage(id: .stop, name: L10n.Flow.stop,
-        value: positions.isEmpty ? Format.missing : String(localized: L10n.Flow.stopsVerified(verified, positions.count)),
+      Stage(id: .order, name: L10n.Flow.order, value: count(.order) ?? String(status.tradesToday.count),
+        color: Palette.info),
+      Stage(id: .stop, name: L10n.Flow.stop, value: stops ?? Format.missing,
         color: allProtected ? Palette.profit : Palette.loss),
     ]
+  }
+
+  /// How many symbols reached `stage` today; nil until the flow is read.
+  private func count(_ stage: FlowStage) -> String? {
+    flow?.stages.first { $0.stage == stage }.map { String($0.count) }
   }
 
   var body: some View {
