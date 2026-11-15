@@ -38,25 +38,27 @@ struct ChartPlot: Sendable {
     let series = ChartSeries(bars: bars, timeframe: timeframe)
     self.init(
       series: series, atr: ChartSeries.atr(bars: bars, timeframe: timeframe), starts: series.candles.map(\.start),
-      range: .oneDay, revision: revision)
+      studies: CandleStudies(candles: series.candles), range: .oneDay, revision: revision)
   }
 
-  /// Candles of a GET /chart answer, back to back.
-  init(chart: ChartV1, revision: Int) {
-    let real = ChartSeries(chart: chart)
+  /// Candles of a GET /chart answer, back to back, their lines and studies warmed up on the
+  /// earlier candles of `warmup` (`WarmChart`).
+  init(chart: ChartV1, warmup: ChartV1? = nil, revision: Int) {
+    let warm = WarmChart(chart: chart, warmup: warmup)
     self.init(
-      series: real.gapless(), atr: ChartSeries.atr(candles: real.candles), starts: real.candles.map(\.start),
+      series: warm.series.gapless(), atr: warm.atr, starts: warm.series.candles.map(\.start), studies: warm.studies,
       range: chart.range, revision: revision)
   }
 
-  private init(series: ChartSeries, atr: [Double?], starts: [Date], range: ChartRange, revision: Int) {
+  private init(
+    series: ChartSeries, atr: [Double?], starts: [Date], studies: CandleStudies, range: ChartRange, revision: Int
+  ) {
     self.revision = revision
     self.range = range
     self.series = series
     self.atr = atr
     self.starts = starts
     axisMarks = range == .oneDay ? [] : ChartAxisMark.marks(starts: starts, drawn: series.candles, range: range, timeframe: series.timeframe)
-    let studies = CandleStudies(candles: series.candles)
     movingAverages = studies.movingAverages
     bollingerUpper = studies.bollinger.map { $0?.upper }
     bollingerMiddle = studies.bollinger.map { $0?.middle }
@@ -117,6 +119,8 @@ struct ChartPlot: Sendable {
 struct ChartAxisMark: Hashable, Sendable {
   let time: Date
   let text: String
+  /// Where a year begins: kept over a month label it would collide with.
+  var major = false
 
   /// The first candle (the left edge included) of each session over five days, of each week over
   /// a month, of each month over three months or a year (of each quarter for monthly candles), or
@@ -125,7 +129,12 @@ struct ChartAxisMark: Hashable, Sendable {
     let labels = ChartAxis.labels(starts, range: range, timeframe: timeframe)
     return labels.indices
       .filter { drawn.indices.contains($0) }
-      .map { ChartAxisMark(time: drawn[$0].start, text: label(starts[$0], period: labels.period, range: range)) }
+      .map { index in
+        let january = WireDate.newYork.component(.month, from: starts[index]) == 1
+        return ChartAxisMark(
+          time: drawn[index].start, text: label(starts[index], period: labels.period, range: range),
+          major: january && (labels.period == .month || labels.period == .quarter))
+      }
   }
 
   /// "Fri 13" for a session over five days, "Nov 9" for a week or a day of a longer range, the

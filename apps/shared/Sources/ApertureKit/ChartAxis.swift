@@ -104,6 +104,28 @@ public enum ChartAxis {
     return marks
   }
 
+  /// Indices of `times` (oldest first) to label so no two labels sit closer than `gap` seconds,
+  /// kept left to right; a `preferred` label (where a year begins) takes the place of the one
+  /// before it when the two would collide.
+  public static func spaced(_ times: [Date], gap: TimeInterval, preferred: (Int) -> Bool = { _ in false }) -> [Int] {
+    var kept: [Int] = []
+    for (index, time) in times.enumerated() {
+      guard let last = kept.last else {
+        kept.append(index)
+        continue
+      }
+      if time.timeIntervalSince(times[last]) >= gap {
+        kept.append(index)
+      } else if preferred(index), !preferred(last) {
+        kept.removeLast()
+        // The one before may now be too close to the preferred label as well.
+        if let before = kept.last, time.timeIntervalSince(times[before]) < gap { kept.removeLast() }
+        kept.append(index)
+      }
+    }
+    return kept
+  }
+
   /// How a label at `time` hangs so it stays inside `shown`, the stretch on screen.
   public static func anchor(of time: Date, shown: ClosedRange<Date>) -> Anchor {
     let margin = shown.upperBound.timeIntervalSince(shown.lowerBound) * edgeShare

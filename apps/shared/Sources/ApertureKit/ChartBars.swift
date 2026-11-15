@@ -23,6 +23,16 @@ public enum ChartRange: String, Codable, Sendable, CaseIterable {
     case .oneYear: [.d1, .w1, .mo1]
     }
   }
+
+  /// A longer range in the same candles whose earlier candles warm the lines and studies up,
+  /// so they start at the left edge of this range (RSI 14 needs 14 candles before its first
+  /// value); nil when there is none (the longest range, intraday candles).
+  public func warmup(for interval: Timeframe) -> ChartRange? {
+    switch self {
+    case .oneMonth, .threeMonths: interval.isIntraday ? nil : .oneYear
+    case .oneDay, .fiveDays, .oneYear: nil
+    }
+  }
 }
 
 /// One candle; prices in USD, volume in shares.

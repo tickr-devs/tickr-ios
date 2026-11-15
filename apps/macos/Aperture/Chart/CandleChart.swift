@@ -20,6 +20,8 @@ struct CandleChart: View {
   /// The pointer state, for the shared axis and crosshair of every pane.
   var pointerModel: ChartPointer { pointer }
   @State private var appeared = false
+  /// The price pane's width, for spacing the time labels of a range.
+  @State private var chartWidth: CGFloat = 0
   @State private var pinchStart: Int?
 
   /// Height of each study pane (MACD, RSI, stochastic, ATR), in points.
@@ -59,6 +61,9 @@ struct CandleChart: View {
   /// Candles drawn beyond each side of the window while zoomed, as a share of the window, so a
   /// fast scroll never shows a bare edge before the next redraw. Farther candles are not drawn.
   static let drawnMargin = 1.0
+  /// Width a range's time label needs with a gap to the next, in points: labels closer than
+  /// this are left out ("Mon 9Tue 10").
+  static let timeLabelSlot: CGFloat = 64
   /// Annotations near an edge move inside the chart instead of being cut off.
   static let keepInside = AnnotationOverflowResolution(x: .fit(to: .chart), y: .fit(to: .chart))
   /// Colours of the moving-average lines, in the order of `Studies.movingAveragePeriods`.
@@ -208,6 +213,7 @@ struct CandleChart: View {
     .chartXAxis(studyPanes.isEmpty ? .automatic : .hidden)
     .chartXAxis { timeAxis }
     .modifier(SharedAxis(chart: self, pane: .price, showsTime: studyPanes.isEmpty, tags: priceTags))
+    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { chartWidth = $0 }
   }
 
   /// The close as a line with a fill fading down to the volume bars, coloured by whether
@@ -426,14 +432,39 @@ struct CandleChart: View {
         }
       }
     } else {
-      let labels = Dictionary(plot.axisMarks.map { ($0.time, $0.text) }, uniquingKeysWith: { first, _ in first })
-      AxisMarks(values: plot.axisMarks.map(\.time)) { value in
+      let marks = rangeMarks
+      let shown = windowDomain
+      let byTime = Dictionary(marks.map { ($0.time, $0) }, uniquingKeysWith: { first, _ in first })
+      AxisMarks(values: marks.map(\.time)) { value in
         AxisGridLine()
         AxisTick()
-        AxisValueLabel {
-          Text(verbatim: value.as(Date.self).flatMap { labels[$0] } ?? Format.missing)
+        // By time, never by position; near either end of the window a label hangs inward.
+        let mark = value.as(Date.self).flatMap { byTime[$0] }
+        AxisValueLabel(anchor: Self.unitPoint(mark.map { ChartAxis.anchor(of: $0.time, shown: shown) } ?? .centre)) {
+          Text(verbatim: mark?.text ?? Format.missing)
+            .fixedSize()
         }
       }
+    }
+  }
+
+  /// The range's labels in the window, none closer than `timeLabelSlot`; where a year begins
+  /// wins over the month before it.
+  private var rangeMarks: [ChartAxisMark] {
+    let shown = windowDomain
+    let inside = plot.axisMarks.filter { shown.contains($0.time) }
+    let plotWidth = chartWidth - Self.axisLabelWidth
+    guard plotWidth > 0 else { return inside }
+    let gap = visibleLength * Double(Self.timeLabelSlot / plotWidth)
+    return ChartAxis.spaced(inside.map(\.time), gap: gap, preferred: { inside[$0].major }).map { inside[$0] }
+  }
+
+  /// Where a time label's top hangs from its tick.
+  private static func unitPoint(_ anchor: ChartAxis.Anchor) -> UnitPoint {
+    switch anchor {
+    case .leading: .topLeading
+    case .centre: .top
+    case .trailing: .topTrailing
     }
   }
 

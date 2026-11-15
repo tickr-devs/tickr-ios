@@ -92,6 +92,9 @@ struct CandleChart: View {
   static let legendHeadroom = 0.35
   /// Clock labels on screen at most, on one day.
   static let clockLabels = 4
+  /// Width a time label needs with a gap to the next, in points at the default text size:
+  /// labels closer than this are left out.
+  static let timeLabelSlot: CGFloat = 52
   /// Annotations near an edge move inside the chart instead of being cut off.
   static let keepInside = AnnotationOverflowResolution(x: .fit(to: .chart), y: .fit(to: .chart))
   /// Colours of the moving-average lines, in the order of `Studies.movingAveragePeriods`.
@@ -118,6 +121,10 @@ struct CandleChart: View {
   @Binding var viewport: ChartViewport
   /// The value scales' width, grown with Dynamic Type so a price such as 128.40 is never cut.
   @ScaledMetric(relativeTo: .caption2) private var axisWidth = CandleChart.axisLabelWidth
+  /// The time labels' slot, grown with Dynamic Type.
+  @ScaledMetric(relativeTo: .caption2) private var labelSlot = CandleChart.timeLabelSlot
+  /// The price pane's plot width, for spacing the time labels.
+  @State private var chartWidth: CGFloat = 0
 
   @State private var selected: Date?
 
@@ -253,6 +260,7 @@ struct CandleChart: View {
       }
     }
     .modifier(Scrolling(window: window, domain: timeDomain, scroll: $viewport.scroll))
+    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { chartWidth = $0 }
     .chartXSelection(value: $selected)
     .chartPlotStyle { $0.background(Palette.surfaceSunken) }
     .accessibilityLabel(Text(ChartText.title))
@@ -661,13 +669,15 @@ struct CandleChart: View {
   @AxisContentBuilder private var timeAxis: some AxisContent {
     let marks = axisMarks
     let shown = shownStretch
-    let anchors = marks.map { ChartAxis.anchor(of: $0.time, shown: shown) }
+    let byTime = Dictionary(marks.map { ($0.time, $0) }, uniquingKeysWith: { first, _ in first })
     AxisMarks(values: marks.map(\.time)) { value in
       AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
         .foregroundStyle(Palette.separator)
-      let known = marks.indices.contains(value.index)
-      AxisValueLabel(anchor: Self.unitPoint(known ? anchors[value.index] : .centre)) {
-        Text(verbatim: known ? marks[value.index].text : ChartFormat.missing)
+      // Looked up by time, never by position: a mark Charts leaves out must not shift the
+      // labels after it onto the wrong candles.
+      let mark = value.as(Date.self).flatMap { byTime[$0] }
+      AxisValueLabel(anchor: Self.unitPoint(mark.map { ChartAxis.anchor(of: $0.time, shown: shown) } ?? .centre)) {
+        Text(verbatim: mark?.text ?? ChartFormat.missing)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
           .fixedSize()
@@ -675,12 +685,20 @@ struct CandleChart: View {
     }
   }
 
-  /// The labelled times: round clock times spaced for the zoom on one day, the range's own
-  /// boundaries beyond it.
+  /// The labelled times on screen: round clock times spaced for the zoom on one day, the range's
+  /// own boundaries beyond it; none closer than a label's width, and none outside the stretch on
+  /// screen (a label just past the left edge hung back into it, cut: "L3:50").
   private var axisMarks: [ChartAxisLabel] {
-    guard times.marks.isEmpty else { return times.marks }
-    return ChartAxis.clockMarks(in: timeDomain, shown: window, count: Self.clockLabels)
-      .map { ChartAxisLabel(time: $0, text: $0.formatted(ChartFormat.time)) }
+    let shown = shownStretch
+    let all = times.marks.isEmpty
+      ? ChartAxis.clockMarks(in: timeDomain, shown: window, count: Self.clockLabels)
+        .map { ChartAxisLabel(time: $0, text: $0.formatted(ChartFormat.time)) }
+      : times.marks
+    let inside = all.filter { shown.contains($0.time) }
+    let plot = chartWidth - axisWidth
+    guard plot > 0 else { return inside }
+    let gap = window * Double(labelSlot / plot)
+    return ChartAxis.spaced(inside.map(\.time), gap: gap, preferred: { inside[$0].major }).map { inside[$0] }
   }
 
   /// Where a time label's top hangs from its tick.

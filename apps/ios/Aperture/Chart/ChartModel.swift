@@ -34,6 +34,9 @@ final class ChartModel {
   private(set) var range = ChartRange.oneDay
   /// The last candles read from GET /chart for the chosen symbol, range and interval.
   private(set) var rangeChart: ChartV1?
+  /// A longer read in the same candles whose earlier candles warm the lines up
+  /// (`ChartRange.warmup`); nil when the range has none or that read failed.
+  private(set) var rangeWarmup: ChartV1?
   /// Why the last GET /chart read failed, if it did (a 503 while market data is off).
   private(set) var rangeFailure: String?
   private(set) var series: ChartSeries?
@@ -165,6 +168,7 @@ final class ChartModel {
     guard range != self.range else { return }
     self.range = range
     rangeChart = nil
+    rangeWarmup = nil
     rangeFailure = nil
     if range.intervals.contains(timeframe) { rebuild() } else { timeframe = range.intervals.first ?? .m1 }
   }
@@ -176,9 +180,15 @@ final class ChartModel {
     let asked = (range, timeframe)
     do {
       let loaded = try await client(url).chart(symbol: symbol, interval: asked.1, range: asked.0)
+      // The warm-up only shapes the lines' first values: without it the chart still shows.
+      var warmup: ChartV1?
+      if let longer = asked.0.warmup(for: asked.1) {
+        warmup = try? await client(url).chart(symbol: symbol, interval: asked.1, range: longer)
+      }
       guard symbol == self.symbol, asked == (range, timeframe) else { return }
-      if loaded != rangeChart {
+      if loaded != rangeChart || warmup != rangeWarmup {
         rangeChart = loaded
+        rangeWarmup = warmup
         rebuild()
       }
       rangeFailure = nil
@@ -266,18 +276,20 @@ final class ChartModel {
       series = bars.map { ChartSeries(bars: $0.bars, timeframe: timeframe) }
       atr = bars.map { ChartSeries.atr(bars: $0.bars, timeframe: timeframe) } ?? []
       times = .day
+      studies = CandleStudies(candles: series?.candles ?? [])
     } else if let rangeChart, rangeChart.symbol == symbol, rangeChart.range == range, rangeChart.interval == timeframe {
-      let real = ChartSeries(chart: rangeChart)
-      let drawn = real.gapless()
+      let warm = WarmChart(chart: rangeChart, warmup: rangeWarmup)
+      let drawn = warm.series.gapless()
       series = drawn
-      atr = ChartSeries.atr(candles: real.candles)
-      times = ChartTimes(real: real, drawn: drawn, range: range)
+      atr = warm.atr
+      studies = warm.studies
+      times = ChartTimes(real: warm.series, drawn: drawn, range: range)
     } else {
       series = nil
       atr = []
       times = .day
+      studies = CandleStudies(candles: [])
     }
-    studies = CandleStudies(candles: series?.candles ?? [])
   }
 
   private func neighbour(_ step: Int) -> WireDate? {
@@ -317,7 +329,14 @@ struct ChartTimes: Equatable {
     let labels = ChartAxis.labels(starts, range: range, timeframe: real.timeframe)
     marks = labels.indices
       .filter { drawn.candles.indices.contains($0) }
-      .map { ChartAxisLabel(time: drawn.candles[$0].start, text: Self.axisText(starts[$0], period: labels.period, range: range)) }
+      .map { index in
+        let start = starts[index]
+        let january = WireDate.newYork.component(.month, from: start) == 1
+        let yearStart = january && (labels.period == .month || labels.period == .quarter)
+        return ChartAxisLabel(
+          time: drawn.candles[index].start, text: Self.axisText(start, period: labels.period, range: range),
+          major: yearStart)
+      }
   }
 
   /// The candle's time in the readout and under the crosshair: "14:05" on one day, "Fri 13
@@ -353,5 +372,7 @@ struct ChartTimes: Equatable {
 struct ChartAxisLabel: Equatable, Identifiable {
   let time: Date
   let text: String
+  /// Where a year begins: kept over a month label it would collide with.
+  var major = false
   var id: Date { time }
 }

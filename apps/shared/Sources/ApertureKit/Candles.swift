@@ -132,8 +132,12 @@ public struct ChartSeries: Hashable, Sendable {
   /// New York day and is nil for daily, weekly and monthly candles (a VWAP across sessions means
   /// nothing), and the EMAs use the candles' closes.
   public init(chart: ChartV1) {
-    let interval = chart.interval
-    let candles = chart.bars.map { bar in
+    self.init(chartBars: chart.bars, interval: chart.interval)
+  }
+
+  /// Candles and lines of chart-v1 bars in `interval` (see `init(chart:)`).
+  init(chartBars: [ChartBarV1], interval: Timeframe) {
+    let candles = chartBars.map { bar in
       let start = bar.start.date
       return Candle(
         start: start, end: Candles.end(of: start, timeframe: interval), open: Candles.double(bar.open),
@@ -154,6 +158,14 @@ public struct ChartSeries: Hashable, Sendable {
     self.vwap = vwap
     self.fastEMA = fastEMA
     self.slowEMA = slowEMA
+  }
+
+  /// The candles and lines from index `first` on: a series computed over earlier candles too
+  /// (a warm-up), cut to the candles shown.
+  public func dropping(_ first: Int) -> ChartSeries {
+    ChartSeries(
+      timeframe: timeframe, candles: Array(candles.dropFirst(first)), vwap: Array(vwap.dropFirst(first)),
+      fastEMA: Array(fastEMA.dropFirst(first)), slowEMA: Array(slowEMA.dropFirst(first)))
   }
 
   /// The same candles back to back from the first one's start, one length each, every value

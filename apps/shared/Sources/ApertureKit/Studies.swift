@@ -185,6 +185,24 @@ public struct CandleStudies: Hashable, Sendable {
     stochastic = Studies.slowStochastic(
       candles, period: Studies.stochasticPeriod, smoothing: Studies.stochasticSmoothing)
   }
+
+  private init(
+    movingAverages: [[Double?]], bollinger: [BollingerPoint?], macd: [MACDPoint?], rsi: [Double?],
+    stochastic: [StochasticPoint?]
+  ) {
+    self.movingAverages = movingAverages
+    self.bollinger = bollinger
+    self.macd = macd
+    self.rsi = rsi
+    self.stochastic = stochastic
+  }
+
+  /// The studies from candle `first` on (see `ChartSeries.dropping`).
+  public func dropping(_ first: Int) -> CandleStudies {
+    CandleStudies(
+      movingAverages: movingAverages.map { Array($0.dropFirst(first)) }, bollinger: Array(bollinger.dropFirst(first)),
+      macd: Array(macd.dropFirst(first)), rsi: Array(rsi.dropFirst(first)), stochastic: Array(stochastic.dropFirst(first)))
+  }
 }
 
 /// Change of a candle's close from the close before it, in price and as a share of that close.

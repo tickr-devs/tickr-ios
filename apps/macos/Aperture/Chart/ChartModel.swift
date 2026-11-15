@@ -11,6 +11,9 @@ final class ChartModel {
   private(set) var bars: BarsV1?
   /// The last candles read for the shown symbol over a range beyond one day.
   private(set) var rangeChart: ChartV1?
+  /// A longer read in the same candles whose earlier candles warm the lines and studies up
+  /// (`ChartRange.warmup`); nil when the range has none or that read failed.
+  private(set) var rangeWarmup: ChartV1?
   /// Why the last read failed, if it did.
   private(set) var error: String?
   /// A read is in flight.
@@ -41,7 +44,7 @@ final class ChartModel {
       guard let rangeChart, rangeChart.range == range, rangeChart.interval == timeframe, !rangeChart.bars.isEmpty else {
         return nil
       }
-      plot = ChartPlot(chart: rangeChart, revision: revision)
+      plot = ChartPlot(chart: rangeChart, warmup: rangeWarmup, revision: revision)
     }
     cachedPlot = plot
     return plot
@@ -63,9 +66,15 @@ final class ChartModel {
     defer { loading = false }
     do {
       let fresh = try await client.chart(symbol: symbol, interval: interval, range: range)
+      // The warm-up only shapes the lines' first values: without it the chart still shows.
+      var warmup: ChartV1?
+      if let longer = range.warmup(for: interval) {
+        warmup = try? await client.chart(symbol: symbol, interval: interval, range: longer)
+      }
       guard !Task.isCancelled else { return }
-      if fresh != rangeChart {
+      if fresh != rangeChart || warmup != rangeWarmup {
         rangeChart = fresh
+        rangeWarmup = warmup
         revision += 1
       }
       error = nil
@@ -116,6 +125,7 @@ final class ChartModel {
   func clear() {
     bars = nil
     rangeChart = nil
+    rangeWarmup = nil
     revision += 1
     cachedPlot = nil
     error = nil

@@ -127,6 +127,16 @@ struct ChartSeriesRangeTests {
     #expect(ChartAxis.clockMarks(in: session, shown: 0, count: 4).isEmpty)
   }
 
+  @Test("Labels closer than the gap are left out, a year's start winning over the month before it")
+  func spacedLabels() {
+    let origin = Date(timeIntervalSince1970: 0)
+    let times = [0, 10, 25, 30, 60].map { origin.addingTimeInterval(TimeInterval($0)) }
+    #expect(ChartAxis.spaced(times, gap: 20) == [0, 2, 4])
+    // Index 3 is preferred: it replaces 2, which sat 5 s before it.
+    #expect(ChartAxis.spaced(times, gap: 20, preferred: { $0 == 3 }) == [0, 3, 4])
+    #expect(ChartAxis.spaced([], gap: 20).isEmpty)
+  }
+
   @Test("A label near either end of the shown stretch turns inward")
   func labelAnchors() throws {
     let date = { (text: String) in try WireTime(text).date }
@@ -134,6 +144,27 @@ struct ChartSeriesRangeTests {
     #expect(try ChartAxis.anchor(of: date("2026-11-13T14:31:00.000Z"), shown: shown) == .leading)
     #expect(try ChartAxis.anchor(of: date("2026-11-13T14:50:00.000Z"), shown: shown) == .centre)
     #expect(try ChartAxis.anchor(of: date("2026-11-13T15:09:00.000Z"), shown: shown) == .trailing)
+  }
+
+  @Test("Lines over a month are warmed up on a year's earlier candles and start at its first candle")
+  func warmedUp() throws {
+    let days = (1...40).map { String(format: "2026-%02d-%02dT14:30:00.000Z", $0 <= 20 ? 9 : 10, ($0 - 1) % 20 + 1) }
+    let bars = days.enumerated().map { index, day in (day, String(10 + index), "100") }
+    let year = try chart("1d", "1y", bars)
+    let month = try chart("1d", "1m", Array(bars.suffix(15)))
+    let cold = WarmChart(chart: month, warmup: nil)
+    #expect(cold.studies.rsi.first == .some(nil))
+    let warm = WarmChart(chart: month, warmup: year)
+    #expect(warm.warmupCount == 25)
+    #expect(warm.series.candles.count == 15)
+    #expect(warm.series.candles.first?.start == month.bars.first?.start.date)
+    #expect(warm.studies.rsi.count == 15)
+    #expect(warm.studies.rsi.first.flatMap { $0 } != nil)
+    #expect(warm.series.fastEMA.first.flatMap { $0 } != nil)
+    // Another symbol or interval is no warm-up.
+    #expect(WarmChart(chart: month, warmup: try chart("1w", "1y", bars)).warmupCount == 0)
+    #expect(ChartRange.oneMonth.warmup(for: .d1) == .oneYear)
+    #expect(ChartRange.oneYear.warmup(for: .d1) == nil)
   }
 
   @Test("Every offered interval is one GET /chart serves for its range")
