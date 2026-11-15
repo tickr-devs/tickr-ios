@@ -8,10 +8,15 @@ enum Defaults {
   static let apiBaseURL = "apiBaseURL"
   /// Whether the menu-bar extra is shown.
   static let showMenuBarExtra = "showMenuBarExtra"
+  /// Appearance forced for every window, `light` or `dark`; unset follows the system. Not in
+  /// Settings: the screen tour sets it as a launch argument (`-appearance light`).
+  static let appearance = "appearance"
+  static let light = "light"
+  static let dark = "dark"
 }
 
 /// macOS shell: the main window with a sidebar, the standard Settings window (⌘,) and a
-/// menu-bar extra. Appearance follows the system; there is no theme switch in the app.
+/// menu-bar extra. Appearance follows the system (Defaults.appearance can force one for the tour).
 @main
 @MainActor
 struct ApertureMacApp: App {
@@ -34,6 +39,11 @@ struct ApertureMacApp: App {
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.
     NSApplication.shared.setActivationPolicy(.regular)
+    switch UserDefaults.standard.string(forKey: Defaults.appearance) {
+    case Defaults.light: NSApplication.shared.appearance = NSAppearance(named: .aqua)
+    case Defaults.dark: NSApplication.shared.appearance = NSAppearance(named: .darkAqua)
+    default: break
+    }
   }
 
   static func baseURL() -> URL {

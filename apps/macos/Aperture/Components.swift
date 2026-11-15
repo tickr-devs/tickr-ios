@@ -271,11 +271,13 @@ enum Format {
     return date.formatted(style)
   }
 
-  /// "10:42" in New York time.
+  /// "14:42" in New York time, 24-hour (`.twoDigits(amPM: .omitted)` would show 02:42).
   static func marketMinute(_ date: Date) -> String {
-    var style = Date.FormatStyle().hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
-    style.timeZone = newYork
-    return date.formatted(style)
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = newYork
+    return date.formatted(Date.VerbatimFormatStyle(
+      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
+      timeZone: newYork, calendar: calendar))
   }
 
   /// "Fri Nov 13" in the person's language.

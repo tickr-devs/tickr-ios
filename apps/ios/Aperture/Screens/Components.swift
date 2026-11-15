@@ -93,7 +93,9 @@ enum Format {
   }
 
   static func clock(_ date: Date) -> String {
-    date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits).second(.twoDigits))
+    date.formatted(Date.VerbatimFormatStyle(
+      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
+      timeZone: .current, calendar: .current))
   }
 
   static func day(_ date: Date) -> String {

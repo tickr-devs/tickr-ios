@@ -394,11 +394,11 @@ enum ChartFormat {
   static let volume = FloatingPointFormatStyle<Double>.number.notation(.compactName)
   static let change = FloatingPointFormatStyle<Double>.Percent.percent
     .precision(.fractionLength(1)).sign(strategy: .always())
-  static let time: Date.FormatStyle = {
-    var style = Date.FormatStyle.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
-    style.timeZone = WireDate.newYork.timeZone
-    return style
-  }()
+  /// 24-hour New York time of a bar ("14:05"): `.twoDigits(amPM: .omitted)` would drop the AM/PM
+  /// of a 12-hour locale and show 02:05.
+  static let time = Date.VerbatimFormatStyle(
+    format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
+    timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork)
   static let day: Date.FormatStyle = {
     var style = Date.FormatStyle.dateTime.weekday(.abbreviated).month(.abbreviated).day()
     style.timeZone = WireDate.newYork.timeZone

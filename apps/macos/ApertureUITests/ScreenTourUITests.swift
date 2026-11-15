@@ -6,12 +6,20 @@ import XCTest
 /// unless TOUR_API is set (so CI, which has no bot, never runs it) and its GET /status names the
 /// demo environment, so a wrong port can never point the tour at a real bot.
 ///
+/// Pictures: macOS grants screen recording per app and a test runner is a new app on every build,
+/// so the tour does not take them itself. `apps/scripts/tour_capture.swift`, started from a
+/// terminal that already has the Screen Recording permission, takes each one when the tour asks.
 /// Run on the Mac, once per appearance:
+///   swift apps/scripts/tour_capture.swift \
+///     ~/Library/Containers/local.aperture.operator.uitests.xctrunner/Data/tmp/tour-dark &
 ///   TEST_RUNNER_TOUR_API=http://127.0.0.1:8776 TEST_RUNNER_TOUR_APPEARANCE=Dark \
+///   TEST_RUNNER_TOUR_CAPTURE=tour-dark \
 ///   xcodebuild test -workspace Aperture.xcworkspace -scheme "Aperture macOS" \
-///     -only-testing:"Aperture macOS UITests/ScreenTourUITests" -resultBundlePath tour.xcresult
-///   xcrun xcresulttool export attachments --path tour.xcresult --output-path tour
-/// Environment: TOUR_API (the demo's API) and TOUR_APPEARANCE (Light or Dark, default Light).
+///     -only-testing:"Aperture macOS UITests/ScreenTourUITests"
+/// Environment: TOUR_API (the demo's API), TOUR_APPEARANCE (Light or Dark, default Light) and
+/// TOUR_CAPTURE (the name of the capture folder; without it the tour keeps XCUIScreen
+/// attachments, which need the runner itself to have Screen Recording). The runner is sandboxed,
+/// so the folder is in its own temporary directory, the path given to the script above.
 /// The app runs in English: the tour finds the standard menus and Cancel by their English titles.
 @MainActor
 final class ScreenTourUITests: XCTestCase {
@@ -24,8 +32,10 @@ final class ScreenTourUITests: XCTestCase {
   private static let statusPath = "status"
   /// Seconds the screens get to load and finish their entrance animations.
   private static let settle: UInt32 = 3
-  /// Seconds to wait for an element to appear.
+  /// Seconds to wait for an element to appear, and for the capture script to take a picture.
   private static let wait: TimeInterval = 10
+  /// Microseconds between looks for the capture script's answer.
+  private static let capturePoll: useconds_t = 200_000
   /// Sidebar sections (AppSection raw values) and the id prefixes of their rows and screens.
   private static let sections = ["overview", "chart", "trades", "risk", "lab"]
   private static let rowPrefix = "sidebar-"
@@ -43,6 +53,7 @@ final class ScreenTourUITests: XCTestCase {
   }
 
   private let app = XCUIApplication()
+  private var captureDir: URL?
 
   override func setUp() async throws {
     continueAfterFailure = true
@@ -53,8 +64,13 @@ final class ScreenTourUITests: XCTestCase {
     guard try await Self.environment(of: api) == Self.demoEnvironment else {
       throw XCTSkip("TOUR_API \(api) is not `aperture demo`: the tour runs only on the demo")
     }
+    captureDir = environment["TOUR_CAPTURE"].map {
+      FileManager.default.temporaryDirectory.appending(path: $0, directoryHint: .isDirectory)
+    }
     let appearance = environment["TOUR_APPEARANCE"] ?? Self.defaultAppearance
-    app.launchArguments = ["-apiBaseURL", api, "-AppleInterfaceStyle", appearance,
+    // Defaults.appearance of the app: `-AppleInterfaceStyle Light` is not a value macOS knows,
+    // so on a Mac in dark mode it would still be dark.
+    app.launchArguments = ["-apiBaseURL", api, "-appearance", appearance.lowercased(),
                            "-AppleLanguages", "(\(Self.language))", "-ApplePersistenceIgnoreState", "YES"]
     app.launch()
     XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.wait), "no window")
@@ -85,6 +101,12 @@ final class ScreenTourUITests: XCTestCase {
       }
     }
     settings()
+  }
+
+  override func tearDown() async throws {
+    if let captureDir {  // ends tour_capture.swift, also after a failure
+      FileManager.default.createFile(atPath: captureDir.appending(path: "stop").path, contents: nil)
+    }
   }
 
   // MARK: - screens behind the sections
@@ -130,7 +152,7 @@ final class ScreenTourUITests: XCTestCase {
     for index in 0..<tabs.count {
       tabs.element(boundBy: index).click()
       sleep(1)
-      shot("settings-\(index)", of: window)
+      shot("settings-\(index)", of: window, front: true)
     }
   }
 
@@ -145,11 +167,34 @@ final class ScreenTourUITests: XCTestCase {
     return status?["environment"] as? String
   }
 
-  private func shot(_ name: String, of element: XCUIElement? = nil) {
+  /// A picture of the app's window (`front`: its frontmost window, such as Settings).
+  private func shot(_ name: String, of element: XCUIElement? = nil, front: Bool = false) {
+    if let captureDir {
+      requestCapture(name, front: front, in: captureDir)
+      return
+    }
     let screenshot = (element ?? app.windows.firstMatch).screenshot()
     let attachment = XCTAttachment(screenshot: screenshot)
     attachment.name = name
     attachment.lifetime = .keepAlways
     add(attachment)
+  }
+
+  /// Asks tour_capture.swift for a picture and waits until it is taken.
+  private func requestCapture(_ name: String, front: Bool, in folder: URL) {
+    let kind = front ? "front" : "main"
+    let done = folder.appending(path: "\(name).done").path
+    let failed = folder.appending(path: "\(name).failed").path
+    try? FileManager.default.removeItem(atPath: done)
+    try? FileManager.default.removeItem(atPath: failed)
+    FileManager.default.createFile(atPath: folder.appending(path: "\(name).request").path,
+                                   contents: Data(kind.utf8))
+    let deadline = Date().addingTimeInterval(Self.wait)
+    while Date() < deadline {
+      if FileManager.default.fileExists(atPath: done) { return }
+      if FileManager.default.fileExists(atPath: failed) { break }
+      usleep(Self.capturePoll)
+    }
+    XCTFail("no picture of \(name): is apps/scripts/tour_capture.swift running on \(folder.path)?")
   }
 }

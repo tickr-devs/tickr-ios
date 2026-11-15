@@ -199,7 +199,9 @@ public struct Ticker: View {
             row
           }
           .offset(x: offset)
-          .frame(maxWidth: .infinity, alignment: .leading)
+          // minWidth 0: the strip takes the width it is offered, never the width of its two rows
+          // (else it widens the whole screen and pushes everything else off the sides).
+          .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         }
         .onPreferenceChange(WidthKey.self) { contentWidth = $0 }
         .clipped()
