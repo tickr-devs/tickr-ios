@@ -26,6 +26,7 @@ struct ActivityView: View {
   @State private var activity = Container.shared.activityModel()
   @State private var section: Pane = .trades
   @State private var showsCalendar = false
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   var body: some View {
     Screen(L10n.App.activity) {
@@ -157,13 +158,8 @@ struct ActivityView: View {
   /// The pane picker and the chosen pane: today's when `status` is given, else the past day's.
   @ViewBuilder
   private func panes(status: StatusV1?) -> some View {
-    Picker(selection: $section) {
-      ForEach(Pane.allCases) { Text($0.title).tag($0) }
-    } label: {
-      Text(L10n.Activity.show)
-    }
-    .pickerStyle(.segmented)
-    .rise(step: Order.picker.rawValue)
+    paneControl
+      .rise(step: Order.picker.rawValue)
     Group {
       switch section {
       case .trades:
@@ -194,20 +190,47 @@ struct ActivityView: View {
   }
 }
 
+extension ActivityView {
+  /// The pane control: segments while their titles fit, which a segmented control's fixed-size
+  /// text does up to the largest standard text size; at accessibility sizes a menu of the panes,
+  /// whose button grows with the text.
+  @ViewBuilder fileprivate var paneControl: some View {
+    let picker = Picker(selection: $section) {
+      ForEach(Pane.allCases) { Text($0.title).tag($0) }
+    } label: {
+      Text(L10n.Activity.show)
+    }
+    if dynamicTypeSize.isAccessibilitySize {
+      picker
+        .pickerStyle(.menu)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    } else {
+      picker.pickerStyle(.segmented)
+    }
+  }
+}
+
 /// The calendar of recorded days: one month of Monday-to-Friday weeks, each day tinted by its net
 /// result. Tapping a recorded day shows it; tapping today goes back to the live view.
 private struct DayPicker: View {
   let activity: ActivityModel
   let url: URL
 
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
   var body: some View {
     VStack(spacing: Tokens.Space.s) {
       header
+      if activity.selectedDay != nil && dynamicTypeSize.isAccessibilitySize {
+        backToToday
+      }
       HStack(spacing: Tokens.Space.xs) {
         ForEach(weekdays, id: \.self) { name in
           Text(verbatim: name)
             .font(Tokens.Typography.label)
             .foregroundStyle(Palette.textQuaternary)
+            .lineLimit(1)
+            .minimumScaleFactor(Tokens.Shrink.most)
             .frame(maxWidth: .infinity)
         }
       }
@@ -254,14 +277,13 @@ private struct DayPicker: View {
         Text(first, format: .dateTime.month(.wide).year())
           .font(Tokens.Typography.calloutMono.bold())
           .foregroundStyle(Palette.textPrimary)
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.Shrink.most)
           .contentTransition(.opacity)
       }
-      if activity.selectedDay != nil {
-        Button { activity.showToday() } label: { Text(L10n.Activity.backToToday) }
-          .buttonStyle(.bordered)
-          .buttonBorderShape(.capsule)
-          .font(Tokens.Typography.captionMono)
-          .transition(.scale.combined(with: .opacity))
+      // At accessibility sizes the button takes its own row under the month.
+      if activity.selectedDay != nil && !dynamicTypeSize.isAccessibilitySize {
+        backToToday
       }
       Spacer(minLength: 0)
       Button {
@@ -273,6 +295,14 @@ private struct DayPicker: View {
       .accessibilityLabel(Text(L10n.Activity.nextMonth))
     }
     .buttonStyle(.borderless)
+  }
+
+  private var backToToday: some View {
+    Button { activity.showToday() } label: { Text(L10n.Activity.backToToday) }
+      .buttonStyle(.bordered)
+      .buttonBorderShape(.capsule)
+      .font(Tokens.Typography.captionMono)
+      .transition(.scale.combined(with: .opacity))
   }
 
   /// Short weekday names, Monday to Friday, in the phone's language.
@@ -299,6 +329,8 @@ private struct DayCell: View {
       VStack(spacing: Tokens.Space.xxs) {
         Text(cell.day.day, format: .number)
           .font(Tokens.Typography.calloutMono.bold())
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.Shrink.most)
         if let result {
           Text(verbatim: Money.signed(result, fractionDigits: 0))
             .font(Tokens.Typography.annotation)
