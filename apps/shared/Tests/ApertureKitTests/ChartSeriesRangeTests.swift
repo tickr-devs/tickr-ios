@@ -94,6 +94,23 @@ struct ChartSeriesRangeTests {
     #expect(ChartAxis.boundaries([], range: .oneMonth, timeframe: .d1).isEmpty)
   }
 
+  @Test("A range with too few candles for its own period is labelled by a finer one")
+  func finerLabels() throws {
+    let date = { (text: String) in try WireTime(text).date }
+    // Six sessions over two weeks (Fri Nov 6 to Fri Nov 13): two weeks are too few labels.
+    let days = try ["2026-11-06", "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13"]
+      .map { try date("\($0)T05:00:00.000Z") }
+    let month = ChartAxis.labels(days, range: .oneMonth, timeframe: .d1)
+    #expect(month.period == .day)
+    #expect(month.indices == Array(0..<6))
+    #expect(ChartAxis.labels(days, range: .threeMonths, timeframe: .d1).period == .day)
+    // Three months of sessions keep their months.
+    let months = try ["2026-09-01", "2026-09-15", "2026-10-01", "2026-11-02"].map { try date("\($0)T05:00:00.000Z") }
+    let quarter = ChartAxis.labels(months, range: .threeMonths, timeframe: .d1)
+    #expect(quarter.period == .month)
+    #expect(quarter.indices == [0, 2, 3])
+  }
+
   @Test("Clock labels on one day fall on round New York times, at most the asked count on screen")
   func clockMarks() throws {
     let date = { (text: String) in try WireTime(text).date }

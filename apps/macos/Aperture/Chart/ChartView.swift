@@ -92,7 +92,8 @@ struct ChartView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       if showDecisions {
         Divider()
-        DecisionsInspector(decisions: chart.decisions, error: chart.decisionsError, hasSymbol: chart.hasSymbol)
+        DecisionsInspector(
+          decisions: chart.decisions, error: chart.decisionsError, hasSymbol: chart.hasSymbol, showsDay: showsDay)
           .frame(width: DecisionsInspector.width)
           .transition(.move(edge: .trailing))
       }
@@ -228,7 +229,20 @@ struct ChartView: View {
     }
   }
 
-  private var timeframePicker: some View {
+  /// The range's intervals to pick from; a range with one (a month: daily) names it instead of
+  /// showing a picker of one wide segment.
+  @ViewBuilder private var timeframePicker: some View {
+    if range.intervals.count > 1 {
+      intervalPicker
+    } else {
+      Text(Self.title(interval))
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textSecondary)
+        .help(Text(L10n.Chart.timeframeHelp))
+    }
+  }
+
+  private var intervalPicker: some View {
     Picker(selection: Binding(get: { interval }, set: { timeframe = $0 })) {
       ForEach(range.intervals) { item in
         Text(Self.title(item)).tag(item)
@@ -343,7 +357,8 @@ struct ChartView: View {
           movingAverages: showMovingAverages, bollinger: showBollinger, volume: showVolume,
           macd: showMACD, rsi: showRSI, stochastic: showStochastic, atr: showATR),
         marks: showsDay ? ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol }) : [],
-        levels: ChartMarkers.levels(position: model.positions.first { $0.id == symbol }),
+        // The position's lines start at its entry minute: on one day only, as its trades.
+        levels: showsDay ? ChartMarkers.levels(position: model.positions.first { $0.id == symbol }) : [],
         decisions: showDecisions && showsDay
           ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], candles: plot.candles) : [],
         // Only the shown live day and intraday ranges reaching today still change.

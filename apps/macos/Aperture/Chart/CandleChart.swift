@@ -147,14 +147,14 @@ struct CandleChart: View {
       extremes
       ForEach(levels) { level in
         RuleMark(
-          xStart: .value(Plot.time, max(level.since, firstStart)),
+          xStart: .value(Plot.time, max(level.since, windowStart)),
           xEnd: .value(Plot.time, lastEnd),
           y: .value(Plot.price, level.price))
           .foregroundStyle(level.color)
           .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
-          // At the right end, where the price is now, on a plate so candles under it never hide
-          // it (at the left end it sat on the day's first candle).
-          .annotation(position: .top, alignment: .trailing, overflowResolution: Self.keepInside) {
+          // Where the line begins on screen (the entry, or the left edge), on a plate so candles
+          // under it never hide it; at the right end it ran into the price tags on the scale.
+          .annotation(position: .top, alignment: .leading, overflowResolution: Self.keepInside) {
             Text(level.label)
               .font(Tokens.Typography.annotationBold)
               .foregroundStyle(level.textColor)
@@ -201,7 +201,10 @@ struct CandleChart: View {
       }
     }
     .chartYScale(domain: scale.domain)
-    .chartYAxis { valueAxis(ticks: Self.priceTicks, hiding: priceTags.map(\.value), span: scale.domain) }
+    .chartYAxis {
+      valueAxis(ticks: Self.priceTicks, hiding: priceTags.map(\.value), span: scale.domain,
+        floor: scale.volumeBase + scale.volumeHeight)
+    }
     .chartXAxis(studyPanes.isEmpty ? .automatic : .hidden)
     .chartXAxis { timeAxis }
     .modifier(SharedAxis(chart: self, pane: .price, showsTime: studyPanes.isEmpty, tags: priceTags))
@@ -277,6 +280,7 @@ struct CandleChart: View {
       .chartXAxis(bottom ? .automatic : .hidden)
       .chartXAxis { timeAxis }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
+      .overlay { waiting(plot.macd) }
     case .rsi:
       Chart {
         bands(high: Studies.rsiHigh, low: Studies.rsiLow)
@@ -287,6 +291,7 @@ struct CandleChart: View {
       .chartXAxis(bottom ? .automatic : .hidden)
       .chartXAxis { timeAxis }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: lastTag(plot.rsi, color: Palette.info)))
+      .overlay { waiting(plot.rsi) }
     case .stochastic:
       Chart {
         bands(high: Studies.stochasticHigh, low: Studies.stochasticLow)
@@ -298,6 +303,7 @@ struct CandleChart: View {
       .chartXAxis(bottom ? .automatic : .hidden)
       .chartXAxis { timeAxis }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
+      .overlay { waiting(plot.stochasticK) }
     case .atr:
       Chart {
         line(plot.atr, name: Plot.atr, color: Palette.seriesATR)
@@ -315,6 +321,17 @@ struct CandleChart: View {
       }
     case .price:
       EmptyView()
+    }
+  }
+
+  /// A note over a study pane whose line has no value yet: too few candles for its period (a
+  /// month of daily candles under MACD's 26, say), instead of an empty pane.
+  @ViewBuilder private func waiting(_ values: [Double?]) -> some View {
+    if !values.contains(where: { $0 != nil }) {
+      Text(L10n.Chart.studyWaiting)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textQuaternary)
+        .allowsHitTesting(false)
     }
   }
 
@@ -365,15 +382,19 @@ struct CandleChart: View {
     }
   }
 
-  /// The price scale, its labels left out where a tag (last price, entry, stop) covers them:
-  /// within `tagClearance` of the pane's height from a tagged value.
-  private func valueAxis(ticks: Int, hiding tagged: [Double], span: ClosedRange<Double>) -> some AxisContent {
+  /// The price scale, its labels left out where a tag (last price, entry, stop) covers them
+  /// (within `tagClearance` of the pane's height from a tagged value), and over the volume bars
+  /// along the bottom (below `floor`, with the same clearance): prices there mean nothing, and
+  /// the lowest one hung over the pane below.
+  private func valueAxis(ticks: Int, hiding tagged: [Double], span: ClosedRange<Double>, floor: Double) -> some AxisContent {
     let clearance = (span.upperBound - span.lowerBound) * Self.tagClearance
+    let lowest = max(floor, span.lowerBound) + clearance
     return AxisMarks(position: .trailing, values: .automatic(desiredCount: ticks)) { value in
       AxisGridLine()
       AxisTick()
       AxisValueLabel {
-        if let price = value.as(Double.self), !tagged.contains(where: { abs($0 - price) < clearance }) {
+        if let price = value.as(Double.self), price >= lowest,
+          !tagged.contains(where: { abs($0 - price) < clearance }) {
           Text(verbatim: price.formatted(Self.valueFormat))
             .frame(width: Self.axisLabelWidth, alignment: .leading)
         } else {

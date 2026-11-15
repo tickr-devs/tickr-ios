@@ -9,12 +9,14 @@ struct DecisionsInspector: View {
   let error: String?
   /// The chart shows a symbol; without one there is nothing to ask the bot about.
   let hasSymbol: Bool
+  /// The chart shows one day: decisions are recorded per day, so a longer range has none to read.
+  var showsDay = true
 
   /// Width of the decisions pane beside the chart, in points: narrow enough that at the
   /// window's least width the chart keeps most of the room.
   static let width: CGFloat = 240
-  /// How far a long rule name may shrink to stay on one line before it is cut in the middle.
-  static let ruleMinimumScale = 0.8
+  /// Lines a check's name may take: the pane is narrow, and a name cut short no longer read.
+  static let ruleLines = 3
   /// Accessibility id of the inspector's content, for the UI tests.
   static let contentID = "chart-decisions-list"
 
@@ -31,7 +33,9 @@ struct DecisionsInspector: View {
   }
 
   @ViewBuilder private var content: some View {
-    if let decisions, !decisions.decisions.isEmpty {
+    if !showsDay {
+      note(L10n.Chart.decisionsDayOnly, symbol: "calendar")
+    } else if let decisions, !decisions.decisions.isEmpty {
       ScrollView {
         VStack(alignment: .leading, spacing: Tokens.Space.m) {
           ForEach(Array(decisions.decisions.reversed().enumerated()), id: \.offset) { _, decision in
@@ -69,6 +73,8 @@ private struct DecisionRow: View {
         Text(verbatim: Format.marketMinute(decision.at.date))
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.textTertiary)
+          // Never broken in two ("14:3 / 0"): the badges give way first.
+          .fixedSize()
         Badge(decision.action.title, color: decision.action.color)
         Spacer(minLength: 0)
         if decision.observer {
@@ -116,12 +122,12 @@ private struct CheckRow: View {
       .help(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
       .accessibilityLabel(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        // One line: wrapped names broke inside words ("dis-tance_atr"); the full name is the hint.
+        // The rule in words (ApiText), wrapped between them over a few lines rather than cut
+        // mid-word; the bot's own name is the hint.
         Text(verbatim: ApiText.rule(check.rule))
           .font(Tokens.Typography.captionMono)
-          .lineLimit(1)
-          .minimumScaleFactor(DecisionsInspector.ruleMinimumScale)
-          .truncationMode(.middle)
+          .lineLimit(DecisionsInspector.ruleLines)
+          .fixedSize(horizontal: false, vertical: true)
           .help(Text(verbatim: check.rule))
         Text(verbatim: comparison)
           .font(Tokens.Typography.captionMono)

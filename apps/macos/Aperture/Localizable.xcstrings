@@ -1480,6 +1480,23 @@
         }
       }
     },
+    "chart.decisionsDayOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decisions are recorded per day. Choose Day to see them."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Решения записываются по дням. Выберите «День», чтобы их увидеть."
+          }
+        }
+      }
+    },
     "chart.decisionsHelp" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2343,6 +2360,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ v%2$@"
+          }
+        }
+      }
+    },
+    "chart.studyWaiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough candles yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока мало свечей"
           }
         }
       }

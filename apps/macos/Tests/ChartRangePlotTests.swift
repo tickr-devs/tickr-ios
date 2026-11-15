@@ -41,6 +41,13 @@ struct ChartRangePlotTests {
     #expect(plot.axisMarks.map(\.time) == [0, 3, 6, 9].map { plot.candles[$0].start })
   }
 
+  @Test("A month of a few sessions is labelled by day, not by its two weeks")
+  func fewSessionsByDay() throws {
+    let starts = ["06", "09", "10", "11", "12", "13"].map { "2026-11-\($0)T05:00:00.000Z" }
+    let plot = ChartPlot(chart: try chart("1d", "1m", starts), revision: 0)
+    #expect(plot.axisMarks.count == starts.count)
+  }
+
   @Test("One day keeps its own clock and no range labels")
   func oneDay() throws {
     let price = try DecimalString("10")

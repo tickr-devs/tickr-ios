@@ -1120,6 +1120,10 @@ enum L10n {
     static func atrWaiting(_ period: Int) -> LocalizedStringResource {
       LocalizedStringResource("chart.atrWaiting", defaultValue: "ATR \(period): not enough candles yet", bundle: L10n.bundle)
     }
+    /// A study pane (MACD, RSI, stochastic) before its line has a value.
+    static var studyWaiting: LocalizedStringResource {
+      LocalizedStringResource("chart.studyWaiting", defaultValue: "Not enough candles yet", bundle: L10n.bundle)
+    }
     /// Zoom-in button.
     static var zoomIn: LocalizedStringResource {
       LocalizedStringResource("chart.zoomIn", defaultValue: "Zoom In", bundle: L10n.bundle)
@@ -1239,6 +1243,10 @@ enum L10n {
     /// Decisions inspector is empty.
     static var noDecisions: LocalizedStringResource {
       LocalizedStringResource("chart.noDecisions", defaultValue: "No decisions were recorded for this symbol on this day.", bundle: L10n.bundle)
+    }
+    /// Decisions inspector over a range beyond one day.
+    static var decisionsDayOnly: LocalizedStringResource {
+      LocalizedStringResource("chart.decisionsDayOnly", defaultValue: "Decisions are recorded per day. Choose Day to see them.", bundle: L10n.bundle)
     }
     /// Why the decisions read failed.
     static func decisionsUnavailable(_ cause: String) -> LocalizedStringResource {

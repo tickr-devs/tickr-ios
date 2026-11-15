@@ -314,9 +314,10 @@ struct ChartTimes: Equatable {
     self.range = range
     timeframe = real.timeframe
     self.real = Dictionary(zip(drawn.candles.map(\.start), starts), uniquingKeysWith: { first, _ in first })
-    marks = ChartAxis.boundaries(starts, range: range, timeframe: real.timeframe)
+    let labels = ChartAxis.labels(starts, range: range, timeframe: real.timeframe)
+    marks = labels.indices
       .filter { drawn.candles.indices.contains($0) }
-      .map { ChartAxisLabel(time: drawn.candles[$0].start, text: Self.axisText(starts[$0], range: range)) }
+      .map { ChartAxisLabel(time: drawn.candles[$0].start, text: Self.axisText(starts[$0], period: labels.period, range: range)) }
   }
 
   /// The candle's time in the readout and under the crosshair: "14:05" on one day, "Fri 13
@@ -334,15 +335,18 @@ struct ChartTimes: Equatable {
     }
   }
 
-  private static func axisText(_ start: Date, range: ChartRange) -> String {
-    switch range {
-    case .oneDay, .fiveDays: return start.formatted(ChartFormat.sessionDay)
-    case .oneMonth: return start.formatted(ChartFormat.monthDay)
-    case .threeMonths, .oneYear:
+  /// "Fri 13" for a session over five days, "Nov 9" for a week or a day of a longer range,
+  /// "Nov" for a month or quarter ("2026" in January).
+  private static func axisText(_ start: Date, period: ChartAxis.Period, range: ChartRange) -> String {
+    switch period {
+    case .day where range == .fiveDays: return start.formatted(ChartFormat.sessionDay)
+    case .day, .week: return start.formatted(ChartFormat.monthDay)
+    case .month, .quarter:
       let january = WireDate.newYork.component(.month, from: start) == 1
       return start.formatted(january ? ChartFormat.year : ChartFormat.month)
     }
   }
+
 }
 
 /// A labelled time on the axis beyond one day.

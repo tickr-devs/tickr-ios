@@ -119,18 +119,22 @@ struct ChartAxisMark: Hashable, Sendable {
   let text: String
 
   /// The first candle (the left edge included) of each session over five days, of each week over
-  /// a month, of each month over three months or a year (of each quarter for monthly candles).
+  /// a month, of each month over three months or a year (of each quarter for monthly candles), or
+  /// of a finer period when the range has too few candles for those (`ChartAxis.labels`).
   static func marks(starts: [Date], drawn: [Candle], range: ChartRange, timeframe: Timeframe) -> [ChartAxisMark] {
-    ChartAxis.boundaries(starts, range: range, timeframe: timeframe)
+    let labels = ChartAxis.labels(starts, range: range, timeframe: timeframe)
+    return labels.indices
       .filter { drawn.indices.contains($0) }
-      .map { ChartAxisMark(time: drawn[$0].start, text: label(starts[$0], range: range)) }
+      .map { ChartAxisMark(time: drawn[$0].start, text: label(starts[$0], period: labels.period, range: range)) }
   }
 
-  private static func label(_ date: Date, range: ChartRange) -> String {
-    switch range {
-    case .oneDay, .fiveDays: Format.chartSessionDay(date)
-    case .oneMonth: Format.chartMonthDay(date)
-    case .threeMonths, .oneYear: Format.chartMonth(date)
+  /// "Fri 13" for a session over five days, "Nov 9" for a week or a day of a longer range, the
+  /// month for a month or quarter.
+  private static func label(_ date: Date, period: ChartAxis.Period, range: ChartRange) -> String {
+    switch period {
+    case .day where range == .fiveDays: Format.chartSessionDay(date)
+    case .day, .week: Format.chartMonthDay(date)
+    case .month, .quarter: Format.chartMonth(date)
     }
   }
 }
