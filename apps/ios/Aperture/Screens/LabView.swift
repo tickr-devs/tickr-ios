@@ -7,7 +7,7 @@ import SwiftUI
 /// Approving a version stays on the Mac.
 struct LabView: View {
   /// Order in which the blocks rise in (`rise(step:)`).
-  private enum Order: Int { case active = 1, observers, refusals, later }
+  private enum Order: Int { case active = 1, versions, observers, refusals, later }
 
   @Environment(AppModel.self) private var model
   @State private var lab = Container.shared.labModel()
@@ -42,6 +42,9 @@ struct LabView: View {
         .apertureCard()
         .rise(step: Order.active.rawValue)
 
+        VersionsCard(curves: curves(status), missing: missing,
+          end: WireDate(newYorkDateOf: status.writtenAt.date) == model.today ? model.botNow : status.writtenAt.date)
+          .rise(step: Order.versions.rawValue)
         ObserversCard(lab: lab, traded: Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol)))
           .rise(step: Order.observers.rawValue)
         RefusalsCard(counts: lab.refusals, failure: lab.refusalsFailure)
@@ -63,6 +66,20 @@ struct LabView: View {
   private var sessionKey: [String] {
     [model.connection.url?.absoluteString, model.status.map { WireDate(newYorkDateOf: $0.writtenAt.date).text }]
       .compactMap { $0 }
+  }
+
+  /// The trading strategy's line, then each observer's whose trades the bot could list.
+  private func curves(_ status: StatusV1) -> [VersionCurve] {
+    [VersionCurve.active(name: status.strategy.name, version: status.strategy.version, trades: status.tradesToday,
+      total: status.resultTodayGrossUsd.value)]
+      + (lab.observers?.observers.compactMap(VersionCurve.simulated) ?? [])
+  }
+
+  /// Why an observer has no line: the bot could not list its simulated trades.
+  private var missing: [String] {
+    (lab.observers?.observers ?? []).filter { $0.trades == nil }.map { observer in
+      String(localized: L10n.Lab.noTrades(observer.name, observer.version, observer.tradesCause ?? Format.missing))
+    }
   }
 
   private func load() async {

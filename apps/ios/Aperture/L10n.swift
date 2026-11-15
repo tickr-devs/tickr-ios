@@ -806,6 +806,36 @@ enum L10n {
     static var noCause: LocalizedStringResource {
       LocalizedStringResource("lab.noCause", defaultValue: "No cause recorded", bundle: L10n.bundle)
     }
+    static func noTrades(_ name: String, _ version: String, _ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.noTrades", defaultValue: "\(name) v\(version): no simulated trades (\(cause))", bundle: L10n.bundle)
+    }
+    static var versions: LocalizedStringResource {
+      LocalizedStringResource("lab.versions", defaultValue: "Today if each version traded", bundle: L10n.bundle)
+    }
+    static var noOrders: LocalizedStringResource {
+      LocalizedStringResource("lab.noOrders", defaultValue: "observers place no orders", bundle: L10n.bundle)
+    }
+    static var result: LocalizedStringResource {
+      LocalizedStringResource("lab.result", defaultValue: "Result", bundle: L10n.bundle)
+    }
+    static var time: LocalizedStringResource {
+      LocalizedStringResource("lab.time", defaultValue: "Time", bundle: L10n.bundle)
+    }
+    static var version: LocalizedStringResource {
+      LocalizedStringResource("lab.version", defaultValue: "Version", bundle: L10n.bundle)
+    }
+    static var noClosed: LocalizedStringResource {
+      LocalizedStringResource("lab.noClosed", defaultValue: "No version has closed a trade yet.", bundle: L10n.bundle)
+    }
+    static var observerRole: LocalizedStringResource {
+      LocalizedStringResource("lab.observerRole", defaultValue: "observer", bundle: L10n.bundle)
+    }
+    static var activeRole: LocalizedStringResource {
+      LocalizedStringResource("lab.activeRole", defaultValue: "trades", bundle: L10n.bundle)
+    }
+    static var partial: LocalizedStringResource {
+      LocalizedStringResource("lab.partial", defaultValue: "incomplete", bundle: L10n.bundle)
+    }
     static var refusals: LocalizedStringResource {
       LocalizedStringResource("lab.refusals", defaultValue: "Why signals were refused today", bundle: L10n.bundle)
     }

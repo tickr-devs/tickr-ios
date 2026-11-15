@@ -3983,6 +3983,23 @@
         }
       }
     },
+    "lab.activeRole" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "trades"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "торгует"
+          }
+        }
+      }
+    },
     "lab.agreement" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4068,6 +4085,23 @@
         }
       }
     },
+    "lab.noClosed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No version has closed a trade yet."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ни одна версия ещё не закрыла сделку."
+          }
+        }
+      }
+    },
     "lab.noEntries" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4098,6 +4132,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Наблюдатели не настроены."
+          }
+        }
+      }
+    },
+    "lab.noOrders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "observers place no orders"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "наблюдатели не отправляют ордера"
           }
         }
       }
@@ -4136,6 +4187,57 @@
         }
       }
     },
+    "lab.noTrades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@: no simulated trades (%@)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@: нет симулированных сделок (%@)"
+          }
+        }
+      }
+    },
+    "lab.observerRole" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "observer"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "наблюдатель"
+          }
+        }
+      }
+    },
+    "lab.partial" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "incomplete"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "неполно"
+          }
+        }
+      }
+    },
     "lab.refusals" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4170,6 +4272,40 @@
         }
       }
     },
+    "lab.result" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Result"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Результат"
+          }
+        }
+      }
+    },
+    "lab.time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время"
+          }
+        }
+      }
+    },
     "lab.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4200,6 +4336,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "торгует"
+          }
+        }
+      }
+    },
+    "lab.version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия"
+          }
+        }
+      }
+    },
+    "lab.versions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today if each version traded"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня, если бы торговала каждая версия"
           }
         }
       }
