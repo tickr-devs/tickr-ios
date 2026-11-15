@@ -41,6 +41,8 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       "bars-v1": { try roundTrip(BarsV1.self, $0) },
       "settings-v1": { try roundTrip(SettingsV1.self, $0) },
       "explain-v1": { try roundTrip(ExplainV1.self, $0) },
+      "account-v1": { try roundTrip(AccountV1.self, $0) },
+      "account-response-v1": { try roundTrip(AccountResponseV1.self, $0) },
     ]
     for name in names {
       let schema = String(name.prefix { $0 != "." })
@@ -57,7 +59,8 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       .map { String($0.dropLast(".schema.json".count)) }
     #expect(Set(names) == ["status-v1", "command-v1", "status-response-v1",
       "command-accepted-v1", "pending-commands-v1", "error-v1",
-      "days-v1", "day-v1", "bars-v1", "settings-v1", "explain-v1"])
+      "days-v1", "day-v1", "bars-v1", "settings-v1", "explain-v1",
+      "account-v1", "account-response-v1"])
   }
 
   @Test func fullStatusValues() throws {
@@ -113,6 +116,30 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(day.barSymbols == ["ABCD", "WXYZ"])
     let days = try Wire.decoder().decode(DaysV1.self, from: fixture("days-v1.json"))
     #expect(days.days.map(\.hasBars) == [true, false])
+  }
+
+  @Test func dailyMoneyAndPositionsValues() throws {
+    let status = try Wire.decoder().decode(StatusV1.self, from: fixture("status-v1.example.json"))
+    #expect(status.realizedLossTodayUsd?.text == "1.60")
+    #expect(status.openReservationsUsd?.text == "50")
+    #expect(status.dailyRoomUsd?.text == "248.40")
+    #expect(status.positions.map(\.symbol) == ["ABCD"])
+    let settings = try Wire.decoder().decode(SettingsV1.self, from: fixture("settings-v1.json"))
+    #expect(settings.risk.minDailyRoomUsd.text == "10")
+  }
+
+  @Test func accountValues() throws {
+    let fresh = try Wire.decoder().decode(AccountResponseV1.self, from: fixture("account-response-v1.json"))
+    #expect(!fresh.stale)
+    #expect(fresh.account.matchesRecords)
+    #expect(fresh.account.mismatch == nil)
+    #expect(fresh.account.equityUsd == nil)
+    #expect(fresh.account.orders.first?.stopPrice?.text == "11.90")
+    let stale = try Wire.decoder().decode(AccountResponseV1.self, from: fixture("account-response-v1.stale.json"))
+    #expect(stale.stale)
+    #expect(!stale.account.matchesRecords)
+    #expect(stale.account.positions.last?.avgPrice == nil)
+    #expect(stale.account.orders.map(\.ours) == [true, false])
   }
 
   @Test func settingsValues() throws {

@@ -9,6 +9,8 @@ public struct RiskSettings: Codable, Hashable, Sendable {
   public let maxDailyLossUsd: DecimalString
   public let maxOpenPositions: Int
   public let maxQuoteAgeSeconds: DecimalString
+  /// Below this much daily room the bot takes no new entries.
+  public let minDailyRoomUsd: DecimalString
 
   enum CodingKeys: String, CodingKey {
     case plannedLossUsd = "planned_loss_usd"
@@ -16,6 +18,7 @@ public struct RiskSettings: Codable, Hashable, Sendable {
     case maxDailyLossUsd = "max_daily_loss_usd"
     case maxOpenPositions = "max_open_positions"
     case maxQuoteAgeSeconds = "max_quote_age_seconds"
+    case minDailyRoomUsd = "min_daily_room_usd"
   }
 }
 
