@@ -392,8 +392,13 @@ private struct DayCard: View {
   let live: Bool
   let figures: DayFigures
 
+  @Environment(\.dynamicTypeSize) private var typeSize
+
   var body: some View {
-    HStack(spacing: Tokens.Space.m) {
+    // At accessibility text sizes the curve goes under the figures, so the result keeps the width.
+    let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: Tokens.Space.m))
+      : AnyLayout(HStackLayout(spacing: Tokens.Space.m))
+    layout {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         HStack(spacing: Tokens.Space.s) {
           if live { PulseDot(Palette.profit, size: Tokens.Size.dotSmall) }
@@ -404,13 +409,15 @@ private struct DayCard: View {
         Text(verbatim: Money.signedUSD(shown))
           .font(Tokens.Typography.metric)
           .foregroundStyle(Palette.result(figures.result))
+          .lineLimit(1)
+          .minimumScaleFactor(StatTile.minimumScale)
           .contentTransition(.numericText(value: NSDecimalNumber(decimal: shown).doubleValue))
           .accessibilityLabel(Text(verbatim: Money.signedUSD(figures.result)))
         Text(figures.counts)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }
-      Spacer()
+      Spacer(minLength: 0)
       // A day without closed trades has no curve; one point would draw as a lone ring.
       if figures.curve.count > 1 {
         DrawnSparkline(values: figures.curve, color: Palette.result(figures.result))
@@ -604,17 +611,53 @@ private struct TradesList: View {
     return list
   }
 
+  private func headerText(_ symbol: String) -> some View {
+    Text(verbatim: symbol)
+      .font(Tokens.Typography.calloutMono.bold())
+      .lineLimit(1)
+      .minimumScaleFactor(StatTile.minimumScale)
+  }
+
+  private func timeText(_ time: String) -> some View {
+    Text(verbatim: time)
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.textQuaternary)
+      .lineLimit(1)
+      .minimumScaleFactor(StatTile.minimumScale)
+  }
+
+  private func resultText(_ result: String, tone: Tone) -> some View {
+    Text(verbatim: result)
+      .font(Tokens.Typography.calloutMono.bold())
+      .foregroundStyle(tone.text)
+      .lineLimit(1)
+      .minimumScaleFactor(StatTile.minimumScale)
+  }
+
   private func row(symbol: String, time: String, tag: String, tagSymbol: String, tone: Tone, result: String,
     figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack(spacing: Tokens.Space.s) {
-        Text(verbatim: symbol).font(Tokens.Typography.calloutMono.bold())
-        Text(verbatim: time).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
-        Spacer()
-        StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
-        Text(verbatim: result)
-          .font(Tokens.Typography.calloutMono.bold())
-          .foregroundStyle(tone.text)
+      // One line while it fits; at large text sizes the symbol and result keep a line of their own
+      // and the time and tag wrap below, so no figure breaks in the middle or falls into letters.
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: Tokens.Space.s) {
+          headerText(symbol)
+          timeText(time)
+          Spacer(minLength: Tokens.Space.s)
+          StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
+          resultText(result, tone: tone)
+        }
+        VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+          HStack(spacing: Tokens.Space.s) {
+            headerText(symbol)
+            Spacer(minLength: Tokens.Space.s)
+            resultText(result, tone: tone)
+          }
+          ChipFlow {
+            timeText(time)
+            StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
+          }
+        }
       }
       ChipFlow {
         chipViews(figures)
@@ -709,21 +752,45 @@ private struct SkippedRow: View {
       + String(localized: L10n.Activity.repeats(group.count))
   }
 
+  private func symbolText(_ symbol: String) -> some View {
+    Text(verbatim: symbol)
+      .font(Tokens.Typography.bodyMono.bold())
+      .foregroundStyle(Palette.textPrimary)
+      .lineLimit(1)
+      .minimumScaleFactor(StatTile.minimumScale)
+  }
+
+  private var tagPill: some View {
+    StatusPill(refused ? L10n.Activity.refusedTag : L10n.Activity.tooLateTag,
+      systemImage: refused ? Self.refusedSymbol : Self.tooLateSymbol, tone: refused ? .warning : .neutral)
+  }
+
+  private var whenLabel: some View {
+    Label { Text(verbatim: when) } icon: { Image(systemName: Self.whenSymbol) }
+      .labelStyle(ControlLabelStyle())
+      .font(Tokens.Typography.captionMono)
+      .foregroundStyle(Palette.textTertiary)
+      .lineLimit(1)
+      .minimumScaleFactor(StatTile.minimumScale)
+      .hint(L10n.Activity.hintWhen)
+  }
+
   var body: some View {
     let signal = group.latest
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: signal.symbol)
-          .font(Tokens.Typography.bodyMono.bold())
-          .foregroundStyle(Palette.textPrimary)
-        StatusPill(refused ? L10n.Activity.refusedTag : L10n.Activity.tooLateTag,
-          systemImage: refused ? Self.refusedSymbol : Self.tooLateSymbol, tone: refused ? .warning : .neutral)
-        Spacer()
-        Label { Text(verbatim: when) } icon: { Image(systemName: Self.whenSymbol) }
-          .labelStyle(ControlLabelStyle())
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textTertiary)
-          .hint(L10n.Activity.hintWhen)
+      // One line while it fits, else the symbol, tag and time wrap as chips.
+      ViewThatFits(in: .horizontal) {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+          symbolText(signal.symbol)
+          tagPill
+          Spacer(minLength: Tokens.Space.s)
+          whenLabel
+        }
+        ChipFlow {
+          symbolText(signal.symbol)
+          tagPill
+          whenLabel
+        }
       }
       if let cause = group.cause {
         CauseText(cause: cause)

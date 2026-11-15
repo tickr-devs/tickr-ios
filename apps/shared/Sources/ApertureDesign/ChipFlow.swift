@@ -18,15 +18,22 @@ public struct ChipFlow: Layout {
 
   public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
     var y = bounds.minY
+    let line = Self.proposal(width: bounds.width)
     for row in rows(width: bounds.width, subviews: subviews) {
       var x = bounds.minX
       for index in row.indices {
-        let size = subviews[index].sizeThatFits(.unspecified)
-        subviews[index].place(at: CGPoint(x: x, y: y + (row.height - size.height) / 2), proposal: .unspecified)
+        let size = subviews[index].sizeThatFits(line)
+        subviews[index].place(at: CGPoint(x: x, y: y + (row.height - size.height) / 2), proposal: line)
         x += size.width + spacing
       }
       y += row.height + spacing
     }
+  }
+
+  /// What a chip is offered: its own width, but never more than the whole line, so a chip wider
+  /// than the line shrinks or wraps (by its own line limit and scale) instead of running past it.
+  private static func proposal(width: CGFloat) -> ProposedViewSize {
+    ProposedViewSize(width: width.isFinite ? width : nil, height: nil)
   }
 
   private struct Row {
@@ -38,8 +45,9 @@ public struct ChipFlow: Layout {
   private func rows(width: CGFloat, subviews: Subviews) -> [Row] {
     var rows: [Row] = []
     var row = Row()
+    let line = Self.proposal(width: width)
     for index in subviews.indices {
-      let size = subviews[index].sizeThatFits(.unspecified)
+      let size = subviews[index].sizeThatFits(line)
       let needed = row.indices.isEmpty ? size.width : row.width + spacing + size.width
       if needed > width, !row.indices.isEmpty {
         rows.append(row)
