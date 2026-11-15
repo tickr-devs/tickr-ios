@@ -79,12 +79,14 @@ struct HomeView: View {
         }
         .disabled(!model.canCommand || dayModel.shown != nil)
         .accessibilityLabel(Text(L10n.Control.title))
+        .accessibilityIdentifier(AccessibilityID.botControl)
         NavigationLink {
           SettingsView()
         } label: {
           Image(systemName: "gearshape")
         }
         .accessibilityLabel(Text(L10n.Home.settings))
+        .accessibilityIdentifier(AccessibilityID.settings)
       }
     }
     .botControl(isPresented: $showControl)
@@ -519,6 +521,7 @@ private struct LiveFlowCard: View {
         .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
+      .accessibilityIdentifier(AccessibilityID.risk)
       HStack(alignment: .top) {
         // Equal columns, as in the design: a long value never widens its stage.
         ForEach(stages) { stage in

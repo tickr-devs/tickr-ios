@@ -19,25 +19,23 @@ final class ScreenTourUITests: XCTestCase {
   private static let wait: TimeInterval = 10
   /// Most extra screenshots taken while scrolling one screen down.
   private static let maxScrolls = 4
-  /// English labels the tour taps (the app's L10n default values).
-  private enum Label {
-    static let settings = "Settings"
-    static let botControl = "Bot control"
-    static let cancel = "Cancel"
-    /// Title of the Home card that opens Risk (L10n.Flow.title).
-    static let liveFlow = "Live flow"
-    static let calendar = "Calendar"
+  /// Accessibility identifiers the tour taps, the same in every language (the app's
+  /// `AccessibilityID`).
+  private enum ID {
+    static let botControl = "home.botControl"
+    static let settings = "home.settings"
+    static let risk = "home.risk"
+    static let botControlCancel = "botControl.cancel"
+    static let calendar = "activity.calendar"
   }
 
   private var app = XCUIApplication()
-  private var english = true
 
   override func setUp() async throws {
     continueAfterFailure = true
     let environment = ProcessInfo.processInfo.environment
     let api = environment["TOUR_API"] ?? Self.defaultAPI
     let language = environment["TOUR_LANGUAGE"] ?? Self.defaultLanguage
-    english = language == Self.defaultLanguage
     app.launchArguments = ["-apiBaseURL", api, "-AppleLanguages", "(\(language))"]
     app.launch()
     sleep(Self.settle)
@@ -59,17 +57,15 @@ final class ScreenTourUITests: XCTestCase {
   // MARK: - screens behind Home and Activity
 
   private func homeDetails() {
-    if english, tap(app.buttons[Label.botControl]) {
+    if tap(app.buttons[ID.botControl]) {
       shot("tab0-bot-control")
       guard dismiss() else { return }
     }
-    // The Live flow card's header is the link to Risk; its label starts with the card title.
-    let flow = NSPredicate(format: "label BEGINSWITH[c] %@", Label.liveFlow)
-    if english, tap(app.buttons.matching(flow).firstMatch) {
+    if tap(app.buttons[ID.risk]) {
       capture(screen: "tab0-risk")
       back()
     }
-    if english, tap(app.buttons[Label.settings]) {
+    if tap(app.buttons[ID.settings]) {
       capture(screen: "tab0-settings")
       back()
     }
@@ -81,9 +77,9 @@ final class ScreenTourUITests: XCTestCase {
       sleep(Self.settle)
       capture(screen: "tab3-section\(index)")
     }
-    if english, tap(app.buttons[Label.calendar]) {
+    if tap(app.buttons[ID.calendar]) {
       shot("tab3-calendar")
-      _ = tap(app.buttons[Label.calendar])
+      _ = tap(app.buttons[ID.calendar])
     }
   }
 
@@ -102,7 +98,7 @@ final class ScreenTourUITests: XCTestCase {
   /// and leaves the remaining Home screens out, if Cancel cannot be reached or the sheet stays.
   @discardableResult
   private func dismiss() -> Bool {
-    let cancel = app.buttons[Label.cancel].firstMatch
+    let cancel = app.buttons[ID.botControlCancel].firstMatch
     guard cancel.waitForExistence(timeout: Self.wait) else {
       XCTFail("the bot-control sheet has no Cancel button")
       return false

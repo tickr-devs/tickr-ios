@@ -56,6 +56,7 @@ struct ActivityView: View {
             .symbolVariant(showsCalendar ? SymbolVariants.fill.circle : .none)
         }
         .accessibilityLabel(Text(L10n.Activity.calendar))
+        .accessibilityIdentifier(AccessibilityID.calendar)
       }
     }
     .animation(Tokens.Motion.standard, value: section)

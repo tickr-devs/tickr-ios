@@ -67,6 +67,7 @@ struct BotControl: ViewModifier {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.action(.ghost, size: .large))
+        .accessibilityIdentifier(AccessibilityID.botControlCancel)
       }
       .padding(Tokens.Space.l)
     }
