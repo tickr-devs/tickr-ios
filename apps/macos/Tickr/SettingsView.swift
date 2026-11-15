@@ -238,7 +238,7 @@ private struct EnvironmentSettings: View {
   var body: some View {
     Form {
       Section {
-        LabeledContent(String(localized: L10n.Settings.environment), value: model.status?.environment ?? model.settings?.environment ?? Format.missing)
+        LabeledContent(String(localized: L10n.Settings.environment), value: (model.status?.environment ?? model.settings?.environment).map(ApiText.environment) ?? Format.missing)
         if let gate = model.status?.tradingGate {
           LabeledContent(String(localized: L10n.Settings.tradingGate),
             value: String(localized: gate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed))

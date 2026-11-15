@@ -267,6 +267,25 @@ enum L10n {
       defaultValue: "unsupported \(key) \(value), this app reads \(expected)", bundle: bundle)
   }
 
+  // MARK: Environments (ApiText.environment)
+
+  /// Where the bot trades: the broker's test environment.
+  static var environmentSandbox: LocalizedStringResource {
+    LocalizedStringResource("kit.environment.sandbox", defaultValue: "Sandbox", bundle: bundle)
+  }
+  /// Where the bot runs: `tickr demo`, a made-up day with no broker.
+  static var environmentDemo: LocalizedStringResource {
+    LocalizedStringResource("kit.environment.demo", defaultValue: "Demo", bundle: bundle)
+  }
+  /// Where the bot trades: the real account.
+  static var environmentProduction: LocalizedStringResource {
+    LocalizedStringResource("kit.environment.production", defaultValue: "Production", bundle: bundle)
+  }
+  /// Where the bot trades, when the bot sends no environment name.
+  static var environmentUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.environment.unknown", defaultValue: "Unknown environment", bundle: bundle)
+  }
+
   // MARK: Fences (ApiText.fenceTitle)
 
   /// A fence of a kind this app does not know; the bot's detail follows it.

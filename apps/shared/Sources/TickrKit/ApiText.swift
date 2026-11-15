@@ -107,10 +107,35 @@ public enum ApiText {
     String(localized: OrderStatus(rawValue: raw)?.title ?? L10n.orderStatusOther)
   }
 
+  /// Where the bot trades (`environment` of status and settings) in words. The three known
+  /// environments read localized; any other is a name the owner chose in config/bot.toml, so it
+  /// reads as written (like a strategy name), and only an empty one reads as "Unknown environment".
+  public static func environment(_ raw: String) -> String {
+    if let known = BotEnvironment(rawValue: raw) { return String(localized: known.title) }
+    return raw.isEmpty ? String(localized: L10n.environmentUnknown) : raw
+  }
+
   /// A strategy check's rule; a rule this app does not know (a newer strategy) reads as
   /// "Other check", never as the strategy's key.
   public static func rule(_ raw: String) -> String {
     String(localized: CheckRule(rawValue: raw)?.title ?? L10n.ruleOther)
+  }
+}
+
+/// The environments the bot names in `environment`: the tables under [environments] in
+/// config/bot.toml. Only for display; nothing in the apps behaves differently by environment.
+public enum BotEnvironment: String, Sendable {
+  case sandbox
+  case production
+  /// `tickr demo` (config/demo.toml).
+  case demo
+
+  public var title: LocalizedStringResource {
+    switch self {
+    case .sandbox: L10n.environmentSandbox
+    case .production: L10n.environmentProduction
+    case .demo: L10n.environmentDemo
+    }
   }
 }
 

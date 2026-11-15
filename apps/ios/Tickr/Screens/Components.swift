@@ -235,7 +235,7 @@ struct EnvironmentBadge: View {
   let environment: String
 
   var body: some View {
-    Text(verbatim: environment.uppercased())
+    Text(verbatim: ApiText.environment(environment).uppercased())
       .font(Tokens.Typography.badge)
       .tracking(Tokens.Typography.badgeTracking)
       .padding(.horizontal, Tokens.Space.s)
@@ -243,7 +243,7 @@ struct EnvironmentBadge: View {
       .foregroundStyle(Palette.warningText)
       .background(Palette.warning.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
       .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.small).strokeBorder(Palette.warning.opacity(Tokens.Opacity.border)))
-      .accessibilityLabel(Text(L10n.Connect.environment(environment)))
+      .accessibilityLabel(Text(L10n.Connect.environment(ApiText.environment(environment))))
   }
 }
 

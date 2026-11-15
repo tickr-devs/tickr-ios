@@ -130,7 +130,7 @@ private struct Header: View {
           }
           #endif
           if let status = model.status {
-            Badge(verbatim: status.environment, color: Palette.warningText)
+            Badge(verbatim: ApiText.environment(status.environment), color: Palette.warningText)
             let open = status.tradingGate.open
             StateGlyph(open ? Self.gateOpenSymbol : Self.gateClosedSymbol, tone: open ? .profit : .warning,
               label: Text(verbatim: String(localized: open ? L10n.Overview.gateOpen : L10n.Overview.gateClosed)

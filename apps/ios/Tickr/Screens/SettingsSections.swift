@@ -13,7 +13,7 @@ struct EnvironmentSection: View {
   var body: some View {
     Section {
       SettingsRow(L10n.Settings.environment, systemImage: Self.symbol, tone: .warning) {
-        StatusPill(verbatim: status.environment.capitalized, tone: .warning)
+        StatusPill(verbatim: ApiText.environment(status.environment), tone: .warning)
       }
     } header: {
       Text(L10n.Settings.environment)
