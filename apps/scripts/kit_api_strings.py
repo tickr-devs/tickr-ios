@@ -73,6 +73,11 @@ for code, en, ru in [
     ),
     ("unknown_order", "An order's outcome is unknown", "Исход ордера неизвестен"),
     ("order_missing", "An order is missing at the broker", "Ордера нет у брокера"),
+    (
+        "detail_unreadable",
+        "An order's detail cannot be read",
+        "Детали ордера не читаются",
+    ),
     ("status_unknown", "An order's status is unknown", "Статус ордера неизвестен"),
     ("unprotected", "A position has no verified stop", "У позиции нет подтверждённого стопа"),
     ("over_protected", "A position has more than one stop", "У позиции больше одного стопа"),

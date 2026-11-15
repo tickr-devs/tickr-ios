@@ -46,6 +46,7 @@ public enum FenceKind: String, CaseIterable, Sendable {
   case detailBudget = "detail_budget"
   case unknownOrder = "unknown_order"
   case orderMissing = "order_missing"
+  case detailUnreadable = "detail_unreadable"
   case statusUnknown = "status_unknown"
   case unprotected = "unprotected"
   case overProtected = "over_protected"
@@ -73,6 +74,7 @@ public enum FenceKind: String, CaseIterable, Sendable {
     case .detailBudget: L10n.fenceDetailBudget
     case .unknownOrder: L10n.fenceUnknownOrder
     case .orderMissing: L10n.fenceOrderMissing
+    case .detailUnreadable: L10n.fenceDetailUnreadable
     case .statusUnknown: L10n.fenceStatusUnknown
     case .unprotected: L10n.fenceUnprotected
     case .overProtected: L10n.fenceOverProtected

@@ -83,6 +83,18 @@ extension L10n {
     LocalizedStringResource("kit.fenceReason.order_missing",
       defaultValue: "An accepted order is not found at the broker", bundle: bundle)
   }
+  /// A fence's cause (`Fence.code`). detail_unreadable (values: seconds)
+  static var fenceReasonDetailUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.detail_unreadable",
+      // swiftlint:disable:next line_length
+      defaultValue: "The order's detail has been unreadable for {seconds} s; its state is unknown: check it in the Webull app", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). stop_cancel_unconfirmed (values: seconds)
+  static var fenceReasonStopCancelUnconfirmed: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.stop_cancel_unconfirmed",
+      // swiftlint:disable:next line_length
+      defaultValue: "The stop's cancel was sent and its detail has been unreadable for {seconds} s: the stop may be gone and nothing is sold; check the position in the Webull app", bundle: bundle)
+  }
   /// A fence's cause (`Fence.code`). status_unmapped
   static var fenceReasonStatusUnmapped: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.status_unmapped",
@@ -108,6 +120,12 @@ extension L10n {
   static var fenceReasonUnprotectedExiting: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.unprotected_exiting",
       defaultValue: "No verified stop for {seconds} s: closing the position", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). unprotected_stop_unreadable (values: seconds)
+  static var fenceReasonUnprotectedStopUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.unprotected_stop_unreadable",
+      // swiftlint:disable:next line_length
+      defaultValue: "No verified stop for {seconds} s and a stop's detail cannot be read: that stop is kept and nothing is sold; close the position in the Webull app", bundle: bundle)
   }
   /// A fence's cause (`Fence.code`). stop_rejected_exiting
   static var fenceReasonStopRejectedExiting: LocalizedStringResource {

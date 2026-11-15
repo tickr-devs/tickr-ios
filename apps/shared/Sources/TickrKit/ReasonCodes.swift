@@ -107,11 +107,14 @@ public enum FenceReason: String, CaseIterable, Sendable {
   case sendOutcomeUnknown = "send_outcome_unknown"
   case crashedDuringSend = "crashed_during_send"
   case orderMissing = "order_missing"
+  case detailUnreadable = "detail_unreadable"
+  case stopCancelUnconfirmed = "stop_cancel_unconfirmed"
   case statusUnmapped = "status_unmapped"
   case stopCoversPart = "stop_covers_part"
   case stopsOverPosition = "stops_over_position"
   case unprotectedCloseByHand = "unprotected_close_by_hand"
   case unprotectedExiting = "unprotected_exiting"
+  case unprotectedStopUnreadable = "unprotected_stop_unreadable"
   case stopRejectedExiting = "stop_rejected_exiting"
   case exitRefusedNoStop = "exit_refused_no_stop"
   case exitRefusedStopAgain = "exit_refused_stop_again"
@@ -144,11 +147,14 @@ public enum FenceReason: String, CaseIterable, Sendable {
     case .sendOutcomeUnknown: [ReasonSentence(L10n.fenceReasonSendOutcomeUnknown, [])]
     case .crashedDuringSend: [ReasonSentence(L10n.fenceReasonCrashedDuringSend, [])]
     case .orderMissing: [ReasonSentence(L10n.fenceReasonOrderMissing, [])]
+    case .detailUnreadable: [ReasonSentence(L10n.fenceReasonDetailUnreadable, [.seconds])]
+    case .stopCancelUnconfirmed: [ReasonSentence(L10n.fenceReasonStopCancelUnconfirmed, [.seconds])]
     case .statusUnmapped: [ReasonSentence(L10n.fenceReasonStatusUnmapped, [])]
     case .stopCoversPart: [ReasonSentence(L10n.fenceReasonStopCoversPart, [.verified, .expected])]
     case .stopsOverPosition: [ReasonSentence(L10n.fenceReasonStopsOverPosition, [.covered, .held])]
     case .unprotectedCloseByHand: [ReasonSentence(L10n.fenceReasonUnprotectedCloseByHand, [.seconds])]
     case .unprotectedExiting: [ReasonSentence(L10n.fenceReasonUnprotectedExiting, [.seconds])]
+    case .unprotectedStopUnreadable: [ReasonSentence(L10n.fenceReasonUnprotectedStopUnreadable, [.seconds])]
     case .stopRejectedExiting: [ReasonSentence(L10n.fenceReasonStopRejectedExiting, [])]
     case .exitRefusedNoStop: [ReasonSentence(L10n.fenceReasonExitRefusedNoStop, [])]
     case .exitRefusedStopAgain: [ReasonSentence(L10n.fenceReasonExitRefusedStopAgain, [])]

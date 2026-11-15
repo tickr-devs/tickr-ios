@@ -110,6 +110,20 @@ GROUPS = [
                 "Принятый ордер не найден у брокера",
             ),
             (
+                "detail_unreadable",
+                "The order's detail has been unreadable for {seconds} s; its state is unknown: "
+                "check it in the Webull app",
+                "Детали ордера не читаются уже {seconds} с, его состояние неизвестно: "
+                "проверьте в приложении Webull",
+            ),
+            (
+                "stop_cancel_unconfirmed",
+                "The stop's cancel was sent and its detail has been unreadable for {seconds} s: "
+                "the stop may be gone and nothing is sold; check the position in the Webull app",
+                "Отмена стопа отправлена, а его детали не читаются уже {seconds} с: стопа может "
+                "не быть, ничего не продано; проверьте позицию в приложении Webull",
+            ),
+            (
                 "status_unmapped",
                 "The broker reports an order status the bot does not know",
                 "Брокер сообщает статус ордера, который бот не знает",
@@ -135,6 +149,13 @@ GROUPS = [
                 "unprotected_exiting",
                 "No verified stop for {seconds} s: closing the position",
                 "Подтверждённого стопа нет уже {seconds} с: позиция закрывается",
+            ),
+            (
+                "unprotected_stop_unreadable",
+                "No verified stop for {seconds} s and a stop's detail cannot be read: that stop "
+                "is kept and nothing is sold; close the position in the Webull app",
+                "Подтверждённого стопа нет уже {seconds} с, детали стопа не читаются: стоп "
+                "оставлен, ничего не продано; закройте позицию в приложении Webull",
             ),
             (
                 "stop_rejected_exiting",

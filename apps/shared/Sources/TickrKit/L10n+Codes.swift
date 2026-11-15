@@ -91,6 +91,11 @@ extension L10n {
     LocalizedStringResource("kit.fence.order_missing",
       defaultValue: "An order is missing at the broker", bundle: bundle)
   }
+  /// A fence (a block on new entries): detail_unreadable
+  static var fenceDetailUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.fence.detail_unreadable",
+      defaultValue: "An order's detail cannot be read", bundle: bundle)
+  }
   /// A fence (a block on new entries): status_unknown
   static var fenceStatusUnknown: LocalizedStringResource {
     LocalizedStringResource("kit.fence.status_unknown", defaultValue: "An order's status is unknown", bundle: bundle)
