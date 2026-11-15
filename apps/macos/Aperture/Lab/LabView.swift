@@ -77,7 +77,7 @@ private struct ObserversCard: View {
           if observers.isEmpty {
             Footnote(L10n.Lab.observersEmpty)
           }
-          ForEach(observers, id: \.self) { observer in
+          ForEach(observers) { observer in
             ObserverRow(observer: observer, live: model.isLive, traded: traded)
               .transition(.opacity)
           }

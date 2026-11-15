@@ -295,3 +295,10 @@ public struct SkippedV1: Codable, Hashable, Sendable {
     try c.encode(apiVersion, forKey: .apiVersion)
   }
 }
+
+extension ObserverV1: Identifiable {
+  /// An observer is one strategy version: lists key their rows by it, so a row keeps its identity
+  /// when the observer's decisions or trades change (keying by the whole value hashed every
+  /// decision and trade on each redraw and rebuilt the row on any change).
+  public var id: String { "\(name) \(version)" }
+}

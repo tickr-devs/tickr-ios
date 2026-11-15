@@ -1122,7 +1122,7 @@ private struct ObserversCard: View {
         if observers.isEmpty {
           Text(L10n.Observers.none).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
         }
-        ForEach(observers, id: \.self) { observer in
+        ForEach(observers) { observer in
           ObserverRow(observer: observer, live: model.isLive)
         }
       } else if model.observersError != nil {
