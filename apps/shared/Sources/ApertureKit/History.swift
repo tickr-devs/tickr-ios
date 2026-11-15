@@ -90,6 +90,12 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   public let stopPrice: DecimalString?
   public let plannedLossUsd: DecimalString
   public let resultGrossUsd: DecimalString
+  /// Seconds from the entry fill to the broker confirming the stop; nil when not recorded.
+  public let stopConfirmedAfterSeconds: DecimalString?
+  /// Worst and best open result while the trade was open (maximum adverse and favourable
+  /// excursion), in USD; nil when the bars to compute them were not captured.
+  public let maeUsd: DecimalString?
+  public let mfeUsd: DecimalString?
 
   public var id: String { tradeId }
 
@@ -104,6 +110,9 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     case stopPrice = "stop_price"
     case plannedLossUsd = "planned_loss_usd"
     case resultGrossUsd = "result_gross_usd"
+    case stopConfirmedAfterSeconds = "stop_confirmed_after_seconds"
+    case maeUsd = "mae_usd"
+    case mfeUsd = "mfe_usd"
   }
 
   public init(from decoder: Decoder) throws {
@@ -119,6 +128,9 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     stopPrice = try c.decodeNullable(DecimalString.self, forKey: .stopPrice)
     plannedLossUsd = try c.decode(DecimalString.self, forKey: .plannedLossUsd)
     resultGrossUsd = try c.decode(DecimalString.self, forKey: .resultGrossUsd)
+    stopConfirmedAfterSeconds = try c.decodeNullable(DecimalString.self, forKey: .stopConfirmedAfterSeconds)
+    maeUsd = try c.decodeNullable(DecimalString.self, forKey: .maeUsd)
+    mfeUsd = try c.decodeNullable(DecimalString.self, forKey: .mfeUsd)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -134,6 +146,9 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     try c.encodeNullable(stopPrice, forKey: .stopPrice)
     try c.encode(plannedLossUsd, forKey: .plannedLossUsd)
     try c.encode(resultGrossUsd, forKey: .resultGrossUsd)
+    try c.encodeNullable(stopConfirmedAfterSeconds, forKey: .stopConfirmedAfterSeconds)
+    try c.encodeNullable(maeUsd, forKey: .maeUsd)
+    try c.encodeNullable(mfeUsd, forKey: .mfeUsd)
   }
 
   /// Result in R (result / planned loss), nil when the planned loss is zero.

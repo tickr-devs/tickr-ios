@@ -78,6 +78,18 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(observers.observers.last?.resultCause == "no captured bars for 2026-11-16")
   }
 
+  @Test func tradeMetrics() throws {
+    let response = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json"))
+    let trade = try #require(response.status?.tradesToday.first)
+    #expect(trade.plannedLossUsd.text == "50")
+    #expect(trade.stopConfirmedAfterSeconds?.text == "1.250")
+    let day = try Wire.decoder().decode(DayV1.self, from: fixture("day-v1.json"))
+    #expect(day.trades.first?.maeUsd?.text == "-2.20")
+    #expect(day.trades.first?.mfeUsd?.text == "0.80")
+    #expect(day.trades.last?.stopConfirmedAfterSeconds == nil)
+    #expect(day.trades.last?.maeUsd == nil)
+  }
+
   @Test func fullStatusValues() throws {
     let response = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json"))
     let status = try #require(response.status)

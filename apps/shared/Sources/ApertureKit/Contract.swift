@@ -80,27 +80,6 @@ public struct Position: Codable, Hashable, Sendable {
   }
 }
 
-public struct Trade: Codable, Hashable, Sendable {
-  public let symbol: String
-  public let quantity: DecimalString
-  public let entryPrice: DecimalString
-  public let exitPrice: DecimalString
-  public let openedAt: WireTime
-  public let closedAt: WireTime
-  public let exitReason: String
-  public let resultGrossUsd: DecimalString
-
-  enum CodingKeys: String, CodingKey {
-    case symbol, quantity
-    case entryPrice = "entry_price"
-    case exitPrice = "exit_price"
-    case openedAt = "opened_at"
-    case closedAt = "closed_at"
-    case exitReason = "exit_reason"
-    case resultGrossUsd = "result_gross_usd"
-  }
-}
-
 public struct Freshness: Codable, Hashable, Sendable {
   public let lastBrokerReadAt: WireTime?
   public let lastQuoteAt: WireTime?
