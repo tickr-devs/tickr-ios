@@ -106,6 +106,7 @@ public struct APIClient: Sendable {
   static let statusPath = "/status"
   static let pendingPath = "/commands/pending"
   static let settingsPath = "/settings"
+  static let configPath = "/config"
   static let daysPath = "/days"
   static let barsPath = "/bars"
   static let accountPath = "/account"
@@ -244,6 +245,11 @@ public struct APIClient: Sendable {
   /// Risk limits and session times from the bot's config, as the API loaded them.
   public func settings() async throws -> SettingsV1 {
     try await perform(request(path: Self.settingsPath, body: nil), expect: Self.ok)
+  }
+
+  /// The bot's configuration file as it is on disk now, read-only, and whether it loads.
+  public func config() async throws -> ConfigV1 {
+    try await perform(request(path: Self.configPath, body: nil), expect: Self.ok)
   }
 
   /// Every New York date with records, newest first.
