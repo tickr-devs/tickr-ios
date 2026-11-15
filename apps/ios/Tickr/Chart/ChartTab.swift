@@ -410,7 +410,8 @@ private struct SymbolChips: View {
   }
 }
 
-/// Timeframe, zoom and the way back to the newest candle, then which lines the chart draws.
+/// Timeframe, candles or a line, zoom and the way back to the newest candle, then which lines the
+/// chart draws.
 private struct ChartControls: View {
   let chart: ChartModel
   let series: ChartSeries
@@ -421,48 +422,22 @@ private struct ChartControls: View {
     @Bindable var chart = chart
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       RangePicker(chart: chart)
-      // Timeframes, then zoom and the way back to the newest candle at the end, as on the design;
-      // at large text sizes the zoom and LIVE take the line under the timeframes.
-      RowStack(spacing: Tokens.Space.s) {
-        ScrollView(.horizontal) {
-          HStack(spacing: Tokens.Space.s) {
-            ForEach(chart.range.intervals) { timeframe in
-              let selected = timeframe == chart.timeframe
-              Button { chart.timeframe = timeframe } label: {
-                Text(ChartFormat.title(timeframe)).chip(on: selected)
-              }
-              .buttonStyle(.plain)
-              .accessibilityAddTraits(selected ? .isSelected : [])
-            }
-          }
-        }
-        .scrollIndicators(.hidden)
+      // Timeframes, then zoom and the way back to the newest candle at the end, as on the design,
+      // on one line at the phone's width; when they do not fit (large text) the zoom and LIVE take
+      // the line under the timeframes. Nothing scrolls sideways.
+      ViewThatFits(in: .horizontal) {
         HStack(spacing: Tokens.Space.s) {
+          timeframes
           styleControl
-          Group {
-            Button { zoom(by: Tokens.Chart.zoomStep) } label: { Image(systemName: "minus") }
-              .disabled(!viewport.canZoomOut(series))
-              .accessibilityLabel(Text(ChartText.zoomOut))
-            Button { zoom(by: 1 / Tokens.Chart.zoomStep) } label: { Image(systemName: "plus") }
-              .disabled(!viewport.canZoomIn)
-              .accessibilityLabel(Text(ChartText.zoomIn))
-          }
-          .font(.body.weight(.bold))
-          .buttonStyle(.borderless)
-          .frame(minWidth: Tokens.Size.iconButtonCompact, minHeight: Tokens.Size.iconButtonCompact)
-          if chart.isToday {
-            let following = viewport.showsEnd(series)
-            Button {
-              withAnimation(Tokens.Motion.quick) { viewport.followEnd(series) }
-            } label: {
-              Text(ChartText.live).textCase(.uppercase).chip(on: following, tint: Palette.accent, text: Palette.accentText)
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint(Text(ChartText.liveHint))
-            .accessibilityAddTraits(following ? .isSelected : [])
-          }
+          following
         }
-        .fixedSize()
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
+          HStack(spacing: Tokens.Space.s) {
+            timeframes
+            styleControl
+          }
+          following
+        }
       }
       // The design's four common lines as chips; the rest in the "ƒx" menu.
       ChipFlow(spacing: Tokens.Space.s) {
@@ -501,35 +476,71 @@ private struct ChartControls: View {
     .sensoryFeedback(.selection, trigger: chart.timeframe)
   }
 
+  /// The range's intervals, as chips.
+  private var timeframes: some View {
+    HStack(spacing: Tokens.Space.s) {
+      ForEach(chart.range.intervals) { timeframe in
+        let selected = timeframe == chart.timeframe
+        Button { chart.timeframe = timeframe } label: {
+          Text(ChartFormat.title(timeframe)).chip(on: selected)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+      }
+    }
+    .fixedSize()
+  }
+
+  /// Zoom out, zoom in, and LIVE: the way back to the newest candle, today only.
+  private var following: some View {
+    HStack(spacing: Tokens.Space.s) {
+      Group {
+        Button { zoom(by: Tokens.Chart.zoomStep) } label: { Image(systemName: "minus") }
+          .disabled(!viewport.canZoomOut(series))
+          .accessibilityLabel(Text(ChartText.zoomOut))
+        Button { zoom(by: 1 / Tokens.Chart.zoomStep) } label: { Image(systemName: "plus") }
+          .disabled(!viewport.canZoomIn)
+          .accessibilityLabel(Text(ChartText.zoomIn))
+      }
+      .font(.body.weight(.bold))
+      .buttonStyle(.borderless)
+      .frame(minWidth: Tokens.Size.iconButtonCompact, minHeight: Tokens.Size.iconButtonCompact)
+      if chart.isToday {
+        let following = viewport.showsEnd(series)
+        Button {
+          withAnimation(Tokens.Motion.quick) { viewport.followEnd(series) }
+        } label: {
+          Text(ChartText.live).textCase(.uppercase).chip(on: following, tint: Palette.accent, text: Palette.accentText)
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text(ChartText.liveHint))
+        .accessibilityAddTraits(following ? .isSelected : [])
+      }
+    }
+    .fixedSize()
+  }
+
   /// Symbols of the indicator menu's chip ("ƒx ▾").
   static let indicatorsSymbol = "function"
   static let menuSymbol = "chevron.down"
 
-  /// Candles or a line, as two joined buttons with the design's own glyphs.
+  /// Candles or a line: one chip with the design's glyph of the way the chart draws now; a tap
+  /// switches to the other. VoiceOver reads the way it draws now ("Candles" or "Line").
   private var styleControl: some View {
-    HStack(spacing: 0) {
-      styleButton(.candles, glyph: .candles, label: ChartText.candles)
-      Rectangle().fill(Palette.separatorStrong).frame(width: Tokens.Stroke.thin)
-      styleButton(.line, glyph: .line, label: ChartText.lineStyle)
-    }
-    .fixedSize(horizontal: false, vertical: true)
-    .clipShape(Capsule())
-    .overlay(Capsule().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-  }
-
-  private func styleButton(_ style: CandleChart.Style, glyph: DesignGlyph, label: LocalizedStringResource) -> some View {
-    let on = lines.style == style
-    return Button { lines.style = style } label: {
-      DesignGlyphView(glyph, side: Tokens.Size.chipGlyph)
-        .foregroundStyle(on ? Palette.infoText : Palette.textTertiary)
-        .padding(.horizontal, Tokens.Space.s)
-        .padding(.vertical, Tokens.Space.xs)
+    let candles = lines.style == .candles
+    return Button {
+      lines.style = candles ? .line : .candles
+    } label: {
+      DesignGlyphView(candles ? .candles : .line, side: Tokens.Size.chipGlyph)
         .frame(minHeight: Tokens.Size.iconButtonCompact)
-        .background(on ? Palette.info.opacity(TickrTabBar.selectedWash) : .clear)
+        .padding(.horizontal, Tokens.Space.s)
+        .background(Palette.info.opacity(TickrTabBar.selectedWash), in: Capsule())
+        .overlay(Capsule().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+        .contentShape(Capsule())
     }
     .buttonStyle(.plain)
-    .accessibilityLabel(Text(label))
-    .accessibilityAddTraits(on ? .isSelected : [])
+    .fixedSize()
+    .accessibilityLabel(Text(candles ? ChartText.candles : ChartText.lineStyle))
   }
 
   /// A line's chip: washed and outlined in `info` while the chart draws it.

@@ -675,8 +675,11 @@ private struct TradesList: View {
     VStack(spacing: Tokens.Space.s) {
       ForEach(positions, id: \.symbol) { position in
         let state = position.stop.state
-        row(symbol: position.symbol, time: String(localized: L10n.Activity.openSince(Format.time(position.openedAt.date))),
-          tag: String(localized: L10n.Activity.openTag), tagSymbol: Self.openSymbol, tone: .accent,
+        // As on the design: no time beside the symbol (the fill time is a chip below), and a verified
+        // stop said in the tag.
+        row(symbol: position.symbol, time: nil,
+          tag: String(localized: state == .verified ? L10n.Activity.openVerifiedTag : L10n.Activity.openTag),
+          tagSymbol: Self.openSymbol, tone: .accent,
           result: String(localized: L10n.Common.quantityAt(position.quantity.text, Money.price(position.entryPrice.value))),
           figures: openFigures(position), stopState: state.isProtected ? nil : state, open: true)
           .rise(step: ActivityView.Order.list.rawValue)
@@ -798,7 +801,7 @@ private struct TradesList: View {
   }
 
   private func row(
-    symbol: String, time: String, tag: String, tagSymbol: String, tone: Tone, result: String,
+    symbol: String, time: String?, tag: String, tagSymbol: String, tone: Tone, result: String,
     figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil,
     open: Bool = false, after: [PriceAfterV1] = [], another: TradeLine? = nil
   ) -> some View {
@@ -808,7 +811,7 @@ private struct TradesList: View {
       ViewThatFits(in: .horizontal) {
         HStack(spacing: Tokens.Space.s) {
           headerText(symbol)
-          timeText(time)
+          if let time { timeText(time) }
           Spacer(minLength: Tokens.Space.s)
           StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
           resultText(result, tone: tone)
@@ -822,7 +825,7 @@ private struct TradesList: View {
             if let another { anotherButton(another) }
           }
           ChipFlow {
-            timeText(time)
+            if let time { timeText(time) }
             StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
           }
         }
@@ -835,7 +838,7 @@ private struct TradesList: View {
           }
           resultText(result, tone: tone)
           ChipFlow {
-            timeText(time)
+            if let time { timeText(time) }
             StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
           }
         }

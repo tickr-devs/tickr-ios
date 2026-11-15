@@ -462,7 +462,7 @@ struct TickrTabBar: View {
       VStack(spacing: Tokens.Space.xs) {
         DesignGlyphView(tab.glyph, side: Tokens.Size.tabGlyph)
         Text(tab.title)
-          .font(.caption2.weight(.medium))
+          .font(Tokens.Typography.tabLabel)
           .lineLimit(1)
           .minimumScaleFactor(Tokens.Shrink.standard)
       }

@@ -76,6 +76,8 @@ public enum Tokens {
     public static let quoteSize: CGFloat = 20
     /// Figures in compact tiles and stat rows (Trades' day figures, performance figures).
     public static let figureSize: CGFloat = 18
+    /// Tab names under the tab glyphs in the iPhone tab bar.
+    public static let tabLabelSize: CGFloat = 11
 
     #if os(iOS)
     // iOS: each role follows a text style, so Dynamic Type (Settings › Display & Brightness ›
@@ -101,6 +103,8 @@ public enum Tokens {
     public static let panelFigure = Font.system(.largeTitle, design: .monospaced, weight: .bold)
     /// SF Symbols inside a compact round icon button.
     public static let symbolCompact = Font.system(.footnote, weight: .semibold)
+    /// Tab names under the tab glyphs in the iPhone tab bar.
+    public static let tabLabel = Font.system(.caption2, weight: .medium)
     #else
     public static let label = Font.system(size: labelSize, weight: .semibold, design: .monospaced)
     public static let badge = Font.system(size: badgeSize, weight: .bold, design: .monospaced)
@@ -122,6 +126,8 @@ public enum Tokens {
     public static let panelFigure = Font.system(size: panelFigureSize, weight: .bold, design: .monospaced)
     /// SF Symbols inside a compact round icon button.
     public static let symbolCompact = Font.system(size: symbolCompactSize, weight: .semibold)
+    /// Tab names under the tab glyphs in the iPhone tab bar.
+    public static let tabLabel = Font.system(size: tabLabelSize, weight: .medium)
     #endif
     /// Buttons drawn by the apps' own button style (bot controls).
     public static let button = Font.system(.body, weight: .semibold)

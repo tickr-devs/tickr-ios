@@ -376,7 +376,7 @@ private struct LevelsCard: View {
           if let marks {
             price(marks, width: width, height: height)
           }
-          line(L10n.Positions.entry, color: Palette.textQuaternary,
+          line(L10n.Positions.entryLevel(Money.plain(entry)), color: Palette.textQuaternary,
             textColor: Palette.textTertiary, y: height * level(of: entry), width: width)
           if let stop {
             // The lower level's label hangs under its line, so the two labels never meet.
@@ -489,9 +489,14 @@ private struct ProtectionChain: View {
                 .scaleEffect(progress >= CGFloat(index) / CGFloat(max(steps.count - 1, 1)) ? 1 : Self.hiddenScale)
               Text(step.label).font(.footnote)
               Spacer()
-              Text(verbatim: step.detail)
-                .font(Tokens.Typography.annotation)
-                .foregroundStyle(Palette.textQuaternary)
+              if step.badge {
+                // The stop's state as a tag, as on the design: green VERIFIED, red otherwise.
+                Badge(verbatim: step.detail, color: step.ok ? Palette.profitText : Palette.lossText)
+              } else {
+                Text(verbatim: step.detail)
+                  .font(Tokens.Typography.annotation)
+                  .foregroundStyle(Palette.textQuaternary)
+              }
             }
             // The dot's colour says it to the eye; VoiceOver hears it.
             .accessibilityElement(children: .combine)
@@ -530,17 +535,27 @@ private struct ProtectionChain: View {
       ?? ApiText.prose(position.entryCauseCodes, text: position.entryCause) ?? Format.missing
   }
 
-  private var steps: [(label: LocalizedStringResource, detail: String, ok: Bool)] {
+  /// One step of the chain: its line, the detail on the right (a time, or the stop's state as a
+  /// tag), and whether it is proven.
+  private struct Step {
+    let label: LocalizedStringResource
+    let detail: String
+    var badge = false
+    let ok: Bool
+  }
+
+  private var steps: [Step] {
     let state = position.stop.state
     return [
-      (L10n.Positions.entrySent, entryDetail, entryProven),
-      (L10n.Positions.filled(position.quantity.text, Money.price(position.entryPrice.value)),
-        Format.clock((position.entry.filledAt ?? position.openedAt).date), true),
+      Step(label: L10n.Positions.entrySent, detail: entryDetail, ok: entryProven),
+      Step(label: L10n.Positions.filled(position.quantity.text, Money.price(position.entryPrice.value)),
+        detail: Format.clock((position.entry.filledAt ?? position.openedAt).date), ok: true),
       // No time: the status does not say when the stop was sent, and its order id means nothing here.
-      (L10n.Positions.stopSent(position.stop.price.map { Money.price($0.value) } ?? Format.missing), "",
-        state == .pending || state == .verified),
-      (L10n.Positions.stopWorking, Board.stopStateTitle(state), state.isProtected),
-      (L10n.Positions.reconciled, brokerReadAt.map(Format.clock) ?? Format.missing, brokerReadAt != nil && reconciled),
+      Step(label: L10n.Positions.stopSent(position.stop.price.map { Money.price($0.value) } ?? Format.missing),
+        detail: "", ok: state == .pending || state == .verified),
+      Step(label: L10n.Positions.stopWorking, detail: Board.stopStateTitle(state), badge: true, ok: state.isProtected),
+      Step(label: L10n.Positions.reconciled, detail: brokerReadAt.map(Format.clock) ?? Format.missing,
+        ok: brokerReadAt != nil && reconciled),
     ]
   }
 }

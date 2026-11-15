@@ -987,23 +987,6 @@
         }
       }
     },
-    "activity.openSince" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "open %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "открыта %@"
-          }
-        }
-      }
-    },
     "activity.openTag" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1017,6 +1000,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ОТКРЫТА"
+          }
+        }
+      }
+    },
+    "activity.openVerifiedTag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OPEN · VERIFIED"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОТКРЫТА · СТОП ПОДТВЕРЖДЁН"
           }
         }
       }
@@ -6897,23 +6897,6 @@
         }
       }
     },
-    "positions.entry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "entry"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "вход"
-          }
-        }
-      }
-    },
     "positions.entryConfirmedLater" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6927,6 +6910,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "исход неизвестен при отправке, брокер подтвердил"
+          }
+        }
+      }
+    },
+    "positions.entryLevel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entry %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вход %@"
           }
         }
       }

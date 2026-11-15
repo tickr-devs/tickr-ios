@@ -506,9 +506,9 @@ enum L10n {
     static func lastAndR(_ price: String, _ r: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.lastAndR", defaultValue: "last \(price) · \(r)", bundle: L10n.bundle)
     }
-    /// The entry level's label in the risk band.
-    static var entry: LocalizedStringResource {
-      LocalizedStringResource("positions.entry", defaultValue: "entry", bundle: L10n.bundle)
+    /// The entry level's label in the risk band, with its price, as on the design: "entry 12.34".
+    static func entryLevel(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.entryLevel", defaultValue: "entry \(price)", bundle: L10n.bundle)
     }
     static func stopLevel(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.stopLevel", defaultValue: "broker stop \(price)", bundle: L10n.bundle)
@@ -790,11 +790,12 @@ enum L10n {
         defaultValue: "\(closed) closed · \(wins) W · \(losses) L · \(open) open",
         bundle: L10n.bundle)
     }
-    static func openSince(_ time: String) -> LocalizedStringResource {
-      LocalizedStringResource("activity.openSince", defaultValue: "open \(time)", bundle: L10n.bundle)
-    }
     static var openTag: LocalizedStringResource {
       LocalizedStringResource("activity.openTag", defaultValue: "OPEN", bundle: L10n.bundle)
+    }
+    /// An open position's tag while its broker stop is verified, as on the design.
+    static var openVerifiedTag: LocalizedStringResource {
+      LocalizedStringResource("activity.openVerifiedTag", defaultValue: "OPEN · VERIFIED", bundle: L10n.bundle)
     }
     static func stopDetail(_ price: String, _ state: String) -> LocalizedStringResource {
       LocalizedStringResource("activity.stopDetail", defaultValue: "stop \(price) · \(state)", bundle: L10n.bundle)

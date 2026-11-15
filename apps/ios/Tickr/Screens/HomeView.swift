@@ -373,11 +373,12 @@ private struct Summary: View {
 /// the price since the fill as a sparkline, and the open result with the last price on the right,
 /// while they are current; tapping it opens it on the Positions tab.
 private struct PositionRow: View {
-  /// Width of the price sparkline, in points (its height is `Size.sparkline`).
-  static let sparkWidth: CGFloat = 100
+  /// Width of the price sparkline, in points (its height is `Size.sparkline`), as on the design:
+  /// with the symbol column it leaves the figures room on a 402-point iPhone.
+  static let sparkWidth: CGFloat = 80
   static var sparkHeight: CGFloat { Tokens.Size.sparkline }
-  /// Width of the symbol column, in points.
-  static let symbolColumn: CGFloat = 96
+  /// Width of the symbol column, in points: a five-letter symbol after its stop glyph.
+  static let symbolColumn: CGFloat = 84
 
   @Environment(AppModel.self) private var model
   @Environment(\.dynamicTypeSize) private var typeSize
