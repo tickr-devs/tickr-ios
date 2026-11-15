@@ -28,13 +28,9 @@ public struct PulseDot: View {
   }
 }
 
-/// The steps of one event pulse: hidden, shown at the outline, grown and faded.
-enum PulsePhase: CaseIterable {
-  case rest, start, end
-}
-
 /// Draws `shape`'s outline around the view and plays one expanding, fading pulse each time `event`
-/// changes. Nothing moves without a new event or with Reduce Motion on.
+/// changes (Core Animation plays it; see PulseLayer). Nothing moves without a new event or with
+/// Reduce Motion on.
 struct EventPulse<S: Shape>: ViewModifier {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   let shape: S
@@ -45,15 +41,7 @@ struct EventPulse<S: Shape>: ViewModifier {
   func body(content: Content) -> some View {
     content.overlay {
       if let event, !reduceMotion {
-        shape
-          .stroke(color, lineWidth: Tokens.Stroke.bold)
-          .phaseAnimator(PulsePhase.allCases, trigger: event) { ring, phase in
-            ring
-              .scaleEffect(phase == .end ? scale : 1)
-              .opacity(phase == .start ? Tokens.Opacity.medium : 0)
-          } animation: { phase in
-            phase == .end ? .easeOut(duration: Tokens.Motion.pulseSeconds) : nil
-          }
+        PulseLayer(shape: shape, color: color, scale: scale, event: event)
           .allowsHitTesting(false)
       }
     }

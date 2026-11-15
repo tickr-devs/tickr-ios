@@ -38,7 +38,7 @@ struct BotControl: ViewModifier {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         HStack(spacing: Tokens.Space.s) {
           StateGlyph(stateSymbol, tone: stateTone, label: title, live: model.status?.botState == .running,
-            event: model.status?.writtenAt.date, style: .round)
+            event: model.status?.botState, style: .round)
           Text(title)
             .font(.headline)
             .foregroundStyle(Palette.textPrimary)

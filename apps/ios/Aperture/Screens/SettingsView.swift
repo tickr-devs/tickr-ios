@@ -66,7 +66,7 @@ struct SettingsView: View {
           let running = status.botState == .running
           SettingsRow(L10n.Settings.state, systemImage: Self.stateSymbol, tone: running ? .accent : .neutral) {
             StatusPill(status.botState.title, tone: running ? .accent : .neutral,
-              live: running && model.response?.stale == false, event: status.writtenAt.date)
+              live: running && model.response?.stale == false, event: status.botState)
           }
           let open = status.tradingGate.open
           SettingsRow(L10n.Settings.gate, systemImage: open ? Self.gateOpenSymbol : Self.gateClosedSymbol,

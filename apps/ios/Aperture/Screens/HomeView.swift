@@ -220,7 +220,7 @@ private struct Summary: View {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
           PulseDot(tint, pulsing: past == nil && (headline.severity != .ok || model.response?.stale == false),
-            event: model.status?.writtenAt.date)
+            event: text)
           Text(verbatim: text)
             .font(.subheadline.bold())
             .foregroundStyle(tint)
@@ -236,8 +236,7 @@ private struct Summary: View {
           // Each position's protection and the gate as glyphs; the words are in their hints.
           HStack(spacing: Tokens.Space.xs) {
             ForEach(status.positions, id: \.symbol) { position in
-              StopGlyph(state: position.stop.state, symbol: position.symbol,
-                read: status.freshness.lastBrokerReadAt?.date)
+              StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
             }
             if !status.tradingGate.open {
               StateGlyph(Self.gateClosedSymbol, tone: .warning,
@@ -285,8 +284,7 @@ private struct PositionRow: View {
       HStack(spacing: Tokens.Space.m) {
         VStack(alignment: .leading, spacing: Tokens.Space.xs) {
           HStack(spacing: Tokens.Space.s) {
-            StopGlyph(state: position.stop.state, symbol: position.symbol,
-              read: model.status?.freshness.lastBrokerReadAt?.date)
+            StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
             Text(verbatim: position.symbol)
               .font(.headline.monospaced())
               .foregroundStyle(Palette.textPrimary)
@@ -501,7 +499,7 @@ private struct LiveFlowCard: View {
         HStack(spacing: Tokens.Space.s) {
           StateGlyph(Self.streamSymbol, tone: streamTone,
             label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
-            live: current && status.freshness.stream == .fresh, event: status.writtenAt.date, style: .compact)
+            live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
           Label {
             Text(verbatim: Format.timeOrDash(status.freshness.lastBrokerReadAt))
           } icon: {

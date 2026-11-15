@@ -30,7 +30,7 @@ struct LabView: View {
             StatusPill(L10n.Lab.trades, systemImage: Self.tradesSymbol, tone: .accent)
           }
           HStack(spacing: Tokens.Space.s) {
-            PulseDot(Palette.accent, pulsing: model.response?.stale == false, event: status.writtenAt.date)
+            PulseDot(Palette.accent, pulsing: model.response?.stale == false, event: status.strategy)
             Text(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version))
               .font(.subheadline.monospaced().weight(.semibold))
             Spacer()

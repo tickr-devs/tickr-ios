@@ -164,7 +164,7 @@ private struct EntryGateCard: View {
     case .blocked: L10n.Risk.blocked
     }
     Card(L10n.Risk.entryGate, tint: gate == .blocked ? Palette.warning : nil, tone: tone, trailing: {
-      StatusPill(title, tone: tone, live: gate == .allowed, event: model.status?.freshness.lastBrokerReadAt?.date)
+      StatusPill(title, tone: tone, live: gate == .allowed, event: gate)
     }) {
       if let status = model.status {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
