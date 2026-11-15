@@ -136,7 +136,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `stage` | 52 | Stages of the live flow |
 | `dayResultWidth` | 300 | Overview's day result beside the header |
 | `gridColumnMin` | 300 | Narrowest column of a card grid before it stacks |
-| `logo` / `logoSmall` | 56 / 26 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |
+| `logo` / `logoSmall` / `emptyMark` | 56 / 26 / 88 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |
 | `sparkline` | 34 | Sparkline height |
 | `bar` | 8 | Progress bar height |
 | `ticker` | 22 | Ticker strip height |
@@ -191,5 +191,8 @@ breaks upward, with a spark at its end.
   generated files. `tests/test_brand_assets.py` fails when they differ.
 - In the apps the same line is `BrandMark` (ApertureDesign): it draws itself on appear and its
   spark then pulses while the bot's data is live; still otherwise and with Reduce Motion.
+- Empty screens (nothing yet, no trades, bot unreachable) use `BrandMark.empty()` as the
+  `ContentUnavailableView` illustration, muted (`.muted`) when the bot cannot be reached. Errors
+  keep a warning SF Symbol, so they never look like a calm empty state.
 - macOS has no launch screen (Apple HIG). The menu bar extra keeps an SF Symbol, because it shows
   the bot's state; notifications and the About panel use the app icon.

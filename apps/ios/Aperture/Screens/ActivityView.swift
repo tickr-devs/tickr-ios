@@ -547,7 +547,7 @@ private struct TradesList: View {
       }
       if trades.isEmpty && positions.isEmpty {
         ContentUnavailableView {
-          Label { Text(empty.title) } icon: { Image(systemName: "clock") }
+          Label { Text(empty.title) } icon: { BrandMark.empty() }
         } description: {
           Text(empty.body)
         }

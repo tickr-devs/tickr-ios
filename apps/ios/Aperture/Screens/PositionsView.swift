@@ -17,7 +17,7 @@ struct PositionsView: View {
         let positions = Board.positions(status)
         if positions.isEmpty {
           ContentUnavailableView {
-            Label { Text(L10n.Positions.none) } icon: { Image(systemName: "lock.open") }
+            Label { Text(L10n.Positions.none) } icon: { BrandMark.empty() }
           } description: {
             if let block = status.entryBlock {
               Text(verbatim: block.text)

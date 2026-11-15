@@ -5,13 +5,25 @@ import SwiftUI
 ///
 /// On appear the line draws itself and the area under it fades in. While `live` (the bot's data is
 /// current) the spark then keeps pulsing; otherwise, and with Reduce Motion, the mark stands still.
+///
+/// Empty screens show it as their illustration (`BrandMark.empty`): in brand colours when there is
+/// simply nothing yet, muted when the bot cannot be reached.
 public struct BrandMark: View {
+  /// How the mark is coloured.
+  public enum Tone: Sendable {
+    /// Brand colours: profit line, accent area.
+    case brand
+    /// One quiet colour: nothing can be known right now (bot unreachable).
+    case muted
+  }
+
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var drawn: CGFloat = 0
   @State private var breathing = false
   @State private var settled = false
   let size: CGFloat
   let live: Bool
+  let tone: Tone
 
   /// Points of the line as shares of the mark's side, left to right (POINTS in make_brand_assets.py).
   static let start = CGPoint(x: 0.205, y: 0.51)
@@ -25,27 +37,37 @@ public struct BrandMark: View {
   static let sparkDiameter = 0.09
   static let areaBottom = 0.86
 
-  public init(size: CGFloat = Tokens.Size.logo, live: Bool) {
+  public init(size: CGFloat = Tokens.Size.logo, live: Bool, tone: Tone = .brand) {
     self.size = size
     self.live = live
+    self.tone = tone
   }
+
+  /// The illustration of an empty screen: large and still.
+  public static func empty(_ tone: Tone = .brand) -> BrandMark {
+    BrandMark(size: Tokens.Size.emptyMark, live: false, tone: tone)
+  }
+
+  private var lineColor: Color { tone == .brand ? Palette.profit : Palette.textQuaternary }
+  private var areaColor: Color { tone == .brand ? Palette.accent : Palette.textQuaternary }
+  private var lineEnd: Color { tone == .brand ? Palette.accent : Palette.textQuaternary }
 
   public var body: some View {
     let spark = Self.breakout
     let diameter = size * Self.sparkDiameter
     ZStack(alignment: .topLeading) {
       TickArea(points: Self.points, bottom: Self.areaBottom)
-        .fill(LinearGradient(colors: [Palette.accent.opacity(Tokens.Opacity.border), Palette.accent.opacity(0)],
+        .fill(LinearGradient(colors: [areaColor.opacity(Tokens.Opacity.border), areaColor.opacity(0)],
           startPoint: .top, endPoint: .bottom))
         .opacity(drawn)
       TickLine(points: Self.points)
         .trim(from: 0, to: drawn)
         .stroke(
-          LinearGradient(colors: [Palette.profit, Palette.accent], startPoint: .topTrailing, endPoint: .bottomLeading),
+          LinearGradient(colors: [lineColor, lineEnd], startPoint: .topTrailing, endPoint: .bottomLeading),
           style: StrokeStyle(lineWidth: size * Self.lineWidth, lineCap: .round, lineJoin: .round))
       if live && settled && !reduceMotion {
         Circle()
-          .fill(Palette.profit.opacity(Tokens.Opacity.faint))
+          .fill(lineColor.opacity(Tokens.Opacity.faint))
           .frame(width: diameter, height: diameter)
           .scaleEffect(breathing ? Tokens.Motion.pulseScale : 1)
           .opacity(breathing ? 0 : 1)
@@ -54,7 +76,7 @@ public struct BrandMark: View {
           .onDisappear { breathing = false }
       }
       Circle()
-        .fill(Palette.profit)
+        .fill(lineColor)
         .frame(width: diameter, height: diameter)
         .scaleEffect(drawn)
         .position(x: spark.x * size, y: spark.y * size)
@@ -110,7 +132,11 @@ struct TickArea: Shape {
 }
 
 #Preview {
-  BrandMark(live: true)
+  HStack {
+    BrandMark(live: true)
+    BrandMark.empty()
+    BrandMark.empty(.muted)
+  }
     .padding()
     .background(Palette.background)
 }

@@ -15,7 +15,19 @@ enum L10n {
     #endif
   }
 
+  enum About {
+    static var tagline: LocalizedStringResource {
+      LocalizedStringResource("about.tagline", defaultValue: "Intraday trading bot for US stocks.", bundle: L10n.bundle)
+    }
+    static var source: LocalizedStringResource {
+      LocalizedStringResource("about.source", defaultValue: "Source code on GitHub", bundle: L10n.bundle)
+    }
+  }
+
   enum App {
+    static var about: LocalizedStringResource {
+      LocalizedStringResource("app.about", defaultValue: "About Tickr", bundle: L10n.bundle)
+    }
     static var name: LocalizedStringResource {
       LocalizedStringResource("app.name", defaultValue: "Tickr", bundle: L10n.bundle)
     }

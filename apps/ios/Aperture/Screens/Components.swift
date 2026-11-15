@@ -150,7 +150,7 @@ struct ConnectionPrompt: View {
   var body: some View {
     if !model.isConfigured {
       ContentUnavailableView {
-        Label { Text(L10n.Connect.title) } icon: { Image(systemName: "desktopcomputer.and.arrow.down") }
+        Label { Text(L10n.Connect.title) } icon: { BrandMark.empty() }
       } description: {
         Text(L10n.Connect.body)
       } actions: {
@@ -160,7 +160,7 @@ struct ConnectionPrompt: View {
       .rise()
     } else if model.status == nil, let cause = model.fetchError ?? model.response?.unavailableCause {
       ContentUnavailableView {
-        Label { Text(L10n.Connect.noStatus) } icon: { Image(systemName: "antenna.radiowaves.left.and.right.slash") }
+        Label { Text(L10n.Connect.noStatus) } icon: { BrandMark.empty(.muted) }
       } description: {
         Text(verbatim: cause)
       }

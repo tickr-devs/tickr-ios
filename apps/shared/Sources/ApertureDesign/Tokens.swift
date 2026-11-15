@@ -144,6 +144,8 @@ public enum Tokens {
     /// The brand mark (BrandMark) in a header, and small in a panel.
     public static let logo: CGFloat = 56
     public static let logoSmall: CGFloat = 26
+    /// The brand mark as the illustration of an empty screen.
+    public static let emptyMark: CGFloat = 88
     /// Height of a sparkline and of a progress bar.
     public static let sparkline: CGFloat = 34
     public static let bar: CGFloat = 8

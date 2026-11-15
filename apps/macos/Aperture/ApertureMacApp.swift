@@ -86,6 +86,30 @@ struct ApertureMacApp: App {
   }
 }
 
+/// The standard About panel (app icon, name and version from the bundle) with a one-line
+/// description and a link to the source code.
+enum AboutPanel {
+  /// Where the source code lives.
+  static let repository = URL(string: "https://github.com/valentyn-dymaretskyi/Aperture")
+  /// Separates the description from the link.
+  static let lineBreak = "\n"
+
+  @MainActor
+  static func show() {
+    let credits = NSMutableAttributedString(string: String(localized: L10n.About.tagline) + lineBreak)
+    var link: [NSAttributedString.Key: Any] = [:]
+    if let repository { link[.link] = repository }
+    credits.append(NSAttributedString(string: String(localized: L10n.About.source), attributes: link))
+    let centred = NSMutableParagraphStyle()
+    centred.alignment = .center
+    let whole = NSRange(location: 0, length: credits.length)
+    credits.addAttribute(.paragraphStyle, value: centred, range: whole)
+    credits.addAttribute(.font, value: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize), range: whole)
+    NSApp.activate()
+    NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
+  }
+}
+
 enum WindowID {
   /// Id of the main window (SwiftUI scene identity).
   static let main = "main"
@@ -99,6 +123,9 @@ struct AppCommands: Commands {
   static let todayKey: KeyEquivalent = "t"
 
   var body: some Commands {
+    CommandGroup(replacing: .appInfo) {
+      Button(String(localized: L10n.App.about)) { AboutPanel.show() }
+    }
     CommandMenu(String(localized: L10n.App.dayMenu)) {
       Button(String(localized: L10n.App.previousTradingDay)) { model.showPreviousDay() }
         .keyboardShortcut("[", modifiers: .command)
