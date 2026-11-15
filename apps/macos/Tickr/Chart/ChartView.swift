@@ -364,6 +364,9 @@ struct ChartView: View {
         // Only the shown live day and intraday ranges reaching today still change.
         live: model.isLive && (showsDay || interval.isIntraday),
         viewport: $viewport)
+        // The bot's status arrives every few seconds and redraws this screen; the chart itself
+        // only when what it draws changed.
+        .equatable()
         .id(ChartID(symbol: symbol, day: model.shownDay, timeframe: interval, range: range))
         .transition(.opacity)
     } else if symbol == nil {

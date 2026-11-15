@@ -959,3 +959,17 @@ extension Candle {
   /// The middle of the candle's time slot, where its wick is drawn.
   var middle: Date { start.addingTimeInterval(end.timeIntervalSince(start) / 2) }
 }
+
+/// Two charts are the same when they draw the same thing. ChartView is redrawn on every status
+/// read (about once a second while live), which built the whole chart again with its candles and
+/// studies: about half a core with the chart open and nothing changing (Instruments, 2026-11-15).
+extension CandleChart: @MainActor Equatable {
+  static func == (lhs: CandleChart, rhs: CandleChart) -> Bool {
+    lhs.plot.revision == rhs.plot.revision && lhs.plot.range == rhs.plot.range
+      && lhs.plot.starts == rhs.plot.starts && lhs.lines == rhs.lines && lhs.live == rhs.live
+      && lhs.viewport == rhs.viewport
+      && lhs.marks.map(\.key) == rhs.marks.map(\.key)
+      && lhs.levels.map(\.key) == rhs.levels.map(\.key)
+      && lhs.decisions.map(\.key) == rhs.decisions.map(\.key)
+  }
+}

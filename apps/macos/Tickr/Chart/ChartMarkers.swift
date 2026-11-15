@@ -21,6 +21,9 @@ struct ChartMark: Identifiable {
 
   var kind: Kind { id.kind }
 
+  /// What a redraw compares (the label follows from these).
+  var key: [AnyHashable] { [id, time, price] }
+
   var color: Color {
     switch kind {
     case .entry: Palette.info
@@ -50,6 +53,9 @@ struct ChartLevel: Identifiable {
   let label: LocalizedStringResource
 
   var id: Kind { kind }
+
+  /// What a redraw compares (the label follows from these).
+  var key: [AnyHashable] { [kind, price, since] }
 
   var color: Color {
     switch kind {
@@ -81,6 +87,9 @@ struct DecisionMark: Identifiable {
   /// An ENTER that was not taken: the API gives an entry price only for those (docs/api.md).
   let skipped: Bool
   let label: LocalizedStringResource
+
+  /// What a redraw compares (the label follows from these).
+  var key: [AnyHashable] { [id, time, price, action, observer, skipped] }
 
   /// Hollow for anything that did not trade.
   var hollow: Bool { observer || skipped }
