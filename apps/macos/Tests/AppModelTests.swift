@@ -71,20 +71,14 @@ struct AppModelTests {
     return try JSONSerialization.data(withJSONObject: response)
   }
 
-  /// The status fixture whose recent commands include an obeyed stop-bot with `cause`, under the
-  /// command id of command-accepted-v1.json.
-  static func statusAfterStop(cause: String) throws -> Data {
+  /// The status fixture with the bot in `state`.
+  static func status(botState state: String, stale: Bool = false) throws -> Data {
     let data = try Data(contentsOf: fixturesDir.appendingPathComponent("status-response-v1.json"))
     var response = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
     var status = try #require(response["status"] as? [String: Any])
-    var commands = try #require(status["recent_commands"] as? [[String: Any]])
-    var record = try #require(commands.first)
-    record["command_id"] = "3f2c9a7e-5b1d-4c8e-9a0f-1e2d3c4b5a69"
-    record["kind"] = "stop-bot"
-    record["cause"] = cause
-    commands.append(record)
-    status["recent_commands"] = commands
+    status["bot_state"] = state
     response["status"] = status
+    response["stale"] = stale
     return try JSONSerialization.data(withJSONObject: response)
   }
 
@@ -129,24 +123,32 @@ struct AppModelTests {
     #expect(model.accountError != nil)
   }
 
-  @Test("A stop-bot that left positions open raises the notice, and each send carries a key")
-  func stopWithOpenPositions() async throws {
-    let cause = "1 position(s) left open under their broker stop"
-    let accepted = try Data(contentsOf: fixturesDir.appendingPathComponent("command-accepted-v1.json"))
-    let status = try Self.statusAfterStop(cause: cause)
-    RouteProtocol.routes.withLock {
-      $0.bodies["/status"] = status
-      $0.bodies["/commands/stop-bot"] = accepted
+  @Test("Positions with a stopped or silent bot are flagged; a fresh running bot is not")
+  func unattendedPositions() async throws {
+    let cases: [(String, Bool, Unattended?)] = [
+      ("stopped", false, Unattended(reason: .stopped, count: 1)),
+      ("running", true, Unattended(reason: .silent, count: 1)),
+      ("running", false, nil),
+    ]
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    for (state, stale, expected) in cases {
+      let body = try Self.status(botState: state, stale: stale)
+      RouteProtocol.routes.withLock { $0.bodies["/status"] = body }
+      await model.refreshStatus()
+      #expect(model.unattendedPositions == expected, "\(state), stale \(stale)")
     }
+  }
+
+  @Test("Each command send carries its own idempotency key")
+  func sendCarriesAKey() async throws {
+    let accepted = try Data(contentsOf: fixturesDir.appendingPathComponent("command-accepted-v1.json"))
+    RouteProtocol.routes.withLock { $0.bodies["/commands/flatten"] = accepted }
     let model = AppModel(baseURL: APIClient.defaultBaseURL)
     await model.refreshStatus()
-    #expect(model.stopNotice == nil)
-    await model.send(.stopBot, title: "Stop Bot")
-    #expect(model.stopNotice == cause)
-    let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }
-    #expect(keys.count == 1 && keys.first??.isEmpty == false)
-    model.dismissStopNotice()
-    #expect(model.stopNotice == nil)
+    await model.send(.flattenSymbol("ABCD"), title: "Flatten ABCD")
+    await model.send(.flattenSymbol("ABCD"), title: "Flatten ABCD")
+    let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
+    #expect(keys.count == 2 && Set(keys).count == 2)
   }
 
   @Test("Flatten of one symbol closes only that symbol; every action has a command")

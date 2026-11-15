@@ -49,6 +49,19 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
   }
 }
 
+/// Open positions the bot is not watching, and why.
+public struct Unattended: Equatable, Sendable {
+  public enum Reason: Equatable, Sendable {
+    /// The bot reported itself stopped.
+    case stopped
+    /// The bot's status went stale: it may have crashed.
+    case silent
+  }
+
+  public let reason: Reason
+  public let count: Int
+}
+
 /// Everything the windows and the menu bar show. Polls the local API; never talks to the broker.
 @MainActor
 @Observable
@@ -89,9 +102,6 @@ public final class AppModel {
   public private(set) var sending = false
   public private(set) var sent: [SentCommand] = []
   public private(set) var toast: SentCommand?
-  /// The bot's record of an obeyed stop-bot that left positions open ("N position(s) left open
-  /// under their broker stop"); shown until the operator dismisses it.
-  public private(set) var stopNotice: String?
 
   private var tasks: [Task<Void, Never>] = []
 
@@ -123,6 +133,17 @@ public final class AppModel {
       return PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
         closes: bars.map(\.close.value))
     }
+  }
+
+  /// Open positions with no running bot behind them: the bot reported itself stopped (stop-bot
+  /// from any device, a graceful shutdown), or its status went stale (a crash leaves the last
+  /// status saying "running"). nil while a fresh status shows it running, or it holds nothing.
+  /// Nothing closes such positions at the session's end, so the app keeps saying so.
+  public var unattendedPositions: Unattended? {
+    guard let response, let status = response.status, !status.positions.isEmpty else { return nil }
+    if status.botState == .stopped { return Unattended(reason: .stopped, count: status.positions.count) }
+    if response.stale { return Unattended(reason: .silent, count: status.positions.count) }
+    return nil
   }
 
   /// What is left of today's daily loss limit after realized losses and open reservations, as
@@ -380,15 +401,10 @@ public final class AppModel {
       if let record = records.first(where: { $0.commandId == sent[index].id }) {
         sent[index].outcome = record.outcome
         sent[index].cause = record.cause
-        if record.kind == .stopBot, record.outcome == .done, let cause = record.cause {
-          stopNotice = cause
-        }
         show(sent[index])
       }
     }
   }
-
-  public func dismissStopNotice() { stopNotice = nil }
 
   private func show(_ command: SentCommand) {
     toast = command

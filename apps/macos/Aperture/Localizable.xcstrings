@@ -460,6 +460,40 @@
         }
       }
     },
+    "bot.silentOpen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open positions: %lld. The bot's status is stale: it may have stopped. Each position stays under its broker stop, a DAY order: nothing closes it at the session's end. Check the bot on this Mac or flatten from Webull."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открытых позиций: %lld. Статус бота устарел: возможно, он остановился. Каждая позиция остаётся под брокерским стопом, а это DAY-ордер: в конце сессии её никто не закроет. Проверьте бота на этом Mac или закройте позиции в Webull."
+          }
+        }
+      }
+    },
+    "bot.silentTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bot Not Responding with Open Positions"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бот не отвечает, позиции открыты"
+          }
+        }
+      }
+    },
     "bot.stopBot": {
       "extractionState": "manual",
       "localizations": {
@@ -517,13 +551,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@. The broker stop is a DAY order and nothing closes these positions at the session's end. To trade again, run aperture clear-stop on this Mac."
+            "value": "Open positions: %lld. Each stays under its broker stop, a DAY order: nothing closes it at the session's end. Flatten from Webull, or run aperture clear-stop on this Mac and start the bot to trade again."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@. Брокерский стоп — DAY-ордер, и в конце сессии эти позиции никто не закроет. Чтобы снова торговать, выполните aperture clear-stop на этом Mac."
+            "value": "Открытых позиций: %lld. Каждая остаётся под брокерским стопом, а это DAY-ордер: в конце сессии её никто не закроет. Закройте позиции в Webull или выполните aperture clear-stop на этом Mac и запустите бота, чтобы снова торговать."
           }
         }
       }

@@ -263,9 +263,17 @@ enum L10n {
     static var stoppedTitle: LocalizedStringResource {
       LocalizedStringResource("bot.stoppedTitle", defaultValue: "Bot Stopped with Open Positions", bundle: L10n.bundle)
     }
-    static func stoppedOpen(_ cause: String) -> LocalizedStringResource {
+    static func stoppedOpen(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("bot.stoppedOpen",
-        defaultValue: "\(cause). The broker stop is a DAY order and nothing closes these positions at the session's end. To trade again, run aperture clear-stop on this Mac.",
+        defaultValue: "Open positions: \(count). Each stays under its broker stop, a DAY order: nothing closes it at the session's end. Flatten from Webull, or run aperture clear-stop on this Mac and start the bot to trade again.",
+        bundle: L10n.bundle)
+    }
+    static var silentTitle: LocalizedStringResource {
+      LocalizedStringResource("bot.silentTitle", defaultValue: "Bot Not Responding with Open Positions", bundle: L10n.bundle)
+    }
+    static func silentOpen(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("bot.silentOpen",
+        defaultValue: "Open positions: \(count). The bot's status is stale: it may have stopped. Each position stays under its broker stop, a DAY order: nothing closes it at the session's end. Check the bot on this Mac or flatten from Webull.",
         bundle: L10n.bundle)
     }
     static var notSentUntrusted: LocalizedStringResource {
