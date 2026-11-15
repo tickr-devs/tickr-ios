@@ -277,6 +277,12 @@ enum L10n {
   }
 
   enum Positions {
+    static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
+      LocalizedStringResource("positions.slots", defaultValue: "\(used) of \(limit) slots", bundle: L10n.bundle)
+    }
+    static var freeSlot: LocalizedStringResource {
+      LocalizedStringResource("positions.freeSlot", defaultValue: "free", bundle: L10n.bundle)
+    }
     static var none: LocalizedStringResource {
       LocalizedStringResource("positions.none", defaultValue: "No open position", bundle: L10n.bundle)
     }

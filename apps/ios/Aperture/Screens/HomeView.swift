@@ -33,7 +33,7 @@ struct HomeView: View {
           PositionRow(position: position)
             .rise(step: Order.positions.rawValue + index)
         }
-        if status.position == nil {
+        if status.positions.isEmpty {
           Text(L10n.Home.noPosition)
             .font(.subheadline)
             .foregroundStyle(Palette.textTertiary)
@@ -195,7 +195,7 @@ private struct Summary: View {
 
   private func subline(_ status: StatusV1) -> String {
     var parts: [LocalizedStringResource] = []
-    if let position = status.position {
+    for position in status.positions {
       parts.append(position.stop.state.isProtected
         ? L10n.Home.protected(position.symbol)
         : L10n.Home.stopIs(position.symbol, Board.stopStateTitle(position.stop.state)))

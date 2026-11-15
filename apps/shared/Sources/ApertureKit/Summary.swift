@@ -28,7 +28,7 @@ public struct Headline: Equatable, Sendable {
     guard let status = response.status, !response.stale else {
       return Headline(text: response.summary, severity: .alarm)
     }
-    if let position = status.position, position.stop.state != .verified {
+    if let position = status.positions.first(where: { $0.stop.state != .verified }) {
       return Headline(
         text: String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
           + response.summary,

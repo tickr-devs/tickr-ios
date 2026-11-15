@@ -122,10 +122,10 @@ struct ActivityView: View {
       switch section {
       case .trades:
         if let status {
-          TradesList(position: status.position, trades: status.tradesToday.map(TradeLine.init),
+          TradesList(positions: status.positions, trades: status.tradesToday.map(TradeLine.init),
             empty: (L10n.Activity.noTrades, L10n.Activity.noTradesBody))
         } else {
-          TradesList(position: nil, trades: activity.day?.trades.map(TradeLine.init) ?? [],
+          TradesList(positions: [], trades: activity.day?.trades.map(TradeLine.init) ?? [],
             empty: (L10n.Activity.noTradesThatDay, L10n.Activity.noTradesThatDayBody))
         }
       case .skipped:
@@ -300,7 +300,7 @@ private struct DayFigures: Equatable {
   init(_ status: StatusV1) {
     let stats = Board.dayStats(status)
     result = stats.resultGrossUsd
-    counts = L10n.Activity.counts(stats.trades, stats.wins, stats.losses, status.position == nil ? 0 : 1)
+    counts = L10n.Activity.counts(stats.trades, stats.wins, stats.losses, status.positions.count)
     curve = Self.curve(status.tradesToday.map { ($0.closedAt.date, $0.resultGrossUsd.value) })
   }
 
@@ -434,7 +434,7 @@ private struct TradeLine {
 }
 
 private struct TradesList: View {
-  let position: Position?
+  let positions: [Position]
   let trades: [TradeLine]
   /// Title and text shown when there is nothing to list.
   let empty: (title: LocalizedStringResource, body: LocalizedStringResource)
@@ -442,7 +442,7 @@ private struct TradesList: View {
   var body: some View {
     let sorted = trades.sorted { $0.closedAt > $1.closedAt }
     VStack(spacing: Tokens.Space.s) {
-      if let position {
+      ForEach(positions, id: \.symbol) { position in
         row(symbol: position.symbol, time: String(localized: L10n.Activity.openSince(Format.time(position.openedAt.date))),
           tag: String(localized: L10n.Activity.openTag),
           color: Palette.accentText,
@@ -462,7 +462,7 @@ private struct TradesList: View {
           detail: trade.resultR.map { detail + Format.separator + Risk.text($0) } ?? detail)
           .rise(step: ActivityView.Order.list.rawValue + index)
       }
-      if trades.isEmpty && position == nil {
+      if trades.isEmpty && positions.isEmpty {
         ContentUnavailableView {
           Label { Text(empty.title) } icon: { Image(systemName: "clock") }
         } description: {

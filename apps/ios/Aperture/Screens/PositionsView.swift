@@ -43,8 +43,24 @@ private struct PositionChips: View {
   @Environment(AppModel.self) private var model
   let positions: [Position]
 
+  /// Slots the bot may still fill, from max_open_positions in its settings; none while unknown.
+  private var freeSlots: Int {
+    guard let limit = model.settings?.risk.maxOpenPositions else { return 0 }
+    return max(0, limit - positions.count)
+  }
+
   var body: some View {
     let selected = model.selectedSymbol ?? positions.first?.symbol
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      if let limit = model.settings?.risk.maxOpenPositions {
+        CardLabel(L10n.Positions.slots(positions.count, limit))
+          .contentTransition(.numericText())
+      }
+      chips(selected: selected)
+    }
+  }
+
+  private func chips(selected: String?) -> some View {
     HStack(spacing: Tokens.Space.s) {
       ForEach(positions, id: \.symbol) { position in
         let isSelected = position.symbol == selected
@@ -74,8 +90,22 @@ private struct PositionChips: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .transition(.scale.combined(with: .opacity))
+      }
+      ForEach(0..<freeSlots, id: \.self) { _ in
+        VStack(spacing: Tokens.Space.xxs) {
+          Image(systemName: "plus")
+          Text(L10n.Positions.freeSlot).font(Tokens.Typography.annotationBold)
+        }
+        .frame(maxWidth: .infinity, minHeight: Tokens.Size.iconWell)
+        .foregroundStyle(Palette.textQuaternary)
+        .overlay(
+          RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+            .strokeBorder(Palette.separatorStrong, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash)))
+        .accessibilityElement(children: .combine)
       }
     }
+    .animation(Tokens.Motion.standard, value: positions.map(\.symbol))
   }
 }
 

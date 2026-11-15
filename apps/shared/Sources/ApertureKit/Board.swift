@@ -22,9 +22,9 @@ public enum Board {
       resultGrossUsd: status.resultTodayGrossUsd.value)
   }
 
-  /// The open positions. Contract v1 carries at most one; the apps are built for a list.
+  /// Every open position, in the order the bot lists them.
   public static func positions(_ status: StatusV1) -> [Position] {
-    status.position.map { [$0] } ?? []
+    status.positions
   }
 
   /// One thing that happened, for the event ticker and the journal.
@@ -65,7 +65,7 @@ public enum Board {
         text: "\(trade.symbol) @ \(trade.exitPrice) \(signed(trade.resultGrossUsd))",
         tone: result > 0 ? .green : result < 0 ? .red : .muted))
     }
-    if let position = status.position {
+    for position in status.positions {
       events.append(Event(
         id: "\(positionID)\(position.symbol)\(openID)", time: position.openedAt.date,
         tag: String(localized: L10n.tagOpen),

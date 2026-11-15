@@ -2143,6 +2143,23 @@
         }
       }
     },
+    "positions.freeSlot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "free"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "свободно"
+          }
+        }
+      }
+    },
     "positions.levels": {
       "extractionState": "manual",
       "localizations": {
@@ -2258,6 +2275,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ акц. по %@ · %@"
+          }
+        }
+      }
+    },
+    "positions.slots": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld slots"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "занято слотов: %lld из %lld"
           }
         }
       }
