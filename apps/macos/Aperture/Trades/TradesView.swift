@@ -16,6 +16,15 @@ struct TradesView: View {
   }
 
   var body: some View {
+    // The screen scrolls as one, as Risk and Lab do: taller than the window, an unscrolled stack
+    // overflowed upward under the toolbar, and the calendar showed blurred behind the title.
+    ScrollView {
+      content
+    }
+    .onChange(of: model.shownDay) { selection = nil }
+  }
+
+  private var content: some View {
     HStack(alignment: .top, spacing: Tokens.Space.l) {
       DaysColumn()
         .frame(width: Tokens.Size.sideColumn)
@@ -36,8 +45,8 @@ struct TradesView: View {
       }
     }
     .padding(Tokens.Space.xl)
-    .frame(maxWidth: Tokens.Size.contentMaxWidth, maxHeight: .infinity, alignment: .top)
-    .onChange(of: model.shownDay) { selection = nil }
+    .frame(maxWidth: Tokens.Size.contentMaxWidth)
+    .frame(maxWidth: .infinity)
   }
 
   /// Opens the Chart on `symbol` (the shown day stays).
@@ -72,17 +81,15 @@ private struct DaysColumn: View {
         MonthCalendar()
         DayBars(days: Array(model.days.prefix(Self.shownDays).reversed()), shown: model.shownDay)
           .frame(height: Self.barsHeight)
-        ScrollView {
-          LazyVStack(spacing: Tokens.Space.xxs) {
-            ForEach(model.days) { day in
-              Button { select(day.day) } label: {
-                DayRow(day: day, isShown: day.day == model.shownDay, isToday: day.day == model.today)
-              }
-              .buttonStyle(.plain)
+        // The screen's scroll view scrolls the list too; a nested one would collapse to nothing.
+        LazyVStack(spacing: Tokens.Space.xxs) {
+          ForEach(model.days) { day in
+            Button { select(day.day) } label: {
+              DayRow(day: day, isShown: day.day == model.shownDay, isToday: day.day == model.today)
             }
+            .buttonStyle(.plain)
           }
         }
-        .scrollIndicators(.never)
       }
     }
   }
@@ -226,8 +233,9 @@ private struct TradesTable: View {
   @Binding var selection: DayTrade.ID?
   let showOnChart: (String) -> Void
 
-  /// The table's height before it has rows, in points.
-  static let minimumHeight: CGFloat = 240
+  /// The table's height, in points: about eight rows; a busier day scrolls inside the table.
+  /// Fixed, because the screen scrolls and a table has no height of its own.
+  static let height: CGFloat = 280
 
   var body: some View {
     Card(L10n.Trades.tradesOfDay) {
@@ -235,10 +243,10 @@ private struct TradesTable: View {
         ContentUnavailableView {
           Label { Text(model.isLive ? L10n.Trades.noTradesToday : L10n.Trades.noTrades) } icon: { BrandMark.empty() }
         }
-        .frame(minHeight: Self.minimumHeight)
+        .frame(height: Self.height)
       } else {
         table
-          .frame(minHeight: Self.minimumHeight, maxHeight: .infinity)
+          .frame(height: Self.height)
       }
     }
   }
