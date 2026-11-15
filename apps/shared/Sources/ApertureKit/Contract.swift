@@ -41,45 +41,6 @@ public struct Fence: Codable, Hashable, Sendable {
   public let text: String
 }
 
-public struct Stop: Codable, Hashable, Sendable {
-  public let state: StopState
-  public let price: DecimalString?
-  public let clientOrderId: String?
-
-  enum CodingKeys: String, CodingKey {
-    case state, price
-    case clientOrderId = "client_order_id"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    state = try c.decode(StopState.self, forKey: .state)
-    price = try c.decodeNullable(DecimalString.self, forKey: .price)
-    clientOrderId = try c.decodeNullable(String.self, forKey: .clientOrderId)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var c = encoder.container(keyedBy: CodingKeys.self)
-    try c.encode(state, forKey: .state)
-    try c.encodeNullable(price, forKey: .price)
-    try c.encodeNullable(clientOrderId, forKey: .clientOrderId)
-  }
-}
-
-public struct Position: Codable, Hashable, Sendable {
-  public let symbol: String
-  public let quantity: DecimalString
-  public let entryPrice: DecimalString
-  public let openedAt: WireTime
-  public let stop: Stop
-
-  enum CodingKeys: String, CodingKey {
-    case symbol, quantity, stop
-    case entryPrice = "entry_price"
-    case openedAt = "opened_at"
-  }
-}
-
 public struct Freshness: Codable, Hashable, Sendable {
   public let lastBrokerReadAt: WireTime?
   public let lastQuoteAt: WireTime?

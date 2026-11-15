@@ -17,6 +17,10 @@ public struct Trade: Codable, Hashable, Sendable {
   public let plannedLossUsd: DecimalString
   /// Seconds from the entry fill to the broker confirming the stop; nil when not recorded.
   public let stopConfirmedAfterSeconds: DecimalString?
+  /// How the entry order was sent; see `EntrySend`.
+  public let entry: EntrySend
+  /// Why the bot has no entry send record for the trade; nil when it has one.
+  public let entryCause: String?
 
   enum CodingKeys: String, CodingKey {
     case symbol, quantity
@@ -28,6 +32,8 @@ public struct Trade: Codable, Hashable, Sendable {
     case resultGrossUsd = "result_gross_usd"
     case plannedLossUsd = "planned_loss_usd"
     case stopConfirmedAfterSeconds = "stop_confirmed_after_seconds"
+    case entry
+    case entryCause = "entry_cause"
   }
 
   public init(from decoder: Decoder) throws {
@@ -42,6 +48,8 @@ public struct Trade: Codable, Hashable, Sendable {
     resultGrossUsd = try c.decode(DecimalString.self, forKey: .resultGrossUsd)
     plannedLossUsd = try c.decode(DecimalString.self, forKey: .plannedLossUsd)
     stopConfirmedAfterSeconds = try c.decodeNullable(DecimalString.self, forKey: .stopConfirmedAfterSeconds)
+    entry = try c.decode(EntrySend.self, forKey: .entry)
+    entryCause = try c.decodeNullable(String.self, forKey: .entryCause)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -56,5 +64,7 @@ public struct Trade: Codable, Hashable, Sendable {
     try c.encode(resultGrossUsd, forKey: .resultGrossUsd)
     try c.encode(plannedLossUsd, forKey: .plannedLossUsd)
     try c.encodeNullable(stopConfirmedAfterSeconds, forKey: .stopConfirmedAfterSeconds)
+    try c.encode(entry, forKey: .entry)
+    try c.encodeNullable(entryCause, forKey: .entryCause)
   }
 }

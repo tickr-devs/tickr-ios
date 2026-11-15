@@ -105,6 +105,10 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   /// excursion), in USD; nil when the bars to compute them were not captured.
   public let maeUsd: DecimalString?
   public let mfeUsd: DecimalString?
+  /// How the entry order was sent; see `EntrySend`.
+  public let entry: EntrySend
+  /// Why the bot has no entry send record for the trade; nil when it has one.
+  public let entryCause: String?
 
   public var id: String { tradeId }
 
@@ -122,6 +126,8 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     case stopConfirmedAfterSeconds = "stop_confirmed_after_seconds"
     case maeUsd = "mae_usd"
     case mfeUsd = "mfe_usd"
+    case entry
+    case entryCause = "entry_cause"
   }
 
   public init(from decoder: Decoder) throws {
@@ -140,6 +146,8 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     stopConfirmedAfterSeconds = try c.decodeNullable(DecimalString.self, forKey: .stopConfirmedAfterSeconds)
     maeUsd = try c.decodeNullable(DecimalString.self, forKey: .maeUsd)
     mfeUsd = try c.decodeNullable(DecimalString.self, forKey: .mfeUsd)
+    entry = try c.decode(EntrySend.self, forKey: .entry)
+    entryCause = try c.decodeNullable(String.self, forKey: .entryCause)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -158,6 +166,8 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     try c.encodeNullable(stopConfirmedAfterSeconds, forKey: .stopConfirmedAfterSeconds)
     try c.encodeNullable(maeUsd, forKey: .maeUsd)
     try c.encodeNullable(mfeUsd, forKey: .mfeUsd)
+    try c.encode(entry, forKey: .entry)
+    try c.encodeNullable(entryCause, forKey: .entryCause)
   }
 
   /// Result in R (result / planned loss), nil when the planned loss is zero.
