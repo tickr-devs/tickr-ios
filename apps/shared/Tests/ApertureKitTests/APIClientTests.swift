@@ -153,6 +153,28 @@ final class StubProtocol: URLProtocol {
     }
   }
 
+  @Test func labReplayReadsAndStarts() async throws {
+    StubProtocol.answer = try (200, fixture("lab-replay-v1.json"))
+    let done = try await client.labReplay()
+    #expect(done.state == .done)
+    #expect(done.summary?.trades == 37)
+    StubProtocol.answer = try (202, fixture("lab-replay-v1.running.json"))
+    let started = try await client.startLabReplay()
+    #expect(started.state == .running)
+    #expect(StubProtocol.seen.map(\.httpMethod) == ["GET", "POST"])
+    #expect(StubProtocol.seen.map { $0.url?.path } == ["/lab/replay", "/lab/replay"])
+    let sent = try JSONSerialization.jsonObject(with: StubProtocol.seenBodies[1]) as? [String: String]
+    #expect(sent == [:])
+  }
+
+  @Test func labReplayRunningIsAConflict() async throws {
+    let body = Data(#"{"error":"conflict","cause":"replay running","api_version":1}"#.utf8)
+    StubProtocol.answer = (409, body)
+    await #expect(throws: APIError.refused(status: 409, error: "conflict", cause: "replay running")) {
+      try await client.startLabReplay()
+    }
+  }
+
   @Test func acceptedWarningIsDecoded() async throws {
     StubProtocol.answer = try (202, fixture("command-accepted-v1.warning.json"))
     let accepted = try await client.send(.flatten)
