@@ -35,6 +35,35 @@ struct ApiTextTests {
       == String(localized: L10n.fenceEntryStop) + ApiText.detailSeparator + "detail")
   }
 
+  @Test("A fence's or gate's cause reads as its sentence with the bot's values, else as the bot wrote it")
+  func reasons() throws {
+    let covered = #"{"kind": "unprotected", "since": "2026-11-16T15:00:00.123Z", "text": "bot words", "#
+      + #""code": "stop_covers_part", "params": {"verified": "40", "expected": "100"}}"#
+    let fence = try Wire.decoder().decode(Fence.self, from: Data(covered.utf8))
+    let sentence = String(localized: L10n.fenceReasonStopCoversPart)
+      .replacing("{verified}", with: "40").replacing("{expected}", with: "100")
+    #expect(ApiText.fenceDetail(fence) == sentence)
+    #expect(!sentence.contains("{"))
+    let partial = covered.replacing(#", "expected": "100""#, with: "")
+    #expect(ApiText.fenceDetail(try Wire.decoder().decode(Fence.self, from: Data(partial.utf8))) == "bot words")
+    let unknown = covered.replacing("stop_covers_part", with: "brand_new")
+    #expect(ApiText.fenceDetail(try Wire.decoder().decode(Fence.self, from: Data(unknown.utf8))) == "bot words")
+    let closed = #"{"open": false, "cause": "bot words", "code": "trading_disabled", "#
+      + #""params": {"environment": "production"}}"#
+    let gate = try Wire.decoder().decode(Gate.self, from: Data(closed.utf8))
+    #expect(ApiText.gate(gate)
+      == String(localized: L10n.gateReasonTradingDisabled).replacing("{environment}", with: "production"))
+  }
+
+  @Test("Values fill a sentence in one pass; braces inside a value or unnamed stay as written")
+  func fill() {
+    let names: [ReasonParam] = [.symbol, .state]
+    #expect(ReasonParam.fill("{symbol} is {state}", names: names, params: ["symbol": "{state}", "state": "x"])
+      == "{state} is x")
+    #expect(ReasonParam.fill("{symbol} and {other}", names: [.symbol], params: ["symbol": "AB"]) == "AB and {other}")
+    #expect(ReasonParam.fill("{symbol} is {state}", names: names, params: ["symbol": "AB"]) == nil)
+  }
+
   @Test("Order values and check rules translate; unknown ones stay as sent")
   func values() {
     #expect(ApiText.orderSide("SELL") == String(localized: L10n.orderSideSell))

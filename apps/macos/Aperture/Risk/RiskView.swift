@@ -182,7 +182,7 @@ private struct EntryGateCard: View {
             L10n.Risk.tradingGate, value: String(localized: status.tradingGate.open ? L10n.Risk.gateOpen : L10n.Risk.gateClosed),
             color: status.tradingGate.open ? Palette.profitText : Palette.warningText)
           if !status.tradingGate.open {
-            Footnote(verbatim: status.tradingGate.cause, color: Palette.textQuaternary)
+            Footnote(verbatim: ApiText.gate(status.tradingGate), color: Palette.textQuaternary)
           }
         }
         .animation(Tokens.Motion.standard, value: status.entryBlock)
@@ -240,11 +240,13 @@ private struct FencesCard: View {
             Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Palette.warning)
             VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
               Text(verbatim: ApiText.fence(fence)).foregroundStyle(Palette.textPrimary)
-              // The bot's detail often says what to do; it stays visible until it comes as codes.
-              Text(verbatim: fence.text)
+              // What the fence says often tells what to do, so it stays visible; the bot's own
+              // words are the tooltip.
+              Text(verbatim: ApiText.fenceDetail(fence))
                 .font(Tokens.Typography.callout)
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
+                .help(Text(verbatim: fence.text))
               Text(L10n.Risk.fenceSince(Format.marketTime(fence.since.date)))
                 .font(Tokens.Typography.captionMono)
                 .foregroundStyle(Palette.textQuaternary)

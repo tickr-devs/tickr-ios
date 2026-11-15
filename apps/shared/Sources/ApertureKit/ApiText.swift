@@ -26,11 +26,23 @@ public enum ApiText {
     return parts.count > 1 ? title + keySeparator + parts[1] : title
   }
 
-  /// The fence in words followed by the bot's own detail, which often says what to do ("close the
-  /// position in the Webull app") and stays visible until the bot sends it as codes.
+  /// What the fence says, in the person's language when the bot sent its cause as a code with
+  /// every value the sentence needs, else the bot's own words. It often says what to do ("close
+  /// the position in the Webull app"), so it stays visible.
+  public static func fenceDetail(_ fence: Fence) -> String {
+    FenceReason(rawValue: fence.code)?.text(fence.params) ?? fence.text
+  }
+
+  /// The fence in words followed by what it says.
   public static func fenceWithDetail(_ fence: Fence) -> String {
     let title = Self.fence(fence)
-    return fence.text.isEmpty ? title : title + detailSeparator + fence.text
+    let detail = fenceDetail(fence)
+    return detail.isEmpty ? title : title + detailSeparator + detail
+  }
+
+  /// The trading gate's cause in the person's language, else the bot's own words.
+  public static func gate(_ gate: Gate) -> String {
+    GateReason(rawValue: gate.code)?.text(gate.params) ?? gate.cause
   }
 
   public static func orderSide(_ raw: String) -> String {

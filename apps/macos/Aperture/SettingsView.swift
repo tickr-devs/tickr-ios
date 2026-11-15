@@ -185,7 +185,7 @@ private struct EnvironmentSettings: View {
         if let gate = model.status?.tradingGate {
           LabeledContent(String(localized: L10n.Settings.tradingGate),
             value: String(localized: gate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed))
-          LabeledContent(String(localized: L10n.Settings.gateCause), value: gate.cause)
+          LabeledContent(String(localized: L10n.Settings.gateCause), value: ApiText.gate(gate))
         }
         LabeledContent(String(localized: L10n.Settings.apiVersion), value: model.settings.map { "\($0.apiVersion)" } ?? Format.missing)
       } header: {
