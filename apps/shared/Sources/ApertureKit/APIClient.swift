@@ -7,12 +7,23 @@ import FoundationNetworking
 public enum OperatorCommand: Hashable, Sendable {
   case entryStop(on: Bool)
   case cancelOwnOrders
+  /// Close every position the bot holds.
   case flatten
+  /// Close only the bot's position in one symbol.
+  case flattenSymbol(String)
+  /// Graceful stop that sticks until the owner starts the bot again.
+  case stopBot
+  /// Entry stop on, cancel own orders, flatten everything.
+  case emergency
 
   /// API paths of the commands (docs/api.md).
   static let entryStopPath = "/commands/entry-stop"
   static let cancelOwnOrdersPath = "/commands/cancel-own-orders"
   static let flattenPath = "/commands/flatten"
+  static let stopBotPath = "/commands/stop-bot"
+  static let emergencyPath = "/commands/emergency"
+  /// The flatten body's key for one symbol.
+  static let symbolKey = "symbol"
   /// The entry-stop body's key and its two values.
   static let stateKey = "state"
   static let on = "on"
@@ -22,7 +33,9 @@ public enum OperatorCommand: Hashable, Sendable {
     switch self {
     case .entryStop: return Self.entryStopPath
     case .cancelOwnOrders: return Self.cancelOwnOrdersPath
-    case .flatten: return Self.flattenPath
+    case .flatten, .flattenSymbol: return Self.flattenPath
+    case .stopBot: return Self.stopBotPath
+    case .emergency: return Self.emergencyPath
     }
   }
 
@@ -30,7 +43,8 @@ public enum OperatorCommand: Hashable, Sendable {
   public var body: [String: String] {
     switch self {
     case .entryStop(let on): return [Self.stateKey: on ? Self.on : Self.off]
-    case .cancelOwnOrders, .flatten: return [:]
+    case .flattenSymbol(let symbol): return [Self.symbolKey: symbol]
+    case .cancelOwnOrders, .flatten, .stopBot, .emergency: return [:]
     }
   }
 
@@ -38,7 +52,9 @@ public enum OperatorCommand: Hashable, Sendable {
     switch self {
     case .entryStop(let on): return on ? .entryStopOn : .entryStopOff
     case .cancelOwnOrders: return .cancelOwnOrders
-    case .flatten: return .flatten
+    case .flatten, .flattenSymbol: return .flatten
+    case .stopBot: return .stopBot
+    case .emergency: return .emergency
     }
   }
 }
@@ -83,6 +99,8 @@ public struct APIClient: Sendable {
   static let post = "POST"
   static let acceptHeader = "accept"
   static let contentTypeHeader = "content-type"
+  /// HTTP header that makes a repeated command send answer the first send instead of queueing again.
+  static let idempotencyKeyHeader = "idempotency-key"
   /// HTTP header that carries the bearer token.
   static let authorizationHeader = "authorization"
   /// Authentication scheme the bot's API expects before the token (RFC 6750).
@@ -131,10 +149,17 @@ public struct APIClient: Sendable {
   }
 
   /// Queue a command. Success means queued, not executed: its outcome appears later in
-  /// `StatusV1.recentCommands` under the returned command id.
-  public func send(_ command: OperatorCommand) async throws -> CommandAcceptedV1 {
+  /// `StatusV1.recentCommands` under the returned command id. Sending again with the same
+  /// `idempotencyKey` (one per operator action) answers the first send and queues nothing, so an
+  /// action whose answer was lost can be sent again safely; the API refuses a key reused for
+  /// another command with 409 `conflict`.
+  public func send(_ command: OperatorCommand, idempotencyKey: String? = nil) async throws -> CommandAcceptedV1 {
     let body = try JSONSerialization.data(withJSONObject: command.body, options: [.sortedKeys])
-    return try await perform(request(path: command.path, body: body), expect: Self.accepted)
+    var post = request(path: command.path, body: body)
+    if let idempotencyKey {
+      post.setValue(idempotencyKey, forHTTPHeaderField: Self.idempotencyKeyHeader)
+    }
+    return try await perform(post, expect: Self.accepted)
   }
 
   func request(path: String, query: [(String, String)] = [], body: Data?) -> URLRequest {

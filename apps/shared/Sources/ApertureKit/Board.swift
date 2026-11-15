@@ -123,6 +123,8 @@ public enum Board {
     case .entryStopOff: return String(localized: L10n.commandResumeEntries)
     case .cancelOwnOrders: return String(localized: L10n.commandCancelOwnOrders)
     case .flatten: return String(localized: L10n.commandFlatten)
+    case .stopBot: return String(localized: L10n.commandStopBot)
+    case .emergency: return String(localized: L10n.commandEmergency)
     }
   }
 

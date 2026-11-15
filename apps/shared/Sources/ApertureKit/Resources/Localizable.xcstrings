@@ -103,6 +103,23 @@
         }
       }
     },
+    "kit.command.emergency": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emergency stop"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Аварийная остановка"
+          }
+        }
+      }
+    },
     "kit.command.entryStopOff": {
       "extractionState": "manual",
       "localizations": {
@@ -184,6 +201,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Возобновить входы"
+          }
+        }
+      }
+    },
+    "kit.command.stopBot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop bot"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Остановить бота"
           }
         }
       }

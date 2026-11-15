@@ -132,6 +132,14 @@ enum L10n {
   static var commandFlatten: LocalizedStringResource {
     LocalizedStringResource("kit.command.flatten", defaultValue: "Flatten", bundle: bundle)
   }
+  /// Operator command: stop the bot gracefully; it stays stopped until started again.
+  static var commandStopBot: LocalizedStringResource {
+    LocalizedStringResource("kit.command.stopBot", defaultValue: "Stop bot", bundle: bundle)
+  }
+  /// Operator command: entry stop on, cancel own orders and flatten everything at once.
+  static var commandEmergency: LocalizedStringResource {
+    LocalizedStringResource("kit.command.emergency", defaultValue: "Emergency stop", bundle: bundle)
+  }
 
   // MARK: Headline
 

@@ -14,6 +14,8 @@ public enum CommandKind: String, Codable, Sendable, CaseIterable {
   case entryStopOff = "entry-stop-off"
   case cancelOwnOrders = "cancel-own-orders"
   case flatten
+  case stopBot = "stop-bot"
+  case emergency
 }
 
 public enum CommandOutcome: String, Codable, Sendable { case done, refused }
@@ -256,10 +258,12 @@ public struct CommandV1: Codable, Hashable, Sendable {
   public let kind: CommandKind
   public let requestedAt: WireTime
   public let source: String
+  /// The one symbol a flatten closes; nil for every other command and for a flatten of everything.
+  public let symbol: String?
   public let schemaVersion: Int
 
   enum CodingKeys: String, CodingKey {
-    case kind, source
+    case kind, source, symbol
     case commandId = "command_id"
     case requestedAt = "requested_at"
     case schemaVersion = "schema_version"
@@ -272,6 +276,17 @@ public struct CommandV1: Codable, Hashable, Sendable {
     kind = try c.decode(CommandKind.self, forKey: .kind)
     requestedAt = try c.decode(WireTime.self, forKey: .requestedAt)
     source = try c.decode(String.self, forKey: .source)
+    symbol = try c.decodeNullable(String.self, forKey: .symbol)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(commandId, forKey: .commandId)
+    try c.encode(kind, forKey: .kind)
+    try c.encode(requestedAt, forKey: .requestedAt)
+    try c.encode(source, forKey: .source)
+    try c.encodeNullable(symbol, forKey: .symbol)
+    try c.encode(schemaVersion, forKey: .schemaVersion)
   }
 }
 

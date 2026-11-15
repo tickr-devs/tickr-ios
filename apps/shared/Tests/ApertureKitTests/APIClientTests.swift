@@ -105,6 +105,9 @@ final class StubProtocol: URLProtocol {
       (.entryStop(on: false), "/commands/entry-stop", ["state": "off"]),
       (.cancelOwnOrders, "/commands/cancel-own-orders", [:]),
       (.flatten, "/commands/flatten", [:]),
+      (.flattenSymbol("ABCD"), "/commands/flatten", ["symbol": "ABCD"]),
+      (.stopBot, "/commands/stop-bot", [:]),
+      (.emergency, "/commands/emergency", [:]),
     ]
     for (index, (command, path, body)) in cases.enumerated() {
       _ = try await client.send(command)
@@ -115,6 +118,23 @@ final class StubProtocol: URLProtocol {
       #expect(request.value(forHTTPHeaderField: "Origin") == nil)
       let sent = try JSONSerialization.jsonObject(with: StubProtocol.seenBodies[index]) as? [String: String]
       #expect(sent == body)
+    }
+  }
+
+  @Test func idempotencyKeyIsSentOnlyWhenGiven() async throws {
+    StubProtocol.answer = try (202, fixture("command-accepted-v1.flatten-symbol.json"))
+    let accepted = try await client.send(.flattenSymbol("ABCD"), idempotencyKey: "action-1")
+    #expect(accepted.command.symbol == "ABCD")
+    #expect(StubProtocol.seen[0].value(forHTTPHeaderField: "Idempotency-Key") == "action-1")
+    _ = try await client.send(.flattenSymbol("ABCD"))
+    #expect(StubProtocol.seen[1].value(forHTTPHeaderField: "Idempotency-Key") == nil)
+  }
+
+  @Test func conflictIsATypedRefusal() async throws {
+    let body = Data(#"{"error":"conflict","cause":"key reused","api_version":1}"#.utf8)
+    StubProtocol.answer = (409, body)
+    await #expect(throws: APIError.refused(status: 409, error: "conflict", cause: "key reused")) {
+      try await client.send(.stopBot, idempotencyKey: "action-1")
     }
   }
 
