@@ -99,8 +99,12 @@ public struct SkippedGroup: Hashable, Sendable, Identifiable {
   public var latest: SkippedSignalV1 { signals[signals.count - 1] }
   public var count: Int { signals.count }
   public var id: String { "\(first.symbol) \(first.at.date.timeIntervalSince1970)" }
-  /// The latest signal's cause, nil when it was not refused.
-  public var cause: RefusalCause? { latest.refusalCause.map(RefusalCause.init) }
+  /// The latest signal's cause, nil when it was not refused: its "CODE: detail" text (which holds
+  /// the times), else its structured refusal as "CODE: message".
+  public var cause: RefusalCause? {
+    latest.refusalCause.map(RefusalCause.init)
+      ?? latest.refusal.map { RefusalCause($0.code + RefusalCause.separator + $0.message) }
+  }
 
   /// `signals` as GET /skipped serves them (oldest first), grouped and listed newest first. A
   /// signal joins its symbol's previous group when it had the same admission and cause code;
@@ -120,8 +124,12 @@ public struct SkippedGroup: Hashable, Sendable, Identifiable {
   }
 
   static func same(_ a: SkippedSignalV1, _ b: SkippedSignalV1) -> Bool {
-    a.admission == b.admission && a.strategy == b.strategy
-      && a.refusalCause.map { RefusalCause($0).code } == b.refusalCause.map { RefusalCause($0).code }
+    a.admission == b.admission && a.strategy == b.strategy && code(a) == code(b)
+  }
+
+  /// The refusal code: the structured refusal's, else the code that starts `refusal_cause`.
+  static func code(_ signal: SkippedSignalV1) -> String? {
+    signal.refusal?.code ?? signal.refusalCause.map { RefusalCause($0).code }
   }
 }
 
@@ -140,9 +148,11 @@ public struct RefusalCount: Hashable, Sendable, Identifiable {
     var counts: [String?: Int] = [:]
     var first: [String: RefusalCause] = [:]
     for signal in signals where signal.admission == .refused {
-      let cause = signal.refusalCause.map(RefusalCause.init)
-      counts[cause?.code, default: 0] += 1
-      if let cause, first[cause.code] == nil { first[cause.code] = cause }
+      // The structured refusal when the record has one, as the grouped rows do.
+      let text = signal.refusal.map { $0.code + RefusalCause.separator + $0.message } ?? signal.refusalCause
+      let code = SkippedGroup.code(signal)
+      counts[code, default: 0] += 1
+      if let code, let text, first[code] == nil { first[code] = RefusalCause(text) }
     }
     return counts.map { code, count in RefusalCount(cause: code.flatMap { first[$0] }, count: count) }
       .sorted { $0.count != $1.count ? $0.count > $1.count : $0.id < $1.id }
