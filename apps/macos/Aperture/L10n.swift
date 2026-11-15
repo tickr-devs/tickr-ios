@@ -502,6 +502,10 @@ enum L10n {
     static var blocked: LocalizedStringResource {
       LocalizedStringResource("flow.blocked", defaultValue: "blocked", bundle: L10n.bundle)
     }
+    /// Risk stage value while entries wait for an ordinary reason (a trade is open, outside the window).
+    static var waiting: LocalizedStringResource {
+      LocalizedStringResource("flow.waiting", defaultValue: "not now", bundle: L10n.bundle)
+    }
     static func closedCount(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.closedCount", defaultValue: "\(count) closed", bundle: L10n.bundle)
     }
@@ -1481,6 +1485,10 @@ enum L10n {
     /// Badge: entries blocked.
     static var blocked: LocalizedStringResource {
       LocalizedStringResource("risk.blocked", defaultValue: "BLOCKED", bundle: L10n.bundle)
+    }
+    /// Badge: entries refused for an ordinary reason that passes on its own (a trade is open, outside the entry window).
+    static var waiting: LocalizedStringResource {
+      LocalizedStringResource("risk.waiting", defaultValue: "NOT NOW", bundle: L10n.bundle)
     }
     /// Entry stop set by the operator.
     static var operatorPause: LocalizedStringResource {

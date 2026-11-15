@@ -2868,9 +2868,21 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld stocks"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld stock"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld stocks"
+                }
+              }
+            }
           }
         },
         "ru" : {
@@ -2911,6 +2923,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отбор"
+          }
+        }
+      }
+    },
+    "flow.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not now"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не сейчас"
           }
         }
       }
@@ -5247,6 +5276,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Торговый шлюз"
+          }
+        }
+      }
+    },
+    "risk.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NOT NOW"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "НЕ СЕЙЧАС"
           }
         }
       }

@@ -288,7 +288,8 @@ private struct LiveFlowCard: View {
         symbol: Self.strategySymbol, color: Palette.highlight, text: Palette.highlightText),
       // A live entry block outranks the day's count: it is what the operator must see first.
       .init(id: .risk, name: L10n.Common.risk,
-        value: status?.entryBlock.map { _ in String(localized: L10n.Flow.blocked) } ?? count(.risk, L10n.Flow.passed)
+        value: status?.entryBlock.map { String(localized: $0.attention ? L10n.Flow.blocked : L10n.Flow.waiting) }
+          ?? count(.risk, L10n.Flow.passed)
           ?? status.map { _ in String(localized: L10n.Flow.entriesAllowed) },
         symbol: Self.riskSymbol, color: Palette.warning, text: Palette.warningText),
       .init(id: .order, name: L10n.Flow.order,

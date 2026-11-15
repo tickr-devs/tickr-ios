@@ -285,10 +285,19 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     try Wire.decoder().decode(StatusResponseV1.self, from: fixture(name))
   }
 
-  @Test func blockedIsAttention() throws {
+  @Test func ordinaryBlockIsCalm() throws {
     let headline = Headline.make(response: try response("status-response-v1.json"), fetchError: nil)
-    #expect(headline.severity == .attention)
+    #expect(headline.severity == .ok)
     #expect(headline.text == "The bot already has a trade open.")
+  }
+
+  @Test func blockNeedingTheOperatorIsAttention() throws {
+    let calm = try fixture("status-response-v1.json")
+    let text = try #require(String(data: calm, encoding: .utf8))
+      .replacingOccurrences(of: "\"attention\": false", with: "\"attention\": true")
+    let response = try Wire.decoder().decode(StatusResponseV1.self, from: Data(text.utf8))
+    #expect(response.status?.entryBlock?.attention == true)
+    #expect(Headline.make(response: response, fetchError: nil).severity == .attention)
   }
 
   @Test func allowedIsOK() throws {

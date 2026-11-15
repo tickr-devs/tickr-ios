@@ -135,22 +135,38 @@ extension LossRoomCard {
 private struct EntryGateCard: View {
   @Environment(AppModel.self) private var model
 
-  private var allowed: Bool {
-    guard let status = model.status else { return false }
-    return status.entryBlock == nil && !status.entryStop && status.tradingGate.open
+  private enum Gate { case allowed, waiting, blocked }
+
+  /// Allowed; waiting for an ordinary reason that passes on its own (calm); or blocked for a
+  /// reason the operator should look at.
+  private var gate: Gate {
+    guard let status = model.status else { return .blocked }
+    if status.entryStop || !status.tradingGate.open { return .blocked }
+    guard let block = status.entryBlock else { return .allowed }
+    return block.attention ? .blocked : .waiting
   }
 
   var body: some View {
-    Card(L10n.Risk.entryGate, tint: allowed ? nil : Palette.warning, tone: allowed ? .profit : .warning, trailing: {
-      StatusPill(allowed ? L10n.Risk.allowed : L10n.Risk.blocked, tone: allowed ? .profit : .warning, live: allowed,
-        event: model.status?.freshness.lastBrokerReadAt?.date)
+    let gate = self.gate
+    let tone: Tone = switch gate {
+    case .allowed: .profit
+    case .waiting: .neutral
+    case .blocked: .warning
+    }
+    let title = switch gate {
+    case .allowed: L10n.Risk.allowed
+    case .waiting: L10n.Risk.waiting
+    case .blocked: L10n.Risk.blocked
+    }
+    Card(L10n.Risk.entryGate, tint: gate == .blocked ? Palette.warning : nil, tone: tone, trailing: {
+      StatusPill(title, tone: tone, live: gate == .allowed, event: model.status?.freshness.lastBrokerReadAt?.date)
     }) {
       if let status = model.status {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
           if let block = status.entryBlock {
             Text(verbatim: block.text)
               .font(Tokens.Typography.body)
-              .foregroundStyle(Palette.textPrimary)
+              .foregroundStyle(block.attention ? Palette.textPrimary : Palette.textSecondary)
             Footnote(verbatim: block.cause, color: Palette.textQuaternary)
           }
           StatLine(

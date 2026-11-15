@@ -34,7 +34,9 @@ public struct Headline: Equatable, Sendable {
           + response.summary,
         severity: .alarm)
     }
-    return Headline(text: response.summary, severity: status.entryBlock == nil ? .ok : .attention)
+    // An ordinary refusal (a trade is open, outside the entry window) is calm; only a block that
+    // needs the operator is attention.
+    return Headline(text: response.summary, severity: status.entryBlock?.attention == true ? .attention : .ok)
   }
 }
 
