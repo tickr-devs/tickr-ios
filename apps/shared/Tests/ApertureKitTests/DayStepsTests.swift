@@ -6,7 +6,8 @@ import Testing
 struct DayStepsTests {
   func summary(_ day: String) throws -> DaySummary {
     DaySummary(day: try WireDate(day), trades: 1, wins: 1, losses: 0,
-      resultGrossUsd: try DecimalString("1"), hasBars: true)
+      resultGrossUsd: try DecimalString("1"), hasBars: true,
+      clean: try Wire.decoder().decode(CleanDay.self, from: Data(DayCalendarTests.clean.utf8)))
   }
 
   /// Newest first, as GET /days lists them, with today's session among them.

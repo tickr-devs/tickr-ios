@@ -104,6 +104,17 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(empty.cause != nil)
   }
 
+  @Test func cleanDayVerdicts() throws {
+    let days = try Wire.decoder().decode(DaysV1.self, from: fixture("days-v1.json"))
+    #expect(Set(days.days.map(\.clean.verdict)) == [.clean, .notClean, .unknown])
+    let dirty = try #require(days.days.first { $0.clean.verdict == .notClean })
+    #expect(dirty.clean.causes.first?.kind == .reconcileMismatch)
+    #expect(dirty.clean.causes.first?.journalSeqs == [8410, 8411])
+    let open = try #require(days.days.first { $0.clean.verdict == .unknown })
+    #expect(open.clean.cause != nil)
+    #expect(open.clean.dayEndSeq == nil)
+  }
+
   @Test func wireDateArithmetic() throws {
     #expect(try WireDate("2026-11-16").adding(days: -29) == WireDate("2026-10-18"))
     #expect(try WireDate("2026-03-08").adding(days: 1) == WireDate("2026-03-09"))
@@ -211,7 +222,8 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(day.trades.last?.resultR == Decimal(string: "0.082"))
     #expect(day.barSymbols == ["ABCD", "WXYZ"])
     let days = try Wire.decoder().decode(DaysV1.self, from: fixture("days-v1.json"))
-    #expect(days.days.map(\.hasBars) == [true, false])
+    #expect(days.days.map(\.hasBars) == [true, false, true, true])
+    #expect(days.days.map(\.clean.verdict) == [.unknown, .clean, .notClean, .unknown])
   }
 
   @Test func dailyMoneyAndPositionsValues() throws {

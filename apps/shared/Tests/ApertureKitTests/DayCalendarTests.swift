@@ -4,9 +4,16 @@ import Testing
 
 @Suite("Trading-day calendar")
 struct DayCalendarTests {
+  /// A clean-day verdict for the summaries the calendar tests build.
+  static let clean = """
+    {"verdict": "clean", "cause": null, "causes": [], "reconcile_rows": 1, "first_reconcile_at": null,
+     "last_reconcile_at": null, "day_end_seq": 1}
+    """
+
   func summary(_ day: String, result: String) throws -> DaySummary {
     DaySummary(day: try WireDate(day), trades: 1, wins: 1, losses: 0,
-      resultGrossUsd: try DecimalString(result), hasBars: true)
+      resultGrossUsd: try DecimalString(result), hasBars: true,
+      clean: try Wire.decoder().decode(CleanDay.self, from: Data(Self.clean.utf8)))
   }
 
   @Test("A month starting on a Sunday has full Monday-to-Friday weeks and a lone last Monday")
