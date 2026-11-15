@@ -64,6 +64,30 @@ struct ApiTextTests {
     #expect(ReasonParam.fill("{symbol} is {state}", names: names, params: ["symbol": "AB"]) == nil)
   }
 
+  @Test("A refusal's detail reads as its sentence, a closed gate as the gate's; else nil")
+  func refusals() {
+    #expect(ApiText.refusalDetail(code: "QUOTE_STALE", params: ["age": "9", "limit": "5"])
+      == RefusalReason.quoteStale.text(["age": "9", "limit": "5"]))
+    #expect(ApiText.refusalDetail(code: "QUOTE_STALE", params: ["age": "9"]) == nil)
+    #expect(ApiText.refusalDetail(code: "GATE_CLOSED", params: ["gate": "trading_disabled", "environment": "production"])
+      == GateReason.tradingDisabled.text(["environment": "production"]))
+    #expect(ApiText.refusalDetail(code: "GATE_CLOSED", params: [:]) == nil)
+    #expect(ApiText.refusalDetail(code: "NEW_RULE", params: ["age": "9"]) == nil)
+  }
+
+  @Test("A code the bot writes in two shapes reads as the sentence whose values were sent")
+  func shapes() throws {
+    let total = ["realized": "-120", "reserved": "60", "new": "130", "total": "310", "ceiling": "300"]
+    let room = ["room": "8", "min_room": "10", "ceiling": "300", "realized": "-232", "reserved": "60"]
+    let byTotal = try #require(ApiText.refusalDetail(code: "DAILY_CEILING", params: total))
+    let byRoom = try #require(ApiText.refusalDetail(code: "DAILY_CEILING", params: room))
+    #expect(byTotal.contains("310") && !byTotal.contains("{"))
+    #expect(byRoom.contains("8") && !byRoom.contains("{"))
+    #expect(byTotal != byRoom)
+    let stop = try #require(ApiText.refusalDetail(code: "ORDER_PRICES_INVALID", params: ["stop": "12.5", "limit": "12.4"]))
+    #expect(stop.contains("12.5") && !stop.contains("{"))
+  }
+
   @Test("Order values and check rules translate; unknown ones stay as sent")
   func values() {
     #expect(ApiText.orderSide("SELL") == String(localized: L10n.orderSideSell))

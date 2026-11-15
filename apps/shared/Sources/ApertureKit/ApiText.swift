@@ -45,6 +45,23 @@ public enum ApiText {
     GateReason(rawValue: gate.code)?.text(gate.params) ?? gate.cause
   }
 
+  /// The gate's own reason code inside a GATE_CLOSED refusal's params.
+  static let gateKey = "gate"
+
+  /// A refused entry's detail in the person's language, from its code and values; nil when this
+  /// app has no sentence for it or the bot did not send every value (show the bot's words then).
+  public static func refusalDetail(code: String, params: [String: String]) -> String? {
+    if code == RefusalCode.gateClosed.rawValue {
+      return params[gateKey].flatMap(GateReason.init(rawValue:))?.text(params)
+    }
+    return RefusalReason(rawValue: code)?.text(params)
+  }
+
+  /// A structured refusal's detail: the sentence, else the bot's message.
+  public static func refusal(_ refusal: RefusalV1) -> String {
+    refusalDetail(code: refusal.code, params: refusal.params) ?? refusal.message
+  }
+
   public static func orderSide(_ raw: String) -> String {
     OrderSide(rawValue: raw).map { String(localized: $0.title) } ?? raw
   }

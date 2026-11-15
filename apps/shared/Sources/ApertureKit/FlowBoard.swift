@@ -50,7 +50,7 @@ public enum FlowBoard {
       uniquingKeysWith: { first, _ in first })
     var refusedByRisk: [String: String] = [:]
     for signal in skipped?.signals ?? [] where signal.admission == .refused {
-      refusedByRisk[signal.symbol] = signal.refusal?.message ?? signal.refusalCause
+      refusedByRisk[signal.symbol] = signal.refusal.map(ApiText.refusal) ?? signal.refusalCause
     }
     let stops = Dictionary(flow.stops.map { ($0.symbol, $0.state) }, uniquingKeysWith: { _, last in last })
     return furthest.keys.sorted().map { symbol in

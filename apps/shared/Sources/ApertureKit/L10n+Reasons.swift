@@ -212,4 +212,141 @@ extension L10n {
       // swiftlint:disable:next line_length
       defaultValue: "Close of {quantity} of {expected} {symbol} not sent outside the regular session; the stop stays. Close it in the Webull app, or clear this in the next regular session and the bot sends the close", bundle: bundle)
   }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. CLOCK_INVALID (values: seconds)
+  static var refusalReasonClockInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.CLOCK_INVALID",
+      defaultValue: "The last broker read is {seconds} s in the future", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. BROKER_READ_STALE (values: age, limit)
+  static var refusalReasonBrokerReadStale: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.BROKER_READ_STALE",
+      defaultValue: "Last broker read {age} s ago, limit {limit} s", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. CALENDAR_DAY_MISMATCH (values: calendar_day, today)
+  static var refusalReasonCalendarDayMismatch: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.CALENDAR_DAY_MISMATCH",
+      defaultValue: "The calendar's day {calendar_day} is not today ({today})", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. HALF_DAY (values: day)
+  static var refusalReasonHalfDay: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.HALF_DAY",
+      defaultValue: "{day} is a half day", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. OUTSIDE_REGULAR_SESSION (values: open, close)
+  static var refusalReasonOutsideRegularSession: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.OUTSIDE_REGULAR_SESSION",
+      defaultValue: "Regular hours are {open}–{close} New York time", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. AFTER_LAST_ENTRY (values: time)
+  static var refusalReasonAfterLastEntry: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.AFTER_LAST_ENTRY",
+      defaultValue: "No new entries after {time}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. OWN_POSITION_OPEN (values: count)
+  static var refusalReasonOwnPositionOpen: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.OWN_POSITION_OPEN",
+      defaultValue: "Own positions open: {count}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. OWN_ORDER_WORKING (values: count)
+  static var refusalReasonOwnOrderWorking: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.OWN_ORDER_WORKING",
+      defaultValue: "Own orders working: {count}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. POSITION_LIMIT_REACHED (values: open, limit)
+  static var refusalReasonPositionLimitReached: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.POSITION_LIMIT_REACHED",
+      defaultValue: "{open} open, limit {limit}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. SYMBOL_COOLDOWN (values: symbol, until)
+  static var refusalReasonSymbolCooldown: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.SYMBOL_COOLDOWN",
+      defaultValue: "{symbol} closed at a loss; no entry before {until}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. DECISION_NOT_ENTER (values: verdict)
+  static var refusalReasonDecisionNotEnter: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.DECISION_NOT_ENTER",
+      defaultValue: "The decision was {verdict}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. DECISION_NOT_ACTIVE (values: strategy, version, active)
+  static var refusalReasonDecisionNotActive: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.DECISION_NOT_ACTIVE",
+      defaultValue: "Decision from {strategy} {version}; the active strategy is {active}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. DECISION_INCOMPLETE (values: fields)
+  static var refusalReasonDecisionIncomplete: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.DECISION_INCOMPLETE",
+      defaultValue: "An entry without {fields}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. DECISION_INVALID (values: stop, entry_low, entry_high)
+  static var refusalReasonDecisionInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.DECISION_INVALID",
+      defaultValue: "Needs 0 < stop {stop} < entry low {entry_low} ≤ entry high {entry_high}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. ORDER_PRICES_INVALID (values: limit, entry_low, entry_high)
+  static var refusalReasonOrderPricesInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.ORDER_PRICES_INVALID",
+      defaultValue: "Limit {limit} outside the window {entry_low}–{entry_high}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. ORDER_PRICES_INVALID stop (values: stop, limit)
+  static var refusalReasonOrderPricesInvalidStop: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.ORDER_PRICES_INVALID.stop",
+      defaultValue: "Needs 0 < stop {stop} < limit {limit}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_SYMBOL_MISMATCH (values: quote_symbol, symbol)
+  static var refusalReasonQuoteSymbolMismatch: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUOTE_SYMBOL_MISMATCH",
+      defaultValue: "Quote for {quote_symbol}, decision for {symbol}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_INVALID (values: bid, ask)
+  static var refusalReasonQuoteInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUOTE_INVALID",
+      defaultValue: "Bid {bid} / ask {ask} cannot be traded", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_TIME_INVALID (values: seconds, limit)
+  static var refusalReasonQuoteTimeInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUOTE_TIME_INVALID",
+      defaultValue: "Quote time {seconds} s ahead of the clock, limit {limit} s", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_STALE (values: age, limit)
+  static var refusalReasonQuoteStale: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUOTE_STALE",
+      defaultValue: "Quote {age} s old, limit {limit} s", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. PRICE_OUTSIDE_WINDOW (values: ask, entry_low, limit)
+  static var refusalReasonPriceOutsideWindow: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.PRICE_OUTSIDE_WINDOW",
+      defaultValue: "Ask {ask} outside the entry range {entry_low}–{limit}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_NOT_WHOLE (values: quantity)
+  static var refusalReasonQuantityNotWhole: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUANTITY_NOT_WHOLE",
+      defaultValue: "Quantity {quantity} is not a whole number of shares", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_BELOW_ONE (values: quantity, maximum)
+  static var refusalReasonQuantityBelowOne: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUANTITY_BELOW_ONE",
+      defaultValue: "Quantity {quantity} is under 1 (platform maximum {maximum})", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. NOTIONAL_OVER_CAP (values: notional, cap)
+  static var refusalReasonNotionalOverCap: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.NOTIONAL_OVER_CAP",
+      defaultValue: "Value {notional} USD over the cap of {cap} USD", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. PLANNED_LOSS_OVER_LIMIT (values: planned_loss, limit)
+  static var refusalReasonPlannedLossOverLimit: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.PLANNED_LOSS_OVER_LIMIT",
+      defaultValue: "Planned loss {planned_loss} USD over the limit of {limit} USD", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING (values: room, min_room, ceiling, realized, reserved)
+  static var refusalReasonDailyCeiling: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.DAILY_CEILING",
+      // swiftlint:disable:next line_length
+      defaultValue: "Room {room} USD is under the minimum {min_room} USD (limit {ceiling}, realized {realized}, reserved {reserved})", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING total (values: realized, reserved, new, total, ceiling)
+  static var refusalReasonDailyCeilingTotal: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.DAILY_CEILING.total",
+      // swiftlint:disable:next line_length
+      defaultValue: "Realized {realized} + reserved {reserved} + this trade {new} = {total} USD, over the daily limit of {ceiling} USD", bundle: bundle)
+  }
 }

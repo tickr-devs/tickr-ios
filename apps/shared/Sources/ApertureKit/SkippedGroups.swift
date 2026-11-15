@@ -74,6 +74,8 @@ public struct RefusalCause: Hashable, Sendable {
   /// a loss has both ends.
   public let since: Date?
   public let until: Date?
+  /// The values the detail names, when the bot sent the refusal structured.
+  public let params: [String: String]
 
   /// Between the code and the detail.
   public static let separator = ": "
@@ -84,6 +86,7 @@ public struct RefusalCause: Hashable, Sendable {
   public init(_ text: String, refusal: RefusalV1? = nil) {
     since = refusal?.since?.date
     until = refusal?.until?.date
+    params = refusal?.params ?? [:]
     if let range = text.range(of: Self.separator) {
       code = String(text[..<range.lowerBound])
       detail = String(text[range.upperBound...])
@@ -92,6 +95,10 @@ public struct RefusalCause: Hashable, Sendable {
       detail = ""
     }
   }
+
+  /// The detail in the person's language, nil when there is no sentence for it or a value is
+  /// missing.
+  public var phrase: String? { ApiText.refusalDetail(code: code, params: params) }
 
   /// The code, when the apps know it.
   public var known: RefusalCode? { RefusalCode(rawValue: code) }

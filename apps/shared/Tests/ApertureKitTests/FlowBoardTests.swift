@@ -33,7 +33,8 @@ struct FlowBoardTests {
     let abcd = try #require(FlowBoard.marks(flow: trimmed, skipped: skipped).first { $0.id == "ABCD" })
     #expect(abcd.stage == .risk)
     #expect(abcd.refused)
-    #expect(abcd.note == "1 open position(s), limit 1")
+    // The refusal's detail in the reader's language, from its code and values.
+    #expect(abcd.note == RefusalReason.positionLimitReached.text(["open": "1", "limit": "1"]))
     #expect(FlowBoard.marks(flow: flow, skipped: nil).count == 4)
     #expect(FlowBoard.marks(flow: nil, skipped: skipped).isEmpty)
   }

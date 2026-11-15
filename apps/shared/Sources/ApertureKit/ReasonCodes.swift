@@ -4,23 +4,55 @@ import Foundation
 
 /// A value a reason sentence names (`params` of a gate, a fence or a cause).
 public enum ReasonParam: String, CaseIterable, Sendable {
+  case active
+  case age
+  case ask
+  case bid
+  case calendarDay = "calendar_day"
+  case cap
+  case ceiling
+  case close
+  case count
   case covered
+  case day
+  case entryHigh = "entry_high"
+  case entryLow = "entry_low"
   case environment
   case error
   case expected
+  case fields
   case file
   case filled
   case held
   case keys
+  case limit
+  case maximum
+  case minRoom = "min_room"
+  case new
+  case notional
+  case open
   case order
   case orders
+  case plannedLoss = "planned_loss"
   case quantity
+  case quoteSymbol = "quote_symbol"
+  case realized
+  case reserved
+  case room
   case seconds
   case state
   case status
+  case stop
   case stopPrice = "stop_price"
+  case strategy
   case symbol
+  case time
+  case today
+  case total
+  case until
+  case verdict
   case verified
+  case version
 }
 
 /// The trading gate's cause (`Gate.code`). An unknown code has no case; show the bot's own text then.
@@ -35,39 +67,26 @@ public enum GateReason: String, CaseIterable, Sendable {
   case authorizationOtherEnvironment = "authorization_other_environment"
   case authorizationDigestMismatch = "authorization_digest_mismatch"
 
-  /// The sentence, naming each value of `names` as {name}.
-  public var template: LocalizedStringResource {
+  /// The code's sentences (one per shape the bot writes it in), each with the
+  /// values it names.
+  public var sentences: [ReasonSentence] {
     switch self {
-    case .tradingEnabled: L10n.gateReasonTradingEnabled
-    case .authorizationValid: L10n.gateReasonAuthorizationValid
-    case .tradingDisabled: L10n.gateReasonTradingDisabled
-    case .authorizationFileNotSet: L10n.gateReasonAuthorizationFileNotSet
-    case .authorizationFileMissing: L10n.gateReasonAuthorizationFileMissing
-    case .authorizationNotToml: L10n.gateReasonAuthorizationNotToml
-    case .authorizationKeysWrong: L10n.gateReasonAuthorizationKeysWrong
-    case .authorizationOtherEnvironment: L10n.gateReasonAuthorizationOtherEnvironment
-    case .authorizationDigestMismatch: L10n.gateReasonAuthorizationDigestMismatch
+    case .tradingEnabled: [ReasonSentence(L10n.gateReasonTradingEnabled, [])]
+    case .authorizationValid: [ReasonSentence(L10n.gateReasonAuthorizationValid, [])]
+    case .tradingDisabled: [ReasonSentence(L10n.gateReasonTradingDisabled, [.environment])]
+    case .authorizationFileNotSet: [ReasonSentence(L10n.gateReasonAuthorizationFileNotSet, [])]
+    case .authorizationFileMissing: [ReasonSentence(L10n.gateReasonAuthorizationFileMissing, [.file])]
+    case .authorizationNotToml: [ReasonSentence(L10n.gateReasonAuthorizationNotToml, [])]
+    case .authorizationKeysWrong: [ReasonSentence(L10n.gateReasonAuthorizationKeysWrong, [.keys])]
+    case .authorizationOtherEnvironment: [ReasonSentence(L10n.gateReasonAuthorizationOtherEnvironment, [])]
+    case .authorizationDigestMismatch: [ReasonSentence(L10n.gateReasonAuthorizationDigestMismatch, [])]
     }
   }
 
-  /// The values the sentence names.
-  public var names: [ReasonParam] {
-    switch self {
-    case .tradingEnabled: []
-    case .authorizationValid: []
-    case .tradingDisabled: [.environment]
-    case .authorizationFileNotSet: []
-    case .authorizationFileMissing: [.file]
-    case .authorizationNotToml: []
-    case .authorizationKeysWrong: [.keys]
-    case .authorizationOtherEnvironment: []
-    case .authorizationDigestMismatch: []
-    }
-  }
-
-  /// The sentence with the values the bot sent; nil when one of them is missing.
+  /// The first sentence whose values the bot all sent, filled in; nil when none
+  /// fits.
   public func text(_ params: [String: String]) -> String? {
-    ReasonParam.fill(String(localized: template), names: names, params: params)
+    sentences.lazy.compactMap { $0.text(params) }.first
   }
 }
 
@@ -106,84 +125,121 @@ public enum FenceReason: String, CaseIterable, Sendable {
   case exitNotFilled = "exit_not_filled"
   case closeNotSent = "close_not_sent"
 
-  /// The sentence, naming each value of `names` as {name}.
-  public var template: LocalizedStringResource {
+  /// The code's sentences (one per shape the bot writes it in), each with the
+  /// values it names.
+  public var sentences: [ReasonSentence] {
     switch self {
-    case .startupReconcilePending: L10n.fenceReasonStartupReconcilePending
-    case .positionsReadFailed: L10n.fenceReasonPositionsReadFailed
-    case .openOrdersReadFailed: L10n.fenceReasonOpenOrdersReadFailed
-    case .detailBudget: L10n.fenceReasonDetailBudget
-    case .sendOutcomeUnknown: L10n.fenceReasonSendOutcomeUnknown
-    case .crashedDuringSend: L10n.fenceReasonCrashedDuringSend
-    case .orderMissing: L10n.fenceReasonOrderMissing
-    case .statusUnmapped: L10n.fenceReasonStatusUnmapped
-    case .stopCoversPart: L10n.fenceReasonStopCoversPart
-    case .stopsOverPosition: L10n.fenceReasonStopsOverPosition
-    case .unprotectedCloseByHand: L10n.fenceReasonUnprotectedCloseByHand
-    case .unprotectedExiting: L10n.fenceReasonUnprotectedExiting
-    case .stopRejectedExiting: L10n.fenceReasonStopRejectedExiting
-    case .exitRefusedNoStop: L10n.fenceReasonExitRefusedNoStop
-    case .exitRefusedStopAgain: L10n.fenceReasonExitRefusedStopAgain
-    case .cancelOutcomeUnknown: L10n.fenceReasonCancelOutcomeUnknown
-    case .cancelCrashed: L10n.fenceReasonCancelCrashed
-    case .cancelFailed: L10n.fenceReasonCancelFailed
-    case .cancelNotSent: L10n.fenceReasonCancelNotSent
-    case .givenUpOrderFilled: L10n.fenceReasonGivenUpOrderFilled
-    case .workingNotInRecords: L10n.fenceReasonWorkingNotInRecords
-    case .foreignPosition: L10n.fenceReasonForeignPosition
-    case .foreignOrder: L10n.fenceReasonForeignOrder
-    case .quantityMismatch: L10n.fenceReasonQuantityMismatch
-    case .shuttingDown: L10n.fenceReasonShuttingDown
-    case .operatorCommand: L10n.fenceReasonOperatorCommand
-    case .operatorEmergency: L10n.fenceReasonOperatorEmergency
-    case .replaceUnresolved: L10n.fenceReasonReplaceUnresolved
-    case .heldAfterReplace: L10n.fenceReasonHeldAfterReplace
-    case .heldUntrackedSell: L10n.fenceReasonHeldUntrackedSell
-    case .exitNotFilled: L10n.fenceReasonExitNotFilled
-    case .closeNotSent: L10n.fenceReasonCloseNotSent
+    case .startupReconcilePending: [ReasonSentence(L10n.fenceReasonStartupReconcilePending, [])]
+    case .positionsReadFailed: [ReasonSentence(L10n.fenceReasonPositionsReadFailed, [.error])]
+    case .openOrdersReadFailed: [ReasonSentence(L10n.fenceReasonOpenOrdersReadFailed, [.error])]
+    case .detailBudget: [ReasonSentence(L10n.fenceReasonDetailBudget, [])]
+    case .sendOutcomeUnknown: [ReasonSentence(L10n.fenceReasonSendOutcomeUnknown, [])]
+    case .crashedDuringSend: [ReasonSentence(L10n.fenceReasonCrashedDuringSend, [])]
+    case .orderMissing: [ReasonSentence(L10n.fenceReasonOrderMissing, [])]
+    case .statusUnmapped: [ReasonSentence(L10n.fenceReasonStatusUnmapped, [.status])]
+    case .stopCoversPart: [ReasonSentence(L10n.fenceReasonStopCoversPart, [.verified, .expected])]
+    case .stopsOverPosition: [ReasonSentence(L10n.fenceReasonStopsOverPosition, [.covered, .held])]
+    case .unprotectedCloseByHand: [ReasonSentence(L10n.fenceReasonUnprotectedCloseByHand, [.seconds])]
+    case .unprotectedExiting: [ReasonSentence(L10n.fenceReasonUnprotectedExiting, [.seconds])]
+    case .stopRejectedExiting: [ReasonSentence(L10n.fenceReasonStopRejectedExiting, [])]
+    case .exitRefusedNoStop: [ReasonSentence(L10n.fenceReasonExitRefusedNoStop, [])]
+    case .exitRefusedStopAgain: [ReasonSentence(L10n.fenceReasonExitRefusedStopAgain, [])]
+    case .cancelOutcomeUnknown: [ReasonSentence(L10n.fenceReasonCancelOutcomeUnknown, [])]
+    case .cancelCrashed: [ReasonSentence(L10n.fenceReasonCancelCrashed, [])]
+    case .cancelFailed: [ReasonSentence(L10n.fenceReasonCancelFailed, [])]
+    case .cancelNotSent: [ReasonSentence(L10n.fenceReasonCancelNotSent, [.seconds])]
+    case .givenUpOrderFilled: [ReasonSentence(L10n.fenceReasonGivenUpOrderFilled, [])]
+    case .workingNotInRecords: [ReasonSentence(L10n.fenceReasonWorkingNotInRecords, [])]
+    case .foreignPosition: [ReasonSentence(L10n.fenceReasonForeignPosition, [])]
+    case .foreignOrder: [ReasonSentence(L10n.fenceReasonForeignOrder, [])]
+    case .quantityMismatch: [ReasonSentence(L10n.fenceReasonQuantityMismatch, [.held, .expected])]
+    case .shuttingDown: [ReasonSentence(L10n.fenceReasonShuttingDown, [])]
+    case .operatorCommand: [ReasonSentence(L10n.fenceReasonOperatorCommand, [])]
+    case .operatorEmergency: [ReasonSentence(L10n.fenceReasonOperatorEmergency, [])]
+    case .replaceUnresolved: [ReasonSentence(L10n.fenceReasonReplaceUnresolved, [.stopPrice])]
+    case .heldAfterReplace: [ReasonSentence(L10n.fenceReasonHeldAfterReplace, [])]
+    case .heldUntrackedSell: [ReasonSentence(L10n.fenceReasonHeldUntrackedSell, [.orders, .symbol])]
+    case .exitNotFilled: [ReasonSentence(L10n.fenceReasonExitNotFilled, [.order, .quantity, .symbol, .seconds, .filled, .state])]
+    case .closeNotSent: [ReasonSentence(L10n.fenceReasonCloseNotSent, [.quantity, .expected, .symbol])]
     }
   }
 
-  /// The values the sentence names.
-  public var names: [ReasonParam] {
-    switch self {
-    case .startupReconcilePending: []
-    case .positionsReadFailed: [.error]
-    case .openOrdersReadFailed: [.error]
-    case .detailBudget: []
-    case .sendOutcomeUnknown: []
-    case .crashedDuringSend: []
-    case .orderMissing: []
-    case .statusUnmapped: [.status]
-    case .stopCoversPart: [.verified, .expected]
-    case .stopsOverPosition: [.covered, .held]
-    case .unprotectedCloseByHand: [.seconds]
-    case .unprotectedExiting: [.seconds]
-    case .stopRejectedExiting: []
-    case .exitRefusedNoStop: []
-    case .exitRefusedStopAgain: []
-    case .cancelOutcomeUnknown: []
-    case .cancelCrashed: []
-    case .cancelFailed: []
-    case .cancelNotSent: [.seconds]
-    case .givenUpOrderFilled: []
-    case .workingNotInRecords: []
-    case .foreignPosition: []
-    case .foreignOrder: []
-    case .quantityMismatch: [.held, .expected]
-    case .shuttingDown: []
-    case .operatorCommand: []
-    case .operatorEmergency: []
-    case .replaceUnresolved: [.stopPrice]
-    case .heldAfterReplace: []
-    case .heldUntrackedSell: [.orders, .symbol]
-    case .exitNotFilled: [.order, .quantity, .symbol, .seconds, .filled, .state]
-    case .closeNotSent: [.quantity, .expected, .symbol]
-    }
-  }
-
-  /// The sentence with the values the bot sent; nil when one of them is missing.
+  /// The first sentence whose values the bot all sent, filled in; nil when none
+  /// fits.
   public func text(_ params: [String: String]) -> String? {
-    ReasonParam.fill(String(localized: template), names: names, params: params)
+    sentences.lazy.compactMap { $0.text(params) }.first
+  }
+}
+
+/// A refused entry's detail (`refusal.params`), after the rule's title. An unknown code has no case; show the bot's own text then.
+public enum RefusalReason: String, CaseIterable, Sendable {
+  case clockInvalid = "CLOCK_INVALID"
+  case brokerReadStale = "BROKER_READ_STALE"
+  case calendarDayMismatch = "CALENDAR_DAY_MISMATCH"
+  case halfDay = "HALF_DAY"
+  case outsideRegularSession = "OUTSIDE_REGULAR_SESSION"
+  case afterLastEntry = "AFTER_LAST_ENTRY"
+  case ownPositionOpen = "OWN_POSITION_OPEN"
+  case ownOrderWorking = "OWN_ORDER_WORKING"
+  case positionLimitReached = "POSITION_LIMIT_REACHED"
+  case symbolCooldown = "SYMBOL_COOLDOWN"
+  case decisionNotEnter = "DECISION_NOT_ENTER"
+  case decisionNotActive = "DECISION_NOT_ACTIVE"
+  case decisionIncomplete = "DECISION_INCOMPLETE"
+  case decisionInvalid = "DECISION_INVALID"
+  case orderPricesInvalid = "ORDER_PRICES_INVALID"
+  case quoteSymbolMismatch = "QUOTE_SYMBOL_MISMATCH"
+  case quoteInvalid = "QUOTE_INVALID"
+  case quoteTimeInvalid = "QUOTE_TIME_INVALID"
+  case quoteStale = "QUOTE_STALE"
+  case priceOutsideWindow = "PRICE_OUTSIDE_WINDOW"
+  case quantityNotWhole = "QUANTITY_NOT_WHOLE"
+  case quantityBelowOne = "QUANTITY_BELOW_ONE"
+  case notionalOverCap = "NOTIONAL_OVER_CAP"
+  case plannedLossOverLimit = "PLANNED_LOSS_OVER_LIMIT"
+  case dailyCeiling = "DAILY_CEILING"
+
+  /// The code's sentences (one per shape the bot writes it in), each with the
+  /// values it names.
+  public var sentences: [ReasonSentence] {
+    switch self {
+    case .clockInvalid: [ReasonSentence(L10n.refusalReasonClockInvalid, [.seconds])]
+    case .brokerReadStale: [ReasonSentence(L10n.refusalReasonBrokerReadStale, [.age, .limit])]
+    case .calendarDayMismatch: [ReasonSentence(L10n.refusalReasonCalendarDayMismatch, [.calendarDay, .today])]
+    case .halfDay: [ReasonSentence(L10n.refusalReasonHalfDay, [.day])]
+    case .outsideRegularSession: [ReasonSentence(L10n.refusalReasonOutsideRegularSession, [.open, .close])]
+    case .afterLastEntry: [ReasonSentence(L10n.refusalReasonAfterLastEntry, [.time])]
+    case .ownPositionOpen: [ReasonSentence(L10n.refusalReasonOwnPositionOpen, [.count])]
+    case .ownOrderWorking: [ReasonSentence(L10n.refusalReasonOwnOrderWorking, [.count])]
+    case .positionLimitReached: [ReasonSentence(L10n.refusalReasonPositionLimitReached, [.open, .limit])]
+    case .symbolCooldown: [ReasonSentence(L10n.refusalReasonSymbolCooldown, [.symbol, .until])]
+    case .decisionNotEnter: [ReasonSentence(L10n.refusalReasonDecisionNotEnter, [.verdict])]
+    case .decisionNotActive: [ReasonSentence(L10n.refusalReasonDecisionNotActive, [.strategy, .version, .active])]
+    case .decisionIncomplete: [ReasonSentence(L10n.refusalReasonDecisionIncomplete, [.fields])]
+    case .decisionInvalid: [ReasonSentence(L10n.refusalReasonDecisionInvalid, [.stop, .entryLow, .entryHigh])]
+    case .orderPricesInvalid: [
+      ReasonSentence(L10n.refusalReasonOrderPricesInvalid, [.limit, .entryLow, .entryHigh]),
+      ReasonSentence(L10n.refusalReasonOrderPricesInvalidStop, [.stop, .limit]),
+    ]
+    case .quoteSymbolMismatch: [ReasonSentence(L10n.refusalReasonQuoteSymbolMismatch, [.quoteSymbol, .symbol])]
+    case .quoteInvalid: [ReasonSentence(L10n.refusalReasonQuoteInvalid, [.bid, .ask])]
+    case .quoteTimeInvalid: [ReasonSentence(L10n.refusalReasonQuoteTimeInvalid, [.seconds, .limit])]
+    case .quoteStale: [ReasonSentence(L10n.refusalReasonQuoteStale, [.age, .limit])]
+    case .priceOutsideWindow: [ReasonSentence(L10n.refusalReasonPriceOutsideWindow, [.ask, .entryLow, .limit])]
+    case .quantityNotWhole: [ReasonSentence(L10n.refusalReasonQuantityNotWhole, [.quantity])]
+    case .quantityBelowOne: [ReasonSentence(L10n.refusalReasonQuantityBelowOne, [.quantity, .maximum])]
+    case .notionalOverCap: [ReasonSentence(L10n.refusalReasonNotionalOverCap, [.notional, .cap])]
+    case .plannedLossOverLimit: [ReasonSentence(L10n.refusalReasonPlannedLossOverLimit, [.plannedLoss, .limit])]
+    case .dailyCeiling: [
+      ReasonSentence(L10n.refusalReasonDailyCeiling, [.room, .minRoom, .ceiling, .realized, .reserved]),
+      ReasonSentence(L10n.refusalReasonDailyCeilingTotal, [.realized, .reserved, .new, .total, .ceiling]),
+    ]
+    }
+  }
+
+  /// The first sentence whose values the bot all sent, filled in; nil when none
+  /// fits.
+  public func text(_ params: [String: String]) -> String? {
+    sentences.lazy.compactMap { $0.text(params) }.first
   }
 }

@@ -632,6 +632,9 @@ private struct CauseText: View {
           // A cause this app has no words for: the bot's own text, times made readable.
           Text(verbatim: cause.detail.isEmpty ? cause.code
             : cause.code + RefusalCause.separator + cause.readable(time: Format.marketMinute))
+        } else if let phrase = cause.phrase {
+          Text(verbatim: phrase)
+            .help(Text(verbatim: cause.readable(time: Format.marketMinute)))
         } else if !cause.detail.isEmpty {
           Text(verbatim: cause.readable(time: Format.marketMinute))
         }

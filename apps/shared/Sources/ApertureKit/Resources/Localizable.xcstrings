@@ -2268,6 +2268,492 @@
         }
       }
     },
+    "kit.refusal.AFTER_LAST_ENTRY" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. AFTER_LAST_ENTRY",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No new entries after {time}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новых входов после {time} нет"
+          }
+        }
+      }
+    },
+    "kit.refusal.BROKER_READ_STALE" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. BROKER_READ_STALE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last broker read {age} s ago, limit {limit} s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последнее чтение у брокера было {age} с назад, предел {limit} с"
+          }
+        }
+      }
+    },
+    "kit.refusal.CALENDAR_DAY_MISMATCH" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. CALENDAR_DAY_MISMATCH",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The calendar's day {calendar_day} is not today ({today})"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "День календаря {calendar_day} не сегодняшний ({today})"
+          }
+        }
+      }
+    },
+    "kit.refusal.CLOCK_INVALID" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. CLOCK_INVALID",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last broker read is {seconds} s in the future"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последнее чтение брокера на {seconds} с в будущем"
+          }
+        }
+      }
+    },
+    "kit.refusal.DAILY_CEILING" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room {room} USD is under the minimum {min_room} USD (limit {ceiling}, realized {realized}, reserved {reserved})"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запас {room} USD меньше минимума {min_room} USD (лимит {ceiling}, реализовано {realized}, зарезервировано {reserved})"
+          }
+        }
+      }
+    },
+    "kit.refusal.DAILY_CEILING.total" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING total",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Realized {realized} + reserved {reserved} + this trade {new} = {total} USD, over the daily limit of {ceiling} USD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Реализовано {realized} + зарезервировано {reserved} + эта сделка {new} = {total} USD, больше дневного лимита {ceiling} USD"
+          }
+        }
+      }
+    },
+    "kit.refusal.DECISION_INCOMPLETE" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. DECISION_INCOMPLETE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An entry without {fields}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход без {fields}"
+          }
+        }
+      }
+    },
+    "kit.refusal.DECISION_INVALID" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. DECISION_INVALID",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs 0 < stop {stop} < entry low {entry_low} ≤ entry high {entry_high}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужно 0 < стоп {stop} < низ входа {entry_low} ≤ верх входа {entry_high}"
+          }
+        }
+      }
+    },
+    "kit.refusal.DECISION_NOT_ACTIVE" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. DECISION_NOT_ACTIVE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decision from {strategy} {version}; the active strategy is {active}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Решение от {strategy} {version}; активная стратегия — {active}"
+          }
+        }
+      }
+    },
+    "kit.refusal.DECISION_NOT_ENTER" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. DECISION_NOT_ENTER",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The decision was {verdict}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Решение: {verdict}"
+          }
+        }
+      }
+    },
+    "kit.refusal.HALF_DAY" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. HALF_DAY",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{day} is a half day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{day} — сокращённый день"
+          }
+        }
+      }
+    },
+    "kit.refusal.NOTIONAL_OVER_CAP" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. NOTIONAL_OVER_CAP",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Value {notional} USD over the cap of {cap} USD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сумма {notional} USD выше предела {cap} USD"
+          }
+        }
+      }
+    },
+    "kit.refusal.ORDER_PRICES_INVALID" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. ORDER_PRICES_INVALID",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit {limit} outside the window {entry_low}–{entry_high}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лимит {limit} вне окна {entry_low}–{entry_high}"
+          }
+        }
+      }
+    },
+    "kit.refusal.ORDER_PRICES_INVALID.stop" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. ORDER_PRICES_INVALID stop",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs 0 < stop {stop} < limit {limit}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужно 0 < стоп {stop} < лимит {limit}"
+          }
+        }
+      }
+    },
+    "kit.refusal.OUTSIDE_REGULAR_SESSION" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. OUTSIDE_REGULAR_SESSION",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regular hours are {open}–{close} New York time"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Основная сессия {open}–{close} по Нью-Йорку"
+          }
+        }
+      }
+    },
+    "kit.refusal.OWN_ORDER_WORKING" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. OWN_ORDER_WORKING",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Own orders working: {count}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активных своих ордеров: {count}"
+          }
+        }
+      }
+    },
+    "kit.refusal.OWN_POSITION_OPEN" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. OWN_POSITION_OPEN",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Own positions open: {count}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыто своих позиций: {count}"
+          }
+        }
+      }
+    },
+    "kit.refusal.PLANNED_LOSS_OVER_LIMIT" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. PLANNED_LOSS_OVER_LIMIT",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned loss {planned_loss} USD over the limit of {limit} USD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плановый убыток {planned_loss} USD выше предела {limit} USD"
+          }
+        }
+      }
+    },
+    "kit.refusal.POSITION_LIMIT_REACHED" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. POSITION_LIMIT_REACHED",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{open} open, limit {limit}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыто {open} при пределе {limit}"
+          }
+        }
+      }
+    },
+    "kit.refusal.PRICE_OUTSIDE_WINDOW" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. PRICE_OUTSIDE_WINDOW",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask {ask} outside the entry range {entry_low}–{limit}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аск {ask} вне диапазона входа {entry_low}–{limit}"
+          }
+        }
+      }
+    },
+    "kit.refusal.QUANTITY_BELOW_ONE" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_BELOW_ONE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantity {quantity} is under 1 (platform maximum {maximum})"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество {quantity} меньше 1 (максимум платформы {maximum})"
+          }
+        }
+      }
+    },
+    "kit.refusal.QUANTITY_NOT_WHOLE" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_NOT_WHOLE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantity {quantity} is not a whole number of shares"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество {quantity} — не целое число акций"
+          }
+        }
+      }
+    },
+    "kit.refusal.QUOTE_INVALID" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_INVALID",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bid {bid} / ask {ask} cannot be traded"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По биду {bid} / аску {ask} торговать нельзя"
+          }
+        }
+      }
+    },
+    "kit.refusal.QUOTE_STALE" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_STALE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote {age} s old, limit {limit} s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Котировка устарела: {age} с, предел {limit} с"
+          }
+        }
+      }
+    },
+    "kit.refusal.QUOTE_SYMBOL_MISMATCH" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_SYMBOL_MISMATCH",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote for {quote_symbol}, decision for {symbol}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Котировка по {quote_symbol}, решение по {symbol}"
+          }
+        }
+      }
+    },
+    "kit.refusal.QUOTE_TIME_INVALID" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_TIME_INVALID",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote time {seconds} s ahead of the clock, limit {limit} s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время котировки на {seconds} с впереди часов, предел {limit} с"
+          }
+        }
+      }
+    },
+    "kit.refusal.SYMBOL_COOLDOWN" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. SYMBOL_COOLDOWN",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{symbol} closed at a loss; no entry before {until}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{symbol} закрыт в убыток; входа нет до {until}"
+          }
+        }
+      }
+    },
     "kit.rule.ask_above_trigger" : {
       "comment" : "Strategy check: ask_above_trigger",
       "extractionState" : "manual",
