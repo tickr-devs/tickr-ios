@@ -11,19 +11,21 @@ struct SettingsView: View {
   @Environment(AppModel.self) private var model
   @State private var tab: SettingsTab = .general
   @State private var contentHeight: CGFloat = 0
+  /// Height of the title bar the window still reserves above the content (measured): the tab
+  /// strip is drawn into it, so the pane asks for that much less height.
+  @State private var titleInset: CGFloat = 0
 
-  /// Width of the Settings window, in points (the design's 820).
-  static let width: CGFloat = 820
+  /// Width of the Settings window, in points (the design's compact 680).
+  static let width: CGFloat = 680
   /// Tallest the pane area grows to its content before it scrolls, in points.
-  static let maxPaneHeight: CGFloat = 760
+  static let maxPaneHeight: CGFloat = 600
 
   var body: some View {
     VStack(spacing: 0) {
       SettingsTabBar(selection: $tab)
       ScrollView {
         pane
-          .padding(.horizontal, Tokens.Space.xl)
-          .padding(.vertical, Tokens.Space.l)
+          .padding(Tokens.Space.l)
           .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
       }
       .scrollBounceBehavior(.basedOnSize)
@@ -31,26 +33,26 @@ struct SettingsView: View {
     }
     .frame(width: Self.width)
     .background(Palette.background)
-    // The window keeps the pane's name (Window menu); the title bar shows it in the design's
-    // small monospace instead of the system's bold title, with no glass behind it.
+    // The window still adds the title bar's height below a view drawn up into it; the view asks
+    // for that much less, so the window ends where the pane does, with no empty band.
+    .padding(.bottom, -titleInset)
+    // No title bar of its own: the tab strip sits in it, level with the window buttons (the strip
+    // is centred and narrow enough to clear them), and the chosen tab says which pane this is.
+    // The window keeps the pane's name for the Window menu.
+    .ignoresSafeArea(.container, edges: .top)
     .navigationTitle(Text(tab.title))
     .toolbar(removing: .title)
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        Text(tab.title)
-          .font(Tokens.Typography.calloutMono)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize()
-      }
-      .sharedBackgroundVisibility(.hidden)
+    .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+    // Read once: the title bar's height does not change, and following it while the window
+    // resizes would feed the window's own resizing back into its size (a layout loop).
+    .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.top } action: { inset in
+      if titleInset == 0 { titleInset = inset }
     }
-    .toolbarBackground(Palette.titleBar, for: .windowToolbar)
-    .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
     .task(id: model.baseURL) { await model.followJobs() }
   }
 
   @ViewBuilder private var pane: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
       switch tab {
       case .general: GeneralSettings()
       case .trading: TradingSettings()
@@ -82,7 +84,7 @@ private struct GeneralSettings: View {
   var body: some View {
     Group {
       connection
-      HStack(alignment: .top, spacing: Tokens.Space.m) {
+      HStack(alignment: .top, spacing: Tokens.Space.s) {
         SettingsCard(L10n.Settings.menuBar, footnote: Text(L10n.Settings.menuBarNote)) {
           SwitchRow(L10n.Settings.showInMenuBar, isOn: $showMenuBarExtra)
         }
@@ -247,7 +249,8 @@ private struct TradingSettings: View {
 
   var body: some View {
     if let settings = model.settings {
-      HStack(alignment: .top, spacing: Tokens.Space.m) {
+      // One column: three cards across are too cramped at the window's width.
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
         SettingsCard(L10n.Common.strategy) {
           SettingsRow(L10n.Settings.activeStrategy) {
             Text(verbatim: settings.activeStrategy).foregroundStyle(Palette.accentText)
@@ -283,6 +286,7 @@ private struct TradingSettings: View {
       Text(L10n.Settings.configFootnote)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
+        .padding(.horizontal, Tokens.Space.m)  // level with the text inside the cards
       FeaturesCard(settings: settings)
     } else {
       SettingsCard(L10n.Common.strategy) {
@@ -375,8 +379,8 @@ private struct NotificationSettings: View {
             Text(group.kinds)
               .font(Tokens.Typography.captionMono)
               .foregroundStyle(Palette.textQuaternary)
+              .fixedSize(horizontal: false, vertical: true)
           }
-          .lineLimit(1)
           Spacer(minLength: Tokens.Space.s)
           MacDot()
           PhoneDot()
@@ -541,8 +545,8 @@ struct JobsSection: View {
 
   /// Widths of the name and "when" columns, in points (the design's 86 and 130, the name widened
   /// for the Russian names).
-  static let nameWidth: CGFloat = 120
-  static let whenWidth: CGFloat = 130
+  static let nameWidth: CGFloat = 180
+  static let whenWidth: CGFloat = 112
   /// Days in a week; launchd numbers them 0 (or 7) Sunday, 1 Monday … 6 Saturday.
   static let week = 7
   /// Shortest run of days written as a range ("Mon–Fri") rather than a list.

@@ -11164,7 +11164,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ПОСТ · BACKLOG"
+            "value" : "ПОСТ · В ПЛАНАХ"
           }
         }
       }
@@ -11181,7 +11181,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ПРЕ · BACKLOG"
+            "value" : "ПРЕ · В ПЛАНАХ"
           }
         }
       }
@@ -11436,7 +11436,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Как в системе"
+            "value" : "Системная"
           }
         }
       }

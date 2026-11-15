@@ -60,14 +60,15 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 struct SettingsTabBar: View {
   @Binding var selection: SettingsTab
 
-  /// Width of one tab button, in points (the design's 86).
-  static let tabWidth: CGFloat = 86
+  /// Narrowest a tab button gets, in points (the design's compact 64); a longer title (Russian
+  /// "Дополнительно") makes its tab wider rather than being cut.
+  static let tabMinWidth: CGFloat = 64
   /// Height of a tab's symbol row, in points, so every symbol sits on one line.
-  static let symbolSize: CGFloat = 18
-  /// Font of a tab's symbol: thin, about 17 points (title2 on the Mac), as the design's line icons.
-  static let symbolFont = Font.system(.title2, weight: .light)
-  /// Font of a tab's title: 11-point medium (subheadline on the Mac), the design's tab label.
-  static let titleFont = Font.system(.subheadline, weight: .medium)
+  static let symbolSize: CGFloat = 16
+  /// Font of a tab's symbol: thin, about 15 points (title3 on the Mac), as the design's line icons.
+  static let symbolFont = Font.system(.title3, weight: .light)
+  /// Font of a tab's title: 10-point medium (caption on the Mac), the design's tab label.
+  static let titleFont = Font.system(.caption, weight: .medium)
   var body: some View {
     HStack(spacing: Tokens.Space.xs) {
       ForEach(SettingsTab.allCases) { tab in
@@ -77,10 +78,11 @@ struct SettingsTabBar: View {
             Image(systemName: tab.symbol)
               .font(Self.symbolFont)
               .frame(height: Self.symbolSize)
-            Text(tab.title).font(Self.titleFont).lineLimit(1)
+            Text(tab.title).font(Self.titleFont).lineLimit(1).fixedSize()
           }
-          .frame(width: Self.tabWidth)
-          .padding(.vertical, Tokens.Space.s)
+          .padding(.horizontal, Tokens.Space.s)
+          .frame(minWidth: Self.tabMinWidth)
+          .padding(.vertical, Tokens.Space.xs)
           .foregroundStyle(chosen ? Palette.infoText : Palette.textTertiary)
           .background(chosen ? Palette.selection : .clear,
             in: RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous))
@@ -93,8 +95,8 @@ struct SettingsTabBar: View {
     }
     .frame(maxWidth: .infinity)
     .padding(.horizontal, Tokens.Space.m)
-    .padding(.top, Tokens.Space.xs)
-    .padding(.bottom, Tokens.Space.s)
+    .padding(.top, Tokens.Space.s)
+    .padding(.bottom, Tokens.Space.xs)
     .background(Palette.titleBar)
     .overlay(alignment: .bottom) { Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin) }
     .animation(Tokens.Motion.quick, value: selection)
@@ -140,7 +142,7 @@ struct SettingsCard<Content: View, Trailing: View>: View {
     }
     // Fills the height it is offered, so cards side by side in a row end level.
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .padding(Tokens.Space.l)
+    .padding(Tokens.Space.m)
     .tickrCard(radius: Tokens.Radius.large)
   }
 }
