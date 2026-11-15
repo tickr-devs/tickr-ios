@@ -267,6 +267,7 @@ private struct LimitsCard: View {
   var body: some View {
     Card(L10n.Risk.limits) {
       if let risk = model.settings?.risk {
+        PositionSlots(limit: risk.maxOpenPositions, positions: model.positions)
         VStack(spacing: Tokens.Space.s) {
           StatLine(L10n.Risk.plannedLoss, value: Format.usd(risk.plannedLossUsd.value))
           StatLine(L10n.Risk.notionalCap, value: Format.usd(risk.positionNotionalCapUsd.value))
@@ -279,6 +280,98 @@ private struct LimitsCard: View {
         Footnote(model.settingsError == nil ? L10n.Common.unavailable : L10n.Risk.settingsUnavailable)
       }
     }
+  }
+}
+
+/// One tile per position the config allows, as on the design: an open position's symbol, size,
+/// entry and stop with its state (as `StopBadge`: confirmed green, pending amber, missing or
+/// unknown red), and a dashed tile for each free slot. More positions than the limit (a broker
+/// mismatch) still show every one.
+private struct PositionSlots: View {
+  let limit: Int
+  let positions: [PositionRow]
+
+  /// Narrowest a tile gets before the tiles wrap to another row, in points.
+  static let tileMinWidth: CGFloat = 84
+  /// Height of a tile, so free and taken tiles line up, in points.
+  static let tileHeight: CGFloat = 64
+  /// Smallest scale a tile's text shrinks to before it truncates.
+  static let textMinimumScale = 0.8
+
+  private var free: Int { max(0, limit - positions.count) }
+
+  var body: some View {
+    LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.tileMinWidth), spacing: Tokens.Space.s)],
+      spacing: Tokens.Space.s) {
+      ForEach(positions) { row in
+        taken(row)
+      }
+      ForEach(0..<free, id: \.self) { _ in
+        freeTile
+      }
+    }
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(Text(L10n.Risk.slots))
+  }
+
+  /// Colours of a stop state, as `StopBadge` draws it: confirmed green, pending amber, missing or
+  /// unknown red.
+  private func colors(_ state: StopState) -> (frame: Color, text: Color) {
+    switch state {
+    case .verified: return (Palette.profit, Palette.profitText)
+    case .pending: return (Palette.warning, Palette.warningText)
+    case .missing, .unknown: return (Palette.loss, Palette.lossText)
+    }
+  }
+
+  private func taken(_ row: PositionRow) -> some View {
+    let state = row.position.stop.state
+    let colors = colors(state)
+    return VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      HStack(spacing: Tokens.Space.xs) {
+        Text(verbatim: row.position.symbol)
+          .font(Tokens.Typography.calloutMono.weight(.bold))
+          .foregroundStyle(Palette.textPrimary)
+        Spacer(minLength: 0)
+        StopBadge(state: state, compact: true)
+      }
+      Text(L10n.Risk.slotSize(Format.quantity(row.quantity), Format.price(row.entry)))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+      // Without a stop price the line says the state ("No stop"), never a bare dash.
+      Group {
+        if let stop = row.stop { Text(L10n.Risk.slotStop(Format.price(stop))) } else { Text(verbatim: state.title) }
+      }
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(colors.text)
+    }
+    .lineLimit(1)
+    .minimumScaleFactor(Self.textMinimumScale)
+    .padding(Tokens.Space.s)
+    .frame(maxWidth: .infinity, minHeight: Self.tileHeight, alignment: .topLeading)
+    .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.medium))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+        .strokeBorder(colors.frame, lineWidth: Tokens.Stroke.thin)
+    }
+    // The state in words too, not only in colour: read by VoiceOver and shown on hover.
+    .help(Text(verbatim: state.title))
+    .accessibilityElement(children: .combine)
+    .accessibilityValue(Text(verbatim: state.title))
+  }
+
+  private var freeTile: some View {
+    Text(L10n.Risk.freeSlot)
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.textQuaternary)
+      .frame(maxWidth: .infinity, minHeight: Self.tileHeight)
+      .overlay {
+        RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+          .strokeBorder(Palette.separatorStrong,
+            style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+      }
+      .help(Text(L10n.Risk.freeSlot))
+      .accessibilityLabel(Text(L10n.Risk.freeSlot))
   }
 }
 
