@@ -21,14 +21,23 @@ public enum ApiText {
     fenceTitle(fence.kind)
   }
 
-  /// A fence's kind as the bot names it ("foreign-position:EFGH") in words, with its key.
+  /// A fence's kind as the bot names it ("foreign-position:EFGH") in words. The key follows only
+  /// when it is a symbol (a foreign position); every other key is the bot's trade or order id,
+  /// which means nothing to a person. A kind this app does not know reads as "Other block".
   public static func fenceTitle(_ fenceKind: String) -> String {
     let parts = fenceKind.split(separator: Fence.keySeparator, maxSplits: 1).map(String.init)
-    guard let name = parts.first, let kind = FenceKind(rawValue: name.replacing("-", with: "_")) else {
-      return fenceKind
-    }
+    guard let kind = fenceKindCase(parts.first ?? fenceKind) else { return String(localized: L10n.fenceOther) }
     let title = String(localized: kind.title)
-    return parts.count > 1 ? title + keySeparator + parts[1] : title
+    return parts.count > 1 && symbolKeyed.contains(kind) ? title + keySeparator + parts[1] : title
+  }
+
+  /// Fences keyed by a symbol rather than by the bot's trade or client order id
+  /// (src/aperture/engine/core.py `_set_fence`).
+  static let symbolKeyed: Set<FenceKind> = [.foreignPosition]
+
+  /// A fence's name ("foreign-position") as its case.
+  static func fenceKindCase(_ name: String) -> FenceKind? {
+    FenceKind(rawValue: name.replacing("-", with: "_"))
   }
 
   /// What the fence says, in the person's language when the bot sent its cause as a code with
@@ -51,7 +60,7 @@ public enum ApiText {
   public static func fence(_ fence: Fence, symbol: String?) -> String {
     guard let symbol else { return Self.fence(fence) }
     let name = String(fence.kind.prefix { $0 != Fence.keySeparator })
-    let title = FenceKind(rawValue: name.replacing("-", with: "_")).map { String(localized: $0.title) } ?? name
+    let title = String(localized: fenceKindCase(name)?.title ?? L10n.fenceOther)
     return symbol + keySeparator + title
   }
 

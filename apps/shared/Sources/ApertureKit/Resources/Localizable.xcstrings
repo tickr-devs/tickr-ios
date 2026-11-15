@@ -1195,6 +1195,23 @@
         }
       }
     },
+    "kit.fenceKind.other" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other block"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другая блокировка"
+          }
+        }
+      }
+    },
     "kit.fenceReason.cancel_crashed" : {
       "comment" : "A fence's cause (`Fence.code`). cancel_crashed",
       "extractionState" : "manual",
