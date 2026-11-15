@@ -5,6 +5,8 @@ import SwiftUI
 /// The standard Settings window (⌘,). The app's own preferences are editable; the bot's
 /// configuration is shown read-only because it lives in config/bot.toml, not in the app.
 struct SettingsView: View {
+  @Environment(AppModel.self) private var model
+
   /// Width of the Settings window, in points.
   static let width: CGFloat = 560
   /// SF Symbols of the tabs.
@@ -26,6 +28,7 @@ struct SettingsView: View {
     }
     .frame(width: Self.width)
     .scenePadding()
+    .task(id: model.baseURL) { await model.followJobs() }
   }
 }
 
@@ -71,6 +74,7 @@ private struct GeneralSettings: View {
         .font(Tokens.Typography.caption)
         .foregroundStyle(model.fetchError == nil ? Color.secondary : Palette.lossText)
       }
+      JobsSection()
       Section(String(localized: L10n.Settings.menuBar)) {
         Toggle(String(localized: L10n.Settings.showInMenuBar), isOn: $showMenuBarExtra)
       }
@@ -261,6 +265,7 @@ private struct StorageSettings: View {
         }
         .font(Tokens.Typography.caption).foregroundStyle(model.historyError == nil ? Color.secondary : Palette.lossText)
       }
+      BackupSection()
     }
     .formStyle(.grouped)
   }
@@ -289,5 +294,179 @@ private struct AdvancedSettings: View {
       }
     }
     .formStyle(.grouped)
+  }
+}
+
+/// What runs on its own on the Mac (GET /jobs): the bot service, its reconcile loop and the launchd
+/// jobs with their start times, as in the board's session card. Read while Settings is open.
+private struct JobsSection: View {
+  @Environment(AppModel.self) private var model
+
+  /// Symbols of the rows.
+  static let serviceSymbol = "waveform.path.ecg"
+  static let reconcileSymbol = "arrow.triangle.2.circlepath"
+  static let launchdSymbol = "clock"
+  /// Days in a week; launchd numbers them 0 (or 7) Sunday, 1 Monday … 6 Saturday.
+  static let week = 7
+  /// Shortest run of days written as a range ("Mon–Fri") rather than a list.
+  static let shortestRange = 3
+  /// Joins the first and last day of a range.
+  static let rangeDash = "–"
+
+  var body: some View {
+    Section {
+      if let jobs = model.jobs {
+        service(jobs)
+        reconcile(jobs.reconcile)
+        ForEach(jobs.launchd, id: \.name) { job in
+          LabeledContent {
+            Text(verbatim: job.localTime + Format.itemSeparator + Self.days(job.weekdays))
+              .font(Tokens.Typography.bodyMono)
+          } label: {
+            Label {
+              Text(verbatim: Self.title(job.name))
+            } icon: {
+              StateGlyph(Self.launchdSymbol, tone: .info, label: Text(verbatim: Self.title(job.name)), style: .compact)
+            }
+          }
+        }
+      } else if let error = model.jobsError {
+        Text(verbatim: error).foregroundStyle(Palette.warningText)
+      } else {
+        ProgressView().controlSize(.small)
+      }
+    } header: {
+      Text(L10n.Settings.jobs)
+    } footer: {
+      Text(L10n.Settings.jobsFooter)
+        .font(Tokens.Typography.caption).foregroundStyle(.secondary)
+    }
+  }
+
+  /// The bot's state as its status reports it; a stale status proves nothing about the bot now, so
+  /// it says so instead of repeating the last state.
+  private func service(_ jobs: JobsV1) -> some View {
+    let running = jobs.botState == .running && !jobs.statusStale
+    let tone: Tone = jobs.statusStale ? .warning : running ? .accent : .neutral
+    let title = jobs.statusStale ? String(localized: L10n.Settings.notReported)
+      : jobs.botState?.title ?? String(localized: L10n.Settings.notRunning)
+    return LabeledContent {
+      StatusPill(verbatim: title, tone: tone, live: running, event: running)
+    } label: {
+      Label {
+        Text(L10n.Settings.botService)
+      } icon: {
+        StateGlyph(Self.serviceSymbol, tone: tone, label: L10n.Settings.botService, style: .compact)
+      }
+    }
+  }
+
+  /// A launchd job's name in the person's language; a job this app does not know reads as named.
+  static func title(_ name: String) -> String {
+    guard let job = LaunchdJob(rawValue: name) else { return name }
+    switch job {
+    case .preflight: return String(localized: L10n.Settings.jobPreflight)
+    case .bot: return String(localized: L10n.Settings.jobBot)
+    case .watchdog: return String(localized: L10n.Settings.jobWatchdog)
+    }
+  }
+
+  /// The launchd jobs the bot installs on the Mac, by their wire names in jobs-v1.
+  enum LaunchdJob: String {
+    case preflight, bot, watchdog
+  }
+
+  /// The next reconcile counting down while the bot runs, else when it last ran (New York time).
+  private func reconcile(_ job: ReconcileJobV1) -> some View {
+    LabeledContent {
+      Group {
+        if let next = job.nextAt?.date, next > model.botNow {
+          HStack(spacing: Tokens.Space.xs) {
+            Text(L10n.Settings.nextIn)
+            Text(timerInterval: Date.now...Date.now.addingTimeInterval(next.timeIntervalSince(model.botNow)))
+              .monospacedDigit()
+          }
+        } else if let last = job.lastAt {
+          Text(L10n.Settings.lastAt(Format.marketTime(last.date)))
+        } else {
+          Text(verbatim: Format.missing)
+        }
+      }
+      .font(Tokens.Typography.bodyMono)
+    } label: {
+      Label {
+        Text(L10n.Settings.reconcile)
+      } icon: {
+        StateGlyph(Self.reconcileSymbol, tone: .info, label: L10n.Settings.reconcile, style: .compact)
+      }
+    }
+  }
+
+  /// "Mon–Fri" for a run of days, else "Mon, Wed"; in the person's language.
+  static func days(_ weekdays: [Int]) -> String {
+    let symbols = Calendar.current.shortWeekdaySymbols
+    // Monday first, Sunday last, as a working week reads.
+    let order = Array(Set(weekdays.map { $0 % week })).sorted { ($0 + week - 1) % week < ($1 + week - 1) % week }
+    guard order.allSatisfy({ symbols.indices.contains($0) }), let first = order.first, let last = order.last else {
+      return weekdays.map(String.init).joined(separator: Format.listSeparator)
+    }
+    let contiguous = zip(order, order.dropFirst()).allSatisfy { ($0.0 + 1) % week == $0.1 }
+    if contiguous && order.count >= shortestRange {
+      return symbols[first] + rangeDash + symbols[last]
+    }
+    return order.map { symbols[$0] }.joined(separator: Format.listSeparator)
+  }
+}
+
+/// The bot's database backup (GET /jobs): the last good one, or the failure when it is newer, with
+/// its error; why neither is known when the bot cannot tell.
+private struct BackupSection: View {
+  @Environment(AppModel.self) private var model
+
+  /// Symbol of the backup row.
+  static let backupSymbol = "externaldrive"
+
+  var body: some View {
+    Section {
+      if let job = model.jobs?.backup {
+        let failed = job.lastFailedAt.map { failure in job.lastAt.map { failure.date > $0.date } ?? true } ?? false
+        LabeledContent {
+          if failed, let at = job.lastFailedAt {
+            StatusPill(L10n.Settings.backupFailed(Format.marketTime(at.date)), tone: .loss)
+          } else if let at = job.lastAt {
+            Text(verbatim: Self.when(at.date)).font(Tokens.Typography.bodyMono)
+          } else {
+            Text(verbatim: Format.missing)
+          }
+        } label: {
+          Label {
+            Text(L10n.Settings.backup)
+          } icon: {
+            StateGlyph(Self.backupSymbol, tone: failed ? .loss : job.lastAt == nil ? .neutral : .profit,
+              label: L10n.Settings.backup, style: .compact)
+          }
+        }
+        if failed, let error = job.lastFailedError {
+          Text(verbatim: error).foregroundStyle(Palette.lossText)
+        }
+        if let cause = job.cause {
+          Text(verbatim: cause).foregroundStyle(Palette.warningText)
+        }
+      } else if let error = model.jobsError {
+        Text(verbatim: error).foregroundStyle(Palette.warningText)
+      } else {
+        ProgressView().controlSize(.small)
+      }
+    } header: {
+      Text(L10n.Settings.backup)
+    } footer: {
+      Text(L10n.Settings.backupFooter)
+        .font(Tokens.Typography.caption).foregroundStyle(.secondary)
+    }
+  }
+
+  /// "Mon, Nov 16 · 08:12:09" in New York time.
+  private static func when(_ date: Date) -> String {
+    Format.dayLabel(WireDate(newYorkDateOf: date)) + Format.itemSeparator + Format.marketTime(date)
   }
 }

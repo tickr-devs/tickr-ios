@@ -7150,6 +7150,57 @@
         }
       }
     },
+    "settings.backup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия"
+          }
+        }
+      }
+    },
+    "settings.backupFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбой %@"
+          }
+        }
+      }
+    },
+    "settings.backupFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot copies its database every day and checks the copy; times are New York time."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот каждый день копирует свою базу и проверяет копию; время нью-йоркское."
+          }
+        }
+      }
+    },
     "settings.beforeClose" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7197,6 +7248,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подключение к боту"
+          }
+        }
+      }
+    },
+    "settings.botService" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot service"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Служба бота"
           }
         }
       }
@@ -7575,6 +7643,108 @@
         }
       }
     },
+    "settings.job.bot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot start"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуск бота"
+          }
+        }
+      }
+    },
+    "settings.job.preflight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preflight"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предстартовая проверка"
+          }
+        }
+      }
+    },
+    "settings.job.watchdog" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchdog"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сторож"
+          }
+        }
+      }
+    },
+    "settings.jobs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jobs on the Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задачи на Mac"
+          }
+        }
+      }
+    },
+    "settings.jobsFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launch times are in the Mac's local time; other times are New York time."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время запуска указано по часам Mac, остальное время нью-йоркское."
+          }
+        }
+      }
+    },
+    "settings.lastAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "last %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "последняя %@"
+          }
+        }
+      }
+    },
     "settings.lastEntry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7660,6 +7830,23 @@
         }
       }
     },
+    "settings.nextIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "через"
+          }
+        }
+      }
+    },
     "settings.notAvailableYet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7724,6 +7911,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Недоступен: %@"
+          }
+        }
+      }
+    },
+    "settings.notReported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not reporting"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет данных"
+          }
+        }
+      }
+    },
+    "settings.notRunning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not running"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не запущен"
           }
         }
       }
@@ -7826,6 +8047,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Читаем настройки бота…"
+          }
+        }
+      }
+    },
+    "settings.reconcile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reconcile"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сверка"
           }
         }
       }

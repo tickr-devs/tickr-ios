@@ -101,6 +101,10 @@ public final class AppModel {
   /// The broker's view of the account at the bot's last read; nil until read.
   public private(set) var account: AccountResponseV1?
   public private(set) var accountError: String?
+  /// What runs on its own on the Mac (GET /jobs), read while Settings is open.
+  public private(set) var jobs: JobsV1?
+  /// Why the jobs could not be read, if they could not.
+  public private(set) var jobsError: String?
 
   // Navigation (the sidebar selection lives here so any card can jump to a section).
   var section: AppSection = .overview
@@ -318,6 +322,8 @@ public final class AppModel {
     todayDocument = nil
     barsBySymbol = [:]
     account = nil
+    jobs = nil
+    jobsError = nil
     observers = nil
     skipped = nil
     performance = nil
@@ -385,6 +391,33 @@ public final class AppModel {
     await refreshObservers()
     await refreshSkipped()
     await refreshPerformance()
+  }
+
+  /// Reads the jobs; a failed read clears them, so old times never read as current.
+  public func refreshJobs() async {
+    let url = baseURL
+    do {
+      let read = try await client.jobs()
+      guard url == baseURL else { return }
+      jobs = read
+      jobsError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      guard url == baseURL else { return }
+      jobs = nil
+      jobsError = Self.describe(error)
+    }
+  }
+
+  /// Reads the jobs at the status poll rate until cancelled; used while Settings is open.
+  public func followJobs() async {
+    while !Task.isCancelled {
+      await refreshJobs()
+      let seconds = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
+        ?? Pace.initialPollSeconds
+      try? await Task.sleep(for: .seconds(max(seconds, 1)))
+    }
   }
 
   public func refreshAccount() async {

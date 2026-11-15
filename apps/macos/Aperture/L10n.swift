@@ -899,6 +899,48 @@ enum L10n {
     static var alertsFooter: LocalizedStringResource {
       LocalizedStringResource("settings.alertsFooter", defaultValue: "The bot decides and sends these itself: a Mac notification and, when a recipient is set in its env file, an iMessage. The same alert repeated within a short window is shown once.", bundle: L10n.bundle)
     }
+    static var jobs: LocalizedStringResource {
+      LocalizedStringResource("settings.jobs", defaultValue: "Jobs on the Mac", bundle: L10n.bundle)
+    }
+    static var jobsFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.jobsFooter", defaultValue: "Launch times are in the Mac's local time; other times are New York time.", bundle: L10n.bundle)
+    }
+    static var botService: LocalizedStringResource {
+      LocalizedStringResource("settings.botService", defaultValue: "Bot service", bundle: L10n.bundle)
+    }
+    static var notRunning: LocalizedStringResource {
+      LocalizedStringResource("settings.notRunning", defaultValue: "Not running", bundle: L10n.bundle)
+    }
+    static var reconcile: LocalizedStringResource {
+      LocalizedStringResource("settings.reconcile", defaultValue: "Reconcile", bundle: L10n.bundle)
+    }
+    static var nextIn: LocalizedStringResource {
+      LocalizedStringResource("settings.nextIn", defaultValue: "in", bundle: L10n.bundle)
+    }
+    static var backup: LocalizedStringResource {
+      LocalizedStringResource("settings.backup", defaultValue: "Backup", bundle: L10n.bundle)
+    }
+    static var backupFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.backupFooter", defaultValue: "The bot copies its database every day and checks the copy; times are New York time.", bundle: L10n.bundle)
+    }
+    static var notReported: LocalizedStringResource {
+      LocalizedStringResource("settings.notReported", defaultValue: "Not reporting", bundle: L10n.bundle)
+    }
+    static var jobPreflight: LocalizedStringResource {
+      LocalizedStringResource("settings.job.preflight", defaultValue: "Preflight", bundle: L10n.bundle)
+    }
+    static var jobBot: LocalizedStringResource {
+      LocalizedStringResource("settings.job.bot", defaultValue: "Bot start", bundle: L10n.bundle)
+    }
+    static var jobWatchdog: LocalizedStringResource {
+      LocalizedStringResource("settings.job.watchdog", defaultValue: "Watchdog", bundle: L10n.bundle)
+    }
+    static func lastAt(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.lastAt", defaultValue: "last \(time)", bundle: L10n.bundle)
+    }
+    static func backupFailed(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.backupFailed", defaultValue: "Failed \(time)", bundle: L10n.bundle)
+    }
     static var tradingGate: LocalizedStringResource {
       LocalizedStringResource("settings.tradingGate", defaultValue: "Trading gate", bundle: L10n.bundle)
     }
