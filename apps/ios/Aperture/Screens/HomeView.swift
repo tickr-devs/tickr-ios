@@ -221,11 +221,12 @@ private struct Summary: View {
             .foregroundStyle(tint)
             .fixedSize(horizontal: false, vertical: true)
         }
-        if past != nil {
+        if let past {
           Text(L10n.Home.recordedNote)
             .font(.footnote)
             .foregroundStyle(Palette.textTertiary)
             .fixedSize(horizontal: false, vertical: true)
+          CleanLine(clean: past.clean)
         } else if let status = model.status {
           // Each position's protection and the gate as glyphs; the words are in their hints.
           HStack(spacing: Tokens.Space.xs) {
@@ -532,5 +533,29 @@ private struct FlowDot: View {
         }
       }
       .accessibilityHidden(true)
+  }
+}
+
+/// A recorded day's clean-day verdict from the bot's journal and reconciliation: clean, not clean
+/// with its first reason, or unknown with why.
+private struct CleanLine: View {
+  let clean: CleanDay
+
+  var body: some View {
+    Group {
+      switch clean.verdict {
+      case .clean:
+        Text(L10n.Home.cleanDay)
+          .foregroundStyle(Palette.profitText)
+      case .notClean:
+        Text(L10n.Home.notClean(clean.causes.first?.text ?? Format.missing, clean.causes.count))
+          .foregroundStyle(Palette.warningText)
+      case .unknown:
+        Text(L10n.Home.cleanUnknown(clean.cause ?? Format.missing))
+          .foregroundStyle(Palette.textQuaternary)
+      }
+    }
+    .font(Tokens.Typography.annotation)
+    .fixedSize(horizontal: false, vertical: true)
   }
 }

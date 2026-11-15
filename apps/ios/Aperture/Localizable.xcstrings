@@ -3150,6 +3150,40 @@
         }
       }
     },
+    "home.cleanDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean day: records agree with the broker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чистый день: записи совпадают с брокером"
+          }
+        }
+      }
+    },
+    "home.cleanUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean day unknown: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чистота дня неизвестна: %@"
+          }
+        }
+      }
+    },
     "home.day" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3248,6 +3282,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "НЕТ СТОПА"
+          }
+        }
+      }
+    },
+    "home.notClean" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not a clean day (reasons: %lld): %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не чистый день (причин: %lld): %@"
           }
         }
       }

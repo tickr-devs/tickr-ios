@@ -243,6 +243,15 @@ enum L10n {
     static var recordedDay: LocalizedStringResource {
       LocalizedStringResource("home.recordedDay", defaultValue: "Recorded day", bundle: L10n.bundle)
     }
+    static var cleanDay: LocalizedStringResource {
+      LocalizedStringResource("home.cleanDay", defaultValue: "Clean day: records agree with the broker", bundle: L10n.bundle)
+    }
+    static func notClean(_ first: String, _ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("home.notClean", defaultValue: "Not a clean day (reasons: \(count)): \(first)", bundle: L10n.bundle)
+    }
+    static func cleanUnknown(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.cleanUnknown", defaultValue: "Clean day unknown: \(cause)", bundle: L10n.bundle)
+    }
     static var recordedNote: LocalizedStringResource {
       LocalizedStringResource("home.recordedNote",
         defaultValue: "Read-only from the bot's records. Commands are off for past days.", bundle: L10n.bundle)
