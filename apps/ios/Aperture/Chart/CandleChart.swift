@@ -386,6 +386,10 @@ private struct Scrolling: ViewModifier {
 
 /// Number and date formats of the Chart tab. Times are New York times, as the bot's sessions are.
 enum ChartFormat {
+  /// Shown where a value is missing.
+  static let missing = "—"
+  /// Between the parts of a check: measured, operator, threshold.
+  static let space = " "
   static let price = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(Money.centsDigits))
   static let volume = FloatingPointFormatStyle<Double>.number.notation(.compactName)
   static let change = FloatingPointFormatStyle<Double>.Percent.percent

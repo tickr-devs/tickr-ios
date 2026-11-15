@@ -881,4 +881,37 @@ enum ChartText {
     LocalizedStringResource("chart.readout",
       defaultValue: "O \(open)  H \(high)  L \(low)  C \(close)  V \(volume)", table: ChartText.table)
   }
+  static let decisions = LocalizedStringResource("chart.decisions",
+    defaultValue: "Why the bot acted", table: ChartText.table)
+  static let noDecisions = LocalizedStringResource("chart.decisions.none",
+    defaultValue: "No decisions recorded for this symbol that day.", table: ChartText.table)
+  static let noEntries = LocalizedStringResource("chart.decisions.noEntries",
+    defaultValue: "No entries or exits; the strategy only watched.", table: ChartText.table)
+  static let keyDecisions = LocalizedStringResource("chart.decisions.key",
+    defaultValue: "Entries and exits only", table: ChartText.table)
+  static let observer = LocalizedStringResource("chart.decisions.observer",
+    defaultValue: "observer", table: ChartText.table)
+  static let verdictIgnore = LocalizedStringResource("chart.verdict.ignore",
+    defaultValue: "IGNORE", table: ChartText.table)
+  static let verdictWatch = LocalizedStringResource("chart.verdict.watch",
+    defaultValue: "WATCH", table: ChartText.table)
+  static let verdictEnter = LocalizedStringResource("chart.verdict.enter",
+    defaultValue: "ENTER", table: ChartText.table)
+  static let verdictHold = LocalizedStringResource("chart.verdict.hold",
+    defaultValue: "HOLD", table: ChartText.table)
+  static let verdictExit = LocalizedStringResource("chart.verdict.exit",
+    defaultValue: "EXIT", table: ChartText.table)
+  static func allDecisions(_ count: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.decisions.all", defaultValue: "All \(count) decisions", table: ChartText.table)
+  }
+  static func decisionsFailed(_ cause: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.decisions.failed",
+      defaultValue: "Couldn't read the decisions: \(cause)", table: ChartText.table)
+  }
+  static func entryStop(_ entry: String, _ stop: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.decisions.entryStop", defaultValue: "entry \(entry) · stop \(stop)", table: ChartText.table)
+  }
+  static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.decisions.strategy", defaultValue: "\(name) v\(version)", table: ChartText.table)
+  }
 }

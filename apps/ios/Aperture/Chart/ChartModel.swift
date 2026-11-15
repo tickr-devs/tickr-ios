@@ -29,6 +29,31 @@ final class ChartModel {
   var symbol: String?
   var timeframe = Timeframe.m1 { didSet { rebuild() } }
   private(set) var series: ChartSeries?
+  /// What the trading strategy and the observers decided on the chosen symbol that day.
+  private(set) var decisions: DecisionsV1?
+  /// Why the decisions could not be read, if they could not; the chart still shows.
+  private(set) var decisionsFailure: String?
+  /// The symbol and day `decisions` and `decisionsFailure` are about.
+  private(set) var decisionsFor: DecisionsKey?
+
+  struct DecisionsKey: Hashable {
+    let symbol: String
+    let day: WireDate
+  }
+
+  /// The decisions of the chosen symbol and day, nil while they are unknown.
+  var shownDecisions: DecisionsV1? {
+    guard let decisions, decisions.symbol == symbol, decisions.day == selectedDay else { return nil }
+    return decisions
+  }
+
+  /// Why the chosen symbol's and day's decisions could not be read.
+  var shownDecisionsFailure: String? {
+    guard let symbol, let selectedDay, decisionsFor == DecisionsKey(symbol: symbol, day: selectedDay) else {
+      return nil
+    }
+    return decisionsFailure
+  }
   /// The ATR line for `series`, one value per candle.
   private(set) var atr: [Double?] = []
   /// Number of the newest load of the days or a day (see `begin()`).
@@ -127,14 +152,42 @@ final class ChartModel {
   private func loadBars(_ url: URL) async throws {
     guard let symbol, let selectedDay else {
       bars = nil
+      clearDecisions()
       rebuild()
       return
     }
+    // Another symbol or day: the last one's decisions must never show under this chart.
+    if decisionsFor != DecisionsKey(symbol: symbol, day: selectedDay) { clearDecisions() }
     let loaded = try await client(url).bars(symbol: symbol, day: selectedDay)
     // A slower answer for a symbol or day no longer chosen is dropped.
     guard symbol == self.symbol, selectedDay == self.selectedDay else { return }
     bars = loaded
     rebuild()
+    await loadDecisions(url, symbol: symbol, day: selectedDay)
+  }
+
+  private func clearDecisions() {
+    decisions = nil
+    decisionsFailure = nil
+    decisionsFor = nil
+  }
+
+  /// The decisions behind the chart; a failure is shown on their card, never on the chart.
+  private func loadDecisions(_ url: URL, symbol: String, day: WireDate) async {
+    do {
+      let loaded = try await client(url).decisions(symbol: symbol, day: day)
+      guard symbol == self.symbol, day == selectedDay else { return }
+      decisions = loaded
+      decisionsFailure = nil
+      decisionsFor = DecisionsKey(symbol: symbol, day: day)
+    } catch is CancellationError {
+      return
+    } catch {
+      guard symbol == self.symbol, day == selectedDay else { return }
+      decisions = nil
+      decisionsFailure = error.localizedDescription
+      decisionsFor = DecisionsKey(symbol: symbol, day: day)
+    }
   }
 
   private func rebuild() {
