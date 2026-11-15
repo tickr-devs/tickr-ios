@@ -90,17 +90,19 @@ enum Format {
   /// Between two figures of one tile, such as MAE and MFE.
   static let slash = " / "
 
-  /// "14:06": 24-hour, as the design shows every time, whatever the phone's clock setting.
+  /// "14:06": 24-hour New York time, as the design shows every time and the bot keeps its
+  /// sessions, whatever the phone's clock setting and time zone.
   static func time(_ date: Date) -> String {
     date.formatted(Date.VerbatimFormatStyle(
       format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
-      timeZone: .current, calendar: .current))
+      timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork))
   }
 
+  /// "14:06:09", the same with seconds.
   static func clock(_ date: Date) -> String {
     date.formatted(Date.VerbatimFormatStyle(
       format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
-      timeZone: .current, calendar: .current))
+      timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork))
   }
 
   static func day(_ date: Date) -> String {

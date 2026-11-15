@@ -1,13 +1,15 @@
+import ApertureDesign
 import ApertureKit
 import SwiftUI
 
-/// The bot actions behind the power button (an action sheet, as iOS does for a set of related
-/// actions). Commands that cancel orders or close positions ask for Face ID first.
+/// The bot actions behind the power button, in a sheet with a clear Cancel. Commands that cancel orders or close positions ask for Face ID first.
 struct BotControl: ViewModifier {
   @Environment(AppModel.self) private var model
   @Binding var isPresented: Bool
   /// A command that cannot be undone from the phone, waiting for its own confirmation.
   @State private var severe: OperatorCommand?
+  /// The action chosen in the sheet, run once the sheet has gone so its alert can show.
+  @State private var chosen: (() -> Void)?
 
   func body(content: Content) -> some View {
     content
@@ -18,24 +20,69 @@ struct BotControl: ViewModifier {
       } message: { command in
         Text(severeMessage(command))
       }
-      .confirmationDialog(Text(title), isPresented: $isPresented, titleVisibility: .visible) {
-        if let status = model.status, model.canCommand {
-          if status.entryStop {
-            Button { run(.entryStop(on: false)) } label: { Text(L10n.Control.resume) }
-          } else {
-            Button { run(.entryStop(on: true)) } label: { Text(L10n.Control.pause) }
-          }
-          Button { run(.cancelOwnOrders) } label: { Text(L10n.Control.cancelOrders) }
-          Button(role: .destructive) { run(.flatten) } label: { Text(L10n.Control.flattenAll) }
-          if status.botState == .running {
-            Button(role: .destructive) { severe = .stopBot } label: { Text(L10n.Control.stopBot) }
-          }
-          Button(role: .destructive) { severe = .emergency } label: { Text(L10n.Control.emergency) }
-        }
-        Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
-      } message: {
-        Text(L10n.Control.message)
+      // A sheet, not a confirmation dialog: on iOS 26 a dialog turns into a popover without its
+      // Cancel button, pointing away from the power button.
+      .sheet(isPresented: $isPresented, onDismiss: {
+        chosen?()
+        chosen = nil
+      }) {
+        sheet
+          .presentationDetents([.medium, .large])
+          .presentationDragIndicator(.visible)
       }
+  }
+
+  /// The bot's state, one line on what the actions do to broker stops, the actions and Cancel.
+  private var sheet: some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        Text(title)
+          .font(.headline)
+          .foregroundStyle(Palette.textPrimary)
+        Text(L10n.Control.short)
+          .font(.footnote)
+          .foregroundStyle(Palette.textTertiary)
+          .fixedSize(horizontal: false, vertical: true)
+        if let status = model.status, model.canCommand {
+          VStack(spacing: Tokens.Space.s) {
+            if status.entryStop {
+              action(L10n.Control.resume, role: nil) { run(.entryStop(on: false)) }
+            } else {
+              action(L10n.Control.pause, role: nil) { run(.entryStop(on: true)) }
+            }
+            action(L10n.Control.cancelOrders, role: nil) { run(.cancelOwnOrders) }
+            action(L10n.Control.flattenAll, role: .destructive) { run(.flatten) }
+            if status.botState == .running {
+              action(L10n.Control.stopBot, role: .destructive) { severe = .stopBot }
+            }
+            action(L10n.Control.emergency, role: .destructive) { severe = .emergency }
+          }
+        }
+        Button(role: .cancel) { isPresented = false } label: {
+          Text(L10n.Common.cancel)
+            .font(.body.weight(.semibold))
+            .frame(maxWidth: .infinity, minHeight: Tokens.Size.iconWell)
+        }
+        .buttonStyle(.bordered)
+      }
+      .padding(Tokens.Space.l)
+    }
+    .background(Palette.background)
+  }
+
+  /// One action across the sheet; it runs once the sheet has closed.
+  private func action(_ title: LocalizedStringResource, role: ButtonRole?, _ perform: @escaping () -> Void)
+    -> some View {
+    Button(role: role) {
+      chosen = perform
+      isPresented = false
+    } label: {
+      Text(title)
+        .font(.body.weight(.semibold))
+        .frame(maxWidth: .infinity, minHeight: Tokens.Size.iconWell)
+    }
+    .buttonStyle(.bordered)
+    .tint(role == .destructive ? Palette.loss : Palette.info)
   }
 
   private var title: LocalizedStringResource {

@@ -175,7 +175,7 @@ struct ActivityView: View {
             empty: (L10n.Activity.noTradesThatDay, L10n.Activity.noTradesThatDayBody))
         }
       case .skipped:
-        NotTaken(signals: activity.skipped, failure: activity.skippedFailure)
+        NotTaken(groups: activity.skipped, failure: activity.skippedFailure)
       case .journal:
         if let status {
           Journal(events: Board.events(status))
@@ -411,8 +411,11 @@ private struct DayCard: View {
           .foregroundStyle(Palette.textQuaternary)
       }
       Spacer()
-      DrawnSparkline(values: figures.curve, color: Palette.result(figures.result))
-        .frame(width: Self.curveSize.width, height: Self.curveSize.height)
+      // A day without closed trades has no curve; one point would draw as a lone ring.
+      if figures.curve.count > 1 {
+        DrawnSparkline(values: figures.curve, color: Palette.result(figures.result))
+          .frame(width: Self.curveSize.width, height: Self.curveSize.height)
+      }
     }
     .padding(.horizontal, Tokens.Space.l)
     .padding(.vertical, Tokens.Space.m)
@@ -573,9 +576,12 @@ private struct TradesList: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
       if let metrics {
+        // One line: "(at least)" belongs with the MFE it qualifies.
         Text(verbatim: metrics)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
+          .lineLimit(1)
+          .minimumScaleFactor(StatTile.minimumScale)
       }
     }
     .padding(.horizontal, Tokens.Space.m)
@@ -587,20 +593,20 @@ private struct TradesList: View {
 
 /// The active strategy's entries the bot did not take that day (GET /skipped): refused at
 /// admission, with the single recorded cause, or made too late to act on; each with the what-if
-/// entry and stop the strategy recorded.
+/// entry and stop the strategy recorded. Repeats on one symbol for one reason are one row.
 private struct NotTaken: View {
-  let signals: [SkippedSignalV1]?
+  let groups: [SkippedGroup]?
   let failure: String?
 
   var body: some View {
-    if let signals {
+    if let groups {
       // A failed refresh after a good read: the rows stay, marked as the last read.
       if let failure {
         Text(L10n.Activity.notTakenStale(failure))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.warningText)
       }
-      if signals.isEmpty {
+      if groups.isEmpty {
         ContentUnavailableView {
           Label { Text(L10n.Activity.notTakenTitle) } icon: { Image(systemName: "hand.raised") }
         } description: {
@@ -608,8 +614,8 @@ private struct NotTaken: View {
         }
       }
       VStack(spacing: Tokens.Space.s) {
-        ForEach(Array(signals.enumerated()), id: \.offset) { index, signal in
-          SkippedRow(signal: signal)
+        ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
+          SkippedRow(group: group)
             .rise(step: ActivityView.Order.list.rawValue + index)
         }
       }
@@ -626,11 +632,20 @@ private struct NotTaken: View {
 }
 
 private struct SkippedRow: View {
-  let signal: SkippedSignalV1
+  let group: SkippedGroup
 
-  private var refused: Bool { signal.admission == .refused }
+  private var refused: Bool { group.latest.admission == .refused }
+
+  /// "16:27" or, for repeats, "16:27–16:29 · ×3".
+  private var when: String {
+    let first = Format.time(group.first.at.date)
+    guard group.count > 1 else { return first }
+    return first + Format.timeRange + Format.time(group.latest.at.date) + Format.separator
+      + String(localized: L10n.Activity.repeats(group.count))
+  }
 
   var body: some View {
+    let signal = group.latest
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
         Text(verbatim: signal.symbol)
@@ -643,17 +658,15 @@ private struct SkippedRow: View {
           .foregroundStyle(refused ? Palette.warningText : Palette.textTertiary)
           .background((refused ? Palette.warning : Palette.textTertiary).opacity(Tokens.Opacity.wash), in: Capsule())
         Spacer()
-        Text(verbatim: Format.clock(signal.at.date))
+        Text(verbatim: when)
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
       }
-      if let cause = signal.refusalCause {
-        Text(verbatim: cause)
-          .font(Tokens.Typography.callout)
-          .foregroundStyle(Palette.textSecondary)
-          .fixedSize(horizontal: false, vertical: true)
+      if let cause = group.cause {
+        CauseText(cause: cause)
       }
-      Text(L10n.Activity.whatIf(signal.entryPrice?.text ?? Format.missing, signal.stopPrice?.text ?? Format.missing))
+      Text(L10n.Activity.whatIf(signal.entryPrice.map { Money.price($0.value) } ?? Format.missing,
+        signal.stopPrice.map { Money.price($0.value) } ?? Format.missing))
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textQuaternary)
     }
@@ -661,6 +674,35 @@ private struct SkippedRow: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .apertureCard()
     .accessibilityElement(children: .combine)
+  }
+}
+
+/// A refusal in words: what the rule is, then the bot's detail with its times in New York.
+private struct CauseText: View {
+  let cause: RefusalCause
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      if let code = cause.known {
+        Text(L10n.Cause.title(code))
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textSecondary)
+      }
+      Group {
+        if let cooldown = cause.cooldown {
+          Text(L10n.Cause.cooldownDetail(Format.time(cooldown.loss), Format.time(cooldown.until)))
+        } else if cause.known == nil {
+          // A cause this app has no words for: the bot's own text, times made readable.
+          Text(verbatim: cause.detail.isEmpty ? cause.code
+            : cause.code + RefusalCause.separator + cause.readable(time: Format.time))
+        } else if !cause.detail.isEmpty {
+          Text(verbatim: cause.readable(time: Format.time))
+        }
+      }
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.textQuaternary)
+      .fixedSize(horizontal: false, vertical: true)
+    }
   }
 }
 

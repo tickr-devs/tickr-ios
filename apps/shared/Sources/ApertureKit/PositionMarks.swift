@@ -28,10 +28,12 @@ public struct PositionMarks: Hashable, Sendable {
   public let low: Decimal
   public let high: Decimal
 
-  /// Whether the newest bar closed within `staleSeconds` of `now` (the bot's clock): only then
-  /// are the last price and the results current. Older marks are history and must say so.
+  /// Whether the newest bar is the latest one the bot can have captured by `now` (the bot's
+  /// clock), give or take `staleSeconds`: a bar is captured once it closes, so the newest is up to
+  /// one bar behind. Only then are the last price and the results current. Older marks are
+  /// history and must say so.
   public func isFresh(now: Date, staleSeconds: TimeInterval) -> Bool {
-    now.timeIntervalSince(lastAt.addingTimeInterval(Self.barSeconds)) <= staleSeconds
+    now.timeIntervalSince(lastAt.addingTimeInterval(Self.barSeconds)) <= Self.barSeconds + staleSeconds
   }
 
   /// Nil when no bar covers the time since the position opened.

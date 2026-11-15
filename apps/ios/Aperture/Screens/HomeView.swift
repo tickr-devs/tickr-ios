@@ -213,18 +213,26 @@ private struct PositionRow: View {
             .foregroundStyle(position.stop.state.isProtected ? Palette.profitText : Palette.lossText)
         }
         Spacer()
-        if let marks, model.isCurrent(marks), marks.closes.count > 1 {
+        // An old last bar (capture stopped, a quiet minute past the limit) shows muted with its
+        // time, as on Positions, never as a live result.
+        let current = marks.map(model.isCurrent) ?? false
+        if let marks, marks.closes.count > 1 {
           DrawnSparkline(values: marks.closes.map { NSDecimalNumber(decimal: $0).doubleValue },
-            color: Palette.result(marks.unrealized))
+            color: current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
             .frame(width: Self.sparkWidth, height: Self.sparkHeight)
             .accessibilityHidden(true)
         }
         VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
-          if let marks, model.isCurrent(marks) {
+          if let marks {
             Text(verbatim: Money.signedUSD(marks.unrealized))
               .font(Tokens.Typography.calloutMono.weight(.semibold))
-              .foregroundStyle(Palette.result(marks.unrealized))
+              .foregroundStyle(current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
               .contentTransition(.numericText())
+            if !current {
+              Text(L10n.Positions.asOf(Format.clock(marks.lastAt.addingTimeInterval(PositionMarks.barSeconds))))
+                .font(Tokens.Typography.annotationBold)
+                .foregroundStyle(Palette.warningText)
+            }
           }
           Text(L10n.Common.quantityAt(position.quantity.text, position.entryPrice.text))
             .font(Tokens.Typography.calloutMono.weight(.semibold))

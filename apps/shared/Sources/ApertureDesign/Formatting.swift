@@ -21,6 +21,16 @@ public enum Money {
     return (value > 0 ? "+" : minus) + body
   }
 
+  /// Prices from one dollar trade in whole cents; below it, in hundredths of a cent (Reg NMS
+  /// Rule 612), shown with `subPennyDigits` decimals.
+  public static let subPennyBelow: Decimal = 1
+  public static let subPennyDigits = 4
+
+  /// A price rounded to its tick: "12.35" for 12.3456…, "0.4567" for 0.45671…; never a sign.
+  public static func price(_ value: Decimal) -> String {
+    plain(value, fractionDigits: abs(value) < subPennyBelow ? subPennyDigits : centsDigits)
+  }
+
   /// "+$11.80", "−$1.60", "$0.00".
   public static func signedUSD(_ value: Decimal) -> String {
     let body = "$" + fixed(abs(value), fractionDigits: centsDigits)

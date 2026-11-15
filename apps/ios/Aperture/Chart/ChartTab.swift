@@ -26,6 +26,8 @@ struct ChartTab: View {
     .scrollContentBackground(.hidden)
     .background(ApertureBackground())
     .navigationTitle(Text(ChartText.title))
+    // The design starts with the symbol; the title stays for VoiceOver and the app switcher.
+    .toolbarVisibility(.hidden, for: .navigationBar)
     .task(id: app.connection.url) {
       guard let url = app.connection.url else { return }
       await chart.load(url, preferring: app.selectedSymbol ?? app.status?.positions.first?.symbol)
@@ -176,7 +178,8 @@ private struct DayHeader: View {
     } label: {
       HStack(spacing: Tokens.Space.xs) {
         if chart.isToday {
-          PulseDot(Palette.accent, size: Tokens.Size.dotSmall)
+          // Still: a menu label does not animate, and a frozen ring would sit over the date.
+          PulseDot(Palette.accent, size: Tokens.Size.dotSmall, pulsing: false)
         }
         if let day = chart.selectedDay {
           Text(day.noonInNewYork, format: ChartFormat.day)

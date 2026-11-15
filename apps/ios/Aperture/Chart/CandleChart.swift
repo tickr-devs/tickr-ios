@@ -350,12 +350,18 @@ struct CandleChart: View {
   }
 
   private var timeAxis: some AxisContent {
-    AxisMarks(values: .automatic) { _ in
+    AxisMarks(values: .automatic) { value in
       AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
         .foregroundStyle(Palette.separator)
-      AxisValueLabel(format: ChartFormat.time)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
+      AxisValueLabel {
+        // Never truncated to "…" at the right edge.
+        if let date = value.as(Date.self) {
+          Text(date, format: ChartFormat.time)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize()
+        }
+      }
     }
   }
 

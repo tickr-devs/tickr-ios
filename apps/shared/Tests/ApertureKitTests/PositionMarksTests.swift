@@ -41,9 +41,9 @@ struct PositionMarksTests {
   func freshness() throws {
     let bars = [try bar(2, low: "9.70", high: "10.60", close: "10.40")]
     let marks = try #require(PositionMarks(bars: bars, entry: 10, stop: 9, quantity: 1, openedAt: try time(2)))
-    // The bar 15:02 closes at 15:03:00.
-    #expect(marks.isFresh(now: try time(3, second: 30), staleSeconds: 30))
-    #expect(!marks.isFresh(now: try time(3, second: 31), staleSeconds: 30))
+    // The bar 15:02 closes at 15:03:00; the next one, 15:03, cannot be captured before 15:04:00.
+    #expect(marks.isFresh(now: try time(4, second: 30), staleSeconds: 30))
+    #expect(!marks.isFresh(now: try time(4, second: 31), staleSeconds: 30))
   }
 
   @Test("No R without a stop below the entry; no marks without a bar since the open")

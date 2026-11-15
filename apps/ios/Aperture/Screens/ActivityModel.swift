@@ -27,9 +27,9 @@ final class ActivityModel {
   private(set) var day: DayV1?
   /// The record of the status's session (GET /days/<date>), for what the status leaves out.
   private(set) var session: DayV1?
-  /// The active strategy's skipped entries of the shown day (GET /skipped), newest first once
-  /// read; `skippedDay` is the day they are of.
-  private(set) var skipped: [SkippedSignalV1]?
+  /// The active strategy's skipped entries of the shown day (GET /skipped), repeats grouped,
+  /// newest first once read; `skippedDay` is the day they are of.
+  private(set) var skipped: [SkippedGroup]?
   private(set) var skippedDay: WireDate?
   /// Why the skipped entries could not be read, if they could not.
   private(set) var skippedFailure: String?
@@ -109,7 +109,7 @@ final class ActivityModel {
     do {
       let read = try await client(url).skipped(day: day)
       guard read.day == day, day == skippedDay else { return }
-      skipped = read.signals.reversed()
+      skipped = SkippedGroup.make(read.signals)
       skippedFailure = nil
     } catch is CancellationError {
       return

@@ -1,3 +1,4 @@
+import ApertureKit
 import Foundation
 
 /// Every text of the iOS app that a person reads, in English, with its Russian translation in
@@ -205,9 +206,9 @@ enum L10n {
     static var emergency: LocalizedStringResource {
       LocalizedStringResource("control.emergency", defaultValue: "Emergency: Pause, Cancel, Flatten", bundle: L10n.bundle)
     }
-    static var message: LocalizedStringResource {
-      LocalizedStringResource("control.message",
-        defaultValue: "Pausing and cancelling never touch broker stops. Flatten closes the bot's own positions through the normal exit. Stop ends the bot gracefully: positions stay open under DAY stops and nothing closes them at the session's end; only the Mac can start it again. Emergency pauses entries, cancels entry orders and flattens everything. Each command is queued once; the bot reports the result.",
+    static var short: LocalizedStringResource {
+      LocalizedStringResource("control.short",
+        defaultValue: "Pausing and cancelling never touch broker stops; flattening cancels each stop only right before its sale. Each command is sent once.",
         bundle: L10n.bundle)
     }
     static var unknown: LocalizedStringResource {
@@ -366,6 +367,9 @@ enum L10n {
       LocalizedStringResource("positions.flattenMessage",
         defaultValue: "The bot cancels this position's stop, re-reads the quantity and sells at market through the normal exit. Only this symbol closes; the bot's other positions and positions not opened by the bot are not touched.",
         bundle: L10n.bundle)
+    }
+    static var openChart: LocalizedStringResource {
+      LocalizedStringResource("positions.openChart", defaultValue: "open full chart →", bundle: L10n.bundle)
     }
     static var riskBand: LocalizedStringResource {
       LocalizedStringResource("positions.riskBand", defaultValue: "Risk band", bundle: L10n.bundle)
@@ -615,6 +619,10 @@ enum L10n {
       LocalizedStringResource("activity.notTakenFailed", defaultValue: "Couldn't read the skipped signals",
         bundle: L10n.bundle)
     }
+    /// Signals not taken in a row, for one row.
+    static func repeats(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.repeats", defaultValue: "×\(count)", bundle: L10n.bundle)
+    }
     static var refusedTag: LocalizedStringResource {
       LocalizedStringResource("activity.refusedTag", defaultValue: "REFUSED", bundle: L10n.bundle)
     }
@@ -638,6 +646,69 @@ enum L10n {
     }
     static var nothingYet: LocalizedStringResource {
       LocalizedStringResource("activity.nothingYet", defaultValue: "Nothing recorded yet today.", bundle: L10n.bundle)
+    }
+  }
+
+  /// Refusal causes in words (src/aperture/risk/causes.py). A code the app does not know is shown
+  /// as the bot wrote it.
+  enum Cause {
+    /// What the rule behind `code` is.
+    static func title(_ code: RefusalCode) -> LocalizedStringResource {
+      switch code {
+      case .gateClosed: LocalizedStringResource("cause.gateClosed",
+        defaultValue: "Trading gate closed", bundle: L10n.bundle)
+      case .notReconciled: LocalizedStringResource("cause.notReconciled",
+        defaultValue: "Not yet reconciled with the broker", bundle: L10n.bundle)
+      case .brokerReadMissing: LocalizedStringResource("cause.brokerReadMissing",
+        defaultValue: "No broker read yet", bundle: L10n.bundle)
+      case .brokerReadStale: LocalizedStringResource("cause.brokerReadStale",
+        defaultValue: "Broker read too old", bundle: L10n.bundle)
+      case .unresolvedExposure: LocalizedStringResource("cause.unresolvedExposure",
+        defaultValue: "Unresolved exposure", bundle: L10n.bundle)
+      case .foreignExposure: LocalizedStringResource("cause.foreignExposure",
+        defaultValue: "Someone else's position or order at the broker", bundle: L10n.bundle)
+      case .entryStop: LocalizedStringResource("cause.entryStop",
+        defaultValue: "Entries paused by you", bundle: L10n.bundle)
+      case .halfDay: LocalizedStringResource("cause.halfDay",
+        defaultValue: "Half day: entries off", bundle: L10n.bundle)
+      case .outsideSession: LocalizedStringResource("cause.outsideSession",
+        defaultValue: "Outside regular hours", bundle: L10n.bundle)
+      case .afterLastEntry: LocalizedStringResource("cause.afterLastEntry",
+        defaultValue: "After the last entry time", bundle: L10n.bundle)
+      case .ownPosition: LocalizedStringResource("cause.ownPosition",
+        defaultValue: "Already holding this symbol", bundle: L10n.bundle)
+      case .ownOrder: LocalizedStringResource("cause.ownOrder",
+        defaultValue: "An order on this symbol is working", bundle: L10n.bundle)
+      case .positionLimit: LocalizedStringResource("cause.positionLimit",
+        defaultValue: "All position slots taken", bundle: L10n.bundle)
+      case .cooldown: LocalizedStringResource("cause.cooldown",
+        defaultValue: "Pause after a loss", bundle: L10n.bundle)
+      case .setupInvalidated: LocalizedStringResource("cause.setupInvalidated",
+        defaultValue: "Setup no longer valid", bundle: L10n.bundle)
+      case .quoteMissing: LocalizedStringResource("cause.quoteMissing",
+        defaultValue: "No quote", bundle: L10n.bundle)
+      case .quoteStale: LocalizedStringResource("cause.quoteStale",
+        defaultValue: "Quote too old", bundle: L10n.bundle)
+      case .priceOutside: LocalizedStringResource("cause.priceOutside",
+        defaultValue: "Price left the entry window", bundle: L10n.bundle)
+      case .quantityBelowOne: LocalizedStringResource("cause.quantityBelowOne",
+        defaultValue: "Size under one share", bundle: L10n.bundle)
+      case .notionalOverCap: LocalizedStringResource("cause.notionalOverCap",
+        defaultValue: "Position value over the cap", bundle: L10n.bundle)
+      case .plannedLossOver: LocalizedStringResource("cause.plannedLossOver",
+        defaultValue: "Planned loss over the limit", bundle: L10n.bundle)
+      case .dailyCeiling: LocalizedStringResource("cause.dailyCeiling",
+        defaultValue: "Daily loss limit reached", bundle: L10n.bundle)
+      case .entryBudget: LocalizedStringResource("cause.entryBudget",
+        defaultValue: "No request budget for the entry", bundle: L10n.bundle)
+      case .stopBudget: LocalizedStringResource("cause.stopBudget",
+        defaultValue: "No request budget for the stop", bundle: L10n.bundle)
+      }
+    }
+    /// Detail of a pause after a loss: when the losing trade closed and when entries may resume.
+    static func cooldownDetail(_ loss: String, _ until: String) -> LocalizedStringResource {
+      LocalizedStringResource("cause.cooldownDetail", defaultValue: "loss at \(loss) · no entry before \(until)",
+        bundle: L10n.bundle)
     }
   }
 

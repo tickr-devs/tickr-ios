@@ -202,7 +202,10 @@ private struct PositionDetail: View {
       }
       .rise(step: Order.title.rawValue)
 
-      LevelsCard(entry: entry, stop: stop, marks: marks, current: marks.map(model.isCurrent) ?? false)
+      LevelsCard(entry: entry, stop: stop, marks: marks, current: marks.map(model.isCurrent) ?? false) {
+        model.selectedSymbol = position.symbol
+        model.selectedTab = .chart
+      }
         .rise(step: Order.levels.rawValue)
       ProtectionChain(position: position, brokerReadAt: model.status?.freshness.lastBrokerReadAt?.date,
         reconciled: model.isFresh && model.account?.stale == false)
@@ -214,7 +217,7 @@ private struct PositionDetail: View {
             ?? Format.missing)
         StatTile(label: L10n.Positions.toStop,
           value: stop.map {
-            Money.plain((entry - $0) / entry * Self.percent, fractionDigits: Self.percentDigits) + Format.percentSign
+            Money.signed(($0 - entry) / entry * Self.percent, fractionDigits: Self.percentDigits) + Format.percentSign
           } ?? Format.missing)
         StatTile(label: L10n.Positions.excursion, value: excursion)
       }
@@ -272,6 +275,8 @@ private struct LevelsCard: View {
   let marks: PositionMarks?
   /// Whether the marks are current; an old last close does not pulse.
   let current: Bool
+  /// Opens the Chart tab on this symbol.
+  let openChart: () -> Void
 
   /// Highest and lowest price the drawing must show.
   private var top: Decimal { max(entry, marks?.high ?? entry) }
@@ -294,6 +299,13 @@ private struct LevelsCard: View {
           Text(L10n.Positions.waitingForBars)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
+        } else {
+          Button(action: openChart) {
+            Text(L10n.Positions.openChart)
+              .font(Tokens.Typography.annotationBold)
+              .foregroundStyle(Palette.infoText)
+          }
+          .buttonStyle(.plain)
         }
       }
       GeometryReader { geometry in
@@ -321,6 +333,9 @@ private struct LevelsCard: View {
         }
       }
       .frame(height: Self.height)
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(Text(L10n.Positions.levels(Money.plain(entry),
+        stop.map { Money.plain($0) } ?? String(localized: L10n.Common.unknown))))
     }
     .padding(Tokens.Space.m)
     .apertureCard()
@@ -329,9 +344,6 @@ private struct LevelsCard: View {
         drawn = true
       }
     }
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(Text(L10n.Positions.levels(Money.plain(entry),
-      stop.map { Money.plain($0) } ?? String(localized: L10n.Common.unknown))))
   }
 
   /// The closes since the fill across the width, drawn in, with a dot at the last one.
@@ -342,6 +354,18 @@ private struct LevelsCard: View {
     }
     let color = Palette.result(marks.unrealized)
     return ZStack(alignment: .topLeading) {
+      // The area under the price, fading downwards.
+      if let first = points.first, let last = points.last {
+        Path { path in
+          path.move(to: CGPoint(x: first.x, y: height))
+          path.addLines(points)
+          path.addLine(to: CGPoint(x: last.x, y: height))
+          path.closeSubpath()
+        }
+        .fill(LinearGradient(colors: [color.opacity(Tokens.Opacity.glow), color.opacity(0)],
+          startPoint: .top, endPoint: .bottom))
+        .opacity(drawn ? 1 : 0)
+      }
       Path { path in path.addLines(points) }
         .trim(from: 0, to: drawn ? 1 : 0)
         .stroke(color, style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round, lineJoin: .round))
@@ -438,8 +462,8 @@ private struct ProtectionChain: View {
     return [
       (L10n.Positions.filled(position.quantity.text, position.entryPrice.text), Format.clock(position.openedAt.date),
         true),
-      (L10n.Positions.stopSent(position.stop.price?.text ?? ""), position.stop.clientOrderId ?? Format.missing,
-        state == .pending || state == .verified),
+      // No time: the status does not say when the stop was sent, and its order id means nothing here.
+      (L10n.Positions.stopSent(position.stop.price?.text ?? ""), "", state == .pending || state == .verified),
       (L10n.Positions.stopWorking, Board.stopStateTitle(state), state.isProtected),
       (L10n.Positions.reconciled, brokerReadAt.map(Format.clock) ?? Format.missing, brokerReadAt != nil && reconciled),
     ]
