@@ -10,6 +10,7 @@ struct HomeView: View {
 
   @Environment(AppModel.self) private var model
   @State private var showControl = false
+  @State private var prices = Container.shared.positionsModel()
 
   var body: some View {
     Screen(L10n.App.name) {
@@ -30,7 +31,7 @@ struct HomeView: View {
             .rise(step: Order.ticker.rawValue)
         }
         ForEach(Array(Board.positions(status).enumerated()), id: \.element.symbol) { index, position in
-          PositionRow(position: position)
+          PositionRow(position: position, marks: prices.marks[position.symbol])
             .rise(step: Order.positions.rawValue + index)
         }
         if status.positions.isEmpty {
@@ -69,6 +70,24 @@ struct HomeView: View {
     }
     .botControl(isPresented: $showControl)
     .refreshable { await model.refreshAll() }
+    .task(id: followKey) {
+      guard let url = model.connection.url, let status = model.status, !status.positions.isEmpty else { return }
+      await prices.follow(url, status: status)
+    }
+  }
+}
+
+extension HomeView {
+  /// Changes when the address, the session or the open positions change, restarting the reads.
+  fileprivate var followKey: FollowKey {
+    FollowKey(url: model.connection.url, day: model.status.map { WireDate(newYorkDateOf: $0.writtenAt.date) },
+      positions: model.status?.positions ?? [])
+  }
+
+  fileprivate struct FollowKey: Hashable {
+    let url: URL?
+    let day: WireDate?
+    let positions: [Position]
   }
 }
 
@@ -116,16 +135,19 @@ private struct RiskLink: View {
   }
 }
 
-/// The trading day being shown. Past days arrive with the days API; until then this is today only.
+/// The session the status describes: "today" only when it is today's New York date on the bot's
+/// clock, else the last session (a weekend, a day off), which is never shown as live.
 private struct DayLine: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
+    let written = model.status?.writtenAt.date ?? model.botNow
+    let isToday = WireDate(newYorkDateOf: written) == model.today
     HStack(spacing: Tokens.Space.s) {
-      if model.response?.stale == false {
+      if isToday, model.response?.stale == false {
         PulseDot(Palette.profit, size: Tokens.Size.dotSmall)
       }
-      Text(L10n.Common.today(Format.day(model.status?.writtenAt.date ?? .now)))
+      Text(isToday ? L10n.Common.today(Format.day(written)) : L10n.Activity.lastSession(Format.day(written)))
       Spacer()
       Text(Format.age(model.response))
         .contentTransition(.numericText())
@@ -206,10 +228,16 @@ private struct Summary: View {
   }
 }
 
-/// One open position on Home; tapping it opens it on the Positions tab.
+/// One open position on Home with its price since the fill and open result while they are current;
+/// tapping it opens it on the Positions tab.
 private struct PositionRow: View {
+  /// Size of the price sparkline, in points.
+  static let sparkWidth: CGFloat = 64
+  static let sparkHeight: CGFloat = 26
+
   @Environment(AppModel.self) private var model
   let position: Position
+  let marks: PositionMarks?
 
   var body: some View {
     Button {
@@ -226,7 +254,19 @@ private struct PositionRow: View {
             .foregroundStyle(position.stop.state.isProtected ? Palette.profitText : Palette.lossText)
         }
         Spacer()
+        if let marks, model.isCurrent(marks), marks.closes.count > 1 {
+          DrawnSparkline(values: marks.closes.map { NSDecimalNumber(decimal: $0).doubleValue },
+            color: Palette.result(marks.unrealized))
+            .frame(width: Self.sparkWidth, height: Self.sparkHeight)
+            .accessibilityHidden(true)
+        }
         VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
+          if let marks, model.isCurrent(marks) {
+            Text(verbatim: Money.signedUSD(marks.unrealized))
+              .font(Tokens.Typography.calloutMono.weight(.semibold))
+              .foregroundStyle(Palette.result(marks.unrealized))
+              .contentTransition(.numericText())
+          }
           Text(L10n.Common.quantityAt(position.quantity.text, position.entryPrice.text))
             .font(Tokens.Typography.calloutMono.weight(.semibold))
             .foregroundStyle(Palette.textPrimary)
