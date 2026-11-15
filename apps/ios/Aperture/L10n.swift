@@ -328,9 +328,6 @@ enum L10n {
     static var maxLoss: LocalizedStringResource {
       LocalizedStringResource("positions.maxLoss", defaultValue: "max loss", bundle: L10n.bundle)
     }
-    static var stop: LocalizedStringResource {
-      LocalizedStringResource("positions.stop", defaultValue: "stop", bundle: L10n.bundle)
-    }
     static var toStop: LocalizedStringResource {
       LocalizedStringResource("positions.toStop", defaultValue: "to stop", bundle: L10n.bundle)
     }
@@ -351,10 +348,23 @@ enum L10n {
     static var riskBand: LocalizedStringResource {
       LocalizedStringResource("positions.riskBand", defaultValue: "Risk band", bundle: L10n.bundle)
     }
-    static var priceLineLater: LocalizedStringResource {
-      LocalizedStringResource("positions.priceLineLater",
-        defaultValue: "price line comes with chart data",
-        bundle: L10n.bundle)
+    static var waitingForBars: LocalizedStringResource {
+      LocalizedStringResource("positions.waitingForBars", defaultValue: "price line waits for bars", bundle: L10n.bundle)
+    }
+    static var excursion: LocalizedStringResource {
+      LocalizedStringResource("positions.excursion", defaultValue: "MAE / MFE", bundle: L10n.bundle)
+    }
+    static var reconciled: LocalizedStringResource {
+      LocalizedStringResource("positions.reconciled", defaultValue: "Reconciled with broker", bundle: L10n.bundle)
+    }
+    static func asOf(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.asOf", defaultValue: "as of \(time)", bundle: L10n.bundle)
+    }
+    static func last(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.last", defaultValue: "last \(price)", bundle: L10n.bundle)
+    }
+    static func lastAndR(_ price: String, _ r: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.lastAndR", defaultValue: "last \(price) · \(r) now", bundle: L10n.bundle)
     }
     static func entryLevel(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.entryLevel", defaultValue: "entry \(price)", bundle: L10n.bundle)

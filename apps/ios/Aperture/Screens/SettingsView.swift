@@ -94,7 +94,7 @@ struct SettingsView: View {
     }
     .navigationTitle(Text(L10n.Settings.title))
     .onAppear { draft = model.connection.address }
-    .task(id: model.connection.url) { await followAccount() }
+    .task(id: model.connection.url) { await model.followAccount() }
     .onChange(of: model.connection.address) { _, address in draft = address }
     .sheet(isPresented: $showPairing) { PairingSheet() }
     .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {
@@ -113,16 +113,6 @@ struct SettingsView: View {
       value()
     } label: {
       Text(label)
-    }
-  }
-
-  /// While Settings is on screen, read the bot's last broker read as often as its status.
-  private func followAccount() async {
-    while !Task.isCancelled {
-      await model.refreshAccount()
-      let seconds = model.response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
-        ?? AppModel.initialPollSeconds
-      try? await Task.sleep(for: .seconds(max(seconds, AppModel.minimumPollSeconds)))
     }
   }
 

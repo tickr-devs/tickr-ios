@@ -2,10 +2,12 @@ import ApertureDesign
 import ApertureKit
 import SwiftUI
 
-/// Open positions: one picker chip per position, then the selected one with its protection chain,
-/// risk numbers and a Flatten button.
+/// Open positions: one picker chip per position, then the selected one with its price against
+/// entry and stop, its protection chain, risk numbers and a Flatten button. Prices come from the
+/// captured bars (`PositionsModel`), for display only.
 struct PositionsView: View {
   @Environment(AppModel.self) private var model
+  @State private var prices = Container.shared.positionsModel()
 
   var body: some View {
     Screen(L10n.App.positions) {
@@ -24,10 +26,10 @@ struct PositionsView: View {
           }
           .rise()
         } else {
-          PositionChips(positions: positions)
+          PositionChips(positions: positions, marks: prices.marks.filter { model.isCurrent($0.value) })
             .rise(step: PositionDetail.Order.chips.rawValue)
           if let position = positions.first(where: { $0.symbol == model.selectedSymbol }) ?? positions.first {
-            PositionDetail(position: position)
+            PositionDetail(position: position, marks: prices.marks[position.symbol])
               .id(position.symbol)
               .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
           }
@@ -35,13 +37,34 @@ struct PositionsView: View {
       }
     }
     .animation(Tokens.Motion.standard, value: model.selectedSymbol)
-    .refreshable { await model.refresh() }
+    .refreshable {
+      await model.refresh()
+      if let url = model.connection.url, let status = model.status { await prices.load(url, status: status) }
+    }
+    .task(id: model.connection.url) { await model.followAccount() }
+    .task(id: followKey) {
+      guard let url = model.connection.url, let status = model.status, !status.positions.isEmpty else { return }
+      await prices.follow(url, status: status)
+    }
+  }
+
+  /// Changes when the address, the session or the open positions change, restarting the reads.
+  private var followKey: FollowKey {
+    FollowKey(url: model.connection.url, day: model.status.map { WireDate(newYorkDateOf: $0.writtenAt.date) },
+      positions: model.status?.positions ?? [])
+  }
+
+  private struct FollowKey: Hashable {
+    let url: URL?
+    let day: WireDate?
+    let positions: [Position]
   }
 }
 
 private struct PositionChips: View {
   @Environment(AppModel.self) private var model
   let positions: [Position]
+  let marks: [String: PositionMarks]
 
   /// Slots the bot may still fill, from max_open_positions in its settings; none while unknown.
   private var freeSlots: Int {
@@ -69,6 +92,12 @@ private struct PositionChips: View {
         } label: {
           VStack(spacing: Tokens.Space.xxs) {
             Text(verbatim: position.symbol).font(.footnote.monospaced().bold())
+            if let unrealized = marks[position.symbol]?.unrealized {
+              Text(verbatim: Money.signedUSD(unrealized))
+                .font(Tokens.Typography.captionMono)
+                .foregroundStyle(Palette.result(unrealized))
+                .contentTransition(.numericText())
+            }
             Group {
               if position.stop.state.isProtected {
                 Text(L10n.Positions.protected)
@@ -123,6 +152,16 @@ private struct PositionDetail: View {
   @Environment(AppModel.self) private var model
   @State private var confirmFlatten = false
   let position: Position
+  let marks: PositionMarks?
+
+  /// "−0.6 / +1.2 R", or per share in dollars while R is undefined; a dash without bars.
+  private var excursion: String {
+    guard let marks else { return Format.missing }
+    if let adverse = marks.adverseR, let favorable = marks.favorableR {
+      return Money.signed(adverse, fractionDigits: 1) + Format.slash + Risk.text(favorable)
+    }
+    return Money.signed(marks.adverse) + Format.slash + Money.signed(marks.favorable)
+  }
 
   var body: some View {
     let entry = position.entryPrice.value
@@ -130,8 +169,32 @@ private struct PositionDetail: View {
     let quantity = position.quantity.value
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        Text(verbatim: position.symbol)
-          .font(.largeTitle.monospaced().bold())
+        HStack(alignment: .firstTextBaseline) {
+          Text(verbatim: position.symbol)
+            .font(.largeTitle.monospaced().bold())
+          Spacer()
+          if let marks {
+            // An old last bar (capture stopped, a past session) is shown as history: muted and
+            // dated, never as a live result.
+            let current = model.isCurrent(marks)
+            VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
+              Text(verbatim: Money.signedUSD(marks.unrealized))
+                .font(Tokens.Typography.metric)
+                .foregroundStyle(current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
+                .contentTransition(.numericText())
+              Text(marks.resultR.map { L10n.Positions.lastAndR(Money.plain(marks.last), Risk.text($0)) }
+                ?? L10n.Positions.last(Money.plain(marks.last)))
+                .font(Tokens.Typography.captionMono)
+                .foregroundStyle(Palette.textTertiary)
+              if !current {
+                Text(L10n.Positions.asOf(Format.clock(marks.lastAt.addingTimeInterval(PositionMarks.barSeconds))))
+                  .font(Tokens.Typography.annotationBold)
+                  .foregroundStyle(Palette.warningText)
+              }
+            }
+            .accessibilityElement(children: .combine)
+          }
+        }
         Text(L10n.Positions.shares(position.quantity.text, position.entryPrice.text,
           Format.clock(position.openedAt.date)))
           .font(Tokens.Typography.captionMono)
@@ -139,20 +202,21 @@ private struct PositionDetail: View {
       }
       .rise(step: Order.title.rawValue)
 
-      LevelsCard(entry: entry, stop: stop).rise(step: Order.levels.rawValue)
-      ProtectionChain(position: position).rise(step: Order.chain.rawValue)
+      LevelsCard(entry: entry, stop: stop, marks: marks, current: marks.map(model.isCurrent) ?? false)
+        .rise(step: Order.levels.rawValue)
+      ProtectionChain(position: position, brokerReadAt: model.status?.freshness.lastBrokerReadAt?.date,
+        reconciled: model.isFresh && model.account?.stale == false)
+        .rise(step: Order.chain.rawValue)
 
       HStack(spacing: Tokens.Space.s) {
         StatTile(label: L10n.Positions.maxLoss,
           value: Risk.plannedLoss(entry: entry, stop: stop, quantity: quantity).map { Money.plain($0) }
             ?? Format.missing)
-        StatTile(label: L10n.Positions.stop,
-          value: position.stop.price?.text ?? Format.missing,
-          color: position.stop.state.isProtected ? Palette.profitText : Palette.lossText)
         StatTile(label: L10n.Positions.toStop,
           value: stop.map {
             Money.plain((entry - $0) / entry * Self.percent, fractionDigits: Self.percentDigits) + Format.percentSign
           } ?? Format.missing)
+        StatTile(label: L10n.Positions.excursion, value: excursion)
       }
       .rise(step: Order.stats.rawValue)
 
@@ -189,46 +253,70 @@ private struct PositionDetail: View {
   }
 }
 
-/// Entry and stop as two levels with the distance between them shaded; the live price line comes
-/// with bar data from the API.
+/// Entry and stop as two levels with the risk between them shaded, and the price since the fill as
+/// a line ending in a dot at the last close, all on one price scale. Without bars only the levels
+/// show, with a note that the price line waits for them.
 private struct LevelsCard: View {
   /// Height of the band drawing, in points.
   static let height: CGFloat = 110
-  /// Where the entry line sits, as a fraction of the drawing's height from the top.
-  static let entryLevel: CGFloat = 0.2
-  /// Where the stop line sits, as a fraction of the drawing's height from the top.
-  static let stopLevel: CGFloat = 0.82
+  /// Space kept above the highest and below the lowest price, as a fraction of the height.
+  static let inset: CGFloat = 0.12
   /// How far a level's label sits above its line, in points.
   static let labelLift: CGFloat = 9
+  /// Where everything sits when the scale has no range (one price only), as a fraction from the top.
+  static let middle: CGFloat = 0.5
 
   @State private var drawn = false
   let entry: Decimal
   let stop: Decimal?
+  let marks: PositionMarks?
+  /// Whether the marks are current; an old last close does not pulse.
+  let current: Bool
+
+  /// Highest and lowest price the drawing must show.
+  private var top: Decimal { max(entry, marks?.high ?? entry) }
+  private var bottom: Decimal { min(stop ?? entry, marks?.low ?? entry, entry) }
+
+  /// Where `price` sits, as a fraction of the height from the top.
+  private func level(of price: Decimal) -> CGFloat {
+    let range = top - bottom
+    guard range > 0 else { return Self.middle }
+    let share = CGFloat(NSDecimalNumber(decimal: (top - price) / range).doubleValue)
+    return Self.inset + share * (1 - Self.inset - Self.inset)
+  }
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       HStack {
         CardLabel(L10n.Positions.riskBand)
         Spacer()
-        Text(L10n.Positions.priceLineLater)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.highlightText)
+        if marks == nil {
+          Text(L10n.Positions.waitingForBars)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+        }
       }
       GeometryReader { geometry in
         let height = geometry.size.height
         let width = geometry.size.width
+        let entryY = height * level(of: entry)
         ZStack(alignment: .topLeading) {
-          Rectangle()
-            .fill(LinearGradient(colors: [Palette.accent.opacity(Tokens.Opacity.glow),
-              Palette.loss.opacity(Tokens.Opacity.wash)], startPoint: .top, endPoint: .bottom))
-            .frame(height: height * (Self.stopLevel - Self.entryLevel))
-            .offset(y: height * Self.entryLevel)
-            .scaleEffect(x: 1, y: drawn ? 1 : 0, anchor: .top)
-          level(L10n.Positions.entryLevel(Money.plain(entry)), color: Palette.textQuaternary,
-            textColor: Palette.textTertiary, y: height * Self.entryLevel, width: width)
           if let stop {
-            level(L10n.Positions.stopLevel(Money.plain(stop)), color: Palette.loss, textColor: Palette.lossText,
-              y: height * Self.stopLevel, width: width)
+            Rectangle()
+              .fill(LinearGradient(colors: [Palette.accent.opacity(Tokens.Opacity.glow),
+                Palette.loss.opacity(Tokens.Opacity.wash)], startPoint: .top, endPoint: .bottom))
+              .frame(height: max(height * level(of: stop) - entryY, 0))
+              .offset(y: entryY)
+              .scaleEffect(x: 1, y: drawn ? 1 : 0, anchor: .top)
+          }
+          line(L10n.Positions.entryLevel(Money.plain(entry)), color: Palette.textQuaternary,
+            textColor: Palette.textTertiary, y: entryY, width: width)
+          if let stop {
+            line(L10n.Positions.stopLevel(Money.plain(stop)), color: Palette.loss, textColor: Palette.lossText,
+              y: height * level(of: stop), width: width)
+          }
+          if let marks {
+            price(marks, width: width, height: height)
           }
         }
       }
@@ -246,7 +334,26 @@ private struct LevelsCard: View {
       stop.map { Money.plain($0) } ?? String(localized: L10n.Common.unknown))))
   }
 
-  private func level(_ text: LocalizedStringResource, color: Color, textColor: Color, y: CGFloat, width: CGFloat)
+  /// The closes since the fill across the width, drawn in, with a dot at the last one.
+  private func price(_ marks: PositionMarks, width: CGFloat, height: CGFloat) -> some View {
+    let points = marks.closes.enumerated().map { index, close in
+      CGPoint(x: marks.closes.count > 1 ? width * CGFloat(index) / CGFloat(marks.closes.count - 1) : width,
+        y: height * level(of: close))
+    }
+    let color = Palette.result(marks.unrealized)
+    return ZStack(alignment: .topLeading) {
+      Path { path in path.addLines(points) }
+        .trim(from: 0, to: drawn ? 1 : 0)
+        .stroke(color, style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round, lineJoin: .round))
+      if let last = points.last {
+        PulseDot(color, size: Tokens.Size.dotSmall, pulsing: current)
+          .position(last)
+      }
+    }
+    .frame(width: width, height: height)
+  }
+
+  private func line(_ text: LocalizedStringResource, color: Color, textColor: Color, y: CGFloat, width: CGFloat)
     -> some View {
     ZStack(alignment: .leading) {
       Path { path in
@@ -278,6 +385,12 @@ private struct ProtectionChain: View {
 
   @State private var progress: CGFloat = 0
   let position: Position
+  /// When the bot last read the broker's positions and orders, and whether that read is current:
+  /// the status is current and GET /account says the read is within account_stale_seconds. A
+  /// failing reconciliation stops the read while the status keeps updating, so the status alone
+  /// proves nothing.
+  let brokerReadAt: Date?
+  let reconciled: Bool
 
   var body: some View {
     let steps = self.steps
@@ -328,6 +441,7 @@ private struct ProtectionChain: View {
       (L10n.Positions.stopSent(position.stop.price?.text ?? ""), position.stop.clientOrderId ?? Format.missing,
         state == .pending || state == .verified),
       (L10n.Positions.stopWorking, Board.stopStateTitle(state), state.isProtected),
+      (L10n.Positions.reconciled, brokerReadAt.map(Format.clock) ?? Format.missing, brokerReadAt != nil && reconciled),
     ]
   }
 }

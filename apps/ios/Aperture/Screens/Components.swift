@@ -87,6 +87,8 @@ enum Format {
   static let arrow = " → "
   /// Between two facts on one line.
   static let separator = " · "
+  /// Between two figures of one tile, such as MAE and MFE.
+  static let slash = " / "
 
   static func time(_ date: Date) -> String {
     date.formatted(date: .omitted, time: .shortened)

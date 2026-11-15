@@ -71,8 +71,8 @@ final class ChartModel {
   }
   /// Trades of the chosen symbol closed on the chosen day.
   var trades: [DayTrade] { day?.trades.filter { $0.symbol == symbol } ?? [] }
-  /// Whether the chosen day is today in New York, so its bars still grow.
-  var isToday: Bool { selectedDay == WireDate(newYorkDateOf: .now) }
+  /// Whether the chosen day is today in New York on the bot's clock, so its bars still grow.
+  var isToday: Bool { selectedDay == Container.shared.appModel().today }
   /// The day before and after the chosen one among the recorded days (newest first).
   var previousDay: WireDate? { neighbour(1) }
   var nextDay: WireDate? { neighbour(-1) }

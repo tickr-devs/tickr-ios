@@ -47,15 +47,35 @@ final class AppModel {
   /// A pairing link opened from outside (AirDrop), waiting for the owner to confirm.
   var pendingPairing: Pairing?
 
+  /// How far the bot's clock is ahead of this phone's, from the last status's `served_at`. The
+  /// bot's clock decides what "today" is: the phone's clock can drift, and `aperture demo` plays a
+  /// past day on a clock of its own.
+  private(set) var botClockOffset: TimeInterval = 0
+
   @ObservationIgnored private var pollTask: Task<Void, Never>?
+  /// The current moment (Container.now; tests pin it).
+  @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
   @ObservationIgnored private var awaited: [String: CommandKind] = [:]
   /// Seconds between reads until the first answer gives the server's poll_seconds.
   static let initialPollSeconds = 3.0
   /// Shortest wait between two reads, whatever the server asks for.
   static let minimumPollSeconds = 1.0
+  /// A change of the bot's clock offset smaller than this (network delay) is ignored, in seconds.
+  static let clockToleranceSeconds: TimeInterval = 2
 
   var status: StatusV1? { response?.status }
+  /// This moment on the bot's clock.
+  var botNow: Date { now().addingTimeInterval(botClockOffset) }
+  /// Whether `marks` are current on the bot's clock, within the status stale limit of its
+  /// settings; unknown settings prove nothing, so the marks are then not current.
+  func isCurrent(_ marks: PositionMarks) -> Bool {
+    guard let settings else { return false }
+    let limit = NSDecimalNumber(decimal: settings.statusStaleSeconds.value).doubleValue
+    return marks.isFresh(now: botNow, staleSeconds: limit)
+  }
+  /// The bot's trading day: today in New York on the bot's clock.
+  var today: WireDate { WireDate(newYorkDateOf: botNow) }
   var isConfigured: Bool { connection.url != nil }
 
   var headline: Headline {
@@ -93,6 +113,7 @@ final class AppModel {
     stop()
     response = nil
     fetchError = nil
+    botClockOffset = 0
     settings = nil
     settingsError = nil
     account = nil
@@ -110,12 +131,20 @@ final class AppModel {
       let fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
       response = fresh
       fetchError = nil
+      followBotClock(servedAt: fresh.servedAt.date)
       resolveAwaited(fresh)
     } catch {
       fetchError = Self.describe(error)
       return
     }
     if settings == nil { await refreshSettings(url) }
+  }
+
+  /// Takes the bot's clock from a status served at `servedAt`. Network delay moves the offset by
+  /// milliseconds on every poll; only a larger change is taken, so views don't redraw for it.
+  private func followBotClock(servedAt: Date) {
+    let offset = servedAt.timeIntervalSince(now())
+    if abs(offset - botClockOffset) > Self.clockToleranceSeconds { botClockOffset = offset }
   }
 
   /// Pull to refresh: the status, and the settings read again, since the owner may have changed
@@ -142,6 +171,17 @@ final class AppModel {
         account = nil
         accountError = Self.describe(error)
       }
+    }
+  }
+
+  /// Reads the bot's last broker read at the status poll rate until cancelled; used while a screen
+  /// that shows it is open.
+  func followAccount() async {
+    while !Task.isCancelled {
+      await refreshAccount()
+      let seconds = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
+        ?? Self.initialPollSeconds
+      try? await Task.sleep(for: .seconds(max(seconds, Self.minimumPollSeconds)))
     }
   }
 

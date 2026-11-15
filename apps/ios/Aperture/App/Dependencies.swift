@@ -25,6 +25,13 @@ extension Container {
     self { ActivityModel() }
   }
 
+  /// The Positions tab's marks from the bars of each open position. A new one each time the tab
+  /// builds its view.
+  @MainActor
+  var positionsModel: Factory<PositionsModel> {
+    self { PositionsModel() }
+  }
+
   /// Where the paired API token lives: this phone's Keychain.
   var keychain: Factory<Keychain> {
     self { Keychain() }
