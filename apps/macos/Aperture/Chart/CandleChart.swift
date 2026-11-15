@@ -11,6 +11,7 @@ struct CandleChart: View {
   let lines: ChartLines
   let marks: [ChartMark]
   let levels: [ChartLevel]
+  let decisions: [DecisionMark]
   let live: Bool
   @Binding var viewport: Viewport
 
@@ -32,6 +33,9 @@ struct CandleChart: View {
   /// Symbols of entry and exit marks.
   static let entrySymbol = "arrowtriangle.up.fill"
   static let exitSymbol = "arrowtriangle.down.fill"
+  /// Symbols of decision marks: one the strategy acted on, and one that did not trade.
+  static let decisionSymbol = "diamond.fill"
+  static let observerSymbol = "diamond"
 
   private var candles: [Candle] { series.candles }
 
@@ -106,6 +110,19 @@ struct CandleChart: View {
             Text(mark.label)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(mark.textColor)
+          }
+      }
+      ForEach(decisions) { mark in
+        PointMark(x: .value(Plot.time, mark.time), y: .value(Plot.price, mark.price))
+          .symbol {
+            Image(systemName: mark.hollow ? Self.observerSymbol : Self.decisionSymbol)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(mark.color)
+          }
+          .annotation(position: .top) {
+            Text(mark.label)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(mark.color)
           }
       }
       if live, let last = candles.last {

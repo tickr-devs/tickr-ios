@@ -857,13 +857,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Show why the strategies entered, watched or skipped this symbol (⌥⌘I)"
+            "value": "Show why the strategies entered, watched or skipped this symbol, and mark their entries and exits on the candles (⌥⌘I)"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Показать, почему стратегии вошли, наблюдали или пропустили тикер (⌥⌘I)"
+            "value": "Показать, почему стратегии вошли, наблюдали или пропустили тикер, и отметить их входы и выходы на свечах (⌥⌘I)"
           }
         }
       }
@@ -925,13 +925,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entry %1$@ · stop %2$@"
+            "value": "Skipped entry %1$@ · stop %2$@"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вход %1$@ · стоп %2$@"
+            "value": "Пропущенный вход %1$@ · стоп %2$@"
           }
         }
       }
@@ -1123,6 +1123,23 @@
         }
       }
     },
+    "chart.observerMark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · observer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · наблюдатель"
+          }
+        }
+      }
+    },
     "chart.observerTag": {
       "extractionState": "manual",
       "localizations": {
@@ -1153,6 +1170,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "О"
+          }
+        }
+      }
+    },
+    "chart.skippedMark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · skipped"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · пропущен"
           }
         }
       }

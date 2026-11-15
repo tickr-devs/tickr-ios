@@ -220,6 +220,8 @@ struct ChartView: View {
           vwap: showVWAP, fastEMA: showFastEMA, slowEMA: showSlowEMA, volume: showVolume, atr: showATR),
         marks: ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol }),
         levels: ChartMarkers.levels(position: model.positions.first { $0.id == symbol }),
+        decisions: showDecisions
+          ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], candles: series.candles) : [],
         live: model.isLive,
         viewport: $viewport)
         .id(ChartID(symbol: symbol, day: model.shownDay, timeframe: timeframe))

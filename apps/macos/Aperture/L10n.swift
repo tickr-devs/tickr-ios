@@ -1015,7 +1015,15 @@ enum L10n {
     }
     /// Tooltip of the decisions toggle.
     static var decisionsHelp: LocalizedStringResource {
-      LocalizedStringResource("chart.decisionsHelp", defaultValue: "Show why the strategies entered, watched or skipped this symbol (⌥⌘I)", bundle: L10n.bundle)
+      LocalizedStringResource("chart.decisionsHelp", defaultValue: "Show why the strategies entered, watched or skipped this symbol, and mark their entries and exits on the candles (⌥⌘I)", bundle: L10n.bundle)
+    }
+    /// Chart mark of an observer's (shadow strategy's) decision.
+    static func observerMark(_ action: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.observerMark", defaultValue: "\(action) · observer", bundle: L10n.bundle)
+    }
+    /// Chart mark of the strategy's ENTER that was not taken (refused by risk or the gate).
+    static func skippedMark(_ action: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.skippedMark", defaultValue: "\(action) · skipped", bundle: L10n.bundle)
     }
     /// Decisions inspector is empty.
     static var noDecisions: LocalizedStringResource {
@@ -1033,9 +1041,9 @@ enum L10n {
     static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
     }
-    /// Planned entry and stop of an ENTER decision.
+    /// What-if entry and stop of an ENTER that was not taken (refused, or an observer's).
     static func entryStop(_ entry: String, _ stop: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.entryStop", defaultValue: "Entry \(entry) · stop \(stop)", bundle: L10n.bundle)
+      LocalizedStringResource("chart.entryStop", defaultValue: "Skipped entry \(entry) · stop \(stop)", bundle: L10n.bundle)
     }
     /// VoiceOver and tooltip: a check passed.
     static var checkPassed: LocalizedStringResource {

@@ -68,6 +68,25 @@ struct ChartLevel: Identifiable {
   }
 }
 
+/// A strategy's ENTER or EXIT decision, drawn as a diamond at its time: filled for one the
+/// trading strategy acted on, hollow for an observer's (a shadow strategy that never trades) or a
+/// skipped ENTER (refused, so never bought), which is also drawn muted.
+struct DecisionMark: Identifiable {
+  /// Position in the day's decision list.
+  let id: Int
+  let time: Date
+  let price: Double
+  let action: Verdict
+  let observer: Bool
+  /// An ENTER that was not taken: the API gives an entry price only for those (docs/api.md).
+  let skipped: Bool
+  let label: LocalizedStringResource
+
+  /// Hollow for anything that did not trade.
+  var hollow: Bool { observer || skipped }
+  var color: Color { observer || !skipped ? action.color : Palette.textTertiary }
+}
+
 /// Builds the marks and levels the chart draws from the bot's trades and open position.
 enum ChartMarkers {
   /// An entry and an exit mark per closed trade.
@@ -105,6 +124,25 @@ enum ChartMarkers {
           label: verified ? L10n.Chart.stopLevel(Format.price(stop)) : L10n.Chart.stopUnverified(Format.price(stop))))
     }
     return levels
+  }
+
+  /// A mark per ENTER or EXIT decision. A skipped ENTER sits at its what-if entry; otherwise a
+  /// mark sits at the close of the candle it was made in. A decision outside every candle has no
+  /// mark.
+  static func decisionMarks(decisions: [DecisionV1], candles: [Candle]) -> [DecisionMark] {
+    decisions.enumerated().compactMap { index, decision in
+      guard decision.action == .enter || decision.action == .exit else { return nil }
+      let at = decision.at.date
+      let candle = candles.last { $0.start <= at && at < $0.end }
+      guard let price = decision.entryPrice.map({ double($0.value) }) ?? candle?.close else { return nil }
+      let title = String(localized: decision.action.title)
+      let skipped = decision.entryPrice != nil
+      let label = decision.observer ? L10n.Chart.observerMark(title)
+        : skipped ? L10n.Chart.skippedMark(title) : decision.action.title
+      return DecisionMark(
+        id: index, time: at, price: price, action: decision.action, observer: decision.observer,
+        skipped: skipped, label: label)
+    }
   }
 
   static func double(_ value: Decimal) -> Double {
