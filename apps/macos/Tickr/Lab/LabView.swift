@@ -451,14 +451,14 @@ private struct ReplayCard: View {
 /// The advisor: proposes new strategy versions from recorded days, for the owner to accept.
 private struct AdvisorCard: View {
   var body: some View {
-    Card(L10n.Lab.advisor, trailing: { PlannedTag(.backlog) }) {
+    Card(L10n.Lab.advisor, trailing: { PlannedTag(.backlog) }, content: {
       HStack(alignment: .top, spacing: Tokens.Space.m) {
         Image(systemName: "sparkles")
           .font(Tokens.Typography.symbol)
           .foregroundStyle(Palette.highlight)
         Footnote(L10n.Lab.advisorNote)
       }
-    }
+    })
   }
 }
 

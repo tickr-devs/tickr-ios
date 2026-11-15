@@ -58,7 +58,8 @@ struct ChartPlot: Sendable {
     self.series = series
     self.atr = atr
     self.starts = starts
-    axisMarks = range == .oneDay ? [] : ChartAxisMark.marks(starts: starts, drawn: series.candles, range: range, timeframe: series.timeframe)
+    axisMarks = range == .oneDay
+      ? [] : ChartAxisMark.marks(starts: starts, drawn: series.candles, range: range, timeframe: series.timeframe)
     movingAverages = studies.movingAverages
     bollingerUpper = studies.bollinger.map { $0?.upper }
     bollingerMiddle = studies.bollinger.map { $0?.middle }

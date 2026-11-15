@@ -131,7 +131,8 @@ private struct TradingSettings: View {
             value: Format.usd(settings.risk.positionNotionalCapUsd.value))
           LabeledContent(String(localized: L10n.Settings.dailyLossLimit), value: Format.usd(settings.risk.maxDailyLossUsd.value))
           LabeledContent(String(localized: L10n.Settings.maxOpenPositions), value: "\(settings.risk.maxOpenPositions)")
-          LabeledContent(String(localized: L10n.Settings.maxQuoteAge), value: Format.seconds(settings.risk.maxQuoteAgeSeconds.value))
+          LabeledContent(String(localized: L10n.Settings.maxQuoteAge),
+            value: Format.seconds(settings.risk.maxQuoteAgeSeconds.value))
         } header: {
           Text(L10n.Common.risk)
         } footer: {
@@ -141,7 +142,8 @@ private struct TradingSettings: View {
           LabeledContent(String(localized: L10n.Settings.marketTimezone), value: settings.session.timezone)
           LabeledContent(String(localized: L10n.Settings.lastEntry),
             value: Self.beforeClose(settings.session.lastEntryMinutesBeforeClose))
-          LabeledContent(String(localized: L10n.Settings.flatten), value: Self.beforeClose(settings.session.flattenMinutesBeforeClose))
+          LabeledContent(String(localized: L10n.Settings.flatten),
+            value: Self.beforeClose(settings.session.flattenMinutesBeforeClose))
           LabeledContent(String(localized: L10n.Settings.halfDays), value: settings.session.halfDaysEnabled
             ? String(localized: L10n.Settings.traded) : String(localized: L10n.Settings.notTraded))
         } header: {
@@ -238,13 +240,15 @@ private struct EnvironmentSettings: View {
   var body: some View {
     Form {
       Section {
-        LabeledContent(String(localized: L10n.Settings.environment), value: (model.status?.environment ?? model.settings?.environment).map(ApiText.environment) ?? Format.missing)
+        LabeledContent(String(localized: L10n.Settings.environment),
+          value: (model.status?.environment ?? model.settings?.environment).map(ApiText.environment) ?? Format.missing)
         if let gate = model.status?.tradingGate {
           LabeledContent(String(localized: L10n.Settings.tradingGate),
             value: String(localized: gate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed))
           LabeledContent(String(localized: L10n.Settings.gateCause), value: ApiText.gate(gate))
         }
-        LabeledContent(String(localized: L10n.Settings.apiVersion), value: model.settings.map { "\($0.apiVersion)" } ?? Format.missing)
+        LabeledContent(String(localized: L10n.Settings.apiVersion),
+          value: model.settings.map { "\($0.apiVersion)" } ?? Format.missing)
       } header: {
         Text(L10n.Settings.brokerEnvironment)
       } footer: {
@@ -263,7 +267,8 @@ private struct StorageSettings: View {
     Form {
       Section {
         LabeledContent(String(localized: L10n.Settings.recordedDays), value: "\(model.days.count)")
-        LabeledContent(String(localized: L10n.Settings.firstRecordedDay), value: model.days.last.map { Format.dayLabel($0.day) } ?? Format.missing)
+        LabeledContent(String(localized: L10n.Settings.firstRecordedDay),
+          value: model.days.last.map { Format.dayLabel($0.day) } ?? Format.missing)
         LabeledContent(String(localized: L10n.Settings.daysWithBars), value: "\(model.days.filter(\.hasBars).count)")
       } header: {
         Text(L10n.Settings.history)

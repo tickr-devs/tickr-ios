@@ -204,7 +204,9 @@ private struct DayToolbar: ToolbarContent {
 
   var body: some ToolbarContent {
     ToolbarItemGroup(placement: .navigation) {
-      Button { model.showPreviousDay() } label: { Label(String(localized: L10n.Toolbar.previousDay), systemImage: Self.previousSymbol) }
+      Button { model.showPreviousDay() } label: {
+        Label(String(localized: L10n.Toolbar.previousDay), systemImage: Self.previousSymbol)
+      }
         .disabled(model.previousDay == nil)
         .help(Text(L10n.Toolbar.previousDayHelp))
       Menu {

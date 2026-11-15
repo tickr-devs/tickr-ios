@@ -46,7 +46,7 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
   /// Closes since the entry, for the small chart.
   public let closes: [Decimal]
   /// Close of the newest captured bar however old it is; shown as history when it is not fresh.
-  public var latestClose: Decimal? = nil
+  public var latestClose: Decimal?
 
   public var id: String { position.symbol }
   public var entry: Decimal { position.entryPrice.value }

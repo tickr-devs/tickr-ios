@@ -217,7 +217,7 @@ struct CandleChart: View {
     .chartXAxis(studyPanes.isEmpty ? .automatic : .hidden)
     .chartXAxis { timeAxis }
     .modifier(SharedAxis(chart: self, pane: .price, showsTime: studyPanes.isEmpty, tags: priceTags))
-    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { chartWidth = $0 }
+    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { chartWidth = $0 })
   }
 
   /// The close as a line with a fill fading down to the volume bars, coloured by whether

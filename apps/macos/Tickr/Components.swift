@@ -139,8 +139,10 @@ struct Card<Trailing: View, Content: View>: View {
   let trailing: Trailing
   let content: Content
 
-  init(_ title: LocalizedStringResource, tint: Color? = nil, tone: Tone = .accent, @ViewBuilder trailing: () -> Trailing,
-    @ViewBuilder content: () -> Content) {
+  init(
+    _ title: LocalizedStringResource, tint: Color? = nil, tone: Tone = .accent, @ViewBuilder trailing: () -> Trailing,
+    @ViewBuilder content: () -> Content
+  ) {
     self.title = Text(title)
     self.tint = tint
     self.tone = tone

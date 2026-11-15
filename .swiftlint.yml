@@ -3,11 +3,15 @@
 # relaxes in its own .swiftlint.yml apply to that app only.
 # Magic numbers are checked by apps/scripts/check_swift_literals.py, which understands documented
 # constants; colours, fonts and indentation are checked here.
-# macOS joins next.
 included:
   - apps/ios
+  - apps/macos
   - apps/shared/Sources
   - apps/shared/Tests
+# Build output of the macOS package (swift build) when SwiftLint runs on the Mac.
+excluded:
+  - apps/macos/.build
+  - apps/macos/build
 
 indentation_width:
   severity: error
@@ -33,6 +37,11 @@ opt_in_rules:
 identifier_name:
   min_length: 1
   max_length: 50
+
+# `ID` is Swift's name for an Identifiable type's identifier (ChartMark.ID).
+type_name:
+  excluded:
+    - ID
 
 # Nested types such as Board.Event.Tone read better than prefixed names.
 nesting:

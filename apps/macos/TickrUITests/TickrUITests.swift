@@ -9,8 +9,9 @@ final class TickrUITests: XCTestCase {
   static let fixturesOn = "1"
   /// Pins the app to English so the texts below match the String Catalog's English values.
   /// Also starts without restoring windows saved by an earlier run.
-  static let languageArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US",
-                                  "-ApplePersistenceIgnoreState", "YES"]
+  static let languageArguments = [
+    "-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-ApplePersistenceIgnoreState", "YES",
+  ]
   /// Sidebar sections (AppSection raw values) and the accessibility id prefixes of their rows
   /// and screens (AppSection.rowIDPrefix, AppSection.screenIDPrefix).
   static let sections = ["overview", "chart", "trades", "risk", "lab"]

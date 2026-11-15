@@ -82,8 +82,9 @@ private struct Figure: View {
   let color: Bool
   let format: (Decimal) -> String
 
-  init(_ title: LocalizedStringResource, _ figure: CausedDecimal, color: Bool = false,
-    format: @escaping (Decimal) -> String) {
+  init(
+    _ title: LocalizedStringResource, _ figure: CausedDecimal, color: Bool = false, format: @escaping (Decimal) -> String
+  ) {
     self.title = title
     self.figure = figure
     self.color = color

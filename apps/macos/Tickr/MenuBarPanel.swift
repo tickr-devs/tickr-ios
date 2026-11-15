@@ -321,7 +321,8 @@ private struct MenuFooter: View {
         }
         Spacer()
         TimelineView(.periodic(from: .now, by: MenuBarPanel.tick)) { context in
-          Text(L10n.MenuBar.brokerRead(Format.age(since: model.status?.freshness.lastBrokerReadAt?.date, now: model.botTime(context.date))))
+          Text(L10n.MenuBar.brokerRead(
+            Format.age(since: model.status?.freshness.lastBrokerReadAt?.date, now: model.botTime(context.date))))
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textQuaternary)
             .contentTransition(.numericText())

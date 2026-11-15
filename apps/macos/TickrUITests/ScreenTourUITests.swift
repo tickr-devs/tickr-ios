@@ -70,8 +70,10 @@ final class ScreenTourUITests: XCTestCase {
     let appearance = environment["TOUR_APPEARANCE"] ?? Self.defaultAppearance
     // Defaults.appearance of the app: `-AppleInterfaceStyle Light` is not a value macOS knows,
     // so on a Mac in dark mode it would still be dark.
-    app.launchArguments = ["-apiBaseURL", api, "-appearance", appearance.lowercased(),
-                           "-AppleLanguages", "(\(Self.language))", "-ApplePersistenceIgnoreState", "YES"]
+    app.launchArguments = [
+      "-apiBaseURL", api, "-appearance", appearance.lowercased(),
+      "-AppleLanguages", "(\(Self.language))", "-ApplePersistenceIgnoreState", "YES",
+    ]
     app.launch()
     XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.wait), "no window")
     app.menuBars.menuBarItems[Label.windowMenu].click()
@@ -189,8 +191,8 @@ final class ScreenTourUITests: XCTestCase {
     let failed = folder.appending(path: "\(name).failed").path
     try? FileManager.default.removeItem(atPath: done)
     try? FileManager.default.removeItem(atPath: failed)
-    FileManager.default.createFile(atPath: folder.appending(path: "\(name).request").path,
-                                   contents: Data(kind.utf8))
+    FileManager.default.createFile(
+      atPath: folder.appending(path: "\(name).request").path, contents: Data(kind.utf8))
     let deadline = Date().addingTimeInterval(Self.wait)
     while Date() < deadline {
       if FileManager.default.fileExists(atPath: done) { return }

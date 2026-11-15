@@ -4,7 +4,9 @@ import Testing
 /// The notify mode's command line (the bot runs `<executable> --notify-alert TITLE TEXT`).
 @Suite struct AlertRequestTests {
   @Test func readsTheTitleAndTextAfterTheFlag() {
-    let request = AlertRequest(arguments: ["/Applications/Tickr.app/Contents/MacOS/Tickr", "--notify-alert", "Tickr: stop-rejected", "AAPL"])
+    let request = AlertRequest(arguments: [
+      "/Applications/Tickr.app/Contents/MacOS/Tickr", "--notify-alert", "Tickr: stop-rejected", "AAPL",
+    ])
     #expect(request?.title == "Tickr: stop-rejected")
     #expect(request?.text == "AAPL")
   }

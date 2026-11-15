@@ -1,0 +1,9 @@
+# The macOS app follows the root .swiftlint.yml except for SwiftLint's size limits: several screens
+# (Overview, Trades, Risk, Lab, Settings, the chart), AppModel and L10n.swift are longer than the
+# limits allow. Each limit comes back here once those files are split; formatting, colour and font
+# rules all apply.
+disabled_rules:
+  - cyclomatic_complexity
+  - file_length
+  - function_body_length
+  - type_body_length
