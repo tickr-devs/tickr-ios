@@ -78,4 +78,9 @@ public enum Risk {
 
   /// "+1.6 R", "−1.0 R".
   public static func text(_ r: Decimal) -> String { "\(Money.signed(r, fractionDigits: 1)) \(unit)" }
+
+  /// "+0.18 R": a mean or a bound, where one decimal would hide the difference.
+  public static func text(_ r: Decimal, fractionDigits: Int) -> String {
+    "\(Money.signed(r, fractionDigits: fractionDigits)) \(unit)"
+  }
 }

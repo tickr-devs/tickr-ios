@@ -82,6 +82,8 @@ final class FixtureProtocol: URLProtocol {
   static let watchingFile = "watching-v1.json"
   static let jobsPath = "/jobs"
   static let jobsFile = "jobs-v1.json"
+  static let labReplayPath = "/lab/replay"
+  static let labReplayFile = "lab-replay-v1.json"
   /// HTTP status codes, version and the JSON content type of an answer.
   static let ok = 200
   static let notFound = 404
@@ -112,6 +114,7 @@ final class FixtureProtocol: URLProtocol {
     case flowPath: return flowFile
     case watchingPath: return watchingFile
     case jobsPath: return jobsFile
+    case labReplayPath: return labReplayFile
     default: return path.hasPrefix(daysPath + "/") ? dayFile : nil
     }
   }

@@ -298,26 +298,147 @@ extension Verdict {
   }
 }
 
-/// Replays of a recorded day: skipped signals as if entered, or another strategy.
+/// The Lab's replay: the active strategy SIMULATED over the last sessions of data fetched on the
+/// Mac (GET/POST /lab/replay), started here and read while the Lab is open. A refusal (the session
+/// is open, a run is going, no data) reads as a calm reason; comparing versions stays planned.
 private struct ReplayCard: View {
-  @ViewBuilder private var buttons: some View {
-    Button {} label: { Label { Text(L10n.Lab.replayDay) } icon: { Image(systemName: "play.circle") } }
-    Button {} label: { Label { Text(L10n.Lab.skippedSignals) } icon: { Image(systemName: "arrow.uturn.right") } }
-    Button {} label: { Label { Text(L10n.Lab.compare) } icon: { Image(systemName: "square.split.2x1") } }
-  }
+  @Environment(AppModel.self) private var model
+
+  /// Symbols of the start button, a refusal and the planned part.
+  static let startSymbol = "play.circle"
+  static let refusalSymbol = "info.circle"
+  /// Narrowest a figure gets before the figures wrap to another row, in points.
+  static let figureMinWidth: CGFloat = 96
+  /// Decimals of a mean R and its bounds, a win rate and a profit factor.
+  static let rDigits = 2
+  static let percentDigits = 0
+  static let factorDigits = 2
+  /// Smallest scale a figure shrinks to before it truncates.
+  static let figureMinimumScale = 0.7
+
+  private var replay: LabReplayV1? { model.labReplay }
+  private var running: Bool { replay?.state == .running }
 
   var body: some View {
-    Card(L10n.Lab.replay, trailing: { PlannedTag(.backlog) }) {
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+    Card(L10n.Lab.replay) {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
         Footnote(L10n.Lab.replayNote)
-        // In a row while they fit whole; one under another rather than cut mid-word.
-        ViewThatFits(in: .horizontal) {
-          HStack(spacing: Tokens.Space.s) { buttons }
-          VStack(alignment: .leading, spacing: Tokens.Space.s) { buttons }
+        HStack(spacing: Tokens.Space.s) {
+          Button {
+            Task { await model.startLabReplay() }
+          } label: {
+            Label {
+              if let sessions = replay?.sessions {
+                Text(L10n.Lab.replayLast(sessions))
+              } else {
+                Text(L10n.Lab.replayStart)
+              }
+            } icon: {
+              Image(systemName: Self.startSymbol)
+            }
+          }
+          .disabled(running || model.labReplayStarting || replay == nil)
+          if running || model.labReplayStarting {
+            ProgressView().controlSize(.small)
+          }
         }
-        .lineLimit(1)
-        .disabled(true)
+        status
+        HStack(spacing: Tokens.Space.s) {
+          PlannedTag(.backlog)
+          Footnote(L10n.Lab.replayMore)
+        }
       }
+    }
+    .task(id: model.baseURL) { await model.followLabReplay() }
+  }
+
+  @ViewBuilder private var status: some View {
+    if let refusal = model.labReplayRefusal, !running {
+      Label {
+        Text(verbatim: refusal)
+      } icon: {
+        Image(systemName: Self.refusalSymbol)
+      }
+      .font(Tokens.Typography.caption)
+      .foregroundStyle(Palette.textSecondary)
+    }
+    if let replay {
+      switch replay.state {
+      case .running:
+        ProgressView().progressViewStyle(.linear)
+        if let started = replay.startedAt {
+          Footnote(L10n.Lab.replayRunningSince(Format.marketTime(started.date)))
+        }
+      case .done:
+        if let summary = replay.summary { result(summary) }
+        if let cause = replay.cause { Footnote(verbatim: cause) }
+      case .failed:
+        Text(verbatim: replay.cause ?? Format.missing)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.warningText)
+      case .idle:
+        Footnote(L10n.Lab.replayIdle)
+      }
+    } else if let error = model.labReplayError {
+      Text(verbatim: error)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.warningText)
+    }
+  }
+
+  private func result(_ summary: LabReplaySummaryV1) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.figureMinWidth), spacing: Tokens.Space.m, alignment: .topLeading)],
+        alignment: .leading, spacing: Tokens.Space.m) {
+        figure(L10n.Lab.replayTrades, Text(verbatim: String(summary.trades)))
+        figure(L10n.Lab.replayWinRate, number(summary.winRatePercent) {
+          String(localized: L10n.Trades.percent(Money.plain($0, fractionDigits: Self.percentDigits)))
+        })
+        figure(intervalTitle(summary), number(summary.meanR, colored: true) {
+          Risk.text($0, fractionDigits: Self.rDigits)
+        })
+        figure(L10n.Lab.replayProfitFactor, number(summary.profitFactor) {
+          Money.plain($0, fractionDigits: Self.factorDigits)
+        })
+        figure(L10n.Lab.replayMaxDrawdown, number(summary.maxDrawdownR) {
+          Risk.text(-$0, fractionDigits: Self.rDigits)
+        })
+        figure(L10n.Lab.replayWithLimits(summary.botTrades), MoneyText(value: summary.botTotalUsd.value, usd: true,
+          font: Tokens.Typography.metric))
+      }
+      Footnote(L10n.Lab.replayData(Format.dayLabel(summary.firstDay), Format.dayLabel(summary.lastDay),
+        summary.sessions))
+    }
+  }
+
+  /// "mean R · 95%: −0.21 … +0.57", or plain "mean R" without an interval.
+  private func intervalTitle(_ summary: LabReplaySummaryV1) -> LocalizedStringResource {
+    guard let low = summary.meanRIntervalLow?.value, let high = summary.meanRIntervalHigh?.value else {
+      return L10n.Lab.replayMeanR
+    }
+    return L10n.Lab.replayMeanRInterval(Money.plain(summary.confidencePercent.value, fractionDigits: Self.percentDigits),
+      Risk.text(low, fractionDigits: Self.rDigits), Risk.text(high, fractionDigits: Self.rDigits))
+  }
+
+  private func number(_ value: DecimalString?, colored: Bool = false, format: (Decimal) -> String) -> some View {
+    Group {
+      if let value = value?.value {
+        Text(verbatim: format(value)).foregroundStyle(colored ? Palette.result(value) : Palette.textPrimary)
+      } else {
+        Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+      }
+    }
+    .font(Tokens.Typography.metric)
+  }
+
+  private func figure(_ title: LocalizedStringResource, _ value: some View) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      value
+        .lineLimit(1)
+        .minimumScaleFactor(Self.figureMinimumScale)
+      Text(title)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textTertiary)
     }
   }
 }

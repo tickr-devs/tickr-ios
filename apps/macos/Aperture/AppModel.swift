@@ -20,6 +20,9 @@ enum Pace {
   static let flowSeconds: Double = 5
   /// The broker account read the bot keeps (GET /account); the API serves the bot's last read.
   static let accountSeconds: Double = 15
+  /// The Lab's replay (GET /lab/replay) while the Lab is open: idle or done, and while it runs.
+  static let labReplaySeconds: Double = 30
+  static let labReplayRunningSeconds: Double = 3
   /// How long a command toast stays on screen.
   static let toastSeconds: Double = 6
 }
@@ -101,6 +104,18 @@ public final class AppModel {
   /// The broker's view of the account at the bot's last read; nil until read.
   public private(set) var account: AccountResponseV1?
   public private(set) var accountError: String?
+  /// The Lab's simulated replay of the active strategy (GET /lab/replay), read while the Lab is open.
+  public private(set) var labReplay: LabReplayV1?
+  /// Why it could not be read, if it could not.
+  public private(set) var labReplayError: String?
+  /// Why the last start was refused (409): a reason to wait, not a failure.
+  public private(set) var labReplayRefusal: String?
+  /// The replay as read when the refusal came, as state and run, and when it came: a later read
+  /// that differs means the replay moved on, and past `Pace.labReplaySeconds` the reason may no
+  /// longer hold (the session closed), so either clears it.
+  private var labReplayRefusedAt: (state: LabReplayState?, runId: String?, at: Date)?
+  /// A start is on its way to the API.
+  public private(set) var labReplayStarting = false
   /// What runs on its own on the Mac (GET /jobs), read while Settings is open.
   public private(set) var jobs: JobsV1?
   /// Why the jobs could not be read, if they could not.
@@ -324,6 +339,10 @@ public final class AppModel {
     account = nil
     jobs = nil
     jobsError = nil
+    labReplay = nil
+    labReplayError = nil
+    labReplayRefusal = nil
+    labReplayRefusedAt = nil
     observers = nil
     skipped = nil
     performance = nil
@@ -391,6 +410,60 @@ public final class AppModel {
     await refreshObservers()
     await refreshSkipped()
     await refreshPerformance()
+  }
+
+  /// Reads the Lab's replay; a failed read clears it, so an old result never reads as current.
+  public func refreshLabReplay() async {
+    let url = baseURL
+    do {
+      let read = try await client.labReplay()
+      guard url == baseURL else { return }
+      labReplay = read
+      labReplayError = nil
+      if let refused = labReplayRefusedAt, refused.state != read.state || refused.runId != read.runId
+        || Date.now.timeIntervalSince(refused.at) >= Pace.labReplaySeconds {
+        labReplayRefusal = nil
+        labReplayRefusedAt = nil
+      }
+    } catch is CancellationError {
+      return
+    } catch {
+      guard url == baseURL else { return }
+      labReplay = nil
+      labReplayError = Self.describe(error)
+    }
+  }
+
+  /// Starts the Lab's replay once; a refusal (a run going, the session open, no data) is kept as
+  /// the reason, never retried.
+  public func startLabReplay() async {
+    let url = baseURL
+    labReplayStarting = true
+    defer { labReplayStarting = false }
+    do {
+      let started = try await client.startLabReplay()
+      guard url == baseURL else { return }
+      labReplay = started
+      labReplayRefusal = nil
+      labReplayRefusedAt = nil
+      labReplayError = nil
+    } catch APIError.refused(_, _, let cause) {
+      guard url == baseURL else { return }
+      labReplayRefusal = cause
+      labReplayRefusedAt = (labReplay?.state, labReplay?.runId, .now)
+    } catch {
+      guard url == baseURL else { return }
+      labReplayError = Self.describe(error)
+    }
+  }
+
+  /// Reads the replay until cancelled, more often while it runs; used while the Lab is open.
+  public func followLabReplay() async {
+    while !Task.isCancelled {
+      await refreshLabReplay()
+      let seconds = labReplay?.state == .running ? Pace.labReplayRunningSeconds : Pace.labReplaySeconds
+      try? await Task.sleep(for: .seconds(seconds))
+    }
   }
 
   /// Reads the jobs; a failed read clears them, so old times never read as current.

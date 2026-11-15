@@ -2089,21 +2089,63 @@ enum L10n {
     static var replay: LocalizedStringResource {
       LocalizedStringResource("lab.replay", defaultValue: "Replay", bundle: L10n.bundle)
     }
-    /// What replay does.
+    /// What the replay does.
     static var replayNote: LocalizedStringResource {
-      LocalizedStringResource("lab.replayNote", defaultValue: "Replay a recorded day: skipped signals as if the bot had entered, or the whole day under another strategy.", bundle: L10n.bundle)
+      LocalizedStringResource("lab.replayNote", defaultValue: "Replays the active strategy over the data fetched on the Mac, at low priority. Simulated: the bot never reads it.", bundle: L10n.bundle)
     }
-    /// Planned button: replay a day.
-    static var replayDay: LocalizedStringResource {
-      LocalizedStringResource("lab.replayDay", defaultValue: "Replay Day", bundle: L10n.bundle)
+    /// Replay button when the number of days is unknown.
+    static var replayStart: LocalizedStringResource {
+      LocalizedStringResource("lab.replayStart", defaultValue: "Replay Recent Days", bundle: L10n.bundle)
     }
-    /// Planned button: skipped signals.
-    static var skippedSignals: LocalizedStringResource {
-      LocalizedStringResource("lab.skippedSignals", defaultValue: "Skipped Signals", bundle: L10n.bundle)
+    /// Replay card before any run.
+    static var replayIdle: LocalizedStringResource {
+      LocalizedStringResource("lab.replayIdle", defaultValue: "No replay yet.", bundle: L10n.bundle)
     }
-    /// Planned button: compare strategies.
-    static var compare: LocalizedStringResource {
-      LocalizedStringResource("lab.compare", defaultValue: "Compare", bundle: L10n.bundle)
+    /// Planned replay features.
+    static var replayMore: LocalizedStringResource {
+      LocalizedStringResource("lab.replayMore", defaultValue: "Compare with another version, replay one day.", bundle: L10n.bundle)
+    }
+    /// Replay result label: trades taken.
+    static var replayTrades: LocalizedStringResource {
+      LocalizedStringResource("lab.replayTrades", defaultValue: "trades", bundle: L10n.bundle)
+    }
+    /// Replay result label: share of winning trades.
+    static var replayWinRate: LocalizedStringResource {
+      LocalizedStringResource("lab.replayWinRate", defaultValue: "win rate", bundle: L10n.bundle)
+    }
+    /// Replay result label: mean result in R.
+    static var replayMeanR: LocalizedStringResource {
+      LocalizedStringResource("lab.replayMeanR", defaultValue: "mean R", bundle: L10n.bundle)
+    }
+    /// Replay result label: profit factor.
+    static var replayProfitFactor: LocalizedStringResource {
+      LocalizedStringResource("lab.replayProfitFactor", defaultValue: "profit factor", bundle: L10n.bundle)
+    }
+    /// Replay result label: largest drawdown in R.
+    static var replayMaxDrawdown: LocalizedStringResource {
+      LocalizedStringResource("lab.replayMaxDrawdown", defaultValue: "max drawdown", bundle: L10n.bundle)
+    }
+    /// Replay button with the number of recent sessions.
+    static func replayLast(_ sessions: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayLast", defaultValue: "Replay Last \(sessions) Days", bundle: L10n.bundle)
+    }
+    /// Replay running, with its start time.
+    static func replayRunningSince(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayRunningSince", defaultValue: "Running since \(time)", bundle: L10n.bundle)
+    }
+    /// Replay mean R with its confidence interval.
+    static func replayMeanRInterval(_ confidence: String, _ low: String, _ high: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayMeanRInterval", defaultValue: "mean R · \(confidence)%: \(low) … \(high)",
+        bundle: L10n.bundle)
+    }
+    /// Replay result under the bot's own limits, with its trade count.
+    static func replayWithLimits(_ trades: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayWithLimits", defaultValue: "with bot limits · \(trades) trades", bundle: L10n.bundle)
+    }
+    /// Replay data range and its session count.
+    static func replayData(_ first: String, _ last: String, _ sessions: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayData", defaultValue: "Data \(first) – \(last) (\(sessions) sessions) · ends \(last)",
+        bundle: L10n.bundle)
     }
     /// Card title: the AI advisor.
     static var advisor: LocalizedStringResource {
