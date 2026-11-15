@@ -2223,6 +2223,19 @@ enum L10n {
     static var noCheck: LocalizedStringResource {
       LocalizedStringResource("watching.noCheck", defaultValue: "No deciding check recorded", bundle: L10n.bundle)
     }
+    /// The card's caption: what each row shows besides the symbol.
+    static var columns: LocalizedStringResource {
+      LocalizedStringResource("watching.columns", defaultValue: "decisive check · quote age", bundle: L10n.bundle)
+    }
+    /// Tooltip of a row's quote age.
+    static func quoteAgeHelp(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("watching.quoteAgeHelp", defaultValue: "Age of the quote when the strategy decided at \(time) ET",
+        bundle: L10n.bundle)
+    }
+    /// When the strategy decided, for a row without a quote age.
+    static func decidedAt(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("watching.decidedAt", defaultValue: "Decided at \(time) ET", bundle: L10n.bundle)
+    }
   }
   enum EntrySent {
     /// Label: how the entry order of a position or trade was sent.

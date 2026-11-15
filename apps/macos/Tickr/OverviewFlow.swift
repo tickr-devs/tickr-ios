@@ -94,11 +94,10 @@ struct WatchingCard: View {
 
   var body: some View {
     Card(L10n.Watching.title) {
-      if let watching = model.watching, watching.total > 0 {
-        Text(L10n.Watching.count(min(watching.rows.count, Self.shown), watching.total))
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textQuaternary)
-      }
+      // What each row shows on the right, as in the design.
+      Text(L10n.Watching.columns)
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textQuaternary)
     } content: {
       if let watching = model.watching {
         if watching.rows.isEmpty {
@@ -108,6 +107,9 @@ struct WatchingCard: View {
             ForEach(watching.rows.prefix(Self.shown), id: \.symbol) { row in
               WatchingRow(row: row)
             }
+          }
+          if watching.total > Self.shown {
+            Footnote(L10n.Watching.count(min(watching.rows.count, Self.shown), watching.total))
           }
         }
       } else if let error = model.watchingError {
@@ -135,20 +137,27 @@ private struct WatchingRow: View {
           .foregroundStyle(Palette.textPrimary)
         Badge(row.verdict.title, color: row.verdict.color)
         Spacer(minLength: 0)
-        Text(verbatim: Format.marketMinute(row.at.date))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
+        quoteAge
       }
       Group {
         if let check = row.decisiveCheck {
-          Text(verbatim: check.comparisonText)
-            .foregroundStyle(Palette.textTertiary)
-            .help(Text(verbatim: check.note))
+          // The check's name, then what it measured against what it needs, as in the design.
+          HStack(spacing: Tokens.Space.s) {
+            Text(verbatim: ApiText.rule(check.rule))
+              .font(Tokens.Typography.caption)
+              .foregroundStyle(Palette.textTertiary)
+            Spacer(minLength: Tokens.Space.s)
+            Text(verbatim: check.valueText)
+              .font(Tokens.Typography.captionMono)
+              .foregroundStyle(Palette.textSecondary)
+          }
+          .help(Text(verbatim: check.note))
         } else {
-          Text(L10n.Watching.noCheck).foregroundStyle(Palette.textQuaternary)
+          Text(L10n.Watching.noCheck)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textQuaternary)
         }
       }
-      .font(Tokens.Typography.captionMono)
       .lineLimit(1)
       closeness
     }
@@ -160,6 +169,27 @@ private struct WatchingRow: View {
       RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
     }
   }
+
+  /// How old the quote was when the strategy decided, as the bot recorded it; a dash with the
+  /// bot's cause when it has none. The decision's time is the tooltip.
+  private var quoteAge: some View {
+    let decided = Format.marketMinute(row.at.date)
+    return Group {
+      if let age = row.quoteAgeSeconds?.value {
+        Text(L10n.Format.seconds(Money.plain(age, fractionDigits: WatchingRow.ageDigits)))
+          .help(Text(L10n.Watching.quoteAgeHelp(decided)))
+      } else {
+        Text(verbatim: Format.missing)
+          .help(Text(verbatim: [row.quoteAgeCause, String(localized: L10n.Watching.decidedAt(decided))]
+            .compactMap { $0 }.joined(separator: Format.lineSeparator)))
+      }
+    }
+    .font(Tokens.Typography.annotation)
+    .foregroundStyle(Palette.textQuaternary)
+  }
+
+  /// Decimals of the quote's age, as the design writes it ("0.6 s").
+  static let ageDigits = 1
 
   /// How close the deciding check is to passing, as a thin bar in the verdict's colour; empty
   /// with the cause as its tooltip when the bot cannot say.
@@ -189,6 +219,11 @@ private struct WatchingRow: View {
 extension CheckV1 {
   /// "rule measured operator threshold" as the bot recorded them; a missing side is a dash.
   var comparisonText: String {
-    "\(ApiText.rule(rule)) \(measured?.text ?? Format.missing) \(`operator`) \(threshold?.text ?? Format.missing)"
+    "\(ApiText.rule(rule)) \(valueText)"
+  }
+
+  /// "measured operator threshold": what the check measured against what it needs.
+  var valueText: String {
+    "\(measured?.text ?? Format.missing) \(`operator`) \(threshold?.text ?? Format.missing)"
   }
 }

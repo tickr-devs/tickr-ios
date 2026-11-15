@@ -10377,6 +10377,23 @@
         }
       }
     },
+    "watching.columns" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "decisive check · quote age"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "решающая проверка · возраст котировки"
+          }
+        }
+      }
+    },
     "watching.count" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10390,6 +10407,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "watching.decidedAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decided at %@ ET"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Решение в %@ ET"
           }
         }
       }
@@ -10424,6 +10458,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "В этот день стратегия ни за чем не следит."
+          }
+        }
+      }
+    },
+    "watching.quoteAgeHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Age of the quote when the strategy decided at %@ ET"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возраст котировки, когда стратегия решила в %@ ET"
           }
         }
       }
