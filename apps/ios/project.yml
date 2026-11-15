@@ -74,7 +74,34 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
         ENABLE_PREVIEWS: YES
+  # Walks every screen against a running bot API and keeps screenshots (Tests/ApertureUITests).
+  ApertureUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: Tests/ApertureUITests
+    dependencies:
+      - target: Aperture
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.aperture.ios.uitests
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Aperture
 # No schemes here: the shared scheme "Aperture iOS" (named for the platform so it stays distinct
 # from "Aperture macOS" in the root Aperture.xcworkspace) is kept by hand in Xcode's own format in
 # Aperture.xcodeproj/xcshareddata/xcschemes, so building in Xcode leaves the tree clean.
 # postGenCommand above restores it after every `xcodegen generate`; change it in Xcode and commit.
+
+# The screen tour has its own generated scheme, so "Aperture iOS" stays as kept by hand.
+schemes:
+  Aperture iOS Screen Tour:
+    build:
+      targets:
+        Aperture: all
+        ApertureUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - ApertureUITests

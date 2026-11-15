@@ -7,14 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C592BF68238DEACECCB98410 /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C57B7EAF279211DD8DED155 /* ScreenTourUITests.swift */; };
 		C95E10CD71CC5EADB26FF004 /* ApertureKit in Frameworks */ = {isa = PBXBuildFile; productRef = 992B82DCBD72AB904C2A558D /* ApertureKit */; };
 		E4B899E8C6524F5900D68522 /* ApertureDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 0056EA7ED268F14182406A71 /* ApertureDesign */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C8C88C483B6784C0921E9878 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0411FA12BCCFF1AB3E1EEE41 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F0646325F3EDCECE041F6D5B;
+			remoteInfo = Aperture;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0D633A3678F317EE7B53746E /* Aperture.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Aperture.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		561AE48F32E9BF69A1449448 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		5B5AD9996EF4117D4AB3F7D4 /* shared */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shared; path = ../shared; sourceTree = SOURCE_ROOT; };
+		6C57B7EAF279211DD8DED155 /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
+		DCCA12F70EFA0BF397190B91 /* ApertureUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ApertureUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -46,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				0D633A3678F317EE7B53746E /* Aperture.app */,
+				DCCA12F70EFA0BF397190B91 /* ApertureUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -56,8 +70,25 @@
 				2E037D08C0789FADA30EBED0 /* Aperture */,
 				E41CB7940CB67F2A4C562C36 /* Config */,
 				FAD619185958FB3739E6FB6C /* Packages */,
+				C50E0640EB5EAE5975A53CC4 /* Tests */,
 				7AD3F780089B266E072EF5BD /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		B605A5F5CC45BFDD811D1039 /* ApertureUITests */ = {
+			isa = PBXGroup;
+			children = (
+				6C57B7EAF279211DD8DED155 /* ScreenTourUITests.swift */,
+			);
+			path = ApertureUITests;
+			sourceTree = "<group>";
+		};
+		C50E0640EB5EAE5975A53CC4 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B605A5F5CC45BFDD811D1039 /* ApertureUITests */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		E41CB7940CB67F2A4C562C36 /* Config */ = {
@@ -79,6 +110,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		5867838C0BDB5371FAC3D145 /* ApertureUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 61865534CA75620A0CFF7CAD /* Build configuration list for PBXNativeTarget "ApertureUITests" */;
+			buildPhases = (
+				7E5C06B043A22286092F6C5F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AFFADF7EC4A816E6F4632EA4 /* PBXTargetDependency */,
+			);
+			name = ApertureUITests;
+			packageProductDependencies = (
+			);
+			productName = ApertureUITests;
+			productReference = DCCA12F70EFA0BF397190B91 /* ApertureUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		F0646325F3EDCECE041F6D5B /* Aperture */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D3BC1F9A2A7BA50762572D7A /* Build configuration list for PBXNativeTarget "Aperture" */;
@@ -113,6 +162,10 @@
 				LastSwiftUpdateCheck = 2720;
 				LastUpgradeCheck = 2720;
 				TargetAttributes = {
+					5867838C0BDB5371FAC3D145 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = F0646325F3EDCECE041F6D5B;
+					};
 					F0646325F3EDCECE041F6D5B = {
 						ProvisioningStyle = Automatic;
 					};
@@ -136,6 +189,7 @@
 			projectRoot = "";
 			targets = (
 				F0646325F3EDCECE041F6D5B /* Aperture */,
+				5867838C0BDB5371FAC3D145 /* ApertureUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -158,7 +212,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7E5C06B043A22286092F6C5F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C592BF68238DEACECCB98410 /* ScreenTourUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AFFADF7EC4A816E6F4632EA4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F0646325F3EDCECE041F6D5B /* Aperture */;
+			targetProxy = C8C88C483B6784C0921E9878 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		810C21A6283A85A49834209B /* Debug */ = {
@@ -243,6 +313,42 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		BDF88324E951530650F3AEE0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.aperture.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Aperture;
+			};
+			name = Debug;
+		};
+		D398B488BCCCFC8EA6B9EB24 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.aperture.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Aperture;
 			};
 			name = Release;
 		};
@@ -346,6 +452,15 @@
 			buildConfigurations = (
 				D3ED72D66E1F11FAFC213931 /* Debug */,
 				9347BE7E2BD0F8109F1B23CA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		61865534CA75620A0CFF7CAD /* Build configuration list for PBXNativeTarget "ApertureUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDF88324E951530650F3AEE0 /* Debug */,
+				D398B488BCCCFC8EA6B9EB24 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
