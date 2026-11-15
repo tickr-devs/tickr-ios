@@ -213,7 +213,7 @@ public struct Ticker: View {
   }
 
   public var body: some View {
-    Marquee(moving: moving && !items.isEmpty, speed: speed) { row }
+    Marquee(moving: moving && !items.isEmpty, content: items, speed: speed) { row }
   }
 
   private var row: some View {
@@ -236,42 +236,59 @@ public struct Ticker: View {
 /// A row that scrolls slowly to the left in a loop, faded at both ends, paused when `moving` is
 /// false or Reduce Motion is on; then it is an ordinary horizontal scroll view.
 ///
-/// The scroll is one repeating offset animation, not a `TimelineView` redrawn each display frame:
-/// an animated offset changes only how the row is drawn, while a timeline rebuilt the strip every
-/// frame and with it the layout of the whole screen around it (charts, texts, shadows), which
-/// kept a third of a CPU core busy on every screen (Instruments, 2026-11-15). It holds still
-/// while its window is hidden or minimized.
+/// The row is drawn into a picture once per change of `content` (or of appearance) and Core
+/// Animation scrolls it (`MarqueeLayer`), so the scroll costs the app nothing per frame. Hover
+/// help on the scrolling row is not shown; VoiceOver reads the live row.
 public struct Marquee<Row: View>: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @Environment(\.scenePhase) private var scenePhase
-  @State private var contentWidth: CGFloat = 0
-  /// How far the row is scrolled; animated from 0 to minus one row width, over and over.
-  @State private var shift: CGFloat = 0
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.displayScale) private var displayScale
+  @Environment(\.locale) private var locale
+  @Environment(\.dynamicTypeSize) private var typeSize
+  @Environment(\.colorSchemeContrast) private var contrast
+  @State private var picture: CGImage?
   let moving: Bool
+  /// What the row shows; a change draws the picture again.
+  let content: AnyHashable
   /// Points per second.
   let speed: Double
   let row: Row
 
-  public init(moving: Bool = true, speed: Double = Tokens.Motion.tickerSpeed, @ViewBuilder row: () -> Row) {
+  public init(
+    moving: Bool = true, content: AnyHashable, speed: Double = Tokens.Motion.tickerSpeed, @ViewBuilder row: () -> Row
+  ) {
     self.moving = moving
+    self.content = content
     self.speed = speed
     self.row = row()
+  }
+
+  /// Everything the picture depends on.
+  private struct PictureKey: Hashable {
+    let content: AnyHashable
+    let scheme: ColorScheme
+    let scale: CGFloat
+    let locale: Locale
+    let typeSize: DynamicTypeSize
+    let contrast: ColorSchemeContrast
   }
 
   public var body: some View {
     Group {
       if moving && !reduceMotion {
-        HStack(spacing: 0) {
-          row.onGeometryChange(for: CGFloat.self) { $0.size.width } action: { contentWidth = $0 }
-          row
+        ZStack(alignment: .leading) {
+          // The live row, invisible: it gives the strip its height.
+          row.fixedSize().hidden()
+          if let picture {
+            MarqueeLayer(image: picture, scale: displayScale, speed: speed)
+              .accessibilityRepresentation { row }
+          }
         }
-        .offset(x: shift)
-        // minWidth 0: the strip takes the width it is offered, never the width of its two rows
+        // minWidth 0: the strip takes the width it is offered, never the width of its row
         // (else it widens the whole screen and pushes everything else off the sides).
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         .clipped()
-        .onChange(of: contentWidth, initial: true) { restart() }
-        .onChange(of: scenePhase) { restart() }
+        .task(id: pictureKey) { draw() }
       } else {
         ScrollView(.horizontal, showsIndicators: false) { row }
       }
@@ -283,17 +300,24 @@ public struct Marquee<Row: View>: View {
     .accessibilityElement(children: .combine)
   }
 
-  /// Starts the scroll over from the row's start: when the row's width changes (new items) or the
-  /// window comes back; stops it while the window is hidden.
-  private func restart() {
-    var still = Transaction()
-    still.disablesAnimations = true
-    withTransaction(still) { shift = 0 }
-    guard contentWidth > 0, scenePhase != .background else { return }
-    // decorative: the ticker scrolls as an ornament; its items change only on real events (owner, 2026-11-15).
-    withAnimation(.linear(duration: Double(contentWidth) / speed).repeatForever(autoreverses: false)) {
-      shift = -contentWidth
-    }
+  private var pictureKey: PictureKey {
+    PictureKey(
+      content: content, scheme: colorScheme, scale: displayScale, locale: locale, typeSize: typeSize,
+      contrast: contrast)
+  }
+
+  /// Draws the row into the picture the layer scrolls. A renderer does not inherit the screen's
+  /// environment, so what the row's look depends on is passed in. Increased contrast cannot be
+  /// set on a view (it is read-only), so a change of it only redraws; the palette has one value
+  /// per appearance.
+  private func draw() {
+    let renderer = ImageRenderer(
+      content: row.fixedSize()
+        .environment(\.colorScheme, colorScheme)
+        .environment(\.locale, locale)
+        .environment(\.dynamicTypeSize, typeSize))
+    renderer.scale = displayScale
+    picture = renderer.cgImage
   }
 }
 

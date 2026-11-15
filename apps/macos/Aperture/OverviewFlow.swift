@@ -41,7 +41,7 @@ struct ScreenerChips: View {
     Group {
       if let chips = model.flow?.chips, !chips.isEmpty {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          Marquee(moving: model.isLive) {
+          Marquee(moving: model.isLive, content: chips) {
             HStack(spacing: Tokens.Space.s) {
               ForEach(chips, id: \.symbol) { chip in
                 Chip(chip: chip)
