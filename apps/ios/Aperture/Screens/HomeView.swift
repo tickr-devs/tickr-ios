@@ -143,9 +143,11 @@ private struct DayLine: View {
         Spacer()
         Button { days.showToday() } label: { Text(L10n.Home.backToToday) }
       } else {
-        if isToday, model.response?.stale == false {
-          PulseDot(Palette.profit, size: Tokens.Size.dotSmall)
-        }
+        // The connection's own health: green while fresh statuses arrive, amber when the status is
+        // stale, red with no status or a failed read. Only a fresh status of today pulses, and only
+        // when the health changes, not on every status write.
+        PulseDot(freshness, size: Tokens.Size.dotSmall, pulsing: isToday && isFresh,
+          event: freshness)
         Text(isToday ? L10n.Common.today(Format.day(written)) : L10n.Activity.lastSession(Format.day(written)))
         Spacer()
         Text(Format.age(model.response))
@@ -159,6 +161,13 @@ private struct DayLine: View {
     .foregroundStyle(Palette.textQuaternary)
     .buttonStyle(.borderless)
     .animation(Tokens.Motion.standard, value: days.shown)
+  }
+
+  private var isFresh: Bool { model.response?.stale == false && model.fetchError == nil }
+
+  private var freshness: Color {
+    guard let response = model.response, model.fetchError == nil else { return Palette.loss }
+    return response.stale ? Palette.warning : Palette.profit
   }
 }
 
