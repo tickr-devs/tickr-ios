@@ -269,13 +269,21 @@ private struct LiveFlowCard: View {
 
   var body: some View {
     Card(L10n.Flow.title) {
-      Group {
-        if model.isLive { Text(L10n.Flow.live) } else { Text(L10n.Flow.recorded) }
+      // Live: a green dot and the New York time of the bot's last status write, as in the design.
+      if model.isLive, let written = model.status?.writtenAt.date {
+        HStack(spacing: Tokens.Space.xs) {
+          PulseDot(Palette.profit, size: Tokens.Size.dotSmall, event: written)
+          Text(L10n.Risk.clock(Format.marketTime(written)))
+        }
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textQuaternary)
+      } else {
+        Text(L10n.Flow.recorded)
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textQuaternary)
       }
-      .font(Tokens.Typography.captionMono)
-      .foregroundStyle(Palette.textQuaternary)
     } content: {
-      ScreenerChips()
+      LatestEvent()
       Pipeline(stages: stages, marks: FlowBoard.marks(flow: model.flow, skipped: model.skipped), moving: model.isLive)
     }
   }
@@ -283,7 +291,8 @@ private struct LiveFlowCard: View {
   private var stages: [Pipeline.Stage] {
     let status = model.isLive ? model.status : nil
     let positions = status.map(Board.positions) ?? []
-    let position = positions.first { $0.stop.state != .verified } ?? positions.first
+    // An open position whose stop is not verified outranks the day's count of verified stops.
+    let unprotected = positions.first { $0.stop.state != .verified }
     // Green only while every open position's stop is verified at the broker.
     // and no trade of the day ended without one (or with one the bot cannot account for).
     let stopVerified = positions.allSatisfy { $0.stop.state == .verified }
@@ -298,17 +307,20 @@ private struct LiveFlowCard: View {
       .init(id: .strategy, name: L10n.Common.strategy,
         value: count(.strategy, L10n.Flow.decided) ?? status.map { Format.strategy($0.strategy) },
         symbol: Self.strategySymbol, color: Palette.highlight, text: Palette.highlightText),
-      // A live entry block outranks the day's count: it is what the operator must see first.
+      // The day's count, as in the design; only an entry block that needs the operator outranks
+      // it. A calm pause ("not now") shows only when there is no count yet.
       .init(id: .risk, name: L10n.Common.risk,
-        value: status?.entryBlock.map { String(localized: $0.attention ? L10n.Flow.blocked : L10n.Flow.waiting) }
+        value: (status?.entryBlock?.attention == true ? String(localized: L10n.Flow.blocked) : nil)
           ?? count(.risk, L10n.Flow.passed)
+          ?? status?.entryBlock.map { _ in String(localized: L10n.Flow.waiting) }
           ?? status.map { _ in String(localized: L10n.Flow.entriesAllowed) },
         symbol: Self.riskSymbol, color: Palette.warning, text: Palette.warningText),
       .init(id: .order, name: L10n.Flow.order,
         value: count(.order, L10n.Flow.filled) ?? status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
         symbol: Self.orderSymbol, color: Palette.info, text: Palette.infoText),
       .init(id: .stop, name: L10n.Flow.brokerStop,
-        value: position.map { $0.stop.state.title } ?? stopsVerified
+        value: unprotected.map { $0.stop.state.title } ?? count(.stop, L10n.Flow.verified)
+          ?? positions.first.map { $0.stop.state.title }
           ?? status.map { _ in String(localized: L10n.Common.noPosition) },
         symbol: Self.stopSymbol, color: stopColor, text: stopText),
       .init(id: .reconcile, name: L10n.Flow.reconcile, value: reconcile.value, note: reconcile.note,
@@ -322,12 +334,6 @@ extension LiveFlowCard {
   /// without a flow.
   fileprivate func count(_ stage: FlowStage, _ word: (Int) -> LocalizedStringResource) -> String? {
     model.flow?.stages.first { $0.stage == stage }.map { String(localized: word($0.count)) }
-  }
-
-  /// "1 of 2 verified": the day's trades whose broker stop was confirmed; nil without trades.
-  fileprivate var stopsVerified: String? {
-    guard let stops = model.flow?.stops, !stops.isEmpty else { return nil }
-    return String(localized: L10n.Screener.stopsVerified(stops.filter { $0.state == .verified }.count, stops.count))
   }
 
   fileprivate var reconcile: FlowStages.Reconcile {
@@ -480,8 +486,7 @@ private struct Pipeline: View {
   /// The symbols whose furthest stage this is, as dots; past `poolCap` the rest are counted.
   private func pool(_ here: [FlowMark], color: Color) -> some View {
     VStack(spacing: Tokens.Space.xs) {
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: Tokens.Size.flowMark), spacing: Tokens.Space.xs)],
-        spacing: Tokens.Space.xs) {
+      CentredFlow(spacing: Tokens.Space.xs) {
         ForEach(here.prefix(Self.poolCap)) { mark in
           MarkDot(mark: mark, color: color)
             .matchedGeometryEffect(id: mark.id, in: board)
@@ -509,8 +514,7 @@ private struct Pipeline: View {
       Text(title)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: Tokens.Size.flowMark), spacing: Tokens.Space.xs)],
-        spacing: Tokens.Space.xs) {
+      CentredFlow(spacing: Tokens.Space.xs) {
         ForEach(out.prefix(Self.poolCap)) { mark in
           MarkDot(mark: mark, color: Palette.loss)
             .matchedGeometryEffect(id: mark.id, in: board)
@@ -525,6 +529,56 @@ private struct Pipeline: View {
       }
     }
     .padding(.horizontal, Tokens.Space.xs)
+  }
+}
+
+/// Dots in rows, each row centred, wrapping at the offered width: the design's pool. Not lazy, so
+/// every dot exists and a moved one always flies.
+private struct CentredFlow: Layout {
+  let spacing: CGFloat
+
+  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    let rows = rows(width: proposal.width ?? .infinity, subviews: subviews)
+    let width = rows.map(\.width).max() ?? 0
+    let height = rows.map(\.height).reduce(0, +) + spacing * CGFloat(max(rows.count - 1, 0))
+    return CGSize(width: proposal.width ?? width, height: height)
+  }
+
+  func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    var y = bounds.minY
+    for row in rows(width: bounds.width, subviews: subviews) {
+      var x = bounds.minX + (bounds.width - row.width) / 2
+      for index in row.indices {
+        let size = subviews[index].sizeThatFits(.unspecified)
+        subviews[index].place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+        x += size.width + spacing
+      }
+      y += row.height + spacing
+    }
+  }
+
+  private struct Row {
+    var indices: [Int] = []
+    var width: CGFloat = 0
+    var height: CGFloat = 0
+  }
+
+  private func rows(width: CGFloat, subviews: Subviews) -> [Row] {
+    var rows: [Row] = []
+    var row = Row()
+    for index in subviews.indices {
+      let size = subviews[index].sizeThatFits(.unspecified)
+      let needed = row.indices.isEmpty ? size.width : row.width + spacing + size.width
+      if needed > width, !row.indices.isEmpty {
+        rows.append(row)
+        row = Row()
+      }
+      row.width = row.indices.isEmpty ? size.width : row.width + spacing + size.width
+      row.height = max(row.height, size.height)
+      row.indices.append(index)
+    }
+    if !row.indices.isEmpty { rows.append(row) }
+    return rows
   }
 }
 

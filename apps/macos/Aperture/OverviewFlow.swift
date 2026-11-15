@@ -2,7 +2,7 @@ import ApertureDesign
 import ApertureKit
 import SwiftUI
 
-// The Overview's parts read from GET /flow and GET /watching: the screener chips under the
+// The Overview's parts read from GET /flow and GET /watching: the latest event above the
 // pipeline, and the symbols the strategy is watching closely.
 
 /// Values of the pipeline stages that combine the live status with the day's flow.
@@ -27,134 +27,52 @@ enum FlowStages {
   }
 }
 
-/// The day's screener symbols as chips scrolling across the top of the live flow, as in the
-/// design: the symbol, then its screener and change from the previous close in the screener's
-/// colour. A symbol the universe left out is dimmed and struck through, the cause in its tooltip.
-/// The event ticker runs under the chips; without chips it is alone, with a note why.
-struct ScreenerChips: View {
+/// The live flow's latest event on one still line, as in the design: its New York time, its tag
+/// in its tone and what happened. A new event replaces the line; nothing scrolls. A recorded day
+/// shows its last closed trade. A failed /flow read says so under it, since the stages and dots
+/// below then lack the day's flow.
+struct LatestEvent: View {
   @Environment(AppModel.self) private var model
 
-  /// Accessibility id of the chip row, for the UI tests.
-  static let id = "overview-screener-chips"
+  /// Accessibility id of the line, for the UI tests.
+  static let id = "overview-latest-event"
 
-  var body: some View {
-    Group {
-      if let chips = model.flow?.chips, !chips.isEmpty {
-        VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          Marquee(moving: model.isLive, content: chips) {
-            HStack(spacing: Tokens.Space.s) {
-              ForEach(chips, id: \.symbol) { chip in
-                Chip(chip: chip)
-              }
-            }
-            .padding(.trailing, Tokens.Space.s)
-          }
-          // The day's events (fills, stops, exits) stay on the Overview under the chips.
-          Ticker(model.tickerItems, moving: model.isLive)
-            .frame(height: Tokens.Size.ticker)
-        }
+  private struct Line {
+    let time: Date
+    let tag: String
+    let text: String
+    let color: Color
+  }
+
+  private var line: Line? {
+    if model.isLive {
+      guard let status = model.status, let event = Board.events(status).first else { return nil }
+      return Line(time: event.time, tag: event.tag, text: event.text, color: event.tone.color)
+    }
+    guard let trade = model.shownTrades.max(by: { $0.closedAt.date < $1.closedAt.date }) else { return nil }
+    let result = trade.resultGrossUsd.value
+    return Line(time: trade.closedAt.date, tag: Board.exitReasonTitle(trade.exitReason),
+      text: "\(trade.symbol) \(Money.signed(result))", color: result >= 0 ? Palette.profitText : Palette.lossText)
+  }
+
+  @ViewBuilder var body: some View {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+      if let line {
+        Text(verbatim: Format.marketTime(line.time)).foregroundStyle(Palette.textQuaternary)
+        Text(verbatim: line.tag).bold().textCase(.uppercase).foregroundStyle(line.color)
+        Text(verbatim: line.text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
       } else {
-        VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-          Ticker(model.tickerItems, moving: model.isLive)
-            .frame(height: Tokens.Size.ticker)
-          if model.flow != nil {
-            Footnote(L10n.Screener.none)
-          } else if let error = model.flowError {
-            Footnote(L10n.Screener.unavailable(error), color: Palette.warningText)
-          }
-        }
+        Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+        Text(L10n.Flow.nothingYet).foregroundStyle(Palette.textTertiary)
       }
+      Spacer(minLength: 0)
     }
-    .accessibilityElement(children: .contain)
-    .accessibilityIdentifier(Self.id)
-  }
-}
-
-private struct Chip: View {
-  let chip: FlowChipV1
-
-  /// Decimals of the change ("+18.2%").
-  static let changeDigits = 1
-
-  var body: some View {
-    let excluded = chip.excludedCause != nil
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      Text(verbatim: chip.symbol)
-        .font(Tokens.Typography.chip)
-        .strikethrough(excluded)
-        .foregroundStyle(excluded ? Palette.textQuaternary : Palette.textPrimary)
-      detail
-        .font(Tokens.Typography.annotation)
-    }
+    .font(Tokens.Typography.captionMono)
     .lineLimit(1)
-    .fixedSize()
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .frame(minWidth: Tokens.Size.flowChip, alignment: .leading)
-    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
-    }
-    .help(Text(verbatim: help))
     .accessibilityElement(children: .combine)
-  }
-
-  /// The first screener that listed the symbol names its colour and its word.
-  private var source: ScreenerSource? { chip.sources.first }
-
-  /// "gainers +18.2%" in the screener's colour; "skipped" for a symbol the universe left out; a
-  /// missing change as a dim dash; the change alone when no screener is named.
-  @ViewBuilder private var detail: some View {
-    if chip.excludedCause != nil {
-      Text(L10n.Flow.chipSkipped).foregroundStyle(Palette.textQuaternary)
-    } else {
-      HStack(spacing: Tokens.Space.xs) {
-        if let word { Text(word).foregroundStyle(color) }
-        if let change = chip.changePct {
-          Text(L10n.Trades.percent(Money.signed(change.value, fractionDigits: Self.changeDigits)))
-            .foregroundStyle(color)
-        } else {
-          Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
-        }
-      }
-    }
-  }
-
-  /// The screener's word on the chip; nil when the flow names none.
-  private var word: LocalizedStringResource? {
-    switch source {
-    case .gainers: L10n.Flow.chipGainers
-    case .losers: L10n.Flow.chipLosers
-    case .topActives: L10n.Flow.chipActives
-    case nil: nil
-    }
-  }
-
-  /// Gainers green, top actives blue, losers pink, as in the design; no screener in plain text.
-  private var color: Color {
-    switch source {
-    case .gainers: Palette.profitText
-    case .losers: Palette.seriesATRText
-    case .topActives: Palette.infoText
-    case nil: Palette.textTertiary
-    }
-  }
-
-  /// Why the chip looks as it does: the exclusion, the missing change, then the screeners.
-  private var help: String {
-    let sources = chip.sources.map { String(localized: $0.title) }.joined(separator: Format.listSeparator)
-    return [chip.excludedCause.map { String(localized: L10n.Screener.excluded($0)) }, chip.changeCause, sources]
-      .compactMap { $0 }
-      .joined(separator: Format.lineSeparator)
-  }
-}
-
-extension ScreenerSource {
-  var title: LocalizedStringResource {
-    switch self {
-    case .gainers: L10n.Screener.gainers
-    case .losers: L10n.Screener.losers
-    case .topActives: L10n.Screener.topActives
+    .accessibilityIdentifier(Self.id)
+    if let error = model.flowError {
+      Footnote(L10n.Screener.unavailable(error), color: Palette.warningText)
     }
   }
 }

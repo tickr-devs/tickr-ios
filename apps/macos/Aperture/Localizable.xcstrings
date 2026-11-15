@@ -3187,74 +3187,6 @@
         }
       }
     },
-    "flow.chipActives" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "actives"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "активные"
-          }
-        }
-      }
-    },
-    "flow.chipGainers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "gainers"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "рост"
-          }
-        }
-      }
-    },
-    "flow.chipLosers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "losers"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "падение"
-          }
-        }
-      }
-    },
-    "flow.chipSkipped" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "skipped"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "пропуск"
-          }
-        }
-      }
-    },
     "flow.closedCount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3319,23 +3251,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "исполнено: %lld"
-          }
-        }
-      }
-    },
-    "flow.live" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "live"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "онлайн"
           }
         }
       }
@@ -3620,6 +3535,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отбор"
+          }
+        }
+      }
+    },
+    "flow.verified" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld verified"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "подтверждено: %lld"
           }
         }
       }
@@ -6487,57 +6419,6 @@
         }
       }
     },
-    "screener.excluded" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Left out of the universe: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не вошёл в отбор: %@"
-          }
-        }
-      }
-    },
-    "screener.gainers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gainers"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Лидеры роста"
-          }
-        }
-      }
-    },
-    "screener.losers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Losers"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Лидеры падения"
-          }
-        }
-      }
-    },
     "screener.mismatch" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6551,57 +6432,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Расхождение"
-          }
-        }
-      }
-    },
-    "screener.none" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The screeners returned nothing on this day."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скринеры в этот день ничего не вернули."
-          }
-        }
-      }
-    },
-    "screener.stopsVerified" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld of %2$lld verified"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "подтверждено %1$lld из %2$lld"
-          }
-        }
-      }
-    },
-    "screener.topActives" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Most active"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Самые активные"
           }
         }
       }
