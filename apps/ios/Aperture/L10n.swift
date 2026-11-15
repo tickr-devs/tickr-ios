@@ -289,6 +289,19 @@ enum L10n {
     static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
       LocalizedStringResource("home.strategy", defaultValue: "Strategy \(name) v\(version).", bundle: L10n.bundle)
     }
+    static var entriesAllowed: LocalizedStringResource {
+      LocalizedStringResource("home.entriesAllowed", defaultValue: "Entries allowed.", bundle: L10n.bundle)
+    }
+    static var entriesPaused: LocalizedStringResource {
+      LocalizedStringResource("home.entriesPaused", defaultValue: "Entries paused by you.", bundle: L10n.bundle)
+    }
+    /// Entries wait for an expected reason (outside the session, after the last entry time).
+    static func entriesNotNow(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.entriesNotNow", defaultValue: "No entries now: \(cause).", bundle: L10n.bundle)
+    }
+    static func entriesBlocked(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.entriesBlocked", defaultValue: "Entries blocked: \(cause).", bundle: L10n.bundle)
+    }
     static func gateClosed(_ cause: String) -> LocalizedStringResource {
       LocalizedStringResource("home.gateClosed", defaultValue: "Trading gate closed: \(cause).", bundle: L10n.bundle)
     }
