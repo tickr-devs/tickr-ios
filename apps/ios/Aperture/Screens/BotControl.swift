@@ -36,9 +36,13 @@ struct BotControl: ViewModifier {
   private var sheet: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        Text(title)
-          .font(.headline)
-          .foregroundStyle(Palette.textPrimary)
+        HStack(spacing: Tokens.Space.s) {
+          StateGlyph(stateSymbol, tone: stateTone, label: title, live: model.status?.botState == .running,
+            event: model.status?.writtenAt.date, style: .round)
+          Text(title)
+            .font(.headline)
+            .foregroundStyle(Palette.textPrimary)
+        }
         Text(L10n.Control.short)
           .font(.footnote)
           .foregroundStyle(Palette.textTertiary)
@@ -46,24 +50,23 @@ struct BotControl: ViewModifier {
         if let status = model.status, model.canCommand {
           VStack(spacing: Tokens.Space.s) {
             if status.entryStop {
-              action(L10n.Control.resume, role: nil) { run(.entryStop(on: false)) }
+              action(L10n.Control.resume, symbol: Self.resumeSymbol, kind: .primary) { run(.entryStop(on: false)) }
             } else {
-              action(L10n.Control.pause, role: nil) { run(.entryStop(on: true)) }
+              action(L10n.Control.pause, symbol: Self.pauseSymbol, kind: .secondary) { run(.entryStop(on: true)) }
             }
-            action(L10n.Control.cancelOrders, role: nil) { run(.cancelOwnOrders) }
-            action(L10n.Control.flattenAll, role: .destructive) { run(.flatten) }
+            action(L10n.Control.cancelOrders, symbol: Self.cancelSymbol, kind: .secondary) { run(.cancelOwnOrders) }
+            action(L10n.Control.flattenAll, symbol: Self.flattenSymbol, kind: .destructive) { run(.flatten) }
             if status.botState == .running {
-              action(L10n.Control.stopBot, role: .destructive) { severe = .stopBot }
+              action(L10n.Control.stopBot, symbol: Self.stopSymbol, kind: .destructive) { severe = .stopBot }
             }
-            action(L10n.Control.emergency, role: .destructive) { severe = .emergency }
+            action(L10n.Control.emergency, symbol: Self.emergencySymbol, kind: .destructive) { severe = .emergency }
           }
         }
         Button(role: .cancel) { isPresented = false } label: {
           Text(L10n.Common.cancel)
-            .font(.body.weight(.semibold))
-            .frame(maxWidth: .infinity, minHeight: Tokens.Size.iconWell)
+            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.action(.ghost, size: .large))
       }
       .padding(Tokens.Space.l)
     }
@@ -71,18 +74,37 @@ struct BotControl: ViewModifier {
   }
 
   /// One action across the sheet; it runs once the sheet has closed.
-  private func action(_ title: LocalizedStringResource, role: ButtonRole?, _ perform: @escaping () -> Void)
-    -> some View {
-    Button(role: role) {
+  private func action(_ title: LocalizedStringResource, symbol: String, kind: ActionButtonStyle.Kind,
+    _ perform: @escaping () -> Void) -> some View {
+    Button(role: kind == .destructive ? .destructive : nil) {
       chosen = perform
       isPresented = false
     } label: {
-      Text(title)
-        .font(.body.weight(.semibold))
-        .frame(maxWidth: .infinity, minHeight: Tokens.Size.iconWell)
+      Label { Text(title) } icon: { Image(systemName: symbol) }
+        .frame(maxWidth: .infinity)
     }
-    .buttonStyle(.bordered)
-    .tint(role == .destructive ? Palette.loss : Palette.info)
+    .buttonStyle(.action(kind, size: .large))
+  }
+
+  /// Symbols of the actions and of the bot's state.
+  static let resumeSymbol = "play.fill"
+  static let pauseSymbol = "pause.fill"
+  static let cancelSymbol = "xmark.circle"
+  static let flattenSymbol = "rectangle.portrait.and.arrow.right.fill"
+  static let stopSymbol = "stop.fill"
+  static let emergencySymbol = "exclamationmark.octagon.fill"
+  static let unknownSymbol = "questionmark"
+
+  private var stateSymbol: String {
+    guard let status = model.status else { return Self.unknownSymbol }
+    if status.entryStop { return Self.pauseSymbol }
+    return status.botState == .running ? Self.resumeSymbol : Self.stopSymbol
+  }
+
+  private var stateTone: Tone {
+    guard let status = model.status else { return .neutral }
+    if status.entryStop { return .warning }
+    return status.botState == .running ? .accent : .neutral
   }
 
   private var title: LocalizedStringResource {
