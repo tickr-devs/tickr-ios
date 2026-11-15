@@ -69,9 +69,11 @@ struct ChartTab: View {
           DayHeader(chart: chart, url: url)
           SymbolChips(chart: chart, url: url)
           if let series = chart.series, !series.candles.isEmpty {
-            CandleChart(series: series, atr: chart.atr, trades: chart.trades, position: chart.openPosition,
-              events: chart.events, lines: lines, viewport: $viewport)
+            // The controls sit above the chart, as in charting apps, so the panes below never push
+            // them under the tab bar.
             ChartControls(chart: chart, series: series, lines: $lines, viewport: $viewport)
+            CandleChart(series: series, studies: chart.studies, atr: chart.atr, trades: chart.trades,
+              position: chart.openPosition, events: chart.events, lines: lines, viewport: $viewport)
             DayTrades(trades: chart.trades)
             DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
           } else {
@@ -121,44 +123,80 @@ private struct DayHeader: View {
   let url: URL
 
   var body: some View {
-    HStack(alignment: .center, spacing: Tokens.Space.s) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        if let symbol = chart.symbol, let candles = chart.series?.candles, let first = candles.first,
-          let last = candles.last {
-          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-            Text(symbol)
-              .font(Tokens.Typography.metric)
-              .foregroundStyle(Palette.textPrimary)
-            Text(last.close, format: ChartFormat.price)
-              .font(Tokens.Typography.bodyMono)
-              .foregroundStyle(Palette.textSecondary)
-              .contentTransition(.numericText(value: last.close))
-            let change = first.open == 0 ? 0 : (last.close - first.open) / first.open
-            Text(change, format: ChartFormat.change)
-              .font(Tokens.Typography.calloutMono)
-              .foregroundStyle(change >= 0 ? Palette.profitText : Palette.lossText)
-          }
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      HStack(alignment: .center, spacing: Tokens.Space.s) {
+        if let symbol = chart.symbol {
+          Text(symbol)
+            .font(Tokens.Typography.title)
+            .foregroundStyle(Palette.textPrimary)
         }
         dayMenu
+        Spacer(minLength: 0)
+        Group {
+          Button {
+            if let day = chart.previousDay { Task { await chart.show(day, from: url) } }
+          } label: {
+            Image(systemName: "chevron.backward")
+          }
+          .disabled(chart.previousDay == nil)
+          .accessibilityLabel(Text(ChartText.previousDay))
+          Button {
+            if let day = chart.nextDay { Task { await chart.show(day, from: url) } }
+          } label: {
+            Image(systemName: "chevron.forward")
+          }
+          .disabled(chart.nextDay == nil)
+          .accessibilityLabel(Text(ChartText.nextDay))
+        }
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.circle)
       }
-      Spacer(minLength: 0)
-      Button {
-        if let day = chart.previousDay { Task { await chart.show(day, from: url) } }
-      } label: {
-        Image(systemName: "chevron.backward")
+      if let candles = chart.series?.candles, let first = candles.first, let last = candles.last {
+        // The quote: the last price large, coloured by the day so far, with its change from
+        // the day's first open; the day's range and volume beside it.
+        let amount = last.close - first.open
+        let change = first.open == 0 ? 0 : amount / first.open
+        let tone = amount >= 0 ? Palette.profitText : Palette.lossText
+        HStack(alignment: .lastTextBaseline, spacing: Tokens.Space.m) {
+          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+            Text(last.close, format: ChartFormat.price)
+              .font(Tokens.Typography.hero)
+              .foregroundStyle(tone)
+              .contentTransition(.numericText(value: last.close))
+            HStack(spacing: Tokens.Space.s) {
+              Group {
+                if amount >= 0 {
+                  Image(systemName: "arrowtriangle.up.fill")
+                } else {
+                  Image(systemName: "arrowtriangle.down.fill")
+                }
+              }
+              .imageScale(.small)
+              Text(amount, format: ChartFormat.signedPrice)
+              Text(change, format: ChartFormat.change)
+            }
+            .font(Tokens.Typography.calloutMono)
+            .foregroundStyle(tone)
+          }
+          Spacer(minLength: Tokens.Space.s)
+          Grid(alignment: .leading, horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.xxs) {
+            GridRow {
+              Text(ChartText.highLow).foregroundStyle(Palette.textTertiary)
+              Text(ChartText.range(
+                (candles.map(\.high).max() ?? last.high).formatted(ChartFormat.price),
+                (candles.map(\.low).min() ?? last.low).formatted(ChartFormat.price)))
+                .foregroundStyle(Palette.textSecondary)
+            }
+            GridRow {
+              Text(ChartText.dayVolume).foregroundStyle(Palette.textTertiary)
+              Text(candles.reduce(0) { $0 + $1.volume }, format: ChartFormat.volume)
+                .foregroundStyle(Palette.textSecondary)
+            }
+          }
+          .font(Tokens.Typography.captionMono)
+        }
       }
-      .disabled(chart.previousDay == nil)
-      .accessibilityLabel(Text(ChartText.previousDay))
-      Button {
-        if let day = chart.nextDay { Task { await chart.show(day, from: url) } }
-      } label: {
-        Image(systemName: "chevron.forward")
-      }
-      .disabled(chart.nextDay == nil)
-      .accessibilityLabel(Text(ChartText.nextDay))
     }
-    .buttonStyle(.bordered)
-    .buttonBorderShape(.circle)
     .padding(.top, Tokens.Space.s)
   }
 
@@ -250,16 +288,31 @@ private struct ChartControls: View {
   var body: some View {
     @Bindable var chart = chart
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack(spacing: Tokens.Space.s) {
-        ForEach(Timeframe.allCases) { timeframe in
-          let selected = timeframe == chart.timeframe
-          Button { chart.timeframe = timeframe } label: {
-            Text(ChartFormat.title(timeframe)).chip(on: selected)
+      ScrollView(.horizontal) {
+        HStack(spacing: Tokens.Space.s) {
+          ForEach(Timeframe.allCases) { timeframe in
+            let selected = timeframe == chart.timeframe
+            Button { chart.timeframe = timeframe } label: {
+              Text(ChartFormat.title(timeframe)).chip(on: selected)
+            }
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(selected ? .isSelected : [])
           }
-          .buttonStyle(.plain)
-          .accessibilityAddTraits(selected ? .isSelected : [])
         }
-        Spacer(minLength: Tokens.Space.s)
+      }
+      .scrollIndicators(.hidden)
+      HStack(spacing: Tokens.Space.s) {
+        Picker(selection: $lines.style) {
+          Label { Text(ChartText.candles) } icon: { Image(systemName: "chart.bar.fill") }
+            .tag(CandleChart.Style.candles)
+          Label { Text(ChartText.lineStyle) } icon: { Image(systemName: "chart.xyaxis.line") }
+            .tag(CandleChart.Style.line)
+        } label: {
+          Text(ChartText.lineStyle)
+        }
+        .pickerStyle(.segmented)
+        .labelStyle(.iconOnly)
+        .fixedSize()
         Group {
           Button { zoom(by: ChartViewport.zoomStep) } label: { Image(systemName: "minus") }
             .disabled(!viewport.canZoomOut(series))
@@ -281,23 +334,33 @@ private struct ChartControls: View {
           .accessibilityHint(Text(ChartText.liveHint))
           .accessibilityAddTraits(following ? .isSelected : [])
         }
-      }
-      ScrollView(.horizontal) {
-        HStack(spacing: Tokens.Space.s) {
-          Toggle(isOn: $lines.vwap) { Text(ChartText.vwap) }
-            .tint(Palette.seriesVWAP)
-          Toggle(isOn: $lines.fastEMA) { Text(ChartText.ema(Indicators.fastEMAPeriod)) }
-            .tint(Palette.seriesFastEMA)
-          Toggle(isOn: $lines.slowEMA) { Text(ChartText.ema(Indicators.slowEMAPeriod)) }
-            .tint(Palette.seriesSlowEMA)
-          Toggle(isOn: $lines.volume) { Text(ChartText.volume) }
-            .tint(Palette.info)
-          Toggle(isOn: $lines.atr) { Text(ChartText.atr(Indicators.atrPeriod)) }
-            .tint(Palette.seriesATR)
+        Spacer(minLength: Tokens.Space.s)
+        Menu {
+          Section {
+            Toggle(isOn: $lines.vwap) { Text(ChartText.vwap) }
+            Toggle(isOn: $lines.fastEMA) { Text(ChartText.ema(Indicators.fastEMAPeriod)) }
+            Toggle(isOn: $lines.slowEMA) { Text(ChartText.ema(Indicators.slowEMAPeriod)) }
+            Toggle(isOn: $lines.movingAverages) { Text(ChartText.movingAverages) }
+            Toggle(isOn: $lines.bollinger) { Text(ChartText.bollinger) }
+            Toggle(isOn: $lines.volume) { Text(ChartText.volume) }
+          } header: {
+            Text(ChartText.overlays)
+          }
+          Section {
+            Toggle(isOn: $lines.macd) { Text(ChartText.macdToggle) }
+            Toggle(isOn: $lines.stochastic) { Text(ChartText.stochasticToggle) }
+            Toggle(isOn: $lines.rsi) { Text(ChartText.rsiToggle) }
+            Toggle(isOn: $lines.atr) { Text(ChartText.atr(Indicators.atrPeriod)) }
+          } header: {
+            Text(ChartText.panes)
+          }
+        } label: {
+          Label { Text(ChartText.indicators) } icon: { Image(systemName: "square.grid.2x2") }
+            .labelStyle(.iconOnly)
+            .chip(on: true)
         }
-        .toggleStyle(ChipToggleStyle())
+        .menuActionDismissBehavior(.disabled)
       }
-      .scrollIndicators(.hidden)
     }
     .foregroundStyle(Palette.infoText)
     .sensoryFeedback(.selection, trigger: chart.timeframe)
@@ -317,6 +380,8 @@ private struct ChipLook: ViewModifier {
   func body(content: Content) -> some View {
     content
       .font(Tokens.Typography.captionMono)
+      .lineLimit(1)
+      .fixedSize()
       .foregroundStyle(on ? text : Palette.textTertiary)
       .padding(.horizontal, Tokens.Space.m)
       .padding(.vertical, Tokens.Space.s)
@@ -331,23 +396,6 @@ private struct ChipLook: ViewModifier {
 private extension View {
   func chip(on: Bool, tint: Color = Palette.info, text: Color = Palette.infoText) -> some View {
     modifier(ChipLook(on: on, tint: tint, text: text))
-  }
-}
-
-/// A line toggle as a chip: a dot of the line's colour (the toggle's tint), blue border when on.
-private struct ChipToggleStyle: ToggleStyle {
-  func makeBody(configuration: Configuration) -> some View {
-    Button { configuration.isOn.toggle() } label: {
-      HStack(spacing: Tokens.Space.xs) {
-        Circle()
-          .fill(.tint)
-          .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-        configuration.label
-      }
-      .chip(on: configuration.isOn)
-    }
-    .buttonStyle(.plain)
-    .accessibilityAddTraits(configuration.isOn ? .isSelected : [])
   }
 }
 

@@ -1412,6 +1412,23 @@
         }
       }
     },
+    "chart.axisValue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Value"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значение"
+          }
+        }
+      }
+    },
     "chart.bars" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1824,6 +1841,57 @@
         }
       }
     },
+    "chart.header.highLow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "H/L"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "М/М"
+          }
+        }
+      }
+    },
+    "chart.header.range" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@"
+          }
+        }
+      }
+    },
+    "chart.header.volume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объём"
+          }
+        }
+      }
+    },
     "chart.indicator.atr" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1841,6 +1909,74 @@
         }
       }
     },
+    "chart.indicator.boll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bollinger bands (BOLL)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полосы Боллинджера (BOLL)"
+          }
+        }
+      }
+    },
+    "chart.indicator.bollLower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LB"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LB"
+          }
+        }
+      }
+    },
+    "chart.indicator.bollMiddle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MB"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MB"
+          }
+        }
+      }
+    },
+    "chart.indicator.bollUpper" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UB"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UB"
+          }
+        }
+      }
+    },
     "chart.indicator.ema" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1854,6 +1990,193 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "EMA %lld"
+          }
+        }
+      }
+    },
+    "chart.indicator.ma" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MA%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MA%lld"
+          }
+        }
+      }
+    },
+    "chart.indicator.macd" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MACD(%1$lld,%2$lld,%3$lld)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MACD(%1$lld,%2$lld,%3$lld)"
+          }
+        }
+      }
+    },
+    "chart.indicator.macdHistogram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Histogram"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гистограмма"
+          }
+        }
+      }
+    },
+    "chart.indicator.macdSignal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signal"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сигнал"
+          }
+        }
+      }
+    },
+    "chart.indicator.macdToggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MACD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MACD"
+          }
+        }
+      }
+    },
+    "chart.indicator.maToggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moving averages (MA)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скользящие средние (MA)"
+          }
+        }
+      }
+    },
+    "chart.indicator.rsi" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI%lld"
+          }
+        }
+      }
+    },
+    "chart.indicator.rsiToggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSI"
+          }
+        }
+      }
+    },
+    "chart.indicator.stochD" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D"
+          }
+        }
+      }
+    },
+    "chart.indicator.stochK" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoch(%1$lld,%2$lld) K"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoch(%1$lld,%2$lld) K"
+          }
+        }
+      }
+    },
+    "chart.indicator.stochToggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slow stochastic"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Медленный стохастик"
           }
         }
       }
@@ -1888,6 +2211,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VWAP"
+          }
+        }
+      }
+    },
+    "chart.indicators" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicators"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Индикаторы"
+          }
+        }
+      }
+    },
+    "chart.indicators.overlays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the price"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На цене"
+          }
+        }
+      }
+    },
+    "chart.indicators.panes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panes below"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Панели снизу"
           }
         }
       }
@@ -2113,6 +2487,40 @@
         }
       }
     },
+    "chart.style.candles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Candles"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свечи"
+          }
+        }
+      }
+    },
+    "chart.style.line" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Линия"
+          }
+        }
+      }
+    },
     "chart.symbol.open" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2153,13 +2561,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Timeframe"
+            "value" : "Interval"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Таймфрейм"
+            "value" : "Интервал"
           }
         }
       }
@@ -2170,13 +2578,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "H1"
+            "value" : "1h"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "H1"
+            "value" : "1ч"
           }
         }
       }
@@ -2187,13 +2595,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M1"
+            "value" : "1m"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M1"
+            "value" : "1м"
           }
         }
       }
@@ -2204,13 +2612,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M5"
+            "value" : "5m"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M5"
+            "value" : "5м"
           }
         }
       }
@@ -2221,13 +2629,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M15"
+            "value" : "15m"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M15"
+            "value" : "15м"
           }
         }
       }
@@ -2238,13 +2646,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M30"
+            "value" : "30m"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "M30"
+            "value" : "30м"
           }
         }
       }

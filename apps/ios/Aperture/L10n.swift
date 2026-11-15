@@ -1090,12 +1090,12 @@ enum ChartText {
   static let nextDay = LocalizedStringResource("chart.nextDay", defaultValue: "Next day")
   static let day = LocalizedStringResource("chart.day", defaultValue: "Day")
   static let live = LocalizedStringResource("chart.live", defaultValue: "Live")
-  static let timeframe = LocalizedStringResource("chart.timeframe", defaultValue: "Timeframe")
-  static let m1 = LocalizedStringResource("chart.timeframe.m1", defaultValue: "M1")
-  static let m5 = LocalizedStringResource("chart.timeframe.m5", defaultValue: "M5")
-  static let m15 = LocalizedStringResource("chart.timeframe.m15", defaultValue: "M15")
-  static let m30 = LocalizedStringResource("chart.timeframe.m30", defaultValue: "M30")
-  static let h1 = LocalizedStringResource("chart.timeframe.h1", defaultValue: "H1")
+  static let timeframe = LocalizedStringResource("chart.timeframe", defaultValue: "Interval")
+  static let m1 = LocalizedStringResource("chart.timeframe.m1", defaultValue: "1m")
+  static let m5 = LocalizedStringResource("chart.timeframe.m5", defaultValue: "5m")
+  static let m15 = LocalizedStringResource("chart.timeframe.m15", defaultValue: "15m")
+  static let m30 = LocalizedStringResource("chart.timeframe.m30", defaultValue: "30m")
+  static let h1 = LocalizedStringResource("chart.timeframe.h1", defaultValue: "1h")
   static let vwap = LocalizedStringResource("chart.indicator.vwap", defaultValue: "VWAP")
   static let volume = LocalizedStringResource("chart.indicator.volume",
     defaultValue: "Volume")
@@ -1124,6 +1124,50 @@ enum ChartText {
   /// The ATR pane toggle and label, with its period in bars.
   static func atr(_ period: Int) -> LocalizedStringResource {
     LocalizedStringResource("chart.indicator.atr", defaultValue: "ATR \(period)")
+  }
+  /// Name of the values a study pane plots (VoiceOver).
+  static let axisValue = LocalizedStringResource("chart.axisValue", defaultValue: "Value")
+  /// A moving-average line in the legend.
+  static func movingAverage(_ period: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.indicator.ma", defaultValue: "MA\(period)")
+  }
+  /// Toggles of the indicator menu.
+  static let movingAverages = LocalizedStringResource("chart.indicator.maToggle", defaultValue: "Moving averages (MA)")
+  static let bollinger = LocalizedStringResource("chart.indicator.boll", defaultValue: "Bollinger bands (BOLL)")
+  static let macdToggle = LocalizedStringResource("chart.indicator.macdToggle", defaultValue: "MACD")
+  static let stochasticToggle = LocalizedStringResource("chart.indicator.stochToggle", defaultValue: "Slow stochastic")
+  static let rsiToggle = LocalizedStringResource("chart.indicator.rsiToggle", defaultValue: "RSI")
+  static let indicators = LocalizedStringResource("chart.indicators", defaultValue: "Indicators")
+  static let overlays = LocalizedStringResource("chart.indicators.overlays", defaultValue: "On the price")
+  static let panes = LocalizedStringResource("chart.indicators.panes", defaultValue: "Panes below")
+  /// The candles / line switch.
+  static let candles = LocalizedStringResource("chart.style.candles", defaultValue: "Candles")
+  static let lineStyle = LocalizedStringResource("chart.style.line", defaultValue: "Line")
+  /// Legend names of the Bollinger lines.
+  static let bollingerUpper = LocalizedStringResource("chart.indicator.bollUpper", defaultValue: "UB")
+  static let bollingerMiddle = LocalizedStringResource("chart.indicator.bollMiddle", defaultValue: "MB")
+  static let bollingerLower = LocalizedStringResource("chart.indicator.bollLower", defaultValue: "LB")
+  /// MACD pane legend: the MACD line with its periods, then the signal line and the histogram.
+  static func macd(_ fast: Int, _ slow: Int, _ signal: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.indicator.macd", defaultValue: "MACD(\(fast),\(slow),\(signal))")
+  }
+  static let macdSignal = LocalizedStringResource("chart.indicator.macdSignal", defaultValue: "Signal")
+  static let macdHistogram = LocalizedStringResource("chart.indicator.macdHistogram", defaultValue: "Histogram")
+  /// Stochastic pane legend: the %K line with the periods, then the %D line.
+  static func stochasticK(_ period: Int, _ smoothing: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.indicator.stochK", defaultValue: "Stoch(\(period),\(smoothing)) K")
+  }
+  static let stochasticD = LocalizedStringResource("chart.indicator.stochD", defaultValue: "D")
+  /// RSI pane legend.
+  static func rsi(_ period: Int) -> LocalizedStringResource {
+    LocalizedStringResource("chart.indicator.rsi", defaultValue: "RSI\(period)")
+  }
+  /// Header: the day's high and low, and its volume.
+  static let highLow = LocalizedStringResource("chart.header.highLow", defaultValue: "H/L")
+  static let dayVolume = LocalizedStringResource("chart.header.volume", defaultValue: "Volume")
+  /// Header: the day's high and low, already formatted ("7.19–5.70").
+  static func range(_ high: String, _ low: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.header.range", defaultValue: "\(high)–\(low)")
   }
 
   /// The line above the chart while no candle is read: timeframe and candles on screen (both

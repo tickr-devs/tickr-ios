@@ -54,6 +54,8 @@ final class ChartModel {
   }
   /// The ATR line for `series`, one value per candle.
   private(set) var atr: [Double?] = []
+  /// Moving averages, Bollinger, MACD, RSI and stochastic of `series`' candles.
+  private(set) var studies = CandleStudies(candles: [])
   /// Number of the newest load of the days or a day (see `begin()`).
   @ObservationIgnored private var latestRequest = 0
 
@@ -215,6 +217,7 @@ final class ChartModel {
   private func rebuild() {
     series = bars.map { ChartSeries(bars: $0.bars, timeframe: timeframe) }
     atr = bars.map { ChartSeries.atr(bars: $0.bars, timeframe: timeframe) } ?? []
+    studies = CandleStudies(candles: series?.candles ?? [])
   }
 
   private func neighbour(_ step: Int) -> WireDate? {
