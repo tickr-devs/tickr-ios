@@ -958,6 +958,7 @@ private struct EmptyPositions: View {
 /// A slow radar sweep while the bot scans for setups.
 private struct Radar: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.scenePhase) private var scenePhase
 
   /// Rings, as a share of the radar's radius.
   static let rings = [1.0, 2.0 / 3, 1.0 / 3]
@@ -965,19 +966,15 @@ private struct Radar: View {
   static let sweep = Angle.degrees(90)
 
   var body: some View {
-    // decorative: the empty-positions radar is an ornament; it shows no data (owner, 2026-11-15).
-    TimelineView(.animation(paused: reduceMotion)) { context in
-      let turn = context.date.timeIntervalSinceReferenceDate
-        .truncatingRemainder(dividingBy: Tokens.Motion.rotationSeconds) / Tokens.Motion.rotationSeconds
-      ZStack {
-        ForEach(Self.rings, id: \.self) { scale in
-          Circle().stroke(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin).scaleEffect(scale)
-        }
-        AngularGradient(colors: [Palette.accent.opacity(Tokens.Opacity.border), .clear], center: .center,
-          startAngle: .zero, endAngle: Self.sweep)
-          .clipShape(Circle())
-          .rotationEffect(.radians(turn * Geometry.fullTurn))
+    ZStack {
+      ForEach(Self.rings, id: \.self) { scale in
+        Circle().stroke(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin).scaleEffect(scale)
       }
+      // Core Animation turns the sweep (see RadarSweep).
+      RadarSweep(
+        color: Palette.accent.opacity(Tokens.Opacity.border), width: Self.sweep, turning: !reduceMotion,
+        active: scenePhase == .active)
+        .allowsHitTesting(false)
     }
     .accessibilityHidden(true)
   }
