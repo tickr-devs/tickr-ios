@@ -95,9 +95,12 @@ public struct APIClient: Sendable {
   static let observersPath = "/observers"
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
+  static let performancePath = "/performance"
   /// Query item names of the bars read.
   static let symbolQuery = "symbol"
   static let dateQuery = "date"
+  static let fromQuery = "from"
+  static let toQuery = "to"
   /// HTTP methods, header names and the media type the API speaks.
   static let get = "GET"
   static let post = "POST"
@@ -149,6 +152,12 @@ public struct APIClient: Sendable {
   public func skipped(day: WireDate) async throws -> SkippedV1 {
     try await perform(request(path: Self.skippedPath, query: [(Self.dateQuery, day.text)], body: nil),
       expect: Self.ok)
+  }
+
+  /// Gross performance in R of the trades closed from `from` to `to`, both inclusive.
+  public func performance(from: WireDate, to: WireDate) async throws -> PerformanceV1 {
+    try await perform(request(path: Self.performancePath, query: [(Self.fromQuery, from.text), (Self.toQuery, to.text)],
+      body: nil), expect: Self.ok)
   }
 
   public func pendingCommands() async throws -> PendingCommandsV1 {

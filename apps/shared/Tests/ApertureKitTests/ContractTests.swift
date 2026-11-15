@@ -44,6 +44,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       "observers-v1": { try roundTrip(ObserversV1.self, $0) },
       "decisions-v1": { try roundTrip(DecisionsV1.self, $0) },
       "skipped-v1": { try roundTrip(SkippedV1.self, $0) },
+      "performance-v1": { try roundTrip(PerformanceV1.self, $0) },
       "account-v1": { try roundTrip(AccountV1.self, $0) },
       "account-response-v1": { try roundTrip(AccountResponseV1.self, $0) },
     ]
@@ -63,7 +64,17 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(Set(names) == ["status-v1", "command-v1", "status-response-v1",
       "command-accepted-v1", "pending-commands-v1", "error-v1",
       "days-v1", "day-v1", "bars-v1", "settings-v1", "explain-v1",
-      "observers-v1", "decisions-v1", "skipped-v1", "account-v1", "account-response-v1"])
+      "observers-v1", "decisions-v1", "skipped-v1", "performance-v1", "account-v1", "account-response-v1"])
+  }
+
+  @Test func performanceFiguresAndCauses() throws {
+    let performance = try Wire.decoder().decode(PerformanceV1.self, from: fixture("performance-v1.json"))
+    #expect(performance.winRate.value?.value == Decimal(string: "0.4"))
+    #expect(performance.winRate.cause == nil)
+    #expect(performance.days.last?.cumulativeGrossR.value == 2)
+    let empty = try Wire.decoder().decode(PerformanceV1.self, from: fixture("performance-v1.empty.json"))
+    #expect(empty.profitFactorGross.value == nil)
+    #expect(empty.profitFactorGross.cause == "no counted trades in the range")
   }
 
   @Test func skippedSignalsAndAdmissions() throws {
