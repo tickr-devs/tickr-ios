@@ -5,19 +5,15 @@ import SwiftUI
 /// Where the bot trades. The phone only shows it: Sandbox or Production is set in config on the
 /// Mac, and Production also needs the owner's authorization file there.
 struct EnvironmentSection: View {
+  /// Symbol of the environment row.
+  static let symbol = "server.rack"
+
   let status: StatusV1
 
   var body: some View {
     Section {
-      LabeledContent {
-        HStack(spacing: Tokens.Space.s) {
-          PulseDot(Palette.accent, size: Tokens.Size.dotSmall)
-          Text(verbatim: status.environment.capitalized)
-            .font(Tokens.Typography.bodyMono.bold())
-            .foregroundStyle(Palette.accentText)
-        }
-      } label: {
-        Text(L10n.Settings.environment)
+      SettingsRow(L10n.Settings.environment, systemImage: Self.symbol, tone: .warning) {
+        StatusPill(verbatim: status.environment.capitalized, tone: .warning)
       }
     } header: {
       Text(L10n.Settings.environment)
@@ -30,6 +26,10 @@ struct EnvironmentSection: View {
 /// The trading day in New York time as a bar, extended hours either side of the regular session,
 /// with a cursor at now; then the bot's last entry and close-everything times.
 struct SessionSection: View {
+  /// Symbols of the last-entry and close-everything rows.
+  static let lastEntrySymbol = "clock.badge.checkmark"
+  static let flattenSymbol = "rectangle.portrait.and.arrow.right"
+
   let session: SessionSettings?
 
   var body: some View {
@@ -37,15 +37,11 @@ struct SessionSection: View {
       SessionBar()
         .padding(.vertical, Tokens.Space.s)
       if let session {
-        LabeledContent {
+        SettingsRow(L10n.Risk.lastEntry, systemImage: Self.lastEntrySymbol, tone: .info) {
           Text(L10n.Risk.beforeClose(session.lastEntryMinutesBeforeClose))
-        } label: {
-          Text(L10n.Risk.lastEntry)
         }
-        LabeledContent {
+        SettingsRow(L10n.Risk.flatten, systemImage: Self.flattenSymbol, tone: .loss) {
           Text(L10n.Risk.beforeClose(session.flattenMinutesBeforeClose))
-        } label: {
-          Text(L10n.Risk.flatten)
         }
       }
     } header: {
@@ -183,7 +179,7 @@ struct PreflightSection: View {
       HStack {
         Text(L10n.Settings.preflight)
         Spacer()
-        Text(summary(results))
+        StatusPill(summary(results), tone: summaryTone(results))
           .contentTransition(.opacity)
       }
     }
@@ -204,6 +200,12 @@ struct PreflightSection: View {
       Image(systemName: "circle.dashed").foregroundStyle(Palette.textQuaternary)
         .accessibilityLabel(Text(L10n.Access.checking))
     }
+  }
+
+  private func summaryTone(_ results: [Preflight.Result]) -> Tone {
+    if results.contains(where: { $0.outcome == .failed }) { return .loss }
+    if results.contains(where: { $0.outcome == .unknown }) { return .neutral }
+    return .profit
   }
 
   private func summary(_ results: [Preflight.Result]) -> LocalizedStringResource {

@@ -307,3 +307,47 @@ struct StopGlyph: View {
     }
   }
 }
+
+/// A settings row's leading icon, as iOS settings draw them: a white symbol on a small solid tile
+/// in the row's tone. Decorative: the row's own label carries the meaning.
+struct SettingsIcon: View {
+  let systemImage: String
+  let tone: Tone
+
+  init(_ systemImage: String, tone: Tone) {
+    self.systemImage = systemImage
+    self.tone = tone
+  }
+
+  var body: some View {
+    Image(systemName: systemImage)
+      .font(Tokens.Typography.caption.weight(.semibold))
+      .foregroundStyle(Palette.sheen)
+      .frame(width: Tokens.Size.iconButtonCompact, height: Tokens.Size.iconButtonCompact)
+      .background(tone.fill, in: RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous))
+      .accessibilityHidden(true)
+  }
+}
+
+/// A form row with a `SettingsIcon` in front of its label and any value view after it.
+struct SettingsRow<Value: View>: View {
+  let label: LocalizedStringResource
+  let systemImage: String
+  let tone: Tone
+  let value: Value
+
+  init(_ label: LocalizedStringResource, systemImage: String, tone: Tone, @ViewBuilder value: () -> Value) {
+    self.label = label
+    self.systemImage = systemImage
+    self.tone = tone
+    self.value = value()
+  }
+
+  var body: some View {
+    LabeledContent {
+      value
+    } label: {
+      Label { Text(label) } icon: { SettingsIcon(systemImage, tone: tone) }
+    }
+  }
+}

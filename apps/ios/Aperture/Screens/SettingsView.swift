@@ -7,6 +7,18 @@ import SwiftUI
 struct SettingsView: View {
   /// Info.plist key of the app's marketing version.
   static let versionKey = "CFBundleShortVersionString"
+  /// Symbols of the rows' icons.
+  static let statusSymbol = "antenna.radiowaves.left.and.right"
+  static let pairSymbol = "qrcode"
+  static let forgetSymbol = "link.badge.minus"
+  static let stateSymbol = "power"
+  static let gateOpenSymbol = "lock.open.fill"
+  static let gateClosedSymbol = "lock.fill"
+  static let strategySymbol = "cpu"
+  static let runSymbol = "number"
+  static let lockScreenSymbol = "bell.badge.fill"
+  static let appSymbol = "app.fill"
+  static let contractSymbol = "doc.text.fill"
 
   @Environment(AppModel.self) private var model
   @State private var draft = ""
@@ -32,14 +44,16 @@ struct SettingsView: View {
           Button(action: save) { Text(L10n.Settings.saveAddress) }
             .disabled(!draft.isEmpty && Connection(address: draft).url == nil)
         }
-        LabeledContent {
-          Text(connectionState.text).foregroundStyle(connectionState.color)
-        } label: {
-          Text(L10n.Settings.status)
+        SettingsRow(L10n.Settings.status, systemImage: Self.statusSymbol, tone: connectionState.tone) {
+          StatusPill(connectionState.text, tone: connectionState.tone)
         }
-        Button { showPairing = true } label: { Text(L10n.Pair.start) }
+        Button { showPairing = true } label: {
+          Label { Text(L10n.Pair.start) } icon: { SettingsIcon(Self.pairSymbol, tone: .info) }
+        }
         if model.connection.token != nil {
-          Button(role: .destructive) { confirmForget = true } label: { Text(L10n.Pair.forget) }
+          Button(role: .destructive) { confirmForget = true } label: {
+            Label { Text(L10n.Pair.forget) } icon: { SettingsIcon(Self.forgetSymbol, tone: .loss) }
+          }
         }
       } header: {
         Text(L10n.Settings.botOnMac)
@@ -49,18 +63,26 @@ struct SettingsView: View {
 
       if let status = model.status {
         Section {
-          row(L10n.Settings.state) { Text(status.botState.title) }
-          row(L10n.Settings.gate) {
-            Text(status.tradingGate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed)
+          let running = status.botState == .running
+          SettingsRow(L10n.Settings.state, systemImage: Self.stateSymbol, tone: running ? .accent : .neutral) {
+            StatusPill(status.botState.title, tone: running ? .accent : .neutral,
+              live: running && model.response?.stale == false, event: status.writtenAt.date)
           }
-          if !status.tradingGate.open {
-            Text(verbatim: status.tradingGate.cause).font(.footnote).foregroundStyle(.secondary)
+          let open = status.tradingGate.open
+          SettingsRow(L10n.Settings.gate, systemImage: open ? Self.gateOpenSymbol : Self.gateClosedSymbol,
+            tone: open ? .profit : .warning) {
+            StatusPill(open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed, tone: open ? .profit : .warning)
           }
-          row(L10n.Settings.strategy) {
-            Text(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version))
+          if !open {
+            InfoCaption(verbatim: status.tradingGate.cause, tone: .warning)
+          }
+          SettingsRow(L10n.Settings.strategy, systemImage: Self.strategySymbol, tone: .highlight) {
+            Badge(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version), tone: .highlight)
           }
           if let runId = status.runId {
-            row(L10n.Settings.run) { Text(verbatim: runId) }.font(.body.monospaced())
+            SettingsRow(L10n.Settings.run, systemImage: Self.runSymbol, tone: .neutral) {
+              Text(verbatim: runId).font(.body.monospaced())
+            }
           }
         } header: {
           Text(L10n.Settings.bot)
@@ -76,7 +98,9 @@ struct SettingsView: View {
       }
 
       Section {
-        row(L10n.Settings.lockScreen) { Text(L10n.Settings.notYet) }
+        SettingsRow(L10n.Settings.lockScreen, systemImage: Self.lockScreenSymbol, tone: .warning) {
+          Badge(L10n.Settings.notYet, tone: .highlight, planned: true)
+        }
       } header: {
         Text(L10n.Settings.notifications)
       } footer: {
@@ -84,10 +108,13 @@ struct SettingsView: View {
       }
 
       Section {
-        row(L10n.Settings.app) {
+        SettingsRow(L10n.Settings.app, systemImage: Self.appSymbol, tone: .accent) {
           Text(verbatim: Bundle.main.object(forInfoDictionaryKey: Self.versionKey) as? String ?? Format.missing)
+            .font(.body.monospaced())
         }
-        row(L10n.Settings.contract) { Text(L10n.Settings.contractVersion(Wire.apiVersion)) }
+        SettingsRow(L10n.Settings.contract, systemImage: Self.contractSymbol, tone: .info) {
+          Text(L10n.Settings.contractVersion(Wire.apiVersion))
+        }
       } header: {
         Text(L10n.Settings.about)
       }
@@ -108,14 +135,6 @@ struct SettingsView: View {
     }
   }
 
-  private func row<Value: View>(_ label: LocalizedStringResource, @ViewBuilder value: () -> Value) -> some View {
-    LabeledContent {
-      value()
-    } label: {
-      Text(label)
-    }
-  }
-
   /// Saves the typed address; the paired token stays only while the address keeps the paired origin.
   private func save() {
     guard draft.isEmpty || Connection(address: draft).url != nil else { return }
@@ -123,13 +142,13 @@ struct SettingsView: View {
     editing = false
   }
 
-  private var connectionState: (text: LocalizedStringResource, color: Color) {
-    if !model.isConfigured { return (L10n.Settings.noAddress, .secondary) }
-    if model.connection.isRemote && model.connection.bearer == nil { return (L10n.Pair.notPaired, Palette.warningText) }
-    if model.fetchError != nil { return (L10n.Settings.notReachable, Palette.lossText) }
-    if model.response == nil { return (L10n.Settings.connecting, .secondary) }
-    if model.status == nil || model.response?.stale == true { return (L10n.Settings.notCurrent, Palette.warningText) }
-    return (L10n.Settings.connected, Palette.profitText)
+  private var connectionState: (text: LocalizedStringResource, tone: Tone) {
+    if !model.isConfigured { return (L10n.Settings.noAddress, .neutral) }
+    if model.connection.isRemote && model.connection.bearer == nil { return (L10n.Pair.notPaired, .warning) }
+    if model.fetchError != nil { return (L10n.Settings.notReachable, .loss) }
+    if model.response == nil { return (L10n.Settings.connecting, .neutral) }
+    if model.status == nil || model.response?.stale == true { return (L10n.Settings.notCurrent, .warning) }
+    return (L10n.Settings.connected, .profit)
   }
 }
 
