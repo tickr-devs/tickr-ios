@@ -39,11 +39,34 @@ struct MonthCalendar: View {
           }
         }
       }
+      legend
     }
     .animation(Tokens.Motion.standard, value: shown)
     .onChange(of: model.shownDay) { _, day in month = DayCalendar.Month(day) }
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
+  }
+
+  /// What the cells' corner dots mean.
+  private var legend: some View {
+    // One line per dot, so a narrow column wraps the words instead of clipping them.
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      HStack(spacing: Tokens.Space.xs) {
+        dot(Palette.profit)
+        Text(L10n.Trades.cleanLegend)
+      }
+      HStack(spacing: Tokens.Space.xs) {
+        dot(Palette.warning)
+        Text(L10n.Trades.needsLook)
+      }
+    }
+    .font(Tokens.Typography.annotation)
+    .foregroundStyle(Palette.textQuaternary)
+    .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  private func dot(_ color: Color) -> some View {
+    Circle().fill(color).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
   }
 
   private func header(_ shown: DayCalendar.Month, months: [DayCalendar.Month]) -> some View {
@@ -125,11 +148,20 @@ private struct CalendarDay: View {
           shape.strokeBorder(Palette.accent.opacity(Tokens.Opacity.faint), lineWidth: Tokens.Stroke.thin)
         }
       }
+      .overlay(alignment: .topTrailing) {
+        if let clean = cell.summary?.clean, clean.verdict != .unknown {
+          Circle()
+            .fill(clean.verdict == .clean ? Palette.profit : Palette.warning)
+            .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+            .padding(Tokens.Space.xxs)
+        }
+      }
       .contentShape(shape)
     }
     .buttonStyle(.plain)
     .disabled(result == nil && !isToday)
-    .help(Text(verbatim: Format.dayLabel(cell.day)))
+    .help(Text(verbatim: cell.summary.map { Format.dayLabel(cell.day) + Format.lineSeparator + CleanMark.text($0.clean) }
+      ?? Format.dayLabel(cell.day)))
     .accessibilityLabel(Text(verbatim: Format.dayLabel(cell.day)))
     .accessibilityValue(result.map { Text(verbatim: Money.signedUSD($0)) } ?? Text(L10n.Trades.noRecords))
     .accessibilityAddTraits(selected ? .isSelected : [])

@@ -8034,6 +8034,74 @@
         }
       }
     },
+    "trades.cleanBadge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean day · broker and records agree"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чистый день · брокер и записи сходятся"
+          }
+        }
+      }
+    },
+    "trades.cleanDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean day: the broker and the bot's records agreed, every position had its stop, and the day ended flat."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чистый день: брокер и записи бота сходились, у каждой позиции был стоп, день закрыт без позиций."
+          }
+        }
+      }
+    },
+    "trades.cleanLegend" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "clean day: broker and records agree"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "чистый день: брокер и записи сходятся"
+          }
+        }
+      }
+    },
+    "trades.cleanUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verdict unknown: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка неизвестна: %@"
+          }
+        }
+      }
+    },
     "trades.closed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8289,6 +8357,40 @@
         }
       }
     },
+    "trades.needsLook" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "needs a look"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нужна проверка"
+          }
+        }
+      }
+    },
+    "trades.needsLookBadge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs a look"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужна проверка"
+          }
+        }
+      }
+    },
     "trades.nextMonth" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8387,6 +8489,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет записей"
+          }
+        }
+      }
+    },
+    "trades.notCleanDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not clean: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не чистый: %@"
           }
         }
       }
