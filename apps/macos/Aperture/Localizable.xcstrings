@@ -4176,7 +4176,29 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Data %1$@ – %2$@ (%3$lld sessions) · ends %2$@"
+            "value" : "Data %1$@ – %2$@ (%#@sessions@) · ends %2$@"
+          },
+          "substitutions" : {
+            "sessions" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg session"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg sessions"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ru" : {
