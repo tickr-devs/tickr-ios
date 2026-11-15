@@ -296,6 +296,8 @@ private struct PositionRow: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(position.stop.state.isProtected ? Palette.profitText : Palette.lossText)
           .accessibilityLabel(Text(stopLine))
+          // Long press names the stop, as on the shield beside the symbol, instead of opening the row.
+          .hint(stopLine)
         }
         Spacer()
         // An old last bar (capture stopped, a quiet minute past the limit) shows muted with its

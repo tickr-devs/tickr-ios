@@ -234,7 +234,7 @@ still reads it. Every control takes a `Tone`.
 | `ValueRow` | "◷ label … value" rows | Symbol in a `Size.rowSymbol` column, `callout` label in `textTertiary`, `bodyMono` value |
 | `SectionHeader` | A section's heading with a count and an accessory | Glowing tone tick (`labelSize` tall), uppercase `label`, count capsule |
 | `InfoCaption` | Where a value comes from, why something is off | `caption` with a leading symbol |
-| `.hint(_:)` | The apps' tooltip | Mac: a `Radius.medium` bubble on `surface` above the view after `Motion.hintDelay` of hover, at most `Size.hintMaxWidth` wide. Phone: long press shows it in a context menu, which cancels the tap of the button it explains |
+| `.hint(_:)` | The apps' tooltip | Mac: a `Radius.medium` bubble on `surface` above the view (below it when there is no room) after `Motion.hintDelay` of hover, at most `Size.hintMaxWidth` wide, kept inside the window. It is drawn by `.hintHost()`, which every Mac window and panel root carries; a hint outside a host does not show. Phone: long press shows it in a context menu, which cancels the tap of the button it explains |
 
 ## Brand: app icon and launch screen
 

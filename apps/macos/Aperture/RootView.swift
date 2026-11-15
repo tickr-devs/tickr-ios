@@ -99,6 +99,8 @@ struct RootView: View {
       }
       .animation(Tokens.Motion.standard, value: model.toast)
       .animation(Tokens.Motion.standard, value: model.unattendedPositions)
+      // Hints of the screen, the banner and the toast, drawn above all of them.
+      .hintHost()
       .navigationTitle(Text(section.title))
       .navigationSubtitle(Text(verbatim: subtitle))
       .toolbar { DayToolbar() }
