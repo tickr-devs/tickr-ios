@@ -1,0 +1,95 @@
+@testable import ApertureKit
+import Foundation
+import Testing
+
+@Suite("Chart series from GET /chart (ranges beyond one day)")
+struct ChartSeriesRangeTests {
+  /// A chart-v1 answer in `interval` with one bar per (start, close, volume); open, high and low
+  /// sit around the close.
+  func chart(_ interval: String, _ range: String, _ bars: [(String, String, String)]) throws -> ChartV1 {
+    let items = bars.map { start, close, volume in
+      """
+      {"start": "\(start)", "open": "\(close)", "high": "\(close)", "low": "\(close)",
+       "close": "\(close)", "volume": "\(volume)", "extended": false}
+      """
+    }
+    let json = """
+      {"symbol": "ABCD", "interval": "\(interval)", "range": "\(range)", "source": "webull",
+       "cached_at": null, "cause": null, "bars": [\(items.joined(separator: ","))], "api_version": 1}
+      """
+    return try Wire.decoder().decode(ChartV1.self, from: Data(json.utf8))
+  }
+
+  @Test("One candle per chart-v1 bar, keeping its extended flag and the interval's length")
+  func candlePerBar() throws {
+    let chart = try Wire.decoder().decode(ChartV1.self, from: fixture("chart-v1.json"))
+    let series = ChartSeries(chart: chart)
+    #expect(series.timeframe == .m5)
+    #expect(series.candles.count == chart.bars.count)
+    #expect(series.candles.map(\.extended) == [true, true, false])
+    #expect(series.candles[0].end.timeIntervalSince(series.candles[0].start) == 300)
+    #expect(abs((series.candles.last?.close ?? 0) - 12.47) < 1e-9)
+    #expect(series.vwap.count == chart.bars.count)
+    #expect(series.fastEMA.count == chart.bars.count)
+  }
+
+  @Test("VWAP restarts with each New York session over five days")
+  func vwapPerSession() throws {
+    let series = ChartSeries(chart: try chart("1h", "5d", [
+      ("2026-11-13T19:30:00.000Z", "10", "100"),
+      ("2026-11-13T20:00:00.000Z", "20", "100"),
+      ("2026-11-16T14:30:00.000Z", "30", "100"),
+    ]))
+    #expect(series.vwap == [10, 15, 30])
+  }
+
+  @Test("Daily, weekly and monthly candles have no VWAP and end on the calendar")
+  func calendarCandles() throws {
+    let months = ChartSeries(chart: try chart("1mo", "1y", [
+      ("2026-01-01T05:00:00.000Z", "10", "1000"),
+      ("2026-02-01T05:00:00.000Z", "11", "1000"),
+    ]))
+    #expect(months.vwap == [nil, nil])
+    #expect(months.candles[0].end == (try WireTime("2026-02-01T05:00:00.000Z").date))
+    #expect(months.candles[1].end == (try WireTime("2026-03-01T05:00:00.000Z").date))
+    let weeks = ChartSeries(chart: try chart("1w", "3m", [("2026-11-09T05:00:00.000Z", "10", "1000")]))
+    #expect(weeks.candles[0].end == (try WireTime("2026-11-16T05:00:00.000Z").date))
+    // The clocks go back on Nov 1: a New York day is then 25 hours long.
+    let days = ChartSeries(chart: try chart("1d", "1m", [("2026-11-01T04:00:00.000Z", "10", "1000")]))
+    #expect(days.candles[0].end == (try WireTime("2026-11-02T05:00:00.000Z").date))
+  }
+
+  @Test("Gapless candles sit back to back from the first start and keep their values")
+  func gapless() throws {
+    let series = ChartSeries(chart: try chart("1h", "5d", [
+      ("2026-11-13T20:00:00.000Z", "10", "100"),
+      ("2026-11-16T14:30:00.000Z", "30", "100"),
+    ]))
+    let gapless = series.gapless()
+    #expect(gapless.candles.map(\.start) == [series.candles[0].start, series.candles[0].start.addingTimeInterval(3600)])
+    #expect(gapless.candles[1].end == series.candles[0].start.addingTimeInterval(7200))
+    #expect(gapless.candles.map(\.close) == [10, 30])
+    #expect(gapless.vwap == series.vwap)
+    #expect(gapless.timeframe == .h1)
+  }
+
+  @Test("The ATR of a chart-v1 series runs over its own candles")
+  func atrOverCandles() throws {
+    let bars = (0..<20).map { day in (String(format: "2026-10-%02dT04:00:00.000Z", day + 1), "10", "1000") }
+    let series = ChartSeries(chart: try chart("1d", "1m", bars))
+    let line = ChartSeries.atr(candles: series.candles)
+    #expect(line.count == 20)
+    #expect(line[Indicators.atrPeriod - 2] == nil)
+    #expect(line[Indicators.atrPeriod - 1] == 0)
+  }
+
+  @Test("Every offered interval is one GET /chart serves for its range")
+  func offeredPairsAreServed() {
+    for range in ChartRange.allCases {
+      #expect(!range.intervals.isEmpty)
+      let intraday = range == .oneDay || range == .fiveDays
+      #expect(range.intervals.allSatisfy { $0.isIntraday == intraday })
+    }
+    #expect(ChartRange.oneDay.intervals == [.m1, .m5, .m30, .h1])
+  }
+}

@@ -1096,9 +1096,11 @@ enum ChartText {
   static let timeframe = LocalizedStringResource("chart.timeframe", defaultValue: "Interval")
   static let m1 = LocalizedStringResource("chart.timeframe.m1", defaultValue: "1m")
   static let m5 = LocalizedStringResource("chart.timeframe.m5", defaultValue: "5m")
-  static let m15 = LocalizedStringResource("chart.timeframe.m15", defaultValue: "15m")
   static let m30 = LocalizedStringResource("chart.timeframe.m30", defaultValue: "30m")
   static let h1 = LocalizedStringResource("chart.timeframe.h1", defaultValue: "1h")
+  static let d1 = LocalizedStringResource("chart.timeframe.d1", defaultValue: "D")
+  static let w1 = LocalizedStringResource("chart.timeframe.w1", defaultValue: "W")
+  static let mo1 = LocalizedStringResource("chart.timeframe.mo1", defaultValue: "M")
   static let vwap = LocalizedStringResource("chart.indicator.vwap", defaultValue: "VWAP")
   static let volume = LocalizedStringResource("chart.indicator.volume",
     defaultValue: "Volume")

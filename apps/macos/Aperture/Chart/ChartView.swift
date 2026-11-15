@@ -179,7 +179,7 @@ struct ChartView: View {
 
   private var timeframePicker: some View {
     Picker(selection: $timeframe) {
-      ForEach(Timeframe.allCases) { item in
+      ForEach(ChartRange.oneDay.intervals) { item in
         Text(Self.title(item)).tag(item)
       }
     } label: {
@@ -193,7 +193,12 @@ struct ChartView: View {
 
   /// "1m", "5m", "1h": the interval as charting apps name it.
   static func title(_ timeframe: Timeframe) -> LocalizedStringResource {
-    timeframe.hours.map(L10n.Chart.intervalHours) ?? L10n.Chart.intervalMinutes(timeframe.rawValue)
+    switch timeframe {
+    case .d1: L10n.Chart.intervalDay
+    case .w1: L10n.Chart.intervalWeek
+    case .mo1: L10n.Chart.intervalMonth
+    default: timeframe.hours.map(L10n.Chart.intervalHours) ?? L10n.Chart.intervalMinutes(timeframe.minutes ?? 1)
+    }
   }
 
   private var stylePicker: some View {

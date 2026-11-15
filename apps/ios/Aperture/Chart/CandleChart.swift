@@ -889,9 +889,11 @@ enum ChartFormat {
     switch timeframe {
     case .m1: ChartText.m1
     case .m5: ChartText.m5
-    case .m15: ChartText.m15
     case .m30: ChartText.m30
     case .h1: ChartText.h1
+    case .d1: ChartText.d1
+    case .w1: ChartText.w1
+    case .mo1: ChartText.mo1
     }
   }
 }

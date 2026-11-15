@@ -19,8 +19,22 @@ public extension Indicators {
   /// atr_series: Wilder average true range. The first value, at the `period`-th bar, is the
   /// simple average of the first `period` true ranges; then `atr = (prev * (period - 1) + tr) / period`.
   static func atr(_ bars: [BarV1], period: Int) -> [Double?] {
-    guard period > 0 else { return bars.map { _ in nil } }
-    let ranges = trueRange(bars)
+    atr(ranges: trueRange(bars), period: period)
+  }
+
+  /// true_range_series over candles already merged (chart-v1), like `trueRange(_:)` over bars.
+  static func trueRange(_ candles: [Candle]) -> [Double] {
+    var previousClose: Double?
+    return candles.map { candle in
+      defer { previousClose = candle.close }
+      guard let close = previousClose else { return candle.high - candle.low }
+      return max(candle.high - candle.low, abs(candle.high - close), abs(candle.low - close))
+    }
+  }
+
+  /// Wilder average of `ranges`, as `atr(_:period:)` describes it.
+  static func atr(ranges: [Double], period: Int) -> [Double?] {
+    guard period > 0 else { return ranges.map { _ in nil } }
     var previous: Double?
     var sum = 0.0
     return ranges.enumerated().map { index, range in
@@ -40,5 +54,10 @@ public extension ChartSeries {
   static func atr(bars: [BarV1], timeframe: Timeframe) -> [Double?] {
     let values = Indicators.atr(bars, period: Indicators.atrPeriod)
     return Candles.groups(bars, timeframe: timeframe).map { values[$0.lastBar] }
+  }
+
+  /// The ATR line of a chart-v1 series, over its own candles: there are no M1 bars to read it at.
+  static func atr(candles: [Candle]) -> [Double?] {
+    Indicators.atr(ranges: Indicators.trueRange(candles), period: Indicators.atrPeriod)
   }
 }

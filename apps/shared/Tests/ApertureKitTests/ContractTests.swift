@@ -94,7 +94,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
 
   @Test func chartBarsAndCause() throws {
     let chart = try Wire.decoder().decode(ChartV1.self, from: fixture("chart-v1.json"))
-    #expect(chart.interval == .fiveMinutes)
+    #expect(chart.interval == .m5)
     #expect(chart.range == .oneDay)
     #expect(chart.bars.map(\.extended) == [true, true, false])
     #expect(chart.bars.last?.close.text == "12.47")

@@ -1,18 +1,7 @@
 import Foundation
 
 // Swift mirror of chart-v1 in src/aperture/api/contract.py: candles of any US stock from market
-// data, in a chosen interval over a chosen range (GET /chart).
-
-/// Candle length of a chart-v1 read.
-public enum ChartInterval: String, Codable, Sendable, CaseIterable {
-  case oneMinute = "1m"
-  case fiveMinutes = "5m"
-  case thirtyMinutes = "30m"
-  case oneHour = "1h"
-  case oneDay = "1d"
-  case oneWeek = "1w"
-  case oneMonth = "1mo"
-}
+// data, in a chosen interval (`Timeframe`) over a chosen range (GET /chart).
 
 /// How far back a chart-v1 read reaches.
 public enum ChartRange: String, Codable, Sendable, CaseIterable {
@@ -21,6 +10,19 @@ public enum ChartRange: String, Codable, Sendable, CaseIterable {
   case oneMonth = "1m"
   case threeMonths = "3m"
   case oneYear = "1y"
+
+  /// Candle lengths the apps offer for this range, shortest first (the Chart boards of the
+  /// design): pairs GET /chart serves, without those that give only a few candles (1M in
+  /// monthly candles) or thousands (5D in M1 candles).
+  public var intervals: [Timeframe] {
+    switch self {
+    case .oneDay: [.m1, .m5, .m30, .h1]
+    case .fiveDays: [.m5, .m30, .h1]
+    case .oneMonth: [.d1]
+    case .threeMonths: [.d1, .w1]
+    case .oneYear: [.d1, .w1, .mo1]
+    }
+  }
 }
 
 /// One candle; prices in USD, volume in shares.
@@ -38,7 +40,7 @@ public struct ChartBarV1: Codable, Hashable, Sendable {
 /// Candles of `symbol`, oldest first; empty with `cause` when the source returned none.
 public struct ChartV1: Codable, Hashable, Sendable {
   public let symbol: String
-  public let interval: ChartInterval
+  public let interval: Timeframe
   public let range: ChartRange
   /// Where the candles came from.
   public let source: String
@@ -58,7 +60,7 @@ public struct ChartV1: Codable, Hashable, Sendable {
     let c = try decoder.container(keyedBy: CodingKeys.self)
     apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
     symbol = try c.decode(String.self, forKey: .symbol)
-    interval = try c.decode(ChartInterval.self, forKey: .interval)
+    interval = try c.decode(Timeframe.self, forKey: .interval)
     range = try c.decode(ChartRange.self, forKey: .range)
     source = try c.decode(String.self, forKey: .source)
     cachedAt = try c.decodeNullable(WireTime.self, forKey: .cachedAt)

@@ -7,15 +7,23 @@ import Foundation
 // value at its last M1 bar, so a line reads the same in every timeframe and matches what the
 // strategy saw. Values are `Double` because they are only drawn, never sent or added up as money.
 
-/// Candle length. The raw value is the length in minutes.
-public enum Timeframe: Int, CaseIterable, Identifiable, Sendable {
-  case m1 = 1
-  case m5 = 5
-  case m15 = 15
-  case m30 = 30
-  case h1 = 60
+/// Candle length, named as chart-v1 names its `interval`: minutes or an hour inside a session, or
+/// one calendar day, week or month. The app makes the intraday lengths itself from GET /bars M1
+/// bars; GET /chart serves every length already merged.
+public enum Timeframe: String, Codable, CaseIterable, Identifiable, Sendable {
+  case m1 = "1m"
+  case m5 = "5m"
+  case m30 = "30m"
+  case h1 = "1h"
+  case d1 = "1d"
+  case w1 = "1w"
+  case mo1 = "1mo"
 
-  public var id: Int { rawValue }
+  public var id: String { rawValue }
+
+  /// Minutes in one M5 and one M30 candle.
+  static let fiveMinutes = 5
+  static let thirtyMinutes = 30
 
   /// Seconds in one minute (unit factor).
   static let secondsPerMinute = 60
@@ -23,12 +31,45 @@ public enum Timeframe: Int, CaseIterable, Identifiable, Sendable {
   /// Minutes in one hour (unit factor).
   static let minutesPerHour = 60
 
-  /// Whole hours in one candle, or nil when the length is not a whole number of hours (1h reads
-  /// better than 60m).
-  public var hours: Int? { rawValue % Self.minutesPerHour == 0 ? rawValue / Self.minutesPerHour : nil }
+  /// Minutes in one day (unit factor).
+  static let minutesPerDay = 1_440
 
-  /// Length of one candle in seconds.
-  public var seconds: TimeInterval { TimeInterval(rawValue * Self.secondsPerMinute) }
+  /// Days in one weekly candle, and the nominal days of a monthly one. Only for a candle's slot
+  /// width; a monthly candle's dates come from the calendar (`Candles.end`).
+  static let daysPerWeek = 7
+  static let nominalDaysPerMonth = 30
+
+  /// Minutes in one candle inside a session; nil for a daily, weekly or monthly candle.
+  public var minutes: Int? {
+    switch self {
+    case .m1: 1
+    case .m5: Self.fiveMinutes
+    case .m30: Self.thirtyMinutes
+    case .h1: Self.minutesPerHour
+    case .d1, .w1, .mo1: nil
+    }
+  }
+
+  /// Whether candles of this length lie inside one session (not daily, weekly or monthly).
+  public var isIntraday: Bool { minutes != nil }
+
+  /// Whole hours in one candle, or nil when the length is not a whole number of hours (1h reads
+  /// better than 60m) or is not intraday.
+  public var hours: Int? {
+    minutes.flatMap { $0 % Self.minutesPerHour == 0 ? $0 / Self.minutesPerHour : nil }
+  }
+
+  /// Length of one candle in seconds; nominal for a monthly candle (see `nominalDaysPerMonth`).
+  public var seconds: TimeInterval {
+    let minutes: Int =
+      switch self {
+      case .d1: Self.minutesPerDay
+      case .w1: Self.minutesPerDay * Self.daysPerWeek
+      case .mo1: Self.minutesPerDay * Self.nominalDaysPerMonth
+      default: self.minutes ?? Self.minutesPerDay
+      }
+    return TimeInterval(minutes * Self.secondsPerMinute)
+  }
 }
 
 /// One candle; `start` is its opening time, `end` the opening time of the next.
@@ -40,12 +81,19 @@ public struct Candle: Hashable, Sendable, Identifiable {
   public let low: Double
   public let close: Double
   public let volume: Double
+  /// Whether the candle lies outside the regular session (chart-v1's `extended`; GET /bars
+  /// candles leave it false).
+  public let extended: Bool
 
   public var id: Date { start }
   /// Whether the candle closed at or above its open.
   public var isUp: Bool { close >= open }
 
-  public init(start: Date, end: Date, open: Double, high: Double, low: Double, close: Double, volume: Double) {
+  public init(
+    start: Date, end: Date, open: Double, high: Double, low: Double, close: Double, volume: Double,
+    extended: Bool = false
+  ) {
+    self.extended = extended
     self.start = start
     self.end = end
     self.open = open
@@ -77,6 +125,50 @@ public struct ChartSeries: Hashable, Sendable {
     self.vwap = groups.map { vwap[$0.lastBar] }
     fastEMA = groups.map { fast[$0.lastBar] }
     slowEMA = groups.map { slow[$0.lastBar] }
+  }
+
+  /// Candles and lines of a chart-v1 answer, one candle per bar: the bot has already merged them
+  /// into `chart.interval`. With no M1 bars, the lines run over the candles: VWAP restarts each
+  /// New York day and is nil for daily, weekly and monthly candles (a VWAP across sessions means
+  /// nothing), and the EMAs use the candles' closes.
+  public init(chart: ChartV1) {
+    let interval = chart.interval
+    let candles = chart.bars.map { bar in
+      let start = bar.start.date
+      return Candle(
+        start: start, end: Candles.end(of: start, timeframe: interval), open: Candles.double(bar.open),
+        high: Candles.double(bar.high), low: Candles.double(bar.low), close: Candles.double(bar.close),
+        volume: Candles.double(bar.volume), extended: bar.extended)
+    }
+    let closes = candles.map(\.close)
+    timeframe = interval
+    self.candles = candles
+    vwap = interval.isIntraday ? Indicators.sessionVWAP(candles) : candles.map { _ in nil }
+    fastEMA = Indicators.ema(closes, period: Indicators.fastEMAPeriod)
+    slowEMA = Indicators.ema(closes, period: Indicators.slowEMAPeriod)
+  }
+
+  private init(timeframe: Timeframe, candles: [Candle], vwap: [Double?], fastEMA: [Double?], slowEMA: [Double?]) {
+    self.timeframe = timeframe
+    self.candles = candles
+    self.vwap = vwap
+    self.fastEMA = fastEMA
+    self.slowEMA = slowEMA
+  }
+
+  /// The same candles back to back from the first one's start, one length each, every value
+  /// kept: a chart over several sessions or months then draws no overnight, weekend or holiday
+  /// gaps. Candle `i` keeps its index, so its real start is the original series' `candles[i]`.
+  public func gapless() -> ChartSeries {
+    guard let origin = candles.first?.start else { return self }
+    let length = timeframe.seconds
+    let moved = candles.enumerated().map { index, candle in
+      let start = origin.addingTimeInterval(TimeInterval(index) * length)
+      return Candle(
+        start: start, end: start.addingTimeInterval(length), open: candle.open, high: candle.high,
+        low: candle.low, close: candle.close, volume: candle.volume, extended: candle.extended)
+    }
+    return ChartSeries(timeframe: timeframe, candles: moved, vwap: vwap, fastEMA: fastEMA, slowEMA: slowEMA)
   }
 }
 
@@ -120,6 +212,23 @@ public enum Candles {
     return groups
   }
 
+  /// Where the candle of `timeframe` that opens at `start` ends: one length later inside a
+  /// session, cut where the session part ends (as chart-v1 cuts a part's last candle); the next
+  /// New York calendar day, week or month for the longer ones.
+  static func end(of start: Date, timeframe: Timeframe) -> Date {
+    let component: Calendar.Component
+    var count = 1
+    switch timeframe {
+    case .d1: component = .day
+    case .w1:
+      component = .day
+      count = Timeframe.daysPerWeek
+    case .mo1: component = .month
+    default: return candleSpan(start, length: timeframe.seconds).end
+    }
+    return WireDate.newYork.date(byAdding: component, value: count, to: start) ?? start.addingTimeInterval(timeframe.seconds)
+  }
+
   /// Start and end of the candle of `length` seconds holding `date`: whole lengths from the
   /// start of its session part, cut at the next part's start (the 15:30 H1 candle ends at 16:00).
   /// Before 04:00 the day's first part is the calendar day's start.
@@ -161,6 +270,27 @@ public enum Indicators {
       let barVolume = Candles.double(bar.volume)
       priceVolume += typical * barVolume
       volume += barVolume
+      return volume > 0 ? priceVolume / volume : nil
+    }
+  }
+
+  /// Session VWAP of the candles' typical price, restarting at each New York day, for candles
+  /// already merged by the bot (chart-v1) where no M1 bars are at hand. Nil while the session's
+  /// volume is zero.
+  public static func sessionVWAP(_ candles: [Candle]) -> [Double?] {
+    let calendar = WireDate.newYork
+    var priceVolume = 0.0
+    var volume = 0.0
+    var session: Date?
+    return candles.map { candle in
+      let day = calendar.startOfDay(for: candle.start)
+      if day != session {
+        session = day
+        priceVolume = 0
+        volume = 0
+      }
+      priceVolume += (candle.high + candle.low + candle.close) / typicalPriceParts * candle.volume
+      volume += candle.volume
       return volume > 0 ? priceVolume / volume : nil
     }
   }

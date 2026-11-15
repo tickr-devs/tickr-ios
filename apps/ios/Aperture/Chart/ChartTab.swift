@@ -290,7 +290,7 @@ private struct ChartControls: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       ScrollView(.horizontal) {
         HStack(spacing: Tokens.Space.s) {
-          ForEach(Timeframe.allCases) { timeframe in
+          ForEach(ChartRange.oneDay.intervals) { timeframe in
             let selected = timeframe == chart.timeframe
             Button { chart.timeframe = timeframe } label: {
               Text(ChartFormat.title(timeframe)).chip(on: selected)

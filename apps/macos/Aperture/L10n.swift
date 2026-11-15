@@ -952,6 +952,16 @@ enum L10n {
     static func intervalHours(_ hours: Int) -> LocalizedStringResource {
       LocalizedStringResource("chart.intervalHours", defaultValue: "\(hours)h", bundle: L10n.bundle)
     }
+    /// An interval segment: one candle a day, a week or a month.
+    static var intervalDay: LocalizedStringResource {
+      LocalizedStringResource("chart.intervalDay", defaultValue: "D", bundle: L10n.bundle)
+    }
+    static var intervalWeek: LocalizedStringResource {
+      LocalizedStringResource("chart.intervalWeek", defaultValue: "W", bundle: L10n.bundle)
+    }
+    static var intervalMonth: LocalizedStringResource {
+      LocalizedStringResource("chart.intervalMonth", defaultValue: "M", bundle: L10n.bundle)
+    }
     /// Tooltip of the interval picker.
     static var timeframeHelp: LocalizedStringResource {
       LocalizedStringResource("chart.timeframeHelp", defaultValue: "Candle length", bundle: L10n.bundle)

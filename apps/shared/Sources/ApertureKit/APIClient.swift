@@ -177,7 +177,7 @@ public struct APIClient: Sendable {
   }
 
   /// Candles of any US stock from market data, `interval` long over `range`, oldest first.
-  public func chart(symbol: String, interval: ChartInterval, range: ChartRange) async throws -> ChartV1 {
+  public func chart(symbol: String, interval: Timeframe, range: ChartRange) async throws -> ChartV1 {
     try await perform(request(path: Self.chartPath, query: [(Self.symbolQuery, symbol),
       (Self.intervalQuery, interval.rawValue), (Self.rangeQuery, range.rawValue)], body: nil), expect: Self.ok)
   }

@@ -147,5 +147,8 @@ struct CandlesTests {
     #expect(Timeframe.m30.hours == nil)
     #expect(Timeframe.m1.hours == nil)
     #expect(Timeframe.h1.seconds == 3600)
+    #expect(Timeframe.d1.hours == nil)
+    #expect(Timeframe.d1.minutes == nil)
+    #expect(!Timeframe.w1.isIntraday)
   }
 }

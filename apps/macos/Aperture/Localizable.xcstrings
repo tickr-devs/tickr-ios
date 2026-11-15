@@ -1616,6 +1616,23 @@
         }
       }
     },
+    "chart.intervalDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Д"
+          }
+        }
+      }
+    },
     "chart.intervalHours" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1646,6 +1663,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lldм"
+          }
+        }
+      }
+    },
+    "chart.intervalMonth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "М"
+          }
+        }
+      }
+    },
+    "chart.intervalWeek" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Н"
           }
         }
       }

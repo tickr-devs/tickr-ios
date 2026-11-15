@@ -2589,6 +2589,23 @@
         }
       }
     },
+    "chart.timeframe.d1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Д"
+          }
+        }
+      }
+    },
     "chart.timeframe.h1" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2640,23 +2657,6 @@
         }
       }
     },
-    "chart.timeframe.m15" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "15m"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "15м"
-          }
-        }
-      }
-    },
     "chart.timeframe.m30" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2670,6 +2670,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "30м"
+          }
+        }
+      }
+    },
+    "chart.timeframe.mo1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "М"
+          }
+        }
+      }
+    },
+    "chart.timeframe.w1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Н"
           }
         }
       }
