@@ -1269,9 +1269,33 @@
           }
         },
         "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Полосы Боллинджера вокруг средней за %lld свечей"
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Полосы Боллинджера вокруг средней за %lld свечи"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Полосы Боллинджера вокруг средней за %lld свечей"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Полосы Боллинджера вокруг средней за %lld свечу"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Полосы Боллинджера вокруг средней за %lld свечи"
+                }
+              }
+            }
           }
         }
       }
@@ -4383,9 +4407,21 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "with bot limits · %lld trades"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "with bot limits · %lld trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "with bot limits · %lld trades"
+                }
+              }
+            }
           }
         },
         "ru" : {

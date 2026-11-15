@@ -1585,7 +1585,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У брокера {held} акций, по деталям ордера {expected}"
+            "value" : "Акций у брокера: {held}, по деталям ордера: {expected}"
           }
         }
       }
@@ -1693,7 +1693,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Подтверждённый стоп покрывает {verified} из {expected} акций"
+            "value" : "Подтверждённый стоп покрывает акций: {verified} из {expected}"
           }
         }
       }
@@ -1729,7 +1729,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Стопы покрывают {covered} акций, у брокера {held}"
+            "value" : "Акций под стопами: {covered}, у брокера: {held}"
           }
         }
       }
@@ -2515,7 +2515,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У сделки {count} ордеров входа, ожидался 1"
+            "value" : "Ордеров входа у сделки: {count}, ожидался 1"
           }
         }
       }

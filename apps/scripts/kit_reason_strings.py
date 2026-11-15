@@ -117,12 +117,12 @@ GROUPS = [
             (
                 "stop_covers_part",
                 "The verified stop covers {verified} of {expected} shares",
-                "Подтверждённый стоп покрывает {verified} из {expected} акций",
+                "Подтверждённый стоп покрывает акций: {verified} из {expected}",
             ),
             (
                 "stops_over_position",
                 "Stops cover {covered} shares, the broker holds {held}",
-                "Стопы покрывают {covered} акций, у брокера {held}",
+                "Акций под стопами: {covered}, у брокера: {held}",
             ),
             (
                 "unprotected_close_by_hand",
@@ -195,7 +195,7 @@ GROUPS = [
             (
                 "quantity_mismatch",
                 "The broker holds {held} shares, the order detail says {expected}",
-                "У брокера {held} акций, по деталям ордера {expected}",
+                "Акций у брокера: {held}, по деталям ордера: {expected}",
             ),
             ("shutting_down", "Shutdown in progress", "Идёт завершение работы"),
             (
@@ -381,7 +381,7 @@ GROUPS = [
             (
                 "entry_orders_count",
                 "Trade has {count} entry orders, expected 1",
-                "У сделки {count} ордеров входа, ожидался 1",
+                "Ордеров входа у сделки: {count}, ожидался 1",
             ),
             ("no_intent_row", "No order-intent record", "Нет записи о намерении ордера"),
             (
