@@ -3966,23 +3966,6 @@
         }
       }
     },
-    "flow.refusedTag" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "refused"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "отказ"
-          }
-        }
-      }
-    },
     "flow.risk" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4064,6 +4047,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "стоп"
+          }
+        }
+      }
+    },
+    "flow.stopsCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
           }
         }
       }

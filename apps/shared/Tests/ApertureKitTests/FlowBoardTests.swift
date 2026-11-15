@@ -38,4 +38,14 @@ struct FlowBoardTests {
     #expect(FlowBoard.marks(flow: flow, skipped: nil).count == 4)
     #expect(FlowBoard.marks(flow: nil, skipped: skipped).isEmpty)
   }
+
+  @Test("An open position's own stop state colours its mark, not the stage's")
+  func openPositionTone() throws {
+    let flow = try Wire.decoder().decode(FlowV1.self, from: fixture("flow-v1.json"))
+    let status = try #require(Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json")).status)
+    // The flow still says ABCD's stop is pending; the status, newer, says it is verified.
+    let marks = FlowBoard.marks(flow: flow, skipped: nil, positions: status.positions)
+    #expect(marks.first { $0.id == "ABCD" }?.tone == .normal)
+    #expect(marks.first { $0.id == "EFGH" }?.tone == .alarm)
+  }
 }

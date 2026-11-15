@@ -40,6 +40,17 @@ public enum ApiText {
     return detail.isEmpty ? title : title + detailSeparator + detail
   }
 
+  /// The fence in words, about `symbol` when the apps know which open position it concerns: the
+  /// symbol first, in place of the bot's internal key (a trade or order id), so it survives a cut
+  /// line. Without a symbol, `fenceWithDetail`.
+  public static func fenceWithDetail(_ fence: Fence, symbol: String?) -> String {
+    guard let symbol else { return fenceWithDetail(fence) }
+    let name = String(fence.kind.prefix { $0 != Fence.keySeparator })
+    let title = FenceKind(rawValue: name.replacing("-", with: "_")).map { String(localized: $0.title) } ?? name
+    let detail = fenceDetail(fence)
+    return symbol + keySeparator + (detail.isEmpty ? title : title + detailSeparator + detail)
+  }
+
   /// The trading gate's cause in the person's language, else the bot's own words.
   public static func gate(_ gate: Gate) -> String {
     GateReason(rawValue: gate.code)?.text(gate.params) ?? gate.cause

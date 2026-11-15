@@ -47,7 +47,8 @@ struct HomeView: View {
         }
         let todayFlow = model.flow?.day == model.today ? model.flow : nil
         LiveFlowCard(status: status, flow: todayFlow, flowPending: model.flowPending,
-          marks: FlowBoard.marks(flow: todayFlow, skipped: model.skipped?.day == model.today ? model.skipped : nil),
+          marks: FlowBoard.marks(flow: todayFlow, skipped: model.skipped?.day == model.today ? model.skipped : nil,
+            positions: status.positions),
           maxPositions: model.settings?.risk.maxOpenPositions,
           current: model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today)
           .rise(step: Order.flow.rawValue)
@@ -436,9 +437,9 @@ private struct LiveFlowCard: View {
     }
     // An open position waiting for its stop shows first; then the day's stops from the flow.
     let stops: String? = if verified < positions.count || flow?.stops.isEmpty != false {
-      positions.isEmpty ? nil : String(localized: L10n.Flow.stopsVerified(verified, positions.count))
+      positions.isEmpty ? nil : Self.stops(verified, of: positions.count)
     } else {
-      flow.map { String(localized: L10n.Flow.stopsVerified(flowVerified ?? 0, $0.stops.count)) }
+      flow.map { Self.stops(flowVerified ?? 0, of: $0.stops.count) }
     }
     // The day's count stays; an entry block shows under it, red when it needs the operator.
     let blocked = !status.entriesAllowed && !status.entriesCalm
@@ -463,16 +464,23 @@ private struct LiveFlowCard: View {
     ]
   }
 
+  /// "2/2 ✓" only when every stop is verified; otherwise the bare count, never a check mark.
+  private static func stops(_ verified: Int, of total: Int) -> String {
+    String(localized: verified == total ? L10n.Flow.stopsVerified(verified, total) : L10n.Flow.stopsCount(verified, total))
+  }
+
   /// How many symbols reached `stage` today; nil until the flow is read.
   private func count(_ stage: FlowStage) -> String? {
     flow?.stages.first { $0.stage == stage }.map { String($0.count) }
   }
 
   var body: some View {
-    NavigationLink {
-      RiskView()
-    } label: {
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+    // Only the header opens Risk: a whole-card link would swallow the refused trays' taps and
+    // host their popovers inside its label.
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      NavigationLink {
+        RiskView()
+      } label: {
         HStack {
           CardLabel(L10n.Flow.title)
           Spacer()
@@ -485,42 +493,48 @@ private struct LiveFlowCard: View {
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.textQuaternary)
           }
+          Image(systemName: "chevron.right")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(Palette.textQuaternary)
         }
-        HStack(alignment: .top) {
-          // Equal columns, as in the design: a long value never widens its stage.
-          ForEach(stages) { stage in
-            column(stage).frame(maxWidth: .infinity, alignment: .top)
-          }
-        }
-        // Until the first /flow read answers, a placeholder instead of numbers that would jump.
-        .redacted(reason: current && flowPending ? .placeholder : [])
-        // A symbol's dot flies to its next stage only when a new read moves it.
-        .animation(reduceMotion ? nil : Tokens.Motion.standard, value: marks)
-        HStack(spacing: Tokens.Space.s) {
-          StateGlyph(Self.streamSymbol, tone: streamTone,
-            label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
-            live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
-          Label {
-            Text(verbatim: Format.timeOrDash(status.freshness.lastBrokerReadAt))
-          } icon: {
-            Image(systemName: Self.brokerSymbol)
-          }
-          .labelStyle(ControlLabelStyle())
-          .foregroundStyle(current && status.freshness.lastBrokerReadAt == nil ? Palette.lossText : Palette.textQuaternary)
-          .accessibilityLabel(Text(L10n.Flow.brokerRead(Format.timeOrDash(status.freshness.lastBrokerReadAt))))
-        }
-        .font(Tokens.Typography.annotation)
-        ForEach(status.fences, id: \.kind) { fence in
-          Label { Text(verbatim: ApiText.fenceWithDetail(fence)) } icon: { Image(systemName: "exclamationmark.triangle.fill") }
-            .font(.caption)
-            .foregroundStyle(Palette.warningText)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+      HStack(alignment: .top) {
+        // Equal columns, as in the design: a long value never widens its stage.
+        ForEach(stages) { stage in
+          column(stage).frame(maxWidth: .infinity, alignment: .top)
         }
       }
-      .padding(.horizontal, Tokens.Space.l)
-      .padding(.vertical, Tokens.Space.m)
-      .apertureCard()
+      // Until the first /flow read answers, a placeholder instead of numbers that would jump.
+      .redacted(reason: current && flowPending ? .placeholder : [])
+      // A symbol's dot flies to its next stage only when a new read moves it.
+      .animation(reduceMotion ? nil : Tokens.Motion.standard, value: marks)
+      HStack(spacing: Tokens.Space.s) {
+        StateGlyph(Self.streamSymbol, tone: streamTone,
+          label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
+          live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
+        Label {
+          Text(verbatim: Format.timeOrDash(status.freshness.lastBrokerReadAt))
+        } icon: {
+          Image(systemName: Self.brokerSymbol)
+        }
+        .labelStyle(ControlLabelStyle())
+        .foregroundStyle(current && status.freshness.lastBrokerReadAt == nil ? Palette.lossText : Palette.textQuaternary)
+        .accessibilityLabel(Text(L10n.Flow.brokerRead(Format.timeOrDash(status.freshness.lastBrokerReadAt))))
+      }
+      .font(Tokens.Typography.annotation)
+      ForEach(status.fences, id: \.kind) { fence in
+        Label { Text(verbatim: Board.fenceText(fence, positions: status.positions)) } icon: {
+          Image(systemName: "exclamationmark.triangle.fill")
+        }
+          .font(.caption)
+          .foregroundStyle(Palette.warningText)
+      }
     }
-    .buttonStyle(.plain)
+    .padding(.horizontal, Tokens.Space.l)
+    .padding(.vertical, Tokens.Space.m)
+    .apertureCard()
   }
 
   /// Stage names, in `StageID` order.
@@ -581,19 +595,25 @@ private struct LiveFlowCard: View {
     let passed = here.filter { !$0.refused }
     let refused = here.filter(\.refused)
     VStack(spacing: Tokens.Space.xs) {
-      if !passed.isEmpty { dots(passed, color: stage.color).accessibilityHidden(true) }
+      // A stop dot is green unless its own stop is waiting or unconfirmed: one unprotected
+      // position reddens the stage, never the day's other stops.
+      if !passed.isEmpty {
+        dots(passed, color: stage.id == .stop ? Palette.profit : stage.color).accessibilityHidden(true)
+      }
       if !refused.isEmpty {
-        // No hover on a phone: a tap on the tray lists who was refused and why (HIG: popover).
+        // No hover on a phone: a tap anywhere on the tray, a full touch target wide and tall,
+        // lists who was refused and why in a popover that stays until dismissed (HIG).
         Button {
           openTray = stage.id
         } label: {
-          dots(refused, color: Palette.loss)
+          dots(refused, color: Palette.loss, hinted: false)
             .padding(Tokens.Space.xs)
             .overlay {
               RoundedRectangle(cornerRadius: Tokens.Radius.small)
                 .strokeBorder(Palette.separatorStrong,
                   style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
             }
+            .frame(maxWidth: .infinity, minHeight: Tokens.Size.touchTarget)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -601,17 +621,19 @@ private struct LiveFlowCard: View {
         .popover(isPresented: Binding(get: { openTray == stage.id }, set: { if !$0 { openTray = nil } })) {
           RefusedList(marks: refused)
             .presentationCompactAdaptation(.popover)
+            .presentationBackground(Palette.surface)
         }
       }
     }
   }
 
-  private func dots(_ marks: [FlowMark], color: Color) -> some View {
+  /// `hinted`: each dot names itself on a long press; off inside the tray, whose tap lists them all.
+  private func dots(_ marks: [FlowMark], color: Color, hinted: Bool = true) -> some View {
     VStack(spacing: Tokens.Space.xxs) {
       LazyVGrid(columns: Array(repeating: GridItem(.fixed(Tokens.Size.dotSmall), spacing: Tokens.Space.xxs),
         count: Self.poolColumns), spacing: Tokens.Space.xxs) {
         ForEach(marks.prefix(Self.poolCap)) { mark in
-          SymbolDot(mark: mark, color: color)
+          SymbolDot(mark: mark, color: color, hinted: hinted)
             .matchedGeometryEffect(id: mark.id, in: board)
             .transition(.scale.combined(with: .opacity))
         }
@@ -630,19 +652,33 @@ private struct RefusedList: View {
   let marks: [FlowMark]
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+    // Text at reading size, never the card's shrunk or redacted styles; a list too tall for
+    // the popover (large Dynamic Type) scrolls.
+    ViewThatFits(in: .vertical) {
+      list
+      ScrollView { list }
+    }
+    .frame(width: Tokens.Size.hintMaxWidth)
+    .lineLimit(nil)
+    .minimumScaleFactor(1)
+    .unredacted()
+  }
+
+  private var list: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
       ForEach(marks) { mark in
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
           Text(verbatim: mark.id)
-            .font(.subheadline.monospaced().bold())
+            .font(.headline.monospaced())
             .foregroundStyle(Palette.textPrimary)
           if let note = mark.note {
             Text(verbatim: note)
-              .font(.footnote)
+              .font(.subheadline)
               .foregroundStyle(Palette.textSecondary)
               .fixedSize(horizontal: false, vertical: true)
           }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
       }
     }
@@ -658,22 +694,16 @@ private struct LatestEventLine: View {
   let text: String
   let color: Color
 
+  /// Lines the event's text may take: a fence's symbol and what it says (how long, what next)
+  /// must not be cut off on a phone.
+  static let textLines = 3
+
   /// The newest of the status's events and today's risk refusals (a refusal is an event too).
   static func latest(status: StatusV1, skipped: SkippedV1?) -> LatestEventLine? {
-    let event = Board.events(status).first.map {
+    Board.latestEvent(status, skipped: skipped).map {
       LatestEventLine(time: $0.time, tag: $0.tag, text: $0.text, color: $0.tone.color)
     }
-    let refusal = skipped?.signals.filter { $0.admission == .refused }.max { $0.at.date < $1.at.date }.map {
-      LatestEventLine(time: $0.at.date, tag: String(localized: L10n.Flow.refusedTag),
-        text: [$0.symbol, $0.refusal.map(ApiText.refusal) ?? $0.refusalCause].compactMap { $0 }.joined(separator: Self.gap),
-        color: Palette.warning)
-    }
-    guard let event, let refusal else { return event ?? refusal }
-    return refusal.time > event.time ? refusal : event
   }
-
-  /// Between the refused symbol and why.
-  static let gap = " "
 
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
@@ -681,6 +711,7 @@ private struct LatestEventLine: View {
         .foregroundStyle(Palette.textQuaternary)
       Text(verbatim: tag).bold().textCase(.uppercase).foregroundStyle(color)
       Text(verbatim: text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
+        .lineLimit(Self.textLines)
       Spacer(minLength: 0)
     }
     .font(Tokens.Typography.annotation.monospaced())
@@ -706,17 +737,27 @@ private extension View {
 private struct SymbolDot: View {
   let mark: FlowMark
   let color: Color
+  /// Whether a long press names the dot; off where a tap on the whole tray lists the dots.
+  var hinted = true
 
   /// Joins the symbol and its note in the hint.
   static let separator = "\n"
 
-  var body: some View {
+  @ViewBuilder var body: some View {
+    if hinted {
+      dot.hint(verbatim: [mark.id, mark.note].compactMap { $0 }.joined(separator: Self.separator))
+    } else {
+      dot
+    }
+  }
+
+  private var dot: some View {
     let fill: Color = switch mark.tone {
     case .normal: color
     case .pending: Palette.warning
     case .alarm: Palette.loss
     }
-    Group {
+    return Group {
       if mark.refused {
         Circle().strokeBorder(Palette.loss, lineWidth: Tokens.Stroke.regular)
       } else {
@@ -724,7 +765,6 @@ private struct SymbolDot: View {
       }
     }
     .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-    .hint(verbatim: [mark.id, mark.note].compactMap { $0 }.joined(separator: Self.separator))
   }
 }
 

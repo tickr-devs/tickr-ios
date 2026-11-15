@@ -284,7 +284,8 @@ private struct LiveFlowCard: View {
       }
     } content: {
       LatestEvent()
-      Pipeline(stages: stages, marks: FlowBoard.marks(flow: model.flow, skipped: model.skipped), moving: model.isLive)
+      Pipeline(stages: stages, marks: FlowBoard.marks(flow: model.flow, skipped: model.skipped,
+        positions: model.isLive ? model.status?.positions ?? [] : []), moving: model.isLive)
     }
   }
 
@@ -472,7 +473,10 @@ private struct Pipeline: View {
           .help(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
       }
       if let flowStage = stage.id.flowStage, !marks.isEmpty {
-        pool(marks.filter { $0.stage == flowStage && !$0.refused }, color: stage.color)
+        // A stop dot is green unless its own stop is waiting or unconfirmed: one unprotected
+        // position reddens the stage, never the day's other stops.
+        pool(marks.filter { $0.stage == flowStage && !$0.refused },
+          color: flowStage == .stop ? Palette.profit : stage.color)
         if flowStage == .universe || flowStage == .risk {
           tray(marks.filter { $0.stage == flowStage && $0.refused },
             title: flowStage == .universe ? L10n.Flow.trayExcluded : L10n.Flow.trayRefused)

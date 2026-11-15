@@ -37,8 +37,9 @@ public enum FlowBoard {
   /// The marks of a day: every symbol in the flow's chips and stages once, at its furthest
   /// stage. A chip the universe left out sits in the universe tray; a symbol whose ENTER risk
   /// refused (and that never passed risk later) sits in the risk tray. Sorted by symbol, so the
-  /// board is stable between reads.
-  public static func marks(flow: FlowV1?, skipped: SkippedV1?) -> [FlowMark] {
+  /// board is stable between reads. `positions`, the status's open positions, are newer than
+  /// the flow's stops: an open position's own stop state colours its mark.
+  public static func marks(flow: FlowV1?, skipped: SkippedV1?, positions: [Position] = []) -> [FlowMark] {
     guard let flow else { return [] }
     var furthest: [String: FlowStage] = [:]
     for chip in flow.chips { furthest[chip.symbol] = .screeners }
@@ -50,9 +51,10 @@ public enum FlowBoard {
       uniquingKeysWith: { first, _ in first })
     var refusedByRisk: [String: String] = [:]
     for signal in skipped?.signals ?? [] where signal.admission == .refused {
-      refusedByRisk[signal.symbol] = signal.refusal.map(ApiText.refusal) ?? signal.refusalCause
+      refusedByRisk[signal.symbol] = note(signal)
     }
     let stops = Dictionary(flow.stops.map { ($0.symbol, $0.state) }, uniquingKeysWith: { _, last in last })
+    let open = Dictionary(positions.map { ($0.symbol, $0.stop.state) }, uniquingKeysWith: { first, _ in first })
     return furthest.keys.sorted().map { symbol in
       let stage = furthest[symbol] ?? .screeners
       if stage == .screeners, let cause = excluded[symbol] {
@@ -61,7 +63,23 @@ public enum FlowBoard {
       if stage == .strategy, let cause = refusedByRisk[symbol] {
         return FlowMark(id: symbol, stage: .risk, refused: true, note: cause)
       }
+      if let open = open[symbol] { return FlowMark(id: symbol, stage: stage, tone: tone(open)) }
       return FlowMark(id: symbol, stage: stage, tone: tone(stops[symbol]))
+    }
+  }
+
+  /// Why the platform refused `signal`, as the apps word it: the refusal in the reader's
+  /// language (`ApiText.refusal`), else the recorded "CAUSE: detail"; nil when neither was recorded.
+  public static func note(_ signal: SkippedSignalV1) -> String? {
+    signal.refusal.map(ApiText.refusal) ?? signal.refusalCause
+  }
+
+  /// How an open position's stop colours its mark: verified, waiting, or missing or unknown.
+  private static func tone(_ stop: StopState) -> FlowMark.Tone {
+    switch stop {
+    case .verified: .normal
+    case .pending: .pending
+    case .missing, .unknown: .alarm
     }
   }
 

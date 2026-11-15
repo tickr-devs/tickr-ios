@@ -63,7 +63,7 @@ final class ScreenTourUITests: XCTestCase {
       shot("tab0-bot-control")
       guard dismiss() else { return }
     }
-    // The Live flow card is one link whose label also carries its stages and values.
+    // The Live flow card's header is the link to Risk; its label starts with the card title.
     let flow = NSPredicate(format: "label BEGINSWITH[c] %@", Label.liveFlow)
     if english, tap(app.buttons.matching(flow).firstMatch) {
       capture(screen: "tab0-risk")

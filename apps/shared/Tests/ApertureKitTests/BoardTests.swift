@@ -21,6 +21,35 @@ import Testing
     #expect(Board.positions(try status("status-response-v1.minimal.json")).isEmpty)
   }
 
+  @Test("The event line shows the latest of the status's events and the risk refusals")
+  func latestEventIncludesRefusals() throws {
+    let status = try status("status-response-v1.json")
+    #expect(Board.latestEvent(status, skipped: nil) == Board.events(status).first)
+    // ZNTH was refused at 15:35, after everything the status lists (15:00); WXYZ, later still,
+    // was not evaluated, so it is no refusal.
+    let skipped = try Wire.decoder().decode(SkippedV1.self, from: fixture("skipped-v1.json"))
+    let latest = try #require(Board.latestEvent(status, skipped: skipped))
+    #expect(latest.tag == String(localized: L10n.tagRefused))
+    let znth = try #require(skipped.signals.first { $0.symbol == "ZNTH" })
+    #expect(latest.text == "ZNTH" + Board.refusalGap + (FlowBoard.note(znth) ?? ""))
+    #expect(latest.tone == .amber)
+  }
+
+  @Test("A fence keyed by an open position's trade or order names that symbol first")
+  func fenceSymbol() throws {
+    let positions = try status("status-response-v1.json").positions
+    func fence(_ kind: String) throws -> Fence {
+      let json = #"{"kind":"\#(kind)","since":"2026-11-16T15:00:00.123Z","text":"t","code":"x","params":{}}"#
+      return try Wire.decoder().decode(Fence.self, from: Data(json.utf8))
+    }
+    #expect(Board.fenceSymbol(try fence("unprotected-timeout:0001"), positions: positions) == "ABCD")
+    #expect(Board.fenceSymbol(try fence("status-unknown:ap-0001-s"), positions: positions) == "ABCD")
+    #expect(Board.fenceSymbol(try fence("unprotected:0002"), positions: positions) == nil)
+    #expect(Board.fenceSymbol(try fence("startup-reconcile"), positions: positions) == nil)
+    #expect(Board.fenceText(try fence("unprotected-timeout:0001"), positions: positions)
+      .hasPrefix("ABCD" + ApiText.keySeparator))
+  }
+
   /// The fixture's status with a second open position, EFGH, whose stop is still pending.
   func twoPositions() throws -> StatusResponseV1 {
     var response = try #require(try JSONSerialization.jsonObject(with: fixture("status-response-v1.json")) as? [String: Any])

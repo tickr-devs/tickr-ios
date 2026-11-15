@@ -311,9 +311,6 @@ enum L10n {
 
   enum Flow {
     /// The event line's tag for a signal risk refused: "REFUSED".
-    static var refusedTag: LocalizedStringResource {
-      LocalizedStringResource("flow.refusedTag", defaultValue: "refused", bundle: L10n.bundle)
-    }
     /// VoiceOver label of a stage's refused tray: "2 refused".
     static func refusedCount(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.refusedCount", defaultValue: "\(count) refused", bundle: L10n.bundle)
@@ -347,6 +344,10 @@ enum L10n {
     /// Verified broker stops of all open positions, under the stop stage: "2/3 ✓".
     static func stopsVerified(_ verified: Int, _ total: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.stopsVerified", defaultValue: "\(verified)/\(total) ✓", bundle: L10n.bundle)
+    }
+    /// The Stop stage while some stop is not verified: "0/1", without the check mark.
+    static func stopsCount(_ verified: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.stopsCount", defaultValue: "\(verified)/\(total)", bundle: L10n.bundle)
     }
     /// Symbols at a live-flow stage beyond the dots shown: "+5".
     static func more(_ count: Int) -> LocalizedStringResource {
