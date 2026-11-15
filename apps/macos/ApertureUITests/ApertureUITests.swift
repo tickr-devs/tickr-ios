@@ -26,6 +26,8 @@ final class ApertureUITests: XCTestCase {
   static let observer = "price-action-v1"
   /// The Overview badge for fixture data (overview.fixtures, upper-cased as every badge is).
   static let fixturesBadge = "FIXTURES"
+  /// The toolbar's connection status (ConnectionStatus.id).
+  static let connectionItem = "toolbar-connection"
   /// The Chart's decisions toggle (ChartView.decisionsToggleID) and a rule from decisions-v1.json.
   static let decisionsToggle = "chart-decisions"
   static let decisionRule = "ask_above_trigger"
@@ -109,6 +111,9 @@ final class ApertureUITests: XCTestCase {
     let app = launch()
     open(Self.sections[0], in: app)
     XCTAssertTrue(app.staticTexts[Self.fixturesBadge].firstMatch.waitForExistence(timeout: Self.timeout))
+    // The title bar names the bot's address (the fixture API answers as 127.0.0.1).
+    let connection = app.descendants(matching: .any)[Self.connectionItem].firstMatch
+    XCTAssertTrue(connection.waitForExistence(timeout: Self.timeout), "connection\n\(app.debugDescription)")
   }
 
   @MainActor

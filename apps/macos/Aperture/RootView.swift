@@ -98,12 +98,16 @@ struct RootView: View {
     }
   }
 
+  /// "sandbox · price-action-v1 v1 · positions: 1", as in the design's title bar; the day is in
+  /// the toolbar's day picker. Before the first status, the day.
   private var subtitle: String {
-    let day = model.isLive
-      ? String(localized: L10n.Common.todayDay(Format.dayLabel(model.today)))
-      : String(localized: L10n.Common.recordedDay(Format.dayLabel(model.shownDay)))
-    guard let status = model.status else { return day }
-    return "\(day) · \(status.environment) · \(Format.strategy(status.strategy))"
+    guard let status = model.status else {
+      return model.isLive
+        ? String(localized: L10n.Common.todayDay(Format.dayLabel(model.today)))
+        : String(localized: L10n.Common.recordedDay(Format.dayLabel(model.shownDay)))
+    }
+    let positions = String(localized: L10n.Toolbar.positions(status.positions.count))
+    return "\(status.environment) · \(Format.strategy(status.strategy)) · \(positions)"
   }
 }
 
@@ -217,11 +221,45 @@ private struct DayToolbar: ToolbarContent {
         .disabled(model.isLive)
         .help(Text(L10n.Toolbar.nextDayHelp))
     }
+    ToolbarItem(placement: .status) {
+      ConnectionStatus()
+    }
     ToolbarItem(placement: .primaryAction) {
       if !model.isLive {
         Button(String(localized: L10n.Common.today)) { model.showToday() }.help(Text(L10n.Toolbar.todayHelp))
       }
     }
+  }
+}
+
+/// The bot's address and how old its status is ("127.0.0.1 · 3 s ago"), with a dot in the
+/// headline's colour; the tooltip says what the headline says.
+private struct ConnectionStatus: View {
+  @Environment(AppModel.self) private var model
+
+  /// How often the age refreshes, in seconds.
+  static let tick: TimeInterval = 1
+  /// Accessibility id of the item, for the UI tests.
+  static let id = "toolbar-connection"
+
+  var body: some View {
+    TimelineView(.periodic(from: .now, by: Self.tick)) { context in
+      HStack(spacing: Tokens.Space.s) {
+        PulseDot(model.headline.severity.color, size: Tokens.Size.dotSmall, pulsing: model.isLive)
+        Text(verbatim: text(now: model.botTime(context.date)))
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textTertiary)
+      }
+    }
+    .help(Text(verbatim: model.headline.text))
+    .accessibilityElement(children: .combine)
+    .accessibilityIdentifier(Self.id)
+  }
+
+  private func text(now: Date) -> String {
+    let host = model.baseURL.host() ?? model.baseURL.absoluteString
+    guard let written = model.status?.writtenAt.date else { return host }
+    return String(localized: L10n.Toolbar.connection(host, Format.age(since: written, now: now)))
   }
 }
 

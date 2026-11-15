@@ -6019,6 +6019,23 @@
         }
       }
     },
+    "toolbar.connection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "toolbar.dayRow" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6083,6 +6100,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Выбрать торговый день из истории"
+          }
+        }
+      }
+    },
+    "toolbar.positions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "positions: %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "позиций: %lld"
           }
         }
       }
