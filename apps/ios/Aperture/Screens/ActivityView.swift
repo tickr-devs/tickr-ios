@@ -663,6 +663,15 @@ private struct TradesList: View {
             StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
           }
         }
+        // The largest sizes: the result ("53 @ 24.69") gets a line of its own too.
+        VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+          headerText(symbol)
+          resultText(result, tone: tone)
+          ChipFlow {
+            timeText(time)
+            StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
+          }
+        }
       }
       ChipFlow {
         chipViews(figures)
@@ -777,8 +786,8 @@ private struct SkippedRow: View {
       .labelStyle(ControlLabelStyle())
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textTertiary)
-      .lineLimit(1)
-      .minimumScaleFactor(StatTile.minimumScale)
+      // It may wrap (between words) rather than lose the repeat count at its end.
+      .fixedSize(horizontal: false, vertical: true)
       .hint(L10n.Activity.hintWhen)
   }
 
@@ -935,21 +944,38 @@ private struct Journal: View {
   /// Side of an event's dot, in points.
   static let dotSide: CGFloat = 7
 
+  @Environment(\.dynamicTypeSize) private var typeSize
   let events: [Board.Event]
 
   var body: some View {
     VStack(spacing: 0) {
       ForEach(Array(events.enumerated()), id: \.element.id) { index, event in
-        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Text(verbatim: Format.clock(event.time))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-          Circle().fill(event.tone.color).frame(width: Self.dotSide, height: Self.dotSide)
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            Text(verbatim: event.tag).font(Tokens.Typography.annotationBold).foregroundStyle(event.tone.color)
-            Text(verbatim: event.text).font(.footnote).foregroundStyle(Palette.textSecondary)
+        Group {
+          if typeSize.isAccessibilitySize {
+            // The time column would leave the text a few letters per line: time and tag go on
+            // top, wrapping as chips, and the text takes the whole width below.
+            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+              ChipFlow(spacing: Tokens.Space.s) {
+                HStack(spacing: Tokens.Space.s) {
+                  dot(event)
+                  time(event)
+                }
+                tag(event)
+              }
+              text(event)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+          } else {
+            HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+              time(event)
+              dot(event)
+              VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+                tag(event)
+                text(event)
+              }
+              Spacer(minLength: 0)
+            }
           }
-          Spacer(minLength: 0)
         }
         .padding(.horizontal, Tokens.Space.m)
         .padding(.vertical, Tokens.Space.s)
@@ -965,5 +991,29 @@ private struct Journal: View {
     .padding(.vertical, Tokens.Space.s)
     .frame(maxWidth: .infinity, alignment: .leading)
     .apertureCard(radius: Tokens.Radius.card)
+  }
+
+  private func time(_ event: Board.Event) -> some View {
+    Text(verbatim: Format.clock(event.time))
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.textQuaternary)
+      .lineLimit(1)
+      .minimumScaleFactor(StatTile.minimumScale)
+  }
+
+  private func dot(_ event: Board.Event) -> some View {
+    Circle().fill(event.tone.color).frame(width: Self.dotSide, height: Self.dotSide)
+  }
+
+  private func tag(_ event: Board.Event) -> some View {
+    Text(verbatim: event.tag)
+      .font(Tokens.Typography.annotationBold)
+      .foregroundStyle(event.tone.color)
+      .lineLimit(1)
+      .minimumScaleFactor(StatTile.minimumScale)
+  }
+
+  private func text(_ event: Board.Event) -> some View {
+    Text(verbatim: event.text).font(.footnote).foregroundStyle(Palette.textSecondary)
   }
 }
