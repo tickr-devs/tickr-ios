@@ -1152,6 +1152,10 @@ enum L10n {
     static var jobWatchdog: LocalizedStringResource {
       LocalizedStringResource("settings.job.watchdog", defaultValue: "Watchdog", bundle: L10n.bundle)
     }
+    /// A launchd job this app does not know by name.
+    static var jobOther: LocalizedStringResource {
+      LocalizedStringResource("settings.job.other", defaultValue: "Other job", bundle: L10n.bundle)
+    }
     static var reconcile: LocalizedStringResource {
       LocalizedStringResource("settings.reconcile", defaultValue: "Reconcile", bundle: L10n.bundle)
     }
@@ -1271,9 +1275,6 @@ enum L10n {
     }
     static var strategy: LocalizedStringResource {
       LocalizedStringResource("settings.strategy", defaultValue: "Strategy", bundle: L10n.bundle)
-    }
-    static var run: LocalizedStringResource {
-      LocalizedStringResource("settings.run", defaultValue: "Run", bundle: L10n.bundle)
     }
     static var lockScreen: LocalizedStringResource {
       LocalizedStringResource("settings.lockScreen", defaultValue: "Lock-screen alerts", bundle: L10n.bundle)

@@ -15,7 +15,6 @@ struct SettingsView: View {
   static let gateOpenSymbol = "lock.open.fill"
   static let gateClosedSymbol = "lock.fill"
   static let strategySymbol = "cpu"
-  static let runSymbol = "number"
   static let lockScreenSymbol = "bell.badge.fill"
   static let appSymbol = "app.fill"
   static let contractSymbol = "doc.text.fill"
@@ -78,11 +77,6 @@ struct SettingsView: View {
           }
           SettingsRow(L10n.Settings.strategy, systemImage: Self.strategySymbol, tone: .highlight) {
             Badge(L10n.Common.strategyVersion(status.strategy.name, status.strategy.version), tone: .highlight)
-          }
-          if let runId = status.runId {
-            SettingsRow(L10n.Settings.run, systemImage: Self.runSymbol, tone: .neutral) {
-              Text(verbatim: runId).font(.body.monospaced())
-            }
           }
         } header: {
           Text(L10n.Settings.bot)

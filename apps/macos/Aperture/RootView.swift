@@ -159,20 +159,12 @@ private struct Sidebar: View {
 private struct BotStateCard: View {
   @Environment(AppModel.self) private var model
 
-  /// Characters of the run id shown; enough to tell runs apart.
-  static let runIdPrefix = 8
-
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       CardLabel(L10n.Common.bot)
       HStack(spacing: Tokens.Space.s) {
         PulseDot(color, pulsing: model.isLive, event: model.status?.botState)
         Text(verbatim: stateText).font(Tokens.Typography.callout.weight(.semibold)).foregroundStyle(color)
-      }
-      if let run = model.status?.runId {
-        Text(L10n.Root.run(String(run.prefix(Self.runIdPrefix))))
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textQuaternary)
       }
       Text(verbatim: model.baseURL.host() ?? model.baseURL.absoluteString)
         .font(Tokens.Typography.captionMono)

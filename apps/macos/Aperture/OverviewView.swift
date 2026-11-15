@@ -762,8 +762,13 @@ private struct PositionDetail: View {
       }
       let sent = EntrySent.line(row.position.entry,
         cause: ApiText.prose(row.position.entryCauseCodes, text: row.position.entryCause))
-      StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color, symbol: Self.sentSymbol)
-        .hint(sent.help.map { Text(verbatim: $0) } ?? Text(L10n.EntrySent.title))
+      let line = StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color, symbol: Self.sentSymbol)
+      // A hint only when there is something to add (the bot's cause of a missing record).
+      if let help = sent.help {
+        line.hint(verbatim: help)
+      } else {
+        line
+      }
     }
   }
 

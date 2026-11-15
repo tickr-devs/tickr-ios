@@ -5,7 +5,8 @@ import SwiftUI
 /// "One send per decision", as the app shows it: an entry sent exactly once reads quietly, any
 /// other count is an alarm, and a missing record is a warning with the bot's cause.
 enum EntrySent {
-  /// One entry's line: "Once · acknowledged", "2 sends · outcome unknown", "Not recorded".
+  /// One entry's line: "Once · acknowledged", "2 sends · outcome unknown", "Not recorded". The
+  /// help is the bot's cause of a missing record; the client order id is never shown.
   static func line(_ entry: EntrySend, cause: String?) -> (text: String, color: Color, help: String?) {
     guard let sends = entry.sends else {
       return (String(localized: L10n.EntrySent.notRecorded), Palette.warningText, cause)
@@ -14,7 +15,7 @@ enum EntrySent {
     let outcome = (entry.latestOutcome ?? entry.sendOutcome).map { String(localized: $0.title) }
     let text = outcome.map { String(localized: L10n.EntrySent.withOutcome(sent, $0)) } ?? sent
     let color = entry.sentOtherThanOnce ? Palette.lossText : awaitsBroker(entry) ? Palette.warningText : Palette.textPrimary
-    return (text, color, entry.clientOrderId)
+    return (text, color, nil)
   }
 
   /// The send's latest state is not a broker answer yet: not sent, no answer, or unknown.

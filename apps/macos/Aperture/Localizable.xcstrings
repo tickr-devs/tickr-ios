@@ -6574,23 +6574,6 @@
         }
       }
     },
-    "root.run" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "run %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "запуск %@"
-          }
-        }
-      }
-    },
     "root.stale" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7883,6 +7866,23 @@
         }
       }
     },
+    "settings.job.other" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other job"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другая задача"
+          }
+        }
+      }
+    },
     "settings.job.preflight" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8304,23 +8304,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Записанных дней"
-          }
-        }
-      }
-    },
-    "settings.run" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Run"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запуск"
           }
         }
       }

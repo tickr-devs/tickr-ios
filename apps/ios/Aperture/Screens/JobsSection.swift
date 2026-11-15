@@ -54,9 +54,10 @@ struct JobsSection: View {
     }
   }
 
-  /// A launchd job's name in the person's language; a job this app does not know reads as named.
+  /// A launchd job's name in the person's language; a job this app does not know reads as
+  /// "Other job", never as its launchd name.
   static func title(_ name: String) -> String {
-    guard let job = LaunchdJob(rawValue: name) else { return name }
+    guard let job = LaunchdJob(rawValue: name) else { return String(localized: L10n.Settings.jobOther) }
     switch job {
     case .preflight: return String(localized: L10n.Settings.jobPreflight)
     case .bot: return String(localized: L10n.Settings.jobBot)

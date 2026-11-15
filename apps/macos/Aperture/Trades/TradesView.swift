@@ -507,10 +507,15 @@ private struct TradeDetailCard: View {
               GridRow {
                 let sent = EntrySent.line(trade.entry, cause: ApiText.prose(trade.entryCauseCodes, text: trade.entryCause))
                 Text(L10n.EntrySent.title).foregroundStyle(Palette.textSecondary)
-                Text(verbatim: sent.text)
+                let value = Text(verbatim: sent.text)
                   .font(Tokens.Typography.bodyMono)
                   .foregroundStyle(sent.color)
-                  .help(sent.help.map { Text(verbatim: $0) } ?? Text(L10n.EntrySent.title))
+                // A tooltip only when there is something to add (the bot's cause of a missing record).
+                if let help = sent.help {
+                  value.help(Text(verbatim: help))
+                } else {
+                  value
+                }
               }
               excursion(L10n.Trades.maeAtLeast, trade.maeUsd)
               excursion(L10n.Trades.mfeAtLeast, trade.mfeUsd)
