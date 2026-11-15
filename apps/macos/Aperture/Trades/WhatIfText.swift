@@ -18,7 +18,7 @@ enum WhatIfText {
   static func result(_ whatIf: WhatIfV1) -> (text: String, color: Color) {
     guard let r = whatIf.resultR?.value, let usd = whatIf.resultGrossUsd?.value, let reason = whatIf.exitReason
     else {
-      return (String(localized: L10n.Trades.whatIfNoResult(whatIf.cause ?? Format.missing)), Palette.textTertiary)
+      return (String(localized: L10n.Trades.whatIfNoResult(ApiText.prose(whatIf.causeCodes, text: whatIf.cause) ?? Format.missing)), Palette.textTertiary)
     }
     return (String(localized: L10n.Trades.whatIfResult(Risk.text(r), Money.signedUSD(usd), exit(reason))),
       Palette.result(usd))

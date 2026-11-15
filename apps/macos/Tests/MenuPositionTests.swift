@@ -2,6 +2,7 @@
 import Foundation
 import Testing
 
+@MainActor
 @Suite("Menu bar position scale")
 struct MenuPositionTests {
   @Test("The stop is the left end, the scale end the right, clamped beyond both")

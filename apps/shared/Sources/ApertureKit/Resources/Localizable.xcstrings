@@ -2268,6 +2268,942 @@
         }
       }
     },
+    "kit.prose.all_checks_passed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). all_checks_passed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every recorded check passed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все записанные проверки пройдены"
+          }
+        }
+      }
+    },
+    "kit.prose.bars_end" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). bars_end",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bars end at {time}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бары заканчиваются в {time}"
+          }
+        }
+      }
+    },
+    "kit.prose.bars_end_before" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). bars_end_before",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bars end at {time}, before {until}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бары заканчиваются в {time}, раньше {until}"
+          }
+        }
+      }
+    },
+    "kit.prose.calendar_error" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). calendar_error",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.calendar_refuses" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). calendar_refuses",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The calendar refuses {day}: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь не принимает {day}: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.calendar_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). calendar_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session calendar unreadable: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь сессий не читается: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.capture_refused" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). capture_refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capture file refused: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл записи отклонён: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.check_contradicts_record" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). check_contradicts_record",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: recorded as failed but the measured value meets the threshold"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: записана как не пройденная, но измерение проходит порог"
+          }
+        }
+      }
+    },
+    "kit.prose.day_end_not_clean" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). day_end_not_clean",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At day end the broker was not flat or the records did not agree"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В конце дня у брокера оставались позиции или записи не сходились"
+          }
+        }
+      }
+    },
+    "kit.prose.day_end_unknown" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). day_end_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The day-end check had no broker reads"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка конца дня прошла без чтений у брокера"
+          }
+        }
+      }
+    },
+    "kit.prose.day_not_over" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). day_not_over",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The day is not over"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "День ещё не закончился"
+          }
+        }
+      }
+    },
+    "kit.prose.emergency_command" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). emergency_command",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An emergency command ran"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполнялась экстренная команда"
+          }
+        }
+      }
+    },
+    "kit.prose.enters_not_simulated" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). enters_not_simulated",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries not simulated, the decision bar was not captured: {count}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входов без симуляции (бар решения не записан): {count}"
+          }
+        }
+      }
+    },
+    "kit.prose.entry_orders_count" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). entry_orders_count",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trade has {count} entry orders, expected 1"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У сделки {count} ордеров входа, ожидался 1"
+          }
+        }
+      }
+    },
+    "kit.prose.fence_still_set" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). fence_still_set",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{fence}: still set at the end of the day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{fence}: не снят к концу дня"
+          }
+        }
+      }
+    },
+    "kit.prose.journal_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). journal_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journal unreadable: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Журнал не читается: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.needs_positive_measured" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). needs_positive_measured",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: needs measured > 0 and threshold ≥ 0"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: нужно измерение > 0 и порог ≥ 0"
+          }
+        }
+      }
+    },
+    "kit.prose.needs_positive_threshold" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). needs_positive_threshold",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: needs threshold > 0 and measured ≥ 0"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: нужен порог > 0 и измерение ≥ 0"
+          }
+        }
+      }
+    },
+    "kit.prose.never_attempted" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). never_attempted",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never sent: no send-attempt record"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не отправлялся: нет записи о попытке отправки"
+          }
+        }
+      }
+    },
+    "kit.prose.no_bar_after_exit" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_bar_after_exit",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No bar recorded after the exit minute up to {until}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "После минуты выхода до {until} нет баров"
+          }
+        }
+      }
+    },
+    "kit.prose.no_bar_for_minute" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_bar_for_minute",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No bar recorded for the minute {time}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет бара за минуту {time}"
+          }
+        }
+      }
+    },
+    "kit.prose.no_bars_for_symbol" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_bars_for_symbol",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No bar recorded for {symbol} that day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За этот день нет баров по {symbol}"
+          }
+        }
+      }
+    },
+    "kit.prose.no_calendar" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_calendar",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The session calendar cannot be read"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь сессий не читается"
+          }
+        }
+      }
+    },
+    "kit.prose.no_captured_bars" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_captured_bars",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No captured bars for {day}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За {day} нет записанных баров"
+          }
+        }
+      }
+    },
+    "kit.prose.no_day_end" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_day_end",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No day-end record that day (the bot was not running after the flatten time)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За этот день нет записи конца дня (бот не работал после времени закрытия позиций)"
+          }
+        }
+      }
+    },
+    "kit.prose.no_decisions" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_decisions",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No decisions recorded that day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За этот день нет записанных решений"
+          }
+        }
+      }
+    },
+    "kit.prose.no_direction" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_direction",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: operator “{operator}” has no direction"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: у оператора «{operator}» нет направления"
+          }
+        }
+      }
+    },
+    "kit.prose.no_fill_row" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_fill_row",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No order record shows the entry filled"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ни одна запись ордера не показывает исполнение входа"
+          }
+        }
+      }
+    },
+    "kit.prose.no_intent_row" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_intent_row",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No order-intent record"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет записи о намерении ордера"
+          }
+        }
+      }
+    },
+    "kit.prose.no_losses" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_losses",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No losing trades in the range"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В диапазоне нет убыточных сделок"
+          }
+        }
+      }
+    },
+    "kit.prose.no_minute_before_close" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_minute_before_close",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No minute after the exit before the close at {time}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "После выхода до закрытия в {time} не было ни одной минуты"
+          }
+        }
+      }
+    },
+    "kit.prose.no_reference_price" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_reference_price",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The decision bar was not captured: no reference price"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бар решения не записан: нет опорной цены"
+          }
+        }
+      }
+    },
+    "kit.prose.no_trades" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_trades",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No counted trades in the range"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В диапазоне нет учтённых сделок"
+          }
+        }
+      }
+    },
+    "kit.prose.no_wins" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_wins",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No winning trades in the range"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В диапазоне нет прибыльных сделок"
+          }
+        }
+      }
+    },
+    "kit.prose.not_computed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). not_computed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not computed on this path"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На этом пути не вычисляется"
+          }
+        }
+      }
+    },
+    "kit.prose.not_read" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). not_read",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not read on this path"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На этом пути не читается"
+          }
+        }
+      }
+    },
+    "kit.prose.planned_loss_not_positive" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). planned_loss_not_positive",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned loss {planned_loss} is not positive: no R"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плановый убыток {planned_loss} не положителен: R нет"
+          }
+        }
+      }
+    },
+    "kit.prose.planned_loss_not_positive_r" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). planned_loss_not_positive_r",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned loss is not positive: no 1 R to divide by"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плановый убыток не положителен: нет 1 R для деления"
+          }
+        }
+      }
+    },
+    "kit.prose.quote_age_not_recorded" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). quote_age_not_recorded",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not recorded: decisions hold no quote time"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не записано: в решениях нет времени котировки"
+          }
+        }
+      }
+    },
+    "kit.prose.reconcile_gap" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). reconcile_gap",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No reconciliation from {since} to {until} ({seconds} s, limit {max_gap} s)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сверки не было с {since} до {until} ({seconds} с, предел {max_gap} с)"
+          }
+        }
+      }
+    },
+    "kit.prose.reconcile_mismatch" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). reconcile_mismatch",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reconciliation: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сверка: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.reconcile_not_recorded" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). reconcile_not_recorded",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not recorded: no reconciliation records that day (recorded since the reconciliation proof setting)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не записано: в этот день нет записей сверки (они пишутся с появления настройки подтверждения сверки)"
+          }
+        }
+      }
+    },
+    "kit.prose.replay_settings_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_settings_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replay settings unreadable: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки повтора не читаются: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.result_in_r_only" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). result_in_r_only",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No whole quantity recorded: result in R only"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Целое количество не записано: результат только в R"
+          }
+        }
+      }
+    },
+    "kit.prose.safety_exit" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). safety_exit",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Safety exit for trade {trade}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Защитный выход из сделки {trade}"
+          }
+        }
+      }
+    },
+    "kit.prose.session_ended" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). session_ended",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The session ended at {time}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сессия закончилась в {time}"
+          }
+        }
+      }
+    },
+    "kit.prose.simulation_refused" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). simulation_refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simulation refused: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Симуляция отклонена: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.skipped_overlap" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). skipped_overlap",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An earlier simulated trade of {symbol} was still open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущая симулированная сделка по {symbol} ещё была открыта"
+          }
+        }
+      }
+    },
+    "kit.prose.skipped_same_signal" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). skipped_same_signal",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The same signal (setup {setup}, trigger {trigger}) already made a simulated trade of {symbol} that day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот же сигнал (сетап {setup}, триггер {trigger}) уже дал симулированную сделку по {symbol} в этот день"
+          }
+        }
+      }
+    },
+    "kit.prose.trades_without_quantity" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). trades_without_quantity",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simulated trades without a whole quantity: {count}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Симулированных сделок без целого количества: {count}"
+          }
+        }
+      }
+    },
+    "kit.prose.unprotected_alert" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). unprotected_alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тревога: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.yes_no_check" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). yes_no_check",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: a yes/no check has no measured value"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: у проверки да/нет нет измеренного значения"
+          }
+        }
+      }
+    },
     "kit.refusal.AFTER_LAST_ENTRY" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. AFTER_LAST_ENTRY",
       "extractionState" : "manual",

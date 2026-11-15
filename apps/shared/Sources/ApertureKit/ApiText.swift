@@ -18,9 +18,14 @@ public enum ApiText {
 
   /// A fence's kind with its key, if any; the bot's detail stays in `Fence.text`.
   public static func fence(_ fence: Fence) -> String {
-    let parts = fence.kind.split(separator: Fence.keySeparator, maxSplits: 1).map(String.init)
+    fenceTitle(fence.kind)
+  }
+
+  /// A fence's kind as the bot names it ("foreign-position:EFGH") in words, with its key.
+  public static func fenceTitle(_ fenceKind: String) -> String {
+    let parts = fenceKind.split(separator: Fence.keySeparator, maxSplits: 1).map(String.init)
     guard let name = parts.first, let kind = FenceKind(rawValue: name.replacing("-", with: "_")) else {
-      return fence.kind
+      return fenceKind
     }
     let title = String(localized: kind.title)
     return parts.count > 1 ? title + keySeparator + parts[1] : title

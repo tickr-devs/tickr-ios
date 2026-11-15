@@ -34,9 +34,10 @@ struct CleanMark: View {
     case .clean:
       return String(localized: L10n.Trades.cleanDay)
     case .notClean:
-      return String(localized: L10n.Trades.notCleanDay(clean.causes.map(\.text).joined(separator: Format.listSeparator)))
+      return String(localized: L10n.Trades.notCleanDay(
+        clean.causes.map { ApiText.prose($0.textCodes, text: $0.text) }.joined(separator: Format.listSeparator)))
     case .unknown:
-      return String(localized: L10n.Trades.cleanUnknown(clean.cause ?? Format.missing))
+      return String(localized: L10n.Trades.cleanUnknown(ApiText.prose(clean.causeCodes, text: clean.cause) ?? Format.missing))
     }
   }
 }

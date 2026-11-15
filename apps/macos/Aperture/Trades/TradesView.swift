@@ -505,7 +505,7 @@ private struct TradeDetailCard: View {
                 }
               }
               GridRow {
-                let sent = EntrySent.line(trade.entry, cause: trade.entryCause)
+                let sent = EntrySent.line(trade.entry, cause: ApiText.prose(trade.entryCauseCodes, text: trade.entryCause))
                 Text(L10n.EntrySent.title).foregroundStyle(Palette.textSecondary)
                 Text(verbatim: sent.text)
                   .font(Tokens.Typography.bodyMono)
@@ -525,7 +525,7 @@ private struct TradeDetailCard: View {
                     .foregroundStyle(Palette.textPrimary)
                 } else {
                   Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
-                    .help(Text(verbatim: trade.overshootCause ?? Format.missing))
+                    .help(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
                 }
               }
             }
@@ -634,7 +634,8 @@ private struct SkippedRow: View {
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(result.color)
         }
-        .help(Text(verbatim: WhatIfText.after(setup.pricesAfter) ?? setup.pricesAfterCause ?? Format.missing))
+        .help(Text(verbatim: WhatIfText.after(setup.pricesAfter)
+          ?? ApiText.prose(setup.pricesAfterCauseCodes, text: setup.pricesAfterCause) ?? Format.missing))
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .contentShape(.rect)

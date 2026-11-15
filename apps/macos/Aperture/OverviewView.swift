@@ -760,7 +760,8 @@ private struct PositionDetail: View {
       } else {
         StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing, symbol: Self.rSymbol)
       }
-      let sent = EntrySent.line(row.position.entry, cause: row.position.entryCause)
+      let sent = EntrySent.line(row.position.entry,
+        cause: ApiText.prose(row.position.entryCauseCodes, text: row.position.entryCause))
       StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color, symbol: Self.sentSymbol)
         .hint(sent.help.map { Text(verbatim: $0) } ?? Text(L10n.EntrySent.title))
     }

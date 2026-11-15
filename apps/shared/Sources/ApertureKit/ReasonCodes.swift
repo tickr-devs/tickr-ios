@@ -15,22 +15,26 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case count
   case covered
   case day
+  case detail
   case entryHigh = "entry_high"
   case entryLow = "entry_low"
   case environment
   case error
   case expected
+  case fence
   case fields
   case file
   case filled
   case held
   case keys
   case limit
+  case maxGap = "max_gap"
   case maximum
   case minRoom = "min_room"
   case new
   case notional
   case open
+  case `operator`
   case order
   case orders
   case plannedLoss = "planned_loss"
@@ -39,7 +43,10 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case realized
   case reserved
   case room
+  case rule
   case seconds
+  case setup
+  case since
   case state
   case stop
   case stopPrice = "stop_price"
@@ -48,6 +55,8 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case time
   case today
   case total
+  case trade
+  case trigger
   case until
   case verdict
   case verified

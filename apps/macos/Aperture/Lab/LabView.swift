@@ -240,7 +240,8 @@ struct ObserverRow: View {
       }
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textTertiary)
-      if observer.resultGrossUSD == nil, let cause = observer.resultCause {
+      if observer.resultGrossUSD == nil,
+        let cause = ApiText.prose(observer.resultCauseCodes, text: observer.resultCause) {
         Text(verbatim: cause)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textQuaternary)
@@ -256,7 +257,7 @@ struct ObserverRow: View {
 
   /// Why the row has no line, or why its line is dashed.
   @ViewBuilder private var curveNote: some View {
-    if observer.trades == nil, let cause = observer.tradesCause {
+    if observer.trades == nil, let cause = ApiText.prose(observer.tradesCauseCodes, text: observer.tradesCause) {
       Text(verbatim: cause)
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textQuaternary)
