@@ -253,18 +253,18 @@ struct CandleChart: View {
     .chartYAxis {
       // Coloured tags over the scale: the last price, entries and stops; a plain axis price
       // they would cover stays hidden.
-      let tags = priceTags
+      let tags = priceTags(scale)
       let clearance = tagClearance(scale)
       AxisMarks(position: .trailing) { value in
         AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
           .foregroundStyle(Palette.separator)
         AxisValueLabel {
-          if let price = value.as(Double.self), !tags.contains(where: { abs($0.price - price) < clearance }) {
+          if let price = value.as(Double.self), !tags.contains(where: { abs($0.shownAt - price) < clearance }) {
             axisLabel(value, ChartFormat.price, Palette.textQuaternary)
           }
         }
       }
-      AxisMarks(position: .trailing, values: tags.map(\.price)) { value in
+      AxisMarks(position: .trailing, values: tags.map(\.shownAt)) { value in
         AxisValueLabel {
           if tags.indices.contains(value.index) {
             priceTag(tags[value.index])
@@ -314,7 +314,7 @@ struct CandleChart: View {
       let lowLeft = labelGoesLeft(low)
       // A high or low at a tagged price (the last close, an entry, a stop) is already named by
       // its tag: a second label there would lie over it.
-      let tagged = priceTags.map(\.price)
+      let tagged = priceTags(scale).map(\.shownAt)
       let clearance = tagClearance(scale)
       if !tagged.contains(where: { abs($0 - high.high) < clearance }) {
         PointMark(x: .value(Plot.time, middle(high)), y: .value(Plot.price, high.high))
@@ -709,24 +709,33 @@ struct CandleChart: View {
   struct PriceTag: Hashable {
     let price: Double
     let fill: Color
+    /// Where on the scale the tag is drawn: at `price`, or pinned to the top or bottom edge of
+    /// the price area when `price` is off it, and pushed clear of the other tags
+    /// (`PriceTagPlacement`).
+    let shownAt: Double
   }
 
-  /// The last close, then each entry and stop on the chart (the trades' and the open position's).
-  private var priceTags: [PriceTag] {
-    var tags: [PriceTag] = []
+  /// Each entry and stop on the chart (the trades' and the open position's), then the last close,
+  /// placed inside the price area of `scale` and apart from each other.
+  private func priceTags(_ scale: PriceScale) -> [PriceTag] {
+    var tags: [(price: Double, fill: Color)] = []
     var levels = trades.map { (ChartFormat.double($0.entryPrice), $0.stopPrice.map(ChartFormat.double), true) }
     if let position {
       levels.append((ChartFormat.double(position.entryPrice), position.stop.price.map(ChartFormat.double),
         position.stop.state.isProtected))
     }
     for (entry, stop, protected) in levels {
-      tags.append(PriceTag(price: entry, fill: Palette.info))
-      if let stop { tags.append(PriceTag(price: stop, fill: Self.stopColour(protected: protected))) }
+      tags.append((entry, Palette.info))
+      if let stop { tags.append((stop, Self.stopColour(protected: protected))) }
     }
     if let last = series.candles.last {
-      tags.append(PriceTag(price: last.close, fill: last.isUp ? Palette.profit : Palette.loss))
+      tags.append((last.close, last.isUp ? Palette.profit : Palette.loss))
     }
-    return tags
+    // The price area is above the volume bars; half a tag's room keeps the whole tag inside it
+    // and a whole one keeps two tags apart.
+    let area = (scale.volumeBase + scale.volumeHeight)...scale.domain.upperBound
+    let shown = PriceTagPlacement.positions(of: tags.map(\.price), in: area, halfHeight: tagClearance(scale) / 2)
+    return zip(tags, shown).map { PriceTag(price: $0.price, fill: $0.fill, shownAt: $1) }
   }
 
   private func priceTag(_ tag: PriceTag) -> some View {
