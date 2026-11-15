@@ -195,11 +195,13 @@ public struct CardStyle: ViewModifier {
   @Environment(\.colorScheme) private var scheme
   let radius: CGFloat
   let tint: Color?
+  /// The card's fill: `surface`, or `surfaceSunken` for a console-like card (the Mac journal).
+  var fill = Palette.surface
 
   public func body(content: Content) -> some View {
     let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
     content
-      .background(shape.fill(Palette.surface))
+      .background(shape.fill(fill))
       .overlay(shape.strokeBorder(tint.map { $0.opacity(Tokens.Opacity.border) } ?? Palette.separator,
         lineWidth: Tokens.Stroke.thin))
       .shadow(
@@ -210,8 +212,8 @@ public struct CardStyle: ViewModifier {
 
 public extension View {
   /// Wraps the view in the standard card surface.
-  func tickrCard(radius: CGFloat = Tokens.Radius.card, tint: Color? = nil) -> some View {
-    modifier(CardStyle(radius: radius, tint: tint))
+  func tickrCard(radius: CGFloat = Tokens.Radius.card, tint: Color? = nil, fill: Color = Palette.surface) -> some View {
+    modifier(CardStyle(radius: radius, tint: tint, fill: fill))
   }
 }
 

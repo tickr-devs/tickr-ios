@@ -29,10 +29,88 @@ enum FlowStages {
   }
 }
 
-/// The live flow's latest event on one still line, as in the design: its New York time, its tag
-/// in its tone and what happened. A new event replaces the line; nothing scrolls. A recorded day
-/// shows its last closed trade. A failed /flow read says so under it, since the stages and dots
-/// below then lack the day's flow.
+/// The symbols the screeners returned today, scrolling across the top of the live flow as in the
+/// design: each a chip with the symbol over its screener and change, coloured by screener; one
+/// the universe left out is greyed and says it was skipped, with the cause on hover. Still on a
+/// recorded day or with Reduce Motion (then it scrolls by hand).
+struct FlowChips: View {
+  let chips: [FlowChipV1]
+  let moving: Bool
+
+  var body: some View {
+    Marquee(moving: moving, content: chips) {
+      HStack(spacing: Tokens.Space.s) {
+        ForEach(chips, id: \.symbol) { chip in
+          FlowChip(chip: chip)
+        }
+      }
+      .padding(.trailing, Tokens.Space.s)
+    }
+  }
+}
+
+private struct FlowChip: View {
+  let chip: FlowChipV1
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      Text(verbatim: chip.symbol)
+        .font(Tokens.Typography.chip)
+        .foregroundStyle(Palette.textPrimary)
+      Text(verbatim: detail)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(color)
+        .strikethrough(chip.excludedCause != nil, color: color)
+    }
+    .lineLimit(1)
+    .padding(.horizontal, Tokens.Space.m)
+    .padding(.vertical, Tokens.Space.s)
+    .frame(minWidth: Tokens.Size.flowChip, alignment: .leading)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
+    }
+    .help(Text(verbatim: [chip.excludedCause, chip.changeCause].compactMap { $0 }.joined(separator: Format.lineSeparator)))
+    .accessibilityElement(children: .combine)
+  }
+
+  /// "gainers +21.3%"; "skipped" for a symbol the universe left out.
+  private var detail: String {
+    if chip.excludedCause != nil { return String(localized: L10n.Flow.chipSkipped) }
+    let source = chip.sources.first.map { String(localized: $0.chipTitle) } ?? Format.missing
+    // Without a change (its cause is on hover), the screener alone: never a bare "—%".
+    guard let change = chip.changePct else { return source }
+    return String(localized: L10n.Flow.chipChange(source, Money.signed(change.value, fractionDigits: FlowChip.changeDigits)))
+  }
+
+  /// Decimals of the change, as the design writes it ("+6.4%").
+  static let changeDigits = 1
+
+  private var color: Color {
+    if chip.excludedCause != nil { return Palette.textQuaternary }
+    switch chip.sources.first {
+    case .gainers: return Palette.profitText
+    case .losers: return Palette.seriesATRText
+    case .topActives: return Palette.infoText
+    case nil: return Palette.textTertiary
+    }
+  }
+}
+
+extension ScreenerSource {
+  /// The screener as a chip names it, in the person's language.
+  var chipTitle: LocalizedStringResource {
+    switch self {
+    case .gainers: L10n.Flow.chipGainers
+    case .losers: L10n.Flow.chipLosers
+    case .topActives: L10n.Flow.chipActives
+    }
+  }
+}
+
+/// The live flow's latest event on one still line under the card's title: its New York time,
+/// its tag in its tone and what happened. A new event replaces the line; nothing scrolls. A recorded
+/// day shows its last closed trade.
 struct LatestEvent: View {
   @Environment(AppModel.self) private var model
 
@@ -59,7 +137,7 @@ struct LatestEvent: View {
       text: "\(trade.symbol) \(Money.signed(result))", color: result >= 0 ? Palette.profitText : Palette.lossText)
   }
 
-  @ViewBuilder var body: some View {
+  var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
       if let line {
         Text(L10n.Risk.clock(Format.marketTime(line.time))).foregroundStyle(Palette.textQuaternary)
@@ -70,15 +148,11 @@ struct LatestEvent: View {
         Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
         Text(L10n.Flow.nothingYet).foregroundStyle(Palette.textTertiary)
       }
-      Spacer(minLength: 0)
     }
     .font(Tokens.Typography.captionMono)
     .lineLimit(1)
     .accessibilityElement(children: .combine)
     .accessibilityIdentifier(Self.id)
-    if let error = model.flowError {
-      Footnote(L10n.Screener.unavailable(error), color: Palette.warningText)
-    }
   }
 }
 
@@ -135,7 +209,7 @@ private struct WatchingRow: View {
         Text(verbatim: row.symbol)
           .font(Tokens.Typography.chip)
           .foregroundStyle(Palette.textPrimary)
-        Badge(row.verdict.title, color: row.verdict.color)
+        VerdictTag(verdict: row.verdict)
         Spacer(minLength: 0)
         quoteAge
       }
@@ -199,7 +273,7 @@ private struct WatchingRow: View {
       ZStack(alignment: .leading) {
         if let share {
           Capsule().fill(Palette.separator)
-          Capsule().fill(row.verdict.color).frame(width: proxy.size.width * share)
+          Capsule().fill(row.verdict.watchingColor).frame(width: proxy.size.width * share)
         } else {
           // Unknown is a dashed outline, never an empty track that reads as 0 %.
           Capsule().strokeBorder(Palette.separatorStrong,
@@ -213,6 +287,34 @@ private struct WatchingRow: View {
       : Text(L10n.Watching.closeness))
     .accessibilityLabel(Text(L10n.Watching.closeness))
     .accessibilityValue(share.map { Text($0, format: .percent) } ?? Text(verbatim: Format.missing))
+  }
+}
+
+/// A watched symbol's verdict as the design draws it: small mono capitals in an outline of the
+/// verdict's colour, no fill.
+private struct VerdictTag: View {
+  let verdict: Verdict
+
+  var body: some View {
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+    Text(verdict.title)
+      .textCase(.uppercase)
+      .font(Tokens.Typography.badge)
+      .lineLimit(1)
+      .padding(.horizontal, Tokens.Space.xs)
+      .padding(.vertical, Tokens.Space.xxs)
+      .foregroundStyle(verdict.watchingColor)
+      .overlay(shape.strokeBorder(verdict.watchingColor, lineWidth: Tokens.Stroke.thin))
+      .fixedSize()
+  }
+}
+
+extension Verdict {
+  /// A watched symbol's colour, for its tag and its closeness bar: the decision's colour, with
+  /// IGNORE in the design's pink rather than grey, so a symbol the strategy turned away reads apart
+  /// from a quiet value.
+  var watchingColor: Color {
+    self == .ignore ? Palette.seriesATRText : color
   }
 }
 

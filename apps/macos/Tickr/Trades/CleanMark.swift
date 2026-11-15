@@ -46,6 +46,8 @@ struct CleanMark: View {
 /// it so in the tooltip; nothing while the verdict is unknown.
 struct CleanBadge: View {
   let clean: CleanDay
+  /// The verdict's symbol before the badge; the Overview header draws the badge alone.
+  var showsSymbol = true
 
   /// Accessibility id of the badge, for the UI tests.
   static let id = "trades-clean-badge"
@@ -60,7 +62,9 @@ struct CleanBadge: View {
 
   private func badge(_ title: LocalizedStringResource, symbol: String, color: Color) -> some View {
     HStack(spacing: Tokens.Space.xs) {
-      Image(systemName: symbol).foregroundStyle(color)
+      if showsSymbol {
+        Image(systemName: symbol).foregroundStyle(color)
+      }
       Badge(title, color: color)
     }
     .help(Text(verbatim: CleanMark.text(clean)))

@@ -168,7 +168,7 @@ a step; it does not define its own factor.
 | `bar` | 8 | Progress bar height |
 | `barThin` | 4 | Thin progress bar inside a row (Watching closely) |
 | `ticker` | 22 | Ticker strip height |
-| `flowMark` / `flowPool` | 10 / 44 | A symbol's dot on the live flow board / least height of a stage's pool |
+| `flowMark` | 7 | A symbol's dot on the live flow board |
 | `flowChip` | 96 | Least width of a live-flow symbol chip |
 | `sideColumn` | 320 | Side column of cards |
 | `contentMaxWidth` | 1500 | Content stops growing and centres |
@@ -224,16 +224,17 @@ profit factor with 2 decimals, win rate and confidence in whole percents.
 
 | Component | Where | Rule |
 |---|---|---|
-| Card | `tickrCard()` + `CardLabel` | `surface`, `Radius.card` (iOS) or `Radius.large` (Mac), `Space.l` padding, `separator` border; light mode adds `shadow`. Cards sharing a grid row are one height (`filling()` on the Mac) |
+| Card | `tickrCard()` + `CardLabel` | `surface` (`surfaceSunken` for the Mac journal's console), `Radius.card` (iOS) or `Radius.large` (Mac), `Space.l` padding, `separator` border; light mode adds `shadow`. Cards sharing a grid row are one height (`filling()` on the Mac); in a row of a set height a card scrolls under its header when its content is taller (`ScrollsWhenTall`) |
 | Card grid (Mac) | `Grid` of cards | Fills the window's width: equal columns of at least `Size.gridColumnMin`, `Space.l` apart; a narrower window stacks into fewer columns |
+| Overview grid (Mac) | `WeightedColumns` | As the Main board: Live flow across the width; Watching closely, Positions, Safety with the bot at 1 : 1.4 : 1 in a 298-point row (cards scroll inside). The "Safety · bot" card has the bot's state pill in its header, the safety facts as `surfaceSunken` tiles in two columns (compact glyph, name in `caption`, value in `annotation` in its tone), then every command as small labelled buttons in two columns; the tiles scroll when the card is short, the commands never do; Risk room, Observers, the journal at 1 : 1 : 1.4 filling the rest of the window's height (at least 150 points). Below a 1040-point screen: Positions across, then the cards in two equal columns |
 | Section label | `CardLabel` | `Typography.label`, uppercase, `textQuaternary` |
 | Stat row | label … value | label `callout` `textTertiary`, value `bodyMono` |
 | Badge | `Badge` (TickrDesign) | A fact (exit reason, environment, version): `Typography.badge`, tone text colour, `Opacity.wash` fill, `Opacity.border` stroke, `Radius.small`; `planned:` draws it dashed |
 | Command button | bot controls | `ActionButtonStyle` below |
-| Live-flow chips (Mac) | `Marquee` | The screeners' symbols scroll across the top of the live flow: symbol in `chip`, below it the screener and change % in `annotation`, coloured by screener (gainers `profitText`, top actives `infoText`, losers `seriesATRText`; left out of the universe `textQuaternary`, struck through); `surfaceSunken` fill, `separator` hairline, `Radius.medium`. The event ticker runs under the chips, alone while there are none |
-| Watching row (Mac) | `WatchingRow` | `surfaceSunken` box with `separator` hairline, `Radius.medium`: symbol in `chip`, verdict `Badge`, time in `annotation`; the deciding check in `captionMono`; closeness as a `barThin` capsule in the verdict colour, a dashed `dashFine` outline when unknown |
-| Live-flow board (Mac) | `Pipeline` pools | Under each stage, today's symbols whose furthest stage it is (`FlowBoard`), as `flowMark` dots in the stage colour on a `surfaceSunken` pool (at most 24, then "+N"); amber while the broker stop waits, red if never confirmed. Universe and risk have a dashed tray of refused symbols as red outlines. A dot flies to its new stage (`matchedGeometryEffect`, `Motion.standard`) only when a new read moves it; hover names the symbol and the reason |
-| Live-flow stage | pipeline | `Size.stage` circle, `Stroke.bold` ring and a soft glow in the stage colour; name in the stage's text colour |
+| Live-flow chips (Mac) | `Marquee` | The screeners' symbols scroll across the top of the live flow: symbol in `chip`, below it the screener and change % in `annotation`, coloured by screener (gainers `profitText`, top actives `infoText`, losers `seriesATRText`; left out of the universe "skipped" in `textQuaternary`, struck through, the cause on hover); `surfaceSunken` fill, `separator` hairline, `Radius.medium`, at least `Size.flowChip` wide. Still on a recorded day. The latest event sits in the card's header before the clock, cut first when the title needs the room |
+| Watching row (Mac) | `WatchingRow` | `surfaceSunken` box with `separator` hairline, `Radius.medium`: symbol in `chip`, verdict as an outlined tag (`badge` font, `Stroke.thin` outline, no fill; IGNORE in `seriesATRText`), time in `annotation`; the deciding check in `captionMono`; closeness as a `barThin` capsule in the tag's colour, a dashed `dashFine` outline when unknown |
+| Live-flow board (Mac) | `Pipeline` dots | Under each stage's value, today's symbols whose furthest stage it is (`FlowBoard`), as `flowMark` dots in the stage colour, at most 8 then "+N", wrapping within 104 points; amber while the broker stop waits, red if never confirmed. Universe and risk have a dashed tray, "left out" (`textQuaternary`) or "refused" (`seriesATRText`), naming the first two symbols and how many more, each one's reason on hover. A stage with no symbols shows nothing under it. A dot flies to its new stage (`matchedGeometryEffect`, `Motion.standard`) only when a new read moves it; hover names the symbol and the reason |
+| Live-flow stage | pipeline | `Size.stage` circle filled with the stage colour at `Opacity.glow` over the card, `Stroke.bold` ring and a soft glow in the stage colour; name in the stage's text colour |
 | Accent | `.tint` | `info` for links, selection and system controls on both apps, never the system blue |
 | Planned tag | BACKLOG / NEEDS API | `highlightText`, dashed `dashFine` outline, `Radius.small` |
 | Pulse dot | `PulseDot` | `Size.dot`; while `pulsing`, one ring of `pulseSeconds` each time its `event` changes (a new status read, a fill). Still without an event: nothing on screen moves except on real events |

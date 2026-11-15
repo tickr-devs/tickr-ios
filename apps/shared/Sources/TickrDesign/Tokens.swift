@@ -198,9 +198,8 @@ public enum Tokens {
     public static let barThin: CGFloat = 4
     /// Height of the ticker strip.
     public static let ticker: CGFloat = 22
-    /// A symbol's dot on the live flow board, and the least height of a stage's pool of dots.
-    public static let flowMark: CGFloat = 10
-    public static let flowPool: CGFloat = 44
+    /// A symbol's dot on the live flow board.
+    public static let flowMark: CGFloat = 7
     /// Least width of a symbol chip in the live flow (symbol over screener and change).
     public static let flowChip: CGFloat = 96
     /// Width of a side column of cards on wide screens.

@@ -470,7 +470,7 @@ enum L10n {
     }
     static func dayCounts(_ closed: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
       LocalizedStringResource("overview.dayCounts",
-        defaultValue: "\(closed) closed · \(wins) W · \(losses) L",
+        defaultValue: "\(closed) trades · \(wins) W · \(losses) L",
         bundle: L10n.bundle)
     }
     static func openResult(_ result: String) -> LocalizedStringResource {
@@ -551,6 +551,24 @@ enum L10n {
     }
     static var match: LocalizedStringResource {
       LocalizedStringResource("flow.match", defaultValue: "match", bundle: L10n.bundle)
+    }
+    /// A live-flow chip's screener, as the design names it.
+    static var chipGainers: LocalizedStringResource {
+      LocalizedStringResource("flow.chipGainers", defaultValue: "gainers", bundle: L10n.bundle)
+    }
+    static var chipLosers: LocalizedStringResource {
+      LocalizedStringResource("flow.chipLosers", defaultValue: "losers", bundle: L10n.bundle)
+    }
+    static var chipActives: LocalizedStringResource {
+      LocalizedStringResource("flow.chipActives", defaultValue: "actives", bundle: L10n.bundle)
+    }
+    /// A live-flow chip the universe left out.
+    static var chipSkipped: LocalizedStringResource {
+      LocalizedStringResource("flow.chipSkipped", defaultValue: "skipped", bundle: L10n.bundle)
+    }
+    /// A live-flow chip's screener and change from the previous close: "gainers +21.3%".
+    static func chipChange(_ source: String, _ change: String) -> LocalizedStringResource {
+      LocalizedStringResource("flow.chipChange", defaultValue: "\(source) \(change)%", bundle: L10n.bundle)
     }
     static var notReported: LocalizedStringResource {
       LocalizedStringResource("flow.notReported",
@@ -655,8 +673,9 @@ enum L10n {
   }
 
   enum Safety {
-    static var title: LocalizedStringResource {
-      LocalizedStringResource("safety.title", defaultValue: "Safety", bundle: L10n.bundle)
+    /// The Overview's card of the safety facts and the bot's commands.
+    static var titleWithBot: LocalizedStringResource {
+      LocalizedStringResource("safety.titleWithBot", defaultValue: "Safety · bot", bundle: L10n.bundle)
     }
     static var recordedDay: LocalizedStringResource {
       LocalizedStringResource("safety.recordedDay", defaultValue: "recorded day", bundle: L10n.bundle)
@@ -728,6 +747,15 @@ enum L10n {
     static var reservations: LocalizedStringResource {
       LocalizedStringResource("riskRoom.reservations", defaultValue: "open reservations", bundle: L10n.bundle)
     }
+    /// Foot of the risk room: the latest entry size today and what bound it.
+    static func latestSize(_ symbol: String, _ quantity: String, _ binding: String) -> LocalizedStringResource {
+      LocalizedStringResource("riskRoom.latestSize", defaultValue: "last size: \(symbol) \(quantity) sh · binding: \(binding)",
+        bundle: L10n.bundle)
+    }
+    /// What bound the latest size: the room left under the daily loss limit.
+    static var bindingDailyRoom: LocalizedStringResource {
+      LocalizedStringResource("riskRoom.bindingDailyRoom", defaultValue: "daily room", bundle: L10n.bundle)
+    }
     static var reading: LocalizedStringResource {
       LocalizedStringResource("riskRoom.reading", defaultValue: "Reading limits…", bundle: L10n.bundle)
     }
@@ -740,6 +768,10 @@ enum L10n {
     static var none: LocalizedStringResource {
       LocalizedStringResource("observers.none", defaultValue: "No observer strategies configured.", bundle: L10n.bundle)
     }
+    /// The observers card's link to the Strategy lab.
+    static var lab: LocalizedStringResource {
+      LocalizedStringResource("observers.lab", defaultValue: "Lab", bundle: L10n.bundle)
+    }
     static var advisor: LocalizedStringResource {
       LocalizedStringResource("observers.advisor", defaultValue: "AI advisor proposals", bundle: L10n.bundle)
     }
@@ -747,7 +779,7 @@ enum L10n {
 
   enum Journal {
     static var title: LocalizedStringResource {
-      LocalizedStringResource("journal.title", defaultValue: "Journal", bundle: L10n.bundle)
+      LocalizedStringResource("journal.title", defaultValue: "$ tail -f journal", bundle: L10n.bundle)
     }
     static var latestFirst: LocalizedStringResource {
       LocalizedStringResource("journal.latestFirst", defaultValue: "latest first", bundle: L10n.bundle)

@@ -135,6 +135,8 @@ struct BotControls: View {
   @Environment(AppModel.self) private var model
   @State private var confirming: BotAction?
   var compact = false
+  /// Small labelled buttons, as the design draws them in the Overview's Safety card.
+  var small = false
 
   /// Button columns in the menu-bar panel and on Overview.
   static let compactColumns = 3
@@ -210,7 +212,7 @@ struct BotControls: View {
         }
         .frame(maxWidth: .infinity)
       }
-      .buttonStyle(.action(kind(action)))
+      .buttonStyle(.action(kind(action), size: small ? .compact : .regular))
       .disabled(!model.commandsEnabled || !applicable(action))
       .hint(verbatim: action.explanation)
       .accessibilityIdentifier(action.id)
