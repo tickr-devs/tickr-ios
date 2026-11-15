@@ -31,7 +31,7 @@ struct WatchingCard: View {
             .foregroundStyle(Palette.textTertiary)
         }
         ForEach(watching.rows, id: \.symbol) { row in
-          WatchingRow(row: row)
+          WatchingRow(row: row, current: failure == nil)
         }
       } else if failure == nil {
         ProgressView().frame(maxWidth: .infinity)
@@ -45,6 +45,8 @@ struct WatchingCard: View {
 
 private struct WatchingRow: View {
   let row: WatchingRowV1
+  /// False while a refresh failed and the row is the last read: its bar is dimmed.
+  let current: Bool
 
   /// How close the decisive check is to passing, 0 to 1, when the bot measured it.
   private var closeness: Double? {
@@ -75,7 +77,7 @@ private struct WatchingRow: View {
       }
       if let closeness {
         ProgressView(value: min(max(closeness, 0), 1))
-          .tint(Palette.accent)
+          .tint(current ? Palette.accent : Palette.textQuaternary)
           .accessibilityLabel(Text(L10n.Watching.closeness))
       } else if let cause = row.closenessCause {
         Text(verbatim: cause)

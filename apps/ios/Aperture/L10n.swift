@@ -749,6 +749,16 @@ enum L10n {
   }
 
   enum Lab {
+    static var refusals: LocalizedStringResource {
+      LocalizedStringResource("lab.refusals", defaultValue: "Why signals were refused today", bundle: L10n.bundle)
+    }
+    static var noRefusals: LocalizedStringResource {
+      LocalizedStringResource("lab.noRefusals", defaultValue: "No signal was refused.", bundle: L10n.bundle)
+    }
+    static func refusalsFailed(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.refusalsFailed", defaultValue: "Couldn't read the refused signals: \(cause)",
+        bundle: L10n.bundle)
+    }
     static var title: LocalizedStringResource {
       LocalizedStringResource("lab.title", defaultValue: "Strategy lab", bundle: L10n.bundle)
     }

@@ -12,6 +12,8 @@ final class WatchingModel {
   private(set) var watching: WatchingV1?
   /// Why the rows could not be read, if they could not.
   private(set) var failure: String?
+  /// The bot the rows came from; another bot's rows are never shown.
+  @ObservationIgnored private var source: URL?
 
   /// The bot's API at `url`, from the container, with the paired token only where it may go.
   private func client(_ url: URL) -> APIClient {
@@ -28,13 +30,14 @@ final class WatchingModel {
 
   /// Read the rows of `day` once. Another day's rows are never shown under this one.
   func load(_ url: URL, day: WireDate) async {
-    if watching?.day != day {
+    if watching?.day != day || source != url {
       watching = nil
       failure = nil
+      source = url
     }
     do {
       let read = try await client(url).watching(day: day)
-      guard read.day == day else { return }
+      guard read.day == day, source == url else { return }
       watching = read
       failure = nil
     } catch is CancellationError {

@@ -3318,6 +3318,23 @@
         }
       }
     },
+    "lab.noRefusals" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No signal was refused."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ни один сигнал не отклонён."
+          }
+        }
+      }
+    },
     "lab.noResult" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3331,6 +3348,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "нет расчётного P&L"
+          }
+        }
+      }
+    },
+    "lab.refusals" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why signals were refused today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему сигналы отклонены сегодня"
+          }
+        }
+      }
+    },
+    "lab.refusalsFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the refused signals: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать отклонённые сигналы: %@"
           }
         }
       }

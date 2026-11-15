@@ -55,4 +55,16 @@ struct SkippedGroupsTests {
     #expect(groups[2].cause?.code == "SYMBOL_COOLDOWN")
     #expect(groups[0].cause == nil)
   }
+
+  @Test("Refusals counted by cause, most first; signals not refused are left out")
+  func counts() throws {
+    let counts = RefusalCount.make([
+      try signal(27, "MVLD", cause: Self.cooldown),
+      try signal(27, "BXVR", cause: "QUOTE_STALE: quote 9 s old > 5 s"),
+      try signal(28, "MVLD", cause: Self.cooldown),
+      try signal(29, "HLQN", cause: nil),
+    ])
+    #expect(counts.map(\.cause.code) == ["SYMBOL_COOLDOWN", "QUOTE_STALE"])
+    #expect(counts.map(\.count) == [2, 1])
+  }
 }

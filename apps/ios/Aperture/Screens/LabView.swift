@@ -7,7 +7,7 @@ import SwiftUI
 /// Approving a version stays on the Mac.
 struct LabView: View {
   /// Order in which the blocks rise in (`rise(step:)`).
-  private enum Order: Int { case active = 1, observers, later }
+  private enum Order: Int { case active = 1, observers, refusals, later }
 
   @Environment(AppModel.self) private var model
   @State private var lab = Container.shared.labModel()
@@ -44,6 +44,8 @@ struct LabView: View {
 
         ObserversCard(lab: lab, traded: Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol)))
           .rise(step: Order.observers.rawValue)
+        RefusalsCard(counts: lab.refusals, failure: lab.refusalsFailure)
+          .rise(step: Order.refusals.rawValue)
         Text(L10n.Lab.later)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
@@ -66,6 +68,59 @@ struct LabView: View {
   private func load() async {
     guard let url = model.connection.url, let status = model.status else { return }
     await lab.load(url, day: WireDate(newYorkDateOf: status.writtenAt.date))
+  }
+}
+
+/// Why the active strategy's signals were refused that day: one bar per cause, longest first.
+private struct RefusalsCard: View {
+  let counts: [RefusalCount]?
+  let failure: String?
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      CardLabel(L10n.Lab.refusals)
+      if let failure {
+        Text(counts == nil ? L10n.Lab.refusalsFailed(failure) : L10n.Watching.stale(failure))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.warningText)
+      }
+      if let counts {
+        if counts.isEmpty {
+          Text(L10n.Lab.noRefusals)
+            .font(Tokens.Typography.callout)
+            .foregroundStyle(Palette.textTertiary)
+        }
+        let most = Double(counts.first?.count ?? 1)
+        ForEach(counts) { count in
+          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+            HStack(alignment: .firstTextBaseline) {
+              Group {
+                if let code = count.cause.known {
+                  Text(L10n.Cause.title(code))
+                } else {
+                  Text(verbatim: count.cause.code)
+                }
+              }
+              .font(Tokens.Typography.callout)
+              .foregroundStyle(Palette.textSecondary)
+              Spacer()
+              Text(verbatim: String(count.count))
+                .font(Tokens.Typography.calloutMono.bold())
+                .foregroundStyle(Palette.textPrimary)
+            }
+            ProgressView(value: Double(count.count), total: most)
+              .tint(Palette.warning)
+              .accessibilityHidden(true)
+          }
+          .accessibilityElement(children: .combine)
+        }
+      } else if failure == nil {
+        ProgressView().frame(maxWidth: .infinity)
+      }
+    }
+    .padding(Tokens.Space.l)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .apertureCard()
   }
 }
 
