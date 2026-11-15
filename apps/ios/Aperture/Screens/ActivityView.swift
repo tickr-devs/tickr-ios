@@ -472,6 +472,8 @@ private struct TradeLine {
   /// held), when the bars were captured.
   let mae: Decimal?
   let mfe: Decimal?
+  /// Prices at set minutes after the exit, when the bot computed them.
+  let pricesAfter: [PriceAfterV1]
 
   /// A trade of today's status. MAE and MFE come from the session's record when it holds the same
   /// trade (symbol, opening and closing time); the status does not carry them.
@@ -492,6 +494,7 @@ private struct TradeLine {
     }
     mae = same?.maeUsd?.value
     mfe = same?.mfeUsd?.value
+    pricesAfter = same?.pricesAfter ?? []
   }
 
   init(_ trade: DayTrade) {
@@ -507,6 +510,7 @@ private struct TradeLine {
     stopAfter = trade.stopConfirmedAfterSeconds?.value
     mae = trade.maeUsd?.value
     mfe = trade.mfeUsd?.value
+    pricesAfter = trade.pricesAfter
   }
 
   /// "stop confirmed in 1.4 s · MAE −12.00 · MFE +30.00 (at least)", or nil with neither: what
@@ -570,7 +574,7 @@ private struct TradesList: View {
           tagSymbol: Board.exitReasonSymbol(trade.exitReason),
           tone: Tone.result(trade.result),
           result: Money.signed(trade.result),
-          figures: figures(trade), metrics: metrics(trade), metricsText: trade.metrics)
+          figures: figures(trade), metrics: metrics(trade), metricsText: trade.metrics, after: trade.pricesAfter)
           .rise(step: ActivityView.Order.list.rawValue + index)
       }
       if trades.isEmpty && positions.isEmpty {
@@ -635,7 +639,8 @@ private struct TradesList: View {
   }
 
   private func row(symbol: String, time: String, tag: String, tagSymbol: String, tone: Tone, result: String,
-    figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil) -> some View {
+    figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil,
+    after: [PriceAfterV1] = []) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // One line while it fits; at large text sizes the symbol and result keep a line of their own
       // and the time and tag wrap below, so no figure breaks in the middle or falls into letters.
@@ -674,6 +679,8 @@ private struct TradesList: View {
           .accessibilityElement(children: .ignore)
           .accessibilityLabel(Text(verbatim: metricsText ?? ""))
       }
+      // Where the price went after the exit, per share.
+      AfterLine(prices: after)
     }
     .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.m)
@@ -815,9 +822,9 @@ private struct SkippedRow: View {
   }
 }
 
-/// Where the price went after a signal, per share: "after 1m +0.12 · 5m −0.30 · 15m —". Each
-/// change in its direction's colour; a minute with no captured bar shows a dash. Nothing when the
-/// bot sent no prices.
+/// Where the price went after a signal or an exit, per share: "after 1m +0.12 · 5m −0.30 ·
+/// 15m —". Each change in its direction's colour; a minute with no captured bar shows a dash.
+/// Nothing when the bot sent no prices.
 private struct AfterLine: View {
   let prices: [PriceAfterV1]
 
