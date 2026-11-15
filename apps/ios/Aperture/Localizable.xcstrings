@@ -2483,36 +2483,121 @@
         }
       }
     },
-    "lab.observers" : {
+    "lab.agreement" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Observers and replays"
+            "value" : "bot also traded %1$lld of %2$lld: %3$@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Наблюдатели и повторы"
+            "value" : "бот тоже торговал %1$lld из %2$lld: %3$@"
           }
         }
       }
     },
-    "lab.observersBody" : {
+    "lab.board" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "How each observer version would have traded today, replays of past days and why signals were refused appear here once the bot's API publishes them. Approving a new version stays on the Mac."
+            "value" : "Observers · never trade"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Как торговала бы сегодня каждая версия-наблюдатель, повторы прошлых дней и причины отказов по сигналам появятся здесь, когда API бота начнёт их публиковать. Одобрение новой версии остаётся на Mac."
+            "value" : "Наблюдатели · не торгуют"
+          }
+        }
+      }
+    },
+    "lab.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the observers: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать наблюдателей: %@"
+          }
+        }
+      }
+    },
+    "lab.later" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Results are simulated from the captured bars; observers never trade. Approving a new version stays on the Mac."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Результаты рассчитаны по записанным барам; наблюдатели не торгуют. Одобрение новой версии остаётся на Mac."
+          }
+        }
+      }
+    },
+    "lab.noEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "would not have entered"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не вошёл бы"
+          }
+        }
+      }
+    },
+    "lab.noObservers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No observers configured."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наблюдатели не настроены."
+          }
+        }
+      }
+    },
+    "lab.noResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no simulated P&L"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нет расчётного P&L"
           }
         }
       }

@@ -604,13 +604,29 @@ enum L10n {
     static var trades: LocalizedStringResource {
       LocalizedStringResource("lab.trades", defaultValue: "trades", bundle: L10n.bundle)
     }
-    static var observers: LocalizedStringResource {
-      LocalizedStringResource("lab.observers", defaultValue: "Observers and replays", bundle: L10n.bundle)
+    static var board: LocalizedStringResource {
+      LocalizedStringResource("lab.board", defaultValue: "Observers · never trade", bundle: L10n.bundle)
     }
-    static var observersBody: LocalizedStringResource {
-      LocalizedStringResource("lab.observersBody",
-        defaultValue: "How each observer version would have traded today, replays of past days and why signals were refused appear here once the bot's API publishes them. Approving a new version stays on the Mac.",
+    static var noObservers: LocalizedStringResource {
+      LocalizedStringResource("lab.noObservers", defaultValue: "No observers configured.", bundle: L10n.bundle)
+    }
+    static var noEntries: LocalizedStringResource {
+      LocalizedStringResource("lab.noEntries", defaultValue: "would not have entered", bundle: L10n.bundle)
+    }
+    static var noResult: LocalizedStringResource {
+      LocalizedStringResource("lab.noResult", defaultValue: "no simulated P&L", bundle: L10n.bundle)
+    }
+    static var later: LocalizedStringResource {
+      LocalizedStringResource("lab.later",
+        defaultValue: "Results are simulated from the captured bars; observers never trade. Approving a new version stays on the Mac.",
         bundle: L10n.bundle)
+    }
+    static func agreement(_ shared: Int, _ entered: Int, _ symbols: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.agreement",
+        defaultValue: "bot also traded \(shared) of \(entered): \(symbols)", bundle: L10n.bundle)
+    }
+    static func failed(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.failed", defaultValue: "Couldn't read the observers: \(cause)", bundle: L10n.bundle)
     }
   }
 
