@@ -3,10 +3,10 @@ import ApertureKit
 import SwiftUI
 
 /// The first screen: the day's result, the one line that says what the bot is doing, live events,
-/// open positions and the health of the bot's inputs. The power button opens bot control.
+/// open positions and the live flow. The power button opens bot control.
 struct HomeView: View {
   /// Order in which the blocks rise in (`rise(step:)`); open positions follow one step apart.
-  private enum Order: Int { case day = 1, summary, risk, ticker, positions, health = 7 }
+  private enum Order: Int { case day = 1, summary, ticker, positions, flow = 6 }
 
   @Environment(AppModel.self) private var model
   @State private var showControl = false
@@ -18,7 +18,6 @@ struct HomeView: View {
       DayLine().rise(step: Order.day.rawValue)
       Summary().rise(step: Order.summary.rawValue)
       if let status = model.status {
-        RiskLink(status: status).rise(step: Order.risk.rawValue)
         let events = Board.events(status)
         if !events.isEmpty {
           Ticker(events.map { TickerItem(id: $0.id, tag: $0.tag, text: $0.text, tone: $0.tone.ticker) },
@@ -43,7 +42,9 @@ struct HomeView: View {
             .apertureCard()
             .rise(step: Order.positions.rawValue)
         }
-        HealthCard(status: status).rise(step: Order.health.rawValue)
+        LiveFlowCard(status: status, maxPositions: model.settings?.risk.maxOpenPositions,
+          current: model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today)
+          .rise(step: Order.flow.rawValue)
       }
     }
     .toolbar {
@@ -88,50 +89,6 @@ extension HomeView {
     let url: URL?
     let day: WireDate?
     let positions: [Position]
-  }
-}
-
-/// The room left under the daily loss limit and whether entries are allowed; opens Risk.
-private struct RiskLink: View {
-  let status: StatusV1
-
-  private var allowed: Bool { status.entriesAllowed }
-
-  var body: some View {
-    NavigationLink {
-      RiskView()
-    } label: {
-      HStack(spacing: Tokens.Space.s) {
-        Group {
-          if allowed {
-            Image(systemName: "checkmark.shield").foregroundStyle(Palette.profitText)
-          } else {
-            Image(systemName: "exclamationmark.shield").foregroundStyle(Palette.warningText)
-          }
-        }
-        .transition(.scale.combined(with: .opacity))
-        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-          Text(L10n.Risk.room)
-            .font(Tokens.Typography.callout)
-            .foregroundStyle(Palette.textSecondary)
-          Text(allowed ? L10n.Risk.allowed : L10n.Risk.blocked)
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(allowed ? Palette.textQuaternary : Palette.warningText)
-        }
-        Spacer()
-        Text(verbatim: RiskFormat.amount(status.dailyRoomUsd?.value))
-          .font(Tokens.Typography.calloutMono.bold())
-          .foregroundStyle(Palette.textPrimary)
-          .contentTransition(.numericText())
-        Image(systemName: "chevron.forward")
-          .imageScale(.small)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-      .padding(.horizontal, Tokens.Space.l)
-      .padding(.vertical, Tokens.Space.m)
-      .apertureCard()
-    }
-    .buttonStyle(.plain)
   }
 }
 
@@ -295,62 +252,158 @@ private struct PositionRow: View {
   }
 }
 
-/// The bot's inputs at a glance: broker reads, quote stream, gate, and outstanding fences.
-private struct HealthCard: View {
-  /// Glow around each input's dot, in points.
-  static let glowRadius: CGFloat = 6
-
+/// The live flow as on the design: the stages a setup passes, each a breathing dot in its colour
+/// with what the bot reports for it, and the bot's inputs (quote stream, last broker read) below.
+/// A status that is stale, failed or from an earlier session shows still, faint dots and says so.
+/// Tapping it opens Risk (the room and why entries are blocked).
+private struct LiveFlowCard: View {
   let status: StatusV1
+  let maxPositions: Int?
+  /// The status is fresh and describes today's session.
+  let current: Bool
 
-  var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack {
-        CardLabel(L10n.Home.inputs)
-        Spacer()
-        Text(status.botState.title)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(status.botState == .running ? Palette.profitText : Palette.warningText)
-      }
-      HStack(alignment: .top) {
-        let broker = status.freshness.lastBrokerReadAt
-        item(L10n.Home.broker, Text(verbatim: Format.timeOrDash(broker)), broker != nil ? Palette.info : Palette.loss)
-        Spacer()
-        item(L10n.Home.quotes, Text(status.freshness.stream.title), streamColor)
-        Spacer()
-        let open = status.tradingGate.open
-        item(L10n.Home.gate, Text(open ? L10n.Home.gateOpen : L10n.Home.gateShut), open ? Palette.profit : Palette.warning)
-        Spacer()
-        let allowed = status.entryBlock == nil
-        item(L10n.Home.entries, Text(allowed ? L10n.Home.entriesAllowed : L10n.Home.entriesBlocked),
-          allowed ? Palette.accent : Palette.warning)
-      }
-      ForEach(status.fences, id: \.kind) { fence in
-        Label { Text(verbatim: fence.text) } icon: { Image(systemName: "exclamationmark.triangle.fill") }
-          .font(.caption)
-          .foregroundStyle(Palette.warningText)
-      }
-    }
-    .padding(.horizontal, Tokens.Space.l)
-    .padding(.vertical, Tokens.Space.m)
-    .apertureCard()
+  /// The stages, in the order a setup passes them.
+  private enum StageID: Int { case screen = 0, stocks, strategy, risk, order, stop }
+
+  private struct Stage: Identifiable {
+    let id: StageID
+    let name: LocalizedStringResource
+    /// nil = the API does not report this stage yet.
+    let value: String?
+    let color: Color
   }
 
+  private var stages: [Stage] {
+    let positions = status.positions
+    let verified = positions.filter { $0.stop.state.isProtected }.count
+    let allProtected = verified == positions.count
+    guard current else {
+      // Nothing here is live: no counts, no green, nothing breathing.
+      return [StageID.screen, .stocks, .strategy, .risk, .order, .stop].map { id in
+        Stage(id: id, name: Self.names[id.rawValue], value: nil, color: Palette.textQuaternary)
+      }
+    }
+    return [
+      Stage(id: .screen, name: L10n.Flow.screen, value: nil, color: Palette.accent),
+      Stage(id: .stocks, name: L10n.Flow.stocks, value: nil, color: Palette.seriesUniverse),
+      Stage(id: .strategy, name: L10n.Flow.strategy, value: status.strategy.version, color: Palette.highlight),
+      Stage(id: .risk, name: L10n.Flow.risk,
+        value: status.entriesAllowed ? RiskFormat.amount(status.dailyRoomUsd?.value) : String(localized: L10n.Flow.blocked),
+        color: status.entriesAllowed ? Palette.warning : Palette.loss),
+      Stage(id: .order, name: L10n.Flow.order, value: String(status.tradesToday.count), color: Palette.info),
+      Stage(id: .stop, name: L10n.Flow.stop,
+        value: positions.isEmpty ? Format.missing : String(localized: L10n.Flow.stopsVerified(verified, positions.count)),
+        color: allProtected ? Palette.profit : Palette.loss),
+    ]
+  }
+
+  var body: some View {
+    NavigationLink {
+      RiskView()
+    } label: {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        HStack {
+          CardLabel(L10n.Flow.title)
+          Spacer()
+          if !current {
+            Text(L10n.Flow.notCurrent)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.warningText)
+          } else if let maxPositions {
+            Text(L10n.Flow.slots(status.positions.count, maxPositions))
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.textQuaternary)
+          }
+        }
+        HStack(alignment: .top) {
+          ForEach(stages) { stage in
+            if stage.id != .screen { Spacer(minLength: 0) }
+            column(stage)
+          }
+        }
+        HStack(spacing: Tokens.Space.s) {
+          Text(L10n.Flow.quotes(String(localized: status.freshness.stream.title)))
+            .foregroundStyle(streamColor)
+          Text(L10n.Flow.brokerRead(Format.timeOrDash(status.freshness.lastBrokerReadAt)))
+            .foregroundStyle(current && status.freshness.lastBrokerReadAt == nil ? Palette.lossText : Palette.textQuaternary)
+        }
+        .font(Tokens.Typography.annotation)
+        ForEach(status.fences, id: \.kind) { fence in
+          Label { Text(verbatim: fence.text) } icon: { Image(systemName: "exclamationmark.triangle.fill") }
+            .font(.caption)
+            .foregroundStyle(Palette.warningText)
+        }
+      }
+      .padding(.horizontal, Tokens.Space.l)
+      .padding(.vertical, Tokens.Space.m)
+      .apertureCard()
+    }
+    .buttonStyle(.plain)
+  }
+
+  /// Stage names, in `StageID` order.
+  private static let names = [L10n.Flow.screen, L10n.Flow.stocks, L10n.Flow.strategy, L10n.Flow.risk, L10n.Flow.order,
+    L10n.Flow.stop]
+
+  /// The quote stream's state in its colour: a lost stream is an alarm.
   private var streamColor: Color {
+    // An old status says nothing about the stream now.
+    guard current else { return Palette.textQuaternary }
     switch status.freshness.stream {
-    case .fresh: return Palette.profit
-    case .quiet: return Palette.warning
-    case .lost: return Palette.loss
+    case .fresh: return Palette.profitText
+    case .quiet: return Palette.warningText
+    case .lost: return Palette.lossText
     case .off: return Palette.textQuaternary
     }
   }
 
-  private func item(_ name: LocalizedStringResource, _ value: Text, _ color: Color) -> some View {
+  private func column(_ stage: Stage) -> some View {
     VStack(spacing: Tokens.Space.xs) {
-      PulseDot(color, pulsing: color != Palette.textQuaternary)
-        .shadow(color: color, radius: Self.glowRadius)
-      Text(name).font(Tokens.Typography.annotation).foregroundStyle(Palette.textTertiary)
-      value.font(Tokens.Typography.annotationBold).foregroundStyle(Palette.textPrimary)
+      FlowDot(color: stage.color, delay: Double(stage.id.rawValue) * FlowDot.stagger, lit: stage.value != nil)
+      Text(stage.name).font(Tokens.Typography.annotation).foregroundStyle(Palette.textTertiary)
+      Text(verbatim: stage.value ?? Format.missing)
+        .font(Tokens.Typography.annotationBold)
+        .foregroundStyle(stage.value == nil ? Palette.textQuaternary : Palette.textPrimary)
+        .lineLimit(1)
+        .minimumScaleFactor(FlowDot.minimumScale)
+        .contentTransition(.numericText())
     }
     .accessibilityElement(children: .combine)
+  }
+}
+
+/// A live-flow stage: a glowing dot that breathes, each stage a little after the one before, so
+/// light seems to run along the flow. Still with Reduce Motion, faint for an unreported stage.
+private struct FlowDot: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var bright = false
+  let color: Color
+  let delay: Double
+  let lit: Bool
+
+  /// Seconds between neighbouring stages' breaths.
+  static let stagger = 0.25
+  /// Diameter of the dot and blur of its glow, in points.
+  static let size: CGFloat = 11
+  static let glow: CGFloat = 6
+  /// Smallest scale a stage's value shrinks to.
+  static let minimumScale = 0.7
+  /// Size of the dot at its dimmest, as a share of its full size.
+  static let restScale = 0.8
+
+  var body: some View {
+    Circle()
+      .fill(color)
+      .frame(width: Self.size, height: Self.size)
+      .shadow(color: lit ? color : .clear, radius: Self.glow)
+      .opacity(lit ? (bright || reduceMotion ? 1 : Tokens.Opacity.faint) : Tokens.Opacity.faint)
+      .scaleEffect(bright || reduceMotion || !lit ? 1 : Self.restScale)
+      .onAppear {
+        guard lit, !reduceMotion else { return }
+        withAnimation(.easeInOut(duration: Tokens.Motion.breatheSeconds / 2).repeatForever(autoreverses: true).delay(delay)) {
+          bright = true
+        }
+      }
+      .accessibilityHidden(true)
   }
 }

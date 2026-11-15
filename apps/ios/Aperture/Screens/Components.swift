@@ -90,8 +90,11 @@ enum Format {
   /// Between two figures of one tile, such as MAE and MFE.
   static let slash = " / "
 
+  /// "14:06": 24-hour, as the design shows every time, whatever the phone's clock setting.
   static func time(_ date: Date) -> String {
-    date.formatted(date: .omitted, time: .shortened)
+    date.formatted(Date.VerbatimFormatStyle(
+      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
+      timeZone: .current, calendar: .current))
   }
 
   static func clock(_ date: Date) -> String {

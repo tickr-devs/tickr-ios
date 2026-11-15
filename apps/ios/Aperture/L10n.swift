@@ -273,32 +273,54 @@ enum L10n {
     static var stopUnknown: LocalizedStringResource {
       LocalizedStringResource("home.stopUnknown", defaultValue: "stop unknown", bundle: L10n.bundle)
     }
-    static var inputs: LocalizedStringResource {
-      LocalizedStringResource("home.inputs", defaultValue: "Bot inputs", bundle: L10n.bundle)
+  }
+
+  enum Flow {
+    /// Card title on Home: the stages a setup passes through.
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("flow.title", defaultValue: "Live flow", bundle: L10n.bundle)
     }
-    static var broker: LocalizedStringResource {
-      LocalizedStringResource("home.broker", defaultValue: "broker", bundle: L10n.bundle)
+    static var screen: LocalizedStringResource {
+      LocalizedStringResource("flow.screen", defaultValue: "screen", bundle: L10n.bundle)
     }
-    static var quotes: LocalizedStringResource {
-      LocalizedStringResource("home.quotes", defaultValue: "quotes", bundle: L10n.bundle)
+    static var stocks: LocalizedStringResource {
+      LocalizedStringResource("flow.stocks", defaultValue: "stocks", bundle: L10n.bundle)
     }
-    static var gate: LocalizedStringResource {
-      LocalizedStringResource("home.gate", defaultValue: "gate", bundle: L10n.bundle)
+    static var strategy: LocalizedStringResource {
+      LocalizedStringResource("flow.strategy", defaultValue: "strategy", bundle: L10n.bundle)
     }
-    static var entries: LocalizedStringResource {
-      LocalizedStringResource("home.entries", defaultValue: "entries", bundle: L10n.bundle)
+    static var risk: LocalizedStringResource {
+      LocalizedStringResource("flow.risk", defaultValue: "risk", bundle: L10n.bundle)
     }
-    static var gateOpen: LocalizedStringResource {
-      LocalizedStringResource("home.gateOpen", defaultValue: "open", bundle: L10n.bundle)
+    static var order: LocalizedStringResource {
+      LocalizedStringResource("flow.order", defaultValue: "order", bundle: L10n.bundle)
     }
-    static var gateShut: LocalizedStringResource {
-      LocalizedStringResource("home.gateShut", defaultValue: "closed", bundle: L10n.bundle)
+    static var stop: LocalizedStringResource {
+      LocalizedStringResource("flow.stop", defaultValue: "stop", bundle: L10n.bundle)
     }
-    static var entriesAllowed: LocalizedStringResource {
-      LocalizedStringResource("home.entriesAllowed", defaultValue: "allowed", bundle: L10n.bundle)
+    /// The risk stage when new entries are blocked.
+    static var blocked: LocalizedStringResource {
+      LocalizedStringResource("flow.blocked", defaultValue: "blocked", bundle: L10n.bundle)
     }
-    static var entriesBlocked: LocalizedStringResource {
-      LocalizedStringResource("home.entriesBlocked", defaultValue: "blocked", bundle: L10n.bundle)
+    /// Verified broker stops of all open positions, under the stop stage: "2/3 ✓".
+    static func stopsVerified(_ verified: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.stopsVerified", defaultValue: "\(verified)/\(total) ✓", bundle: L10n.bundle)
+    }
+    /// In place of the slots when the status is stale, failed or from an earlier session.
+    static var notCurrent: LocalizedStringResource {
+      LocalizedStringResource("flow.notCurrent", defaultValue: "not current", bundle: L10n.bundle)
+    }
+    /// The quote stream's state under the stages: "quotes fresh".
+    static func quotes(_ state: String) -> LocalizedStringResource {
+      LocalizedStringResource("flow.quotes", defaultValue: "quotes \(state)", bundle: L10n.bundle)
+    }
+    /// The bot's last broker read under the stages: "broker read 14:06:02".
+    static func brokerRead(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("flow.brokerRead", defaultValue: "broker read \(time)", bundle: L10n.bundle)
+    }
+    /// Open positions against the configured limit: "slots 2 of 3".
+    static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.slots", defaultValue: "slots \(used) of \(limit)", bundle: L10n.bundle)
     }
   }
 
