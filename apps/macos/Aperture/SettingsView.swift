@@ -148,26 +148,67 @@ private struct TradingSettings: View {
   private static func beforeClose(_ minutes: Int) -> String { String(localized: L10n.Settings.beforeClose(minutes)) }
 }
 
+/// The alerts the bot sends (runtime/alerts.py `AlertKind`, grouped): every one is on and goes out
+/// as a Mac notification and, with a recipient in the bot's env file, as an iMessage. Nothing here
+/// is a switch, because the bot decides; phone push waits for the iOS app.
 private struct NotificationSettings: View {
-  /// The alerts the app will offer, in order of urgency.
-  static var alerts: [LocalizedStringResource] {
-    [L10n.Settings.alertPosition, L10n.Settings.alertStop, L10n.Settings.alertFence, L10n.Settings.alertLossLimit,
-      L10n.Settings.alertBotDown]
+  /// One group of the bot's alert kinds: symbol, tone, title and the kinds it covers.
+  struct AlertGroup: Identifiable {
+    let symbol: String
+    let tone: Tone
+    let title: LocalizedStringResource
+    let kinds: LocalizedStringResource
+    var id: String { title.key }
+  }
+
+  /// Symbol of the phone push row.
+  static let phoneSymbol = "iphone.radiowaves.left.and.right"
+
+  /// The groups, most urgent first.
+  static var groups: [AlertGroup] {
+    [
+      AlertGroup(symbol: "shield.slash", tone: .loss, title: L10n.Settings.alertUnprotected,
+        kinds: L10n.Settings.alertUnprotectedKinds),
+      AlertGroup(symbol: "xmark.octagon", tone: .loss, title: L10n.Settings.alertExit, kinds: L10n.Settings.alertExitKinds),
+      AlertGroup(symbol: "power", tone: .loss, title: L10n.Settings.alertBot, kinds: L10n.Settings.alertBotKinds),
+      AlertGroup(symbol: "eye.trianglebadge.exclamationmark", tone: .warning, title: L10n.Settings.alertWatchdog,
+        kinds: L10n.Settings.alertWatchdogKinds),
+      AlertGroup(symbol: "arrow.triangle.2.circlepath", tone: .warning, title: L10n.Settings.alertBroker,
+        kinds: L10n.Settings.alertBrokerKinds),
+      AlertGroup(symbol: "gauge.with.dots.needle.100percent", tone: .warning, title: L10n.Settings.alertLossLimit,
+        kinds: L10n.Settings.alertLossLimitKinds),
+      AlertGroup(symbol: "checklist", tone: .info, title: L10n.Settings.alertMorning, kinds: L10n.Settings.alertMorningKinds),
+      AlertGroup(symbol: "binoculars", tone: .info, title: L10n.Settings.alertObservers,
+        kinds: L10n.Settings.alertObserversKinds),
+    ]
   }
 
   var body: some View {
     Form {
       Section {
-        ForEach(Self.alerts, id: \.key) { item in
-          HStack {
-            Toggle(isOn: .constant(false)) { Text(item) }.disabled(true)
-            PlannedTag()
+        ForEach(Self.groups) { group in
+          HStack(spacing: Tokens.Space.s) {
+            StateGlyph(group.symbol, tone: group.tone, label: group.title, style: .compact)
+            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+              Text(group.title)
+              Text(group.kinds)
+                .font(Tokens.Typography.caption)
+                .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: Tokens.Space.s)
+            StatusPill(L10n.Common.on, tone: .profit)
           }
         }
+        HStack(spacing: Tokens.Space.s) {
+          StateGlyph(Self.phoneSymbol, tone: .neutral, label: L10n.Settings.phonePush, style: .compact)
+          Text(L10n.Settings.phonePush)
+          Spacer(minLength: Tokens.Space.s)
+          PlannedTag()
+        }
       } header: {
-        Text(L10n.Settings.macNotifications)
+        Text(L10n.Settings.botAlerts)
       } footer: {
-        Text(L10n.Settings.notificationsLater)
+        Text(L10n.Settings.alertsFooter)
           .font(Tokens.Typography.caption).foregroundStyle(.secondary)
       }
     }

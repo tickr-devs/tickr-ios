@@ -842,30 +842,62 @@ enum L10n {
     static func beforeClose(_ minutes: Int) -> LocalizedStringResource {
       LocalizedStringResource("settings.beforeClose", defaultValue: "\(minutes) min before close", bundle: L10n.bundle)
     }
-    static var alertPosition: LocalizedStringResource {
-      LocalizedStringResource("settings.alertPosition", defaultValue: "Position opened or closed", bundle: L10n.bundle)
+    static var botAlerts: LocalizedStringResource {
+      LocalizedStringResource("settings.botAlerts", defaultValue: "Alerts from the bot", bundle: L10n.bundle)
     }
-    static var alertStop: LocalizedStringResource {
-      LocalizedStringResource("settings.alertStop", defaultValue: "Broker stop not verified", bundle: L10n.bundle)
+    static var alertUnprotected: LocalizedStringResource {
+      LocalizedStringResource("settings.alertUnprotected", defaultValue: "Position without a working stop", bundle: L10n.bundle)
     }
-    static var alertFence: LocalizedStringResource {
-      LocalizedStringResource("settings.alertFence", defaultValue: "Reconciliation fence", bundle: L10n.bundle)
+    static var alertUnprotectedKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertUnprotectedKinds", defaultValue: "No verified broker stop, or the broker rejected it", bundle: L10n.bundle)
+    }
+    static var alertExit: LocalizedStringResource {
+      LocalizedStringResource("settings.alertExit", defaultValue: "A close failed", bundle: L10n.bundle)
+    }
+    static var alertExitKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertExitKinds", defaultValue: "Exit refused or not filled, flatten after the close, not flat after the flatten time", bundle: L10n.bundle)
+    }
+    static var alertBot: LocalizedStringResource {
+      LocalizedStringResource("settings.alertBot", defaultValue: "Bot down", bundle: L10n.bundle)
+    }
+    static var alertBotKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertBotKinds", defaultValue: "Crashed, did not start or stop, down with an open trade", bundle: L10n.bundle)
+    }
+    static var alertWatchdog: LocalizedStringResource {
+      LocalizedStringResource("settings.alertWatchdog", defaultValue: "Watchdog", bundle: L10n.bundle)
+    }
+    static var alertWatchdogKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertWatchdogKinds", defaultValue: "Not flat after the close, could not check, restarted the bot or could not", bundle: L10n.bundle)
+    }
+    static var alertBroker: LocalizedStringResource {
+      LocalizedStringResource("settings.alertBroker", defaultValue: "Broker or quotes", bundle: L10n.bundle)
+    }
+    static var alertBrokerKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertBrokerKinds", defaultValue: "Unknown order status, foreign position, broker reads failing, quotes lost with a position", bundle: L10n.bundle)
     }
     static var alertLossLimit: LocalizedStringResource {
       LocalizedStringResource("settings.alertLossLimit", defaultValue: "Daily loss limit reached", bundle: L10n.bundle)
     }
-    static var alertBotDown: LocalizedStringResource {
-      LocalizedStringResource("settings.alertBotDown",
-        defaultValue: "Bot stopped or API unreachable",
-        bundle: L10n.bundle)
+    static var alertLossLimitKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertLossLimitKinds", defaultValue: "No new entries for the rest of the day", bundle: L10n.bundle)
     }
-    static var macNotifications: LocalizedStringResource {
-      LocalizedStringResource("settings.macNotifications", defaultValue: "macOS notifications", bundle: L10n.bundle)
+    static var alertMorning: LocalizedStringResource {
+      LocalizedStringResource("settings.alertMorning", defaultValue: "Morning checks", bundle: L10n.bundle)
     }
-    static var notificationsLater: LocalizedStringResource {
-      LocalizedStringResource("settings.notificationsLater",
-        defaultValue: "System notifications arrive in a later update. Until then the menu-bar icon shows the state.",
-        bundle: L10n.bundle)
+    static var alertMorningKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertMorningKinds", defaultValue: "Preflight failed, or the broker token needs confirming", bundle: L10n.bundle)
+    }
+    static var alertObservers: LocalizedStringResource {
+      LocalizedStringResource("settings.alertObservers", defaultValue: "Observers stopped", bundle: L10n.bundle)
+    }
+    static var alertObserversKinds: LocalizedStringResource {
+      LocalizedStringResource("settings.alertObserversKinds", defaultValue: "Too much to evaluate: observers are off for the run, trading goes on", bundle: L10n.bundle)
+    }
+    static var phonePush: LocalizedStringResource {
+      LocalizedStringResource("settings.phonePush", defaultValue: "Push to the phone", bundle: L10n.bundle)
+    }
+    static var alertsFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.alertsFooter", defaultValue: "The bot decides and sends these itself: a Mac notification and, when a recipient is set in its env file, an iMessage. The same alert repeated within a short window is shown once.", bundle: L10n.bundle)
     }
     static var tradingGate: LocalizedStringResource {
       LocalizedStringResource("settings.tradingGate", defaultValue: "Trading gate", bundle: L10n.bundle)

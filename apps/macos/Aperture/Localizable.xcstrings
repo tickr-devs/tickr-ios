@@ -6674,36 +6674,104 @@
         }
       }
     },
-    "settings.alertBotDown" : {
+    "settings.alertBot" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot stopped or API unreachable"
+            "value" : "Bot down"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бот остановлен или API недоступен"
+            "value" : "Бот не работает"
           }
         }
       }
     },
-    "settings.alertFence" : {
+    "settings.alertBotKinds" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reconciliation fence"
+            "value" : "Crashed, did not start or stop, down with an open trade"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Блок сверки"
+            "value" : "Упал, не запустился или не остановился, остановлен с открытой сделкой"
+          }
+        }
+      }
+    },
+    "settings.alertBroker" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker or quotes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Брокер или котировки"
+          }
+        }
+      }
+    },
+    "settings.alertBrokerKinds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown order status, foreign position, broker reads failing, quotes lost with a position"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестный статус ордера, чужая позиция, сбой чтения у брокера, нет котировок при открытой позиции"
+          }
+        }
+      }
+    },
+    "settings.alertExit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A close failed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытие не удалось"
+          }
+        }
+      }
+    },
+    "settings.alertExitKinds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit refused or not filled, flatten after the close, not flat after the flatten time"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выход отклонён или не исполнен, закрытие после закрытия рынка, позиция осталась после времени закрытия"
           }
         }
       }
@@ -6725,36 +6793,172 @@
         }
       }
     },
-    "settings.alertPosition" : {
+    "settings.alertLossLimitKinds" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Position opened or closed"
+            "value" : "No new entries for the rest of the day"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Позиция открыта или закрыта"
+            "value" : "Новых входов до конца дня не будет"
           }
         }
       }
     },
-    "settings.alertStop" : {
+    "settings.alertMorning" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Broker stop not verified"
+            "value" : "Morning checks"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Стоп у брокера не подтверждён"
+            "value" : "Утренние проверки"
+          }
+        }
+      }
+    },
+    "settings.alertMorningKinds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preflight failed, or the broker token needs confirming"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предстартовая проверка не прошла или токен брокера ждёт подтверждения"
+          }
+        }
+      }
+    },
+    "settings.alertObservers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Observers stopped"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наблюдатели остановлены"
+          }
+        }
+      }
+    },
+    "settings.alertObserversKinds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too much to evaluate: observers are off for the run, trading goes on"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Слишком много работы: наблюдатели выключены до перезапуска, торговля продолжается"
+          }
+        }
+      }
+    },
+    "settings.alertsFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot decides and sends these itself: a Mac notification and, when a recipient is set in its env file, an iMessage. The same alert repeated within a short window is shown once."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот сам решает и отправляет оповещения: уведомление на Mac и, если получатель указан в его env-файле, iMessage. Одно и то же оповещение за короткое время показывается один раз."
+          }
+        }
+      }
+    },
+    "settings.alertUnprotected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position without a working stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиция без рабочего стопа"
+          }
+        }
+      }
+    },
+    "settings.alertUnprotectedKinds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No verified broker stop, or the broker rejected it"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп у брокера не подтверждён или отклонён"
+          }
+        }
+      }
+    },
+    "settings.alertWatchdog" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchdog"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сторож"
+          }
+        }
+      }
+    },
+    "settings.alertWatchdogKinds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not flat after the close, could not check, restarted the bot or could not"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не всё закрыто после закрытия, не смог проверить, перезапустил бота или не смог"
           }
         }
       }
@@ -6823,6 +7027,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "за %lld мин до закрытия"
+          }
+        }
+      }
+    },
+    "settings.botAlerts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerts from the bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оповещения бота"
           }
         }
       }
@@ -7235,23 +7456,6 @@
         }
       }
     },
-    "settings.macNotifications" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS notifications"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уведомления macOS"
-          }
-        }
-      }
-    },
     "settings.marketTimezone" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7354,23 +7558,6 @@
         }
       }
     },
-    "settings.notificationsLater" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "System notifications arrive in a later update. Until then the menu-bar icon shows the state."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Системные уведомления появятся в одном из следующих обновлений. До тех пор состояние показывает значок в строке меню."
-          }
-        }
-      }
-    },
     "settings.notionalCap" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7452,6 +7639,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ОК"
+          }
+        }
+      }
+    },
+    "settings.phonePush" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push to the phone"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пуш на телефон"
           }
         }
       }
