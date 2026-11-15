@@ -1123,6 +1123,50 @@ enum L10n {
     static func whatIfLevels(_ entry: String, _ stop: String) -> LocalizedStringResource {
       LocalizedStringResource("trades.whatIfLevels", defaultValue: "What-if entry \(entry) · stop \(stop)", bundle: L10n.bundle)
     }
+    /// Card title: the selected trade's risk, excursion and stop timing.
+    static func tradeDetail(_ symbol: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.tradeDetail", defaultValue: "Trade \(symbol)", bundle: L10n.bundle)
+    }
+    /// Card title before a trade is selected.
+    static var selectedTrade: LocalizedStringResource {
+      LocalizedStringResource("trades.selectedTrade", defaultValue: "Selected Trade", bundle: L10n.bundle)
+    }
+    /// Trade detail card before a trade is selected.
+    static var selectTrade: LocalizedStringResource {
+      LocalizedStringResource("trades.selectTrade", defaultValue: "Select a trade to see its risk, price excursion and how fast its stop was confirmed.", bundle: L10n.bundle)
+    }
+    /// Detail: what the trade risked at entry, the unit of R.
+    static var oneR: LocalizedStringResource {
+      LocalizedStringResource("trades.oneR", defaultValue: "1 R · planned loss", bundle: L10n.bundle)
+    }
+    /// Detail: seconds from the entry fill to the broker confirming the stop.
+    static var stopConfirmedAfter: LocalizedStringResource {
+      LocalizedStringResource("trades.stopConfirmedAfter", defaultValue: "Stop confirmed after", bundle: L10n.bundle)
+    }
+    /// Detail: maximum adverse excursion, a lower bound.
+    static var maeAtLeast: LocalizedStringResource {
+      LocalizedStringResource("trades.maeAtLeast", defaultValue: "Worst open result (MAE), at least", bundle: L10n.bundle)
+    }
+    /// Detail: maximum favourable excursion, a lower bound.
+    static var mfeAtLeast: LocalizedStringResource {
+      LocalizedStringResource("trades.mfeAtLeast", defaultValue: "Best open result (MFE), at least", bundle: L10n.bundle)
+    }
+    /// Footnote: why MAE and MFE are lower bounds.
+    static var excursionLowerBound: LocalizedStringResource {
+      LocalizedStringResource("trades.excursionLowerBound", defaultValue: "MAE and MFE count only prices proven to come while the shares were held, so the real excursion can be larger.", bundle: L10n.bundle)
+    }
+    /// Detail value the bot could not compute (MAE/MFE without captured bars).
+    static var unknown: LocalizedStringResource {
+      LocalizedStringResource("trades.unknown", defaultValue: "Unknown", bundle: L10n.bundle)
+    }
+    /// Tooltip of the stop confirmation time.
+    static var stopConfirmedHelp: LocalizedStringResource {
+      LocalizedStringResource("trades.stopConfirmedHelp", defaultValue: "Counted from when the bot saw the entry fill to when the broker confirmed the stop.", bundle: L10n.bundle)
+    }
+    /// Detail value the bot did not record.
+    static var notRecorded: LocalizedStringResource {
+      LocalizedStringResource("trades.notRecorded", defaultValue: "Not recorded", bundle: L10n.bundle)
+    }
     /// Stat card: average result in R.
     static var averageR: LocalizedStringResource {
       LocalizedStringResource("trades.averageR", defaultValue: "Average R", bundle: L10n.bundle)

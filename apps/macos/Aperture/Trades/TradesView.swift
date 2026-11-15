@@ -12,7 +12,7 @@ struct TradesView: View {
 
   /// Entrance order of the screen's parts.
   private enum Order: Int {
-    case days = 0, stats, trades, notTaken, whatIf
+    case days = 0, stats, trades, detail, notTaken, whatIf
   }
 
   var body: some View {
@@ -25,6 +25,8 @@ struct TradesView: View {
           .rise(step: Order.stats.rawValue)
         TradesTable(selection: $selection, showOnChart: showOnChart)
           .rise(step: Order.trades.rawValue)
+        TradeDetailCard(trade: model.shownTrades.first { $0.id == selection })
+          .rise(step: Order.detail.rawValue)
         NotTakenCard(showOnChart: showOnChart)
           .rise(step: Order.notTaken.rawValue)
         WhatIfCard()
@@ -275,6 +277,62 @@ private struct TradesTable: View {
   private func trade(_ ids: Set<DayTrade.ID>) -> DayTrade? {
     guard let id = ids.first else { return nil }
     return model.shownTrades.first { $0.id == id }
+  }
+}
+
+/// The selected trade's risk (1 R), price excursion and how fast the broker confirmed its stop.
+private struct TradeDetailCard: View {
+  let trade: DayTrade?
+
+  /// Accessibility id of the card, for the UI tests.
+  static let id = "trades-detail"
+
+  var body: some View {
+    Group {
+      if let trade {
+        Card(L10n.Trades.tradeDetail(trade.symbol)) {
+          VStack(alignment: .leading, spacing: Tokens.Space.m) {
+            Grid(alignment: .leading, horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.s) {
+              GridRow {
+                Text(L10n.Trades.oneR).foregroundStyle(Palette.textSecondary)
+                MoneyText(value: trade.plannedLossUsd.value, usd: true, colored: false, signed: false)
+              }
+              GridRow {
+                Text(L10n.Trades.stopConfirmedAfter).foregroundStyle(Palette.textSecondary)
+                  .help(Text(L10n.Trades.stopConfirmedHelp))
+                if let seconds = trade.stopConfirmedAfterSeconds {
+                  Text(verbatim: Format.seconds(seconds.value)).font(Tokens.Typography.bodyMono)
+                } else {
+                  notRecorded
+                }
+              }
+              excursion(L10n.Trades.maeAtLeast, trade.maeUsd)
+              excursion(L10n.Trades.mfeAtLeast, trade.mfeUsd)
+            }
+            Footnote(L10n.Trades.excursionLowerBound)
+          }
+        }
+      } else {
+        Card(L10n.Trades.selectedTrade) { Footnote(L10n.Trades.selectTrade) }
+      }
+    }
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier(Self.id)
+  }
+
+  private func excursion(_ title: LocalizedStringResource, _ value: DecimalString?) -> some View {
+    GridRow {
+      Text(title).foregroundStyle(Palette.textSecondary)
+      if let value {
+        MoneyText(value: value.value, usd: true)
+      } else {
+        Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
+      }
+    }
+  }
+
+  private var notRecorded: some View {
+    Text(L10n.Trades.notRecorded).foregroundStyle(Palette.textQuaternary)
   }
 }
 
