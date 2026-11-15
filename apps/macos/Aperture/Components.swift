@@ -240,28 +240,6 @@ struct ApertureLogo: View {
   }
 }
 
-/// A sparkline that draws itself in on appear and when its values change.
-struct DrawnSparkline: View {
-  let values: [Double]
-  let color: Color
-  @State private var progress: CGFloat = 0
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-  var body: some View {
-    Sparkline(values)
-      .trim(from: 0, to: progress)
-      .stroke(color, style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round, lineJoin: .round))
-      .onAppear { draw() }
-      .onChange(of: values) { draw() }
-      .accessibilityHidden(true)
-  }
-
-  private func draw() {
-    progress = reduceMotion ? 1 : 0
-    withAnimation(Tokens.Motion.draw) { progress = 1 }
-  }
-}
-
 /// Dates, times and numbers as the app shows them. Times are market time (New York); words come
 /// from the String Catalog.
 enum Format {

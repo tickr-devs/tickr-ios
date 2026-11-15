@@ -1,5 +1,6 @@
 import ApertureDesign
 import ApertureKit
+import Charts
 import SwiftUI
 
 /// Overview: what the bot is doing now, its positions and protection, the day's result, and the
@@ -521,67 +522,49 @@ extension StopState {
   }
 }
 
-/// Closes since the entry, with the entry and stop as dashed lines and a pulsing last point.
+/// Closes since the entry (Swift Charts), with the entry and stop as dashed levels and a pulsing
+/// last point. The line draws itself in; the levels stand from the start.
 private struct MiniChart: View {
+  /// Room above and below the values, as a share of their range.
+  static let padShare = 0.12
+  /// Least room, in dollars, so a flat line still has a visible scale.
+  static let padMinimum = 0.01
+  /// Plot keys of the two axes (the chart has its own accessibility label, so they are not read).
+  static let barKey = "bar"
+  static let priceKey = "price"
+
   let closes: [Decimal]
   let entry: Decimal
   let stop: Decimal?
   @State private var drawn: CGFloat = 0
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
-    GeometryReader { proxy in
-      chart(size: proxy.size)
-    }
-    .padding(Tokens.Space.s)
-    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous))
-    .onAppear { withAnimation(Tokens.Motion.draw) { drawn = 1 } }
-    .accessibilityLabel(Text(L10n.Position.chartLabel))
-  }
-
-  /// Maps a price to a y coordinate, with some room above and below every value shown.
-  private struct Scale {
-    /// Room above and below the values, as a share of their range.
-    static let padShare = 0.12
-    /// Least room, in dollars, so a flat line still has a visible scale.
-    static let padMinimum = 0.01
-
-    let low: Double
-    let high: Double
-    let height: CGFloat
-
-    init(values: [Double], height: CGFloat) {
-      let lowest = values.min() ?? 0
-      let highest = values.max() ?? 1
-      let pad = max((highest - lowest) * Self.padShare, Self.padMinimum)
-      low = lowest - pad
-      high = highest + pad
-      self.height = height
-    }
-
-    func y(_ value: Double) -> CGFloat {
-      let fraction = (value - low) / (high - low)
-      return height * CGFloat(1 - fraction)
-    }
-  }
-
-  @ViewBuilder private func chart(size: CGSize) -> some View {
-    let values: [Double] = closes.map(Self.double)
-    let entryValue = Self.double(entry)
-    let stopValue: Double? = stop.map(Self.double)
-    let scale = Scale(values: values + [entryValue] + (stopValue.map { [$0] } ?? []), height: size.height)
-    ZStack(alignment: .topLeading) {
-      level(scale.y(entryValue), width: size.width, color: Palette.info,
-        label: Text(L10n.Position.entryLevel(Money.plain(entry))))
-      if let stop, let stopValue {
-        level(scale.y(stopValue), width: size.width, color: Palette.loss,
-          label: Text(L10n.Position.stopLevel(Money.plain(stop))))
-      }
+    let values = closes.map(Self.double)
+    Group {
       if let last = values.last, values.count > 1 {
-        line(values: values, scale: scale, width: size.width)
-          .trim(from: 0, to: drawn)
-          .stroke(Palette.accent, style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineJoin: .round))
-        PulseDot(Palette.accent)
-          .position(x: size.width, y: scale.y(last))
+        let domain = priceDomain(values)
+        let bars = 0...(values.count - 1)
+        ZStack {
+          Chart {
+            level(entry, color: Palette.info, label: Text(L10n.Position.entryLevel(Money.plain(entry))))
+            if let stop {
+              level(stop, color: Palette.loss, label: Text(L10n.Position.stopLevel(Money.plain(stop))))
+            }
+          }
+          .plain(bars: bars, prices: domain)
+          Chart {
+            ForEach(Array(values.enumerated()), id: \.offset) { point in
+              LineMark(x: .value(Self.barKey, point.offset), y: .value(Self.priceKey, point.element))
+                .foregroundStyle(Palette.accent)
+                .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.bold, lineJoin: .round))
+            }
+            PointMark(x: .value(Self.barKey, values.count - 1), y: .value(Self.priceKey, last))
+              .symbol { PulseDot(Palette.accent) }
+          }
+          .plain(bars: bars, prices: domain)
+          .reveal(drawn)
+        }
       } else {
         Text(L10n.Position.waitingForBars)
           .font(Tokens.Typography.caption)
@@ -589,34 +572,47 @@ private struct MiniChart: View {
           .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
     }
-  }
-
-  private func line(values: [Double], scale: Scale, width: CGFloat) -> Path {
-    var path = Path()
-    let step = width / CGFloat(values.count - 1)
-    for (index, value) in values.enumerated() {
-      let point = CGPoint(x: step * CGFloat(index), y: scale.y(value))
-      if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
+    .padding(Tokens.Space.s)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous))
+    .onAppear {
+      if reduceMotion { drawn = 1 } else { withAnimation(Tokens.Motion.draw) { drawn = 1 } }
     }
-    return path
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text(L10n.Position.chartLabel))
   }
 
-  private func level(_ y: CGFloat, width: CGFloat, color: Color, label: Text) -> some View {
-    ZStack(alignment: .topTrailing) {
-      Path { path in
-        path.move(to: CGPoint(x: 0, y: y))
-        path.addLine(to: CGPoint(x: width, y: y))
+  /// The price range shown: every close and level, with some room above and below.
+  private func priceDomain(_ values: [Double]) -> ClosedRange<Double> {
+    let all = values + [Self.double(entry)] + (stop.map { [Self.double($0)] } ?? [])
+    let lowest = all.min() ?? 0
+    let highest = all.max() ?? 1
+    let pad = max((highest - lowest) * Self.padShare, Self.padMinimum)
+    return (lowest - pad)...(highest + pad)
+  }
+
+  private func level(_ price: Decimal, color: Color, label: Text) -> some ChartContent {
+    RuleMark(y: .value(Self.priceKey, Self.double(price)))
+      .foregroundStyle(color.opacity(Tokens.Opacity.overlay))
+      .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
+      .annotation(position: .top, alignment: .trailing, spacing: Tokens.Space.xxs) {
+        label
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(color)
       }
-      .stroke(color.opacity(Tokens.Opacity.overlay), style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash))
-      label
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(color)
-        .padding(.bottom, Tokens.Space.xxs)
-        .alignmentGuide(.top) { $0[.bottom] - y }
-    }
   }
 
   static func double(_ value: Decimal) -> Double { NSDecimalNumber(decimal: value).doubleValue }
+}
+
+private extension View {
+  /// A chart with no axes or legend over fixed bar and price ranges, so stacked charts line up.
+  func plain(bars: ClosedRange<Int>, prices: ClosedRange<Double>) -> some View {
+    chartXAxis(.hidden)
+      .chartYAxis(.hidden)
+      .chartLegend(.hidden)
+      .chartXScale(domain: bars)
+      .chartYScale(domain: prices)
+  }
 }
 
 private struct EmptyPositions: View {
