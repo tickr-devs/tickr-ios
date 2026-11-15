@@ -163,6 +163,7 @@ struct RowStack<Content: View>: View {
 
 /// Every tab draws on the same background and keeps its own navigation stack.
 struct Screen<Content: View>: View {
+  @Environment(\.dynamicTypeSize) private var typeSize
   let title: LocalizedStringResource
   let content: Content
 
@@ -180,6 +181,9 @@ struct Screen<Content: View>: View {
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
     .navigationTitle(Text(title))
+    // A large title cannot wrap or shrink: at accessibility sizes it would be cut ("Лаборатор…"),
+    // so the title sits in the bar, where it fits whole.
+    .toolbarTitleDisplayMode(typeSize.isAccessibilitySize ? .inline : .automatic)
   }
 }
 

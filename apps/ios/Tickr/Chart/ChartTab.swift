@@ -103,6 +103,9 @@ struct ChartTab: View {
             CandleChart(series: series, times: chart.times, studies: chart.studies, atr: chart.atr,
               trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
               events: oneDay ? chart.events : [], lines: lines, fitsAll: !oneDay, viewport: $viewport)
+              // Its panes have a fixed height: past this size the scale's tags and legends would
+              // cover each other and the candles.
+              .dynamicTypeSize(...CandleChart.largestText)
             DayTrades(trades: chart.trades)
             DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
           } else if chart.range != .oneDay {

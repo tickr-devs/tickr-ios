@@ -130,6 +130,9 @@ extension HomeView {
 /// The session the status describes: "today" only when it is today's New York date on the bot's
 /// clock, else the last session (a weekend, a day off), which is never shown as live.
 private struct DayLine: View {
+  /// Lines the day may take at large text sizes ("Пт, 13 нояб. · сегодня").
+  static let stackedDayLines = 2
+
   @Environment(AppModel.self) private var model
   @Environment(\.dynamicTypeSize) private var typeSize
   let days: HomeDayModel
@@ -143,8 +146,9 @@ private struct DayLine: View {
         Button { days.back() } label: { Image(systemName: "chevron.left") }
           .disabled(!days.canGoBack)
           .accessibilityLabel(Text(L10n.Home.previousDay))
+        // Stacked, the day may take a second line rather than lose "today".
         day
-          .lineLimit(1)
+          .lineLimit(stacked ? Self.stackedDayLines : 1)
           .minimumScaleFactor(Tokens.Shrink.standard)
         Spacer(minLength: 0)
         if !stacked { trailing }
@@ -233,6 +237,7 @@ private struct Summary: View {
   static let gateClosedSymbol = "lock.fill"
 
   @Environment(AppModel.self) private var model
+  @Environment(\.dynamicTypeSize) private var typeSize
   /// The ring grows with the text inside it.
   @ScaledMetric(relativeTo: .title) private var ringSide = Summary.ringSide
   /// A recorded past day to summarize instead of today's status.
@@ -272,7 +277,11 @@ private struct Summary: View {
         }
         .padding(Tokens.Space.l)
       }
-      .frame(width: ringSide, height: ringSide)
+      // Beside the headline the ring keeps its scaled side; stacked above it at large text sizes,
+      // it stops growing at the screen's width, so it is never cut and never widens the page.
+      .frame(width: typeSize.stacksRows ? nil : ringSide, height: typeSize.stacksRows ? nil : ringSide)
+      .aspectRatio(1, contentMode: .fit)
+      .frame(maxWidth: ringSide)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(Text(L10n.Home.dayResult(Money.signedUSD(result), stats?.wins ?? 0, stats?.losses ?? 0)))
 
@@ -304,7 +313,7 @@ private struct Summary: View {
               let entries = EntriesGlyph.make(status)
               StateGlyph(entries.symbol, tone: entries.tone, label: entries.label, style: .compact)
             }
-            Badge(verbatim: status.strategy.version, tone: .highlight)
+            Badge(keepingCase: L10n.Common.version(status.strategy.version), tone: .highlight)
           }
           .accessibilityElement(children: .ignore)
           .accessibilityLabel(Text(verbatim: subline(status)))
@@ -336,6 +345,7 @@ private struct PositionRow: View {
   static let sparkHeight: CGFloat = 26
 
   @Environment(AppModel.self) private var model
+  @Environment(\.dynamicTypeSize) private var typeSize
   let position: Position
   let marks: PositionMarks?
 
@@ -406,9 +416,10 @@ private struct PositionRow: View {
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.textQuaternary)
           }
-          // Each value on one line; the sparkline gives way first when the row is narrow.
-          .lineLimit(1)
-          .fixedSize(horizontal: true, vertical: false)
+          // Each value on one line; the sparkline gives way first when the row is narrow. Stacked
+          // at large text sizes, a value wraps instead of widening the card past the screen.
+          .lineLimit(typeSize.stacksRows ? nil : 1)
+          .fixedSize(horizontal: !typeSize.stacksRows, vertical: typeSize.stacksRows)
           .layoutPriority(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -552,23 +563,32 @@ private struct LiveFlowCard: View {
       NavigationLink {
         RiskView()
       } label: {
-        // The label, then its note; the note goes under it at large text sizes.
+        // The label, then its note and the chevron together, so the row reads as the link to
+        // Risk; at large text sizes the note and chevron take the line under the label.
         RowStack {
           CardLabel(L10n.Flow.title)
-          Spacer()
-          if !current {
-            Text(L10n.Flow.notCurrent)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(Palette.warningText)
-          } else if let maxPositions {
-            Text(L10n.Flow.slots(status.positions.count, maxPositions))
-              .font(Tokens.Typography.annotation)
+          Spacer(minLength: 0)
+          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
+            Group {
+              if !current {
+                Text(L10n.Flow.notCurrent)
+                  .foregroundStyle(Palette.warningText)
+              } else if let maxPositions {
+                Text(L10n.Flow.slots(status.positions.count, maxPositions))
+                  .foregroundStyle(Palette.textQuaternary)
+              } else {
+                Text(L10n.Risk.title)
+                  .foregroundStyle(Palette.textQuaternary)
+              }
+            }
+            .font(Tokens.Typography.annotation)
+            .fixedSize(horizontal: false, vertical: true)
+            Image(systemName: "chevron.right")
+              .font(.footnote.weight(.semibold))
               .foregroundStyle(Palette.textQuaternary)
           }
-          Image(systemName: "chevron.right")
-            .font(.footnote.weight(.semibold))
-            .foregroundStyle(Palette.textQuaternary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
@@ -669,27 +689,30 @@ private struct LiveFlowCard: View {
     .unredacted(when: stage.urgent)
   }
 
-  /// A stage as one row: its dot and name, then its value or flag and today's symbols at the end.
+  /// A stage as one row: its dot and name, then its value and today's symbols at the end; a flag
+  /// ("not now", "blocked") goes under the name and wraps whole instead of being cut ("Не сей…").
   private func row(_ stage: Stage) -> some View {
     HStack(spacing: Tokens.Space.s) {
       FlowDot(color: stage.color, lit: stage.value != nil || stage.flag != nil, event: stage.value)
-      Text(stage.name).font(Tokens.Typography.annotation).foregroundStyle(Palette.textTertiary)
-      Spacer(minLength: Tokens.Space.s)
-      Group {
-        if stage.value != nil || stage.flag == nil {
-          Text(verbatim: stage.value ?? Format.missing)
-            .font(Tokens.Typography.annotationBold)
-            .foregroundStyle(stage.value == nil ? Palette.textQuaternary : Palette.textPrimary)
-            .contentTransition(.numericText())
-        }
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        Text(stage.name).font(Tokens.Typography.annotation).foregroundStyle(Palette.textTertiary)
         if let flag = stage.flag {
           Text(flag)
             .font(Tokens.Typography.annotationBold)
             .foregroundStyle(stage.flagColor)
+            .fixedSize(horizontal: false, vertical: true)
         }
       }
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.standard)
+      .layoutPriority(1)
+      Spacer(minLength: Tokens.Space.s)
+      if stage.value != nil || stage.flag == nil {
+        Text(verbatim: stage.value ?? Format.missing)
+          .font(Tokens.Typography.annotationBold)
+          .foregroundStyle(stage.value == nil ? Palette.textQuaternary : Palette.textPrimary)
+          .contentTransition(.numericText())
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.Shrink.standard)
+      }
       pool(stage)
     }
     // .contain, not .combine: the refused tray inside stays a button VoiceOver can activate.
@@ -829,6 +852,8 @@ private struct LatestEventLine: View {
     }
     .font(Tokens.Typography.annotation.monospaced())
     .lineLimit(1)
+    // Full width also when stacked, where the Spacer cannot widen the column.
+    .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.s)
     .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous))

@@ -91,6 +91,23 @@ import Testing
     for pair in zip(events, events.dropFirst()) { #expect(pair.0.time >= pair.1.time) }
   }
 
+  @Test("A forced close is amber and a protection failure red whatever the result; an ordinary exit by its sign")
+  func exitToneFollowsTheReason() {
+    let gain = Decimal(string: "12.50")!
+    let loss = Decimal(string: "-3.10")!
+    for forced in ["session-flatten", "operator-flatten", "operator-interrupt", "stream-lost"] {
+      #expect(Board.exitTone(forced, result: gain) == .amber)
+      #expect(Board.exitTone(forced, result: loss) == .amber)
+    }
+    for failure in ["stop-rejected", "unprotected-too-long"] {
+      #expect(Board.exitTone(failure, result: gain) == .red)
+    }
+    #expect(Board.exitTone("something-new", result: gain) == .amber)
+    #expect(Board.exitTone("stopped-out", result: loss) == .red)
+    #expect(Board.exitTone("strategy-exit", result: gain) == .green)
+    #expect(Board.exitTone("hold-elapsed", result: 0) == .muted)
+  }
+
   @Test func knownExitReasonsGetTitlesUnknownStayRaw() {
     #expect(Board.exitReasonTitle("stopped-out") == "stopped out")
     #expect(Board.exitReasonTitle("something-new") == "something-new")

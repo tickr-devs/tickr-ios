@@ -42,6 +42,7 @@ struct LabView: View {
           }
         }
         .padding(Tokens.Space.l)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .tickrCard()
         .rise(step: Order.active.rawValue)
 

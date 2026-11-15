@@ -50,13 +50,17 @@ public struct StatusPill: View {
         .font(Tokens.Typography.badge)
         .tracking(Tokens.Typography.badgeTracking)
         .lineLimit(1)
+        // At the largest text sizes a long state ("НЕ ЗАПУСКАЛСЯ") shrinks inside the card
+        // instead of widening it past the screen.
+        .minimumScaleFactor(Tokens.Shrink.standard)
     }
     .foregroundStyle(tone.text)
     .padding(.horizontal, Tokens.Space.s)
     .padding(.vertical, Tokens.Space.xs)
     .background(Capsule().fill(tone.fill.opacity(Tokens.Opacity.wash)))
     .overlay(Capsule().strokeBorder(tone.fill.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
-    .fixedSize()
+    .fixedSize(horizontal: false, vertical: true)
+    .layoutPriority(1)
     .accessibilityElement(children: .combine)
     .animation(Tokens.Motion.quick, value: tone)
   }
@@ -69,9 +73,17 @@ public struct Badge: View {
   let fill: Color
   let color: Color
   let planned: Bool
+  /// Badges are capitals; a value whose case means something (a version, "v1") keeps its own.
+  var textCase: Text.Case? = .uppercase
 
   public init(_ title: LocalizedStringResource, tone: Tone, planned: Bool = false) {
     self.init(Text(title), fill: tone.fill, color: tone.text, planned: planned)
+  }
+
+  /// A badge whose text keeps its case: a version ("v1").
+  public init(keepingCase title: LocalizedStringResource, tone: Tone) {
+    self.init(Text(title), fill: tone.fill, color: tone.text, planned: false)
+    textCase = nil
   }
 
   /// A badge showing data (an environment name, a protocol value), not a sentence.
@@ -98,7 +110,7 @@ public struct Badge: View {
   public var body: some View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
     text
-      .textCase(.uppercase)
+      .textCase(textCase)
       .font(Tokens.Typography.badge)
       .tracking(Tokens.Typography.badgeTracking)
       .lineLimit(1)

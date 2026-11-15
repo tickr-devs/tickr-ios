@@ -38,6 +38,10 @@ enum L10n {
     static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
       LocalizedStringResource("common.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
     }
+    /// A strategy version on its own, as on Home's badge: "v1".
+    static func version(_ version: String) -> LocalizedStringResource {
+      LocalizedStringResource("common.version", defaultValue: "v\(version)", bundle: L10n.bundle)
+    }
     static func quantityAt(_ quantity: String, _ price: String) -> LocalizedStringResource {
       LocalizedStringResource("common.quantityAt", defaultValue: "\(quantity) @ \(price)", bundle: L10n.bundle)
     }
@@ -974,9 +978,6 @@ enum L10n {
     }
     static var observerRole: LocalizedStringResource {
       LocalizedStringResource("lab.observerRole", defaultValue: "observer", bundle: L10n.bundle)
-    }
-    static var activeRole: LocalizedStringResource {
-      LocalizedStringResource("lab.activeRole", defaultValue: "trades", bundle: L10n.bundle)
     }
     static var partial: LocalizedStringResource {
       LocalizedStringResource("lab.partial", defaultValue: "incomplete", bundle: L10n.bundle)

@@ -214,6 +214,9 @@ extension ActivityView {
 /// The calendar of recorded days: one month of Monday-to-Friday weeks, each day tinted by its net
 /// result. Tapping a recorded day shows it; tapping today goes back to the live view.
 private struct DayPicker: View {
+  /// Lines the month and year may take in the header ("Ноябрь 2026 г." at large text sizes).
+  static let monthLines = 2
+
   let activity: ActivityModel
   let url: URL
 
@@ -225,7 +228,7 @@ private struct DayPicker: View {
       if activity.selectedDay != nil && dynamicTypeSize.isAccessibilitySize {
         backToToday
       }
-      HStack(spacing: Tokens.Space.xs) {
+      HStack(spacing: dynamicTypeSize.isAccessibilitySize ? Tokens.Space.s : Tokens.Space.xs) {
         ForEach(weekdays, id: \.self) { name in
           Text(verbatim: name)
             .font(Tokens.Typography.label)
@@ -237,7 +240,8 @@ private struct DayPicker: View {
       }
       .accessibilityHidden(true)
       ForEach(Array(activity.weeks.enumerated()), id: \.offset) { _, week in
-        HStack(spacing: Tokens.Space.xs) {
+        // Wider gaps at accessibility sizes, where the day numbers fill their cells.
+        HStack(spacing: dynamicTypeSize.isAccessibilitySize ? Tokens.Space.s : Tokens.Space.xs) {
           ForEach(week.indices, id: \.self) { column in
             if let cell = week[column] {
               DayCell(cell: cell, isToday: cell.day == activity.today,
@@ -278,8 +282,10 @@ private struct DayPicker: View {
         Text(first, format: .dateTime.month(.wide).year())
           .font(Tokens.Typography.calloutMono.bold())
           .foregroundStyle(Palette.textPrimary)
-          .lineLimit(1)
-          .minimumScaleFactor(Tokens.Shrink.most)
+          // The month and year wrap to a second line before they shrink or get cut.
+          .lineLimit(Self.monthLines)
+          .multilineTextAlignment(.center)
+          .minimumScaleFactor(Tokens.Shrink.standard)
           .contentTransition(.opacity)
       }
       // At accessibility sizes the button takes its own row under the month.
@@ -332,6 +338,8 @@ private struct DayCell: View {
           .font(Tokens.Typography.calloutMono.bold())
           .lineLimit(1)
           .minimumScaleFactor(Tokens.Shrink.most)
+          // Inset from the cell's edges, so neighbouring day numbers never touch.
+          .padding(.horizontal, Tokens.Space.xxs)
         if let result {
           Text(verbatim: Money.signed(result, fractionDigits: 0))
             .font(Tokens.Typography.annotation)

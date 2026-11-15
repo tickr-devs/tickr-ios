@@ -3592,6 +3592,23 @@
         }
       }
     },
+    "common.version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v%@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v%@"
+          }
+        }
+      }
+    },
     "common.winsLosses" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4744,23 +4761,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Активная стратегия"
-          }
-        }
-      }
-    },
-    "lab.activeRole" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "trades"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "торгует"
           }
         }
       }

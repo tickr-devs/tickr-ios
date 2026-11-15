@@ -14,6 +14,7 @@ struct VersionsCard: View {
   /// Observers' colours, in their order; the trading strategy is always the accent.
   static let observerColors: [Color] = [Palette.highlight, Palette.warning, Palette.info, Palette.seriesATR]
 
+  @Environment(\.dynamicTypeSize) private var typeSize
   let curves: [VersionCurve]
   /// Why some observers have no line (their trades could not be listed), one per observer.
   let missing: [String]
@@ -71,17 +72,22 @@ struct VersionsCard: View {
           .foregroundStyle(Palette.textTertiary)
       }
       ForEach(curves) { curve in
-        // The name and role, then the total; at large text sizes the total goes under them.
+        // The name, its role as a pill and the total in one row; at large text sizes each takes
+        // its own line, so the name wraps whole instead of breaking letter by letter.
         RowStack(spacing: Tokens.Space.s) {
           HStack(spacing: Tokens.Space.s) {
             Capsule().fill(color(curve)).frame(width: Self.swatchWidth, height: Self.swatchHeight)
             Text(L10n.Common.strategyVersion(curve.name, curve.version))
               .font(Tokens.Typography.calloutMono)
               .foregroundStyle(Palette.textPrimary)
-            Text(curve.observer ? L10n.Lab.observerRole : L10n.Lab.activeRole)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(color(curve))
+              .lineLimit(typeSize.stacksRows ? nil : 1)
+              .minimumScaleFactor(Tokens.Shrink.standard)
+              .fixedSize(horizontal: false, vertical: typeSize.stacksRows)
           }
+          .layoutPriority(1)
+          StatusPill(curve.observer ? L10n.Lab.observerRole : L10n.Lab.trades,
+            systemImage: curve.observer ? LabView.observerSymbol : LabView.tradesSymbol,
+            tone: curve.observer ? .highlight : .accent)
           Spacer(minLength: 0)
           if let total = curve.total {
             Text(verbatim: Money.signed(total))

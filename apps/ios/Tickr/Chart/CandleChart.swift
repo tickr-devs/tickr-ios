@@ -71,6 +71,9 @@ struct CandleChart: View {
   /// Height a price tag covers on the scale, with a gap, in points: an axis price this close
   /// to a tag hides under it.
   static let tagClearance: CGFloat = 20
+  /// Largest text size of the chart's labels, tags and legends: the panes have a fixed height,
+  /// so larger text would cover the candles and other labels.
+  static let largestText = DynamicTypeSize.xxxLarge
   /// Share of a candle's time slot its body fills; the rest is the gap between candles.
   static let bodyShare = 0.64
   /// Value labels on a study pane's scale.
@@ -115,6 +118,8 @@ struct CandleChart: View {
   @Binding var viewport: ChartViewport
   /// The value scales' width, grown with Dynamic Type so a price such as 128.40 is never cut.
   @ScaledMetric(relativeTo: .caption2) private var axisWidth = CandleChart.axisLabelWidth
+  /// A price tag's height on the scale, grown with Dynamic Type like the tag's text.
+  @ScaledMetric(relativeTo: .caption2) private var tagRoom = CandleChart.tagClearance
   /// The time labels' slot, grown with Dynamic Type.
   @ScaledMetric(relativeTo: .caption2) private var labelSlot = CandleChart.timeLabelSlot
   /// The price pane's plot width, for spacing the time labels.
@@ -207,7 +212,7 @@ struct CandleChart: View {
       if showsVWAP { lineMarks(.vwap, series.vwap, Palette.seriesVWAP) }
       if lines.fastEMA { lineMarks(.fastEMA, series.fastEMA, Palette.seriesFastEMA) }
       if lines.slowEMA { lineMarks(.slowEMA, series.slowEMA, Palette.seriesSlowEMA) }
-      extremes
+      extremes(scale)
       ForEach(trades) { trade in
         tradeMarks(trade)
       }
@@ -235,7 +240,7 @@ struct CandleChart: View {
       // Coloured tags over the scale: the last price, entries and stops; a plain axis price
       // they would cover stays hidden.
       let tags = priceTags
-      let clearance = (scale.domain.upperBound - scale.domain.lowerBound) * Self.tagClearance / Self.priceHeight
+      let clearance = tagClearance(scale)
       AxisMarks(position: .trailing) { value in
         AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
           .foregroundStyle(Palette.separator)
@@ -285,7 +290,7 @@ struct CandleChart: View {
 
   /// The highest high and lowest low on screen, each labelled with its price.
   @ChartContentBuilder
-  private var extremes: some ChartContent {
+  private func extremes(_ scale: PriceScale) -> some ChartContent {
     if let found = series.candles.extremes(in: visibleIndices) {
       let high = series.candles[found.high]
       let low = series.candles[found.low]
@@ -293,19 +298,33 @@ struct CandleChart: View {
       // the screen is never cut (the chart's own fit does not know the scrolled stretch).
       let highLeft = labelGoesLeft(high)
       let lowLeft = labelGoesLeft(low)
-      PointMark(x: .value(Plot.time, middle(high)), y: .value(Plot.price, high.high))
-        .symbolSize(0)
-        .annotation(position: highLeft ? .leading : .trailing, spacing: Tokens.Space.xxs,
-          overflowResolution: Self.keepInside) {
-          extremeLabel(high.high, left: highLeft)
-        }
-      PointMark(x: .value(Plot.time, middle(low)), y: .value(Plot.price, low.low))
-        .symbolSize(0)
-        .annotation(position: lowLeft ? .leading : .trailing, spacing: Tokens.Space.xxs,
-          overflowResolution: Self.keepInside) {
-          extremeLabel(low.low, left: lowLeft)
-        }
+      // A high or low at a tagged price (the last close, an entry, a stop) is already named by
+      // its tag: a second label there would lie over it.
+      let tagged = priceTags.map(\.price)
+      let clearance = tagClearance(scale)
+      if !tagged.contains(where: { abs($0 - high.high) < clearance }) {
+        PointMark(x: .value(Plot.time, middle(high)), y: .value(Plot.price, high.high))
+          .symbolSize(0)
+          .annotation(position: highLeft ? .leading : .trailing, spacing: Tokens.Space.xxs,
+            overflowResolution: Self.keepInside) {
+            extremeLabel(high.high, left: highLeft)
+          }
+      }
+      if !tagged.contains(where: { abs($0 - low.low) < clearance }) {
+        PointMark(x: .value(Plot.time, middle(low)), y: .value(Plot.price, low.low))
+          .symbolSize(0)
+          .annotation(position: lowLeft ? .leading : .trailing, spacing: Tokens.Space.xxs,
+            overflowResolution: Self.keepInside) {
+            extremeLabel(low.low, left: lowLeft)
+          }
+      }
     }
+  }
+
+  /// The price span a tag covers on the scale: an axis price or a high or low label this close
+  /// to a tag hides under it.
+  private func tagClearance(_ scale: PriceScale) -> Double {
+    (scale.domain.upperBound - scale.domain.lowerBound) * Double(tagRoom) / Self.priceHeight
   }
 
   /// Whether a high or low label goes left of its candle: when the candle is in the right half

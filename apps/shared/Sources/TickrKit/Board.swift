@@ -70,7 +70,7 @@ public enum Board {
       events.append(Event(
         id: "\(tradeID)\(index)\(exitID)", time: trade.closedAt.date, tag: exitReasonTitle(trade.exitReason).uppercased(),
         text: String(localized: L10n.eventExitAt(trade.symbol, trade.exitPrice.text, signed(trade.resultGrossUsd))),
-        tone: result > 0 ? .green : result < 0 ? .red : .muted))
+        tone: exitTone(trade.exitReason, result: result)))
     }
     for position in status.positions {
       events.append(Event(
@@ -174,6 +174,37 @@ public enum Board {
   public static func exitReasonTitle(_ raw: String) -> String {
     guard let reason = ExitReason(rawValue: raw) else { return raw }
     return String(localized: reason.title)
+  }
+
+  /// How an exit reads apart from its result: an ordinary exit (a stop hit, the strategy's own
+  /// exit, the operator closing one trade, a hold that ran out), a forced close the bot or the
+  /// operator made to stay safe, or a failure to keep the position protected.
+  public enum ExitKind: Sendable, Equatable {
+    case ordinary
+    case forced
+    case protectionFailure
+  }
+
+  /// The kind of an exit reason; a reason this app does not know is treated as forced, so it is
+  /// never shown as an ordinary win.
+  public static func exitKind(_ raw: String) -> ExitKind {
+    guard let reason = ExitReason(rawValue: raw) else { return .forced }
+    switch reason {
+    case .stopRejected, .unprotectedTooLong: return .protectionFailure
+    case .streamLost, .sessionFlatten, .operatorFlatten, .operatorInterrupt: return .forced
+    case .stoppedOut, .strategyExit, .operatorExit, .entryNotFilled, .entryNotFilledInTime, .holdElapsed, .closed:
+      return .ordinary
+    }
+  }
+
+  /// An exit event's tone: amber for a forced close and red for a protection failure whatever the
+  /// result; an ordinary exit by its result's sign.
+  public static func exitTone(_ raw: String, result: Decimal) -> Event.Tone {
+    switch exitKind(raw) {
+    case .protectionFailure: .red
+    case .forced: .amber
+    case .ordinary: result > 0 ? .green : result < 0 ? .red : .muted
+    }
   }
 
   /// The SF Symbol of an exit reason, for its pill; a reason this app does not know gets a question mark.

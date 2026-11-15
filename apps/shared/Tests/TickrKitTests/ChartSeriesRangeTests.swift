@@ -152,6 +152,18 @@ struct ChartSeriesRangeTests {
     #expect(ChartAxis.spaced(late, gap: 8, shown: shown) == [0, 1])
   }
 
+  @Test("A year's start hung inward at an end stays; its neighbour gives way")
+  func hungYearLabelStays() {
+    let origin = Date(timeIntervalSince1970: 0)
+    let shown = origin...origin.addingTimeInterval(100)
+    // 5 (January, preferred) hangs right from the left edge; 25 is too close: 25 goes, not 5.
+    let early = [5, 25, 50, 75].map { origin.addingTimeInterval(TimeInterval($0)) }
+    #expect(ChartAxis.spaced(early, gap: 20, shown: shown, preferred: { $0 == 0 }) == [0, 2, 3])
+    // The same at the right end.
+    let late = [50, 90, 99].map { origin.addingTimeInterval(TimeInterval($0)) }
+    #expect(ChartAxis.spaced(late, gap: 8, shown: shown, preferred: { $0 == 2 }) == [0, 2])
+  }
+
   @Test("A label near either end of the shown stretch turns inward")
   func labelAnchors() throws {
     let date = { (text: String) in try WireTime(text).date }

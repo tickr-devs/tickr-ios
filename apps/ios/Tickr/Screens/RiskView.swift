@@ -62,15 +62,18 @@ private struct RiskLine: View {
   var color: Color = Palette.textPrimary
 
   var body: some View {
-    HStack(alignment: .firstTextBaseline) {
+    // At large text sizes the value goes under its label, so neither breaks mid-word.
+    RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xxs) {
       Text(label)
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: Tokens.Space.s)
       Text(verbatim: value)
         .font(Tokens.Typography.calloutMono)
         .foregroundStyle(color)
         .contentTransition(.numericText())
+        .fixedSize(horizontal: false, vertical: true)
     }
     .accessibilityElement(children: .combine)
   }
@@ -83,6 +86,8 @@ private struct RoomCard: View {
 
   let status: StatusV1
   let risk: RiskSettings?
+  /// The ring grows with the figure inside it, up to the card's width.
+  @ScaledMetric(relativeTo: .title2) private var ringSide = RoomCard.ringSide
 
   private var room: Decimal? { status.dailyRoomUsd?.value }
   private var limit: Decimal? { risk?.maxDailyLossUsd.value }
@@ -107,10 +112,16 @@ private struct RoomCard: View {
             .font(Tokens.Typography.metric)
             .foregroundStyle(Palette.textPrimary)
             .contentTransition(.numericText())
+            .lineLimit(1)
+            .minimumScaleFactor(Tokens.Shrink.tight)
           CardLabel(L10n.Risk.left)
+            .lineLimit(1)
+            .minimumScaleFactor(Tokens.Shrink.tight)
         }
+        .padding(Tokens.Space.l)
       }
-      .frame(width: Self.ringSide, height: Self.ringSide)
+      .aspectRatio(1, contentMode: .fit)
+      .frame(maxWidth: ringSide)
       .frame(maxWidth: .infinity)
       .padding(.vertical, Tokens.Space.s)
       .accessibilityElement(children: .combine)

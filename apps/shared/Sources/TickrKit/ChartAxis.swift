@@ -131,7 +131,8 @@ public enum ChartAxis {
 
   /// Labels of `times` to draw inside `shown`: spaced as `spaced`, then an end label that hangs
   /// inward (`anchor`) is left out when it would reach its neighbour. A label hung inward covers
-  /// a whole label's width on one side of its time, not half ("Mon 9Tue 10").
+  /// a whole label's width on one side of its time, not half ("Mon 9Tue 10"). A `preferred` end
+  /// label (where a year begins) stays, and its neighbour gives way instead.
   public static func spaced(
     _ times: [Date], gap: TimeInterval, shown: ClosedRange<Date>, preferred: (Int) -> Bool = { _ in false }
   ) -> [Int] {
@@ -139,11 +140,15 @@ public enum ChartAxis {
     let hungGap = gap * hungShare
     if kept.count > 1, anchor(of: times[kept[0]], shown: shown) == .leading,
       times[kept[1]].timeIntervalSince(times[kept[0]]) < hungGap {
-      kept.removeFirst()
+      if preferred(kept[0]) && !preferred(kept[1]) { kept.remove(at: 1) } else { kept.removeFirst() }
     }
     if let last = kept.last, let before = kept.dropLast().last, anchor(of: times[last], shown: shown) == .trailing,
       times[last].timeIntervalSince(times[before]) < hungGap {
-      kept.removeLast()
+      if preferred(last) && !preferred(before) {
+        kept.removeAll { $0 == before }
+      } else {
+        kept.removeLast()
+      }
     }
     return kept
   }
