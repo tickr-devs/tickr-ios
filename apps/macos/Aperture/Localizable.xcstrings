@@ -3204,6 +3204,23 @@
         }
       }
     },
+    "flow.more" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        }
+      }
+    },
     "flow.nothingYet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3399,6 +3416,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Живой поток · скринеры → стратегия → риск → ордер → стоп брокера"
+          }
+        }
+      }
+    },
+    "flow.trayExcluded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "left out"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не прошли"
+          }
+        }
+      }
+    },
+    "flow.trayRefused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "refused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отказ"
           }
         }
       }

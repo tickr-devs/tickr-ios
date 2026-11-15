@@ -256,8 +256,7 @@ private struct LiveFlowCard: View {
       .foregroundStyle(Palette.textQuaternary)
     } content: {
       ScreenerChips()
-      Pipeline(stages: stages, moving: model.isLive)
-        .frame(height: Pipeline.height)
+      Pipeline(stages: stages, marks: FlowBoard.marks(flow: model.flow, skipped: model.skipped), moving: model.isLive)
     }
   }
 
@@ -342,10 +341,28 @@ extension Board.Event.Tone {
   }
 }
 
-/// The stages a setup passes through, on one line. A stage moves only when its value changes.
+/// The stages a setup passes through, on one line, with today's symbols as dots under the stage
+/// each reached. Nothing moves on a timer: a dot flies to its new stage only when a read of the
+/// bot's flow moves it there, a refused symbol drops into its stage's tray, and a stage pulses
+/// once when its value changes.
 private struct Pipeline: View {
   /// The stages, in the order a setup passes them.
-  enum StageID: Hashable { case screeners, universe, strategy, risk, order, stop, reconcile }
+  enum StageID: Hashable {
+    case screeners, universe, strategy, risk, order, stop, reconcile
+
+    /// The flow stage whose symbols sit under this one; nil for reconcile.
+    var flowStage: FlowStage? {
+      switch self {
+      case .screeners: .screeners
+      case .universe: .universe
+      case .strategy: .strategy
+      case .risk: .risk
+      case .order: .order
+      case .stop: .stop
+      case .reconcile: nil
+      }
+    }
+  }
 
   struct Stage: Identifiable {
     let id: StageID
@@ -361,11 +378,15 @@ private struct Pipeline: View {
   }
 
   let stages: [Stage]
+  /// Today's symbols, each at its furthest stage (FlowBoard).
+  let marks: [FlowMark]
   /// The shown day is today: a stage whose value changes pulses once. On a past day nothing moves.
   let moving: Bool
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Namespace private var board
 
-  /// Height of the whole pipeline: stage circle, name and value.
-  static let height: CGFloat = 104
+  /// Most dots a stage shows; the rest are counted ("+388").
+  static let poolCap = 24
   /// Blur of the soft glow around a reporting stage, in points.
   static let stageGlow: CGFloat = 9
 
@@ -379,13 +400,14 @@ private struct Pipeline: View {
           .frame(width: width, height: Tokens.Stroke.bold)
           .offset(x: inset, y: (Tokens.Size.stage - Tokens.Stroke.bold) / 2)
       }
-      HStack(spacing: 0) {
+      HStack(alignment: .top, spacing: 0) {
         ForEach(stages) { stage in
           column(stage)
         }
       }
+      // A dot's flight is the change of its mark between two reads, never a loop.
+      .animation(reduceMotion ? nil : Tokens.Motion.standard, value: marks)
     }
-    .accessibilityElement(children: .combine)
   }
 
   private func column(_ stage: Stage) -> some View {
@@ -423,8 +445,91 @@ private struct Pipeline: View {
           .foregroundStyle(Palette.textQuaternary)
           .help(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
       }
+      if let flowStage = stage.id.flowStage, !marks.isEmpty {
+        pool(marks.filter { $0.stage == flowStage && !$0.refused }, color: stage.color)
+        if flowStage == .universe || flowStage == .risk {
+          tray(marks.filter { $0.stage == flowStage && $0.refused },
+            title: flowStage == .universe ? L10n.Flow.trayExcluded : L10n.Flow.trayRefused)
+        }
+      }
     }
     .frame(maxWidth: .infinity)
+    .accessibilityElement(children: .contain)
+  }
+
+  /// The symbols whose furthest stage this is, as dots; past `poolCap` the rest are counted.
+  private func pool(_ here: [FlowMark], color: Color) -> some View {
+    VStack(spacing: Tokens.Space.xs) {
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: Tokens.Size.flowMark), spacing: Tokens.Space.xs)],
+        spacing: Tokens.Space.xs) {
+        ForEach(here.prefix(Self.poolCap)) { mark in
+          MarkDot(mark: mark, color: color)
+            .matchedGeometryEffect(id: mark.id, in: board)
+            .transition(.scale.combined(with: .opacity))
+        }
+      }
+      if here.count > Self.poolCap {
+        Text(L10n.Flow.more(here.count - Self.poolCap))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+    }
+    .padding(Tokens.Space.xs)
+    .frame(maxWidth: .infinity, minHeight: Tokens.Size.flowPool, alignment: .top)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
+    }
+    .padding(.horizontal, Tokens.Space.xs)
+  }
+
+  /// The symbols this stage refused, as outlined dots in a dashed tray, the reason on hover.
+  private func tray(_ out: [FlowMark], title: LocalizedStringResource) -> some View {
+    VStack(spacing: Tokens.Space.xxs) {
+      Text(title)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: Tokens.Size.flowMark), spacing: Tokens.Space.xs)],
+        spacing: Tokens.Space.xs) {
+        ForEach(out.prefix(Self.poolCap)) { mark in
+          MarkDot(mark: mark, color: Palette.loss)
+            .matchedGeometryEffect(id: mark.id, in: board)
+            .transition(.scale.combined(with: .opacity))
+        }
+      }
+      .padding(Tokens.Space.xs)
+      .frame(maxWidth: .infinity, minHeight: Tokens.Size.flowMark + Tokens.Space.s)
+      .overlay {
+        RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+          .strokeBorder(Palette.separatorStrong, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+      }
+    }
+    .padding(.horizontal, Tokens.Space.xs)
+  }
+}
+
+/// One symbol on the live flow: filled in its stage's colour, amber while its broker stop waits,
+/// red when it was never confirmed; an outline when refused. Hover names it and why.
+private struct MarkDot: View {
+  let mark: FlowMark
+  let color: Color
+
+  var body: some View {
+    let fill: Color = switch mark.tone {
+    case .normal: color
+    case .pending: Palette.warning
+    case .alarm: Palette.loss
+    }
+    Group {
+      if mark.refused {
+        Circle().strokeBorder(Palette.loss, lineWidth: Tokens.Stroke.regular)
+      } else {
+        Circle().fill(fill)
+      }
+    }
+    .frame(width: Tokens.Size.flowMark, height: Tokens.Size.flowMark)
+    .hint(verbatim: [mark.id, mark.note].compactMap { $0 }.joined(separator: Format.lineSeparator))
+    .accessibilityLabel(Text(verbatim: mark.id))
   }
 }
 

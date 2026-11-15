@@ -437,6 +437,15 @@ enum L10n {
   }
 
   enum Flow {
+    static var trayExcluded: LocalizedStringResource {
+      LocalizedStringResource("flow.trayExcluded", defaultValue: "left out", bundle: L10n.bundle)
+    }
+    static var trayRefused: LocalizedStringResource {
+      LocalizedStringResource("flow.trayRefused", defaultValue: "refused", bundle: L10n.bundle)
+    }
+    static func more(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.more", defaultValue: "+\(count)", bundle: L10n.bundle)
+    }
     static func seen(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.seen", defaultValue: "\(count) seen", bundle: L10n.bundle)
     }
