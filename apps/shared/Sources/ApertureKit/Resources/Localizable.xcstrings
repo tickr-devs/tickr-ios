@@ -372,40 +372,6 @@
         }
       }
     },
-    "kit.command.entryStopOff" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entry stop off"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Стоп входов: выкл."
-          }
-        }
-      }
-    },
-    "kit.command.entryStopOn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entry stop on"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Стоп входов: вкл."
-          }
-        }
-      }
-    },
     "kit.command.flatten" : {
       "extractionState" : "manual",
       "localizations" : {

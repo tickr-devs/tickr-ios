@@ -116,14 +116,6 @@ enum L10n {
   static var commandResumeEntries: LocalizedStringResource {
     LocalizedStringResource("kit.command.resumeEntries", defaultValue: "Resume entries", bundle: bundle)
   }
-  /// Operator command as recorded: the entry stop was switched on.
-  static var commandEntryStopOn: LocalizedStringResource {
-    LocalizedStringResource("kit.command.entryStopOn", defaultValue: "Entry stop on", bundle: bundle)
-  }
-  /// Operator command as recorded: the entry stop was switched off.
-  static var commandEntryStopOff: LocalizedStringResource {
-    LocalizedStringResource("kit.command.entryStopOff", defaultValue: "Entry stop off", bundle: bundle)
-  }
   /// Operator command: cancel every open order the bot placed.
   static var commandCancelOwnOrders: LocalizedStringResource {
     LocalizedStringResource("kit.command.cancelOwnOrders", defaultValue: "Cancel own orders", bundle: bundle)

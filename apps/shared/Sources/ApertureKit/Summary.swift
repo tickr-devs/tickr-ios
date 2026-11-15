@@ -69,27 +69,3 @@ public struct Headline: Equatable, Sendable {
     return String(localized: L10n.headlineAllowed)
   }
 }
-
-public enum Display {
-  /// Short local time, for tables.
-  public static func time(_ time: WireTime?) -> String {
-    guard let time else { return "—" }
-    return time.date.formatted(date: .omitted, time: .standard)
-  }
-
-  /// The currency code shown after money amounts.
-  static let currencyCode = "USD"
-
-  public static func usd(_ value: DecimalString) -> String { "\(value.text) \(currencyCode)" }
-
-  public static func commandTitle(_ kind: CommandKind) -> String {
-    switch kind {
-    case .entryStopOn: return String(localized: L10n.commandEntryStopOn)
-    case .entryStopOff: return String(localized: L10n.commandEntryStopOff)
-    case .cancelOwnOrders: return String(localized: L10n.commandCancelOwnOrders)
-    case .flatten: return String(localized: L10n.commandFlatten)
-    case .stopBot: return String(localized: L10n.commandStopBot)
-    case .emergency: return String(localized: L10n.commandEmergency)
-    }
-  }
-}

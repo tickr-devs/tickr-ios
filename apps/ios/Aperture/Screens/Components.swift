@@ -113,8 +113,12 @@ enum Format {
       timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork))
   }
 
+  /// "Fri, Nov 13" in the person's language: the New York day, as the bot keeps its sessions,
+  /// whatever the phone's time zone (noon in New York is already the next day from UTC+7 eastward).
   static func day(_ date: Date) -> String {
-    date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+    var style = Date.FormatStyle.dateTime.weekday(.abbreviated).month(.abbreviated).day()
+    style.timeZone = WireDate.newYork.timeZone
+    return date.formatted(style)
   }
 
   static func timeOrDash(_ time: WireTime?) -> String {
