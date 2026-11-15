@@ -460,6 +460,23 @@
         }
       }
     },
+    "activity.noReplay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no replay: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "без повтора: %@"
+          }
+        }
+      }
+    },
     "activity.nothingYet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -783,6 +800,74 @@
         }
       }
     },
+    "activity.replay.endOfData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "still open when data ran out"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "открыт, данные кончились"
+          }
+        }
+      }
+    },
+    "activity.replay.flatten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flat at close"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыт к концу сессии"
+          }
+        }
+      }
+    },
+    "activity.replay.stop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hit the stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выбит по стопу"
+          }
+        }
+      }
+    },
+    "activity.replay.strategyExit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "strategy exit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выход по стратегии"
+          }
+        }
+      }
+    },
     "activity.retry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -915,6 +1000,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "если бы"
+          }
+        }
+      }
+    },
+    "activity.wouldHaveMade" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "would have made %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "принёс бы %@"
           }
         }
       }

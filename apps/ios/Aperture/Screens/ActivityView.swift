@@ -738,11 +738,52 @@ private struct SkippedRow: View {
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(Text(L10n.Activity.whatIf(signal.entryPrice.map { Money.price($0.value) } ?? Format.missing,
         signal.stopPrice.map { Money.price($0.value) } ?? Format.missing)))
+      ReplayLine(whatIf: signal.whatIf)
     }
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)
     .apertureCard()
     .accessibilityElement(children: .combine)
+  }
+}
+
+/// What the bot's replay says a skipped signal would have made, with R and how the replay ended;
+/// or why it could not replay. Figures are shown as the bot sent them.
+private struct ReplayLine: View {
+  let whatIf: WhatIfV1
+
+  private var ending: LocalizedStringResource? {
+    switch whatIf.exitReason {
+    case .stop: L10n.Activity.replayStop
+    case .strategyExit: L10n.Activity.replayStrategyExit
+    case .flatten: L10n.Activity.replayFlatten
+    case .endOfData: L10n.Activity.replayEndOfData
+    case nil: nil
+    }
+  }
+
+  /// "would have made +$12.30" in the result's colour (neutral at zero), then R and the ending.
+  private func line(_ result: Decimal) -> AttributedString {
+    var text = AttributedString(localized: L10n.Activity.wouldHaveMade(Money.signedUSD(result)))
+    text.swiftUI.foregroundColor = Palette.result(result)
+    var rest = whatIf.resultR.map { Format.separator + Risk.text($0.value) } ?? ""
+    if let ending { rest += Format.separator + String(localized: ending) }
+    var tail = AttributedString(rest)
+    tail.swiftUI.foregroundColor = Palette.textTertiary
+    return text + tail
+  }
+
+  var body: some View {
+    if let result = whatIf.resultGrossUsd?.value {
+      // One text, so it wraps as a whole at large Dynamic Type instead of clipping a row of parts.
+      Text(line(result))
+        .font(Tokens.Typography.captionMono)
+        .fixedSize(horizontal: false, vertical: true)
+    } else if let cause = whatIf.cause {
+      Text(L10n.Activity.noReplay(cause))
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textQuaternary)
+    }
   }
 }
 

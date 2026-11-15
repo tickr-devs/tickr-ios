@@ -722,6 +722,26 @@ enum L10n {
       LocalizedStringResource("activity.excursion", defaultValue: "MAE \(mae) · MFE \(mfe) (at least)",
         bundle: L10n.bundle)
     }
+    /// What a skipped signal would have made, from the bot's replay: "would have made +$12.30 · +0.8 R".
+    static func wouldHaveMade(_ result: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.wouldHaveMade", defaultValue: "would have made \(result)", bundle: L10n.bundle)
+    }
+    /// The replay of a skipped signal could not run; the bot's cause follows as sent.
+    static func noReplay(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.noReplay", defaultValue: "no replay: \(cause)", bundle: L10n.bundle)
+    }
+    static var replayStop: LocalizedStringResource {
+      LocalizedStringResource("activity.replay.stop", defaultValue: "hit the stop", bundle: L10n.bundle)
+    }
+    static var replayStrategyExit: LocalizedStringResource {
+      LocalizedStringResource("activity.replay.strategyExit", defaultValue: "strategy exit", bundle: L10n.bundle)
+    }
+    static var replayFlatten: LocalizedStringResource {
+      LocalizedStringResource("activity.replay.flatten", defaultValue: "flat at close", bundle: L10n.bundle)
+    }
+    static var replayEndOfData: LocalizedStringResource {
+      LocalizedStringResource("activity.replay.endOfData", defaultValue: "still open when data ran out", bundle: L10n.bundle)
+    }
     static func whatIf(_ entry: String, _ stop: String) -> LocalizedStringResource {
       LocalizedStringResource("activity.whatIf", defaultValue: "what-if entry \(entry) · stop \(stop)",
         bundle: L10n.bundle)
