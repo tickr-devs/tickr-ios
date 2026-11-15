@@ -45,6 +45,10 @@ public struct SettingsV1: Codable, Hashable, Sendable {
   public let session: SessionSettings
   public let statusStaleSeconds: DecimalString
   public let pollSeconds: DecimalString
+  /// Age of the last broker read, in seconds, past which the bot blocks new entries.
+  public let brokerReadMaxAgeSeconds: DecimalString
+  /// Age of the last broker read, in seconds, past which clients show it as late; below the block age.
+  public let brokerReadWarnSeconds: DecimalString
   public let apiVersion: Int
 
   enum CodingKeys: String, CodingKey {
@@ -52,6 +56,8 @@ public struct SettingsV1: Codable, Hashable, Sendable {
     case activeStrategy = "active_strategy"
     case statusStaleSeconds = "status_stale_seconds"
     case pollSeconds = "poll_seconds"
+    case brokerReadMaxAgeSeconds = "broker_read_max_age_seconds"
+    case brokerReadWarnSeconds = "broker_read_warn_seconds"
     case apiVersion = "api_version"
   }
 
@@ -65,5 +71,7 @@ public struct SettingsV1: Codable, Hashable, Sendable {
     session = try c.decode(SessionSettings.self, forKey: .session)
     statusStaleSeconds = try c.decode(DecimalString.self, forKey: .statusStaleSeconds)
     pollSeconds = try c.decode(DecimalString.self, forKey: .pollSeconds)
+    brokerReadMaxAgeSeconds = try c.decode(DecimalString.self, forKey: .brokerReadMaxAgeSeconds)
+    brokerReadWarnSeconds = try c.decode(DecimalString.self, forKey: .brokerReadWarnSeconds)
   }
 }
