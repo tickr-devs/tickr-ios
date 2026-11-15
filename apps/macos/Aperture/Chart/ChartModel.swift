@@ -16,6 +16,8 @@ final class ChartModel {
   private(set) var decisions: DecisionsV1?
   /// Why the last decisions read failed, if it did.
   private(set) var decisionsError: String?
+  /// The Chart shows a symbol; without one there are no decisions to ask the bot for.
+  var hasSymbol = false
   /// Counts the reads that brought different bars; a plot built from an older count is stale.
   @ObservationIgnored private(set) var revision = 0
   /// The last plot built, reused while the bars and the timeframe stay the same.

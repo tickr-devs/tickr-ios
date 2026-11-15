@@ -67,11 +67,18 @@ struct ApertureMacApp: App {
     Window(String(localized: L10n.App.name), id: WindowID.main) {
       RootView()
         .environment(model)
+        .environment(Container.shared.chartModel())
         // The design's accent for links, selection and controls (as on iOS), not the system blue.
         .tint(Palette.info)
-        .frame(minWidth: Self.minWidth, minHeight: Self.minHeight)
+        // The window's least size is these numbers and nothing else: with a maximum given, the
+        // frame takes the window's size whatever its content asks for, so a screen that changes
+        // its layout while the window is resized (a ViewThatFits picking another arrangement,
+        // a chart's panes) can never move the window's minimum and start AppKit's
+        // "Update Constraints in Window" loop. Screens fit themselves into the window instead.
+        .frame(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: Self.minHeight, maxHeight: .infinity)
     }
     .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
+    .windowResizability(.contentMinSize)
     .commands {
       // The standard View > Show/Hide Sidebar item (Control-Command-S).
       SidebarCommands()

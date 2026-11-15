@@ -49,6 +49,10 @@ struct RootView: View {
   static let sidebarMin: CGFloat = 200
   static let sidebarIdeal: CGFloat = 220
   static let sidebarMax: CGFloat = 260
+  /// Least size of a screen, in points: with the sidebar (200) and the inspector (240) it stays
+  /// under the window's least size (ApertureMacApp.minWidth, minHeight).
+  static let screenMinWidth: CGFloat = 420
+  static let screenMinHeight: CGFloat = 400
 
   private var section: AppSection { model.section }
 
@@ -60,18 +64,27 @@ struct RootView: View {
     } detail: {
       ZStack(alignment: .bottom) {
         ApertureBackground()
-        detail
-          .safeAreaInset(edge: .top, spacing: 0) {
-            if section != .overview { EventStrip() }
-          }
-          // One container element per screen, so its id holds even when the screen's root is a
-          // split (the Chart's inspector) rather than a single view.
-          .accessibilityElement(children: .contain)
-          .accessibilityIdentifier(section.screenID)
-          // A new section replaces the screen at once, as a sidebar does in Apple's apps; the
-          // screen's own cards then rise in. Sliding whole screens in and out kept two of them
-          // (one maybe the chart) laid out and animating together, and stuttered.
-          .id(section)
+        // The strip stacked above the screen rather than a top safe-area inset whose content
+        // comes and goes, which made the screen's safe area change during layout.
+        VStack(spacing: 0) {
+          if section != .overview { EventStrip() }
+          detail
+            // One container element per screen.
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(section.screenID)
+            // A new section replaces the screen at once, as a sidebar does in Apple's apps; the
+            // screen's own cards then rise in. Sliding whole screens in and out kept two of them
+            // (one maybe the chart) laid out and animating together, and stuttered.
+            .id(section)
+            // A fixed least size for every screen, its content cut at it: a screen whose least
+            // size followed its content (a row of controls wider than the column, a layout
+            // that switches with the width) asked for more than the window beside the sidebar
+            // and the inspector, the split view shifted it inside its layout pass, and on
+            // macOS 27 AppKit threw ("needs another Update Constraints in Window pass").
+            .frame(minWidth: Self.screenMinWidth, maxWidth: .infinity, minHeight: Self.screenMinHeight,
+              maxHeight: .infinity, alignment: .topLeading)
+            .clipped()
+        }
         if let unattended = model.unattendedPositions {
           UnattendedBanner(unattended: unattended)
             .padding(Tokens.Space.l)
@@ -245,6 +258,11 @@ private struct ConnectionStatus: View {
   static let tick: TimeInterval = 1
   /// Accessibility id of the item, for the UI tests.
   static let id = "toolbar-connection"
+  /// Width of the item, in points: fixed, so the age ticking from "9 s" to "10 s" or to "1 min"
+  /// never changes the toolbar's width, which AppKit would answer with a new layout of the whole
+  /// window every second. Holds "127.0.0.1 · 59 s ago" in English and Russian; a longer address
+  /// is shortened in the middle (the whole line is in the tooltip).
+  static let width: CGFloat = 190
 
   var body: some View {
     TimelineView(.periodic(from: .now, by: Self.tick)) { context in
@@ -254,7 +272,10 @@ private struct ConnectionStatus: View {
         Text(verbatim: text(now: model.botTime(context.date)))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
+          .lineLimit(1)
+          .truncationMode(.middle)
       }
+      .frame(width: Self.width, alignment: .leading)
     }
     .help(Text(verbatim: model.headline.text))
     .accessibilityElement(children: .combine)
@@ -365,6 +386,7 @@ struct CommandToast: View {
 #Preview {
   RootView()
     .environment(PreviewAPI.model())
+    .environment(ChartModel())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif

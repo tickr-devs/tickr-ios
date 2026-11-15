@@ -10,4 +10,11 @@ extension Container {
   var appModel: Factory<AppModel> {
     self { AppModel(baseURL: ApertureMacApp.baseURL()) }.singleton
   }
+
+  /// The Chart's bars and decisions, shared by the Chart screen and the window's decisions
+  /// inspector.
+  @MainActor
+  var chartModel: Factory<ChartModel> {
+    self { ChartModel() }.singleton
+  }
 }
