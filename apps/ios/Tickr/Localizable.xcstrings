@@ -4000,6 +4000,40 @@
         }
       }
     },
+    "control.toBot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nSent to: the bot."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nКуда: настоящий бот."
+          }
+        }
+      }
+    },
+    "control.toDemo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nSent to: the DEMO day, not the bot."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nКуда: ДЕМО-день, не бот."
+          }
+        }
+      }
+    },
     "control.unknown" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4387,6 +4421,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Результат дня %@, в плюс: %lld, в минус: %lld"
+          }
+        }
+      }
+    },
+    "home.demoChip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DEMO"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ДЕМО"
+          }
+        }
+      }
+    },
+    "home.demoDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn it off in Settings before trading."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перед торговлей выключите его в Настройках."
+          }
+        }
+      }
+    },
+    "home.demoTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo day: commands go to the demo, not the bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Демо-день: команды уходят в демо, не боту"
           }
         }
       }
@@ -7881,6 +7966,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "v%lld"
+          }
+        }
+      }
+    },
+    "settings.demoDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Демо-день"
+          }
+        }
+      }
+    },
+    "settings.demoDayFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the made-up demo day from the Mac, and only that day, through the same connection; the address and pairing stay as they are."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает придуманный демо-день с Mac, и только его, через то же подключение; адрес и связка остаются прежними."
           }
         }
       }

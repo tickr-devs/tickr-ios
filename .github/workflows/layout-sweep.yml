@@ -77,7 +77,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Start the demo bot API (port 8776, config/demo.toml)
+      - name: Start the demo bot API (port 8776, bot.toml [api] demo_port)
         run: |
           python -m pip install -q -e .
           tickr demo > "$RUNNER_TEMP/demo.log" 2>&1 &

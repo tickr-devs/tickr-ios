@@ -150,3 +150,43 @@ public struct InfoCaption: View {
     .font(Tokens.Typography.caption)
   }
 }
+
+/// A standing warning above a screen's content: a symbol and a title in the tone, one line of
+/// detail under it, on the tone's wash with its border. For a state that changes where the
+/// operator's commands go (the demo day), so it is seen on every command surface.
+public struct WarningBanner: View {
+  let symbol: String
+  let title: Text
+  let detail: Text
+  let tone: Tone
+
+  public init(_ title: LocalizedStringResource, detail: LocalizedStringResource, systemImage: String, tone: Tone = .warning) {
+    self.symbol = systemImage
+    self.title = Text(title)
+    self.detail = Text(detail)
+    self.tone = tone
+  }
+
+  public var body: some View {
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+    HStack(alignment: .top, spacing: Tokens.Space.m) {
+      Image(systemName: symbol)
+        .font(Tokens.Typography.symbol)
+        .foregroundStyle(tone.fill)
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        title
+          .font(Tokens.Typography.callout.weight(.semibold))
+          .foregroundStyle(tone.text)
+        detail
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textSecondary)
+      }
+      .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: 0)
+    }
+    .padding(Tokens.Space.m)
+    .background(tone.fill.opacity(Tokens.Opacity.wash), in: shape)
+    .overlay(shape.strokeBorder(tone.fill.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
+    .accessibilityElement(children: .combine)
+  }
+}

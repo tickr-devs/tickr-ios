@@ -222,6 +222,40 @@
         }
       }
     },
+    "bot.confirmToBot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nSent to: the bot."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nКуда: настоящий бот."
+          }
+        }
+      }
+    },
+    "bot.confirmToDemo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nSent to: the DEMO day, not the bot."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nКуда: ДЕМО-день, не бот."
+          }
+        }
+      }
+    },
     "bot.emergency" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4930,6 +4964,40 @@
         }
       }
     },
+    "menuBar.demoDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn it off in Settings › General before trading."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перед торговлей выключите его в Настройках › Основные."
+          }
+        }
+      }
+    },
+    "menuBar.demoTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo day: commands go to the demo, not the bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Демо-день: команды уходят в демо, не боту"
+          }
+        }
+      }
+    },
     "menuBar.entry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7883,6 +7951,40 @@
         }
       }
     },
+    "settings.demoDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Демо-день"
+          }
+        }
+      }
+    },
+    "settings.demoDayExplanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the made-up demo day from this Mac, and only that day; the bot's address stays as it is."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает придуманный демо-день с этого Mac, и только его; адрес бота остаётся прежним."
+          }
+        }
+      }
+    },
     "settings.editConfig" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9069,6 +9171,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ · сегодня"
+          }
+        }
+      }
+    },
+    "toolbar.demoChip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DEMO DAY"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ДЕМО-ДЕНЬ"
+          }
+        }
+      }
+    },
+    "toolbar.demoHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo day: the made-up day only. Turn it off in Settings › General to pick another day."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Демо-день: только придуманный день. Чтобы выбрать другой день, выключите его в Настройках › Основные."
           }
         }
       }

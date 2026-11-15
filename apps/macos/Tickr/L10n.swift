@@ -191,6 +191,15 @@ enum L10n {
   }
 
   enum Bot {
+    /// A command confirmation's message with where the command goes: the demo day.
+    static func confirmToDemo(_ explanation: String) -> LocalizedStringResource {
+      LocalizedStringResource("bot.confirmToDemo",
+        defaultValue: "\(explanation)\n\nSent to: the DEMO day, not the bot.", bundle: L10n.bundle)
+    }
+    /// A command confirmation's message with where the command goes: the real bot.
+    static func confirmToBot(_ explanation: String) -> LocalizedStringResource {
+      LocalizedStringResource("bot.confirmToBot", defaultValue: "\(explanation)\n\nSent to: the bot.", bundle: L10n.bundle)
+    }
     static var pauseEntries: LocalizedStringResource {
       LocalizedStringResource("bot.pauseEntries", defaultValue: "Pause Entries", bundle: L10n.bundle)
     }
@@ -393,6 +402,15 @@ enum L10n {
     }
     static var pickDayHelp: LocalizedStringResource {
       LocalizedStringResource("toolbar.pickDayHelp", defaultValue: "Pick a recorded trading day", bundle: L10n.bundle)
+    }
+    /// The chip next to the day while the demo day is on.
+    static var demoChip: LocalizedStringResource {
+      LocalizedStringResource("toolbar.demoChip", defaultValue: "DEMO", bundle: L10n.bundle)
+    }
+    static var demoHelp: LocalizedStringResource {
+      LocalizedStringResource("toolbar.demoHelp",
+        defaultValue: "Demo day: the made-up day only. Turn it off in Settings › General to pick another day.",
+        bundle: L10n.bundle)
     }
     static var todayHelp: LocalizedStringResource {
       LocalizedStringResource("toolbar.todayHelp", defaultValue: "Back to the live day (⌘T)", bundle: L10n.bundle)
@@ -786,6 +804,14 @@ enum L10n {
     }
     static var menuBar: LocalizedStringResource {
       LocalizedStringResource("settings.menuBar", defaultValue: "Menu bar", bundle: L10n.bundle)
+    }
+    static var demoDay: LocalizedStringResource {
+      LocalizedStringResource("settings.demoDay", defaultValue: "Demo day", bundle: L10n.bundle)
+    }
+    static var demoDayExplanation: LocalizedStringResource {
+      LocalizedStringResource("settings.demoDayExplanation",
+        defaultValue: "Shows the made-up demo day from this Mac, and only that day; the bot's address stays as it is.",
+        bundle: L10n.bundle)
     }
     static var showInMenuBar: LocalizedStringResource {
       LocalizedStringResource("settings.showInMenuBar",
@@ -2384,6 +2410,14 @@ enum L10n {
     }
   }
   enum MenuBar {
+    static var demoTitle: LocalizedStringResource {
+      LocalizedStringResource("menuBar.demoTitle", defaultValue: "Demo day: commands go to the demo, not the bot",
+        bundle: L10n.bundle)
+    }
+    static var demoDetail: LocalizedStringResource {
+      LocalizedStringResource("menuBar.demoDetail", defaultValue: "Turn it off in Settings › General before trading.",
+        bundle: L10n.bundle)
+    }
     /// Menu bar: label over today's result.
     static var today: LocalizedStringResource {
       LocalizedStringResource("menuBar.today", defaultValue: "Today", bundle: L10n.bundle)

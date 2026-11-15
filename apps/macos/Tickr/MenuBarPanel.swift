@@ -16,8 +16,17 @@ struct MenuBarPanel: View {
     case status = 0, result, positions, flow, controls, footer
   }
 
+  /// SF Symbol of the demo day banner.
+  static let demoSymbol = "theatermasks.fill"
+
+  @Environment(AppModel.self) private var model
+
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      if model.demoDay {
+        // Commands below go to the demo day: said above them, as loud as a warning.
+        WarningBanner(L10n.MenuBar.demoTitle, detail: L10n.MenuBar.demoDetail, systemImage: Self.demoSymbol)
+      }
       StatusBanner().rise(step: Order.status.rawValue)
       TodayResult().rise(step: Order.result.rawValue)
       MenuPositions().rise(step: Order.positions.rawValue)

@@ -172,12 +172,19 @@ struct BotControls: View {
       Button(role: action.isDestructive ? .destructive : nil) { run(action) } label: { Text(verbatim: action.title) }
       Button(String(localized: L10n.Common.cancel), role: .cancel) {}
     } message: { action in
-      Text(verbatim: action.explanation)
+      // Where the command goes, named in every confirmation: a demo switch left on must never
+      // swallow a real command unnoticed.
+      Text(Self.confirmation(action.explanation, demo: model.demoDay))
     }
     // Close an open confirmation as soon as commands are no longer safe to send.
     .onChange(of: model.commandsEnabled) { _, enabled in
       if !enabled { confirming = nil }
     }
+  }
+
+  /// A confirmation's message with where the command goes: the demo day or the bot.
+  static func confirmation(_ explanation: String, demo: Bool) -> LocalizedStringResource {
+    demo ? L10n.Bot.confirmToDemo(explanation) : L10n.Bot.confirmToBot(explanation)
   }
 
   @ViewBuilder private func button(_ action: BotAction) -> some View {

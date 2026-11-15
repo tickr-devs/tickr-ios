@@ -87,7 +87,14 @@ public struct Unattended: Equatable, Sendable {
 @Observable
 public final class AppModel {
   // Connection.
-  public private(set) var baseURL: URL
+  /// The bot's own API address (Settings › General). The demo day never replaces it: switched
+  /// off, the app is back on this very address.
+  public private(set) var address: URL
+  /// The "Demo day" switch (Settings › General): the app shows the demo day the bot's API
+  /// forwards to under /demo (TickrKit `DemoDay`), and no other day.
+  public private(set) var demoDay: Bool
+  /// The address the app talks to: `address`, or the demo day behind it.
+  public var baseURL: URL { DemoDay.address(address, demo: demoDay) }
   @ObservationIgnored private var client: APIClient
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
@@ -133,8 +140,17 @@ public final class AppModel {
   // History.
   public private(set) var days: [DaySummary] = []
   public private(set) var historyError: String?
-  /// nil = today (live). Otherwise a recorded day from `days`.
-  public var selectedDay: WireDate? { didSet { if oldValue != selectedDay { Task { await loadSelectedDay() } } } }
+  /// nil = today (live). Otherwise a recorded day from `days`. With the demo day on, always nil:
+  /// the demo day is the demo API's today, and no other day can be picked.
+  public var selectedDay: WireDate? {
+    didSet {
+      if selectedDay != DemoDay.day(selectedDay, demo: demoDay) {
+        selectedDay = nil
+        return
+      }
+      if oldValue != selectedDay { Task { await loadSelectedDay() } }
+    }
+  }
   public private(set) var dayDocument: DayV1?
   public private(set) var todayDocument: DayV1?
   /// Observers with their decisions on the shown day; nil until read.
@@ -162,9 +178,10 @@ public final class AppModel {
 
   private var tasks: [Task<Void, Never>] = []
 
-  public init(baseURL: URL) {
-    self.baseURL = baseURL
-    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
+  public init(baseURL: URL, demoDay: Bool = false) {
+    self.address = baseURL
+    self.demoDay = demoDay
+    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: DemoDay.address(baseURL, demo: demoDay)))
   }
 
   // MARK: derived
@@ -273,8 +290,12 @@ public final class AppModel {
     return results.filter { $0 < 0 }.count
   }
 
-  /// Previous and next recorded days around the shown one (days are newest first).
-  public var previousDay: WireDate? { days.map(\.day).first { $0 < shownDay } }
+  /// The day picker stands still: the demo day is the only day while its switch is on.
+  public var dayLocked: Bool { demoDay }
+
+  /// Previous and next recorded days around the shown one (days are newest first); none while
+  /// the day is locked.
+  public var previousDay: WireDate? { dayLocked ? nil : days.map(\.day).first { $0 < shownDay } }
   public var nextDay: WireDate? { days.map(\.day).reversed().first { $0 > shownDay } }
 
   // MARK: lifecycle
@@ -325,10 +346,26 @@ public final class AppModel {
     tasks = []
   }
 
-  /// Point the app at another API address (Settings › Advanced).
+  /// Point the app at another API address (Settings › General). With the demo day on, the
+  /// demo day behind the new address is shown.
   public func connect(to url: URL) {
-    guard url != baseURL else { return }
-    baseURL = url
+    guard url != address else { return }
+    address = url
+    reconnect()
+  }
+
+  /// Turn the demo day on or off (Settings › General). On: the demo day, and the day picker
+  /// stays on it. Off: back to the bot at `address`, on today.
+  public func setDemoDay(_ on: Bool) {
+    guard on != demoDay else { return }
+    demoDay = on
+    selectedDay = nil
+    reconnect()
+  }
+
+  /// Start again from nothing on `baseURL`: nothing read from the other address stays on screen.
+  private func reconnect() {
+    let url = baseURL
     client = Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
     response = nil
     settings = nil

@@ -16,6 +16,10 @@ struct HomeView: View {
   var body: some View {
     Screen(L10n.App.name) {
       ConnectionPrompt()
+      if model.connection.demo {
+        // Every command from here goes to the demo day: said at the top, as loud as a warning.
+        WarningBanner(L10n.Home.demoTitle, detail: L10n.Home.demoDetail, systemImage: SettingsView.demoSymbol)
+      }
       DayLine(days: dayModel).rise(step: Order.day.rawValue)
       Summary(past: dayModel.shown).rise(step: Order.summary.rawValue)
       if let past = dayModel.shown {
@@ -137,6 +141,9 @@ private struct DayLine: View {
   @Environment(\.dynamicTypeSize) private var typeSize
   let days: HomeDayModel
 
+  /// Accessibility id of the DEMO chip, for the UI tests.
+  static let demoChipID = "home-demo"
+
   var body: some View {
     // At large text sizes the age (or the way back to today) moves under the day, so the arrows
     // stay on screen.
@@ -150,6 +157,10 @@ private struct DayLine: View {
         day
           .lineLimit(stacked ? Self.stackedDayLines : 1)
           .minimumScaleFactor(Tokens.Shrink.standard)
+        if days.locked {
+          Badge(L10n.Home.demoChip, tone: .warning)
+            .accessibilityIdentifier(Self.demoChipID)
+        }
         Spacer(minLength: 0)
         if !stacked { trailing }
         Button { days.forward() } label: { Image(systemName: "chevron.right") }

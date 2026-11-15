@@ -266,7 +266,7 @@ private struct PositionDetail: View {
         }
         Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
       } message: {
-        Text(L10n.Positions.flattenMessage)
+        Text(BotControl.target(String(localized: L10n.Positions.flattenMessage), demo: model.connection.demo))
       }
     }
   }

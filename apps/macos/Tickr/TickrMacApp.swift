@@ -7,6 +7,8 @@ import TickrKit
 enum Defaults {
   /// Base URL of the bot's local API.
   static let apiBaseURL = "apiBaseURL"
+  /// Whether the demo day is shown instead of the bot (Settings › General, `AppModel.demoDay`).
+  static let demoDay = "demoDay"
   /// Whether the menu-bar extra is shown.
   static let showMenuBarExtra = "showMenuBarExtra"
   /// Appearance forced for every window, `light` or `dark`; unset follows the system. Not in
@@ -157,10 +159,10 @@ struct AppCommands: Commands {
         .disabled(model.previousDay == nil)
       Button(String(localized: L10n.App.nextTradingDay)) { model.showNextDay() }
         .keyboardShortcut("]", modifiers: .command)
-        .disabled(model.isLive)
+        .disabled(model.isLive || model.dayLocked)
       Button(String(localized: L10n.Common.today)) { model.showToday() }
         .keyboardShortcut(Self.todayKey, modifiers: .command)
-        .disabled(model.isLive)
+        .disabled(model.isLive || model.dayLocked)
     }
   }
 }

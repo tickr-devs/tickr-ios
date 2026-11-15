@@ -290,6 +290,7 @@ private struct DayBar: View {
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textTertiary)
     }
+    .disabled(chart.dayLocked)
   }
 }
 

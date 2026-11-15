@@ -141,9 +141,10 @@ final class ActivityModel {
     }
   }
 
-  /// Show `day`: today goes back to the live view, any other recorded day loads its trades.
+  /// Show `day`: today goes back to the live view, any other recorded day loads its trades. With
+  /// the demo day on, only the demo day (today) is shown.
   func show(_ day: WireDate, from url: URL) async {
-    guard day != today else {
+    guard day != today, DemoDay.day(day, demo: Container.shared.appModel().connection.demo) != nil else {
       showToday()
       return
     }

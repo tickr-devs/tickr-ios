@@ -19,7 +19,7 @@ struct BotControl: ViewModifier {
         Button(role: .destructive) { run(command) } label: { Text(severeAction(command)) }
         Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
       } message: { command in
-        Text(severeMessage(command))
+        Text(Self.target(String(localized: severeMessage(command)), demo: model.connection.demo))
       }
       // A sheet, not a confirmation dialog: on iOS 26 a dialog turns into a popover without its
       // Cancel button, pointing away from the power button.
@@ -39,6 +39,9 @@ struct BotControl: ViewModifier {
   private var sheet: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        if model.connection.demo {
+          WarningBanner(L10n.Home.demoTitle, detail: L10n.Home.demoDetail, systemImage: SettingsView.demoSymbol)
+        }
         HStack(spacing: Tokens.Space.s) {
           StateGlyph(stateSymbol, tone: stateTone, label: title, live: model.status?.botState == .running,
             event: model.status?.botState, style: .round)
@@ -124,6 +127,12 @@ struct BotControl: ViewModifier {
 
   private func severeAction(_ command: OperatorCommand) -> LocalizedStringResource {
     command == .emergency ? L10n.Control.emergency : L10n.Control.stopBot
+  }
+
+  /// A confirmation's message with where the command goes, named every time: a demo switch left
+  /// on must never swallow a real command unnoticed.
+  static func target(_ message: String, demo: Bool) -> LocalizedStringResource {
+    demo ? L10n.Control.toDemo(message) : L10n.Control.toBot(message)
   }
 
   private func severeMessage(_ command: OperatorCommand) -> LocalizedStringResource {

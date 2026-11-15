@@ -20,7 +20,9 @@ final class HomeDayModel {
 
   /// The day the switcher stands on: the chosen past day, else today.
   var day: WireDate { shown?.day ?? today }
-  var canGoBack: Bool { DaySteps.previous(day, in: days) != nil }
+  /// The switcher stands still: the demo day is the only day while its switch is on.
+  var locked: Bool { app.connection.demo }
+  var canGoBack: Bool { !locked && DaySteps.previous(day, in: days) != nil }
   var canGoForward: Bool { shown != nil }
 
   /// List the recorded days of the bot at `url`. A failed list leaves the switcher where it was;
@@ -39,6 +41,7 @@ final class HomeDayModel {
   }
 
   func back() {
+    guard !locked else { return }
     if let previous = DaySteps.previous(day, in: days) { shown = previous }
   }
 

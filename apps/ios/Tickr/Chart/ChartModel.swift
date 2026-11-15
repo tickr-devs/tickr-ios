@@ -102,9 +102,12 @@ final class ChartModel {
   var trades: [DayTrade] { day?.trades.filter { $0.symbol == symbol } ?? [] }
   /// Whether the chosen day is today in New York on the bot's clock, so its bars still grow.
   var isToday: Bool { selectedDay == Container.shared.appModel().today }
-  /// The day before and after the chosen one among the recorded days (newest first).
-  var previousDay: WireDate? { neighbour(1) }
-  var nextDay: WireDate? { neighbour(-1) }
+  /// The day before and after the chosen one among the recorded days (newest first); none while
+  /// the demo day is on, the only day then.
+  var previousDay: WireDate? { dayLocked ? nil : neighbour(1) }
+  var nextDay: WireDate? { dayLocked ? nil : neighbour(-1) }
+  /// The demo day is on: the chart stays on its day (the API's today).
+  var dayLocked: Bool { Container.shared.appModel().connection.demo }
 
   /// The bot's API at `url`, from the container, with the paired token only where it may go.
   private func client(_ url: URL) -> APIClient {
@@ -119,7 +122,10 @@ final class ChartModel {
       let listed = try await client(url).days().days
       guard request == latestRequest else { return }
       days = listed
-      if selectedDay == nil || !days.contains(where: { $0.day == selectedDay }) {
+      if dayLocked {
+        // The demo day is the newest the demo has recorded.
+        selectedDay = days.first?.day
+      } else if selectedDay == nil || !days.contains(where: { $0.day == selectedDay }) {
         selectedDay = days.first?.day
       }
       try await loadDay(url, preferring: preferred, request: request)
@@ -131,8 +137,9 @@ final class ChartModel {
     }
   }
 
-  /// Switch to another recorded day.
+  /// Switch to another recorded day; none while the demo day is on.
   func show(_ day: WireDate, from url: URL) async {
+    guard !dayLocked else { return }
     let request = begin()
     selectedDay = day
     phase = .loading

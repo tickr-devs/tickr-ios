@@ -71,7 +71,7 @@ private struct GeneralSettings: View {
           Spacer()
           Button(String(localized: L10n.Settings.useDefault)) { draft = APIClient.defaultBaseURL.absoluteString; apply() }
           Button(String(localized: L10n.Settings.connect), action: apply).keyboardShortcut(.defaultAction)
-            .disabled(draft == model.baseURL.absoluteString)
+            .disabled(draft == model.address.absoluteString)
         }
       } header: {
         Text(L10n.Settings.botConnection)
@@ -86,6 +86,7 @@ private struct GeneralSettings: View {
         .font(Tokens.Typography.caption)
         .foregroundStyle(model.fetchError == nil ? Color.secondary : Palette.lossText)
       }
+      DemoDaySection()
       JobsSection()
       Section(String(localized: L10n.Settings.menuBar)) {
         Toggle(String(localized: L10n.Settings.showInMenuBar), isOn: $showMenuBarExtra)
@@ -95,7 +96,7 @@ private struct GeneralSettings: View {
       }
     }
     .formStyle(.grouped)
-    .onAppear { draft = model.baseURL.absoluteString }
+    .onAppear { draft = model.address.absoluteString }
     .alert(String(localized: L10n.Settings.invalidAddress), isPresented: $invalid) {
       Button(String(localized: L10n.Settings.ok), role: .cancel) {}
     } message: {
@@ -111,6 +112,46 @@ private struct GeneralSettings: View {
     }
     apiBaseURL = url.absoluteString
     model.connect(to: url)
+  }
+}
+
+/// The "Demo day" switch as a design row: its glyph, the name with a one-line explanation, and the
+/// switch in the environment chip's colour. On, the app shows the demo day behind the bot's
+/// address (AppModel.setDemoDay) and remembers the choice; the address field above is untouched.
+private struct DemoDaySection: View {
+  @Environment(AppModel.self) private var model
+  @AppStorage(Defaults.demoDay) private var demoDay = false
+
+  /// SF Symbol of the row.
+  static let symbol = "theatermasks"
+  /// Accessibility id of the switch, for the UI tests.
+  static let id = "settings-demo-day"
+
+  var body: some View {
+    Section {
+      HStack(spacing: Tokens.Space.s) {
+        StateGlyph(Self.symbol, tone: model.demoDay ? .warning : .neutral, label: L10n.Settings.demoDay, style: .compact)
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          Text(L10n.Settings.demoDay)
+          Text(L10n.Settings.demoDayExplanation)
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(.secondary)
+        }
+        Spacer(minLength: Tokens.Space.s)
+        if model.demoDay { Badge(L10n.Toolbar.demoChip, tone: .warning) }
+        Toggle(isOn: Binding(get: { model.demoDay }, set: { on in
+          demoDay = on
+          model.setDemoDay(on)
+        })) {
+          Text(L10n.Settings.demoDay)
+        }
+        .labelsHidden()
+        .toggleStyle(.switch)
+        .tint(Palette.warning)
+        .accessibilityIdentifier(Self.id)
+      }
+      .animation(Tokens.Motion.quick, value: model.demoDay)
+    }
   }
 }
 

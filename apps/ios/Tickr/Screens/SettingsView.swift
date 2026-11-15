@@ -18,6 +18,9 @@ struct SettingsView: View {
   static let lockScreenSymbol = "bell.badge.fill"
   static let appSymbol = "app.fill"
   static let contractSymbol = "doc.text.fill"
+  static let demoSymbol = "theatermasks.fill"
+  /// Accessibility id of the demo day switch, for the UI tests.
+  static let demoDayID = "settings-demo-day"
 
   @Environment(AppModel.self) private var model
   @State private var draft = ""
@@ -58,6 +61,16 @@ struct SettingsView: View {
         Text(L10n.Settings.botOnMac)
       } footer: {
         Text(L10n.Settings.addressFooter)
+      }
+
+      Section {
+        Toggle(isOn: Binding(get: { model.connection.demo }, set: { model.connection = model.connection.demo($0) })) {
+          Label { Text(L10n.Settings.demoDay) } icon: { SettingsIcon(Self.demoSymbol, tone: .warning) }
+        }
+        .tint(Palette.warning)
+        .accessibilityIdentifier(Self.demoDayID)
+      } footer: {
+        Text(L10n.Settings.demoDayFooter)
       }
 
       if let status = model.status {
@@ -122,7 +135,7 @@ struct SettingsView: View {
     .sheet(isPresented: $showPairing) { PairingSheet() }
     .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {
       Button(role: .destructive) {
-        model.connection = Connection(address: model.connection.address)
+        model.connection = Connection(address: model.connection.address, demo: model.connection.demo)
       } label: {
         Text(L10n.Pair.forget)
       }
