@@ -1,6 +1,8 @@
 name: ios-app
 on:
   pull_request:
+    # ready_for_review: a draft skips this job; marking it ready runs it.
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "apps/ios/**"
       - "apps/shared/**"
@@ -17,6 +19,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
+    # Drafts skip the macOS runner (the bottleneck); run it on a draft through workflow_dispatch.
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: macos-latest
     timeout-minutes: 25
     defaults:
