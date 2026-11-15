@@ -3063,6 +3063,23 @@
         }
       }
     },
+    "home.backToToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня"
+          }
+        }
+      }
+    },
     "home.day" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3114,6 +3131,23 @@
         }
       }
     },
+    "home.nextDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next trading day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующий торговый день"
+          }
+        }
+      }
+    },
     "home.noPosition" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3148,6 +3182,40 @@
         }
       }
     },
+    "home.pastDayNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is a recorded day. Its trades are on the Activity tab."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — записанный день. Его сделки на вкладке «Активность»."
+          }
+        }
+      }
+    },
+    "home.previousDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous trading day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущий торговый день"
+          }
+        }
+      }
+    },
     "home.protected" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3161,6 +3229,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ защищена стопом у брокера."
+          }
+        }
+      }
+    },
+    "home.recordedDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorded day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записанный день"
+          }
+        }
+      }
+    },
+    "home.recordedNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read-only from the bot's records. Commands are off for past days."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только просмотр записей бота. Для прошлых дней команды отключены."
           }
         }
       }

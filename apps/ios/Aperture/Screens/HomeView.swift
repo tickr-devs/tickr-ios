@@ -11,13 +11,23 @@ struct HomeView: View {
   @Environment(AppModel.self) private var model
   @State private var showControl = false
   @State private var prices = Container.shared.positionsModel()
+  @State private var dayModel = Container.shared.homeDayModel()
 
   var body: some View {
     Screen(L10n.App.name) {
       ConnectionPrompt()
-      DayLine().rise(step: Order.day.rawValue)
-      Summary().rise(step: Order.summary.rawValue)
-      if let status = model.status {
+      DayLine(days: dayModel).rise(step: Order.day.rawValue)
+      Summary(past: dayModel.shown).rise(step: Order.summary.rawValue)
+      if let past = dayModel.shown {
+        // A recorded day: its result above, nothing live below.
+        Text(L10n.Home.pastDayNote(Format.day(past.day.noonInNewYork)))
+          .font(.subheadline)
+          .foregroundStyle(Palette.textTertiary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(Tokens.Space.l)
+          .apertureCard()
+          .rise(step: Order.positions.rawValue)
+      } else if let status = model.status {
         let events = Board.events(status)
         if !events.isEmpty {
           Ticker(events.map { TickerItem(id: $0.id, tag: $0.tag, text: $0.text, tone: $0.tone.ticker) },
@@ -58,9 +68,9 @@ struct HomeView: View {
         } label: {
           Image(systemName: "power")
             .fontWeight(.semibold)
-            .foregroundStyle(model.canCommand ? Palette.warningText : Palette.textQuaternary)
+            .foregroundStyle(model.canCommand && dayModel.shown == nil ? Palette.warningText : Palette.textQuaternary)
         }
-        .disabled(!model.canCommand)
+        .disabled(!model.canCommand || dayModel.shown != nil)
         .accessibilityLabel(Text(L10n.Control.title))
         NavigationLink {
           SettingsView()
@@ -71,8 +81,15 @@ struct HomeView: View {
       }
     }
     .botControl(isPresented: $showControl)
-    .refreshable { await model.refreshAll() }
+    .refreshable {
+      await model.refreshAll()
+      if let url = model.connection.url { await dayModel.load(url) }
+    }
     .task(id: model.connection.url) { await model.followFlow() }
+    .task(id: DaysKey(url: model.connection.url, today: model.today)) {
+      guard let url = model.connection.url else { return }
+      await dayModel.load(url)
+    }
     .task(id: followKey) {
       guard let url = model.connection.url, let status = model.status, !status.positions.isEmpty else { return }
       await prices.follow(url, status: status)
@@ -87,6 +104,12 @@ extension HomeView {
       positions: model.status?.positions ?? [])
   }
 
+  /// The recorded days are listed again for another bot and when a new day begins.
+  fileprivate struct DaysKey: Hashable {
+    let url: URL?
+    let today: WireDate
+  }
+
   fileprivate struct FollowKey: Hashable {
     let url: URL?
     let day: WireDate?
@@ -98,21 +121,37 @@ extension HomeView {
 /// clock, else the last session (a weekend, a day off), which is never shown as live.
 private struct DayLine: View {
   @Environment(AppModel.self) private var model
+  let days: HomeDayModel
 
   var body: some View {
     let written = model.status?.writtenAt.date ?? model.botNow
     let isToday = WireDate(newYorkDateOf: written) == model.today
     HStack(spacing: Tokens.Space.s) {
-      if isToday, model.response?.stale == false {
-        PulseDot(Palette.profit, size: Tokens.Size.dotSmall)
+      Button { days.back() } label: { Image(systemName: "chevron.left") }
+        .disabled(!days.canGoBack)
+        .accessibilityLabel(Text(L10n.Home.previousDay))
+      if let past = days.shown {
+        Text(verbatim: Format.day(past.day.noonInNewYork))
+          .foregroundStyle(Palette.highlightText)
+        Spacer()
+        Button { days.showToday() } label: { Text(L10n.Home.backToToday) }
+      } else {
+        if isToday, model.response?.stale == false {
+          PulseDot(Palette.profit, size: Tokens.Size.dotSmall)
+        }
+        Text(isToday ? L10n.Common.today(Format.day(written)) : L10n.Activity.lastSession(Format.day(written)))
+        Spacer()
+        Text(Format.age(model.response))
+          .contentTransition(.numericText())
       }
-      Text(isToday ? L10n.Common.today(Format.day(written)) : L10n.Activity.lastSession(Format.day(written)))
-      Spacer()
-      Text(Format.age(model.response))
-        .contentTransition(.numericText())
+      Button { days.forward() } label: { Image(systemName: "chevron.right") }
+        .disabled(!days.canGoForward)
+        .accessibilityLabel(Text(L10n.Home.nextDay))
     }
     .font(Tokens.Typography.captionMono)
     .foregroundStyle(Palette.textQuaternary)
+    .buttonStyle(.borderless)
+    .animation(Tokens.Motion.standard, value: days.shown)
   }
 }
 
@@ -124,11 +163,16 @@ private struct Summary: View {
   static let minimumScale = 0.6
 
   @Environment(AppModel.self) private var model
+  /// A recorded past day to summarize instead of today's status.
+  let past: DaySummary?
 
   var body: some View {
-    let stats = model.status.map(Board.dayStats)
+    let stats = past.map(Board.dayStats) ?? model.status.map(Board.dayStats)
     let result = stats?.resultGrossUsd ?? 0
     let headline = model.headline
+    // A recorded day says so, in the highlight colour and without a pulse; the live headline is about today.
+    let text = past == nil ? headline.text : String(localized: L10n.Home.recordedDay)
+    let tint = past == nil ? headline.severity.tint : Palette.highlightText
     HStack(spacing: Tokens.Space.l) {
       ResultRing(fraction: stats?.winShare ?? 0, color: result < 0 ? Palette.seriesATR : Palette.accent) {
         VStack(spacing: Tokens.Space.xxs) {
@@ -157,20 +201,25 @@ private struct Summary: View {
 
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          PulseDot(headline.severity.tint, pulsing: headline.severity != .ok || model.response?.stale == false)
-          Text(verbatim: headline.text)
+          PulseDot(tint, pulsing: past == nil && (headline.severity != .ok || model.response?.stale == false))
+          Text(verbatim: text)
             .font(.subheadline.bold())
-            .foregroundStyle(headline.severity.tint)
+            .foregroundStyle(tint)
             .fixedSize(horizontal: false, vertical: true)
         }
-        if let status = model.status {
+        if past != nil {
+          Text(L10n.Home.recordedNote)
+            .font(.footnote)
+            .foregroundStyle(Palette.textTertiary)
+            .fixedSize(horizontal: false, vertical: true)
+        } else if let status = model.status {
           Text(verbatim: subline(status))
             .font(.footnote)
             .foregroundStyle(Palette.textTertiary)
             .fixedSize(horizontal: false, vertical: true)
         }
       }
-      .animation(.default, value: headline)
+      .animation(.default, value: text)
     }
   }
 

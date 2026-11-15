@@ -45,6 +45,13 @@ extension Container {
     self { WatchingModel() }
   }
 
+  /// The day Home shows: today or a recorded past day. One for the app, so the day stays chosen
+  /// while other tabs are open.
+  @MainActor
+  var homeDayModel: Factory<HomeDayModel> {
+    self { HomeDayModel() }.singleton
+  }
+
   /// Where the paired API token lives: this phone's Keychain.
   var keychain: Factory<Keychain> {
     self { Keychain() }

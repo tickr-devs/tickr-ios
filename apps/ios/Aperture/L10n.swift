@@ -231,6 +231,26 @@ enum L10n {
   }
 
   enum Home {
+    static var previousDay: LocalizedStringResource {
+      LocalizedStringResource("home.previousDay", defaultValue: "Previous trading day", bundle: L10n.bundle)
+    }
+    static var nextDay: LocalizedStringResource {
+      LocalizedStringResource("home.nextDay", defaultValue: "Next trading day", bundle: L10n.bundle)
+    }
+    static var backToToday: LocalizedStringResource {
+      LocalizedStringResource("home.backToToday", defaultValue: "Today", bundle: L10n.bundle)
+    }
+    static var recordedDay: LocalizedStringResource {
+      LocalizedStringResource("home.recordedDay", defaultValue: "Recorded day", bundle: L10n.bundle)
+    }
+    static var recordedNote: LocalizedStringResource {
+      LocalizedStringResource("home.recordedNote",
+        defaultValue: "Read-only from the bot's records. Commands are off for past days.", bundle: L10n.bundle)
+    }
+    static func pastDayNote(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.pastDayNote",
+        defaultValue: "\(day) is a recorded day. Its trades are on the Activity tab.", bundle: L10n.bundle)
+    }
     static var noPosition: LocalizedStringResource {
       LocalizedStringResource("home.noPosition", defaultValue: "No open position.", bundle: L10n.bundle)
     }

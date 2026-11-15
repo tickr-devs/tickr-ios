@@ -22,6 +22,11 @@ public enum Board {
       resultGrossUsd: status.resultTodayGrossUsd.value)
   }
 
+  /// A recorded day's numbers, as GET /days summarizes it.
+  public static func dayStats(_ day: DaySummary) -> DayStats {
+    DayStats(trades: day.trades, wins: day.wins, losses: day.losses, resultGrossUsd: day.resultGrossUsd.value)
+  }
+
   /// Every open position, in the order the bot lists them.
   public static func positions(_ status: StatusV1) -> [Position] {
     status.positions
