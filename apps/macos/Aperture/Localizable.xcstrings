@@ -5337,13 +5337,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · since %2$@"
+            "value" : "since %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · с %2$@"
+            "value" : "с %@"
           }
         }
       }

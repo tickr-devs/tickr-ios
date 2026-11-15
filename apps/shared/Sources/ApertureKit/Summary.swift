@@ -26,17 +26,32 @@ public struct Headline: Equatable, Sendable {
       return Headline(text: String(localized: L10n.headlineConnecting), severity: .attention)
     }
     guard let status = response.status, !response.stale else {
-      return Headline(text: response.summary, severity: .alarm)
+      return Headline(text: summary(response), severity: .alarm)
     }
     if let position = status.positions.first(where: { $0.stop.state != .verified }) {
       return Headline(
         text: String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
-          + response.summary,
+          + summary(response),
         severity: .alarm)
     }
     // An ordinary refusal (a trade is open, outside the entry window) is calm; only a block that
     // needs the operator is attention.
-    return Headline(text: response.summary, severity: status.entryBlock?.attention == true ? .attention : .ok)
+    return Headline(text: summary(response), severity: status.entryBlock?.attention == true ? .attention : .ok)
+  }
+
+  /// The bot's one-line summary in the person's language, built from the status as the bot builds
+  /// its English `summary` (contract.summarize): the status's absence, its age, the entry block,
+  /// or that entries are allowed.
+  static func summary(_ response: StatusResponseV1) -> String {
+    guard let status = response.status else {
+      return String(localized: L10n.headlineUnavailable(response.unavailableCause ?? response.summary))
+    }
+    if response.stale {
+      let seconds = response.ageSeconds.map { NSDecimalNumber(decimal: $0.value).intValue }
+      return seconds.map { String(localized: L10n.headlineStale($0)) } ?? response.summary
+    }
+    if let block = status.entryBlock { return ApiText.entryBlock(block) }
+    return String(localized: L10n.headlineAllowed)
   }
 }
 

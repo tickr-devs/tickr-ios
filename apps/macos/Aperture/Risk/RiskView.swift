@@ -169,10 +169,11 @@ private struct EntryGateCard: View {
       if let status = model.status {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
           if let block = status.entryBlock {
-            Text(verbatim: block.text)
+            Text(verbatim: ApiText.entryBlock(block))
               .font(Tokens.Typography.body)
               .foregroundStyle(block.attention ? Palette.textPrimary : Palette.textSecondary)
-            Footnote(verbatim: block.cause, color: Palette.textQuaternary)
+              // The bot's own words keep the detail (times, amounts) until it sends them as values.
+              .help(Text(verbatim: block.text))
           }
           StatLine(
             L10n.Risk.operatorPause, value: String(localized: status.entryStop ? L10n.Common.on : L10n.Common.off),
@@ -238,8 +239,13 @@ private struct FencesCard: View {
           HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
             Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Palette.warning)
             VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-              Text(verbatim: fence.text).foregroundStyle(Palette.textPrimary)
-              Text(L10n.Risk.fenceSince(fence.kind, Format.marketTime(fence.since.date)))
+              Text(verbatim: ApiText.fence(fence)).foregroundStyle(Palette.textPrimary)
+              // The bot's detail often says what to do; it stays visible until it comes as codes.
+              Text(verbatim: fence.text)
+                .font(Tokens.Typography.callout)
+                .foregroundStyle(Palette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+              Text(L10n.Risk.fenceSince(Format.marketTime(fence.since.date)))
                 .font(Tokens.Typography.captionMono)
                 .foregroundStyle(Palette.textQuaternary)
             }
@@ -265,7 +271,7 @@ private struct LimitsCard: View {
           StatLine(L10n.Risk.dailyLoss, value: Format.usd(risk.maxDailyLossUsd.value))
           StatLine(L10n.Risk.minRoom, value: Format.usd(risk.minDailyRoomUsd.value))
           StatLine(L10n.Risk.openPositions, value: String(risk.maxOpenPositions))
-          StatLine(L10n.Risk.quoteAge, value: String(localized: L10n.Risk.seconds(Money.plain(risk.maxQuoteAgeSeconds.value))))
+          StatLine(L10n.Risk.quoteAge, value: String(localized: L10n.Risk.seconds(Format.secondsNumber(risk.maxQuoteAgeSeconds.value))))
         }
       } else {
         Footnote(model.settingsError == nil ? L10n.Common.unavailable : L10n.Risk.settingsUnavailable)
@@ -375,8 +381,8 @@ private struct AccountCard: View {
         HStack(spacing: Tokens.Space.s) {
           Text(verbatim: order.symbol).font(Tokens.Typography.calloutMono)
           Group {
-            Text(verbatim: order.side)
-            Text(verbatim: order.type)
+            Text(verbatim: ApiText.orderSide(order.side))
+            Text(verbatim: ApiText.orderType(order.type))
             Text(verbatim: order.quantity.text)
           }
           .font(Tokens.Typography.captionMono)
@@ -384,7 +390,7 @@ private struct AccountCard: View {
           if let price = order.stopPrice ?? order.limitPrice {
             Text(verbatim: price.text).font(Tokens.Typography.captionMono)
           }
-          Text(verbatim: order.status)
+          Text(verbatim: ApiText.orderStatus(order.status))
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textTertiary)
           if !order.ours {
@@ -392,7 +398,7 @@ private struct AccountCard: View {
           }
         }
       }
-      Footnote(L10n.Risk.readAt(Format.marketTime(account.readAt.date), Money.plain(response.ageSeconds.value)))
+      Footnote(L10n.Risk.readAt(Format.marketTime(account.readAt.date), Format.wholeSeconds(response.ageSeconds.value)))
     }
   }
 }

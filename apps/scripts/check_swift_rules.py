@@ -4,7 +4,8 @@
 Rules, checked in every Swift file of apps/ (tests and Package.swift excepted):
 
 text     No words in code. A string literal holding a letter may appear only
-         - in an `L10n.swift` file, the one place per target where user-facing text is defined,
+         - in an `L10n.swift` file, the one place per target where user-facing text is defined
+           (a target may split it into extension files named `L10n+<Part>.swift` beside it),
            as the key or `defaultValue:` of `LocalizedStringResource("key", defaultValue: "…")`
            (the key on the same line as `LocalizedStringResource(`); nothing else there;
          - as an SF Symbol name, passed to a `systemName:`, `systemImage:` or `symbol:` label;
@@ -53,6 +54,7 @@ TEST_DIRS = {"Tests", "ApertureUITests"}
 BUILD_DIRS = {".build", "build", "DerivedData", "SourcePackages"}
 SKIPPED_DIRS = TEST_DIRS | BUILD_DIRS
 L10N_FILE = "L10n.swift"
+L10N_PART = re.compile(r"L10n\+\w+\.swift")
 INDENT = 2
 
 SYMBOL_ARGUMENT = re.compile(r"\b(?:systemName|systemImage|symbol)\s*:\s*$")
@@ -149,15 +151,21 @@ def string_literals(text: str) -> list[tuple[int, str, str]]:
     return found
 
 
+def is_l10n(path: Path) -> bool:
+    """An L10n.swift, or a part of one (`L10n+<Part>.swift`) in the same folder."""
+    return path.name == L10N_FILE or (
+        L10N_PART.fullmatch(path.name) is not None and (path.parent / L10N_FILE).exists())
+
+
 def text_violations(path: Path) -> list[tuple[int, str]]:
     source = path.read_text(encoding="utf-8")
     documented = documented_constant_lines(source.splitlines())
     found = []
-    value_lines = l10n_value_lines(source) if path.name == L10N_FILE else set()
+    value_lines = l10n_value_lines(source) if is_l10n(path) else set()
     for number, literal, prefix in string_literals(source):
         if not LETTER.search(ESCAPE.sub("", literal)):
             continue
-        if path.name == L10N_FILE:
+        if is_l10n(path):
             if not (L10N_KEY_ARGUMENT.search(prefix) or (
                     L10N_VALUE_ARGUMENT.search(prefix) and number in value_lines)):
                 found.append((number, literal))
@@ -240,7 +248,7 @@ def indent_violations(path: Path) -> list[tuple[int, str]]:
 
 def catalog_violations(path: Path) -> list[tuple[int, str]]:
     """Keys of an L10n.swift without a Russian translation in the String Catalog beside it."""
-    if path.name != L10N_FILE:
+    if not is_l10n(path):
         return []
     catalogs = sorted(path.parent.rglob("*.xcstrings"))
     lines = path.read_text(encoding="utf-8").splitlines()

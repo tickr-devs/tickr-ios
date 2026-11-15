@@ -184,6 +184,6 @@ private struct WatchingRow: View {
 extension CheckV1 {
   /// "rule measured operator threshold" as the bot recorded them; a missing side is a dash.
   var comparisonText: String {
-    "\(rule) \(measured?.text ?? Format.missing) \(`operator`) \(threshold?.text ?? Format.missing)"
+    "\(ApiText.rule(rule)) \(measured?.text ?? Format.missing) \(`operator`) \(threshold?.text ?? Format.missing)"
   }
 }

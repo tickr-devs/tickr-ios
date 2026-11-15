@@ -86,6 +86,258 @@
         }
       }
     },
+    "kit.block.after_last_entry" : {
+      "comment" : "Why entries are blocked: after_last_entry",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Past the last entry time."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время последнего входа прошло."
+          }
+        }
+      }
+    },
+    "kit.block.bot_starting" : {
+      "comment" : "Why entries are blocked: bot_starting",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot is starting."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот запускается."
+          }
+        }
+      }
+    },
+    "kit.block.bot_stopped" : {
+      "comment" : "Why entries are blocked: bot_stopped",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot is stopped."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот остановлен."
+          }
+        }
+      }
+    },
+    "kit.block.bot_stopping" : {
+      "comment" : "Why entries are blocked: bot_stopping",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot is stopping."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот останавливается."
+          }
+        }
+      }
+    },
+    "kit.block.calendar_unknown" : {
+      "comment" : "Why entries are blocked: calendar_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The trading calendar cannot say whether the market is open."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговый календарь не может сказать, открыт ли рынок."
+          }
+        }
+      }
+    },
+    "kit.block.daily_ceiling" : {
+      "comment" : "Why entries are blocked: daily_ceiling",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too little room left under the daily loss limit."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Под дневным лимитом убытка осталось слишком мало места."
+          }
+        }
+      }
+    },
+    "kit.block.daily_money_unknown" : {
+      "comment" : "Why entries are blocked: daily_money_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A trade closed today has fills without a known price."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У сделки, закрытой сегодня, есть исполнения без известной цены."
+          }
+        }
+      }
+    },
+    "kit.block.entries_not_wired" : {
+      "comment" : "Why entries are blocked: entries_not_wired",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This build does not open trades on its own yet."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эта сборка пока не открывает сделки сама."
+          }
+        }
+      }
+    },
+    "kit.block.entry_stop" : {
+      "comment" : "Why entries are blocked: entry_stop",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries stopped by the operator."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы остановлены оператором."
+          }
+        }
+      }
+    },
+    "kit.block.no_session_today" : {
+      "comment" : "Why entries are blocked: no_session_today",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No regular session today."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня нет основной сессии."
+          }
+        }
+      }
+    },
+    "kit.block.outside_regular_session" : {
+      "comment" : "Why entries are blocked: outside_regular_session",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outside the regular session."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вне основной сессии."
+          }
+        }
+      }
+    },
+    "kit.block.own_trade_open" : {
+      "comment" : "Why entries are blocked: own_trade_open",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot already has a trade open."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У бота уже открыта сделка."
+          }
+        }
+      }
+    },
+    "kit.block.strategy_not_loaded" : {
+      "comment" : "Why entries are blocked: strategy_not_loaded",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The active strategy is not loaded."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активная стратегия не загружена."
+          }
+        }
+      }
+    },
+    "kit.block.trading_gate_closed" : {
+      "comment" : "Why entries are blocked: trading_gate_closed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The trading gate is closed."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговый шлюз закрыт."
+          }
+        }
+      }
+    },
     "kit.command.cancelOwnOrders" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -528,6 +780,455 @@
         }
       }
     },
+    "kit.fence.broker_read_failed" : {
+      "comment" : "A fence (a block on new entries): broker_read_failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker read failed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтение брокера не удалось"
+          }
+        }
+      }
+    },
+    "kit.fence.cancel_failed" : {
+      "comment" : "A fence (a block on new entries): cancel_failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A cancel failed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена не удалась"
+          }
+        }
+      }
+    },
+    "kit.fence.cancel_not_sent" : {
+      "comment" : "A fence (a block on new entries): cancel_not_sent",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancels held back by the request budget"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмены задержаны лимитом запросов"
+          }
+        }
+      }
+    },
+    "kit.fence.cancel_unknown" : {
+      "comment" : "A fence (a block on new entries): cancel_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A cancel's outcome is unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Исход отмены неизвестен"
+          }
+        }
+      }
+    },
+    "kit.fence.detail_budget" : {
+      "comment" : "A fence (a block on new entries): detail_budget",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order detail request budget used up"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лимит запросов деталей ордеров исчерпан"
+          }
+        }
+      }
+    },
+    "kit.fence.entry_stop" : {
+      "comment" : "A fence (a block on new entries): entry_stop",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries stopped by the operator"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы остановлены оператором"
+          }
+        }
+      }
+    },
+    "kit.fence.exit_not_filled" : {
+      "comment" : "A fence (a block on new entries): exit_not_filled",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A closing order is not filled in time"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрывающий ордер не исполнен вовремя"
+          }
+        }
+      }
+    },
+    "kit.fence.exit_refused" : {
+      "comment" : "A fence (a block on new entries): exit_refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An exit was refused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выход отклонён"
+          }
+        }
+      }
+    },
+    "kit.fence.foreign_order" : {
+      "comment" : "A fence (a block on new entries): foreign_order",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An order the bot did not send"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ордер, который бот не отправлял"
+          }
+        }
+      }
+    },
+    "kit.fence.foreign_position" : {
+      "comment" : "A fence (a block on new entries): foreign_position",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A position the bot did not open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиция, которую бот не открывал"
+          }
+        }
+      }
+    },
+    "kit.fence.market_closed" : {
+      "comment" : "A fence (a block on new entries): market_closed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The market is closed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рынок закрыт"
+          }
+        }
+      }
+    },
+    "kit.fence.order_missing" : {
+      "comment" : "A fence (a block on new entries): order_missing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An order is missing at the broker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ордера нет у брокера"
+          }
+        }
+      }
+    },
+    "kit.fence.over_protected" : {
+      "comment" : "A fence (a block on new entries): over_protected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A position has more than one stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У позиции больше одного стопа"
+          }
+        }
+      }
+    },
+    "kit.fence.quantity_mismatch" : {
+      "comment" : "A fence (a block on new entries): quantity_mismatch",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantities differ from the broker's"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество расходится с брокером"
+          }
+        }
+      }
+    },
+    "kit.fence.replace_unresolved" : {
+      "comment" : "A fence (a block on new entries): replace_unresolved",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A stop change is not confirmed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменение стопа не подтверждено"
+          }
+        }
+      }
+    },
+    "kit.fence.resurrected" : {
+      "comment" : "A fence (a block on new entries): resurrected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A closed order came back"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытый ордер вернулся"
+          }
+        }
+      }
+    },
+    "kit.fence.shutting_down" : {
+      "comment" : "A fence (a block on new entries): shutting_down",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot is shutting down"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот завершает работу"
+          }
+        }
+      }
+    },
+    "kit.fence.startup_reconcile" : {
+      "comment" : "A fence (a block on new entries): startup_reconcile",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Startup reconciliation not finished"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сверка при запуске не завершена"
+          }
+        }
+      }
+    },
+    "kit.fence.status_unknown" : {
+      "comment" : "A fence (a block on new entries): status_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An order's status is unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус ордера неизвестен"
+          }
+        }
+      }
+    },
+    "kit.fence.stop_held" : {
+      "comment" : "A fence (a block on new entries): stop_held",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No stop and no close sent"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет ни стопа, ни отправленного закрытия"
+          }
+        }
+      }
+    },
+    "kit.fence.stop_rejected" : {
+      "comment" : "A fence (a block on new entries): stop_rejected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The broker rejected a stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Брокер отклонил стоп"
+          }
+        }
+      }
+    },
+    "kit.fence.unknown_order" : {
+      "comment" : "A fence (a block on new entries): unknown_order",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An order's outcome is unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Исход ордера неизвестен"
+          }
+        }
+      }
+    },
+    "kit.fence.unprotected" : {
+      "comment" : "A fence (a block on new entries): unprotected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A position has no verified stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У позиции нет подтверждённого стопа"
+          }
+        }
+      }
+    },
+    "kit.fence.unprotected_timeout" : {
+      "comment" : "A fence (a block on new entries): unprotected_timeout",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A position stayed unprotected too long"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиция слишком долго без защиты"
+          }
+        }
+      }
+    },
+    "kit.headline.allowed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries allowed."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы разрешены."
+          }
+        }
+      }
+    },
     "kit.headline.connecting" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -575,6 +1276,634 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "У позиции %@ нет подтверждённого стопа (%@). "
+          }
+        }
+      }
+    },
+    "kit.headline.stale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot status is %lld s old: the bot may be down. Do not trust the rest of this page."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статусу бота %lld с: бот, возможно, не работает. Не доверяйте остальному на этой странице."
+          }
+        }
+      }
+    },
+    "kit.headline.unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot status unavailable: %@. Entries are not possible."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус бота недоступен: %@. Входы невозможны."
+          }
+        }
+      }
+    },
+    "kit.order.side_BUY" : {
+      "comment" : "Order side buy",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Покупка"
+          }
+        }
+      }
+    },
+    "kit.order.side_SELL" : {
+      "comment" : "Order side sell",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sell"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продажа"
+          }
+        }
+      }
+    },
+    "kit.order.status_ACCEPTED" : {
+      "comment" : "Order status accepted",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accepted"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Принят"
+          }
+        }
+      }
+    },
+    "kit.order.status_CANCELLED" : {
+      "comment" : "Order status cancelled",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelled"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменён"
+          }
+        }
+      }
+    },
+    "kit.order.status_EXPIRED" : {
+      "comment" : "Order status expired",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expired"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Истёк"
+          }
+        }
+      }
+    },
+    "kit.order.status_FILLED" : {
+      "comment" : "Order status filled",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filled"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Исполнен"
+          }
+        }
+      }
+    },
+    "kit.order.status_PARTIALLY_FILLED" : {
+      "comment" : "Order status partially_filled",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partly filled"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Частично исполнен"
+          }
+        }
+      }
+    },
+    "kit.order.status_REJECTED" : {
+      "comment" : "Order status rejected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rejected"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отклонён"
+          }
+        }
+      }
+    },
+    "kit.order.status_UNKNOWN" : {
+      "comment" : "Order status unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестно"
+          }
+        }
+      }
+    },
+    "kit.order.type_LIMIT" : {
+      "comment" : "Order type limit",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лимитный"
+          }
+        }
+      }
+    },
+    "kit.order.type_MARKET" : {
+      "comment" : "Order type market",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночный"
+          }
+        }
+      }
+    },
+    "kit.order.type_STOP_LOSS" : {
+      "comment" : "Order type stop_loss",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop loss"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп-лосс"
+          }
+        }
+      }
+    },
+    "kit.rule.ask_above_trigger" : {
+      "comment" : "Strategy check: ask_above_trigger",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask above trigger"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аск выше триггера"
+          }
+        }
+      }
+    },
+    "kit.rule.ask_within_price_window" : {
+      "comment" : "Strategy check: ask_within_price_window",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask within price window"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аск в ценовом окне"
+          }
+        }
+      }
+    },
+    "kit.rule.atr" : {
+      "comment" : "Strategy check: atr",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ATR"
+          }
+        }
+      }
+    },
+    "kit.rule.bars_consistent" : {
+      "comment" : "Strategy check: bars_consistent",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bars consistent"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бары согласованы"
+          }
+        }
+      }
+    },
+    "kit.rule.bid_above_invalidation" : {
+      "comment" : "Strategy check: bid_above_invalidation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bid above invalidation"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бид выше уровня отмены"
+          }
+        }
+      }
+    },
+    "kit.rule.breakout_close_above_trigger" : {
+      "comment" : "Strategy check: breakout_close_above_trigger",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breakout: close above trigger"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пробой: закрытие выше триггера"
+          }
+        }
+      }
+    },
+    "kit.rule.breakout_invalidation_below_trigger" : {
+      "comment" : "Strategy check: breakout_invalidation_below_trigger",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breakout: invalidation below trigger"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пробой: уровень отмены ниже триггера"
+          }
+        }
+      }
+    },
+    "kit.rule.close_above_vwap" : {
+      "comment" : "Strategy check: close_above_vwap",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close above VWAP"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытие выше VWAP"
+          }
+        }
+      }
+    },
+    "kit.rule.continuation_invalidation_below_trigger" : {
+      "comment" : "Strategy check: continuation_invalidation_below_trigger",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuation: invalidation below trigger"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжение: уровень отмены ниже триггера"
+          }
+        }
+      }
+    },
+    "kit.rule.daily_loss_budget_usd" : {
+      "comment" : "Strategy check: daily_loss_budget_usd",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily loss budget, USD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дневной бюджет убытка, USD"
+          }
+        }
+      }
+    },
+    "kit.rule.dollar_volume_usd" : {
+      "comment" : "Strategy check: dollar_volume_usd",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dollar volume, USD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объём в долларах, USD"
+          }
+        }
+      }
+    },
+    "kit.rule.fast_ema_above_slow_ema" : {
+      "comment" : "Strategy check: fast_ema_above_slow_ema",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast EMA above slow EMA"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрая EMA выше медленной"
+          }
+        }
+      }
+    },
+    "kit.rule.history_bars" : {
+      "comment" : "Strategy check: history_bars",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History bars"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бары истории"
+          }
+        }
+      }
+    },
+    "kit.rule.position_open" : {
+      "comment" : "Strategy check: position_open",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиция открыта"
+          }
+        }
+      }
+    },
+    "kit.rule.quote_valid" : {
+      "comment" : "Strategy check: quote_valid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote valid"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Котировка годна"
+          }
+        }
+      }
+    },
+    "kit.rule.relative_volume" : {
+      "comment" : "Strategy check: relative_volume",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relative volume"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Относительный объём"
+          }
+        }
+      }
+    },
+    "kit.rule.round_trip_atr_ratio" : {
+      "comment" : "Strategy check: round_trip_atr_ratio",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round trip / ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Круг / ATR"
+          }
+        }
+      }
+    },
+    "kit.rule.round_trip_risk_ratio" : {
+      "comment" : "Strategy check: round_trip_risk_ratio",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round trip / risk"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Круг / риск"
+          }
+        }
+      }
+    },
+    "kit.rule.session_vwap_available" : {
+      "comment" : "Strategy check: session_vwap_available",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session VWAP available"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VWAP сессии доступен"
+          }
+        }
+      }
+    },
+    "kit.rule.spread_ratio" : {
+      "comment" : "Strategy check: spread_ratio",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spread ratio"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доля спреда"
+          }
+        }
+      }
+    },
+    "kit.rule.stop_distance" : {
+      "comment" : "Strategy check: stop_distance",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop distance"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расстояние до стопа"
           }
         }
       }

@@ -84,7 +84,7 @@ public enum Board {
     for fence in status.fences {
       events.append(Event(
         id: "\(fenceID)\(fence.kind)", time: fence.since.date, tag: String(localized: L10n.tagFence),
-        text: fence.text, tone: .amber))
+        text: ApiText.fenceWithDetail(fence), tone: .amber))
     }
     for record in status.recentCommands {
       events.append(Event(

@@ -153,6 +153,21 @@ enum L10n {
     LocalizedStringResource("kit.headline.connecting", defaultValue: "Connecting to the local API…",
       bundle: bundle)
   }
+  /// Headline: entries are allowed.
+  static var headlineAllowed: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.allowed", defaultValue: "Entries allowed.", bundle: bundle)
+  }
+  /// Headline: the status is old; argument: its age in whole seconds.
+  static func headlineStale(_ seconds: Int) -> LocalizedStringResource {
+    LocalizedStringResource("kit.headline.stale",
+      defaultValue: "Bot status is \(seconds) s old: the bot may be down. Do not trust the rest of this page.",
+      bundle: bundle)
+  }
+  /// Headline: the bot has no status; argument: the API's cause.
+  static func headlineUnavailable(_ cause: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.headline.unavailable",
+      defaultValue: "Bot status unavailable: \(cause). Entries are not possible.", bundle: bundle)
+  }
   /// Headline start; arguments: symbol, stop state. The bot's summary follows the space.
   static func headlineNoVerifiedStop(_ symbol: String, _ state: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.headline.noVerifiedStop",

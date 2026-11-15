@@ -1670,9 +1670,9 @@ enum L10n {
     static var noFences: LocalizedStringResource {
       LocalizedStringResource("risk.noFences", defaultValue: "No fences: nothing the bot noticed blocks entries.", bundle: L10n.bundle)
     }
-    /// A fence's kind and start time (New York).
-    static func fenceSince(_ kind: String, _ time: String) -> LocalizedStringResource {
-      LocalizedStringResource("risk.fenceSince", defaultValue: "\(kind) · since \(time)", bundle: L10n.bundle)
+    /// When a fence was raised (New York time).
+    static func fenceSince(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.fenceSince", defaultValue: "since \(time)", bundle: L10n.bundle)
     }
     /// Card title: configured risk limits.
     static var limits: LocalizedStringResource {

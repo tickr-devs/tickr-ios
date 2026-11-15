@@ -117,7 +117,7 @@ private struct CheckRow: View {
       .accessibilityLabel(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
         // One line: wrapped names broke inside words ("dis-tance_atr"); the full name is the hint.
-        Text(verbatim: check.rule)
+        Text(verbatim: ApiText.rule(check.rule))
           .font(Tokens.Typography.captionMono)
           .lineLimit(1)
           .minimumScaleFactor(DecisionsInspector.ruleMinimumScale)
