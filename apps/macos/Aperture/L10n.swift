@@ -1009,6 +1009,42 @@ enum L10n {
     static var axisSeries: LocalizedStringResource {
       LocalizedStringResource("chart.axisSeries", defaultValue: "Line", bundle: L10n.bundle)
     }
+    /// Inspector title and toolbar toggle: the strategy decisions for the shown symbol.
+    static var decisions: LocalizedStringResource {
+      LocalizedStringResource("chart.decisions", defaultValue: "Decisions", bundle: L10n.bundle)
+    }
+    /// Tooltip of the decisions toggle.
+    static var decisionsHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.decisionsHelp", defaultValue: "Show why the strategies entered, watched or skipped this symbol (⌥⌘I)", bundle: L10n.bundle)
+    }
+    /// Decisions inspector is empty.
+    static var noDecisions: LocalizedStringResource {
+      LocalizedStringResource("chart.noDecisions", defaultValue: "No decisions were recorded for this symbol on this day.", bundle: L10n.bundle)
+    }
+    /// Why the decisions read failed.
+    static func decisionsUnavailable(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.decisionsUnavailable", defaultValue: "The bot's API did not return decisions: \(cause)", bundle: L10n.bundle)
+    }
+    /// Badge: an observer (shadow strategy, never trades) made the decision.
+    static var observerTag: LocalizedStringResource {
+      LocalizedStringResource("chart.observerTag", defaultValue: "Observer", bundle: L10n.bundle)
+    }
+    /// A strategy name with its version.
+    static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
+    }
+    /// Planned entry and stop of an ENTER decision.
+    static func entryStop(_ entry: String, _ stop: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.entryStop", defaultValue: "Entry \(entry) · stop \(stop)", bundle: L10n.bundle)
+    }
+    /// VoiceOver and tooltip: a check passed.
+    static var checkPassed: LocalizedStringResource {
+      LocalizedStringResource("chart.checkPassed", defaultValue: "Passed", bundle: L10n.bundle)
+    }
+    /// VoiceOver and tooltip: a check did not pass.
+    static var checkFailed: LocalizedStringResource {
+      LocalizedStringResource("chart.checkFailed", defaultValue: "Not passed", bundle: L10n.bundle)
+    }
   }
   enum Trades {
     /// Card title: the list of recorded days.

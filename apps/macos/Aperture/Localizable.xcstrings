@@ -783,6 +783,40 @@
         }
       }
     },
+    "chart.checkFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not passed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не выполнено"
+          }
+        }
+      }
+    },
+    "chart.checkPassed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполнено"
+          }
+        }
+      }
+    },
     "chart.close": {
       "extractionState": "manual",
       "localizations": {
@@ -796,6 +830,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "З"
+          }
+        }
+      }
+    },
+    "chart.decisions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decisions"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Решения"
+          }
+        }
+      }
+    },
+    "chart.decisionsHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show why the strategies entered, watched or skipped this symbol (⌥⌘I)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать, почему стратегии вошли, наблюдали или пропустили тикер (⌥⌘I)"
+          }
+        }
+      }
+    },
+    "chart.decisionsUnavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bot's API did not return decisions: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API бота не вернул решения: %@"
           }
         }
       }
@@ -830,6 +915,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Вход %@"
+          }
+        }
+      }
+    },
+    "chart.entryStop": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entry %1$@ · stop %2$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вход %1$@ · стоп %2$@"
           }
         }
       }
@@ -970,6 +1072,23 @@
         }
       }
     },
+    "chart.noDecisions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No decisions were recorded for this symbol on this day."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За этот день по тикеру не записано решений."
+          }
+        }
+      }
+    },
     "chart.noSymbols": {
       "extractionState": "manual",
       "localizations": {
@@ -1000,6 +1119,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "За этот день у бота нет открытой позиции, записанных баров или сделок."
+          }
+        }
+      }
+    },
+    "chart.observerTag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Observer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наблюдатель"
           }
         }
       }
@@ -1051,6 +1187,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Стоп %@ не подтверждён"
+          }
+        }
+      }
+    },
+    "chart.strategyVersion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ v%2$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ v%2$@"
           }
         }
       }

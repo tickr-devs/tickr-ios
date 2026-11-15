@@ -33,6 +33,13 @@ enum PreviewAPI {
     model.start()
     return model
   }
+
+  /// The decisions fixture, as the Chart's inspector shows it.
+  static func decisions() -> DecisionsV1? {
+    let url = FixtureProtocol.folder.appendingPathComponent(FixtureProtocol.decisionsFile)
+    guard let data = try? Data(contentsOf: url) else { return nil }
+    return try? JSONDecoder().decode(DecisionsV1.self, from: data)
+  }
 }
 
 /// Answers each API read with its fixture file; anything else is a 404.

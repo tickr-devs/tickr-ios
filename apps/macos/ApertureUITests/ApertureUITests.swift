@@ -26,6 +26,9 @@ final class ApertureUITests: XCTestCase {
   static let observer = "price-action-v1"
   /// The Overview badge for fixture data (overview.fixtures, upper-cased as every badge is).
   static let fixturesBadge = "FIXTURES"
+  /// The Chart's decisions toggle (ChartView.decisionsToggleID) and a rule from decisions-v1.json.
+  static let decisionsToggle = "chart-decisions"
+  static let decisionRule = "ask_above_trigger"
   /// English titles of the standard Window menu and its Zoom item.
   static let windowMenu = "Window"
   static let zoomItem = "Zoom"
@@ -106,6 +109,21 @@ final class ApertureUITests: XCTestCase {
     let app = launch()
     open(Self.sections[0], in: app)
     XCTAssertTrue(app.staticTexts[Self.fixturesBadge].firstMatch.waitForExistence(timeout: Self.timeout))
+  }
+
+  @MainActor
+  func testChartShowsTheDecisions() {
+    let app = launch()
+    open(Self.sections[1], in: app)
+    let toggle = app.descendants(matching: .any)[Self.decisionsToggle].firstMatch
+    XCTAssertTrue(toggle.waitForExistence(timeout: Self.timeout))
+    toggle.click()
+    // A check row reads as one accessibility element, so its rule is part of a longer value.
+    let check = app.staticTexts.matching(NSPredicate(format: "value CONTAINS %@", Self.decisionRule))
+    XCTAssertTrue(check.firstMatch.waitForExistence(timeout: Self.timeout), "decision check\n\(app.debugDescription)")
+    // The open inspector fits beside the chart: nothing is pushed off screen.
+    XCTAssertTrue(app.descendants(matching: .any)[Self.rowPrefix + Self.sections[0]].firstMatch.isHittable,
+      "sidebar pushed off screen\n\(app.debugDescription)")
   }
 
   @MainActor

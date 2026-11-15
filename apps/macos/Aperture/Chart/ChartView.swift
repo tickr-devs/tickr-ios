@@ -15,6 +15,7 @@ struct ChartView: View {
   @AppStorage(Keys.slowEMA) private var showSlowEMA = true
   @AppStorage(Keys.volume) private var showVolume = true
   @AppStorage(Keys.atr) private var showATR = false
+  @AppStorage(Keys.decisions) private var showDecisions = false
 
   /// Settings keys of the chart's choices; Trades sets `symbol` for "Show on Chart".
   enum Keys {
@@ -32,12 +33,18 @@ struct ChartView: View {
     static let volume = "chart.volume"
     /// Whether the ATR pane is shown.
     static let atr = "chart.atr"
+    /// Whether the decisions inspector is shown.
+    static let decisions = "chart.decisions"
   }
 
   /// Width of the symbol picker, in points.
   static let pickerWidth: CGFloat = 150
   /// Height of the separators between control groups, in points.
   static let separatorHeight: CGFloat = 18
+  /// Key equivalent of the decisions inspector (with ⌥⌘), as for inspectors in Apple's apps.
+  static let decisionsKey: KeyEquivalent = "i"
+  /// Accessibility id of the decisions toggle, for the UI tests.
+  static let decisionsToggleID = "chart-decisions"
 
   /// What a read depends on: a change starts a new read and forgets the old bars.
   private struct LoadKey: Equatable {
@@ -54,6 +61,9 @@ struct ChartView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     .padding(Tokens.Space.xl)
+    .inspector(isPresented: $showDecisions) {
+      DecisionsInspector(decisions: chart.decisions, error: chart.decisionsError, hasSymbol: symbol != nil)
+    }
     .task(id: LoadKey(baseURL: model.baseURL, symbol: symbol, day: model.shownDay, live: model.isLive)) {
       await keepLoading()
     }
@@ -82,6 +92,7 @@ struct ChartView: View {
     let live = model.isLive
     repeat {
       await chart.load(baseURL: baseURL, symbol: symbol, day: day)
+      await chart.loadDecisions(baseURL: baseURL, symbol: symbol, day: day)
       guard live else { return }
       try? await Task.sleep(for: .seconds(Pace.barsSeconds))
     } while !Task.isCancelled
@@ -89,65 +100,106 @@ struct ChartView: View {
 
   // MARK: Controls
 
+  /// One row of controls when the chart is wide; two when it is narrow (a small window, or the
+  /// decisions inspector open), so the controls never push the window past the screen.
   private var controls: some View {
-    HStack(spacing: Tokens.Space.m) {
-      Picker(selection: Binding(get: { symbol ?? picked }, set: { picked = $0 })) {
-        ForEach(symbols, id: \.self) { item in
-          Text(verbatim: item).tag(item)
-        }
-      } label: {
-        Text(L10n.Chart.symbol)
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: Tokens.Space.m) {
+        symbolPicker
+        timeframePicker
+        Divider().frame(height: Self.separatorHeight)
+        indicatorToggles
+        Spacer(minLength: Tokens.Space.m)
+        zoomButtons
+        decisionsToggle
       }
-      .frame(width: Self.pickerWidth)
-      .disabled(symbols.isEmpty)
-
-      Picker(selection: $timeframe) {
-        ForEach(Timeframe.allCases) { item in
-          Text(L10n.Chart.timeframe(item.rawValue)).tag(item)
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        HStack(spacing: Tokens.Space.m) {
+          symbolPicker
+          timeframePicker
+          Spacer(minLength: Tokens.Space.m)
+          decisionsToggle
         }
-      } label: {
-        Text(L10n.Chart.timeframeLabel)
+        HStack(spacing: Tokens.Space.m) {
+          indicatorToggles
+          Spacer(minLength: Tokens.Space.m)
+          zoomButtons
+        }
       }
-      .pickerStyle(.segmented)
-      .labelsHidden()
-      .fixedSize()
-      .help(Text(L10n.Chart.timeframeHelp))
-
-      Divider().frame(height: Self.separatorHeight)
-
-      HStack(spacing: Tokens.Space.xs) {
-        Toggle(isOn: $showVWAP) { Text(L10n.Chart.vwap) }
-        Toggle(isOn: $showFastEMA) { Text(L10n.Chart.ema(Indicators.fastEMAPeriod)) }
-        Toggle(isOn: $showSlowEMA) { Text(L10n.Chart.ema(Indicators.slowEMAPeriod)) }
-        Toggle(isOn: $showVolume) { Text(L10n.Chart.volume) }
-        Toggle(isOn: $showATR) { Text(L10n.Chart.atr(Indicators.atrPeriod)) }
-      }
-      .toggleStyle(.button)
-
-      Spacer(minLength: Tokens.Space.m)
-
-      ControlGroup {
-        Button { viewport.zoomOut(total: candleCount) } label: {
-          Label { Text(L10n.Chart.zoomOut) } icon: { Image(systemName: "minus.magnifyingglass") }
-        }
-        .keyboardShortcut(Viewport.zoomOutKey, modifiers: .command)
-        .help(Text(L10n.Chart.zoomOutHelp))
-        .disabled(viewport.visible == nil)
-        Button { viewport.fit() } label: {
-          Label { Text(L10n.Chart.fit) } icon: { Image(systemName: "arrow.left.and.right") }
-        }
-        .keyboardShortcut(Viewport.fitKey, modifiers: .command)
-        .help(Text(L10n.Chart.fitHelp))
-        Button { viewport.zoomIn(total: candleCount) } label: {
-          Label { Text(L10n.Chart.zoomIn) } icon: { Image(systemName: "plus.magnifyingglass") }
-        }
-        .keyboardShortcut(Viewport.zoomInKey, modifiers: .command)
-        .help(Text(L10n.Chart.zoomInHelp))
-      }
-      .labelStyle(.iconOnly)
-      .disabled(candleCount == 0)
     }
     .animation(Tokens.Motion.quick, value: symbols)
+  }
+
+  private var symbolPicker: some View {
+    Picker(selection: Binding(get: { symbol ?? picked }, set: { picked = $0 })) {
+      ForEach(symbols, id: \.self) { item in
+        Text(verbatim: item).tag(item)
+      }
+    } label: {
+      Text(L10n.Chart.symbol)
+    }
+    .frame(width: Self.pickerWidth)
+    .disabled(symbols.isEmpty)
+  }
+
+  private var timeframePicker: some View {
+    Picker(selection: $timeframe) {
+      ForEach(Timeframe.allCases) { item in
+        Text(L10n.Chart.timeframe(item.rawValue)).tag(item)
+      }
+    } label: {
+      Text(L10n.Chart.timeframeLabel)
+    }
+    .pickerStyle(.segmented)
+    .labelsHidden()
+    .fixedSize()
+    .help(Text(L10n.Chart.timeframeHelp))
+  }
+
+  private var indicatorToggles: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      Toggle(isOn: $showVWAP) { Text(L10n.Chart.vwap) }
+      Toggle(isOn: $showFastEMA) { Text(L10n.Chart.ema(Indicators.fastEMAPeriod)) }
+      Toggle(isOn: $showSlowEMA) { Text(L10n.Chart.ema(Indicators.slowEMAPeriod)) }
+      Toggle(isOn: $showVolume) { Text(L10n.Chart.volume) }
+      Toggle(isOn: $showATR) { Text(L10n.Chart.atr(Indicators.atrPeriod)) }
+    }
+    .toggleStyle(.button)
+  }
+
+  private var zoomButtons: some View {
+    ControlGroup {
+      Button { viewport.zoomOut(total: candleCount) } label: {
+        Label { Text(L10n.Chart.zoomOut) } icon: { Image(systemName: "minus.magnifyingglass") }
+      }
+      .keyboardShortcut(Viewport.zoomOutKey, modifiers: .command)
+      .help(Text(L10n.Chart.zoomOutHelp))
+      .disabled(viewport.visible == nil)
+      Button { viewport.fit() } label: {
+        Label { Text(L10n.Chart.fit) } icon: { Image(systemName: "arrow.left.and.right") }
+      }
+      .keyboardShortcut(Viewport.fitKey, modifiers: .command)
+      .help(Text(L10n.Chart.fitHelp))
+      Button { viewport.zoomIn(total: candleCount) } label: {
+        Label { Text(L10n.Chart.zoomIn) } icon: { Image(systemName: "plus.magnifyingglass") }
+      }
+      .keyboardShortcut(Viewport.zoomInKey, modifiers: .command)
+      .help(Text(L10n.Chart.zoomInHelp))
+    }
+    .labelStyle(.iconOnly)
+    .fixedSize()
+    .disabled(candleCount == 0)
+  }
+
+  private var decisionsToggle: some View {
+    Toggle(isOn: $showDecisions) {
+      Label { Text(L10n.Chart.decisions) } icon: { Image(systemName: "sidebar.trailing") }
+    }
+    .toggleStyle(.button)
+    .labelStyle(.iconOnly)
+    .keyboardShortcut(Self.decisionsKey, modifiers: [.command, .option])
+    .help(Text(L10n.Chart.decisionsHelp))
+    .accessibilityIdentifier(Self.decisionsToggleID)
   }
 
   // MARK: Content

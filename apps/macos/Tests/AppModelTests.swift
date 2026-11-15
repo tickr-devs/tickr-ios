@@ -123,6 +123,21 @@ struct AppModelTests {
     #expect(model.accountError != nil)
   }
 
+  @Test("The chart reads a symbol's decisions; a failed read clears them")
+  func chartDecisions() async throws {
+    let chart = ChartModel()
+    let day = try WireDate("2026-11-16")
+    RouteProtocol.routes.withLock { $0.bodies["/decisions"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("decisions-v1.json")) }
+    await chart.loadDecisions(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    #expect(chart.decisions?.decisions.map(\.action) == [.watch, .enter])
+    #expect(chart.decisions?.decisions.last?.observer == true)
+    RouteProtocol.routes.withLock { $0.bodies["/decisions"] = nil }
+    await chart.loadDecisions(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    #expect(chart.decisions == nil)
+    #expect(chart.decisionsError != nil)
+  }
+
   @Test("Positions with a stopped or silent bot are flagged; a fresh running bot is not")
   func unattendedPositions() async throws {
     let cases: [(String, Bool, Unattended?)] = [

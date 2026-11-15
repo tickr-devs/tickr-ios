@@ -61,6 +61,9 @@ struct RootView: View {
       ZStack(alignment: .bottom) {
         ApertureBackground()
         detail
+          // One container element per screen, so its id holds even when the screen's root is a
+          // split (the Chart's inspector) rather than a single view.
+          .accessibilityElement(children: .contain)
           .accessibilityIdentifier(section.screenID)
           .id(section)
           .transition(.opacity.combined(with: .move(edge: .bottom)))
