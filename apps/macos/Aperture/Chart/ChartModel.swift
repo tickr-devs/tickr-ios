@@ -80,7 +80,7 @@ final class ChartModel {
       error = nil
     } catch {
       guard !Task.isCancelled, !(error is CancellationError) else { return }
-      self.error = error.localizedDescription
+      self.error = ErrorText.text(error)
     }
   }
 
@@ -101,7 +101,7 @@ final class ChartModel {
       error = nil
     } catch {
       guard !Task.isCancelled, !(error is CancellationError) else { return }
-      self.error = error.localizedDescription
+      self.error = ErrorText.text(error)
     }
   }
 
@@ -117,7 +117,7 @@ final class ChartModel {
     } catch {
       guard !Task.isCancelled, !(error is CancellationError) else { return }
       decisions = nil
-      decisionsError = error.localizedDescription
+      decisionsError = ErrorText.text(error)
     }
   }
 

@@ -17,4 +17,12 @@ import Testing
     #expect(String(localized: L10n.headlineNoVerifiedStop("ABCD", "missing"))
       == "Position ABCD has no verified stop (missing). ")
   }
+
+  /// An error with a description shows it; one without shows a plain sentence, never Swift's
+  /// debug form of the error.
+  @Test func errorText() {
+    #expect(ErrorText.describe(APIError.unreachable("down")) == "Local API not reachable: down")
+    #expect(ErrorText.describe(CancellationError()) == nil)
+    #expect(ErrorText.text(CancellationError()) == "unexpected error in the app")
+  }
 }

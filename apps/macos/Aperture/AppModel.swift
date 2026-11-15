@@ -378,7 +378,7 @@ public final class AppModel {
         await refreshHistory()
       }
     } catch {
-      fetchError = Self.describe(error)
+      fetchError = Self.describe(error) ?? fetchError
     }
     if settings == nil { await refreshSettings() }
   }
@@ -395,7 +395,7 @@ public final class AppModel {
       settings = try await client.settings()
       settingsError = nil
     } catch {
-      settingsError = Self.describe(error)
+      settingsError = Self.describe(error) ?? settingsError
     }
   }
 
@@ -405,7 +405,7 @@ public final class AppModel {
       todayDocument = try await client.day(today)
       historyError = nil
     } catch {
-      historyError = Self.describe(error)
+      historyError = Self.describe(error) ?? historyError
     }
     await refreshObservers()
     await refreshSkipped()
@@ -430,7 +430,7 @@ public final class AppModel {
     } catch {
       guard url == baseURL else { return }
       labReplay = nil
-      labReplayError = Self.describe(error)
+      labReplayError = Self.describe(error) ?? labReplayError
     }
   }
 
@@ -453,7 +453,7 @@ public final class AppModel {
       labReplayRefusedAt = (labReplay?.state, labReplay?.runId, .now)
     } catch {
       guard url == baseURL else { return }
-      labReplayError = Self.describe(error)
+      labReplayError = Self.describe(error) ?? labReplayError
     }
   }
 
@@ -479,7 +479,7 @@ public final class AppModel {
     } catch {
       guard url == baseURL else { return }
       jobs = nil
-      jobsError = Self.describe(error)
+      jobsError = Self.describe(error) ?? jobsError
     }
   }
 
@@ -500,7 +500,7 @@ public final class AppModel {
     } catch {
       // A failed read never shows an older answer as current.
       account = nil
-      accountError = Self.describe(error)
+      accountError = Self.describe(error) ?? accountError
     }
   }
 
@@ -515,7 +515,7 @@ public final class AppModel {
     } catch {
       guard day == shownDay else { return }
       observers = nil
-      observersError = Self.describe(error)
+      observersError = Self.describe(error) ?? observersError
     }
   }
 
@@ -531,7 +531,7 @@ public final class AppModel {
     } catch {
       guard day == shownDay else { return }
       skipped = nil
-      skippedError = Self.describe(error)
+      skippedError = Self.describe(error) ?? skippedError
     }
   }
 
@@ -547,7 +547,7 @@ public final class AppModel {
     } catch {
       guard day == shownDay else { return }
       performance = nil
-      performanceError = Self.describe(error)
+      performanceError = Self.describe(error) ?? performanceError
     }
   }
 
@@ -563,7 +563,7 @@ public final class AppModel {
     } catch {
       guard day == shownDay else { return }
       flow = nil
-      flowError = Self.describe(error)
+      flowError = Self.describe(error) ?? flowError
     }
     do {
       let document = try await client.watching(day: day)
@@ -573,7 +573,7 @@ public final class AppModel {
     } catch {
       guard day == shownDay else { return }
       watching = nil
-      watchingError = Self.describe(error)
+      watchingError = Self.describe(error) ?? watchingError
     }
   }
 
@@ -603,7 +603,7 @@ public final class AppModel {
     } catch {
       guard day == selectedDay else { return }
       dayDocument = nil
-      historyError = Self.describe(error)
+      historyError = Self.describe(error) ?? historyError
     }
   }
 
@@ -648,7 +648,7 @@ public final class AppModel {
       show(record)
     } catch {
       show(SentCommand(id: UUID().uuidString, kind: command.kind, title: title, outcome: .refused,
-        cause: String(localized: L10n.Bot.notSent(Self.describe(error))), warning: nil))
+        cause: String(localized: L10n.Bot.notSent(ErrorText.text(error))), warning: nil))
     }
     await refreshStatus()
   }
@@ -673,7 +673,9 @@ public final class AppModel {
     }
   }
 
-  static func describe(_ error: Error) -> String {
-    (error as? LocalizedError)?.errorDescription ?? String(describing: error)
+  /// Nil for a cancelled read: callers keep the error they had (`describe(error) ?? old`), so a read
+  /// cancelled by `stop()` never clears a real failure and makes stale data look current.
+  static func describe(_ error: Error) -> String? {
+    ErrorText.describe(error)
   }
 }

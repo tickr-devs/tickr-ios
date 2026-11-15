@@ -440,6 +440,23 @@
         }
       }
     },
+    "kit.error.unexpected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unexpected error in the app"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "непредвиденная ошибка в приложении"
+          }
+        }
+      }
+    },
     "kit.event.done" : {
       "extractionState" : "manual",
       "localizations" : {

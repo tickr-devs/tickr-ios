@@ -79,7 +79,7 @@ final class ActivityModel {
     } catch is CancellationError {
       return
     } catch {
-      if request == latestDaysRequest { daysFailure = error.localizedDescription }
+      if request == latestDaysRequest { daysFailure = ErrorText.text(error) }
     }
   }
 
@@ -114,7 +114,7 @@ final class ActivityModel {
     } catch is CancellationError {
       return
     } catch {
-      if day == skippedDay { skippedFailure = error.localizedDescription }
+      if day == skippedDay { skippedFailure = ErrorText.text(error) }
     }
   }
 
@@ -136,7 +136,7 @@ final class ActivityModel {
     } catch {
       // A cancelled load (a refresh cut short by leaving the tab) fails too, so the day offers
       // a retry instead of a spinner that never ends.
-      if request == latestRequest { phase = .failed(error.localizedDescription) }
+      if request == latestRequest { phase = .failed(ErrorText.text(error)) }
     }
   }
 

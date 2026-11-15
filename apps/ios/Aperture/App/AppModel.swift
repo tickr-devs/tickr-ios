@@ -156,7 +156,7 @@ final class AppModel {
       followBotClock(servedAt: fresh.servedAt.date)
       resolveAwaited(fresh)
     } catch {
-      fetchError = Self.describe(error)
+      fetchError = Self.describe(error) ?? fetchError
       return
     }
     if settings == nil { await refreshSettings(url) }
@@ -191,7 +191,7 @@ final class AppModel {
       // An old snapshot proves nothing about the broker now.
       if connection.url == url {
         account = nil
-        accountError = Self.describe(error)
+        accountError = Self.describe(error) ?? accountError
       }
     }
   }
@@ -219,7 +219,7 @@ final class AppModel {
     } catch {
       if connection.url == url {
         jobs = nil
-        jobsError = Self.describe(error)
+        jobsError = Self.describe(error) ?? jobsError
       }
     }
   }
@@ -251,7 +251,7 @@ final class AppModel {
       // Old counts prove nothing about the day now.
       guard connection.url == url, day == today else { return }
       flow = nil
-      flowError = Self.describe(error)
+      flowError = Self.describe(error) ?? flowError
       flowAnsweredDay = day
     }
     // The refusals only place refused symbols on the board; without them they stay where they
@@ -280,7 +280,7 @@ final class AppModel {
       settings = read
       settingsError = nil
     } catch {
-      if connection.url == url { settingsError = Self.describe(error) }
+      if connection.url == url { settingsError = Self.describe(error) ?? settingsError }
     }
   }
 
@@ -325,7 +325,7 @@ final class AppModel {
         notice = Notice(L10n.Notice.queued(title), tone: .info)
       }
     } catch {
-      notice = Notice(L10n.Notice.failed(title, Self.describe(error)), tone: .failure)
+      notice = Notice(L10n.Notice.failed(title, ErrorText.text(error)), tone: .failure)
     }
     await refresh()
   }
@@ -355,7 +355,9 @@ final class AppModel {
     }
   }
 
-  static func describe(_ error: Error) -> String {
-    (error as? LocalizedError)?.errorDescription ?? String(describing: error)
+  /// Nil for a cancelled read: callers keep the error they had (`describe(error) ?? old`), so a read
+  /// cancelled by `stop()` never clears a real failure and makes stale data look current.
+  static func describe(_ error: Error) -> String? {
+    ErrorText.describe(error)
   }
 }

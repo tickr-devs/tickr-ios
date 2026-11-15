@@ -75,7 +75,7 @@ final class LabModel {
     } catch is CancellationError {
       return
     } catch {
-      if day == refusalsDay { refusalsFailure = error.localizedDescription }
+      if day == refusalsDay { refusalsFailure = ErrorText.text(error) }
     }
   }
 
@@ -90,7 +90,7 @@ final class LabModel {
     } catch is CancellationError {
       return
     } catch {
-      failure = error.localizedDescription
+      failure = ErrorText.text(error)
     }
   }
 
@@ -113,7 +113,7 @@ final class LabModel {
     } catch {
       guard url == replaySource else { return }
       replay = nil
-      replayFailure = AppModel.describe(error)
+      replayFailure = AppModel.describe(error) ?? replayFailure
     }
   }
 
@@ -138,7 +138,7 @@ final class LabModel {
       return
     } catch {
       guard url == replaySource else { return }
-      replayFailure = AppModel.describe(error)
+      replayFailure = AppModel.describe(error) ?? replayFailure
     }
   }
 

@@ -43,7 +43,7 @@ final class WatchingModel {
     } catch is CancellationError {
       return
     } catch {
-      failure = error.localizedDescription
+      failure = ErrorText.text(error)
     }
   }
 }

@@ -183,6 +183,10 @@ enum L10n {
     LocalizedStringResource("kit.api.unreachable", defaultValue: "Local API not reachable: \(detail)",
       bundle: bundle)
   }
+  /// An error that brings no description of its own.
+  static var unexpectedError: LocalizedStringResource {
+    LocalizedStringResource("kit.error.unexpected", defaultValue: "unexpected error in the app", bundle: bundle)
+  }
   /// Contract error detail.
   static var apiNotHTTP: LocalizedStringResource {
     LocalizedStringResource("kit.api.notHTTP", defaultValue: "not an HTTP response", bundle: bundle)

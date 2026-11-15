@@ -76,6 +76,23 @@ public enum APIError: Error, LocalizedError, Equatable {
   }
 }
 
+/// Any error as the apps show it: its own description in the person's language when it has
+/// one (APIError, ContractError), a plain "unexpected error" otherwise; never Swift's English
+/// debug form of the error.
+public enum ErrorText {
+  /// What a failed read shows, or nil for a cancelled one: whoever cancelled it has moved on,
+  /// so it shows nothing.
+  public static func describe(_ error: Error) -> String? {
+    error is CancellationError ? nil : text(error)
+  }
+
+  /// Always a sentence, for a failure the person must see even when it was cancelled (a
+  /// command that may not have been sent).
+  public static func text(_ error: Error) -> String {
+    (error as? LocalizedError)?.errorDescription ?? String(localized: L10n.unexpectedError)
+  }
+}
+
 /// Client for the bot's local API. Stateless; safe to share.
 public struct APIClient: Sendable {
   /// Where the bot's local API listens by default (config/bot.toml `[api]`); the apps' settings
@@ -276,6 +293,8 @@ public struct APIClient: Sendable {
     do {
       (data, response) = try await session.data(for: request)
     } catch {
+      // A cancelled request stays a cancellation, so callers can tell it from a failure.
+      if error is CancellationError || (error as? URLError)?.code == .cancelled { throw CancellationError() }
       throw APIError.unreachable(error.localizedDescription)
     }
     guard let http = response as? HTTPURLResponse else {

@@ -127,7 +127,7 @@ final class ChartModel {
     } catch is CancellationError {
       return
     } catch {
-      if request == latestRequest { phase = .failed(error.localizedDescription) }
+      if request == latestRequest { phase = .failed(ErrorText.text(error)) }
     }
   }
 
@@ -142,7 +142,7 @@ final class ChartModel {
     } catch is CancellationError {
       return
     } catch {
-      if request == latestRequest { phase = .failed(error.localizedDescription) }
+      if request == latestRequest { phase = .failed(ErrorText.text(error)) }
     }
   }
 
@@ -158,7 +158,7 @@ final class ChartModel {
     } catch is CancellationError {
       return
     } catch {
-      phase = .failed(error.localizedDescription)
+      phase = .failed(ErrorText.text(error))
     }
   }
 
@@ -196,7 +196,7 @@ final class ChartModel {
       return
     } catch {
       guard symbol == self.symbol, asked == (range, timeframe) else { return }
-      rangeFailure = error.localizedDescription
+      rangeFailure = ErrorText.text(error)
     }
   }
 
@@ -266,7 +266,7 @@ final class ChartModel {
     } catch {
       guard symbol == self.symbol, day == selectedDay else { return }
       decisions = nil
-      decisionsFailure = error.localizedDescription
+      decisionsFailure = ErrorText.text(error)
       decisionsFor = DecisionsKey(symbol: symbol, day: day)
     }
   }
