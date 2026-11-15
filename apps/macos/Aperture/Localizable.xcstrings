@@ -6954,6 +6954,23 @@
         }
       }
     },
+    "trades.nextMonth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующий месяц"
+          }
+        }
+      }
+    },
     "trades.noBarsHelp" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7001,6 +7018,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "За эти дни закрытых сделок нет."
+          }
+        }
+      }
+    },
+    "trades.noRecords" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No records"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет записей"
           }
         }
       }
@@ -7205,6 +7239,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "API бота не вернул результаты: %@"
+          }
+        }
+      }
+    },
+    "trades.previousMonth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous Month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущий месяц"
           }
         }
       }

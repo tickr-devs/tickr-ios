@@ -69,6 +69,7 @@ private struct DaysColumn: View {
           }
         }
       } else {
+        MonthCalendar()
         DayBars(days: Array(model.days.prefix(Self.shownDays).reversed()), shown: model.shownDay)
           .frame(height: Self.barsHeight)
         ScrollView {

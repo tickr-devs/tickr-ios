@@ -1231,6 +1231,18 @@ enum L10n {
     static var grossNote: LocalizedStringResource {
       LocalizedStringResource("trades.grossNote", defaultValue: "Gross: before fees. 1 R is each trade's planned loss.", bundle: L10n.bundle)
     }
+    /// Calendar button and VoiceOver: show the month before.
+    static var previousMonth: LocalizedStringResource {
+      LocalizedStringResource("trades.previousMonth", defaultValue: "Previous Month", bundle: L10n.bundle)
+    }
+    /// Calendar button and VoiceOver: show the month after.
+    static var nextMonth: LocalizedStringResource {
+      LocalizedStringResource("trades.nextMonth", defaultValue: "Next Month", bundle: L10n.bundle)
+    }
+    /// VoiceOver value of a calendar day the bot did not record.
+    static var noRecords: LocalizedStringResource {
+      LocalizedStringResource("trades.noRecords", defaultValue: "No records", bundle: L10n.bundle)
+    }
     /// Stat card: average result in R.
     static var averageR: LocalizedStringResource {
       LocalizedStringResource("trades.averageR", defaultValue: "Average R", bundle: L10n.bundle)

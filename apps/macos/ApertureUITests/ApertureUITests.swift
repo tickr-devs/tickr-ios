@@ -41,6 +41,10 @@ final class ApertureUITests: XCTestCase {
   /// The Overview's screener chips (ScreenerChips.id) and watching card (WatchingCard.id).
   static let screenerChips = "overview-screener-chips"
   static let watchingCard = "overview-watching"
+  /// The month calendar of Trades & days (MonthCalendar.id).
+  static let calendar = "trades-calendar"
+  /// The fixtures' live day (2026-11-16) as the calendar names it (Format.dayLabel).
+  static let fixtureDayLabel = "Mon, Nov 16"
   /// The Chart's decisions toggle (ChartView.decisionsToggleID) and a rule from decisions-v1.json.
   static let decisionsToggle = "chart-decisions"
   static let decisionRule = "ask_above_trigger"
@@ -185,6 +189,17 @@ final class ApertureUITests: XCTestCase {
     let watching = app.descendants(matching: .any)[Self.watchingCard].firstMatch
     let check = watching.staticTexts.matching(NSPredicate(format: "value BEGINSWITH %@", Self.decisionRule))
     XCTAssertTrue(check.firstMatch.waitForExistence(timeout: Self.timeout), "watched symbol\n\(app.debugDescription)")
+  }
+
+  @MainActor
+  func testTradesShowTheMonthCalendar() {
+    let app = launch()
+    open(Self.sections[2], in: app)
+    let calendar = app.descendants(matching: .any)[Self.calendar].firstMatch
+    XCTAssertTrue(calendar.waitForExistence(timeout: Self.timeout), "calendar\n\(app.debugDescription)")
+    // The fixture's live day is a cell of the month grid, named by its date.
+    XCTAssertTrue(calendar.buttons[Self.fixtureDayLabel].waitForExistence(timeout: Self.timeout),
+      "calendar day\n\(app.debugDescription)")
   }
 
   @MainActor
