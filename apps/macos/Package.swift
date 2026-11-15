@@ -15,6 +15,9 @@ let package = Package(
   ],
   dependencies: [
     .package(name: "ApertureShared", path: "../shared"),
+    // Only for the tests' FactoryTesting (the .container trait); the same pinned release as
+    // apps/shared/Package.swift, which the app takes FactoryKit from.
+    .package(url: "https://github.com/hmlongco/Factory.git", exact: "3.5.3"),
   ],
   targets: [
     .executableTarget(
@@ -35,7 +38,7 @@ let package = Package(
     // Swift Testing tests of the screens' logic (zoom, marks, levels, scales), run by `swift test`.
     .testTarget(
       name: "ApertureMacTests",
-      dependencies: ["ApertureMac"],
+      dependencies: ["ApertureMac", .product(name: "FactoryTesting", package: "Factory")],
       path: "Tests",
       swiftSettings: [
         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),

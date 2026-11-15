@@ -98,6 +98,21 @@ final class StubProtocol: URLProtocol {
     #expect(request.url?.absoluteString == "http://127.0.0.1:8766/status")
   }
 
+  @Test func newReadsUseTheirPaths() async throws {
+    let day = try WireDate("2026-11-16")
+    StubProtocol.answer = try (200, fixture("account-response-v1.json"))
+    _ = try await client.account()
+    StubProtocol.answer = try (200, fixture("observers-v1.json"))
+    _ = try await client.observers(day: day)
+    StubProtocol.answer = try (200, fixture("decisions-v1.json"))
+    _ = try await client.decisions(symbol: "ABCD", day: day)
+    #expect(StubProtocol.seen.map { $0.url?.absoluteString } == [
+      "http://127.0.0.1:8766/account",
+      "http://127.0.0.1:8766/observers?date=2026-11-16",
+      "http://127.0.0.1:8766/decisions?symbol=ABCD&date=2026-11-16",
+    ])
+  }
+
   @Test func commandsSendExactBodies() async throws {
     StubProtocol.answer = try (202, fixture("command-accepted-v1.json"))
     let cases: [(OperatorCommand, String, [String: String])] = [

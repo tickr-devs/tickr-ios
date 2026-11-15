@@ -12,6 +12,8 @@ enum Pace {
   static let historySeconds: Double = 30
   /// Bars of the open positions (one new M1 bar a minute).
   static let barsSeconds: Double = 15
+  /// The broker account read the bot keeps (GET /account); the API serves the bot's last read.
+  static let accountSeconds: Double = 15
   /// How long a command toast stays on screen.
   static let toastSeconds: Double = 6
 }
@@ -26,7 +28,7 @@ public struct SentCommand: Identifiable, Equatable, Sendable {
   public var warning: String?
 }
 
-/// One open position as the app shows it (v1 status carries 0 or 1; the UI is built for a list).
+/// One open position as the app shows it, one row per position in the bot's status.
 public struct PositionRow: Identifiable, Equatable, Sendable {
   public let position: Position
   /// Close of the latest captured M1 bar, with its start time; nil until bars arrive.
@@ -62,6 +64,9 @@ public final class AppModel {
   public private(set) var fetchError: String?
   public private(set) var settings: SettingsV1?
   public private(set) var settingsError: String?
+  /// The broker's view of the account at the bot's last read; nil until read.
+  public private(set) var account: AccountResponseV1?
+  public private(set) var accountError: String?
 
   // Navigation (the sidebar selection lives here so any card can jump to a section).
   var section: AppSection = .overview
@@ -73,6 +78,9 @@ public final class AppModel {
   public var selectedDay: WireDate? { didSet { if oldValue != selectedDay { Task { await loadSelectedDay() } } } }
   public private(set) var dayDocument: DayV1?
   public private(set) var todayDocument: DayV1?
+  /// Observers with their decisions on the shown day; nil until read.
+  public private(set) var observers: ObserversV1?
+  public private(set) var observersError: String?
 
   // Positions with their latest bars.
   private var barsBySymbol: [String: BarsV1] = [:]
@@ -103,14 +111,20 @@ public final class AppModel {
   }
 
   public var positions: [PositionRow] {
-    guard isLive, let position = status?.position else { return [] }
-    let since = position.openedAt.date.addingTimeInterval(-Self.barSeconds)
-    let bars = barsBySymbol[position.symbol]?.bars.filter { $0.start.date >= since } ?? []
-    let last = barsBySymbol[position.symbol]?.bars.last
-    let fresh = last.map { barIsFresh(start: $0.start.date, now: now()) } ?? false
-    return [PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
-      closes: bars.map(\.close.value))]
+    guard isLive, let status else { return [] }
+    return status.positions.map { position in
+      let since = position.openedAt.date.addingTimeInterval(-Self.barSeconds)
+      let bars = barsBySymbol[position.symbol]?.bars.filter { $0.start.date >= since } ?? []
+      let last = barsBySymbol[position.symbol]?.bars.last
+      let fresh = last.map { barIsFresh(start: $0.start.date, now: now()) } ?? false
+      return PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
+        closes: bars.map(\.close.value))
+    }
   }
+
+  /// What is left of today's daily loss limit after realized losses and open reservations, as
+  /// the bot computes it; nil while the status is unknown or the bot cannot compute it.
+  public var dailyRoom: Decimal? { status?.dailyRoomUsd?.value }
 
   /// A captured M1 bar is fresh while its close (start + one minute) is no older than the
   /// server's `status_stale_seconds`. Without settings nothing counts as fresh.
@@ -194,6 +208,13 @@ public final class AppModel {
         try? await Task.sleep(for: .seconds(Pace.barsSeconds))
       }
     })
+    tasks.append(Task { [weak self] in
+      while !Task.isCancelled {
+        guard let self else { return }
+        await self.refreshAccount()
+        try? await Task.sleep(for: .seconds(Pace.accountSeconds))
+      }
+    })
   }
 
   public func stop() {
@@ -212,9 +233,12 @@ public final class AppModel {
     dayDocument = nil
     todayDocument = nil
     barsBySymbol = [:]
+    account = nil
+    observers = nil
     Task {
       await refreshStatus()
       await refreshHistory()
+      await refreshAccount()
     }
   }
 
@@ -253,9 +277,38 @@ public final class AppModel {
     } catch {
       historyError = Self.describe(error)
     }
+    await refreshObservers()
+  }
+
+  public func refreshAccount() async {
+    do {
+      account = try await client.account()
+      accountError = nil
+    } catch {
+      // A failed read never shows an older answer as current.
+      account = nil
+      accountError = Self.describe(error)
+    }
+  }
+
+  /// Observers of the shown day. An answer for a day no longer shown is dropped.
+  public func refreshObservers() async {
+    let day = shownDay
+    do {
+      let document = try await client.observers(day: day)
+      guard day == shownDay else { return }
+      observers = document
+      observersError = nil
+    } catch {
+      guard day == shownDay else { return }
+      observers = nil
+      observersError = Self.describe(error)
+    }
   }
 
   private func loadSelectedDay() async {
+    observers = nil
+    await refreshObservers()
     guard let day = selectedDay, day != today else {
       dayDocument = nil
       return
@@ -273,13 +326,17 @@ public final class AppModel {
   }
 
   public func refreshPositionBars() async {
-    guard let symbol = status?.position?.symbol else { return }
-    do {
-      barsBySymbol[symbol] = try await client.bars(symbol: symbol, day: today)
-    } catch {
-      // The position still shows its entry and stop; only "last" stays empty.
-      barsBySymbol[symbol] = nil
+    let symbols = status?.positions.map(\.symbol) ?? []
+    for symbol in symbols {
+      do {
+        barsBySymbol[symbol] = try await client.bars(symbol: symbol, day: today)
+      } catch {
+        // The position still shows its entry and stop; only "last" stays empty.
+        barsBySymbol[symbol] = nil
+      }
     }
+    // Bars of closed positions are not kept.
+    barsBySymbol = barsBySymbol.filter { symbols.contains($0.key) }
   }
 
   // MARK: day navigation

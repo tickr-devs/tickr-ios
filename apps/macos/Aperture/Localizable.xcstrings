@@ -1922,6 +1922,40 @@
         }
       }
     },
+    "lab.decisionCount": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld decisions"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "решений: %lld"
+          }
+        }
+      }
+    },
+    "lab.lastDecision": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last: %1$@ %2$@ at %3$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Последнее: %1$@ %2$@ в %3$@"
+          }
+        }
+      }
+    },
     "lab.observers": {
       "extractionState": "manual",
       "localizations": {
@@ -1939,6 +1973,23 @@
         }
       }
     },
+    "lab.observersEmpty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No observer strategies configured."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наблюдатели не настроены."
+          }
+        }
+      }
+    },
     "lab.observersNote": {
       "extractionState": "manual",
       "localizations": {
@@ -1952,6 +2003,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Теневые версии получают те же данные в реальном времени и записывают свои решения, не торгуя."
+          }
+        }
+      }
+    },
+    "lab.observersUnavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Observers are unavailable; the bot's API did not answer."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наблюдатели недоступны: API бота не ответил."
           }
         }
       }
@@ -2003,6 +2071,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Повтор записанного дня: пропущенные сигналы так, будто бот вошёл, или весь день с другой стратегией."
+          }
+        }
+      }
+    },
+    "lab.resultPending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Result not computed yet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Результат пока не считается"
           }
         }
       }
@@ -2071,6 +2156,91 @@
           "stringUnit": {
             "state": "translated",
             "value": "Стратегии — сменные модули: активная задаётся в конфиге бота и никогда не ослабляет риск платформы."
+          }
+        }
+      }
+    },
+    "lab.verdictEnter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "enter"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "вход"
+          }
+        }
+      }
+    },
+    "lab.verdictExit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exit"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "выход"
+          }
+        }
+      }
+    },
+    "lab.verdictHold": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hold"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "удержание"
+          }
+        }
+      }
+    },
+    "lab.verdictIgnore": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ignore"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "пропуск"
+          }
+        }
+      }
+    },
+    "lab.verdictWatch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "watch"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "наблюдение"
           }
         }
       }
@@ -2241,23 +2411,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Стратегии-наблюдатели не настроены."
-          }
-        }
-      }
-    },
-    "observers.notInAPI": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Observer results are not in the local API yet."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Результатов наблюдателей пока нет в локальном API."
           }
         }
       }
@@ -2891,19 +3044,36 @@
         }
       }
     },
-    "risk.accountNote": {
+    "risk.accountReading": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shown once the bot's API serves the broker's account read."
+            "value": "Reading the account…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Появится, когда API бота начнёт отдавать данные счёта от брокера."
+            "value": "Чтение счёта…"
+          }
+        }
+      }
+    },
+    "risk.accountUnavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account read is unavailable; the bot's API did not answer it."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Данные счёта недоступны: API бота не ответил."
           }
         }
       }
@@ -2921,6 +3091,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "РАЗРЕШЕНЫ"
+          }
+        }
+      }
+    },
+    "risk.balanceNote": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bot does not read equity and buying power from the broker yet."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бот пока не читает у брокера капитал и покупательную способность."
           }
         }
       }
@@ -3220,13 +3407,47 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profits offset losses but never raise the room above the limit. Near the limit the bot sizes trades down to the room left; with almost no room it stops entering."
+            "value": "Profits offset losses but never raise the room above the limit. Open reservations, the worst case of entries in flight, count against it. Near the limit the bot sizes trades down to the room left; below the minimum room it stops entering."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прибыль компенсирует убытки, но не поднимает запас выше лимита. У лимита бот уменьшает размер сделки до оставшегося запаса, а когда запаса почти нет, перестаёт входить."
+            "value": "Прибыль компенсирует убытки, но не поднимает запас выше лимита. Открытые резервы (худший случай для входов в процессе) тоже вычитаются. У лимита бот уменьшает размер сделки до оставшегося запаса, а ниже минимального запаса перестаёт входить."
+          }
+        }
+      }
+    },
+    "risk.matches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MATCHES"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СОВПАДАЕТ"
+          }
+        }
+      }
+    },
+    "risk.minRoom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No entries below room of"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без входов при запасе меньше"
           }
         }
       }
@@ -3248,6 +3469,23 @@
         }
       }
     },
+    "risk.mismatch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MISMATCH"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "РАСХОЖДЕНИЕ"
+          }
+        }
+      }
+    },
     "risk.noFences": {
       "extractionState": "manual",
       "localizations": {
@@ -3261,6 +3499,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ограждений нет: бот не видит причин блокировать входы."
+          }
+        }
+      }
+    },
+    "risk.none": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет"
+          }
+        }
+      }
+    },
+    "risk.notOurs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOT OURS"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "НЕ НАШ"
           }
         }
       }
@@ -3350,19 +3622,53 @@
         }
       }
     },
-    "risk.reservationsExcluded": {
+    "risk.readAt": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open reservations not counted yet"
+            "value": "Broker read at %1$@ · %2$@ s ago"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Открытые резервы пока не учтены"
+            "value": "Чтение брокера в %1$@ · %2$@ с назад"
+          }
+        }
+      }
+    },
+    "risk.realizedLoss": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Realized loss today"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Реализованный убыток за день"
+          }
+        }
+      }
+    },
+    "risk.reservations": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open reservations"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открытые резервы"
           }
         }
       }
@@ -3397,6 +3703,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Осталось сегодня"
+          }
+        }
+      }
+    },
+    "risk.roomNotReported": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bot did not report the room left."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бот не сообщил оставшийся запас."
           }
         }
       }
@@ -3448,6 +3771,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Настройки недоступны: API бота не ответил."
+          }
+        }
+      }
+    },
+    "risk.stale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STALE"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "УСТАРЕЛО"
           }
         }
       }

@@ -62,23 +62,74 @@ private struct ActiveStrategyCard: View {
   }
 }
 
-/// Observer strategies: shadow versions that see the same data and never trade.
+/// Observer strategies: shadow versions that see the same data and never trade, with what they
+/// decided on the shown day.
 private struct ObserversCard: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    Card(L10n.Lab.observers, trailing: { PlannedTag(.backlog) }) {
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        if let observers = model.settings?.observers, !observers.isEmpty {
-          ForEach(observers, id: \.self) { name in
-            HStack(spacing: Tokens.Space.s) {
-              Image(systemName: "eye").foregroundStyle(Palette.textQuaternary)
-              Text(verbatim: name).font(Tokens.Typography.calloutMono)
-            }
+    Card(L10n.Lab.observers) {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        if let observers = model.observers?.observers {
+          if observers.isEmpty {
+            Footnote(L10n.Lab.observersEmpty)
           }
+          ForEach(observers, id: \.self) { observer in
+            ObserverRow(observer: observer, live: model.isLive)
+              .transition(.opacity)
+          }
+        } else if model.observersError != nil {
+          Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
         }
         Footnote(L10n.Lab.observersNote)
       }
+      .animation(Tokens.Motion.standard, value: model.observers)
+    }
+  }
+}
+
+/// One observer: name and version, how many decisions it made, the latest one and its result.
+struct ObserverRow: View {
+  let observer: ObserverV1
+  let live: Bool
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      HStack(spacing: Tokens.Space.s) {
+        PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: live)
+        Text(verbatim: observer.name).font(Tokens.Typography.calloutMono)
+        Badge(verbatim: observer.version, color: Palette.accentText)
+        Spacer()
+        if let result = observer.resultGrossUSD {
+          MoneyText(value: result.value, usd: true, font: Tokens.Typography.calloutMono)
+        } else {
+          Text(verbatim: Format.missing)
+            .foregroundStyle(Palette.textQuaternary)
+            .help(Text(L10n.Lab.resultPending))
+        }
+      }
+      HStack(spacing: Tokens.Space.s) {
+        Text(L10n.Lab.decisionCount(observer.decisions.count))
+        if let last = observer.decisions.last {
+          Text(L10n.Lab.lastDecision(String(localized: last.action.title), last.symbol,
+            Format.marketMinute(last.at.date)))
+        }
+      }
+      .font(Tokens.Typography.captionMono)
+      .foregroundStyle(Palette.textTertiary)
+    }
+  }
+}
+
+extension Verdict {
+  /// The decision as the app names it.
+  var title: LocalizedStringResource {
+    switch self {
+    case .ignore: L10n.Lab.verdictIgnore
+    case .watch: L10n.Lab.verdictWatch
+    case .enter: L10n.Lab.verdictEnter
+    case .hold: L10n.Lab.verdictHold
+    case .exit: L10n.Lab.verdictExit
     }
   }
 }

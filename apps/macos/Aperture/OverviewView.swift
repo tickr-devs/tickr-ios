@@ -785,10 +785,15 @@ private struct RiskRoomCard: View {
     } content: {
       if let risk = model.settings?.risk {
         let limit = risk.maxDailyLossUsd.value
-        let room = DailyRoom.left(limit: limit, netResult: model.shownResult)
-        let fraction = limit > 0 ? NSDecimalNumber(decimal: room / limit).doubleValue : 0
+        // The bot's own room for today; the app never computes one the bot did not report.
+        let room = model.dailyRoom
+        let fraction = room.map { limit > 0 ? NSDecimalNumber(decimal: $0 / limit).doubleValue : 0 } ?? 0
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          MoneyText(value: room, font: Tokens.Typography.metric, colored: false)
+          if let room {
+            MoneyText(value: room, font: Tokens.Typography.metric, colored: false)
+          } else {
+            Text(verbatim: Format.missing).font(Tokens.Typography.metric).foregroundStyle(Palette.textQuaternary)
+          }
           Text(L10n.RiskRoom.left(Money.plain(limit))).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
         }
         bar(fraction: fraction)
@@ -797,11 +802,8 @@ private struct RiskRoomCard: View {
           StatLine(L10n.RiskRoom.positions, value: String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions)))
           StatLine(L10n.RiskRoom.plannedLoss, value: Money.plain(risk.plannedLossUsd.value))
           StatLine(L10n.RiskRoom.notionalCap, value: Money.plain(risk.positionNotionalCapUsd.value))
-          HStack {
-            Text(L10n.RiskRoom.reservations).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-            Spacer()
-            PlannedTag(.needsAPI)
-          }
+          StatLine(L10n.RiskRoom.reservations,
+            value: model.status?.openReservationsUsd.map { Money.plain($0.value) } ?? Format.missing)
         }
       } else if let error = model.settingsError {
         Footnote(verbatim: error)
@@ -832,22 +834,17 @@ private struct ObserversCard: View {
 
   var body: some View {
     Card(L10n.Observers.title) {
-      PlannedTag()
+      Button(String(localized: L10n.RiskRoom.details)) { model.section = .lab }.buttonStyle(.link)
     } content: {
-      let observers = model.settings?.observers ?? []
-      if observers.isEmpty {
-        Text(L10n.Observers.none).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-      } else {
-        ForEach(observers, id: \.self) { name in
-          HStack {
-            PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: model.isLive)
-            Text(verbatim: name).font(Tokens.Typography.calloutMono)
-            Spacer()
-            Text(verbatim: Format.missing)
-              .foregroundStyle(Palette.textQuaternary)
-              .help(Text(L10n.Observers.notInAPI))
-          }
+      if let observers = model.observers?.observers {
+        if observers.isEmpty {
+          Text(L10n.Observers.none).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
         }
+        ForEach(observers, id: \.self) { observer in
+          ObserverRow(observer: observer, live: model.isLive)
+        }
+      } else if model.observersError != nil {
+        Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
       }
       HStack(spacing: Tokens.Space.s) {
         Image(systemName: AppSection.labSymbol).foregroundStyle(Palette.highlightText)

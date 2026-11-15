@@ -600,11 +600,6 @@ enum L10n {
     static var none: LocalizedStringResource {
       LocalizedStringResource("observers.none", defaultValue: "No observer strategies configured.", bundle: L10n.bundle)
     }
-    static var notInAPI: LocalizedStringResource {
-      LocalizedStringResource("observers.notInAPI",
-        defaultValue: "Observer results are not in the local API yet.",
-        bundle: L10n.bundle)
-    }
     static var advisor: LocalizedStringResource {
       LocalizedStringResource("observers.advisor", defaultValue: "AI advisor proposals", bundle: L10n.bundle)
     }
@@ -1109,11 +1104,23 @@ enum L10n {
     }
     /// How the daily limit works.
     static var lossRoomNote: LocalizedStringResource {
-      LocalizedStringResource("risk.lossRoomNote", defaultValue: "Profits offset losses but never raise the room above the limit. Near the limit the bot sizes trades down to the room left; with almost no room it stops entering.", bundle: L10n.bundle)
+      LocalizedStringResource("risk.lossRoomNote", defaultValue: "Profits offset losses but never raise the room above the limit. Open reservations, the worst case of entries in flight, count against it. Near the limit the bot sizes trades down to the room left; below the minimum room it stops entering.", bundle: L10n.bundle)
     }
-    /// The room shown is before open reservations.
-    static var reservationsExcluded: LocalizedStringResource {
-      LocalizedStringResource("risk.reservationsExcluded", defaultValue: "Open reservations not counted yet", bundle: L10n.bundle)
+    /// Loss counted against the daily limit so far.
+    static var realizedLoss: LocalizedStringResource {
+      LocalizedStringResource("risk.realizedLoss", defaultValue: "Realized loss today", bundle: L10n.bundle)
+    }
+    /// Worst-case loss reserved by entries in flight.
+    static var reservations: LocalizedStringResource {
+      LocalizedStringResource("risk.reservations", defaultValue: "Open reservations", bundle: L10n.bundle)
+    }
+    /// The status has no daily room value.
+    static var roomNotReported: LocalizedStringResource {
+      LocalizedStringResource("risk.roomNotReported", defaultValue: "The bot did not report the room left.", bundle: L10n.bundle)
+    }
+    /// Configured minimum daily room for an entry.
+    static var minRoom: LocalizedStringResource {
+      LocalizedStringResource("risk.minRoom", defaultValue: "No entries below room of", bundle: L10n.bundle)
     }
     /// Entry gate when the status is unknown.
     static var statusUnknown: LocalizedStringResource {
@@ -1231,9 +1238,41 @@ enum L10n {
     static var brokerOrders: LocalizedStringResource {
       LocalizedStringResource("risk.brokerOrders", defaultValue: "Broker orders", bundle: L10n.bundle)
     }
-    /// Why the account card is empty.
-    static var accountNote: LocalizedStringResource {
-      LocalizedStringResource("risk.accountNote", defaultValue: "Shown once the bot's API serves the broker's account read.", bundle: L10n.bundle)
+    /// Why equity and buying power are empty.
+    static var balanceNote: LocalizedStringResource {
+      LocalizedStringResource("risk.balanceNote", defaultValue: "The bot does not read equity and buying power from the broker yet.", bundle: L10n.bundle)
+    }
+    /// Badge: the broker's view matches the bot's records.
+    static var matches: LocalizedStringResource {
+      LocalizedStringResource("risk.matches", defaultValue: "MATCHES", bundle: L10n.bundle)
+    }
+    /// Badge: the broker's view differs from the bot's records.
+    static var mismatch: LocalizedStringResource {
+      LocalizedStringResource("risk.mismatch", defaultValue: "MISMATCH", bundle: L10n.bundle)
+    }
+    /// Badge: the account read is older than the API allows.
+    static var stale: LocalizedStringResource {
+      LocalizedStringResource("risk.stale", defaultValue: "STALE", bundle: L10n.bundle)
+    }
+    /// When the bot last read the broker (New York time) and how long ago.
+    static func readAt(_ time: String, _ age: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.readAt", defaultValue: "Broker read at \(time) · \(age) s ago", bundle: L10n.bundle)
+    }
+    /// An empty list of broker positions or orders.
+    static var none: LocalizedStringResource {
+      LocalizedStringResource("risk.none", defaultValue: "None", bundle: L10n.bundle)
+    }
+    /// Badge: a broker order or position the bot did not place.
+    static var notOurs: LocalizedStringResource {
+      LocalizedStringResource("risk.notOurs", defaultValue: "NOT OURS", bundle: L10n.bundle)
+    }
+    /// The account read failed.
+    static var accountUnavailable: LocalizedStringResource {
+      LocalizedStringResource("risk.accountUnavailable", defaultValue: "The account read is unavailable; the bot's API did not answer it.", bundle: L10n.bundle)
+    }
+    /// Before the first account answer.
+    static var accountReading: LocalizedStringResource {
+      LocalizedStringResource("risk.accountReading", defaultValue: "Reading the account…", bundle: L10n.bundle)
     }
   }
   enum Lab {
@@ -1260,6 +1299,46 @@ enum L10n {
     /// Card title: shadow strategies.
     static var observers: LocalizedStringResource {
       LocalizedStringResource("lab.observers", defaultValue: "Observers", bundle: L10n.bundle)
+    }
+    /// No observers in the config.
+    static var observersEmpty: LocalizedStringResource {
+      LocalizedStringResource("lab.observersEmpty", defaultValue: "No observer strategies configured.", bundle: L10n.bundle)
+    }
+    /// The observers read failed.
+    static var observersUnavailable: LocalizedStringResource {
+      LocalizedStringResource("lab.observersUnavailable", defaultValue: "Observers are unavailable; the bot's API did not answer.", bundle: L10n.bundle)
+    }
+    /// How many decisions an observer recorded on the shown day.
+    static func decisionCount(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.decisionCount", defaultValue: "\(count) decisions", bundle: L10n.bundle)
+    }
+    /// An observer's latest decision (New York time).
+    static func lastDecision(_ action: String, _ symbol: String, _ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.lastDecision", defaultValue: "Last: \(action) \(symbol) at \(time)", bundle: L10n.bundle)
+    }
+    /// An observer's hypothetical result is not served yet.
+    static var resultPending: LocalizedStringResource {
+      LocalizedStringResource("lab.resultPending", defaultValue: "Result not computed yet", bundle: L10n.bundle)
+    }
+    /// Decision: ignore the symbol.
+    static var verdictIgnore: LocalizedStringResource {
+      LocalizedStringResource("lab.verdictIgnore", defaultValue: "ignore", bundle: L10n.bundle)
+    }
+    /// Decision: watch the symbol.
+    static var verdictWatch: LocalizedStringResource {
+      LocalizedStringResource("lab.verdictWatch", defaultValue: "watch", bundle: L10n.bundle)
+    }
+    /// Decision: enter.
+    static var verdictEnter: LocalizedStringResource {
+      LocalizedStringResource("lab.verdictEnter", defaultValue: "enter", bundle: L10n.bundle)
+    }
+    /// Decision: hold the position.
+    static var verdictHold: LocalizedStringResource {
+      LocalizedStringResource("lab.verdictHold", defaultValue: "hold", bundle: L10n.bundle)
+    }
+    /// Decision: exit.
+    static var verdictExit: LocalizedStringResource {
+      LocalizedStringResource("lab.verdictExit", defaultValue: "exit", bundle: L10n.bundle)
     }
     /// What observers do.
     static var observersNote: LocalizedStringResource {

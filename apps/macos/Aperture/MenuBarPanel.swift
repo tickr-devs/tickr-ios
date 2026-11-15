@@ -89,10 +89,10 @@ private struct TodayResult: View {
     let results = status.tradesToday.map(\.resultGrossUsd.value)
     let wins = results.filter { $0 > 0 }.count
     let losses = results.filter { $0 < 0 }.count
-    guard let limit = model.settings?.risk.maxDailyLossUsd.value else {
+    // The room is the bot's own number; without it (or the limit) the line shows trades only.
+    guard let limit = model.settings?.risk.maxDailyLossUsd.value, let room = status.dailyRoomUsd?.value else {
       return L10n.MenuBar.trades(results.count, wins, losses)
     }
-    let room = DailyRoom.left(limit: limit, netResult: status.resultTodayGrossUsd.value)
     return L10n.MenuBar.tradesAndRoom(results.count, wins, losses, Money.plain(room), Money.plain(limit))
   }
 

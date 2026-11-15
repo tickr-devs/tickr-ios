@@ -91,6 +91,9 @@ public struct APIClient: Sendable {
   static let settingsPath = "/settings"
   static let daysPath = "/days"
   static let barsPath = "/bars"
+  static let accountPath = "/account"
+  static let observersPath = "/observers"
+  static let decisionsPath = "/decisions"
   /// Query item names of the bars read.
   static let symbolQuery = "symbol"
   static let dateQuery = "date"
@@ -120,6 +123,25 @@ public struct APIClient: Sendable {
 
   public func status() async throws -> StatusResponseV1 {
     try await perform(request(path: Self.statusPath, body: nil), expect: Self.ok)
+  }
+
+  /// The broker's positions and open orders at the bot's last read, and whether they matched
+  /// its records.
+  public func account() async throws -> AccountResponseV1 {
+    try await perform(request(path: Self.accountPath, body: nil), expect: Self.ok)
+  }
+
+  /// Every configured observer with its decisions recorded on `day`, oldest first.
+  public func observers(day: WireDate) async throws -> ObserversV1 {
+    try await perform(request(path: Self.observersPath, query: [(Self.dateQuery, day.text)], body: nil),
+      expect: Self.ok)
+  }
+
+  /// Every decision recorded for `symbol` on `day` (active strategy and observers), with checks.
+  public func decisions(symbol: String, day: WireDate) async throws -> DecisionsV1 {
+    try await perform(request(path: Self.decisionsPath, query: [(Self.symbolQuery, symbol), (Self.dateQuery, day.text)],
+      body: nil),
+      expect: Self.ok)
   }
 
   public func pendingCommands() async throws -> PendingCommandsV1 {

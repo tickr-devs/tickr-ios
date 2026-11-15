@@ -44,6 +44,12 @@ final class FixtureProtocol: URLProtocol {
   static let barsFile = "bars-v1.json"
   static let pendingPath = "/commands/pending"
   static let pendingFile = "pending-commands-v1.json"
+  static let accountPath = "/account"
+  static let accountFile = "account-response-v1.json"
+  static let observersPath = "/observers"
+  static let observersFile = "observers-v1.json"
+  static let decisionsPath = "/decisions"
+  static let decisionsFile = "decisions-v1.json"
   /// HTTP status codes, version and the JSON content type of an answer.
   static let ok = 200
   static let notFound = 404
@@ -66,6 +72,9 @@ final class FixtureProtocol: URLProtocol {
     case daysPath: return daysFile
     case barsPath: return barsFile
     case pendingPath: return pendingFile
+    case accountPath: return accountFile
+    case observersPath: return observersFile
+    case decisionsPath: return decisionsFile
     default: return path.hasPrefix(daysPath + "/") ? dayFile : nil
     }
   }
@@ -74,7 +83,10 @@ final class FixtureProtocol: URLProtocol {
   override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
 
   override func startLoading() {
-    guard let url = request.url else { return }
+    guard let url = request.url else {
+      client?.urlProtocol(self, didFailWithError: URLError(.badURL))
+      return
+    }
     let data = Self.file(for: url.path()).flatMap { try? Data(contentsOf: Self.folder.appendingPathComponent($0)) }
     let code = data == nil ? Self.notFound : Self.ok
     if let response = HTTPURLResponse(url: url, statusCode: code, httpVersion: Self.httpVersion,

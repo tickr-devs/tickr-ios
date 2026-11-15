@@ -33,7 +33,8 @@ struct RiskView: View {
   }
 }
 
-/// The daily loss limit as a ring: the net day result (profits offset losses) against the limit.
+/// The daily loss limit as a ring: the room the bot reports after the net day result (profits
+/// offset losses) and open reservations, against the limit.
 private struct LossRoomCard: View {
   @Environment(AppModel.self) private var model
 
@@ -46,10 +47,8 @@ private struct LossRoomCard: View {
   private var limit: Decimal? { model.settings?.risk.maxDailyLossUsd.value }
   /// Today's net result; nil while the bot's status is unknown. The limit counts the live day only.
   private var result: Decimal? { model.status?.resultTodayGrossUsd.value }
-  private var room: Decimal? {
-    guard let limit, let result else { return nil }
-    return DailyRoom.left(limit: limit, netResult: result)
-  }
+  /// The bot's own number; the app never computes a room the bot did not report.
+  private var room: Decimal? { model.dailyRoom }
 
   private var fraction: Double {
     guard let limit, let room, limit > 0 else { return 0 }
@@ -70,6 +69,7 @@ private struct LossRoomCard: View {
           VStack(spacing: Tokens.Space.xxs) {
             if let room {
               MoneyText(value: room, usd: true, font: Tokens.Typography.hero, colored: false)
+                .contentTransition(.numericText())
             } else {
               Text(verbatim: Format.missing).font(Tokens.Typography.hero)
             }
@@ -84,17 +84,22 @@ private struct LossRoomCard: View {
           StatLine(
             L10n.Risk.resultToday, value: result.map(Money.signedUSD) ?? Format.missing,
             color: result.map(Palette.result) ?? Palette.textQuaternary)
-          HStack {
-            Text(L10n.Risk.reservationsExcluded)
-              .font(Tokens.Typography.callout)
-              .foregroundStyle(Palette.textTertiary)
-            Spacer()
-            PlannedTag(.needsAPI)
-          }
+          StatLine(L10n.Risk.realizedLoss, value: amount(model.status?.realizedLossTodayUsd))
+          StatLine(L10n.Risk.reservations, value: amount(model.status?.openReservationsUsd))
+        }
+        if model.status != nil && room == nil {
+          Footnote(L10n.Risk.roomNotReported, color: Palette.warningText)
         }
         Footnote(L10n.Risk.lossRoomNote)
       }
     }
+  }
+}
+
+extension LossRoomCard {
+  /// A USD amount the bot reported, or the missing mark when it did not.
+  fileprivate func amount(_ value: DecimalString?) -> String {
+    value.map { Money.signedUSD($0.value) } ?? Format.missing
   }
 }
 
@@ -208,6 +213,7 @@ private struct LimitsCard: View {
           StatLine(L10n.Risk.plannedLoss, value: Money.signedUSD(risk.plannedLossUsd.value))
           StatLine(L10n.Risk.notionalCap, value: Money.signedUSD(risk.positionNotionalCapUsd.value))
           StatLine(L10n.Risk.dailyLoss, value: Money.signedUSD(risk.maxDailyLossUsd.value))
+          StatLine(L10n.Risk.minRoom, value: Money.signedUSD(risk.minDailyRoomUsd.value))
           StatLine(L10n.Risk.openPositions, value: String(risk.maxOpenPositions))
           StatLine(L10n.Risk.quoteAge, value: String(localized: L10n.Risk.seconds(Money.plain(risk.maxQuoteAgeSeconds.value))))
         }
@@ -246,18 +252,98 @@ private struct SessionCard: View {
   }
 }
 
-/// The broker account: equity, buying power and the broker's own view of positions and orders.
-/// Needs a new local-API read, so it shows what it will hold, disabled.
+/// The broker account at the bot's last read: positions and open orders as the broker reports
+/// them, and whether they match the bot's records. The broker is the source of truth; a mismatch
+/// blocks new entries until reconciled.
 private struct AccountCard: View {
+  @Environment(AppModel.self) private var model
+
   var body: some View {
-    Card(L10n.Risk.account, trailing: { PlannedTag(.needsAPI) }) {
-      VStack(spacing: Tokens.Space.s) {
-        StatLine(L10n.Risk.equity, value: Format.missing, color: Palette.textQuaternary)
-        StatLine(L10n.Risk.buyingPower, value: Format.missing, color: Palette.textQuaternary)
-        StatLine(L10n.Risk.brokerPositions, value: Format.missing, color: Palette.textQuaternary)
-        StatLine(L10n.Risk.brokerOrders, value: Format.missing, color: Palette.textQuaternary)
-        Footnote(L10n.Risk.accountNote)
+    Card(L10n.Risk.account, tint: tint, trailing: { badges }) {
+      if let response = model.account {
+        content(response)
+      } else if model.accountError != nil {
+        Footnote(L10n.Risk.accountUnavailable, color: Palette.warningText)
+      } else {
+        Footnote(L10n.Risk.accountReading)
       }
+    }
+    .animation(Tokens.Motion.standard, value: model.account)
+  }
+
+  private var tint: Color? {
+    guard let response = model.account else { return nil }
+    return response.account.matchesRecords && !response.stale ? nil : Palette.warning
+  }
+
+  @ViewBuilder private var badges: some View {
+    if let response = model.account {
+      HStack(spacing: Tokens.Space.xs) {
+        if response.stale {
+          Badge(L10n.Risk.stale, color: Palette.warningText)
+        }
+        Badge(response.account.matchesRecords ? L10n.Risk.matches : L10n.Risk.mismatch,
+          color: response.account.matchesRecords ? Palette.profitText : Palette.lossText)
+      }
+    }
+  }
+
+  private func content(_ response: AccountResponseV1) -> some View {
+    let account = response.account
+    return VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      if let mismatch = account.mismatch {
+        Text(verbatim: mismatch)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.lossText)
+      }
+      StatLine(L10n.Risk.equity, value: account.equityUsd.map { Money.signedUSD($0.value) } ?? Format.missing,
+        color: account.equityUsd == nil ? Palette.textQuaternary : Palette.textPrimary)
+      StatLine(L10n.Risk.buyingPower, value: account.buyingPowerUsd.map { Money.signedUSD($0.value) } ?? Format.missing,
+        color: account.buyingPowerUsd == nil ? Palette.textQuaternary : Palette.textPrimary)
+      if account.equityUsd == nil || account.buyingPowerUsd == nil {
+        Footnote(L10n.Risk.balanceNote)
+      }
+      Divider()
+      CardLabel(L10n.Risk.brokerPositions)
+      if account.positions.isEmpty {
+        Footnote(L10n.Risk.none)
+      }
+      ForEach(account.positions, id: \.self) { position in
+        HStack(spacing: Tokens.Space.s) {
+          Text(verbatim: position.symbol).font(Tokens.Typography.calloutMono)
+          Spacer()
+          Text(verbatim: position.quantity.text).font(Tokens.Typography.captionMono)
+          Text(verbatim: position.avgPrice?.text ?? Format.missing)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textTertiary)
+        }
+      }
+      CardLabel(L10n.Risk.brokerOrders)
+      if account.orders.isEmpty {
+        Footnote(L10n.Risk.none)
+      }
+      ForEach(account.orders, id: \.self) { order in
+        HStack(spacing: Tokens.Space.s) {
+          Text(verbatim: order.symbol).font(Tokens.Typography.calloutMono)
+          Group {
+            Text(verbatim: order.side)
+            Text(verbatim: order.type)
+            Text(verbatim: order.quantity.text)
+          }
+          .font(Tokens.Typography.captionMono)
+          Spacer()
+          if let price = order.stopPrice ?? order.limitPrice {
+            Text(verbatim: price.text).font(Tokens.Typography.captionMono)
+          }
+          Text(verbatim: order.status)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textTertiary)
+          if !order.ours {
+            Badge(L10n.Risk.notOurs, color: Palette.warningText)
+          }
+        }
+      }
+      Footnote(L10n.Risk.readAt(Format.marketTime(account.readAt.date), Money.plain(response.ageSeconds.value)))
     }
   }
 }
