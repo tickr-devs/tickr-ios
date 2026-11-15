@@ -23,9 +23,11 @@ public struct Trade: Codable, Hashable, Sendable {
   public let entryCause: String?
   /// `entry_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
   public let entryCauseCodes: [ReasonV1]
+  /// The strategy and version that opened the trade; nil when the bot did not record it.
+  public let strategy: StrategyId?
 
   enum CodingKeys: String, CodingKey {
-    case symbol, quantity
+    case symbol, quantity, strategy
     case entryPrice = "entry_price"
     case exitPrice = "exit_price"
     case openedAt = "opened_at"
@@ -54,6 +56,8 @@ public struct Trade: Codable, Hashable, Sendable {
     entry = try c.decode(EntrySend.self, forKey: .entry)
     entryCause = try c.decodeNullable(String.self, forKey: .entryCause)
     entryCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .entryCauseCodes) ?? []
+    // Added after version 1 shipped: an older status has no such key.
+    strategy = try c.decodeIfPresent(StrategyId.self, forKey: .strategy)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -71,5 +75,6 @@ public struct Trade: Codable, Hashable, Sendable {
     try c.encode(entry, forKey: .entry)
     try c.encodeNullable(entryCause, forKey: .entryCause)
     try c.encode(entryCauseCodes, forKey: .entryCauseCodes)
+    try c.encodeNullable(strategy, forKey: .strategy)
   }
 }

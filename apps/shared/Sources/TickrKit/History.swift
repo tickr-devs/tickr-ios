@@ -123,11 +123,13 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   public let pricesAfterCauseCodes: [ReasonV1]
   /// `overshoot_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
   public let overshootCauseCodes: [ReasonV1]
+  /// The strategy and version that opened the trade; nil when the bot did not record it.
+  public let strategy: StrategyId?
 
   public var id: String { tradeId }
 
   enum CodingKeys: String, CodingKey {
-    case symbol, quantity
+    case symbol, quantity, strategy
     case tradeId = "trade_id"
     case entryPrice = "entry_price"
     case exitPrice = "exit_price"
@@ -178,6 +180,7 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     entryCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .entryCauseCodes) ?? []
     pricesAfterCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .pricesAfterCauseCodes) ?? []
     overshootCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .overshootCauseCodes) ?? []
+    strategy = try c.decodeNullable(StrategyId.self, forKey: .strategy)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -206,6 +209,7 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     try c.encode(entryCauseCodes, forKey: .entryCauseCodes)
     try c.encode(pricesAfterCauseCodes, forKey: .pricesAfterCauseCodes)
     try c.encode(overshootCauseCodes, forKey: .overshootCauseCodes)
+    try c.encodeNullable(strategy, forKey: .strategy)
   }
 
   /// Result in R (result / planned loss), nil when the planned loss is zero.
