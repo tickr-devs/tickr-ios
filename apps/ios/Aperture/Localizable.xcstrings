@@ -86,6 +86,23 @@
         }
       }
     },
+    "activity.excursion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAE %1$@ · MFE %2$@ (at least)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAE %1$@ · MFE %2$@ (не меньше)"
+          }
+        }
+      }
+    },
     "activity.journal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -273,19 +290,53 @@
         }
       }
     },
-    "activity.notTakenBody" : {
+    "activity.notTakenFailed" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Refused signals with their cause and a what-if result appear here once the bot's API publishes them."
+            "value" : "Couldn't read the skipped signals"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отклонённые сигналы с причиной и результатом «что было бы» появятся здесь, когда API бота начнёт их публиковать."
+            "value" : "Не удалось прочитать пропущенные сигналы"
+          }
+        }
+      }
+    },
+    "activity.notTakenNone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every entry the strategy signalled that day was taken, or it signalled none."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все входы, которые стратегия дала в тот день, взяты, или их не было."
+          }
+        }
+      }
+    },
+    "activity.notTakenStale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last read shown; refresh failed: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показано последнее чтение; обновить не удалось: %@"
           }
         }
       }
@@ -426,6 +477,23 @@
         }
       }
     },
+    "activity.refusedTag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REFUSED"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОТКАЗ"
+          }
+        }
+      }
+    },
     "activity.retry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -460,6 +528,23 @@
         }
       }
     },
+    "activity.stopAfter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop confirmed in %@ s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп подтверждён за %@ с"
+          }
+        }
+      }
+    },
     "activity.stopDetail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -477,6 +562,23 @@
         }
       }
     },
+    "activity.tooLateTag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TOO LATE"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ПОЗДНО"
+          }
+        }
+      }
+    },
     "activity.trades" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -490,6 +592,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сделки"
+          }
+        }
+      }
+    },
+    "activity.whatIf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "what-if entry %1$@ · stop %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "если бы: вход %1$@ · стоп %2$@"
           }
         }
       }

@@ -584,9 +584,34 @@ enum L10n {
     static var notTakenTitle: LocalizedStringResource {
       LocalizedStringResource("activity.notTakenTitle", defaultValue: "Signals not taken", bundle: L10n.bundle)
     }
-    static var notTakenBody: LocalizedStringResource {
-      LocalizedStringResource("activity.notTakenBody",
-        defaultValue: "Refused signals with their cause and a what-if result appear here once the bot's API publishes them.",
+    static var notTakenNone: LocalizedStringResource {
+      LocalizedStringResource("activity.notTakenNone",
+        defaultValue: "Every entry the strategy signalled that day was taken, or it signalled none.",
+        bundle: L10n.bundle)
+    }
+    static var notTakenFailed: LocalizedStringResource {
+      LocalizedStringResource("activity.notTakenFailed", defaultValue: "Couldn't read the skipped signals",
+        bundle: L10n.bundle)
+    }
+    static var refusedTag: LocalizedStringResource {
+      LocalizedStringResource("activity.refusedTag", defaultValue: "REFUSED", bundle: L10n.bundle)
+    }
+    static var tooLateTag: LocalizedStringResource {
+      LocalizedStringResource("activity.tooLateTag", defaultValue: "TOO LATE", bundle: L10n.bundle)
+    }
+    static func notTakenStale(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.notTakenStale", defaultValue: "Last read shown; refresh failed: \(cause)",
+        bundle: L10n.bundle)
+    }
+    static func stopAfter(_ seconds: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.stopAfter", defaultValue: "stop confirmed in \(seconds) s", bundle: L10n.bundle)
+    }
+    static func excursion(_ mae: String, _ mfe: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.excursion", defaultValue: "MAE \(mae) · MFE \(mfe) (at least)",
+        bundle: L10n.bundle)
+    }
+    static func whatIf(_ entry: String, _ stop: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.whatIf", defaultValue: "what-if entry \(entry) · stop \(stop)",
         bundle: L10n.bundle)
     }
     static var nothingYet: LocalizedStringResource {

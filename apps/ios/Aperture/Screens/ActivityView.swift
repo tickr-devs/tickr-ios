@@ -66,6 +66,15 @@ struct ActivityView: View {
       guard let url = model.connection.url else { return }
       await activity.loadDays(url)
     }
+    .task(id: skippedKey) {
+      guard let url = model.connection.url, let day = skippedKey.day else { return }
+      // Today's refusals keep coming without a trade closing: read them again while today shows.
+      repeat {
+        await activity.loadSkipped(url, day: day)
+        guard activity.selectedDay == nil, day == activity.today else { return }
+        try? await Task.sleep(for: .seconds(ChartModel.liveReloadSeconds))
+      } while !Task.isCancelled
+    }
     .task(id: sessionKey) {
       guard let url = model.connection.url, let status = model.status else { return }
       await activity.loadSession(url, of: status)
@@ -75,14 +84,29 @@ struct ActivityView: View {
       guard let url = model.connection.url else { return }
       await activity.loadDays(url)
       if let selected = activity.selectedDay { await activity.show(selected, from: url) }
+      if let day = skippedKey.day { await activity.loadSkipped(url, day: day) }
     }
   }
 
   /// Changes when the status's session or its closed trades change, reloading the session's
-  /// record (for each trade's result in R).
+  /// record (for each trade's MAE and MFE, which the status does not carry).
   private var sessionKey: SessionKey {
     SessionKey(url: model.connection.url, day: model.status.map(activity.sessionDay(of:)),
       trades: model.status?.tradesToday.count ?? 0)
+  }
+
+  /// The day the Not taken pane lists (the chosen past day, else the status's session), with the
+  /// address and the shown trade count, so a refusal recorded meanwhile is read on the next trade.
+  private var skippedKey: SkippedKey {
+    SkippedKey(url: model.connection.url,
+      day: activity.selectedDay ?? model.status.map(activity.sessionDay(of:)),
+      trades: model.status?.tradesToday.count ?? 0)
+  }
+
+  private struct SkippedKey: Hashable {
+    let url: URL?
+    let day: WireDate?
+    let trades: Int
   }
 
   private struct SessionKey: Hashable {
@@ -151,7 +175,7 @@ struct ActivityView: View {
             empty: (L10n.Activity.noTradesThatDay, L10n.Activity.noTradesThatDayBody))
         }
       case .skipped:
-        NotTaken()
+        NotTaken(signals: activity.skipped, failure: activity.skippedFailure)
       case .journal:
         if let status {
           Journal(events: Board.events(status))
@@ -430,11 +454,17 @@ private struct TradeLine {
   let entryPrice: String
   let exitPrice: String
   let result: Decimal
-  /// Result in R, when the day's record carries the planned loss.
+  /// Result in R; nil when the planned loss is zero.
   let resultR: Decimal?
+  /// Seconds from the entry fill to the broker confirming the stop, when recorded.
+  let stopAfter: Decimal?
+  /// Worst and best open result in USD, a lower bound (only prices proven while the shares were
+  /// held), when the bars were captured.
+  let mae: Decimal?
+  let mfe: Decimal?
 
-  /// A trade of today's status; its result in R comes from the session's record when it holds the
-  /// same trade (symbol, opening and closing time).
+  /// A trade of today's status. MAE and MFE come from the session's record when it holds the same
+  /// trade (symbol, opening and closing time); the status does not carry them.
   init(_ trade: Trade, recorded: [DayTrade]) {
     symbol = trade.symbol
     openedAt = trade.openedAt.date
@@ -444,9 +474,14 @@ private struct TradeLine {
     entryPrice = trade.entryPrice.text
     exitPrice = trade.exitPrice.text
     result = trade.resultGrossUsd.value
-    resultR = recorded.first {
+    let planned = trade.plannedLossUsd.value
+    resultR = planned == 0 ? nil : trade.resultGrossUsd.value / planned
+    stopAfter = trade.stopConfirmedAfterSeconds?.value
+    let same = recorded.first {
       $0.symbol == trade.symbol && $0.openedAt == trade.openedAt && $0.closedAt == trade.closedAt
-    }?.resultR
+    }
+    mae = same?.maeUsd?.value
+    mfe = same?.mfeUsd?.value
   }
 
   init(_ trade: DayTrade) {
@@ -459,6 +494,21 @@ private struct TradeLine {
     exitPrice = trade.exitPrice.text
     result = trade.resultGrossUsd.value
     resultR = trade.resultR
+    stopAfter = trade.stopConfirmedAfterSeconds?.value
+    mae = trade.maeUsd?.value
+    mfe = trade.mfeUsd?.value
+  }
+
+  /// "stop confirmed in 1.4 s · MAE −12.00 · MFE +30.00 (at least)", or nil with neither.
+  var metrics: String? {
+    var parts: [String] = []
+    if let stopAfter {
+      parts.append(String(localized: L10n.Activity.stopAfter(Money.plain(stopAfter, fractionDigits: 1))))
+    }
+    if let mae, let mfe {
+      parts.append(String(localized: L10n.Activity.excursion(Money.signed(mae), Money.signed(mfe))))
+    }
+    return parts.isEmpty ? nil : parts.joined(separator: Format.separator)
   }
 }
 
@@ -488,7 +538,8 @@ private struct TradesList: View {
           tag: Board.exitReasonTitle(trade.exitReason).uppercased(),
           color: Palette.result(trade.result),
           result: Money.signed(trade.result),
-          detail: trade.resultR.map { detail + Format.separator + Risk.text($0) } ?? detail)
+          detail: trade.resultR.map { detail + Format.separator + Risk.text($0) } ?? detail,
+          metrics: trade.metrics)
           .rise(step: ActivityView.Order.list.rawValue + index)
       }
       if trades.isEmpty && positions.isEmpty {
@@ -501,8 +552,8 @@ private struct TradesList: View {
     }
   }
 
-  private func row(symbol: String, time: String, tag: String, color: Color, result: String, detail: String)
-    -> some View {
+  private func row(symbol: String, time: String, tag: String, color: Color, result: String, detail: String,
+    metrics: String? = nil) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
         Text(verbatim: symbol).font(Tokens.Typography.calloutMono.bold())
@@ -521,6 +572,11 @@ private struct TradesList: View {
       Text(verbatim: detail)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
+      if let metrics {
+        Text(verbatim: metrics)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
     }
     .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.m)
@@ -529,13 +585,82 @@ private struct TradesList: View {
   }
 }
 
+/// The active strategy's entries the bot did not take that day (GET /skipped): refused at
+/// admission, with the single recorded cause, or made too late to act on; each with the what-if
+/// entry and stop the strategy recorded.
 private struct NotTaken: View {
+  let signals: [SkippedSignalV1]?
+  let failure: String?
+
   var body: some View {
-    ContentUnavailableView {
-      Label { Text(L10n.Activity.notTakenTitle) } icon: { Image(systemName: "hand.raised") }
-    } description: {
-      Text(L10n.Activity.notTakenBody)
+    if let signals {
+      // A failed refresh after a good read: the rows stay, marked as the last read.
+      if let failure {
+        Text(L10n.Activity.notTakenStale(failure))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.warningText)
+      }
+      if signals.isEmpty {
+        ContentUnavailableView {
+          Label { Text(L10n.Activity.notTakenTitle) } icon: { Image(systemName: "hand.raised") }
+        } description: {
+          Text(L10n.Activity.notTakenNone)
+        }
+      }
+      VStack(spacing: Tokens.Space.s) {
+        ForEach(Array(signals.enumerated()), id: \.offset) { index, signal in
+          SkippedRow(signal: signal)
+            .rise(step: ActivityView.Order.list.rawValue + index)
+        }
+      }
+    } else if let failure {
+      ContentUnavailableView {
+        Label { Text(L10n.Activity.notTakenFailed) } icon: { Image(systemName: "exclamationmark.triangle") }
+      } description: {
+        Text(verbatim: failure)
+      }
+    } else {
+      ProgressView().frame(maxWidth: .infinity).padding(.top, Tokens.Space.xl)
     }
+  }
+}
+
+private struct SkippedRow: View {
+  let signal: SkippedSignalV1
+
+  private var refused: Bool { signal.admission == .refused }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+        Text(verbatim: signal.symbol)
+          .font(Tokens.Typography.bodyMono.bold())
+          .foregroundStyle(Palette.textPrimary)
+        Text(refused ? L10n.Activity.refusedTag : L10n.Activity.tooLateTag)
+          .font(Tokens.Typography.annotationBold)
+          .padding(.horizontal, Tokens.Space.s)
+          .padding(.vertical, Tokens.Space.xxs)
+          .foregroundStyle(refused ? Palette.warningText : Palette.textTertiary)
+          .background((refused ? Palette.warning : Palette.textTertiary).opacity(Tokens.Opacity.wash), in: Capsule())
+        Spacer()
+        Text(verbatim: Format.clock(signal.at.date))
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textTertiary)
+      }
+      if let cause = signal.refusalCause {
+        Text(verbatim: cause)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      Text(L10n.Activity.whatIf(signal.entryPrice?.text ?? Format.missing, signal.stopPrice?.text ?? Format.missing))
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textQuaternary)
+    }
+    .padding(Tokens.Space.m)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .apertureCard()
+    .accessibilityElement(children: .combine)
   }
 }
 
