@@ -365,7 +365,8 @@ private struct TradeDetailCard: View {
 }
 
 /// The active strategy's entry signals of the shown day that did not become a position: refused
-/// by the platform (with the cause) or never evaluated, with their what-if levels.
+/// by the platform (the rule in words, with its detail) or never evaluated, with their what-if
+/// levels. Repeats on one symbol for one reason are one row, as on iOS.
 private struct NotTakenCard: View {
   @Environment(AppModel.self) private var model
   let showOnChart: (String) -> Void
@@ -374,9 +375,9 @@ private struct NotTakenCard: View {
     Card(L10n.Trades.notTaken) {
       if let signals = model.skipped?.signals, !signals.isEmpty {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          ForEach(Array(signals.reversed().enumerated()), id: \.offset) { index, signal in
+          ForEach(Array(SkippedGroup.make(signals).enumerated()), id: \.element.id) { index, group in
             if index > 0 { Divider() }
-            SkippedRow(signal: signal, showOnChart: showOnChart)
+            SkippedRow(group: group, showOnChart: showOnChart)
           }
         }
       } else if let error = model.skippedError {
@@ -390,30 +391,33 @@ private struct NotTakenCard: View {
   }
 }
 
-/// One skipped signal; a click opens the Chart on its symbol.
+/// One run of skipped signals; a click opens the Chart on its symbol.
 private struct SkippedRow: View {
-  let signal: SkippedSignalV1
+  let group: SkippedGroup
   let showOnChart: (String) -> Void
 
+  /// "16:27" or, for repeats, "16:27–16:29 · ×3".
+  private var when: String {
+    let first = Format.marketMinute(group.first.at.date)
+    guard group.count > 1 else { return first }
+    return String(localized: L10n.Trades.repeatRange(first, Format.marketMinute(group.latest.at.date), group.count))
+  }
+
   var body: some View {
+    let signal = group.latest
     Button { showOnChart(signal.symbol) } label: {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         HStack(spacing: Tokens.Space.s) {
-          Text(verbatim: Format.marketMinute(signal.at.date))
-            .font(Tokens.Typography.calloutMono)
-            .foregroundStyle(Palette.textTertiary)
           Text(verbatim: signal.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
           admission
           Spacer(minLength: 0)
-          Text(verbatim: Format.strategy(signal.strategy))
+          Text(verbatim: when)
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textTertiary)
         }
-        if let reason = RefusalText.text(signal.refusal, cause: signal.refusalCause) {
-          Text(verbatim: reason)
-            .font(Tokens.Typography.caption)
-            .foregroundStyle(Palette.textSecondary)
-            .help(Text(verbatim: signal.refusal?.code ?? reason))
+        if let cause = group.cause {
+          CauseText(cause: cause)
+            .help(Text(verbatim: cause.code))
         }
         if let entry = signal.entryPrice, let stop = signal.stopPrice {
           Text(L10n.Trades.whatIfLevels(Format.price(entry.value), Format.price(stop.value)))
@@ -429,10 +433,39 @@ private struct SkippedRow: View {
   }
 
   @ViewBuilder private var admission: some View {
-    if signal.admission == .refused {
+    if group.latest.admission == .refused {
       Badge(L10n.Trades.refused, color: Palette.warningText)
     } else {
       Badge(L10n.Trades.notEvaluated, color: Palette.textTertiary)
+    }
+  }
+}
+
+/// A refusal in words: the rule, then the bot's detail with its times in New York.
+private struct CauseText: View {
+  let cause: RefusalCause
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      if let code = cause.known {
+        Text(L10n.Cause.title(code))
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textPrimary)
+      }
+      Group {
+        if let cooldown = cause.cooldown {
+          Text(L10n.Cause.cooldownDetail(Format.marketMinute(cooldown.loss), Format.marketMinute(cooldown.until)))
+        } else if cause.known == nil {
+          // A cause this app has no words for: the bot's own text, times made readable.
+          Text(verbatim: cause.detail.isEmpty ? cause.code
+            : cause.code + RefusalCause.separator + cause.readable(time: Format.marketMinute))
+        } else if !cause.detail.isEmpty {
+          Text(verbatim: cause.readable(time: Format.marketMinute))
+        }
+      }
+      .font(Tokens.Typography.caption)
+      .foregroundStyle(Palette.textSecondary)
+      .fixedSize(horizontal: false, vertical: true)
     }
   }
 }
