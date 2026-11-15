@@ -354,6 +354,8 @@ LEGACY = [
     (re.compile(r"\.(?:overlay|background)\((?!\s*alignment:)"
                 r"(?:[^(){}]|\((?:[^()]|\([^()]*\))*\))*,\s*alignment:"),
      "overlay(_:alignment:), background(_:alignment:) are deprecated: use (alignment:) { }"),
+    (re.compile(r"\.tabItem\s*[({]"),
+     "tabItem is the old TabView form: use Tab(value:) { } label: { }"),
     (re.compile(r"\bUIApplication\.shared\.(?:windows|keyWindow)\b"),
      "UIApplication.windows and keyWindow are deprecated: use the view's window scene"),
 ]
