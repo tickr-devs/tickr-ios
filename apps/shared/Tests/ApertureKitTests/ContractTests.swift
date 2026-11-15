@@ -276,7 +276,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
   @Test func blockedIsAttention() throws {
     let headline = Headline.make(response: try response("status-response-v1.json"), fetchError: nil)
     #expect(headline.severity == .attention)
-    #expect(headline.text == "One position is already open (limit 1).")
+    #expect(headline.text == "The bot already has a trade open.")
   }
 
   @Test func allowedIsOK() throws {

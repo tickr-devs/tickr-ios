@@ -33,6 +33,30 @@ public struct StrategyId: Codable, Hashable, Sendable {
 public struct EntryBlock: Codable, Hashable, Sendable {
   public let cause: String
   public let text: String
+  /// False for an ordinary state that passes on its own (a position is already open, the time
+  /// is outside the entry window): show it calmly, not as a warning.
+  public let attention: Bool
+
+  enum CodingKeys: String, CodingKey {
+    case cause
+    case text
+    case attention
+  }
+
+  public init(cause: String, text: String, attention: Bool) {
+    self.cause = cause
+    self.text = text
+    self.attention = attention
+  }
+
+  /// `attention` was added after version 1 shipped: a block written by an older bot has no
+  /// such key and was always a warning.
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    cause = try c.decode(String.self, forKey: .cause)
+    text = try c.decode(String.self, forKey: .text)
+    attention = try c.decodeIfPresent(Bool.self, forKey: .attention) ?? true
+  }
 }
 
 public struct Fence: Codable, Hashable, Sendable {
