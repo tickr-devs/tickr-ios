@@ -186,6 +186,20 @@ final class StubProtocol: URLProtocol {
     #expect(sent == ["version": "price-action-v1", "compare": "volume-shock-v1", "day": "2026-11-13"])
   }
 
+  @Test func tradeWhatIfAsksForOneVersionOnOneDay() async throws {
+    StubProtocol.answer = try (200, fixture("trade-whatif-v1.json"))
+    let found = try await client.tradeWhatIf(
+      symbol: "ABCD", day: try WireDate("2026-11-13"), version: "price-action-v2")
+    #expect(found.trades.count == 2)
+    #expect(found.trades.first?.exitReason == .strategyExit)
+    #expect(found.resultGrossUsd == nil)
+    let url = try #require(StubProtocol.seen.last?.url)
+    let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+    #expect(url.path == "/trades/whatif")
+    #expect(Set(items.map { "\($0.name)=\($0.value ?? "")" })
+      == ["date=2026-11-13", "symbol=ABCD", "version=price-action-v2"])
+  }
+
   @Test func redeemPairingPostsTheCodeWithoutAToken() async throws {
     let remote = APIClient(baseURL: try #require(URL(string: "https://mac.ts.net")), session: StubProtocol.session())
     StubProtocol.answer = try (200, fixture("paired-v1.json"))

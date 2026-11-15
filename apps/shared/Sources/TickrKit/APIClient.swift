@@ -117,6 +117,9 @@ public struct APIClient: Sendable {
   static let labVersionKey = "version"
   static let labCompareKey = "compare"
   static let labDayKey = "day"
+  static let tradeWhatIfPath = "/trades/whatif"
+  /// Query item name of the strategy folder another-version reads replay.
+  static let versionQuery = "version"
   /// Remote port only: redeem a pairing link's one-time code for the bearer token.
   static let pairPath = "/pair"
   /// Body key of the pairing code.
@@ -272,6 +275,17 @@ public struct APIClient: Sendable {
   /// Trades closed on `day` and the symbols with captured bars.
   public func day(_ day: WireDate) async throws -> DayV1 {
     try await perform(request(path: "\(Self.daysPath)/\(day.text)", body: nil), expect: Self.ok)
+  }
+
+  /// What strategy folder `version` would have done on `symbol`'s day (simulated, read-only).
+  /// The API refuses it during the regular session with 409 `conflict`, thrown as
+  /// `APIError.refused`.
+  public func tradeWhatIf(symbol: String, day: WireDate, version: String) async throws -> TradeWhatIfV1 {
+    try await perform(
+      request(path: Self.tradeWhatIfPath,
+        query: [(Self.dateQuery, day.text), (Self.symbolQuery, symbol), (Self.versionQuery, version)],
+        body: nil),
+      expect: Self.ok)
   }
 
   /// Captured M1 bars of `symbol` on `day`, oldest first.
