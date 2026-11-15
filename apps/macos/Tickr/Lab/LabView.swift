@@ -2,15 +2,27 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Strategy lab: the active strategy with its shown-day results, and the planned tools for
-/// comparing strategies (observers, replays, the advisor), shown disabled until they are built.
+/// Strategy lab: the active strategy with its shown-day results, observers, replays and the AI
+/// advisor; the advisor's page takes the screen while it is open.
 struct LabView: View {
+  @Environment(AdvisorModel.self) private var advisor
+
   /// Entrance order of the cards.
   private enum Order: Int {
     case active = 0, observers, refusals, replay, advisor
   }
 
   var body: some View {
+    Group {
+      if advisor.pageOpen {
+        AdvisorPage()
+      } else {
+        cards
+      }
+    }
+  }
+
+  private var cards: some View {
     ScrollView {
       VStack(spacing: Tokens.Space.l) {
         ActiveStrategyCard().rise(step: Order.active.rawValue)
@@ -633,24 +645,11 @@ private struct ReplayCard: View {
   }
 }
 
-/// The advisor: proposes new strategy versions from recorded days, for the owner to accept.
-private struct AdvisorCard: View {
-  var body: some View {
-    Card(L10n.Lab.advisor, trailing: { PlannedTag(.backlog) }, content: {
-      HStack(alignment: .top, spacing: Tokens.Space.m) {
-        Image(systemName: "sparkles")
-          .font(Tokens.Typography.symbol)
-          .foregroundStyle(Palette.highlight)
-        Footnote(L10n.Lab.advisorNote)
-      }
-    })
-  }
-}
-
 #if DEBUG
 #Preview {
   LabView()
     .environment(PreviewAPI.model())
+    .environment(PreviewAPI.advisor())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif

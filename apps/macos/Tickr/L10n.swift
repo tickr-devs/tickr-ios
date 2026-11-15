@@ -2293,16 +2293,6 @@ enum L10n {
       LocalizedStringResource("lab.replayData", defaultValue: "Data \(first) – \(last) (\(sessions) sessions) · ends \(last)",
         bundle: L10n.bundle)
     }
-    /// Card title: the AI advisor.
-    static var advisor: LocalizedStringResource {
-      LocalizedStringResource("lab.advisor", defaultValue: "Advisor", bundle: L10n.bundle)
-    }
-    /// What the advisor does.
-    static var advisorNote: LocalizedStringResource {
-      LocalizedStringResource("lab.advisorNote",
-        defaultValue: "Proposes new strategy versions from recorded days, with the evidence, for you to accept or reject.",
-        bundle: L10n.bundle)
-    }
     /// Replay choice: the version to replay.
     static var replayVersion: LocalizedStringResource {
       LocalizedStringResource("lab.replayVersion", defaultValue: "Version", bundle: L10n.bundle)

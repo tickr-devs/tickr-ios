@@ -1230,10 +1230,15 @@ private struct RiskRoomCard: View {
 
 private struct ObserversCard: View {
   @Environment(AppModel.self) private var model
+  @Environment(AdvisorModel.self) private var advisor
 
   var body: some View {
     Card(L10n.Observers.title) {
-      MoreButton(L10n.RiskRoom.details) { model.section = .lab }
+      MoreButton(L10n.RiskRoom.details) {
+        // The Lab's cards, where the observers are, not the advisor page left open earlier.
+        advisor.pageOpen = false
+        model.section = .lab
+      }
     } content: {
       if let observers = model.observers?.observers {
         if observers.isEmpty {
@@ -1245,11 +1250,39 @@ private struct ObserversCard: View {
       } else if model.observersError != nil {
         Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
       }
-      HStack(spacing: Tokens.Space.s) {
-        Image(systemName: AppSection.labSymbol).foregroundStyle(Palette.highlightText)
+      AdvisorRow()
+    }
+  }
+}
+
+/// The AI advisor under the observers: its leading run and how many wait for the owner, and
+/// Review, which opens the run in the Lab.
+private struct AdvisorRow: View {
+  @Environment(AppModel.self) private var model
+  @Environment(AdvisorModel.self) private var advisor
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.s) {
+      Image(systemName: AdvisorLook.symbol).foregroundStyle(Palette.highlightText)
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
         Text(L10n.Observers.advisor).font(Tokens.Typography.callout)
-        Spacer()
-        PlannedTag()
+        if let lead = advisor.runs?.lead {
+          Text(verbatim: lead.title)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textQuaternary)
+            .lineLimit(1)
+            .truncationMode(.middle)
+        }
+      }
+      Spacer(minLength: Tokens.Space.s)
+      if let count = advisor.runs?.awaitingReview, count > 0 {
+        StatusPill(AdvisorWords.awaiting(count), tone: .highlight)
+      }
+      if let lead = advisor.runs?.lead {
+        MoreButton(AdvisorWords.review) {
+          advisor.open(lead.id)
+          model.section = .lab
+        }
       }
     }
   }
@@ -1295,6 +1328,7 @@ private struct JournalCard: View {
 #Preview {
   OverviewView()
     .environment(PreviewAPI.model())
+    .environment(PreviewAPI.advisor())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif

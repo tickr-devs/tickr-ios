@@ -34,6 +34,15 @@ enum PreviewAPI {
     return model
   }
 
+  /// The advisor model as the Lab and the Overview see it, reading the fixtures.
+  @MainActor
+  static func advisor() -> AdvisorModel {
+    Container.shared.urlSession.register { FixtureProtocol.session() }
+    let advisor = AdvisorModel()
+    Task { await advisor.load(APIClient.defaultBaseURL) }
+    return advisor
+  }
+
   /// The decisions fixture, as the Chart's inspector shows it.
   static func decisions() -> DecisionsV1? {
     let url = FixtureProtocol.folder.appendingPathComponent(FixtureProtocol.decisionsFile)
@@ -84,6 +93,8 @@ final class FixtureProtocol: URLProtocol {
   static let jobsFile = "jobs-v1.json"
   static let labReplayPath = "/lab/replay"
   static let labReplayFile = "lab-replay-v1.json"
+  static let advisorPath = "/advisor"
+  static let advisorFile = "advisor-runs-v1.json"
   static let tradeWhatIfPath = "/trades/whatif"
   static let tradeWhatIfFile = "trade-whatif-v1.json"
   /// HTTP status codes, version and the JSON content type of an answer.
@@ -117,6 +128,7 @@ final class FixtureProtocol: URLProtocol {
     case watchingPath: return watchingFile
     case jobsPath: return jobsFile
     case labReplayPath: return labReplayFile
+    case advisorPath: return advisorFile
     case tradeWhatIfPath: return tradeWhatIfFile
     default: return path.hasPrefix(daysPath + "/") ? dayFile : nil
     }

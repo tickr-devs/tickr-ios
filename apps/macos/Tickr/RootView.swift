@@ -46,6 +46,7 @@ enum AppSection: String, CaseIterable, Identifiable {
 
 struct RootView: View {
   @Environment(AppModel.self) private var model
+  @Environment(AdvisorModel.self) private var advisor
 
   /// Sidebar width: least, preferred (the design's) and most, in points.
   static let sidebarMin: CGFloat = 200
@@ -123,6 +124,8 @@ struct RootView: View {
       .toolbarBackground(Palette.titleBar, for: .windowToolbar)
       .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
     }
+    // The advisor's runs for the Overview's advisor row and the Lab, read again now and then.
+    .task(id: model.baseURL) { await advisor.follow(model.baseURL) }
   }
 
   @ViewBuilder private var detail: some View {
@@ -635,6 +638,7 @@ struct CommandToast: View {
   RootView()
     .environment(PreviewAPI.model())
     .environment(ChartModel())
+    .environment(PreviewAPI.advisor())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif

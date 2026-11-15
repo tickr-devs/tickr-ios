@@ -3818,40 +3818,6 @@
         }
       }
     },
-    "lab.advisor" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advisor"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Советник"
-          }
-        }
-      }
-    },
-    "lab.advisorNote" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proposes new strategy versions from recorded days, with the evidence, for you to accept or reject."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Предлагает новые версии стратегии по записанным дням, с обоснованием, а вы принимаете или отклоняете."
-          }
-        }
-      }
-    },
     "lab.agreement" : {
       "extractionState" : "manual",
       "localizations" : {

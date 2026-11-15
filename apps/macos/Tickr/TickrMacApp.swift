@@ -72,6 +72,7 @@ struct TickrMacApp: App {
         .overlay { OpeningOverlay() }
         .environment(model)
         .environment(Container.shared.chartModel())
+        .environment(Container.shared.advisorModel())
         // The design's accent for links, selection and controls (as on iOS), not the system blue.
         .tint(Palette.info)
         // The window's least size is these numbers and nothing else: with a maximum given, the

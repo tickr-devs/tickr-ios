@@ -160,6 +160,26 @@ final class StubProtocol: URLProtocol {
     #expect(StubProtocol.seen.first?.url?.absoluteString == "http://127.0.0.1:8766/journal")
   }
 
+  @Test func advisorRead() async throws {
+    StubProtocol.answer = try (200, fixture("advisor-runs-v1.json"))
+    let advisor = try await client.advisor()
+    #expect(advisor.runs.map(\.status) == [.proposed, .idea, .refused])
+    #expect(advisor.runs.filter(\.awaitingReview).count == advisor.awaitingReview)
+    #expect(advisor.runs.first?.judges.first?.verdict == .noEvidence)
+    #expect(StubProtocol.seen.first?.url?.absoluteString == "http://127.0.0.1:8766/advisor")
+  }
+
+  @Test func advisorDecisionPosts() async throws {
+    StubProtocol.answer = try (200, fixture("advisor-runs-v1.json"))
+    let runs = try await client.decideAdvisor(run: "20261115T150000Z-price-action-v1", verdict: .rejected)
+    #expect(runs.awaitingReview == 1)
+    let sent = try #require(StubProtocol.seen.first)
+    #expect(sent.httpMethod == "POST")
+    #expect(sent.url?.absoluteString == "http://127.0.0.1:8766/advisor/decision")
+    let body = try JSONSerialization.jsonObject(with: try #require(StubProtocol.seenBodies.first))
+    #expect(body as? [String: String] == ["run": "20261115T150000Z-price-action-v1", "verdict": "rejected"])
+  }
+
   @Test func labReplayReadsAndStarts() async throws {
     StubProtocol.answer = try (200, fixture("lab-replay-v1.json"))
     let done = try await client.labReplay()
