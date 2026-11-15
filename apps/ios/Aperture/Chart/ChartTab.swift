@@ -33,6 +33,7 @@ struct ChartTab: View {
       await chart.load(url, preferring: app.selectedSymbol ?? app.status?.positions.first?.symbol)
     }
     .task(id: liveKey) { await followToday() }
+    .task(id: rangeKey) { await followRange() }
     .refreshable {
       guard let url = app.connection.url else { return }
       await chart.load(url, preferring: chart.symbol)
@@ -72,10 +73,31 @@ struct ChartTab: View {
             // The controls sit above the chart, as in charting apps, so the panes below never push
             // them under the tab bar.
             ChartControls(chart: chart, series: series, lines: $lines, viewport: $viewport)
-            CandleChart(series: series, studies: chart.studies, atr: chart.atr, trades: chart.trades,
-              position: chart.openPosition, events: chart.events, lines: lines, viewport: $viewport)
+            CandleChart(series: series, times: chart.times, studies: chart.studies, atr: chart.atr,
+              trades: chart.range == .oneDay ? chart.trades : [], position: chart.openPosition,
+              events: chart.events, lines: lines, viewport: $viewport)
             DayTrades(trades: chart.trades)
             DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
+          } else if chart.range != .oneDay {
+            RangePicker(chart: chart)
+            if let failure = chart.rangeFailure {
+              ContentUnavailableView {
+                Label { Text(ChartText.failedTitle) } icon: { Image(systemName: "wifi.exclamationmark") }
+              } description: {
+                Text(ChartText.candlesUnavailable(failure))
+              }
+              .rise()
+            } else if let answer = chart.rangeChart, answer.symbol == chart.symbol, answer.range == chart.range,
+              answer.interval == chart.timeframe {
+              ContentUnavailableView {
+                Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
+              } description: {
+                Text(ChartText.noCandles(answer.cause ?? ChartFormat.missing))
+              }
+              .rise()
+            } else {
+              loadingView
+            }
           } else {
             ContentUnavailableView {
               Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
@@ -99,6 +121,29 @@ struct ChartTab: View {
   /// Changes whenever a different chart is on screen, restarting the reload loop.
   private var liveKey: LiveKey {
     LiveKey(day: chart.selectedDay, symbol: chart.symbol, isToday: chart.isToday)
+  }
+
+  /// Changes whenever another symbol, range or interval beyond one day is chosen.
+  private var rangeKey: RangeKey {
+    RangeKey(url: app.connection.url, symbol: chart.symbol, range: chart.range, timeframe: chart.timeframe)
+  }
+
+  private struct RangeKey: Hashable {
+    let url: URL?
+    let symbol: String?
+    let range: ChartRange
+    let timeframe: Timeframe
+  }
+
+  /// Read the candles of a range beyond one day; while they are intraday (five sessions), read
+  /// them again now and then so today's last candle stays current.
+  private func followRange() async {
+    guard chart.range != .oneDay, let url = app.connection.url else { return }
+    repeat {
+      await chart.loadRange(url)
+      guard chart.timeframe.isIntraday else { return }
+      try? await Task.sleep(for: .seconds(ChartModel.rangeReloadSeconds))
+    } while !Task.isCancelled
   }
 
   private struct LiveKey: Hashable {
@@ -288,9 +333,10 @@ private struct ChartControls: View {
   var body: some View {
     @Bindable var chart = chart
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      RangePicker(chart: chart)
       ScrollView(.horizontal) {
         HStack(spacing: Tokens.Space.s) {
-          ForEach(ChartRange.oneDay.intervals) { timeframe in
+          ForEach(chart.range.intervals) { timeframe in
             let selected = timeframe == chart.timeframe
             Button { chart.timeframe = timeframe } label: {
               Text(ChartFormat.title(timeframe)).chip(on: selected)
@@ -447,5 +493,32 @@ private struct DayTrades: View {
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .apertureCard()
+  }
+}
+
+/// How far back the chart reaches: the chosen day, five sessions, one or three months, a year.
+private struct RangePicker: View {
+  let chart: ChartModel
+
+  var body: some View {
+    Picker(selection: Binding(get: { chart.range }, set: { chart.choose(range: $0) })) {
+      ForEach(ChartRange.allCases, id: \.self) { range in
+        Text(Self.title(range)).tag(range)
+      }
+    } label: {
+      Text(ChartText.range)
+    }
+    .pickerStyle(.segmented)
+    .sensoryFeedback(.selection, trigger: chart.range)
+  }
+
+  static func title(_ range: ChartRange) -> LocalizedStringResource {
+    switch range {
+    case .oneDay: ChartText.rangeDay
+    case .fiveDays: ChartText.rangeFiveDays
+    case .oneMonth: ChartText.rangeOneMonth
+    case .threeMonths: ChartText.rangeThreeMonths
+    case .oneYear: ChartText.rangeOneYear
+    }
   }
 }

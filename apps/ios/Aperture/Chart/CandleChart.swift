@@ -98,6 +98,8 @@ struct CandleChart: View {
   static let averageSeries: [Series] = [.shortAverage, .mediumAverage, .longAverage]
 
   let series: ChartSeries
+  /// Real times of the candles, for the readout and the axis beyond one day.
+  var times = ChartTimes.day
   /// Moving averages, Bollinger, MACD, RSI and stochastic of `series`' candles.
   let studies: CandleStudies
   /// The ATR line, one value per candle of `series`.
@@ -194,7 +196,7 @@ struct CandleChart: View {
       if let candle = selectedCandle {
         crosshair(candle)
           .annotation(position: .bottom, spacing: 0, overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
-            Text(candle.start, format: ChartFormat.time)
+            Text(verbatim: times.text(candle.start))
               .fixedSize()
               .font(Tokens.Typography.annotationBold)
               .foregroundStyle(Palette.surface)
@@ -609,14 +611,29 @@ struct CandleChart: View {
       .foregroundStyle(colour)
   }
 
-  private var timeAxis: some AxisContent {
-    AxisMarks(values: .automatic) { value in
-      AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
-        .foregroundStyle(Palette.separator)
-      AxisValueLabel {
-        // Never truncated to "…" at the right edge.
-        if let date = value.as(Date.self) {
-          Text(date, format: ChartFormat.time)
+  /// Clock times on one day; beyond one day, where each session, week, month or quarter begins.
+  @AxisContentBuilder private var timeAxis: some AxisContent {
+    if times.marks.isEmpty {
+      AxisMarks(values: .automatic) { value in
+        AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
+          .foregroundStyle(Palette.separator)
+        AxisValueLabel {
+          // Never truncated to "…" at the right edge.
+          if let date = value.as(Date.self) {
+            Text(date, format: ChartFormat.time)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.textQuaternary)
+              .fixedSize()
+          }
+        }
+      }
+    } else {
+      let labels = Dictionary(times.marks.map { ($0.time, $0.text) }, uniquingKeysWith: { first, _ in first })
+      AxisMarks(values: times.marks.map(\.time)) { value in
+        AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
+          .foregroundStyle(Palette.separator)
+        AxisValueLabel {
+          Text(verbatim: value.as(Date.self).flatMap { labels[$0] } ?? ChartFormat.missing)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
             .fixedSize()
@@ -874,11 +891,20 @@ enum ChartFormat {
   static let time = Date.VerbatimFormatStyle(
     format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
     timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork)
-  static let day: Date.FormatStyle = {
-    var style = Date.FormatStyle.dateTime.weekday(.abbreviated).month(.abbreviated).day()
+  static let day = newYork(Date.FormatStyle.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+  /// Dates of a chart beyond one day, in New York and the person's language: "Fri 13" (a
+  /// session), "Nov 9" (a week), "Nov 2026" (a monthly candle), "Nov" and "2026" on a long axis.
+  static let sessionDay = newYork(Date.FormatStyle.dateTime.weekday(.abbreviated).day())
+  static let monthDay = newYork(Date.FormatStyle.dateTime.month(.abbreviated).day())
+  static let monthYear = newYork(Date.FormatStyle.dateTime.month(.abbreviated).year())
+  static let month = newYork(Date.FormatStyle.dateTime.month(.abbreviated))
+  static let year = newYork(Date.FormatStyle.dateTime.year())
+
+  private static func newYork(_ style: Date.FormatStyle) -> Date.FormatStyle {
+    var style = style
     style.timeZone = WireDate.newYork.timeZone
     return style
-  }()
+  }
 
   /// A wire decimal as a number to draw.
   static func double(_ value: DecimalString) -> Double {

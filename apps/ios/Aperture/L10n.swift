@@ -1164,6 +1164,21 @@ enum ChartText {
   static let day = LocalizedStringResource("chart.day", defaultValue: "Day")
   static let live = LocalizedStringResource("chart.live", defaultValue: "Live")
   static let timeframe = LocalizedStringResource("chart.timeframe", defaultValue: "Interval")
+  /// The range picker and its segments: the chosen day, five sessions, one and three months, a year.
+  static let range = LocalizedStringResource("chart.range", defaultValue: "Range")
+  static let rangeDay = LocalizedStringResource("chart.range.day", defaultValue: "Day")
+  static let rangeFiveDays = LocalizedStringResource("chart.range.fiveDays", defaultValue: "5D")
+  static let rangeOneMonth = LocalizedStringResource("chart.range.oneMonth", defaultValue: "1M")
+  static let rangeThreeMonths = LocalizedStringResource("chart.range.threeMonths", defaultValue: "3M")
+  static let rangeOneYear = LocalizedStringResource("chart.range.oneYear", defaultValue: "1Y")
+  /// Market data (GET /chart) could not be read for a range beyond one day.
+  static func candlesUnavailable(_ cause: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.candlesUnavailable", defaultValue: "Market data is not available: \(cause)")
+  }
+  /// Market data answered with no candles for the range.
+  static func noCandles(_ cause: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.noCandles", defaultValue: "Market data has no candles for this symbol and range: \(cause)")
+  }
   static let m1 = LocalizedStringResource("chart.timeframe.m1", defaultValue: "1m")
   static let m5 = LocalizedStringResource("chart.timeframe.m5", defaultValue: "5m")
   static let m30 = LocalizedStringResource("chart.timeframe.m30", defaultValue: "30m")

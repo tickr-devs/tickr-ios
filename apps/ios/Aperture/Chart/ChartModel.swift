@@ -18,6 +18,9 @@ final class ChartModel {
   /// Seconds between reloads of today's bars while the chart is on screen. The bot captures one
   /// bar a minute, so a few reloads a minute keep the last candle current.
   static let liveReloadSeconds = 15.0
+  /// Seconds between reads of five sessions' candles (GET /chart): the bot keeps them a while,
+  /// and the shortest candle there is five minutes long.
+  static let rangeReloadSeconds = 60.0
 
   private(set) var phase = Phase.idle
   private(set) var days: [DaySummary] = []
@@ -26,7 +29,16 @@ final class ChartModel {
   var selectedDay: WireDate?
   var symbol: String?
   var timeframe = Timeframe.m1 { didSet { rebuild() } }
+  /// How far back the chart reaches: the chosen day's recorded bars, or market data over several
+  /// sessions or months (GET /chart). Change it with `choose(range:)`.
+  private(set) var range = ChartRange.oneDay
+  /// The last candles read from GET /chart for the chosen symbol, range and interval.
+  private(set) var rangeChart: ChartV1?
+  /// Why the last GET /chart read failed, if it did (a 503 while market data is off).
+  private(set) var rangeFailure: String?
   private(set) var series: ChartSeries?
+  /// Real times of `series`' candles and the time axis labels beyond one day.
+  private(set) var times = ChartTimes.day
   /// What the trading strategy and the observers decided on the chosen symbol that day.
   private(set) var decisions: DecisionsV1?
   /// Why the decisions could not be read, if they could not; the chart still shows.
@@ -80,7 +92,7 @@ final class ChartModel {
   }
   /// Where the trading strategy began watching and said enter on the chosen symbol's candles.
   var events: [ChartEvent] {
-    guard let series, let decisions = shownDecisions else { return [] }
+    guard range == .oneDay, let series, let decisions = shownDecisions else { return [] }
     return ChartEvent.make(decisions.decisions, candles: series.candles)
   }
   /// Trades of the chosen symbol closed on the chosen day.
@@ -134,12 +146,47 @@ final class ChartModel {
   /// Switch to another symbol of the chosen day.
   func show(symbol: String, from url: URL) async {
     self.symbol = symbol
+    // Over a range the last symbol's candles and failure must not stay on screen while this one
+    // loads: rebuild drops a GET /chart answer for another symbol.
+    rangeFailure = nil
+    rebuild()
     do {
       try await loadBars(url)
     } catch is CancellationError {
       return
     } catch {
       phase = .failed(error.localizedDescription)
+    }
+  }
+
+  /// Show the chart over `range`, keeping the interval when the range offers it, else its
+  /// shortest. A range beyond one day waits for `loadRange`.
+  func choose(range: ChartRange) {
+    guard range != self.range else { return }
+    self.range = range
+    rangeChart = nil
+    rangeFailure = nil
+    if range.intervals.contains(timeframe) { rebuild() } else { timeframe = range.intervals.first ?? .m1 }
+  }
+
+  /// Read the chosen symbol's candles over the chosen range beyond one day (GET /chart). An
+  /// answer for a symbol, range or interval no longer chosen is dropped.
+  func loadRange(_ url: URL) async {
+    guard range != .oneDay, let symbol else { return }
+    let asked = (range, timeframe)
+    do {
+      let loaded = try await client(url).chart(symbol: symbol, interval: asked.1, range: asked.0)
+      guard symbol == self.symbol, asked == (range, timeframe) else { return }
+      if loaded != rangeChart {
+        rangeChart = loaded
+        rebuild()
+      }
+      rangeFailure = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      guard symbol == self.symbol, asked == (range, timeframe) else { return }
+      rangeFailure = error.localizedDescription
     }
   }
 
@@ -215,8 +262,21 @@ final class ChartModel {
   }
 
   private func rebuild() {
-    series = bars.map { ChartSeries(bars: $0.bars, timeframe: timeframe) }
-    atr = bars.map { ChartSeries.atr(bars: $0.bars, timeframe: timeframe) } ?? []
+    if range == .oneDay {
+      series = bars.map { ChartSeries(bars: $0.bars, timeframe: timeframe) }
+      atr = bars.map { ChartSeries.atr(bars: $0.bars, timeframe: timeframe) } ?? []
+      times = .day
+    } else if let rangeChart, rangeChart.symbol == symbol, rangeChart.range == range, rangeChart.interval == timeframe {
+      let real = ChartSeries(chart: rangeChart)
+      let drawn = real.gapless()
+      series = drawn
+      atr = ChartSeries.atr(candles: real.candles)
+      times = ChartTimes(real: real, drawn: drawn, range: range)
+    } else {
+      series = nil
+      atr = []
+      times = .day
+    }
     studies = CandleStudies(candles: series?.candles ?? [])
   }
 
@@ -225,4 +285,69 @@ final class ChartModel {
     let target = index + step
     return days.indices.contains(target) ? days[target].day : nil
   }
+}
+
+/// Real times of the drawn candles. On one day the candles keep their own clock and the axis
+/// is automatic; beyond one day they sit back to back (no overnight, weekend or holiday gaps),
+/// so the readout and the axis look their real times up here.
+struct ChartTimes: Equatable {
+  /// One day: the candles' own times.
+  static let day = ChartTimes(range: .oneDay, timeframe: .m1, real: [:], marks: [])
+
+  let range: ChartRange
+  let timeframe: Timeframe
+  /// Real opening time of each drawn candle, by its drawn start.
+  let real: [Date: Date]
+  /// Axis labels where a session, week, month or quarter begins, at drawn times.
+  let marks: [ChartAxisLabel]
+
+  private init(range: ChartRange, timeframe: Timeframe, real: [Date: Date], marks: [ChartAxisLabel]) {
+    self.range = range
+    self.timeframe = timeframe
+    self.real = real
+    self.marks = marks
+  }
+
+  /// `drawn` is `real.gapless()`: the same candles, index for index.
+  init(real: ChartSeries, drawn: ChartSeries, range: ChartRange) {
+    let starts = real.candles.map(\.start)
+    self.range = range
+    timeframe = real.timeframe
+    self.real = Dictionary(zip(drawn.candles.map(\.start), starts), uniquingKeysWith: { first, _ in first })
+    marks = ChartAxis.boundaries(starts, range: range, timeframe: real.timeframe)
+      .filter { drawn.candles.indices.contains($0) }
+      .map { ChartAxisLabel(time: drawn.candles[$0].start, text: Self.axisText(starts[$0], range: range)) }
+  }
+
+  /// The candle's time in the readout and under the crosshair: "14:05" on one day, "Fri 13
+  /// 14:05" over five days, "Fri, Nov 13" for a daily candle, the week's Monday for a weekly
+  /// one, "Nov 2026" for a monthly one.
+  func text(_ drawnStart: Date) -> String {
+    let start = real[drawnStart] ?? drawnStart
+    switch timeframe {
+    case .d1: return start.formatted(ChartFormat.day)
+    case .w1: return start.formatted(ChartFormat.monthDay)
+    case .mo1: return start.formatted(ChartFormat.monthYear)
+    default:
+      let time = start.formatted(ChartFormat.time)
+      return range == .oneDay ? time : [start.formatted(ChartFormat.sessionDay), time].joined(separator: ChartFormat.space)
+    }
+  }
+
+  private static func axisText(_ start: Date, range: ChartRange) -> String {
+    switch range {
+    case .oneDay, .fiveDays: return start.formatted(ChartFormat.sessionDay)
+    case .oneMonth: return start.formatted(ChartFormat.monthDay)
+    case .threeMonths, .oneYear:
+      let january = WireDate.newYork.component(.month, from: start) == 1
+      return start.formatted(january ? ChartFormat.year : ChartFormat.month)
+    }
+  }
+}
+
+/// A labelled time on the axis beyond one day.
+struct ChartAxisLabel: Equatable, Identifiable {
+  let time: Date
+  let text: String
+  var id: Date { time }
 }
