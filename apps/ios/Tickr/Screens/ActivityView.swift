@@ -927,7 +927,7 @@ private struct ReplayLine: View {
       Text(line(result))
         .font(Tokens.Typography.captionMono)
         .fixedSize(horizontal: false, vertical: true)
-    } else if let cause = whatIf.cause {
+    } else if let cause = ApiText.prose(whatIf.causeCodes, text: whatIf.cause) {
       Text(L10n.Activity.noReplay(cause))
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textQuaternary)

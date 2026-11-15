@@ -902,10 +902,11 @@ private struct CleanLine: View {
         Text(L10n.Home.cleanDay)
           .foregroundStyle(Palette.profitText)
       case .notClean:
-        Text(L10n.Home.notClean(clean.causes.first?.text ?? Format.missing, clean.causes.count))
+        Text(L10n.Home.notClean(clean.causes.first.map { ApiText.prose($0.textCodes, text: $0.text) } ?? Format.missing,
+          clean.causes.count))
           .foregroundStyle(Palette.warningText)
       case .unknown:
-        Text(L10n.Home.cleanUnknown(clean.cause ?? Format.missing))
+        Text(L10n.Home.cleanUnknown(ApiText.prose(clean.causeCodes, text: clean.cause) ?? Format.missing))
           .foregroundStyle(Palette.textQuaternary)
       }
     }

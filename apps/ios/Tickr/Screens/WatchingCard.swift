@@ -85,7 +85,7 @@ private struct WatchingRow: View {
           .tint(current ? Palette.accent : Palette.textQuaternary)
           .accessibilityLabel(Text(L10n.Watching.closeness))
       } else if let cause = row.closenessCause {
-        Text(verbatim: cause)
+        Text(verbatim: ApiText.prose(row.closenessCauseCodes, text: cause))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }

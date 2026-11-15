@@ -34,6 +34,6 @@ public struct ObserverSummary: Hashable, Sendable, Identifiable {
     shared = entered.filter(traded.contains)
     exits = observer.decisions.filter { $0.action == .exit }.count
     result = observer.resultGrossUSD?.value
-    resultCause = observer.resultCause
+    resultCause = ApiText.prose(observer.resultCauseCodes, text: observer.resultCause)
   }
 }

@@ -500,7 +500,8 @@ private struct ProtectionChain: View {
     if entry.sendOutcome == .unknown, entry.latestOutcome == .acknowledged {
       return String(localized: L10n.Positions.entryConfirmedLater)
     }
-    return entry.sentAt.map { Format.clock($0.date) } ?? position.entryCause ?? Format.missing
+    return entry.sentAt.map { Format.clock($0.date) }
+      ?? ApiText.prose(position.entryCauseCodes, text: position.entryCause) ?? Format.missing
   }
 
   private var steps: [(label: LocalizedStringResource, detail: String, ok: Bool)] {
