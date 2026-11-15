@@ -2708,8 +2708,8 @@ enum L10n {
         bundle: L10n.bundle)
     }
     /// Menu bar: label over today's result.
-    static var today: LocalizedStringResource {
-      LocalizedStringResource("menuBar.today", defaultValue: "Today", bundle: L10n.bundle)
+    static var dayResult: LocalizedStringResource {
+      LocalizedStringResource("menuBar.dayResult", defaultValue: "Day result", bundle: L10n.bundle)
     }
     /// Today's closed trades with wins and losses.
     static func trades(_ closed: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
@@ -2727,17 +2727,32 @@ enum L10n {
     static func shares(_ quantity: String) -> LocalizedStringResource {
       LocalizedStringResource("menuBar.shares", defaultValue: "\(quantity) sh", bundle: L10n.bundle)
     }
-    /// A position's entry price.
+    /// A position's entry price, after the entry mark ("→|"); its words are the hint.
     static func entry(_ price: String) -> LocalizedStringResource {
-      LocalizedStringResource("menuBar.entry", defaultValue: "entry \(price)", bundle: L10n.bundle)
+      LocalizedStringResource("menuBar.entry", defaultValue: "→| \(price)", bundle: L10n.bundle)
     }
-    /// The last bar's close.
-    static func last(_ price: String) -> LocalizedStringResource {
-      LocalizedStringResource("menuBar.last", defaultValue: "last \(price)", bundle: L10n.bundle)
+    /// The age of the last broker read past two minutes, short ("3 min").
+    static func ageMinutes(_ minutes: Int) -> LocalizedStringResource {
+      LocalizedStringResource("menuBar.ageMinutes", defaultValue: "\(minutes) min", bundle: L10n.bundle)
     }
-    /// How long ago the bot last read the broker.
-    static func brokerRead(_ age: String) -> LocalizedStringResource {
-      LocalizedStringResource("menuBar.brokerRead", defaultValue: "broker read \(age)", bundle: L10n.bundle)
+    /// Short names of the bot's stages under the flow dots, one word each.
+    static var flowScreen: LocalizedStringResource {
+      LocalizedStringResource("menuBar.flowScreen", defaultValue: "screen", bundle: L10n.bundle)
+    }
+    static var flowStrategy: LocalizedStringResource {
+      LocalizedStringResource("menuBar.flowStrategy", defaultValue: "strategy", bundle: L10n.bundle)
+    }
+    static var flowRisk: LocalizedStringResource {
+      LocalizedStringResource("menuBar.flowRisk", defaultValue: "risk", bundle: L10n.bundle)
+    }
+    static var flowOrder: LocalizedStringResource {
+      LocalizedStringResource("menuBar.flowOrder", defaultValue: "order", bundle: L10n.bundle)
+    }
+    static var flowStop: LocalizedStringResource {
+      LocalizedStringResource("menuBar.flowStop", defaultValue: "stop", bundle: L10n.bundle)
+    }
+    static var flowReconcile: LocalizedStringResource {
+      LocalizedStringResource("menuBar.flowReconcile", defaultValue: "reconcile", bundle: L10n.bundle)
     }
   }
   enum Screener {

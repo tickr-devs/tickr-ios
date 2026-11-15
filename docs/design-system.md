@@ -97,14 +97,18 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `subtitle` | 28 pt medium mono | The word next to a screen title ("Operator") |
 | `display` | 44 pt bold mono | A headline figure set apart from cards (Overview's day result on the Mac) |
 | `hero` | 34 pt bold mono | The one key figure of a screen inside a card |
+| `panelFigure` | 32 pt bold mono, tracking −1 | The day result in the Mac menu-bar panel |
 | `metric` | 24 pt bold mono | Large figures in cards |
 | `body` / `bodyMono` | `.body` | Values in rows |
 | `callout` / `calloutMono` | `.callout` | Labels, explanations |
 | `caption` / `captionMono` | `.caption` | Secondary notes |
+| `subheadlineMono` | `.subheadline` mono | A detail line under a figure or beside a symbol (menu-bar panel) |
+| `headingMono` | `.title3` mono | A symbol heading a compact row (menu-bar panel positions) |
 | `label` | 11 pt semibold mono, uppercase, tracking 0.8 | Card section labels |
 | `badge` | 10.5 pt bold mono, tracking 0.6 | Badges and tags |
 | `annotation` / `annotationBold` | 10.5 pt mono | Chart axes, ticker, pipeline values |
 | `symbol` | `Size.iconWellSymbol` semibold | SF Symbols in icon wells |
+| `symbolCompact` | 13 pt semibold | SF Symbols in compact round icon buttons |
 | `stageSymbol` | 20 pt semibold | SF Symbols in a live-flow stage |
 | `button` | `.body` semibold | Command buttons (bot controls) |
 | `chip` | `.callout` bold mono | Tabs and chips naming a symbol (position tabs) |
@@ -115,7 +119,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 Sizes above are the Mac's (macOS has no Dynamic Type). On iOS every role follows a text style, so
 Dynamic Type scales it: `label`, `badge`, `annotation` → `.caption2`; `metric` → `.title2`; `hero`
 and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` → `.subheadline`;
-`stageSymbol` → `.title3`. At the default text size these match the design within a point or two.
+`stageSymbol` → `.title3`; `panelFigure` → `.largeTitle`; `symbolCompact` → `.footnote`. At the default text size these match the design within a point or two.
 
 ## Lines (`Tokens.Stroke`)
 

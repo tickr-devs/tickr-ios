@@ -5496,19 +5496,36 @@
         }
       }
     },
-    "menuBar.brokerRead" : {
+    "menuBar.ageMinutes" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "broker read %@"
+            "value" : "%lld min"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "чтение брокера %@"
+            "value" : "%lld мин"
+          }
+        }
+      }
+    },
+    "menuBar.dayResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day result"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Итог дня"
           }
         }
       }
@@ -5553,30 +5570,115 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "entry %@"
+            "value" : "→| %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "вход %@"
+            "value" : "→| %@"
           }
         }
       }
     },
-    "menuBar.last" : {
+    "menuBar.flowOrder" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "last %@"
+            "value" : "order"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "последняя %@"
+            "value" : "ордер"
+          }
+        }
+      }
+    },
+    "menuBar.flowReconcile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reconcile"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "сверка"
+          }
+        }
+      }
+    },
+    "menuBar.flowRisk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "risk"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "риск"
+          }
+        }
+      }
+    },
+    "menuBar.flowScreen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "screen"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отбор"
+          }
+        }
+      }
+    },
+    "menuBar.flowStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп"
+          }
+        }
+      }
+    },
+    "menuBar.flowStrategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "strategy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стратегия"
           }
         }
       }
@@ -5594,23 +5696,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ шт."
-          }
-        }
-      }
-    },
-    "menuBar.today" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сегодня"
           }
         }
       }

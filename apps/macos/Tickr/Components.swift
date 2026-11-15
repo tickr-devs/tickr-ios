@@ -15,6 +15,16 @@ extension Severity {
     }
   }
 
+  /// Tone of the menu-bar panel's banner: the design draws a calm headline in the accent (live),
+  /// not in profit green.
+  var bannerTone: Tone {
+    switch self {
+    case .ok: return .accent
+    case .attention: return .warning
+    case .alarm: return .loss
+    }
+  }
+
   /// SF Symbols of the menu-bar extra for each severity.
   static let okSymbol = "camera.tickr"
   static let attentionSymbol = "pause.circle"

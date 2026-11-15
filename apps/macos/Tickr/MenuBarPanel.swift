@@ -4,10 +4,11 @@ import TickrKit
 
 /// The menu-bar extra: what the bot is doing, today's result, the open positions against their
 /// stops, the bot's flow and the common controls, without opening the main window. It always
-/// shows today, even while the main window shows a recorded day.
+/// shows today, even while the main window shows a recorded day. Drawn as the design's solid card:
+/// the panel's own surface replaces the window's translucent material, which greyed it out.
 struct MenuBarPanel: View {
-  /// Width of the panel, in points.
-  static let width: CGFloat = 380
+  /// Width of the panel, in points: the design's 420-point board less its 14-point margins.
+  static let width: CGFloat = 392
   /// Lines the headline may wrap to.
   static let headlineLines = 2
 
@@ -31,66 +32,79 @@ struct MenuBarPanel: View {
       TodayResult().rise(step: Order.result.rawValue)
       MenuPositions().rise(step: Order.positions.rawValue)
       FlowDots().rise(step: Order.flow.rawValue)
-      BotControls(compact: true).rise(step: Order.controls.rawValue)
-      Divider()
+      // The commands as one pill, centred under the flow.
+      BotControls(compact: true)
+        .frame(maxWidth: .infinity)
+        .rise(step: Order.controls.rawValue)
+      Rectangle()
+        .fill(Palette.separator)
+        .frame(height: Tokens.Stroke.thin)
       MenuFooter().rise(step: Order.footer.rawValue)
     }
     .padding(Tokens.Space.l)
     .frame(width: Self.width)
+    .foregroundStyle(Palette.textPrimary)
+    .background(Palette.surface)
   }
 }
 
-/// The headline in its severity colour, with a pulsing dot.
+/// The headline in its severity's tone on a washed, outlined strip, with a dot that pulses once
+/// per new headline.
 private struct StatusBanner: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    let color = model.headline.severity.color
-    HStack(spacing: Tokens.Space.s) {
-      PulseDot(color, event: model.headline.pulse)
+    let tone = model.headline.severity.bannerTone
+    HStack(spacing: Tokens.Space.s + Tokens.Space.xxs) {
+      PulseDot(tone.fill, event: model.headline.pulse)
       Text(verbatim: model.headline.text)
-        .font(Tokens.Typography.callout.weight(.semibold))
-        .foregroundStyle(color)
+        .font(Tokens.Typography.body.weight(.semibold))
+        .foregroundStyle(tone.text)
         .lineLimit(MenuBarPanel.headlineLines)
+        .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: 0)
     }
     .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .background(color.opacity(Tokens.Opacity.wash), in: .rect(cornerRadius: Tokens.Radius.medium))
-    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(color.opacity(Tokens.Opacity.border)))
+    .padding(.vertical, Tokens.Space.s + Tokens.Space.xxs)
+    .background(tone.fill.opacity(Tokens.Opacity.wash), in: .rect(cornerRadius: Tokens.Radius.medium))
+    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+      .strokeBorder(tone.fill.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
     // The colour follows the severity, so a severity change animates even under the same words.
     .animation(Tokens.Motion.standard, value: [AnyHashable(model.headline.pulse), AnyHashable(model.headline.severity)])
   }
 }
 
-/// Today's net result with its trades, the room under the daily loss limit and the day's curve.
+/// Today's net result over its trades and the room under the daily loss limit, with the day's
+/// curve beside them.
 private struct TodayResult: View {
   @Environment(AppModel.self) private var model
 
-  /// Width of the day's curve, in points.
+  /// Size of the day's curve, in points.
   static let curveWidth: CGFloat = 120
+  static let curveHeight: CGFloat = 44
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      CardLabel(L10n.MenuBar.today)
-      HStack(alignment: .bottom, spacing: Tokens.Space.m) {
+    HStack(alignment: .bottom, spacing: Tokens.Space.m) {
+      VStack(alignment: .leading, spacing: 0) {
+        CardLabel(L10n.MenuBar.dayResult)
         if let status = model.status {
-          MoneyText(value: status.resultTodayGrossUsd.value, usd: true, font: Tokens.Typography.hero)
-          Spacer(minLength: Tokens.Space.s)
-          DrawnSparkline(values: curve(status), color: Palette.result(status.resultTodayGrossUsd.value))
-            .frame(width: Self.curveWidth, height: Tokens.Size.sparkline)
+          MoneyText(value: status.resultTodayGrossUsd.value, usd: true, font: Tokens.Typography.panelFigure)
+            .tracking(Tokens.Typography.panelFigureTracking)
+          // Wraps rather than being cut short (Russian runs longer).
+          Text(summary(status))
+            .font(Tokens.Typography.subheadlineMono)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
         } else {
           Text(verbatim: Format.missing)
-            .font(Tokens.Typography.hero)
+            .font(Tokens.Typography.panelFigure)
             .foregroundStyle(Palette.textQuaternary)
         }
       }
+      Spacer(minLength: 0)
       if let status = model.status {
-        // The full width of the panel, wrapping rather than cut short (Russian runs longer).
-        Text(summary(status))
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
+        DrawnSparkline(values: curve(status), color: Tone.result(status.resultTodayGrossUsd.value).fill)
+          .frame(width: Self.curveWidth, height: Self.curveHeight)
       }
     }
   }
@@ -178,40 +192,51 @@ struct MenuPosition: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
         Text(verbatim: position.symbol)
-          .font(Tokens.Typography.bodyMono.weight(.bold))
+          .font(Tokens.Typography.headingMono.weight(.bold))
           .foregroundStyle(Palette.textPrimary)
         Text(L10n.MenuBar.shares(Format.quantity(position.quantity.value)))
-          .font(Tokens.Typography.captionMono)
+          .font(Tokens.Typography.subheadlineMono.weight(.medium))
           .foregroundStyle(Palette.textQuaternary)
         Spacer()
         if let unrealized = row?.unrealized {
-          MoneyText(value: unrealized, usd: true, font: Tokens.Typography.calloutMono.weight(.bold))
+          MoneyText(value: unrealized, font: Tokens.Typography.chipValue)
         } else if let latest = row?.latestUnrealized, let staleHelp {
           // The newest bar is older than current: its result, greyed, never a blank.
-          MoneyText(value: latest, usd: true, font: Tokens.Typography.calloutMono.weight(.bold), muted: true)
+          MoneyText(value: latest, font: Tokens.Typography.chipValue, muted: true)
             .hint(staleHelp)
         } else {
           Text(verbatim: Format.missing)
-            .font(Tokens.Typography.calloutMono)
+            .font(Tokens.Typography.chipValue)
             .foregroundStyle(Palette.textQuaternary)
         }
       }
       StopTargetBar(progress: progress, muted: row?.isStale ?? false)
+      // As designed: shield and stop | entry mark and entry | last; the words are the hints.
       HStack {
-        StopBadge(state: position.stop.state, compact: true, price: position.stop.price)
+        HStack(spacing: Tokens.Space.xs + Tokens.Space.xxs) {
+          StopBadge(state: position.stop.state, compact: true, price: position.stop.price)
+          if let stop = position.stop.price?.value {
+            Text(verbatim: Format.price(stop))
+              .hint(L10n.Position.stopLevel(Format.price(stop)))
+          }
+        }
         Spacer()
         Text(L10n.MenuBar.entry(Format.price(position.entryPrice.value)))
+          .hint(L10n.Position.entryLevel(Format.price(position.entryPrice.value)))
         Spacer()
-        Text(L10n.MenuBar.last(Format.price(row?.lastBarClose ?? row?.latestClose)))
+        Text(verbatim: Format.price(row?.lastBarClose ?? row?.latestClose))
+          .hint(L10n.Position.lastBarClose)
       }
-      .font(Tokens.Typography.captionMono)
+      .font(Tokens.Typography.annotation)
       .foregroundStyle(Palette.textQuaternary)
     }
-    .padding(Tokens.Space.m)
+    .padding(.horizontal, Tokens.Space.m)
+    .padding(.vertical, Tokens.Space.s + Tokens.Space.xxs)
     .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.medium))
-    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.separator))
+    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+      .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
   }
 }
 
@@ -221,8 +246,9 @@ private struct StopTargetBar: View {
   /// The position is as of an older bar: greyed like its figure.
   var muted = false
 
-  /// Diameter of the knob, in points.
-  static let knob: CGFloat = 12
+  /// Diameter of the knob, and of the knob with its 4-point accent ring, in points.
+  static let knob: CGFloat = 15
+  static let knobWithRing: CGFloat = 23
 
   var body: some View {
     GeometryReader { proxy in
@@ -239,7 +265,9 @@ private struct StopTargetBar: View {
           Circle()
             .fill(Palette.textPrimary)
             .frame(width: Self.knob, height: Self.knob)
-            .shadow(color: Palette.accent.opacity(Tokens.Opacity.border), radius: Tokens.Space.xs)
+            .background(Circle()
+              .fill(Palette.accent.opacity(Tokens.Opacity.faint))
+              .frame(width: Self.knobWithRing, height: Self.knobWithRing))
             .offset(x: filled - Self.knob / 2)
         }
       }
@@ -247,13 +275,13 @@ private struct StopTargetBar: View {
       .saturation(muted ? 0 : 1)
       .opacity(muted ? Tokens.Opacity.medium : 1)
     }
-    .frame(height: Self.knob)
+    .frame(height: Self.knobWithRing)
     .animation(Tokens.Motion.fill, value: progress)
   }
 }
 
-/// The stages a setup passes, as dots: bright while the bot runs, dim otherwise. They move only
-/// when the bot's state changes (one pulse), never on a timer.
+/// The stages a setup passes, as glowing dots over one-word names: bright while the bot runs,
+/// dim otherwise. They move only when the bot's state changes (one pulse), never on a timer.
 private struct FlowDots: View {
   @Environment(AppModel.self) private var model
 
@@ -272,12 +300,12 @@ private struct FlowDots: View {
       stopColor = stops.allSatisfy { $0 == .verified } ? Palette.profit : Palette.loss
     }
     let items: [(LocalizedStringResource, Color)] = [
-      (L10n.Flow.screeners, Palette.accent),
-      (L10n.Common.strategy, Palette.highlight),
-      (L10n.Common.risk, Palette.warning),
-      (L10n.Flow.order, Palette.info),
-      (L10n.Flow.brokerStop, stopColor),
-      (L10n.Flow.reconcile, Palette.info),
+      (L10n.MenuBar.flowScreen, Palette.accent),
+      (L10n.MenuBar.flowStrategy, Palette.highlight),
+      (L10n.MenuBar.flowRisk, Palette.warning),
+      (L10n.MenuBar.flowOrder, Palette.info),
+      (L10n.MenuBar.flowStop, stopColor),
+      (L10n.MenuBar.flowReconcile, Palette.infoText),
     ]
     return items.enumerated().map { Stage(id: $0.offset, name: $0.element.0, color: $0.element.1) }
   }
@@ -286,76 +314,147 @@ private struct FlowDots: View {
     model.status?.botState == .running && model.fetchError == nil
   }
 
-  /// Lines a stage name may wrap to.
-  static let nameLines = 2
-
   var body: some View {
-    HStack(alignment: .top, spacing: Tokens.Space.xs) {
+    HStack(alignment: .top, spacing: 0) {
       ForEach(stages) { stage in
+        if stage.id > 0 { Spacer(minLength: Tokens.Space.xs) }
         VStack(spacing: Tokens.Space.xs) {
           // Still unless the bot's state changes: the dots show the stages, not activity.
-          PulseDot(stage.color, pulsing: moving, event: model.status?.botState)
+          PulseDot(stage.color, size: Tokens.Size.flowMark, pulsing: moving, event: model.status?.botState)
+            .shadow(color: stage.color, radius: Tokens.Size.flowMark / 2)
             .opacity(moving ? 1 : Tokens.Opacity.medium)
-          // Every stage in the same size: a long name wraps to a second line instead of shrinking.
+          // One short word on one line, as drawn.
           Text(stage.name)
-            .font(Tokens.Typography.annotation)
+            .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textTertiary)
-            .multilineTextAlignment(.center)
-            .lineLimit(FlowDots.nameLines)
-            .fixedSize(horizontal: false, vertical: true)
+            .lineLimit(1)
+            .fixedSize()
         }
-        .frame(maxWidth: .infinity, alignment: .top)
       }
     }
+    .padding(.horizontal, Tokens.Space.xs + Tokens.Space.xxs)
+    .padding(.vertical, Tokens.Space.xxs)
   }
 }
 
-/// Environment, how fresh the broker read is, and the window, settings and quit actions.
+/// One row as designed: open the window, the environment chip, how fresh the broker read is (a
+/// bank symbol and its short age in the read's colour, named in its hint), settings and quit.
+/// When the row does not fit (longer Russian), it splits into two.
 private struct MenuFooter: View {
   @Environment(AppModel.self) private var model
   @Environment(\.openWindow) private var openWindow
 
-  /// Symbols of the footer's actions.
+  /// Symbols of the footer's actions and of the broker read.
   static let openSymbol = "macwindow"
   static let settingsSymbol = "gearshape"
   static let quitSymbol = "power"
+  static let readSymbol = "building.columns"
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack {
-        if let environment = model.status?.environment {
-          Badge(verbatim: ApiText.environment(environment), color: Palette.accentText)
-        }
-        Spacer()
-        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
-          Text(L10n.MenuBar.brokerRead(
-            Format.age(since: model.status?.freshness.lastBrokerReadAt?.date, now: model.botTime(context.date))))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textQuaternary)
-            .contentTransition(.numericText())
-        }
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: 0) {
+        open
+        Spacer().frame(width: Tokens.Space.xxs)
+        badges
+        Spacer(minLength: Tokens.Space.s)
+        readAge
+          .padding(.trailing, Tokens.Space.s)
+        icons
       }
-      HStack(spacing: Tokens.Space.s) {
-        Button {
-          openWindow(id: WindowID.main)
-          NSApplication.shared.activate()
-        } label: {
-          Label { Text(L10n.App.openApp) } icon: { Image(systemName: Self.openSymbol) }
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        HStack(spacing: Tokens.Space.s) {
+          badges
+          Spacer(minLength: Tokens.Space.s)
+          readAge
         }
-        .buttonStyle(.action(.primary, size: .compact))
-        Spacer()
-        SettingsLink {
-          Label { Text(L10n.App.settings) } icon: { Image(systemName: Self.settingsSymbol) }
+        HStack(spacing: Tokens.Space.s) {
+          open
+          Spacer(minLength: Tokens.Space.s)
+          icons
         }
-        .buttonStyle(.icon(compact: true))
-        .hint(L10n.App.settings)
-        Button { NSApplication.shared.terminate(nil) } label: {
-          Label { Text(L10n.App.quit) } icon: { Image(systemName: Self.quitSymbol) }
-        }
-        .buttonStyle(.icon(compact: true))
-        .hint(L10n.App.quit)
       }
     }
+  }
+
+  private var open: some View {
+    Button {
+      openWindow(id: WindowID.main)
+      NSApplication.shared.activate()
+    } label: {
+      Label { Text(L10n.App.openApp) } icon: { Image(systemName: Self.openSymbol) }
+    }
+    .buttonStyle(.action(.primary, size: .medium))
+  }
+
+  /// The environment chip (the demo day's own warning stands above the panel's banner).
+  private var badges: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      if let environment = model.status?.environment {
+        EnvironmentChip(text: ApiText.environment(environment))
+      }
+    }
+  }
+
+  /// The age of the bot's last broker read, coloured like the Safety card's row.
+  private var readAge: some View {
+    TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
+      let read = model.status?.freshness.lastBrokerReadAt?.date
+      let now = model.botTime(context.date)
+      HStack(spacing: Tokens.Space.xs) {
+        Image(systemName: Self.readSymbol)
+        Text(verbatim: Self.shortAge(since: read, now: now))
+          .contentTransition(.numericText())
+      }
+      .font(Tokens.Typography.calloutMono)
+      .foregroundStyle(BrokerReadAge.color(since: read, now: now, limits: BrokerReadAge.Limits(model.settings)))
+      .fixedSize()
+      .hint(L10n.Safety.lastBrokerRead)
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(Text(L10n.Safety.lastBrokerRead))
+      .accessibilityValue(Text(verbatim: Format.age(since: read, now: now)))
+    }
+  }
+
+  /// "3 s", "4 min": the read's age as the design writes it, without "ago".
+  static func shortAge(since date: Date?, now: Date) -> String {
+    guard let date else { return String(localized: L10n.Format.never) }
+    let seconds = max(0, Int(now.timeIntervalSince(date)))
+    if seconds < Format.secondsShownUpTo { return Format.seconds(Decimal(seconds)) }
+    return String(localized: L10n.MenuBar.ageMinutes(seconds / Format.secondsPerMinute))
+  }
+
+  private var icons: some View {
+    HStack(spacing: Tokens.Space.xs + Tokens.Space.xxs) {
+      SettingsLink {
+        Label { Text(L10n.App.settings) } icon: { Image(systemName: Self.settingsSymbol) }
+      }
+      .buttonStyle(.icon(compact: true))
+      .hint(L10n.App.settings)
+      Button { NSApplication.shared.terminate(nil) } label: {
+        Label { Text(L10n.App.quit) } icon: { Image(systemName: Self.quitSymbol) }
+      }
+      .buttonStyle(.icon(compact: true))
+      .hint(L10n.App.quit)
+    }
+  }
+}
+
+/// The environment as the design's small chip: the bot's word in lower case on an accent-washed
+/// capsule, without an outline.
+private struct EnvironmentChip: View {
+  let text: String
+
+  var body: some View {
+    Text(verbatim: text)
+      .textCase(.lowercase)
+      .font(Tokens.Typography.captionMono.weight(.bold))
+      .lineLimit(1)
+      .foregroundStyle(Palette.accentText)
+      .padding(.horizontal, Tokens.Space.xs + Tokens.Space.xxs)
+      .padding(.vertical, Tokens.Space.xxs)
+      .background(Palette.accent.opacity(Tokens.Opacity.glow), in: Capsule())
+      .fixedSize()
+      .hint(L10n.Settings.environment)
   }
 }
 

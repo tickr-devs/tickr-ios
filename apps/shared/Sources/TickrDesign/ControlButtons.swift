@@ -14,6 +14,8 @@ public struct ActionButtonStyle: ButtonStyle {
   public enum Size: Sendable, Hashable, CaseIterable {
     /// Inline in a row or a card header.
     case compact
+    /// A panel's one main action, between compact and regular (the menu-bar panel's Open Tickr).
+    case medium
     /// The default.
     case regular
     /// Full-width actions of a sheet or a panel on the phone: at least a touch target tall.
@@ -45,7 +47,7 @@ private struct ActionButtonBody: View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     configuration.label
       .labelStyle(ControlLabelStyle())
-      .font(size == .compact ? Tokens.Typography.buttonCompact : Tokens.Typography.button)
+      .font(size == .compact || size == .medium ? Tokens.Typography.buttonCompact : Tokens.Typography.button)
       .foregroundStyle(foreground)
       .padding(.horizontal, horizontalPadding)
       .padding(.vertical, verticalPadding)
@@ -101,6 +103,7 @@ private struct ActionButtonBody: View {
   private var horizontalPadding: CGFloat {
     switch size {
     case .compact: return Tokens.Space.s
+    case .medium: return Tokens.Space.s + Tokens.Space.xxs
     case .regular: return Tokens.Space.m
     case .large: return Tokens.Space.l
     }
@@ -109,6 +112,7 @@ private struct ActionButtonBody: View {
   private var verticalPadding: CGFloat {
     switch size {
     case .compact: return Tokens.Space.xs
+    case .medium: return Tokens.Space.xs + Tokens.Space.xxs
     case .regular: return Tokens.Space.s
     case .large: return Tokens.Space.m
     }
@@ -144,8 +148,8 @@ private struct IconButtonBody: View {
     let active = enabled && (hovered || configuration.isPressed)
     configuration.label
       .labelStyle(.iconOnly)
-      .font(Tokens.Typography.symbol)
-      .foregroundStyle(neutral ? Palette.textSecondary : tone.text)
+      .font(compact ? Tokens.Typography.symbolCompact : Tokens.Typography.symbol)
+      .foregroundStyle(neutral ? Palette.textPrimary : tone.text)
       .frame(width: side, height: side)
       .background(Circle().fill(neutral
         ? (active ? Palette.accent.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken)

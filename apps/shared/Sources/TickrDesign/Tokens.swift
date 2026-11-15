@@ -62,6 +62,12 @@ public enum Tokens {
     public static let subtitleSize: CGFloat = 28
     /// SF Symbols inside a live-flow stage.
     public static let stageSymbolSize: CGFloat = 20
+    /// The day result in the macOS menu-bar panel: a little smaller than `hero`, drawn tight.
+    public static let panelFigureSize: CGFloat = 32
+    /// Letter spacing of `panelFigure`, in points (negative: tighter).
+    public static let panelFigureTracking: CGFloat = -1
+    /// SF Symbols inside a compact round icon button.
+    public static let symbolCompactSize: CGFloat = 13
 
     #if os(iOS)
     // iOS: each role follows a text style, so Dynamic Type (Settings › Display & Brightness ›
@@ -81,6 +87,9 @@ public enum Tokens {
     public static let symbol = Font.system(.subheadline, weight: .semibold)
     /// SF Symbols inside a live-flow stage.
     public static let stageSymbol = Font.system(.title3, weight: .semibold)
+    public static let panelFigure = Font.system(.largeTitle, design: .monospaced, weight: .bold)
+    /// SF Symbols inside a compact round icon button.
+    public static let symbolCompact = Font.system(.footnote, weight: .semibold)
     #else
     public static let label = Font.system(size: labelSize, weight: .semibold, design: .monospaced)
     public static let badge = Font.system(size: badgeSize, weight: .bold, design: .monospaced)
@@ -95,6 +104,10 @@ public enum Tokens {
     public static let symbol = Font.system(size: Size.iconWellSymbol, weight: .semibold)
     /// SF Symbols inside a live-flow stage.
     public static let stageSymbol = Font.system(size: stageSymbolSize, weight: .semibold)
+    /// The day result in the macOS menu-bar panel.
+    public static let panelFigure = Font.system(size: panelFigureSize, weight: .bold, design: .monospaced)
+    /// SF Symbols inside a compact round icon button.
+    public static let symbolCompact = Font.system(size: symbolCompactSize, weight: .semibold)
     #endif
     /// Buttons drawn by the apps' own button style (bot controls).
     public static let button = Font.system(.body, weight: .semibold)
@@ -113,6 +126,10 @@ public enum Tokens {
     public static let calloutMono = Font.callout.monospaced()
     public static let caption = Font.caption
     public static let captionMono = Font.caption.monospaced()
+    /// A symbol heading a compact row (the menu-bar panel's positions).
+    public static let headingMono = Font.title3.monospaced()
+    /// A detail line under a figure or beside a symbol (trades and room, a size in shares).
+    public static let subheadlineMono = Font.subheadline.monospaced()
   }
 
   /// Line widths, in points.
