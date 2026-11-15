@@ -17,7 +17,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CFBundleName</key><string>Aperture</string>
+  <key>CFBundleName</key><string>Tickr</string>
   <key>CFBundleIdentifier</key><string>local.aperture.operator</string>
   <key>CFBundleExecutable</key><string>Aperture</string>
   <key>CFBundlePackageType</key><string>APPL</string>

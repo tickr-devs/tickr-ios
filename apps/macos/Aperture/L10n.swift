@@ -17,7 +17,7 @@ enum L10n {
 
   enum App {
     static var name: LocalizedStringResource {
-      LocalizedStringResource("app.name", defaultValue: "Aperture", bundle: L10n.bundle)
+      LocalizedStringResource("app.name", defaultValue: "Tickr", bundle: L10n.bundle)
     }
     static var dayMenu: LocalizedStringResource {
       LocalizedStringResource("app.dayMenu", defaultValue: "Day", bundle: L10n.bundle)
@@ -29,7 +29,7 @@ enum L10n {
       LocalizedStringResource("app.nextTradingDay", defaultValue: "Next Trading Day", bundle: L10n.bundle)
     }
     static var openApp: LocalizedStringResource {
-      LocalizedStringResource("app.openApp", defaultValue: "Open Aperture", bundle: L10n.bundle)
+      LocalizedStringResource("app.openApp", defaultValue: "Open Tickr", bundle: L10n.bundle)
     }
     static var settings: LocalizedStringResource {
       LocalizedStringResource("app.settings", defaultValue: "Settings…", bundle: L10n.bundle)
@@ -710,7 +710,7 @@ enum L10n {
     }
     static var showInMenuBar: LocalizedStringResource {
       LocalizedStringResource("settings.showInMenuBar",
-        defaultValue: "Show Aperture in the menu bar",
+        defaultValue: "Show Tickr in the menu bar",
         bundle: L10n.bundle)
     }
     static var appearance: LocalizedStringResource {

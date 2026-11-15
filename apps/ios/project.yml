@@ -48,10 +48,15 @@ targets:
     info:
       path: Support/Info.plist
       properties:
-        CFBundleDisplayName: Aperture
+        CFBundleDisplayName: Tickr
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        UILaunchScreen: {}
+        # Launch screen: the window background with the mark (Assets.xcassets, made by
+        # apps/scripts/make_brand_assets.py), so the first screen follows without a flash.
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchMark
+          UIImageRespectsSafeAreaInsets: true
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.

@@ -129,7 +129,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 |---|---|---|
 | `dot` / `dotSmall` | 8 / 6 | Status dots |
 | `iconWell` / `iconWellSymbol` | 44 / 15 | Round icon wells (pipeline) |
-| `logo` / `logoSmall` | 56 / 26 | Aperture mark |
+| `logo` / `logoSmall` | 56 / 26 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |
 | `sparkline` | 34 | Sparkline height |
 | `bar` | 8 | Progress bar height |
 | `ticker` | 22 | Ticker strip height |
@@ -151,7 +151,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `stagger` | 0.05 s | Delay between cards of a screen |
 | `pulseSeconds` / `pulseScale` | 2.4 s / ×2.2 | "Live" pulse ring |
 | `breatheSeconds` / `breatheScale` | 2.4 s / ×1.08 | Glows and alarms breathing |
-| `rotationSeconds` | 4 s per turn | Radar sweep (the logo turns slower, once per 24 s) |
+| `rotationSeconds` | 4 s per turn | Radar sweep |
 | `tickerSpeed` | 22 pt/s | Event ticker (edges fade over 6% of its width) |
 | `pipelineSeconds` | 4.2 s | Light travelling the live flow |
 
@@ -166,3 +166,19 @@ in rows uses the platform text styles so Dynamic Type applies.
 | Planned tag | BACKLOG / NEEDS API | `highlightText`, dashed `dashFine` outline, `Radius.small` |
 | Pulse dot | `PulseDot` | `Size.dot`, ring per `pulseSeconds` while live |
 | Banner | headline | role text colour, `Opacity.wash` fill, `Radius.medium`, `Space.m` padding |
+
+## Brand: app icon and launch screen
+
+The product name people see is **Tickr** (bundle display name and the String Catalogs); code,
+targets and the repository keep their code name. The mark is a price line drawn as a tick that
+breaks upward, with a spark at its end.
+
+- `apps/scripts/make_brand_assets.py` writes every brand file from one description, with colours
+  from `Palette.swift`: the Icon Composer icon `AppIcon.icon` of each app (light, dark and tinted;
+  the system adds Liquid Glass) and the iOS launch screen in `apps/ios/Aperture/Assets.xcassets`
+  (`LaunchBackground` = `background`, `LaunchMark`). Change the script and run it; never edit the
+  generated files. `tests/test_brand_assets.py` fails when they differ.
+- In the apps the same line is `BrandMark` (ApertureDesign): it draws itself on appear and its
+  spark then pulses while the bot's data is live; still otherwise and with Reduce Motion.
+- macOS has no launch screen (Apple HIG). The menu bar extra keeps an SF Symbol, because it shows
+  the bot's state; notifications and the About panel use the app icon.

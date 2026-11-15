@@ -200,57 +200,6 @@ struct Footnote: View {
   }
 }
 
-/// The aperture mark: six blades turning slowly inside a ring.
-struct ApertureLogo: View {
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  var size: CGFloat = Tokens.Size.logo
-
-  /// Number of blades.
-  static let blades = 6
-  /// Seconds for one full turn of the blades (slower than other rotating marks: it is decoration).
-  static let turnSeconds = 24.0
-  /// Blade start and end as a share of the radius, and the angle each blade spans, in radians.
-  static let bladeOuter = 0.75
-  static let bladeInner = 0.5
-  static let bladeSweep = 1.2
-  /// Radius of the centre dot as a share of the radius.
-  static let core = 0.22
-
-  var body: some View {
-    TimelineView(.animation(paused: reduceMotion)) { context in
-      let turn = reduceMotion ? 0 : context.date.timeIntervalSinceReferenceDate
-        .truncatingRemainder(dividingBy: Self.turnSeconds) / Self.turnSeconds
-      Canvas { graphics, canvas in
-        draw(in: graphics, size: canvas, turn: turn)
-      }
-    }
-    .frame(width: size, height: size)
-    .accessibilityHidden(true)
-  }
-
-  private func draw(in graphics: GraphicsContext, size canvas: CGSize, turn: Double) {
-    let radius = min(canvas.width, canvas.height) / 2
-    let center = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
-    let ring = CGRect(origin: .zero, size: canvas).insetBy(dx: Tokens.Stroke.thin, dy: Tokens.Stroke.thin)
-    graphics.stroke(Path(ellipseIn: ring), with: .color(Palette.highlight), lineWidth: Tokens.Stroke.bold)
-    let full = Geometry.fullTurn
-    for blade in 0..<Self.blades {
-      let angle = (turn + Double(blade) / Double(Self.blades)) * full
-      var path = Path()
-      path.move(to: point(center, radius * Self.bladeOuter, angle))
-      path.addLine(to: point(center, radius * Self.bladeInner, angle + Self.bladeSweep))
-      graphics.stroke(path, with: .color(Palette.accent), style: StrokeStyle(lineWidth: Tokens.Stroke.bold, lineCap: .round))
-    }
-    let coreRadius = radius * Self.core
-    let core = CGRect(origin: center, size: .zero).insetBy(dx: -coreRadius, dy: -coreRadius)
-    graphics.fill(Path(ellipseIn: core), with: .color(Palette.highlight.opacity(Tokens.Opacity.overlay)))
-  }
-
-  private func point(_ center: CGPoint, _ distance: Double, _ angle: Double) -> CGPoint {
-    CGPoint(x: center.x + distance * cos(angle), y: center.y + distance * sin(angle))
-  }
-}
-
 /// Dates, times and numbers as the app shows them. Times are market time (New York); words come
 /// from the String Catalog.
 enum Format {

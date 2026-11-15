@@ -74,7 +74,7 @@ private struct HeaderCard: View {
 
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
-      ApertureLogo()
+      BrandMark(live: model.isLive)
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         HStack(spacing: Tokens.Space.s) {
           Text(verbatim: AppInfo.name).font(Tokens.Typography.title)

@@ -619,13 +619,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aperture"
+            "value" : "Tickr"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aperture"
+            "value" : "Tickr"
           }
         }
       }
@@ -2948,13 +2948,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "That link is not an Aperture pairing link."
+            "value" : "That link is not a Tickr pairing link."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Это не ссылка для связи с Aperture."
+            "value" : "Это не ссылка для связи с Tickr."
           }
         }
       }

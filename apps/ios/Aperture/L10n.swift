@@ -11,7 +11,7 @@ enum L10n {
 
   enum App {
     static var name: LocalizedStringResource {
-      LocalizedStringResource("app.name", defaultValue: "Aperture", bundle: L10n.bundle)
+      LocalizedStringResource("app.name", defaultValue: "Tickr", bundle: L10n.bundle)
     }
     static var home: LocalizedStringResource {
       LocalizedStringResource("app.home", defaultValue: "Home", bundle: L10n.bundle)
@@ -667,7 +667,7 @@ enum L10n {
     }
     static var notALink: LocalizedStringResource {
       LocalizedStringResource("pair.notALink",
-        defaultValue: "That link is not an Aperture pairing link.",
+        defaultValue: "That link is not a Tickr pairing link.",
         bundle: L10n.bundle)
     }
     static var notSaved: LocalizedStringResource {

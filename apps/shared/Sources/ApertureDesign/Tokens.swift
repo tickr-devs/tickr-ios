@@ -124,7 +124,7 @@ public enum Tokens {
     public static let iconWell: CGFloat = 44
     /// SF Symbols inside an icon well.
     public static let iconWellSymbol: CGFloat = 15
-    /// The aperture logo in a header, and small in a panel.
+    /// The brand mark (BrandMark) in a header, and small in a panel.
     public static let logo: CGFloat = 56
     public static let logoSmall: CGFloat = 26
     /// Height of a sparkline and of a progress bar.
@@ -169,7 +169,7 @@ public enum Tokens {
     public static let breatheSeconds = 2.4
     /// How much a breathing glow grows.
     public static let breatheScale: CGFloat = 1.08
-    /// Seconds for one turn of the radar sweep (the logo has its own slower turn).
+    /// Seconds for one turn of the radar sweep.
     public static let rotationSeconds = 4.0
     /// Points per second of the event ticker.
     public static let tickerSpeed = 22.0

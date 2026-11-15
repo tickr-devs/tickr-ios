@@ -27,6 +27,8 @@ let package = Package(
         .product(name: "ApertureDesign", package: "ApertureShared"),
       ],
       path: "Aperture",
+      // The app icon is compiled by Xcode (actool); a `swift build` app has the generic icon.
+      exclude: ["AppIcon.icon"],
       resources: [.process("Localizable.xcstrings")],
       // The same language settings as the Xcode project (SWIFT_APPROACHABLE_CONCURRENCY and
       // SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY), so both builds compile alike.

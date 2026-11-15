@@ -24,13 +24,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aperture"
+            "value" : "Tickr"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aperture"
+            "value" : "Tickr"
           }
         }
       }
@@ -58,13 +58,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Aperture"
+            "value" : "Open Tickr"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Открыть Aperture"
+            "value" : "Открыть Tickr"
           }
         }
       }
@@ -5634,13 +5634,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show Aperture in the menu bar"
+            "value" : "Show Tickr in the menu bar"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показывать Aperture в строке меню"
+            "value" : "Показывать Tickr в строке меню"
           }
         }
       }
