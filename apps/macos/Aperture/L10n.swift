@@ -1243,6 +1243,10 @@ enum L10n {
     static var noRecords: LocalizedStringResource {
       LocalizedStringResource("trades.noRecords", defaultValue: "No records", bundle: L10n.bundle)
     }
+    /// A refusal with the end of its window (a cooldown), New York time.
+    static func refusedUntil(_ message: String, _ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.refusedUntil", defaultValue: "\(message) · until \(time)", bundle: L10n.bundle)
+    }
     /// Stat card: average result in R.
     static var averageR: LocalizedStringResource {
       LocalizedStringResource("trades.averageR", defaultValue: "Average R", bundle: L10n.bundle)

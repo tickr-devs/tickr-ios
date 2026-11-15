@@ -28,8 +28,8 @@ final class ApertureUITests: XCTestCase {
   static let fixturesBadge = "FIXTURES"
   /// The toolbar's connection status (ConnectionStatus.id).
   static let connectionItem = "toolbar-connection"
-  /// The start of the refusal cause in skipped-v1.json.
-  static let refusalCause = "POSITION_LIMIT_REACHED"
+  /// The refusal message of the first signal in skipped-v1.json.
+  static let refusalCause = "1 open position(s), limit 1"
   /// The selected trade's detail card and a label it shows only for a selected trade.
   static let tradeDetail = "trades-detail"
   static let stopConfirmedAfter = "Stop confirmed after"
