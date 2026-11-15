@@ -7983,6 +7983,23 @@
         }
       }
     },
+    "trades.allDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All days"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все дни"
+          }
+        }
+      }
+    },
     "trades.averageR" : {
       "extractionState" : "manual",
       "localizations" : {

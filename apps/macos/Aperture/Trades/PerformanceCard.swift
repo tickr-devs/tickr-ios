@@ -17,6 +17,9 @@ struct PerformanceCard: View {
   static let percentDigits = 0
   /// A win rate of 1 is 100 percent.
   static let percentFactor: Decimal = 100
+  /// Narrowest a figure gets before the figures wrap to another row, in points (the card sits in
+  /// the Trades side column).
+  static let figureMinWidth: CGFloat = 80
 
   var body: some View {
     Card(L10n.Trades.performance(AppModel.performanceDays)) {
@@ -38,7 +41,10 @@ struct PerformanceCard: View {
 
   private func content(_ performance: PerformanceV1) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack(alignment: .top, spacing: Tokens.Space.l) {
+      LazyVGrid(
+        columns: [GridItem(.adaptive(minimum: Self.figureMinWidth), spacing: Tokens.Space.m, alignment: .topLeading)],
+        alignment: .leading, spacing: Tokens.Space.m
+      ) {
         Figure(L10n.Trades.expectancy, performance.expectancyGrossR, color: true) { Risk.text($0) }
         Figure(L10n.Trades.winRate, performance.winRate) {
           String(localized: L10n.Trades.percent(Money.plain($0 * Self.percentFactor, fractionDigits: Self.percentDigits)))

@@ -1270,6 +1270,10 @@ enum L10n {
     static var days: LocalizedStringResource {
       LocalizedStringResource("trades.days", defaultValue: "Days", bundle: L10n.bundle)
     }
+
+    static var allDays: LocalizedStringResource {
+      LocalizedStringResource("trades.allDays", defaultValue: "All days", bundle: L10n.bundle)
+    }
     /// Days list is empty.
     static var noDays: LocalizedStringResource {
       LocalizedStringResource("trades.noDays", defaultValue: "No recorded days yet.", bundle: L10n.bundle)
