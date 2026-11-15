@@ -17,7 +17,7 @@ the three operator commands. It never talks to the broker.
 | `../shared` | Shared Swift package (see `apps/shared/README.md`): contract models and API client (`TickrKit`), palette and animated pieces (`TickrDesign`). |
 | `Tickr/` | The app's Swift sources (views, polling model, menu-bar extra, window). |
 | `TickrMac.xcodeproj` | Xcode project: target and scheme `Tickr macOS`, builds `Tickr.app` from `Tickr/`. |
-| `Support/Info.plist` | Info.plist keys Xcode cannot generate (local-network HTTP to the API). |
+| `Support/Info.plist` | Info.plist keys Xcode cannot generate (languages, local-network HTTP to the API); `scripts/make-app.sh` starts from it too. |
 | `Package.swift` | The same sources as a Swift package, for `swift build` and `scripts/make-app.sh` without Xcode. |
 
 ## Open in Xcode

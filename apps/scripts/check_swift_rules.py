@@ -28,7 +28,10 @@ legacy   The current Apple stack only (CLAUDE.md, "Swift code rules"): no XCTest
 catalog  Every key of an `L10n.swift` has a Russian translation in the target's String Catalog
          (`*.xcstrings` next to it), and every user-facing Info.plist text (`NS…UsageDescription`)
          has one in an `InfoPlist.xcstrings` of the same app. Every String Catalog is committed
-         in the exact form Xcode writes (format_xcstrings.py), so a build leaves no diff.
+         in the exact form Xcode writes (format_xcstrings.py), so a build leaves no diff. Every
+         app Info.plist lists in `CFBundleLocalizations` each language the app's and the shared
+         package's String Catalogs translate (the app follows the system language; without the
+         list the SwiftPM-built Mac app opens in English).
 
 Usage: check_swift_rules.py
 """
@@ -285,6 +288,31 @@ def plist_violations(path: Path) -> list[tuple[int, str]]:
     return found
 
 
+SHARED = "apps/shared"
+
+
+def catalog_languages(root: Path) -> set[str]:
+    """Languages any String Catalog under `root` holds a translation for, the source included."""
+    languages: set[str] = set()
+    for catalog in sorted(root.rglob("*.xcstrings")):
+        if BUILD_DIRS.intersection(catalog.relative_to(root).parts):
+            continue
+        data = json.loads(catalog.read_text(encoding="utf-8"))
+        languages.add(data.get("sourceLanguage", ""))
+        for entry in data.get("strings", {}).values():
+            languages.update(entry.get("localizations", {}))
+    return languages - {""}
+
+
+def localization_violations(path: Path, shared: Path | None = None) -> list[tuple[int, str]]:
+    """Catalog languages (the app's and the shared package's) missing from CFBundleLocalizations."""
+    app = path.parent.parent
+    languages = catalog_languages(app) | catalog_languages(shared or REPO / SHARED)
+    declared = plistlib.loads(path.read_bytes()).get("CFBundleLocalizations", [])
+    return [(1, f"CFBundleLocalizations lacks {language}")
+            for language in sorted(languages - set(declared))]
+
+
 # MARK: - running
 
 
@@ -461,7 +489,8 @@ RULES = {
     "text": (text_violations, "words in code; define them in L10n.swift, translated to Russian"),
     "numbers": (number_violations, "magic number; use a token or a documented constant"),
     "indent": (indent_violations, "indent with 2 spaces"),
-    "catalog": (catalog_violations, "text without a Russian translation in a String Catalog"),
+    "catalog": (catalog_violations,
+      "text without a Russian translation, or a language missing from an Info.plist"),
     "legacy": (legacy_violations, "outdated API: use the current Apple stack (CLAUDE.md)"),
     "loop": (loop_violations,
       "motion on its own clock; move only on a real data change, "
@@ -520,7 +549,7 @@ def collect() -> dict[str, dict[str, list[tuple[int, str]]]]:
         if found:
             result["legacy"][path.relative_to(REPO).as_posix()] = found
     for path in plist_files():
-        found = plist_violations(path)
+        found = plist_violations(path) + localization_violations(path)
         if found:
             result["catalog"][path.relative_to(REPO).as_posix()] = found
     for path in format_xcstrings.catalogs():

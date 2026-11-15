@@ -12,22 +12,14 @@ cp "$BIN" "$APP/Contents/MacOS/Tickr"
 # The String Catalogs (app and shared package) are compiled into SwiftPM resource bundles.
 mkdir -p "$APP/Contents/Resources"
 cp -R "$(swift build -c release --show-bin-path)"/*.bundle "$APP/Contents/Resources/"
-cat > "$APP/Contents/Info.plist" <<'PLIST'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>CFBundleName</key><string>Tickr</string>
-  <key>CFBundleIdentifier</key><string>local.tickr.operator</string>
-  <key>CFBundleExecutable</key><string>Tickr</string>
-  <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.1</string>
-  <key>LSMinimumSystemVersion</key><string>14.0</string>
-  <key>NSHighResolutionCapable</key><true/>
-  <!-- The bot's API is plain HTTP on 127.0.0.1 only. -->
-  <key>NSAppTransportSecurity</key>
-  <dict><key>NSAllowsLocalNetworking</key><true/></dict>
-</dict>
-</plist>
-PLIST
+# Info.plist: the keys the Xcode target shares (Support/Info.plist: name, languages, local HTTP,
+# alert style), plus the ones Xcode generates from build settings. One source for both builds.
+PLIST="$APP/Contents/Info.plist"
+plutil -convert xml1 -o "$PLIST" Support/Info.plist
+plutil -insert CFBundleIdentifier -string local.tickr.operator "$PLIST"
+plutil -insert CFBundleExecutable -string Tickr "$PLIST"
+plutil -insert CFBundlePackageType -string APPL "$PLIST"
+plutil -insert CFBundleShortVersionString -string 0.1 "$PLIST"
+plutil -insert LSMinimumSystemVersion -string 14.0 "$PLIST"
+plutil -insert NSHighResolutionCapable -bool true "$PLIST"
 echo "built $APP"
