@@ -338,4 +338,45 @@ public enum ChartAxis {
     }
     return indices
   }
+
+  /// Minutes between clock labels on one day, smallest first: round times a chart reader expects.
+  static let clockStepMinutes = [5, 10, 15, 30, 60, 120, 240]
+  /// Share of the shown stretch, at each end, in which a label turns inward so it is never cut.
+  static let edgeShare = 0.12
+
+  /// Where a time label hangs from its time.
+  public enum Anchor: Sendable, Equatable {
+    /// Starts at its time and runs right (near the left end of the shown stretch).
+    case leading
+    /// Centred on its time.
+    case centre
+    /// Ends at its time (near the right end).
+    case trailing
+  }
+
+  /// Round New York clock times (every 5, 10, 15, 30 … minutes) inside `domain`, the step the
+  /// smallest that puts at most `count` labels in a stretch `shown` seconds long.
+  public static func clockMarks(in domain: ClosedRange<Date>, shown: TimeInterval, count: Int) -> [Date] {
+    guard count > 0, shown > 0 else { return [] }
+    let minute = TimeInterval(Timeframe.secondsPerMinute)
+    let stepMinutes = clockStepMinutes.first { shown / (TimeInterval($0) * minute) <= TimeInterval(count) }
+      ?? clockStepMinutes[clockStepMinutes.count - 1]
+    let step = TimeInterval(stepMinutes) * minute
+    let midnight = WireDate.newYork.startOfDay(for: domain.lowerBound)
+    var mark = midnight.addingTimeInterval((domain.lowerBound.timeIntervalSince(midnight) / step).rounded(.up) * step)
+    var marks: [Date] = []
+    while mark <= domain.upperBound {
+      marks.append(mark)
+      mark = mark.addingTimeInterval(step)
+    }
+    return marks
+  }
+
+  /// How a label at `time` hangs so it stays inside `shown`, the stretch on screen.
+  public static func anchor(of time: Date, shown: ClosedRange<Date>) -> Anchor {
+    let margin = shown.upperBound.timeIntervalSince(shown.lowerBound) * edgeShare
+    if time.timeIntervalSince(shown.lowerBound) < margin { return .leading }
+    if shown.upperBound.timeIntervalSince(time) < margin { return .trailing }
+    return .centre
+  }
 }

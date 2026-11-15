@@ -94,6 +94,31 @@ struct ChartSeriesRangeTests {
     #expect(ChartAxis.boundaries([], range: .oneMonth, timeframe: .d1).isEmpty)
   }
 
+  @Test("Clock labels on one day fall on round New York times, at most the asked count on screen")
+  func clockMarks() throws {
+    let date = { (text: String) in try WireTime(text).date }
+    // 09:31 to 10:11 New York (40 one-minute candles): every 10 minutes from 09:40.
+    let day = try date("2026-11-13T14:31:00.000Z")...date("2026-11-13T15:11:00.000Z")
+    let marks = ChartAxis.clockMarks(in: day, shown: 40 * 60, count: 4)
+    #expect(try marks == ["2026-11-13T14:40:00.000Z", "2026-11-13T14:50:00.000Z", "2026-11-13T15:00:00.000Z",
+      "2026-11-13T15:10:00.000Z"].map(date))
+    // A whole session on screen: hourly at most, still on the hour.
+    let session = try date("2026-11-13T14:30:00.000Z")...date("2026-11-13T21:00:00.000Z")
+    let hourly = ChartAxis.clockMarks(in: session, shown: 390 * 60, count: 4)
+    #expect(hourly.count <= 5)
+    #expect(hourly.allSatisfy { WireDate.newYork.component(.minute, from: $0) == 0 })
+    #expect(ChartAxis.clockMarks(in: session, shown: 0, count: 4).isEmpty)
+  }
+
+  @Test("A label near either end of the shown stretch turns inward")
+  func labelAnchors() throws {
+    let date = { (text: String) in try WireTime(text).date }
+    let shown = try date("2026-11-13T14:30:00.000Z")...date("2026-11-13T15:10:00.000Z")
+    #expect(try ChartAxis.anchor(of: date("2026-11-13T14:31:00.000Z"), shown: shown) == .leading)
+    #expect(try ChartAxis.anchor(of: date("2026-11-13T14:50:00.000Z"), shown: shown) == .centre)
+    #expect(try ChartAxis.anchor(of: date("2026-11-13T15:09:00.000Z"), shown: shown) == .trailing)
+  }
+
   @Test("Every offered interval is one GET /chart serves for its range")
   func offeredPairsAreServed() {
     for range in ChartRange.allCases {

@@ -42,11 +42,26 @@ struct ChartTab: View {
 
   @ViewBuilder
   private func content(_ url: URL) -> some View {
+    // One placeholder in one place while nothing is drawn yet: two branches showing it would
+    // cross-fade two copies, one of them squeezed while it grows in.
+    if isLoading {
+      loadingView
+    } else {
+      loaded(url)
+    }
+  }
+
+  private var isLoading: Bool {
     switch chart.phase {
-    case .idle:
-      loadingView
-    case .loading where chart.series == nil:
-      loadingView
+    case .idle: true
+    case .loading: chart.series == nil
+    default: false
+    }
+  }
+
+  @ViewBuilder
+  private func loaded(_ url: URL) -> some View {
+    switch chart.phase {
     case .failed(let cause):
       ContentUnavailableView {
         Label { Text(ChartText.failedTitle) } icon: { Image(systemName: "exclamationmark.triangle") }
@@ -73,9 +88,12 @@ struct ChartTab: View {
             // The controls sit above the chart, as in charting apps, so the panes below never push
             // them under the tab bar.
             ChartControls(chart: chart, series: series, lines: $lines, viewport: $viewport)
+            // The bot's trades, position and strategy marks belong to the chosen day's minutes:
+            // on a longer range their times fall between drawn candles, so they stay off it.
+            let oneDay = chart.range == .oneDay
             CandleChart(series: series, times: chart.times, studies: chart.studies, atr: chart.atr,
-              trades: chart.range == .oneDay ? chart.trades : [], position: chart.openPosition,
-              events: chart.events, lines: lines, viewport: $viewport)
+              trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
+              events: oneDay ? chart.events : [], lines: lines, fitsAll: !oneDay, viewport: $viewport)
             DayTrades(trades: chart.trades)
             DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
           } else if chart.range != .oneDay {
@@ -116,6 +134,7 @@ struct ChartTab: View {
     ProgressView { Text(ChartText.loading) }
       .frame(maxWidth: .infinity)
       .padding(.top, Tokens.Space.xxl)
+      .transition(.opacity)
   }
 
   /// Changes whenever a different chart is on screen, restarting the reload loop.
@@ -245,6 +264,20 @@ private struct DayHeader: View {
     .padding(.top, Tokens.Space.s)
   }
 
+  private func dayLabel(live: Bool) -> some View {
+    HStack(spacing: Tokens.Space.xs) {
+      if let day = chart.selectedDay {
+        Text(day.noonInNewYork, format: ChartFormat.day)
+      }
+      if live {
+        Text(ChartText.todayLive)
+          .foregroundStyle(Palette.accentText)
+      }
+    }
+    .lineLimit(1)
+    .fixedSize()
+  }
+
   /// The chosen day; a menu of every recorded day.
   private var dayMenu: some View {
     Menu {
@@ -264,12 +297,10 @@ private struct DayHeader: View {
           // Still: a menu label does not animate, and a frozen ring would sit over the date.
           PulseDot(Palette.accent, size: Tokens.Size.dotSmall, pulsing: false)
         }
-        if let day = chart.selectedDay {
-          Text(day.noonInNewYork, format: ChartFormat.day)
-        }
-        if chart.isToday {
-          Text(ChartText.todayLive)
-            .foregroundStyle(Palette.accentText)
+        // One line: "Today · live" gives way first, the date never wraps (the dot still says live).
+        ViewThatFits(in: .horizontal) {
+          dayLabel(live: chart.isToday)
+          dayLabel(live: false)
         }
         Image(systemName: "chevron.up.chevron.down")
           .imageScale(.small)
