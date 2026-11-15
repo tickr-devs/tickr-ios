@@ -63,6 +63,25 @@ public enum Tokens {
     /// SF Symbols inside a live-flow stage.
     public static let stageSymbolSize: CGFloat = 20
 
+    #if os(iOS)
+    // iOS: each role follows a text style, so Dynamic Type (Settings › Display & Brightness ›
+    // Text Size, and the accessibility sizes) scales it. At the default size the styles are
+    // the design's sizes or within a point or two of them (caption2 11, title2 22, title 28,
+    // largeTitle 34). The size constants above stay the macOS sizes, which has no Dynamic Type.
+    public static let label = Font.system(.caption2, design: .monospaced, weight: .semibold)
+    public static let badge = Font.system(.caption2, design: .monospaced, weight: .bold)
+    public static let annotation = Font.system(.caption2, design: .monospaced)
+    public static let annotationBold = Font.system(.caption2, design: .monospaced, weight: .bold)
+    public static let metric = Font.system(.title2, design: .monospaced, weight: .bold)
+    public static let hero = Font.system(.largeTitle, design: .monospaced, weight: .bold)
+    public static let display = Font.system(.largeTitle, design: .monospaced, weight: .bold)
+    public static let title = Font.system(.title, weight: .bold)
+    public static let subtitle = Font.system(.title, design: .monospaced, weight: .medium)
+    /// SF Symbols inside a round icon well.
+    public static let symbol = Font.system(.subheadline, weight: .semibold)
+    /// SF Symbols inside a live-flow stage.
+    public static let stageSymbol = Font.system(.title3, weight: .semibold)
+    #else
     public static let label = Font.system(size: labelSize, weight: .semibold, design: .monospaced)
     public static let badge = Font.system(size: badgeSize, weight: .bold, design: .monospaced)
     public static let annotation = Font.system(size: annotationSize, design: .monospaced)
@@ -76,6 +95,7 @@ public enum Tokens {
     public static let symbol = Font.system(size: Size.iconWellSymbol, weight: .semibold)
     /// SF Symbols inside a live-flow stage.
     public static let stageSymbol = Font.system(size: stageSymbolSize, weight: .semibold)
+    #endif
     /// Buttons drawn by the apps' own button style (bot controls).
     public static let button = Font.system(.body, weight: .semibold)
     /// Tabs and chips that name a symbol or a value (position tabs).

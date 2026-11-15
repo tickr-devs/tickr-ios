@@ -103,6 +103,11 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `button` | `.body` semibold | Command buttons (bot controls) |
 | `chip` | `.callout` bold mono | Tabs and chips naming a symbol (position tabs) |
 
+Sizes above are the Mac's (macOS has no Dynamic Type). On iOS every role follows a text style, so
+Dynamic Type scales it: `label`, `badge`, `annotation` → `.caption2`; `metric` → `.title2`; `hero`
+and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` → `.subheadline`;
+`stageSymbol` → `.title3`. At the default text size these match the design within a point or two.
+
 ## Lines (`Tokens.Stroke`)
 
 | Token | Value | Use |
