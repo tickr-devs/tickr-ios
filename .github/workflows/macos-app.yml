@@ -57,9 +57,11 @@ jobs:
           swift build
           swift test
           scripts/make-app.sh
-      - name: Xcode workspace builds the macOS app (what the owner opens in Xcode)
+      # Builds the app as the owner does in Xcode and runs its UI tests (apps/macos/ApertureUITests)
+      # against the contract fixtures; ad-hoc signed, because a UI test runner must be signed.
+      - name: Xcode workspace builds the macOS app and runs its UI tests
         run: |
           xcodebuild -version
           xcodebuild -workspace Aperture.xcworkspace -scheme "Aperture macOS" \
             -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
-            CODE_SIGNING_ALLOWED=NO build
+            CODE_SIGN_IDENTITY=- test

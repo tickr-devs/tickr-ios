@@ -14,6 +14,7 @@
 /* Begin PBXFileReference section */
 		A9E000000000000000000005 /* Aperture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aperture.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9E000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A9E000000000000000000020 /* ApertureUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApertureUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -22,7 +23,22 @@
 			path = Aperture;
 			sourceTree = "<group>";
 		};
+		A9E000000000000000000021 /* ApertureUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ApertureUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXContainerItemProxy section */
+		A9E000000000000000000026 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9E000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A9E000000000000000000006;
+			remoteInfo = "Aperture macOS";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A9E000000000000000000008 /* Frameworks */ = {
@@ -34,6 +50,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9E000000000000000000024 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -41,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				A9E000000000000000000004 /* Aperture */,
+				A9E000000000000000000021 /* ApertureUITests */,
 				A9E000000000000000000015 /* Support */,
 				A9E000000000000000000003 /* Products */,
 			);
@@ -50,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				A9E000000000000000000005 /* Aperture.app */,
+				A9E000000000000000000020 /* ApertureUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -89,6 +114,27 @@
 			productReference = A9E000000000000000000005 /* Aperture.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A9E000000000000000000022 /* Aperture macOS UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9E000000000000000000028 /* Build configuration list for PBXNativeTarget "Aperture macOS UITests" */;
+			buildPhases = (
+				A9E000000000000000000023 /* Sources */,
+				A9E000000000000000000024 /* Frameworks */,
+				A9E000000000000000000025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A9E000000000000000000027 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A9E000000000000000000021 /* ApertureUITests */,
+			);
+			name = "Aperture macOS UITests";
+			productName = ApertureUITests;
+			productReference = A9E000000000000000000020 /* ApertureUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -101,6 +147,10 @@
 				TargetAttributes = {
 					A9E000000000000000000006 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					A9E000000000000000000022 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = A9E000000000000000000006;
 					};
 				};
 			};
@@ -123,12 +173,20 @@
 			projectRoot = "";
 			targets = (
 				A9E000000000000000000006 /* Aperture macOS */,
+				A9E000000000000000000022 /* Aperture macOS UITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A9E000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9E000000000000000000025 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -145,7 +203,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9E000000000000000000023 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A9E000000000000000000027 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A9E000000000000000000006 /* Aperture macOS */;
+			targetProxy = A9E000000000000000000026 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A9E000000000000000000010 /* Debug */ = {
@@ -256,6 +329,40 @@
 			};
 			name = Release;
 		};
+		A9E000000000000000000029 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.aperture.operator.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "Aperture macOS";
+			};
+			name = Debug;
+		};
+		A9E00000000000000000002A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.aperture.operator.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "Aperture macOS";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -273,6 +380,15 @@
 			buildConfigurations = (
 				A9E000000000000000000013 /* Debug */,
 				A9E000000000000000000014 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9E000000000000000000028 /* Build configuration list for PBXNativeTarget "Aperture macOS UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9E000000000000000000029 /* Debug */,
+				A9E00000000000000000002A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

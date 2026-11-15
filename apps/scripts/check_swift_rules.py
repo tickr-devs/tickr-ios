@@ -403,7 +403,9 @@ def swift_files() -> list[Path]:
     for root in ROOTS:
         for path in sorted((REPO / root).rglob("*.swift")):
             relative = path.relative_to(REPO)
-            if path.name in SKIPPED_FILES or SKIPPED_DIRS.intersection(relative.parts):
+            # Test targets (Tests, ApertureMacTests, ApertureUITests, ...) get only the legacy rule.
+            if (path.name in SKIPPED_FILES or SKIPPED_DIRS.intersection(relative.parts)
+                    or any(part.endswith("Tests") for part in relative.parts)):
                 continue
             files.append(path)
     return files

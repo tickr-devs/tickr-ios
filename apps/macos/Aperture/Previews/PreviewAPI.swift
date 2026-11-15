@@ -6,9 +6,19 @@ import Foundation
 /// URLSession is replaced (through Factory) by one that answers every read from the repository's
 /// contract fixtures (tests/api/fixtures). Debug builds only.
 enum PreviewAPI {
+  /// Environment variable that makes the app read the fixtures instead of a running bot (the UI
+  /// tests set it; debug builds only). Not a launch argument: AppKit takes an unknown argument for
+  /// a file to open and then opens no main window.
+  static let fixturesKey = "APERTURE_FIXTURES"
   /// Size of a previewed main-window screen, in points.
   static let windowWidth: CGFloat = 1280
   static let windowHeight: CGFloat = 820
+
+  /// Serve the API from the fixtures when the app was launched with `fixturesKey` set.
+  static func serveFixturesIfAsked() {
+    guard ProcessInfo.processInfo.environment[fixturesKey] != nil else { return }
+    Container.shared.urlSession.register { FixtureProtocol.session() }
+  }
 
   /// The app model as the screens see it, reading the fixtures.
   @MainActor

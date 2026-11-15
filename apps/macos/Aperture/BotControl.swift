@@ -113,23 +113,17 @@ struct BotControls: View {
 
   var body: some View {
     let count = compact ? Self.compactColumns : Self.columns
-    let columns = Array(repeating: GridItem(.flexible(), spacing: Tokens.Space.s), count: count)
-    LazyVGrid(columns: columns, spacing: Tokens.Space.s) {
-      ForEach(actions) { action in
-        Button(role: action.isDestructive ? .destructive : nil) {
-          if action.needsConfirmation { confirming = action } else { run(action) }
-        } label: {
-          HStack(spacing: Tokens.Space.xs) {
-            Text(verbatim: action.needsConfirmation ? "\(action.title)…" : action.title)
-              .lineLimit(1)
-              .minimumScaleFactor(Self.titleMinimumScale)
+    let list = actions
+    // A plain Grid, not a lazy one: the few buttons always exist, so they stay reachable (and
+    // visible to accessibility) while scrolled out of view.
+    let rows = stride(from: 0, to: list.count, by: count).map { Array(list[$0..<min($0 + count, list.count)]) }
+    Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
+      ForEach(rows.indices, id: \.self) { index in
+        GridRow {
+          ForEach(rows[index]) { action in
+            button(action)
           }
-          .frame(maxWidth: .infinity)
         }
-        .controlSize(compact ? .regular : .large)
-        .tint(action.isDestructive ? Palette.loss : nil)
-        .disabled(!model.commandsEnabled || !applicable(action))
-        .help(Text(verbatim: action.explanation))
       }
     }
     .alert(Text(verbatim: confirming?.question ?? ""), isPresented: Binding(get: { confirming != nil },
@@ -144,6 +138,24 @@ struct BotControls: View {
     .onChange(of: model.commandsEnabled) { _, enabled in
       if !enabled { confirming = nil }
     }
+  }
+
+  private func button(_ action: BotAction) -> some View {
+    Button(role: action.isDestructive ? .destructive : nil) {
+      if action.needsConfirmation { confirming = action } else { run(action) }
+    } label: {
+      HStack(spacing: Tokens.Space.xs) {
+        Text(verbatim: action.needsConfirmation ? "\(action.title)…" : action.title)
+          .lineLimit(1)
+          .minimumScaleFactor(Self.titleMinimumScale)
+      }
+      .frame(maxWidth: .infinity)
+    }
+    .controlSize(compact ? .regular : .large)
+    .tint(action.isDestructive ? Palette.loss : nil)
+    .disabled(!model.commandsEnabled || !applicable(action))
+    .help(Text(verbatim: action.explanation))
+    .accessibilityIdentifier(action.id)
   }
 
   private var actions: [BotAction] {

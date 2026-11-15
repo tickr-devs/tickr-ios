@@ -25,6 +25,12 @@ enum AppSection: String, CaseIterable, Identifiable {
   static let riskSymbol = "shield.lefthalf.filled"
   static let labSymbol = "sparkles"
 
+  /// Accessibility ids of a section's sidebar row and its screen (the UI tests find them by these).
+  static let rowIDPrefix = "sidebar-"
+  static let screenIDPrefix = "screen-"
+  var rowID: String { Self.rowIDPrefix + rawValue }
+  var screenID: String { Self.screenIDPrefix + rawValue }
+
   var symbol: String {
     switch self {
     case .overview: return Self.overviewSymbol
@@ -55,6 +61,7 @@ struct RootView: View {
       ZStack(alignment: .bottom) {
         ApertureBackground()
         detail
+          .accessibilityIdentifier(section.screenID)
           .id(section)
           .transition(.opacity.combined(with: .move(edge: .bottom)))
         if let unattended = model.unattendedPositions {
@@ -109,6 +116,7 @@ private struct Sidebar: View {
           Label { Text(item.title) } icon: { Image(systemName: item.symbol) }
             .badge(badge(for: item))
             .tag(item)
+            .accessibilityIdentifier(item.rowID)
         }
       }
     }

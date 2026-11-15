@@ -19,27 +19,48 @@ struct OverviewView: View {
           DayResultCard().frame(width: Tokens.Size.sideColumn).rise(step: Order.result.rawValue)
         }
         LiveFlowCard().rise(step: Order.flow.rawValue)
-        HStack(alignment: .top, spacing: Tokens.Space.l) {
-          PositionsCard().rise(step: Order.positions.rawValue)
-          VStack(spacing: Tokens.Space.l) {
-            SafetyCard()
-            BotCard()
+        // Three columns when the window is wide; a narrow window puts the positions on their own
+        // row and the two side columns below them, so nothing is pushed off screen.
+        ViewThatFits(in: .horizontal) {
+          HStack(alignment: .top, spacing: Tokens.Space.l) {
+            positions
+            middleColumn.frame(width: Tokens.Size.sideColumn)
+            rightColumn.frame(width: Tokens.Size.sideColumn)
           }
-          .frame(width: Tokens.Size.sideColumn)
-          .rise(step: Order.middle.rawValue)
           VStack(spacing: Tokens.Space.l) {
-            RiskRoomCard()
-            ObserversCard()
-            JournalCard()
+            positions
+            HStack(alignment: .top, spacing: Tokens.Space.l) {
+              middleColumn
+              rightColumn
+            }
           }
-          .frame(width: Tokens.Size.sideColumn)
-          .rise(step: Order.right.rawValue)
         }
       }
       .padding(Tokens.Space.xl)
       .frame(maxWidth: Tokens.Size.contentMaxWidth)
       .frame(maxWidth: .infinity)
     }
+  }
+
+  private var positions: some View {
+    PositionsCard().rise(step: Order.positions.rawValue)
+  }
+
+  private var middleColumn: some View {
+    VStack(spacing: Tokens.Space.l) {
+      SafetyCard()
+      BotCard()
+    }
+    .rise(step: Order.middle.rawValue)
+  }
+
+  private var rightColumn: some View {
+    VStack(spacing: Tokens.Space.l) {
+      RiskRoomCard()
+      ObserversCard()
+      JournalCard()
+    }
+    .rise(step: Order.right.rawValue)
   }
 }
 

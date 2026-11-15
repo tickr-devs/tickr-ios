@@ -15,8 +15,9 @@ enum Defaults {
 @main
 @MainActor
 struct ApertureMacApp: App {
-  /// Smallest and first size of the main window, in points.
-  static let minWidth: CGFloat = 1080
+  /// Smallest and first size of the main window, in points. The smallest fits a 1024-point-wide
+  /// display (the CI runner's, where the UI tests zoom the window to the screen).
+  static let minWidth: CGFloat = 1000
   static let minHeight: CGFloat = 700
   static let defaultWidth: CGFloat = 1440
   static let defaultHeight: CGFloat = 920
@@ -25,6 +26,9 @@ struct ApertureMacApp: App {
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
 
   init() {
+    #if DEBUG
+    PreviewAPI.serveFixturesIfAsked()
+    #endif
     let model = Container.shared.appModel()
     model.start()
     _model = State(initialValue: model)
@@ -46,7 +50,11 @@ struct ApertureMacApp: App {
         .frame(minWidth: Self.minWidth, minHeight: Self.minHeight)
     }
     .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
-    .commands { AppCommands(model: model) }
+    .commands {
+      // The standard View > Show/Hide Sidebar item (Control-Command-S).
+      SidebarCommands()
+      AppCommands(model: model)
+    }
 
     Settings {
       SettingsView()
