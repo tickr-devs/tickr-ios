@@ -10,8 +10,11 @@ struct DecisionsInspector: View {
   /// The chart shows a symbol; without one there is nothing to ask the bot about.
   let hasSymbol: Bool
 
-  /// Width of the decisions pane beside the chart, in points.
-  static let width: CGFloat = 280
+  /// Width of the decisions pane beside the chart, in points: narrow enough that at the
+  /// window's least width the chart keeps most of the room.
+  static let width: CGFloat = 240
+  /// How far a long rule name may shrink to stay on one line before it is cut in the middle.
+  static let ruleMinimumScale = 0.8
   /// Accessibility id of the inspector's content, for the UI tests.
   static let contentID = "chart-decisions-list"
 
@@ -113,7 +116,13 @@ private struct CheckRow: View {
       .help(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
       .accessibilityLabel(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        Text(verbatim: check.rule).font(Tokens.Typography.captionMono)
+        // One line: wrapped names broke inside words ("dis-tance_atr"); the full name is the hint.
+        Text(verbatim: check.rule)
+          .font(Tokens.Typography.captionMono)
+          .lineLimit(1)
+          .minimumScaleFactor(DecisionsInspector.ruleMinimumScale)
+          .truncationMode(.middle)
+          .help(Text(verbatim: check.rule))
         Text(verbatim: comparison)
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
