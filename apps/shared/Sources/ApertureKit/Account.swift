@@ -158,3 +158,24 @@ public struct AccountResponseV1: Codable, Hashable, Sendable {
     try c.encode(apiVersion, forKey: .apiVersion)
   }
 }
+
+/// What the account card shows of a broker read, without when it was read or served: motion
+/// beside the account keys on it, so a read that finds the same account moves nothing.
+public struct AccountState: Hashable, Sendable {
+  public let equityUsd: DecimalString?
+  public let buyingPowerUsd: DecimalString?
+  public let positions: [AccountPositionV1]
+  public let orders: [AccountOrderV1]
+  public let matchesRecords: Bool
+  public let mismatch: String?
+  public let stale: Bool
+}
+
+extension AccountResponseV1 {
+  /// The account as it stands, without the read's times (`readAt`, `servedAt`, `ageSeconds`).
+  public var state: AccountState {
+    AccountState(
+      equityUsd: account.equityUsd, buyingPowerUsd: account.buyingPowerUsd, positions: account.positions,
+      orders: account.orders, matchesRecords: account.matchesRecords, mismatch: account.mismatch, stale: stale)
+  }
+}

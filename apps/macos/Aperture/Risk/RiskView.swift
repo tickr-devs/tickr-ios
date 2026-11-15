@@ -419,7 +419,8 @@ private struct AccountCard: View {
         Footnote(L10n.Risk.accountReading)
       }
     }
-    .animation(Tokens.Motion.standard, value: model.account)
+    // Keyed on the account, not the read: a new read of the same account moves nothing.
+    .animation(Tokens.Motion.standard, value: model.account?.state)
   }
 
   private var tint: Color? {
