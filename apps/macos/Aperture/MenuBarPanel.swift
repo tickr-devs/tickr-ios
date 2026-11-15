@@ -63,24 +63,26 @@ private struct TodayResult: View {
   static let curveWidth: CGFloat = 120
 
   var body: some View {
-    HStack(alignment: .bottom, spacing: Tokens.Space.m) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        CardLabel(L10n.MenuBar.today)
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      CardLabel(L10n.MenuBar.today)
+      HStack(alignment: .bottom, spacing: Tokens.Space.m) {
         if let status = model.status {
           MoneyText(value: status.resultTodayGrossUsd.value, usd: true, font: Tokens.Typography.hero)
-          Text(summary(status))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textQuaternary)
+          Spacer(minLength: Tokens.Space.s)
+          DrawnSparkline(values: curve(status), color: Palette.result(status.resultTodayGrossUsd.value))
+            .frame(width: Self.curveWidth, height: Tokens.Size.sparkline)
         } else {
           Text(verbatim: Format.missing)
             .font(Tokens.Typography.hero)
             .foregroundStyle(Palette.textQuaternary)
         }
       }
-      Spacer(minLength: Tokens.Space.s)
       if let status = model.status {
-        DrawnSparkline(values: curve(status), color: Palette.result(status.resultTodayGrossUsd.value))
-          .frame(width: Self.curveWidth, height: Tokens.Size.sparkline)
+        // The full width of the panel, wrapping rather than cut short (Russian runs longer).
+        Text(summary(status))
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
   }
@@ -148,8 +150,15 @@ struct MenuPosition: View {
   /// end is the stop (−1 R).
   static let scaleEndR: Decimal = 2
 
-  /// Where the last price sits on the bar, 0 at the stop and 1 at `scaleEndR`.
-  private var progress: Double? { Self.progress(resultR: row?.resultR) }
+  /// Where the last price sits on the bar, 0 at the stop and 1 at `scaleEndR`; as of the newest
+  /// bar when that bar is no longer current.
+  private var progress: Double? { Self.progress(resultR: row?.resultR ?? row?.latestResultR) }
+
+  /// Tooltip of the figures when the newest bar is not current.
+  private var staleHelp: Text? {
+    guard let row, row.isStale, let time = row.lastBarAt else { return nil }
+    return Text(L10n.Position.staleHelp(Format.marketMinute(time)))
+  }
 
   /// Where a result in R sits on the bar: 0 at the stop, 1 at `scaleEndR`, clamped; nil when the
   /// result is unknown.
@@ -171,6 +180,10 @@ struct MenuPosition: View {
         Spacer()
         if let unrealized = row?.unrealized {
           MoneyText(value: unrealized, usd: true, font: Tokens.Typography.calloutMono.weight(.bold))
+        } else if let latest = row?.latestUnrealized, let staleHelp {
+          // The newest bar is older than current: its result, greyed, never a blank.
+          MoneyText(value: latest, usd: true, font: Tokens.Typography.calloutMono.weight(.bold), muted: true)
+            .hint(staleHelp)
         } else {
           Text(verbatim: Format.missing)
             .font(Tokens.Typography.calloutMono)
@@ -183,7 +196,7 @@ struct MenuPosition: View {
         Spacer()
         Text(L10n.MenuBar.entry(Format.price(position.entryPrice.value)))
         Spacer()
-        Text(L10n.MenuBar.last(Format.price(row?.lastBarClose)))
+        Text(L10n.MenuBar.last(Format.price(row?.lastBarClose ?? row?.latestClose)))
       }
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textQuaternary)
@@ -261,20 +274,25 @@ private struct FlowDots: View {
     model.status?.botState == .running && model.fetchError == nil
   }
 
+  /// Lines a stage name may wrap to.
+  static let nameLines = 2
+
   var body: some View {
-    HStack(spacing: Tokens.Space.xs) {
+    HStack(alignment: .top, spacing: Tokens.Space.xs) {
       ForEach(stages) { stage in
         VStack(spacing: Tokens.Space.xs) {
           // Still unless the bot's state changes: the dots show the stages, not activity.
           PulseDot(stage.color, pulsing: moving, event: model.status?.botState)
             .opacity(moving ? 1 : Tokens.Opacity.medium)
+          // Every stage in the same size: a long name wraps to a second line instead of shrinking.
           Text(stage.name)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textTertiary)
-            .lineLimit(1)
-            .minimumScaleFactor(BotControls.titleMinimumScale)
+            .multilineTextAlignment(.center)
+            .lineLimit(FlowDots.nameLines)
+            .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .top)
       }
     }
   }

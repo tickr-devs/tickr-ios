@@ -51,6 +51,10 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
   public var quantity: Decimal { position.quantity.value }
 
   public var unrealized: Decimal? { lastBarClose.map { ($0 - entry) * quantity } }
+  /// Result at the newest captured bar, fresh or not.
+  public var latestUnrealized: Decimal? { latestClose.map { ($0 - entry) * quantity } }
+  /// The newest bar is too old to be the current price: figures are shown greyed, as of its time.
+  public var isStale: Bool { lastBarClose == nil && latestClose != nil }
   public var resultR: Decimal? {
     guard let last = lastBarClose else { return nil }
     return Risk.multiple(entry: entry, stop: stop, price: last)
@@ -190,13 +194,18 @@ public final class AppModel {
   /// the bot computes it; nil while the status is unknown or the bot cannot compute it.
   public var dailyRoom: Decimal? { status?.dailyRoomUsd?.value }
 
-  /// A captured M1 bar is fresh while its close (start + one minute) is no older than the
-  /// server's `status_stale_seconds`. Without settings nothing counts as fresh.
+  /// A captured M1 bar is current while it can still be the newest completed bar: the bot keeps
+  /// completed bars only, so the next one closes a full bar after it. It stays current for one bar
+  /// plus the server's `status_stale_seconds` after its close. Without settings nothing is current.
   func barIsFresh(start: Date, now: Date) -> Bool {
     guard let settings else { return false }
-    let staleSeconds = NSDecimalNumber(decimal: settings.statusStaleSeconds.value).doubleValue
-    let barClose = start.addingTimeInterval(Self.barSeconds)
-    return now.timeIntervalSince(barClose) <= staleSeconds
+    return Self.barIsCurrent(start: start, now: now,
+      staleSeconds: NSDecimalNumber(decimal: settings.statusStaleSeconds.value).doubleValue)
+  }
+
+  static func barIsCurrent(start: Date, now: Date, staleSeconds: TimeInterval) -> Bool {
+    let barClose = start.addingTimeInterval(barSeconds)
+    return now.timeIntervalSince(barClose) <= barSeconds + staleSeconds
   }
 
   /// Length of one captured bar (M1).

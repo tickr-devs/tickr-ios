@@ -58,11 +58,13 @@ struct MoneyText: View {
   var colored = true
   /// A result carries its sign ("+12.40"); an amount such as the room left does not ("292.00").
   var signed = true
+  /// Greyed: a figure as of an older moment, not the current one.
+  var muted = false
 
   var body: some View {
     Text(verbatim: text)
       .font(font)
-      .foregroundStyle(colored ? Palette.result(value) : Palette.textPrimary)
+      .foregroundStyle(muted ? Palette.textQuaternary : colored ? Palette.result(value) : Palette.textPrimary)
       .contentTransition(.numericText(value: NSDecimalNumber(decimal: value).doubleValue))
       .animation(Tokens.Motion.quick, value: value)
   }
