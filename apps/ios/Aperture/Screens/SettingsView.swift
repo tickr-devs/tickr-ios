@@ -95,6 +95,7 @@ struct SettingsView: View {
       if model.isConfigured {
         PreflightSection()
         SessionSection(session: model.settings?.session)
+        JobsSection()
       }
 
       Section {
@@ -122,6 +123,7 @@ struct SettingsView: View {
     .navigationTitle(Text(L10n.Settings.title))
     .onAppear { draft = model.connection.address }
     .task(id: model.connection.url) { await model.followAccount() }
+    .task(id: model.connection.url) { await model.followJobs() }
     .onChange(of: model.connection.address) { _, address in draft = address }
     .sheet(isPresented: $showPairing) { PairingSheet() }
     .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {

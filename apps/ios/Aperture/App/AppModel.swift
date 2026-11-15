@@ -40,6 +40,10 @@ final class AppModel {
   private(set) var account: AccountResponseV1?
   /// Why the broker read could not be fetched, if it could not.
   private(set) var accountError: String?
+  /// What runs on its own on the Mac (GET /jobs), read while Settings is on screen.
+  private(set) var jobs: JobsV1?
+  /// Why the jobs could not be read, if they could not.
+  private(set) var jobsError: String?
   /// Today's live flow (GET /flow): stage counts and stops, read while Home is on screen.
   private(set) var flow: FlowV1?
   /// Why the flow could not be read, if it could not.
@@ -130,6 +134,8 @@ final class AppModel {
     settingsError = nil
     account = nil
     accountError = nil
+    jobs = nil
+    jobsError = nil
     flow = nil
     flowError = nil
     skipped = nil
@@ -195,6 +201,33 @@ final class AppModel {
   func followAccount() async {
     while !Task.isCancelled {
       await refreshAccount()
+      let seconds = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
+        ?? Self.initialPollSeconds
+      try? await Task.sleep(for: .seconds(max(seconds, Self.minimumPollSeconds)))
+    }
+  }
+
+  func refreshJobs() async {
+    guard let url = connection.url else { return }
+    do {
+      let read = try await Container.shared.apiClient(connection.endpoint(for: url)).jobs()
+      guard connection.url == url else { return }
+      jobs = read
+      jobsError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      if connection.url == url {
+        jobs = nil
+        jobsError = Self.describe(error)
+      }
+    }
+  }
+
+  /// Reads the jobs at the status poll rate until cancelled; used while Settings is open.
+  func followJobs() async {
+    while !Task.isCancelled {
+      await refreshJobs()
       let seconds = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
         ?? Self.initialPollSeconds
       try? await Task.sleep(for: .seconds(max(seconds, Self.minimumPollSeconds)))

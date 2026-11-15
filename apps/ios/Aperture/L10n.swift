@@ -1032,6 +1032,48 @@ enum L10n {
   }
 
   enum Settings {
+    static var jobs: LocalizedStringResource {
+      LocalizedStringResource("settings.jobs", defaultValue: "Jobs on the Mac", bundle: L10n.bundle)
+    }
+    static var jobsFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.jobsFooter",
+        defaultValue: "Launch times are in the Mac's local time; other times are New York time.", bundle: L10n.bundle)
+    }
+    static var botService: LocalizedStringResource {
+      LocalizedStringResource("settings.botService", defaultValue: "Bot service", bundle: L10n.bundle)
+    }
+    static var notRunning: LocalizedStringResource {
+      LocalizedStringResource("settings.notRunning", defaultValue: "Not running", bundle: L10n.bundle)
+    }
+    /// The bot's status is stale: its last reported state may no longer hold.
+    static var notReported: LocalizedStringResource {
+      LocalizedStringResource("settings.notReported", defaultValue: "Not reporting", bundle: L10n.bundle)
+    }
+    static var jobPreflight: LocalizedStringResource {
+      LocalizedStringResource("settings.job.preflight", defaultValue: "Preflight", bundle: L10n.bundle)
+    }
+    static var jobBot: LocalizedStringResource {
+      LocalizedStringResource("settings.job.bot", defaultValue: "Bot start", bundle: L10n.bundle)
+    }
+    static var jobWatchdog: LocalizedStringResource {
+      LocalizedStringResource("settings.job.watchdog", defaultValue: "Watchdog", bundle: L10n.bundle)
+    }
+    static var reconcile: LocalizedStringResource {
+      LocalizedStringResource("settings.reconcile", defaultValue: "Reconcile", bundle: L10n.bundle)
+    }
+    /// Before the countdown to the next reconcile.
+    static var nextIn: LocalizedStringResource {
+      LocalizedStringResource("settings.nextIn", defaultValue: "in", bundle: L10n.bundle)
+    }
+    static func lastAt(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.lastAt", defaultValue: "last \(time)", bundle: L10n.bundle)
+    }
+    static var backup: LocalizedStringResource {
+      LocalizedStringResource("settings.backup", defaultValue: "Backup", bundle: L10n.bundle)
+    }
+    static func backupFailed(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.backupFailed", defaultValue: "Failed \(time)", bundle: L10n.bundle)
+    }
     static var environmentFooter: LocalizedStringResource {
       LocalizedStringResource("settings.environmentFooter",
         defaultValue: "Sandbox or Production is set in config/bot.toml on the Mac; Production also needs your authorization file there. The phone only shows it.",
