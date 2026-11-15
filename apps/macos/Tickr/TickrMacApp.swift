@@ -82,6 +82,8 @@ struct TickrMacApp: App {
         .frame(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: Self.minHeight, maxHeight: .infinity)
     }
     .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
+    // The design's low title bar (about 40 points) with one line in it.
+    .windowToolbarStyle(.unifiedCompact)
     .windowResizability(.contentMinSize)
     .commands {
       // The standard View > Show/Hide Sidebar item (Control-Command-S).

@@ -25,6 +25,12 @@ public enum Palette {
   public static let separator = Color(light: 0xE3E8F2, dark: 0x1E2644)
   /// Stronger lines: zero lines, radar rings.
   public static let separatorStrong = Color(light: 0xCFD7E8, dark: 0x2A3459)
+  /// The Mac window's title bar, above the sidebar and the screen.
+  public static let titleBar = Color(light: 0xF3F6FC, dark: 0x0B1022)
+  /// The Mac sidebar's column.
+  public static let sidebar = Color(light: 0xF1F4FB, dark: 0x0A0E1E)
+  /// A selected sidebar row's fill (with a `separatorStrong` hairline).
+  public static let selection = Color(light: 0xE3EBFF, dark: 0x172046)
 
   // MARK: text, strongest to weakest
 

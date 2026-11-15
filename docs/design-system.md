@@ -39,6 +39,9 @@ contrast on `surface` in both appearances.
 | `surfaceSunken` | Inset areas in a card: charts, wells | `#F6F8FD` | `#0A0F20` |
 | `separator` | Card borders, grid lines, tracks | `#E3E8F2` | `#1E2644` |
 | `separatorStrong` | Zero lines, radar rings | `#CFD7E8` | `#2A3459` |
+| `titleBar` | Mac title bar above the sidebar and the screen | `#F3F6FC` | `#0B1022` |
+| `sidebar` | Mac sidebar column | `#F1F4FB` | `#0A0E1E` |
+| `selection` | Selected sidebar row (with a `separatorStrong` hairline) | `#E3EBFF` | `#172046` |
 | `textPrimary` | Headlines, primary values | `#0E1430` | `#E7EAF6` |
 | `textSecondary` | Body text in rows and lists | `#262F52` | `#C9CFE6` |
 | `textTertiary` | Labels next to values, explanations | `#475174` | `#A9B2D3` |

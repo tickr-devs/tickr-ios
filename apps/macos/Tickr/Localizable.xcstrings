@@ -2893,23 +2893,6 @@
         }
       }
     },
-    "common.todayDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today · %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сегодня · %@"
-          }
-        }
-      }
-    },
     "common.tradesAndDaysHint" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6880,6 +6863,40 @@
         }
       }
     },
+    "root.run" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "run %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "запуск %@"
+          }
+        }
+      }
+    },
+    "root.settingsRow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings  ⌘,"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки  ⌘,"
+          }
+        }
+      }
+    },
     "root.stale" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6910,6 +6927,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ · входы на паузе"
+          }
+        }
+      }
+    },
+    "root.uptime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uptime %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "работает %@"
           }
         }
       }
@@ -9056,6 +9090,23 @@
         }
       }
     },
+    "toolbar.dayToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · сегодня"
+          }
+        }
+      }
+    },
     "toolbar.nextDay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9107,23 +9158,6 @@
         }
       }
     },
-    "toolbar.positions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "positions: %lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "позиций: %lld"
-          }
-        }
-      }
-    },
     "toolbar.previousDay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9171,6 +9205,93 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вернуться к текущему дню (⌘T)"
+          }
+        }
+      }
+    },
+    "toolbar.windowLine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %1$@ — %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %1$@ — %2$@"
+          }
+        }
+      }
+    },
+    "toolbar.windowLineEmpty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr"
+          }
+        }
+      }
+    },
+    "toolbar.windowLineLimit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "tickr — %1$@ — %2$@ — up to %3$lld position"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "tickr — %1$@ — %2$@ — up to %3$lld positions"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "tickr — %1$@ — %2$@ — до %3$lld позиций"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "tickr — %1$@ — %2$@ — до %3$lld позиций"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "tickr — %1$@ — %2$@ — до %3$lld позиции"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "tickr — %1$@ — %2$@ — до %3$lld позиции"
+                }
+              }
+            }
           }
         }
       }
