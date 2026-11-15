@@ -80,6 +80,8 @@ enum Format {
   static let timeRange = "–"
   /// Between a trade's entry and its exit price.
   static let arrow = " → "
+  /// Between two facts on one line.
+  static let separator = " · "
 
   static func time(_ date: Date) -> String {
     date.formatted(date: .omitted, time: .shortened)

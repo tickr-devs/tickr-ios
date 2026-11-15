@@ -348,6 +348,56 @@ enum L10n {
   }
 
   enum Activity {
+    static var calendar: LocalizedStringResource {
+      LocalizedStringResource("activity.calendar", defaultValue: "Calendar", bundle: L10n.bundle)
+    }
+    static func pastDay(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.pastDay", defaultValue: "\(day) · read-only", bundle: L10n.bundle)
+    }
+    static var backToToday: LocalizedStringResource {
+      LocalizedStringResource("activity.backToToday", defaultValue: "Today", bundle: L10n.bundle)
+    }
+    static var previousMonth: LocalizedStringResource {
+      LocalizedStringResource("activity.previousMonth", defaultValue: "Previous month", bundle: L10n.bundle)
+    }
+    static var nextMonth: LocalizedStringResource {
+      LocalizedStringResource("activity.nextMonth", defaultValue: "Next month", bundle: L10n.bundle)
+    }
+    static var noTradesThatDay: LocalizedStringResource {
+      LocalizedStringResource("activity.noTradesThatDay", defaultValue: "No trades that day", bundle: L10n.bundle)
+    }
+    static var noTradesThatDayBody: LocalizedStringResource {
+      LocalizedStringResource("activity.noTradesThatDayBody",
+        defaultValue: "The bot closed no trades on this day.",
+        bundle: L10n.bundle)
+    }
+    static var pastJournalTitle: LocalizedStringResource {
+      LocalizedStringResource("activity.pastJournalTitle", defaultValue: "Journal of past days", bundle: L10n.bundle)
+    }
+    static var pastJournalBody: LocalizedStringResource {
+      LocalizedStringResource("activity.pastJournalBody",
+        defaultValue: "A past day's journal appears here once the bot's API can replay a day.",
+        bundle: L10n.bundle)
+    }
+    static var loadingDay: LocalizedStringResource {
+      LocalizedStringResource("activity.loadingDay", defaultValue: "Loading the day…", bundle: L10n.bundle)
+    }
+    static var dayFailed: LocalizedStringResource {
+      LocalizedStringResource("activity.dayFailed", defaultValue: "Couldn't load the day", bundle: L10n.bundle)
+    }
+    static var retry: LocalizedStringResource {
+      LocalizedStringResource("activity.retry", defaultValue: "Try Again", bundle: L10n.bundle)
+    }
+    static var daysFailed: LocalizedStringResource {
+      LocalizedStringResource("activity.daysFailed", defaultValue: "Couldn't list the recorded days", bundle: L10n.bundle)
+    }
+    static var noRecords: LocalizedStringResource {
+      LocalizedStringResource("activity.noRecords", defaultValue: "no records", bundle: L10n.bundle)
+    }
+    static func pastCounts(_ closed: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.pastCounts", defaultValue: "\(closed) closed · \(wins) W · \(losses) L",
+        bundle: L10n.bundle)
+    }
     static var trades: LocalizedStringResource {
       LocalizedStringResource("activity.trades", defaultValue: "Trades", bundle: L10n.bundle)
     }

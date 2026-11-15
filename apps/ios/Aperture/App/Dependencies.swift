@@ -18,6 +18,13 @@ extension Container {
     self { ChartModel() }
   }
 
+  /// The Activity tab's model: which day it shows and the recorded days of the calendar. A new one
+  /// each time the tab builds its view.
+  @MainActor
+  var activityModel: Factory<ActivityModel> {
+    self { ActivityModel() }
+  }
+
   /// Where the paired API token lives: this phone's Keychain.
   var keychain: Factory<Keychain> {
     self { Keychain() }
