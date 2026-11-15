@@ -15,8 +15,6 @@ final class ChartModel {
     case loaded
   }
 
-  /// String Catalog table of the Chart tab's texts (chart.xcstrings).
-  nonisolated static let table = "chart"
   /// Seconds between reloads of today's bars while the chart is on screen. The bot captures one
   /// bar a minute, so a few reloads a minute keep the last candle current.
   static let liveReloadSeconds = 15.0
@@ -200,9 +198,4 @@ final class ChartModel {
     let target = index + step
     return days.indices.contains(target) ? days[target].day : nil
   }
-}
-
-extension ChartText {
-  /// String Catalog table of these texts.
-  static var table: String { ChartModel.table }
 }

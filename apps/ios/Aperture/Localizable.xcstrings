@@ -1,3916 +1,4698 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "activity.backToToday": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Today"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "activity.backToToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сегодня"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня"
           }
         }
       }
     },
-    "activity.calendar": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Calendar"
+    "activity.calendar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Календарь"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь"
           }
         }
       }
     },
-    "activity.counts": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld closed · %lld W · %lld L · %lld open"
+    "activity.counts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld closed · %lld W · %lld L · %lld open"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "закрыто: %lld · в плюс: %lld · в минус: %lld · открыто: %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыто: %lld · в плюс: %lld · в минус: %lld · открыто: %lld"
           }
         }
       }
     },
-    "activity.dayFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't load the day"
+    "activity.dayFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load the day"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не удалось загрузить день"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось загрузить день"
           }
         }
       }
     },
-    "activity.daysFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't list the recorded days"
+    "activity.daysFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't list the recorded days"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не удалось получить список дней"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось получить список дней"
           }
         }
       }
     },
-    "activity.journal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Journal"
+    "activity.journal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journal"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Журнал"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Журнал"
           }
         }
       }
     },
-    "activity.loadingDay": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading the day…"
+    "activity.loadingDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading the day…"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Загружаю день…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загружаю день…"
           }
         }
       }
     },
-    "activity.nextMonth": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Next month"
+    "activity.nextMonth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next month"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Следующий месяц"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующий месяц"
           }
         }
       }
     },
-    "activity.noRecords": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "no records"
+    "activity.noRecords" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no records"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "нет записей"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нет записей"
           }
         }
       }
     },
-    "activity.noTrades": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No trades yet today"
+    "activity.nothingYet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing recorded yet today."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сегодня сделок пока нет"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня пока ничего не записано."
           }
         }
       }
     },
-    "activity.noTradesBody": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Closed trades appear here with their result."
+    "activity.noTrades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trades yet today"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Закрытые сделки появятся здесь со своим результатом."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня сделок пока нет"
           }
         }
       }
     },
-    "activity.noTradesThatDay": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No trades that day"
+    "activity.noTradesBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed trades appear here with their result."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "В этот день сделок не было"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытые сделки появятся здесь со своим результатом."
           }
         }
       }
     },
-    "activity.noTradesThatDayBody": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The bot closed no trades on this day."
+    "activity.noTradesThatDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trades that day"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот не закрыл в этот день ни одной сделки."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этот день сделок не было"
           }
         }
       }
     },
-    "activity.notTaken": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not taken"
+    "activity.noTradesThatDayBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot closed no trades on this day."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не взятые"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот не закрыл в этот день ни одной сделки."
           }
         }
       }
     },
-    "activity.notTakenBody": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refused signals with their cause and a what-if result appear here once the bot's API publishes them."
+    "activity.notTaken" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not taken"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отклонённые сигналы с причиной и результатом «что было бы» появятся здесь, когда API бота начнёт их публиковать."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не взятые"
           }
         }
       }
     },
-    "activity.notTakenTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Signals not taken"
+    "activity.notTakenBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refused signals with their cause and a what-if result appear here once the bot's API publishes them."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не взятые сигналы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отклонённые сигналы с причиной и результатом «что было бы» появятся здесь, когда API бота начнёт их публиковать."
           }
         }
       }
     },
-    "activity.nothingYet": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing recorded yet today."
+    "activity.notTakenTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signals not taken"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сегодня пока ничего не записано."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не взятые сигналы"
           }
         }
       }
     },
-    "activity.openSince": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "open %@"
+    "activity.openSince" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "открыта %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "открыта %@"
           }
         }
       }
     },
-    "activity.openTag": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OPEN"
+    "activity.openTag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OPEN"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ОТКРЫТА"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОТКРЫТА"
           }
         }
       }
     },
-    "activity.pastCounts": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld closed · %lld W · %lld L"
+    "activity.pastCounts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld closed · %lld W · %lld L"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "закрыто: %lld · в плюс: %lld · в минус: %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыто: %lld · в плюс: %lld · в минус: %lld"
           }
         }
       }
     },
-    "activity.pastDay": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · read-only"
+    "activity.pastDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · read-only"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · только чтение"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · только чтение"
           }
         }
       }
     },
-    "activity.pastJournalBody": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A past day's journal appears here once the bot's API can replay a day."
+    "activity.pastJournalBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A past day's journal appears here once the bot's API can replay a day."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Журнал прошлого дня появится здесь, когда API бота научится воспроизводить день."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Журнал прошлого дня появится здесь, когда API бота научится воспроизводить день."
           }
         }
       }
     },
-    "activity.pastJournalTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Journal of past days"
+    "activity.pastJournalTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journal of past days"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Журнал прошлых дней"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Журнал прошлых дней"
           }
         }
       }
     },
-    "activity.previousMonth": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Previous month"
+    "activity.previousMonth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous month"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Предыдущий месяц"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущий месяц"
           }
         }
       }
     },
-    "activity.retry": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try Again"
+    "activity.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Повторить"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
           }
         }
       }
     },
-    "activity.show": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show"
+    "activity.show" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Показать"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать"
           }
         }
       }
     },
-    "activity.stopDetail": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stop %@ · %@"
+    "activity.stopDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop %@ · %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "стоп %@ · %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп %@ · %@"
           }
         }
       }
     },
-    "activity.trades": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trades"
+    "activity.trades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trades"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сделки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделки"
           }
         }
       }
     },
-    "age.none": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "no status yet"
+    "age.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no status yet"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "статуса пока нет"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "статуса пока нет"
           }
         }
       }
     },
-    "age.stale": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stale · written %lld s ago"
+    "age.stale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stale · written %lld s ago"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "устарел · записан %lld с назад"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "устарел · записан %lld с назад"
           }
         }
       }
     },
-    "age.updated": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "updated %lld s ago"
+    "age.updated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "updated %lld s ago"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "обновлён %lld с назад"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "обновлён %lld с назад"
           }
         }
       }
     },
-    "app.activity": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activity"
+    "app.activity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activity"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Активность"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активность"
           }
         }
       }
     },
-    "app.chart": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chart"
+    "app.chart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "График"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "График"
           }
         }
       }
     },
-    "app.home": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Home"
+    "app.home" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Главная"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Главная"
           }
         }
       }
     },
-    "app.lab": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lab"
+    "app.lab" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lab"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Лаборатория"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лаборатория"
           }
         }
       }
     },
-    "app.name": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aperture"
+    "app.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aperture"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aperture"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aperture"
           }
         }
       }
     },
-    "app.positions": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Positions"
+    "app.positions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Positions"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Позиции"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиции"
           }
         }
       }
     },
-    "botState.running": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "running"
+    "botState.running" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "running"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "работает"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "работает"
           }
         }
       }
     },
-    "botState.starting": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "starting"
+    "botState.starting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "starting"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "запускается"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "запускается"
           }
         }
       }
     },
-    "botState.stopped": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stopped"
+    "botState.stopped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stopped"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "остановлен"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "остановлен"
           }
         }
       }
     },
-    "botState.stopping": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stopping"
+    "botState.stopping" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stopping"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "останавливается"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "останавливается"
           }
         }
       }
     },
-    "common.cancel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel"
+    "chart.axis.line" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отмена"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Линия"
           }
         }
       }
     },
-    "common.quantityAt": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ @ %@"
+    "chart.axis.price" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ по %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цена"
           }
         }
       }
     },
-    "common.strategyVersion": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ v%@"
+    "chart.axis.time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ v%@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время"
           }
         }
       }
     },
-    "common.today": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · today"
+    "chart.day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · сегодня"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "День"
           }
         }
       }
     },
-    "common.unknown": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "unknown"
+    "chart.decisions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why the bot acted"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "неизвестен"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему бот так решил"
           }
         }
       }
     },
-    "common.winsLosses": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld W · %lld L"
+    "chart.decisions.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All %lld decisions"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld в плюс · %lld в минус"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все решения: %lld"
           }
         }
       }
     },
-    "connect.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter the address of the bot's API in Settings."
+    "chart.decisions.entryStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entry %@ · stop %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Укажите адрес API бота в настройках."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вход %@ · стоп %@"
           }
         }
       }
     },
-    "connect.environment": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Environment %@"
+    "chart.decisions.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the decisions: %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Окружение %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать решения: %@"
           }
         }
       }
     },
-    "connect.faceIDUnavailable": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Face ID and passcode are not available"
+    "chart.decisions.key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries and exits only"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Face ID и код-пароль недоступны"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только входы и выходы"
           }
         }
       }
     },
-    "connect.noStatus": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No status from the bot"
+    "chart.decisions.noEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries or exits; the strategy only watched."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нет статуса от бота"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входов и выходов не было: стратегия только наблюдала."
           }
         }
       }
     },
-    "connect.notConnected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not connected. Add your Mac's address in Settings."
+    "chart.decisions.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No decisions recorded for this symbol that day."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нет подключения. Добавьте адрес Mac в настройках."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для этого символа в этот день решений не записано."
           }
         }
       }
     },
-    "connect.openSettings": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open Settings"
+    "chart.decisions.observer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "observer"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Открыть настройки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "наблюдатель"
           }
         }
       }
     },
-    "connect.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect to your Mac"
+    "chart.decisions.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подключитесь к своему Mac"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@"
           }
         }
       }
     },
-    "control.cancelOrders": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel Own Orders"
+    "chart.entry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отменить свои ордера"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход"
           }
         }
       }
     },
-    "control.emergency": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Emergency: Pause, Cancel, Flatten"
+    "chart.exit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Аварийно: пауза, отмена, закрыть всё"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выход"
           }
         }
       }
     },
-    "control.emergencyTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Emergency stop?"
+    "chart.failed.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not load the chart"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Аварийная остановка?"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось загрузить график"
           }
         }
       }
     },
-    "control.emergencyWarning": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The bot pauses entries, cancels its entry orders and sells every position it holds at market through the normal exit. Each stop is cancelled only right before its sale. Entries stay paused until you resume them."
+    "chart.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch and hold the chart to read a candle."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот ставит паузу на входы, отменяет свои ордера на вход и продаёт по рынку все свои позиции через обычный выход. Каждый стоп отменяется только перед своей продажей. Входы остаются на паузе, пока вы их не возобновите."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите и удерживайте график, чтобы увидеть свечу."
           }
         }
       }
     },
-    "control.flattenAll": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flatten All Positions"
+    "chart.indicator.atr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ATR %lld"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Закрыть все позиции"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ATR %lld"
           }
         }
       }
     },
-    "control.message": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pausing and cancelling never touch broker stops. Flatten closes the bot's own positions through the normal exit. Stop ends the bot gracefully: positions stay open under DAY stops and nothing closes them at the session's end; only the Mac can start it again. Emergency pauses entries, cancels entry orders and flattens everything. Each command is queued once; the bot reports the result."
+    "chart.indicator.ema" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EMA %lld"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Пауза и отмена никогда не трогают стопы у брокера. Команда «Закрыть все позиции» закрывает только позиции бота через обычный выход. «Остановить бота» мягко завершает его работу: позиции остаются открытыми под дневными стопами, и в конце сессии их никто не закроет; запустить бота снова можно только на Mac. «Аварийно» ставит паузу на входы, отменяет ордера на вход и закрывает все позиции. Каждая команда ставится в очередь один раз, результат сообщает бот."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EMA %lld"
           }
         }
       }
     },
-    "control.pause": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pause Entries"
+    "chart.indicator.volume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Приостановить входы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объём"
           }
         }
       }
     },
-    "control.reason": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ on the trading bot"
+    "chart.indicator.vwap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VWAP"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подтвердите «%@» для торгового бота"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VWAP"
           }
         }
       }
     },
-    "control.resume": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resume Entries"
+    "chart.live" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Возобновить входы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Онлайн"
           }
         }
       }
     },
-    "control.state": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot is %@"
+    "chart.loading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading the chart…"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот: %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загружаю график…"
           }
         }
       }
     },
-    "control.statePaused": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot is %@ · entries paused"
+    "chart.nextDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next day"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот: %@ · входы на паузе"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующий день"
           }
         }
       }
     },
-    "control.stopBot": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop the Bot"
+    "chart.noBars.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot captured no bars on this day."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Остановить бота"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этот день бот не записал ни одного бара."
           }
         }
       }
     },
-    "control.stopTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop the bot?"
+    "chart.noBars.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No captured bars"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Остановить бота?"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет записанных баров"
           }
         }
       }
     },
-    "control.stopWarning": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. The phone cannot start the bot again: start it on the Mac."
+    "chart.noDays.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot records bars and trades while it runs. Days appear here once there is something to show."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот мягко завершает работу: ордера на вход отменяются, стопы у брокера остаются. Открытые позиции остаются открытыми под дневными стопами, и в конце сессии их никто не закроет. С телефона бота снова не запустить: запускайте его на Mac."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот записывает бары и сделки, пока работает. Дни появятся здесь, когда будет что показать."
           }
         }
       }
     },
-    "control.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot control"
+    "chart.noDays.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No recorded days yet"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Управление ботом"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записанных дней пока нет"
           }
         }
       }
     },
-    "control.unknown": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot status unknown"
+    "chart.noTrades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No closed trades on this symbol this day."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Статус бота неизвестен"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По этому тикеру в этот день закрытых сделок нет."
           }
         }
       }
     },
-    "home.broker": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "broker"
+    "chart.previousDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous day"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "брокер"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущий день"
           }
         }
       }
     },
-    "home.day": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "day"
+    "chart.readout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O %1$@  H %2$@  L %3$@  C %4$@  V %5$@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "день"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O %1$@  H %2$@  L %3$@  C %4$@  V %5$@"
           }
         }
       }
     },
-    "home.dayResult": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Day result %@, %lld wins, %lld losses"
+    "chart.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Результат дня %@, в плюс: %lld, в минус: %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
           }
         }
       }
     },
-    "home.entries": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "entries"
+    "chart.stop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "входы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп"
           }
         }
       }
     },
-    "home.entriesAllowed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "allowed"
+    "chart.timeframe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timeframe"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "разрешены"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Таймфрейм"
           }
         }
       }
     },
-    "home.entriesBlocked": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "blocked"
+    "chart.timeframe.m1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M1"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "заблокированы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M1"
           }
         }
       }
     },
-    "home.gate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "gate"
+    "chart.timeframe.m5" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M5"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "торговля"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M5"
           }
         }
       }
     },
-    "home.gateClosed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trading gate closed: %@."
+    "chart.timeframe.m15" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M15"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Торговля запрещена: %@."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "M15"
           }
         }
       }
     },
-    "home.gateOpen": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "open"
+    "chart.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "разрешена"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "График"
           }
         }
       }
     },
-    "home.gateShut": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "closed"
+    "chart.trades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trades"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "запрещена"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделки"
           }
         }
       }
     },
-    "home.inputs": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot inputs"
+    "chart.verdict.enter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ENTER"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Входные данные бота"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ВХОД"
           }
         }
       }
     },
-    "home.noPosition": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No open position."
+    "chart.verdict.exit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EXIT"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Открытых позиций нет."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ВЫХОД"
           }
         }
       }
     },
-    "home.noStop": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NO STOP"
+    "chart.verdict.hold" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HOLD"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "НЕТ СТОПА"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ДЕРЖАТЬ"
           }
         }
       }
     },
-    "home.protected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ protected by a broker stop."
+    "chart.verdict.ignore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IGNORE"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ защищена стопом у брокера."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ПРОПУСК"
           }
         }
       }
     },
-    "home.quotes": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "quotes"
+    "chart.verdict.watch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WATCH"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "котировки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "НАБЛЮДЕНИЕ"
           }
         }
       }
     },
-    "home.settings": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Settings"
+    "chart.zoomIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom in"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Настройки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приблизить"
           }
         }
       }
     },
-    "home.since": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "since %@"
+    "chart.zoomOut" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom out"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "с %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отдалить"
           }
         }
       }
     },
-    "home.stopIs": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ stop is %@."
+    "common.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стоп %@: %@."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена"
           }
         }
       }
     },
-    "home.stopPending": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stop pending"
+    "common.quantityAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ @ %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "стоп ожидается"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ по %@"
           }
         }
       }
     },
-    "home.stopUnknown": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stop unknown"
+    "common.strategyVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "стоп неизвестен"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@"
           }
         }
       }
     },
-    "home.stopVerified": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stop ✓ %@"
+    "common.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · today"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "стоп ✓ %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · сегодня"
           }
         }
       }
     },
-    "home.strategy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Strategy %@ v%@."
+    "common.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стратегия %@ v%@."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "неизвестен"
           }
         }
       }
     },
-    "lab.active": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Active strategy"
+    "common.winsLosses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld W · %lld L"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Активная стратегия"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld в плюс · %lld в минус"
           }
         }
       }
     },
-    "lab.observers": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Observers and replays"
+    "connect.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the address of the bot's API in Settings."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Наблюдатели и повторы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Укажите адрес API бота в настройках."
           }
         }
       }
     },
-    "lab.observersBody": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "How each observer version would have traded today, replays of past days and why signals were refused appear here once the bot's API publishes them. Approving a new version stays on the Mac."
+    "connect.environment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Environment %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Как торговала бы сегодня каждая версия-наблюдатель, повторы прошлых дней и причины отказов по сигналам появятся здесь, когда API бота начнёт их публиковать. Одобрение новой версии остаётся на Mac."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Окружение %@"
           }
         }
       }
     },
-    "lab.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Strategy lab"
+    "connect.faceIDUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID and passcode are not available"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Лаборатория стратегий"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID и код-пароль недоступны"
           }
         }
       }
     },
-    "lab.trades": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "trades"
+    "connect.noStatus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No status from the bot"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "торгует"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет статуса от бота"
           }
         }
       }
     },
-    "notice.busy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ not sent: another command is being sent."
+    "connect.notConnected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not connected. Add your Mac's address in Settings."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» не отправлено: уже отправляется другая команда."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет подключения. Добавьте адрес Mac в настройках."
           }
         }
       }
     },
-    "notice.done": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@: done."
+    "connect.openSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@»: выполнено."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть настройки"
           }
         }
       }
     },
-    "notice.failed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ not sent: %@"
+    "connect.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect to your Mac"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» не отправлено: %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключитесь к своему Mac"
           }
         }
       }
     },
-    "notice.noCause": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "no cause given"
+    "control.cancelOrders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel Own Orders"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "причина не указана"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить свои ордера"
           }
         }
       }
     },
-    "notice.notConfirmed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ not sent: owner not confirmed (%@)."
+    "control.emergency" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emergency: Pause, Cancel, Flatten"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» не отправлено: подтверждение владельца не получено (%@)."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аварийно: пауза, отмена, закрыть всё"
           }
         }
       }
     },
-    "notice.notCurrent": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ not sent: the bot's status is not current."
+    "control.emergencyTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emergency stop?"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» не отправлено: статус бота не актуален."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аварийная остановка?"
           }
         }
       }
     },
-    "notice.queued": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ queued for the bot."
+    "control.emergencyWarning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot pauses entries, cancels its entry orders and sells every position it holds at market through the normal exit. Each stop is cancelled only right before its sale. Entries stay paused until you resume them."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» передано боту."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот ставит паузу на входы, отменяет свои ордера на вход и продаёт по рынку все свои позиции через обычный выход. Каждый стоп отменяется только перед своей продажей. Входы остаются на паузе, пока вы их не возобновите."
           }
         }
       }
     },
-    "notice.queuedWarning": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ queued. %@"
+    "control.flattenAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flatten All Positions"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» передано боту. %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть все позиции"
           }
         }
       }
     },
-    "notice.refused": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ refused: %@"
+    "control.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausing and cancelling never touch broker stops. Flatten closes the bot's own positions through the normal exit. Stop ends the bot gracefully: positions stay open under DAY stops and nothing closes them at the session's end; only the Mac can start it again. Emergency pauses entries, cancels entry orders and flattens everything. Each command is queued once; the bot reports the result."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» отклонено: %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пауза и отмена никогда не трогают стопы у брокера. Команда «Закрыть все позиции» закрывает только позиции бота через обычный выход. «Остановить бота» мягко завершает его работу: позиции остаются открытыми под дневными стопами, и в конце сессии их никто не закроет; запустить бота снова можно только на Mac. «Аварийно» ставит паузу на входы, отменяет ордера на вход и закрывает все позиции. Каждая команда ставится в очередь один раз, результат сообщает бот."
           }
         }
       }
     },
-    "notice.wentStale": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ not sent: the bot's status went out of date."
+    "control.pause" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause Entries"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«%@» не отправлено: статус бота устарел."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приостановить входы"
           }
         }
       }
     },
-    "pair.address": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Address"
+    "control.reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ on the trading bot"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Адрес"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подтвердите «%@» для торгового бота"
           }
         }
       }
     },
-    "pair.ask": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pair with %@?"
+    "control.resume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resume Entries"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Связать с %@?"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возобновить входы"
           }
         }
       }
     },
-    "pair.askMessage": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The phone will read the bot's status from this address and can send commands. Any earlier pairing is replaced."
+    "control.state" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot is %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Телефон будет читать статус бота по этому адресу и сможет отправлять команды. Прежняя связь будет заменена."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот: %@"
           }
         }
       }
     },
-    "pair.forget": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Forget Pairing"
+    "control.statePaused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot is %@ · entries paused"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Забыть связь"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот: %@ · входы на паузе"
           }
         }
       }
     },
-    "pair.forgetMessage": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The phone deletes its token and can no longer reach the bot remotely until you pair again."
+    "control.stopBot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop the Bot"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Телефон удалит свой токен и не сможет обращаться к боту удалённо, пока вы снова не свяжете его с Mac."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остановить бота"
           }
         }
       }
     },
-    "pair.forgetTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Forget the pairing?"
+    "control.stopTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop the bot?"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Забыть связь с Mac?"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остановить бота?"
           }
         }
       }
     },
-    "pair.invalid": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This is not a pairing link."
+    "control.stopWarning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. The phone cannot start the bot again: start it on the Mac."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Это не ссылка для связи."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот мягко завершает работу: ордера на вход отменяются, стопы у брокера остаются. Открытые позиции остаются открытыми под дневными стопами, и в конце сессии их никто не закроет. С телефона бота снова не запустить: запускайте его на Mac."
           }
         }
       }
     },
-    "pair.mac": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac"
+    "control.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot control"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Управление ботом"
           }
         }
       }
     },
-    "pair.notALink": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "That link is not an Aperture pairing link."
+    "control.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot status unknown"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Это не ссылка для связи с Aperture."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус бота неизвестен"
           }
         }
       }
     },
-    "pair.notPaired": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not paired"
+    "home.broker" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "broker"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не связан"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "брокер"
           }
         }
       }
     },
-    "pair.notSaved": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not paired: the phone could not keep the token in its Keychain."
+    "home.day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "day"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Связь не установлена: телефону не удалось сохранить токен в Связке ключей."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "день"
           }
         }
       }
     },
-    "pair.pair": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pair"
+    "home.dayResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day result %@, %lld wins, %lld losses"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Связать"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Результат дня %@, в плюс: %lld, в минус: %lld"
           }
         }
       }
     },
-    "pair.paired": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paired with %@."
+    "home.entries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entries"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Связано с %@."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "входы"
           }
         }
       }
     },
-    "pair.prompt": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "aperture://pair?…"
+    "home.entriesAllowed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "allowed"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "aperture://pair?…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "разрешены"
           }
         }
       }
     },
-    "pair.sheetFooter": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On the Mac run `python -m aperture.api --config config/bot.toml pair`, then AirDrop the pairing file it names to this phone and paste the link here."
+    "home.entriesBlocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "blocked"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "На Mac выполните `python -m aperture.api --config config/bot.toml pair`, затем отправьте через AirDrop на этот телефон файл, который он назовёт, и вставьте ссылку сюда."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "заблокированы"
           }
         }
       }
     },
-    "pair.start": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pair with Mac…"
+    "home.gate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gate"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Связать с Mac…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "торговля"
           }
         }
       }
     },
-    "pair.thisMac": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "this Mac"
+    "home.gateClosed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading gate closed: %@."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "этим Mac"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговля запрещена: %@."
           }
         }
       }
     },
-    "pair.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pair with Mac"
+    "home.gateOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Связать с Mac"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "разрешена"
           }
         }
       }
     },
-    "positions.chain": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Protection chain"
+    "home.gateShut" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closed"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Цепочка защиты"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "запрещена"
           }
         }
       }
     },
-    "positions.closeNow": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close %@ now?"
+    "home.inputs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot inputs"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Закрыть %@ сейчас?"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входные данные бота"
           }
         }
       }
     },
-    "positions.entryLevel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "entry %@"
+    "home.noPosition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open position."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "вход %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открытых позиций нет."
           }
         }
       }
     },
-    "positions.filled": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filled %@ @ %@"
+    "home.noStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NO STOP"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Исполнено %@ по %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "НЕТ СТОПА"
           }
         }
       }
     },
-    "positions.flatten": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flatten %@"
+    "home.protected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ protected by a broker stop."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Закрыть %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ защищена стопом у брокера."
           }
         }
       }
     },
-    "positions.flattenEllipsis": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flatten %@…"
+    "home.quotes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "quotes"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Закрыть %@…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "котировки"
           }
         }
       }
     },
-    "positions.flattenMessage": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The bot cancels this position's stop, re-reads the quantity and sells at market through the normal exit. Only this symbol closes; the bot's other positions and positions not opened by the bot are not touched."
+    "home.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот отменяет стоп этой позиции, заново читает количество и продаёт по рынку через обычный выход. Закрывается только этот символ; другие позиции бота и позиции, открытые не ботом, не затрагиваются."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
           }
         }
       }
     },
-    "positions.freeSlot": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "free"
+    "home.since" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "since %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "свободно"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "с %@"
           }
         }
       }
     },
-    "positions.levels": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entry %@, stop %@"
+    "home.stopIs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ stop is %@."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вход %@, стоп %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп %@: %@."
           }
         }
       }
     },
-    "positions.maxLoss": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "max loss"
+    "home.stopPending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop pending"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "макс. убыток"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп ожидается"
           }
         }
       }
     },
-    "positions.none": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No open position"
+    "home.stopUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop unknown"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Открытых позиций нет"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп неизвестен"
           }
         }
       }
     },
-    "positions.priceLineLater": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "price line comes with chart data"
+    "home.stopVerified" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop ✓ %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "линия цены появится с данными графика"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп ✓ %@"
           }
         }
       }
     },
-    "positions.protected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "protected"
+    "home.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strategy %@ v%@."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "под защитой"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стратегия %@ v%@."
           }
         }
       }
     },
-    "positions.riskBand": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Risk band"
+    "lab.active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active strategy"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Диапазон риска"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активная стратегия"
           }
         }
       }
     },
-    "positions.shares": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ shares @ %@ · %@"
+    "lab.observers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Observers and replays"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ акц. по %@ · %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наблюдатели и повторы"
           }
         }
       }
     },
-    "positions.slots": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld of %lld slots"
+    "lab.observersBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How each observer version would have traded today, replays of past days and why signals were refused appear here once the bot's API publishes them. Approving a new version stays on the Mac."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "занято слотов: %lld из %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как торговала бы сегодня каждая версия-наблюдатель, повторы прошлых дней и причины отказов по сигналам появятся здесь, когда API бота начнёт их публиковать. Одобрение новой версии остаётся на Mac."
           }
         }
       }
     },
-    "positions.stop": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stop"
+    "lab.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strategy lab"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "стоп"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лаборатория стратегий"
           }
         }
       }
     },
-    "positions.stopLevel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "broker stop %@"
+    "lab.trades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "trades"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "стоп у брокера %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "торгует"
           }
         }
       }
     },
-    "positions.stopSent": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop %@ sent once"
+    "notice.busy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ not sent: another command is being sent."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стоп %@ отправлен один раз"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не отправлено: уже отправляется другая команда."
           }
         }
       }
     },
-    "positions.stopWorking": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop working at broker"
+    "notice.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: done."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стоп работает у брокера"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@»: выполнено."
           }
         }
       }
     },
-    "positions.toStop": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "to stop"
+    "notice.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ not sent: %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "до стопа"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не отправлено: %@"
           }
         }
       }
     },
-    "positions.watching": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entries are allowed; the bot is watching for signals."
+    "notice.noCause" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no cause given"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Входы разрешены, бот следит за сигналами."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "причина не указана"
           }
         }
       }
     },
-    "risk.allowed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Allowed"
+    "notice.notConfirmed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ not sent: owner not confirmed (%@)."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Разрешены"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не отправлено: подтверждение владельца не получено (%@)."
           }
         }
       }
     },
-    "risk.beforeClose": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min before close"
+    "notice.notCurrent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ not sent: the bot's status is not current."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "за %lld мин до закрытия"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не отправлено: статус бота не актуален."
           }
         }
       }
     },
-    "risk.blocked": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blocked"
+    "notice.queued" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ queued for the bot."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Заблокированы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» передано боту."
           }
         }
       }
     },
-    "risk.entries": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "New entries"
+    "notice.queuedWarning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ queued. %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Новые входы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» передано боту. %@"
           }
         }
       }
     },
-    "risk.fences": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fences"
+    "notice.refused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ refused: %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ограждения"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» отклонено: %@"
           }
         }
       }
     },
-    "risk.flatten": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close everything"
+    "notice.wentStale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ not sent: the bot's status went out of date."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Закрыть всё"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не отправлено: статус бота устарел."
           }
         }
       }
     },
-    "risk.gateClosed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "closed"
+    "pair.address" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "закрыт"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адрес"
           }
         }
       }
     },
-    "risk.gateOpen": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "open"
+    "pair.ask" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair with %@?"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "открыт"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связать с %@?"
           }
         }
       }
     },
-    "risk.halfDays": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Half days"
+    "pair.askMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The phone will read the bot's status from this address and can send commands. Any earlier pairing is replaced."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сокращённые дни"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Телефон будет читать статус бота по этому адресу и сможет отправлять команды. Прежняя связь будет заменена."
           }
         }
       }
     },
-    "risk.lastEntry": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Last entry"
+    "pair.forget" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forget Pairing"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Последний вход"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Забыть связь"
           }
         }
       }
     },
-    "risk.left": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "left"
+    "pair.forgetMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The phone deletes its token and can no longer reach the bot remotely until you pair again."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "осталось"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Телефон удалит свой токен и не сможет обращаться к боту удалённо, пока вы снова не свяжете его с Mac."
           }
         }
       }
     },
-    "risk.limit": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Daily loss limit"
+    "pair.forgetTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forget the pairing?"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Дневной лимит убытка"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Забыть связь с Mac?"
           }
         }
       }
     },
-    "risk.limits": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Limits"
+    "pair.invalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is not a pairing link."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Лимиты"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это не ссылка для связи."
           }
         }
       }
     },
-    "risk.minRoom": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No entries below room"
+    "pair.mac" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Без входов при запасе меньше"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac"
           }
         }
       }
     },
-    "risk.no": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "no"
+    "pair.notALink" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That link is not an Aperture pairing link."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "нет"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это не ссылка для связи с Aperture."
           }
         }
       }
     },
-    "risk.noFences": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No fences: the bot raised no blocks."
+    "pair.notPaired" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not paired"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ограждений нет: бот ничего не блокировал."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не связан"
           }
         }
       }
     },
-    "risk.notionalCap": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Position size cap"
+    "pair.notSaved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not paired: the phone could not keep the token in its Keychain."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Предел размера позиции"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связь не установлена: телефону не удалось сохранить токен в Связке ключей."
           }
         }
       }
     },
-    "risk.openPositions": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open positions at most"
+    "pair.pair" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Открытых позиций не больше"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связать"
           }
         }
       }
     },
-    "risk.pausedByYou": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Operator pause"
+    "pair.paired" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paired with %@."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Пауза оператора"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связано с %@."
           }
         }
       }
     },
-    "risk.plannedLoss": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Planned loss per trade"
+    "pair.prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "aperture://pair?…"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Плановый убыток на сделку"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "aperture://pair?…"
           }
         }
       }
     },
-    "risk.quoteAge": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oldest usable quote"
+    "pair.sheetFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the Mac run `python -m aperture.api --config config/bot.toml pair`, then AirDrop the pairing file it names to this phone and paste the link here."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Самая старая котировка для сделки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На Mac выполните `python -m aperture.api --config config/bot.toml pair`, затем отправьте через AirDrop на этот телефон файл, который он назовёт, и вставьте ссылку сюда."
           }
         }
       }
     },
-    "risk.realizedLoss": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Realized loss"
+    "pair.start" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair with Mac…"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Зафиксированный убыток"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связать с Mac…"
           }
         }
       }
     },
-    "risk.reservations": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reserved by open trades"
+    "pair.thisMac" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "this Mac"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Зарезервировано открытыми сделками"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "этим Mac"
           }
         }
       }
     },
-    "risk.resultToday": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Net result today"
+    "pair.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair with Mac"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Итог дня"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связать с Mac"
           }
         }
       }
     },
-    "risk.room": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Daily loss room"
+    "positions.chain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protection chain"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Запас дневного лимита"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цепочка защиты"
           }
         }
       }
     },
-    "risk.roomNote": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The limit counts the net day result: profits offset losses. Open trades reserve their planned loss. Below %@ of room the bot opens nothing new."
+    "positions.closeNow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close %@ now?"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Лимит считает чистый итог дня: прибыль гасит убытки. Открытые сделки резервируют свой плановый убыток. Если запас меньше %@, бот не открывает новых сделок."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть %@ сейчас?"
           }
         }
       }
     },
-    "risk.seconds": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ s"
+    "positions.entryLevel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entry %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ с"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вход %@"
           }
         }
       }
     },
-    "risk.session": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Session · New York"
+    "positions.filled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filled %@ @ %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сессия · Нью-Йорк"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Исполнено %@ по %@"
           }
         }
       }
     },
-    "risk.settingsFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't read the bot's settings"
+    "positions.flatten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flatten %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не удалось прочитать настройки бота"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть %@"
           }
         }
       }
     },
-    "risk.since": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "since %@"
+    "positions.flattenEllipsis" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flatten %@…"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "с %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть %@…"
           }
         }
       }
     },
-    "risk.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Risk"
+    "positions.flattenMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot cancels this position's stop, re-reads the quantity and sells at market through the normal exit. Only this symbol closes; the bot's other positions and positions not opened by the bot are not touched."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Риск"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот отменяет стоп этой позиции, заново читает количество и продаёт по рынку через обычный выход. Закрывается только этот символ; другие позиции бота и позиции, открытые не ботом, не затрагиваются."
           }
         }
       }
     },
-    "risk.tradingGate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trading gate"
+    "positions.freeSlot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "free"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Торговый шлюз"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "свободно"
           }
         }
       }
     },
-    "risk.yes": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "yes"
+    "positions.levels" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry %@, stop %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "да"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход %@, стоп %@"
           }
         }
       }
     },
-    "settings.about": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "About"
+    "positions.maxLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "max loss"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "О приложении"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "макс. убыток"
           }
         }
       }
     },
-    "settings.accountFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't read the broker check: %@"
+    "positions.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open position"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не удалось прочитать сверку с брокером: %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открытых позиций нет"
           }
         }
       }
     },
-    "settings.addressFooter": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In the Simulator the Mac's own address works. On the phone, pair with the link that `python -m aperture.api pair` leaves on the Mac; it reaches the Mac through Tailscale over HTTPS. The token stays in this phone's Keychain and goes only to the paired address."
+    "positions.priceLineLater" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "price line comes with chart data"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "В симуляторе подходит собственный адрес Mac. На телефоне свяжите его с Mac по ссылке, которую оставляет `python -m aperture.api pair`: телефон обращается к Mac через Tailscale по HTTPS. Токен хранится в Связке ключей телефона и отправляется только на связанный адрес."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "линия цены появится с данными графика"
           }
         }
       }
     },
-    "settings.afterHours": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "after hours"
+    "positions.protected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "protected"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "постмаркет"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "под защитой"
           }
         }
       }
     },
-    "settings.allPassed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "all passed"
+    "positions.riskBand" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk band"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "всё в порядке"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диапазон риска"
           }
         }
       }
     },
-    "settings.app": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "App"
+    "positions.shares" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ shares @ %@ · %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Приложение"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ акц. по %@ · %@"
           }
         }
       }
     },
-    "settings.bot": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot"
+    "positions.slots" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld slots"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "занято слотов: %lld из %lld"
           }
         }
       }
     },
-    "settings.botOnMac": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot on your Mac"
+    "positions.stop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот на вашем Mac"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп"
           }
         }
       }
     },
-    "settings.brokerCounts": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld pos · %lld orders"
+    "positions.stopLevel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "broker stop %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "позиций: %lld · ордеров: %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп у брокера %@"
           }
         }
       }
     },
-    "settings.checkBotRunning": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bot running"
+    "positions.stopSent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop %@ sent once"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бот работает"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп %@ отправлен один раз"
           }
         }
       }
     },
-    "settings.checkBrokerMatches": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Broker matches records"
+    "positions.stopWorking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop working at broker"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Брокер совпадает с записями"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп работает у брокера"
           }
         }
       }
     },
-    "settings.checkGateOpen": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trading gate open"
+    "positions.toStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "to stop"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Торговый шлюз открыт"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "до стопа"
           }
         }
       }
     },
-    "settings.checkStatusCurrent": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Status current"
+    "positions.watching" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries are allowed; the bot is watching for signals."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Статус свежий"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы разрешены, бот следит за сигналами."
           }
         }
       }
     },
-    "settings.checkStopsVerified": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Every position has a stop"
+    "risk.allowed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allowed"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "У каждой позиции есть стоп"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешены"
           }
         }
       }
     },
-    "settings.checkStreamFresh": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quote stream fresh"
+    "risk.beforeClose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min before close"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Поток котировок свежий"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "за %lld мин до закрытия"
           }
         }
       }
     },
-    "settings.checking": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "checking…"
+    "risk.blocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocked"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "проверяю…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заблокированы"
           }
         }
       }
     },
-    "settings.closed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "market closed"
+    "risk.entries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New entries"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "рынок закрыт"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новые входы"
           }
         }
       }
     },
-    "settings.connected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connected"
+    "risk.fences" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fences"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подключено"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ограждения"
           }
         }
       }
     },
-    "settings.connecting": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecting…"
+    "risk.flatten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close everything"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подключение…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть всё"
           }
         }
       }
     },
-    "settings.contract": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "API contract"
+    "risk.gateClosed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closed"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Контракт API"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыт"
           }
         }
       }
     },
-    "settings.contractVersion": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "v%lld"
+    "risk.gateOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "v%lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "открыт"
           }
         }
       }
     },
-    "settings.environment": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Environment"
+    "risk.halfDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Half days"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Окружение"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сокращённые дни"
           }
         }
       }
     },
-    "settings.environmentFooter": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sandbox or Production is set in config/bot.toml on the Mac; Production also needs your authorization file there. The phone only shows it."
+    "risk.lastEntry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last entry"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sandbox или Production задаётся в config/bot.toml на Mac; для Production там же нужен ваш файл разрешения. Телефон только показывает среду."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последний вход"
           }
         }
       }
     },
-    "settings.failing": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld failing"
+    "risk.left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "left"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "не пройдено: %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "осталось"
           }
         }
       }
     },
-    "settings.gate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trading gate"
+    "risk.limit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily loss limit"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Допуск к торговле"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дневной лимит убытка"
           }
         }
       }
     },
-    "settings.gateClosed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "closed"
+    "risk.limits" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limits"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "запрещена"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лимиты"
           }
         }
       }
     },
-    "settings.gateOpen": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "open"
+    "risk.minRoom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries below room"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "разрешена"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без входов при запасе меньше"
           }
         }
       }
     },
-    "settings.lockScreen": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lock-screen alerts"
+    "risk.no" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Уведомления на экране блокировки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нет"
           }
         }
       }
     },
-    "settings.noAddress": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No address"
+    "risk.noFences" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fences: the bot raised no blocks."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нет адреса"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ограждений нет: бот ничего не блокировал."
           }
         }
       }
     },
-    "settings.notCurrent": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reached, status not current"
+    "risk.notionalCap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position size cap"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Доступен, статус устарел"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предел размера позиции"
           }
         }
       }
     },
-    "settings.notReachable": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not reachable"
+    "risk.openPositions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open positions at most"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Недоступен"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открытых позиций не больше"
           }
         }
       }
     },
-    "settings.notYet": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not yet"
+    "risk.pausedByYou" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operator pause"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Пока нет"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пауза оператора"
           }
         }
       }
     },
-    "settings.notifications": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notifications"
+    "risk.plannedLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned loss per trade"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Уведомления"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плановый убыток на сделку"
           }
         }
       }
     },
-    "settings.notificationsFooter": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alerts for stops, fills, paused entries and broker mismatches arrive when push notifications are set up. Environment and limits are set in the bot's config on the Mac; the phone only shows them."
+    "risk.quoteAge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oldest usable quote"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Уведомления о стопах, исполнениях, паузе входов и расхождениях с брокером появятся, когда будут настроены push-уведомления. Окружение и лимиты задаются в конфигурации бота на Mac, телефон только показывает их."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Самая старая котировка для сделки"
           }
         }
       }
     },
-    "settings.preMarket": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "pre-market"
+    "risk.realizedLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Realized loss"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "премаркет"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зафиксированный убыток"
           }
         }
       }
     },
-    "settings.preflight": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Preflight"
+    "risk.reservations" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reserved by open trades"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Предполётная проверка"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зарезервировано открытыми сделками"
           }
         }
       }
     },
-    "settings.regularHours": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "regular hours"
+    "risk.resultToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net result today"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "основная сессия"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Итог дня"
           }
         }
       }
     },
-    "settings.run": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Run"
+    "risk.room" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily loss room"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Запуск"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запас дневного лимита"
           }
         }
       }
     },
-    "settings.saveAddress": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Save Address"
+    "risk.roomNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The limit counts the net day result: profits offset losses. Open trades reserve their planned loss. Below %@ of room the bot opens nothing new."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сохранить адрес"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лимит считает чистый итог дня: прибыль гасит убытки. Открытые сделки резервируют свой плановый убыток. Если запас меньше %@, бот не открывает новых сделок."
           }
         }
       }
     },
-    "settings.session": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Session · New York"
+    "risk.seconds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ s"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сессия · Нью-Йорк"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ с"
           }
         }
       }
     },
-    "settings.sessionFooter": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "US exchange hours: extended 04:00–20:00, regular 09:30–16:00. Half days are not drawn."
+    "risk.session" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session · New York"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Часы бирж США: расширенные 04:00–20:00, основные 09:30–16:00. Сокращённые дни не показаны."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сессия · Нью-Йорк"
           }
         }
       }
     },
-    "settings.state": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "State"
+    "risk.settingsFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the bot's settings"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Состояние"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать настройки бота"
           }
         }
       }
     },
-    "settings.status": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Status"
+    "risk.since" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "since %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Статус"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "с %@"
           }
         }
       }
     },
-    "settings.stops": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld of %lld verified"
+    "risk.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "подтверждено %lld из %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Риск"
           }
         }
       }
     },
-    "settings.strategy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Strategy"
+    "risk.tradingGate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading gate"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стратегия"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговый шлюз"
           }
         }
       }
     },
-    "settings.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Settings"
+    "risk.yes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "yes"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Настройки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "да"
           }
         }
       }
     },
-    "stream.fresh": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "fresh"
+    "settings.about" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "свежие"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "О приложении"
           }
         }
       }
     },
-    "stream.lost": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "lost"
+    "settings.accountFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the broker check: %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "потеряны"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать сверку с брокером: %@"
           }
         }
       }
     },
-    "stream.off": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "off"
+    "settings.addressFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In the Simulator the Mac's own address works. On the phone, pair with the link that `python -m aperture.api pair` leaves on the Mac; it reaches the Mac through Tailscale over HTTPS. The token stays in this phone's Keychain and goes only to the paired address."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "выкл."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В симуляторе подходит собственный адрес Mac. На телефоне свяжите его с Mac по ссылке, которую оставляет `python -m aperture.api pair`: телефон обращается к Mac через Tailscale по HTTPS. Токен хранится в Связке ключей телефона и отправляется только на связанный адрес."
           }
         }
       }
     },
-    "stream.quiet": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "quiet"
+    "settings.afterHours" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "after hours"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "тихо"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "постмаркет"
+          }
+        }
+      }
+    },
+    "settings.allPassed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "all passed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "всё в порядке"
+          }
+        }
+      }
+    },
+    "settings.app" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение"
+          }
+        }
+      }
+    },
+    "settings.bot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот"
+          }
+        }
+      }
+    },
+    "settings.botOnMac" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot on your Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот на вашем Mac"
+          }
+        }
+      }
+    },
+    "settings.brokerCounts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pos · %lld orders"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "позиций: %lld · ордеров: %lld"
+          }
+        }
+      }
+    },
+    "settings.checkBotRunning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot running"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот работает"
+          }
+        }
+      }
+    },
+    "settings.checkBrokerMatches" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker matches records"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Брокер совпадает с записями"
+          }
+        }
+      }
+    },
+    "settings.checkGateOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading gate open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговый шлюз открыт"
+          }
+        }
+      }
+    },
+    "settings.checking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "checking…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "проверяю…"
+          }
+        }
+      }
+    },
+    "settings.checkStatusCurrent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status current"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус свежий"
+          }
+        }
+      }
+    },
+    "settings.checkStopsVerified" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every position has a stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У каждой позиции есть стоп"
+          }
+        }
+      }
+    },
+    "settings.checkStreamFresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote stream fresh"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поток котировок свежий"
+          }
+        }
+      }
+    },
+    "settings.closed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "market closed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "рынок закрыт"
+          }
+        }
+      }
+    },
+    "settings.connected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключено"
+          }
+        }
+      }
+    },
+    "settings.connecting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключение…"
+          }
+        }
+      }
+    },
+    "settings.contract" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API contract"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Контракт API"
+          }
+        }
+      }
+    },
+    "settings.contractVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v%lld"
+          }
+        }
+      }
+    },
+    "settings.environment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Environment"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Окружение"
+          }
+        }
+      }
+    },
+    "settings.environmentFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sandbox or Production is set in config/bot.toml on the Mac; Production also needs your authorization file there. The phone only shows it."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sandbox или Production задаётся в config/bot.toml на Mac; для Production там же нужен ваш файл разрешения. Телефон только показывает среду."
+          }
+        }
+      }
+    },
+    "settings.failing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld failing"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не пройдено: %lld"
+          }
+        }
+      }
+    },
+    "settings.gate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading gate"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Допуск к торговле"
+          }
+        }
+      }
+    },
+    "settings.gateClosed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "запрещена"
+          }
+        }
+      }
+    },
+    "settings.gateOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "разрешена"
+          }
+        }
+      }
+    },
+    "settings.lockScreen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lock-screen alerts"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления на экране блокировки"
+          }
+        }
+      }
+    },
+    "settings.noAddress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No address"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет адреса"
+          }
+        }
+      }
+    },
+    "settings.notCurrent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reached, status not current"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступен, статус устарел"
+          }
+        }
+      }
+    },
+    "settings.notifications" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления"
+          }
+        }
+      }
+    },
+    "settings.notificationsFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerts for stops, fills, paused entries and broker mismatches arrive when push notifications are set up. Environment and limits are set in the bot's config on the Mac; the phone only shows them."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления о стопах, исполнениях, паузе входов и расхождениях с брокером появятся, когда будут настроены push-уведомления. Окружение и лимиты задаются в конфигурации бота на Mac, телефон только показывает их."
+          }
+        }
+      }
+    },
+    "settings.notReachable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not reachable"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недоступен"
+          }
+        }
+      }
+    },
+    "settings.notYet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет"
+          }
+        }
+      }
+    },
+    "settings.preflight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preflight"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предполётная проверка"
+          }
+        }
+      }
+    },
+    "settings.preMarket" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pre-market"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "премаркет"
+          }
+        }
+      }
+    },
+    "settings.regularHours" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "regular hours"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "основная сессия"
+          }
+        }
+      }
+    },
+    "settings.run" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуск"
+          }
+        }
+      }
+    },
+    "settings.saveAddress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Address"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить адрес"
+          }
+        }
+      }
+    },
+    "settings.session" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session · New York"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сессия · Нью-Йорк"
+          }
+        }
+      }
+    },
+    "settings.sessionFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US exchange hours: extended 04:00–20:00, regular 09:30–16:00. Half days are not drawn."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Часы бирж США: расширенные 04:00–20:00, основные 09:30–16:00. Сокращённые дни не показаны."
+          }
+        }
+      }
+    },
+    "settings.state" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "State"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Состояние"
+          }
+        }
+      }
+    },
+    "settings.status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус"
+          }
+        }
+      }
+    },
+    "settings.stops" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld verified"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "подтверждено %lld из %lld"
+          }
+        }
+      }
+    },
+    "settings.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strategy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стратегия"
+          }
+        }
+      }
+    },
+    "settings.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "stream.fresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fresh"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "свежие"
+          }
+        }
+      }
+    },
+    "stream.lost" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lost"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "потеряны"
+          }
+        }
+      }
+    },
+    "stream.off" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "off"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выкл."
+          }
+        }
+      }
+    },
+    "stream.quiet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "quiet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "тихо"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.1"
 }

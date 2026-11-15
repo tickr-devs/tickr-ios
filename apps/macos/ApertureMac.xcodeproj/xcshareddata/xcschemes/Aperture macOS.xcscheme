@@ -34,7 +34,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A9E000000000000000000022"
-               BuildableName = "ApertureUITests.xctest"
+               BuildableName = "Aperture macOS UITests.xctest"
                BlueprintName = "Aperture macOS UITests"
                ReferencedContainer = "container:ApertureMac.xcodeproj">
             </BuildableReference>

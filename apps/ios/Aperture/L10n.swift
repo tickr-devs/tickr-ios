@@ -1,8 +1,8 @@
 import Foundation
 
 /// Every text of the iOS app that a person reads, in English, with its Russian translation in
-/// Localizable.xcstrings beside this file (docs/design-system.md, rule 2). The Chart tab keeps its
-/// own table (`ChartText` at the end of this file, one file per target so Xcode extracts it once).
+/// Localizable.xcstrings beside this file (docs/design-system.md, rule 2). The Chart tab's texts are
+/// `ChartText` at the end of this file.
 /// Views pass these to `Text` and the components, or read them with `String(localized:)`. Keys are
 /// `<namespace>.<name>`.
 enum L10n {
@@ -822,96 +822,95 @@ enum L10n {
   }
 }
 
-/// Every text of the Chart tab. Translations live in Chart/chart.xcstrings.
+/// Every text of the Chart tab, in Localizable.xcstrings with the rest.
 enum ChartText {
-  static let title = LocalizedStringResource("chart.title", defaultValue: "Chart", table: ChartText.table)
+  static let title = LocalizedStringResource("chart.title", defaultValue: "Chart")
   static let loading = LocalizedStringResource("chart.loading",
-    defaultValue: "Loading the chart…", table: ChartText.table)
+    defaultValue: "Loading the chart…")
   static let noDaysTitle = LocalizedStringResource("chart.noDays.title",
-    defaultValue: "No recorded days yet", table: ChartText.table)
+    defaultValue: "No recorded days yet")
   static let noDaysBody = LocalizedStringResource("chart.noDays.body",
-    defaultValue: "The bot records bars and trades while it runs. Days appear here once there is something to show.",
-    table: ChartText.table)
+    defaultValue: "The bot records bars and trades while it runs. Days appear here once there is something to show.")
   static let noBarsTitle = LocalizedStringResource("chart.noBars.title",
-    defaultValue: "No captured bars", table: ChartText.table)
+    defaultValue: "No captured bars")
   static let noBarsBody = LocalizedStringResource("chart.noBars.body",
-    defaultValue: "The bot captured no bars on this day.", table: ChartText.table)
+    defaultValue: "The bot captured no bars on this day.")
   static let failedTitle = LocalizedStringResource("chart.failed.title",
-    defaultValue: "Could not load the chart", table: ChartText.table)
-  static let retry = LocalizedStringResource("chart.retry", defaultValue: "Try Again", table: ChartText.table)
+    defaultValue: "Could not load the chart")
+  static let retry = LocalizedStringResource("chart.retry", defaultValue: "Try Again")
   static let previousDay = LocalizedStringResource("chart.previousDay",
-    defaultValue: "Previous day", table: ChartText.table)
-  static let nextDay = LocalizedStringResource("chart.nextDay", defaultValue: "Next day", table: ChartText.table)
-  static let day = LocalizedStringResource("chart.day", defaultValue: "Day", table: ChartText.table)
-  static let live = LocalizedStringResource("chart.live", defaultValue: "Live", table: ChartText.table)
-  static let timeframe = LocalizedStringResource("chart.timeframe", defaultValue: "Timeframe", table: ChartText.table)
-  static let m1 = LocalizedStringResource("chart.timeframe.m1", defaultValue: "M1", table: ChartText.table)
-  static let m5 = LocalizedStringResource("chart.timeframe.m5", defaultValue: "M5", table: ChartText.table)
-  static let m15 = LocalizedStringResource("chart.timeframe.m15", defaultValue: "M15", table: ChartText.table)
-  static let vwap = LocalizedStringResource("chart.indicator.vwap", defaultValue: "VWAP", table: ChartText.table)
+    defaultValue: "Previous day")
+  static let nextDay = LocalizedStringResource("chart.nextDay", defaultValue: "Next day")
+  static let day = LocalizedStringResource("chart.day", defaultValue: "Day")
+  static let live = LocalizedStringResource("chart.live", defaultValue: "Live")
+  static let timeframe = LocalizedStringResource("chart.timeframe", defaultValue: "Timeframe")
+  static let m1 = LocalizedStringResource("chart.timeframe.m1", defaultValue: "M1")
+  static let m5 = LocalizedStringResource("chart.timeframe.m5", defaultValue: "M5")
+  static let m15 = LocalizedStringResource("chart.timeframe.m15", defaultValue: "M15")
+  static let vwap = LocalizedStringResource("chart.indicator.vwap", defaultValue: "VWAP")
   static let volume = LocalizedStringResource("chart.indicator.volume",
-    defaultValue: "Volume", table: ChartText.table)
-  static let zoomIn = LocalizedStringResource("chart.zoomIn", defaultValue: "Zoom in", table: ChartText.table)
-  static let zoomOut = LocalizedStringResource("chart.zoomOut", defaultValue: "Zoom out", table: ChartText.table)
+    defaultValue: "Volume")
+  static let zoomIn = LocalizedStringResource("chart.zoomIn", defaultValue: "Zoom in")
+  static let zoomOut = LocalizedStringResource("chart.zoomOut", defaultValue: "Zoom out")
   static let hint = LocalizedStringResource("chart.hint",
-    defaultValue: "Touch and hold the chart to read a candle.", table: ChartText.table)
-  static let trades = LocalizedStringResource("chart.trades", defaultValue: "Trades", table: ChartText.table)
+    defaultValue: "Touch and hold the chart to read a candle.")
+  static let trades = LocalizedStringResource("chart.trades", defaultValue: "Trades")
   static let noTrades = LocalizedStringResource("chart.noTrades",
-    defaultValue: "No closed trades on this symbol this day.", table: ChartText.table)
-  static let entry = LocalizedStringResource("chart.entry", defaultValue: "Entry", table: ChartText.table)
-  static let exit = LocalizedStringResource("chart.exit", defaultValue: "Exit", table: ChartText.table)
-  static let stop = LocalizedStringResource("chart.stop", defaultValue: "Stop", table: ChartText.table)
-  static let axisTime = LocalizedStringResource("chart.axis.time", defaultValue: "Time", table: ChartText.table)
-  static let axisPrice = LocalizedStringResource("chart.axis.price", defaultValue: "Price", table: ChartText.table)
-  static let axisLine = LocalizedStringResource("chart.axis.line", defaultValue: "Line", table: ChartText.table)
+    defaultValue: "No closed trades on this symbol this day.")
+  static let entry = LocalizedStringResource("chart.entry", defaultValue: "Entry")
+  static let exit = LocalizedStringResource("chart.exit", defaultValue: "Exit")
+  static let stop = LocalizedStringResource("chart.stop", defaultValue: "Stop")
+  static let axisTime = LocalizedStringResource("chart.axis.time", defaultValue: "Time")
+  static let axisPrice = LocalizedStringResource("chart.axis.price", defaultValue: "Price")
+  static let axisLine = LocalizedStringResource("chart.axis.line", defaultValue: "Line")
 
   /// The fast or slow EMA toggle, with its period in bars.
   static func ema(_ period: Int) -> LocalizedStringResource {
-    LocalizedStringResource("chart.indicator.ema", defaultValue: "EMA \(period)", table: ChartText.table)
+    LocalizedStringResource("chart.indicator.ema", defaultValue: "EMA \(period)")
   }
 
   /// The ATR pane toggle and label, with its period in bars.
   static func atr(_ period: Int) -> LocalizedStringResource {
-    LocalizedStringResource("chart.indicator.atr", defaultValue: "ATR \(period)", table: ChartText.table)
+    LocalizedStringResource("chart.indicator.atr", defaultValue: "ATR \(period)")
   }
 
   /// The crosshair readout of one candle: open, high, low, close, volume (already formatted).
   static func readout(_ open: String, _ high: String, _ low: String, _ close: String, _ volume: String)
     -> LocalizedStringResource {
     LocalizedStringResource("chart.readout",
-      defaultValue: "O \(open)  H \(high)  L \(low)  C \(close)  V \(volume)", table: ChartText.table)
+      defaultValue: "O \(open)  H \(high)  L \(low)  C \(close)  V \(volume)")
   }
   static let decisions = LocalizedStringResource("chart.decisions",
-    defaultValue: "Why the bot acted", table: ChartText.table)
+    defaultValue: "Why the bot acted")
   static let noDecisions = LocalizedStringResource("chart.decisions.none",
-    defaultValue: "No decisions recorded for this symbol that day.", table: ChartText.table)
+    defaultValue: "No decisions recorded for this symbol that day.")
   static let noEntries = LocalizedStringResource("chart.decisions.noEntries",
-    defaultValue: "No entries or exits; the strategy only watched.", table: ChartText.table)
+    defaultValue: "No entries or exits; the strategy only watched.")
   static let keyDecisions = LocalizedStringResource("chart.decisions.key",
-    defaultValue: "Entries and exits only", table: ChartText.table)
+    defaultValue: "Entries and exits only")
   static let observer = LocalizedStringResource("chart.decisions.observer",
-    defaultValue: "observer", table: ChartText.table)
+    defaultValue: "observer")
   static let verdictIgnore = LocalizedStringResource("chart.verdict.ignore",
-    defaultValue: "IGNORE", table: ChartText.table)
+    defaultValue: "IGNORE")
   static let verdictWatch = LocalizedStringResource("chart.verdict.watch",
-    defaultValue: "WATCH", table: ChartText.table)
+    defaultValue: "WATCH")
   static let verdictEnter = LocalizedStringResource("chart.verdict.enter",
-    defaultValue: "ENTER", table: ChartText.table)
+    defaultValue: "ENTER")
   static let verdictHold = LocalizedStringResource("chart.verdict.hold",
-    defaultValue: "HOLD", table: ChartText.table)
+    defaultValue: "HOLD")
   static let verdictExit = LocalizedStringResource("chart.verdict.exit",
-    defaultValue: "EXIT", table: ChartText.table)
+    defaultValue: "EXIT")
   static func allDecisions(_ count: Int) -> LocalizedStringResource {
-    LocalizedStringResource("chart.decisions.all", defaultValue: "All \(count) decisions", table: ChartText.table)
+    LocalizedStringResource("chart.decisions.all", defaultValue: "All \(count) decisions")
   }
   static func decisionsFailed(_ cause: String) -> LocalizedStringResource {
     LocalizedStringResource("chart.decisions.failed",
-      defaultValue: "Couldn't read the decisions: \(cause)", table: ChartText.table)
+      defaultValue: "Couldn't read the decisions: \(cause)")
   }
   static func entryStop(_ entry: String, _ stop: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.decisions.entryStop", defaultValue: "entry \(entry) · stop \(stop)", table: ChartText.table)
+    LocalizedStringResource("chart.decisions.entryStop", defaultValue: "entry \(entry) · stop \(stop)")
   }
   static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.decisions.strategy", defaultValue: "\(name) v\(version)", table: ChartText.table)
+    LocalizedStringResource("chart.decisions.strategy", defaultValue: "\(name) v\(version)")
   }
 }

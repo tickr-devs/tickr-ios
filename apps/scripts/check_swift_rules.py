@@ -26,7 +26,8 @@ legacy   The current Apple stack only (CLAUDE.md, "Swift code rules"): no XCTest
          deprecated SwiftUI, UIKit and AppKit calls (see LEGACY). Checked in tests too.
 catalog  Every key of an `L10n.swift` has a Russian translation in the target's String Catalog
          (`*.xcstrings` next to it), and every user-facing Info.plist text (`NS…UsageDescription`)
-         has one in an `InfoPlist.xcstrings` of the same app.
+         has one in an `InfoPlist.xcstrings` of the same app. Every String Catalog is committed
+         in the exact form Xcode writes (format_xcstrings.py), so a build leaves no diff.
 
 Usage: check_swift_rules.py
 """
@@ -41,6 +42,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import check_swift_literals  # noqa: E402
+import format_xcstrings  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 ROOTS = ("apps/shared", "apps/macos", "apps/ios")
@@ -393,6 +395,14 @@ def number_violations(path: Path) -> list[tuple[int, str]]:
     return check_swift_literals.violations(path)
 
 
+def catalog_form_violations(path: Path) -> list[tuple[int, str]]:
+    """A String Catalog not in the form Xcode writes: the next build would rewrite it."""
+    text = path.read_text(encoding="utf-8")
+    if format_xcstrings.xcode_form(text) == text:
+        return []
+    return [(1, "not in Xcode's form; run apps/scripts/format_xcstrings.py")]
+
+
 RULES = {
     "text": (text_violations, "words in code; define them in L10n.swift, translated to Russian"),
     "numbers": (number_violations, "magic number; use a token or a documented constant"),
@@ -454,6 +464,10 @@ def collect() -> dict[str, dict[str, list[tuple[int, str]]]]:
             result["legacy"][path.relative_to(REPO).as_posix()] = found
     for path in plist_files():
         found = plist_violations(path)
+        if found:
+            result["catalog"][path.relative_to(REPO).as_posix()] = found
+    for path in format_xcstrings.catalogs():
+        found = catalog_form_violations(path)
         if found:
             result["catalog"][path.relative_to(REPO).as_posix()] = found
     return result

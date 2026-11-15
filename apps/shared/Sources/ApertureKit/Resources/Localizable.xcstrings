@@ -1,856 +1,856 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "kit.api.contract": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "API answer does not match contract v1: %@"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "kit.api.contract" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API answer does not match contract v1: %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ответ API не соответствует контракту v1: %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ответ API не соответствует контракту v1: %@"
           }
         }
       }
     },
-    "kit.api.noErrorBody": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HTTP %lld without an error-v1 body"
+    "kit.api.noErrorBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP %lld without an error-v1 body"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HTTP %lld без тела error-v1"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP %lld без тела error-v1"
           }
         }
       }
     },
-    "kit.api.notHTTP": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "not an HTTP response"
+    "kit.api.notHTTP" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not an HTTP response"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ответ не по HTTP"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ответ не по HTTP"
           }
         }
       }
     },
-    "kit.api.refused": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "API refused (%lld %@): %@"
+    "kit.api.refused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API refused (%lld %@): %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "API отказал (%lld %@): %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API отказал (%lld %@): %@"
           }
         }
       }
     },
-    "kit.api.unreachable": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Local API not reachable: %@"
+    "kit.api.unreachable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local API not reachable: %@"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Локальный API недоступен: %@"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Локальный API недоступен: %@"
           }
         }
       }
     },
-    "kit.command.cancelOwnOrders": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel own orders"
+    "kit.command.cancelOwnOrders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel own orders"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отменить свои ордера"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить свои ордера"
           }
         }
       }
     },
-    "kit.command.emergency": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Emergency stop"
+    "kit.command.emergency" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emergency stop"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Аварийная остановка"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аварийная остановка"
           }
         }
       }
     },
-    "kit.command.entryStopOff": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entry stop off"
+    "kit.command.entryStopOff" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry stop off"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стоп входов: выкл."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп входов: выкл."
           }
         }
       }
     },
-    "kit.command.entryStopOn": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entry stop on"
+    "kit.command.entryStopOn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry stop on"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Стоп входов: вкл."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп входов: вкл."
           }
         }
       }
     },
-    "kit.command.flatten": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flatten"
+    "kit.command.flatten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flatten"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Закрыть всё"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть всё"
           }
         }
       }
     },
-    "kit.command.pauseEntries": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pause entries"
+    "kit.command.pauseEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause entries"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Приостановить входы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приостановить входы"
           }
         }
       }
     },
-    "kit.command.resumeEntries": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resume entries"
+    "kit.command.resumeEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resume entries"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Возобновить входы"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возобновить входы"
           }
         }
       }
     },
-    "kit.command.stopBot": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop bot"
+    "kit.command.stopBot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop bot"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Остановить бота"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остановить бота"
           }
         }
       }
     },
-    "kit.event.done": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DONE"
+    "kit.event.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DONE"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ВЫПОЛНЕНО"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ВЫПОЛНЕНО"
           }
         }
       }
     },
-    "kit.event.enter": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ENTER"
+    "kit.event.enter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ENTER"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ВХОД"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ВХОД"
           }
         }
       }
     },
-    "kit.event.fence": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FENCE"
+    "kit.event.fence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FENCE"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "БЛОК"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "БЛОК"
           }
         }
       }
     },
-    "kit.event.noPrice": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "no price"
+    "kit.event.noPrice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no price"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "без цены"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "без цены"
           }
         }
       }
     },
-    "kit.event.open": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OPEN"
+    "kit.event.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OPEN"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ОТКРЫТА"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОТКРЫТА"
           }
         }
       }
     },
-    "kit.event.refused": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REFUSED"
+    "kit.event.refused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REFUSED"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ОТКАЗ"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОТКАЗ"
           }
         }
       }
     },
-    "kit.exit.closed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "closed"
+    "kit.exit.closed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closed"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "закрыта"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыта"
           }
         }
       }
     },
-    "kit.exit.entryNotFilled": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "entry not filled"
+    "kit.exit.entryNotFilled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entry not filled"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "вход не исполнен"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вход не исполнен"
           }
         }
       }
     },
-    "kit.exit.holdElapsed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "hold time over"
+    "kit.exit.holdElapsed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hold time over"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "время удержания вышло"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "время удержания вышло"
           }
         }
       }
     },
-    "kit.exit.interrupted": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "interrupted"
+    "kit.exit.interrupted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "interrupted"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "прервано"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "прервано"
           }
         }
       }
     },
-    "kit.exit.operator": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "operator exit"
+    "kit.exit.operator" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "operator exit"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "выход оператора"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выход оператора"
           }
         }
       }
     },
-    "kit.exit.operatorFlatten": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "flattened"
+    "kit.exit.operatorFlatten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flattened"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "закрыто оператором"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыто оператором"
           }
         }
       }
     },
-    "kit.exit.sessionEnd": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "session end"
+    "kit.exit.sessionEnd" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "session end"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "конец сессии"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "конец сессии"
           }
         }
       }
     },
-    "kit.exit.stopRejected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stop rejected"
+    "kit.exit.stoppedOut" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stopped out"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "стоп отклонён"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "сработал стоп"
           }
         }
       }
     },
-    "kit.exit.stoppedOut": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stopped out"
+    "kit.exit.stopRejected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop rejected"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "сработал стоп"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп отклонён"
           }
         }
       }
     },
-    "kit.exit.strategy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "strategy exit"
+    "kit.exit.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "strategy exit"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "выход по стратегии"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выход по стратегии"
           }
         }
       }
     },
-    "kit.exit.streamLost": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "quotes lost"
+    "kit.exit.streamLost" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "quotes lost"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "потеряны котировки"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "потеряны котировки"
           }
         }
       }
     },
-    "kit.exit.unprotected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "unprotected too long"
+    "kit.exit.unprotected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unprotected too long"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "долго без защиты"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "долго без защиты"
           }
         }
       }
     },
-    "kit.headline.connecting": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecting to the local API…"
+    "kit.headline.connecting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting to the local API…"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подключение к локальному API…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключение к локальному API…"
           }
         }
       }
     },
-    "kit.headline.fetchFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@. Entry status unknown."
+    "kit.headline.fetchFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@. Entry status unknown."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@. Разрешены ли входы, неизвестно."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@. Разрешены ли входы, неизвестно."
           }
         }
       }
     },
-    "kit.headline.noVerifiedStop": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Position %@ has no verified stop (%@). "
+    "kit.headline.noVerifiedStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position %@ has no verified stop (%@). "
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "У позиции %@ нет подтверждённого стопа (%@). "
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У позиции %@ нет подтверждённого стопа (%@). "
           }
         }
       }
     },
-    "kit.state.missing": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "missing"
+    "kit.state.missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "missing"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "отсутствует"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отсутствует"
           }
         }
       }
     },
-    "kit.state.pending": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "pending"
+    "kit.state.pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pending"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "отправлен, не подтверждён"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отправлен, не подтверждён"
           }
         }
       }
     },
-    "kit.state.unknown": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "unknown"
+    "kit.state.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "неизвестно"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "неизвестно"
           }
         }
       }
     },
-    "kit.state.verified": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "verified"
+    "kit.state.verified" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "verified"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "подтверждён"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "подтверждён"
           }
         }
       }
     },
-    "kit.stop.missing": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NO STOP"
+    "kit.stop.missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NO STOP"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "НЕТ СТОПА"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "НЕТ СТОПА"
           }
         }
       }
     },
-    "kit.stop.pending": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "STOP PENDING"
+    "kit.stop.pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STOP PENDING"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "СТОП ОТПРАВЛЕН"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СТОП ОТПРАВЛЕН"
           }
         }
       }
     },
-    "kit.stop.unknown": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "STOP UNKNOWN"
+    "kit.stop.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STOP UNKNOWN"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "СТОП НЕИЗВЕСТЕН"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СТОП НЕИЗВЕСТЕН"
           }
         }
       }
     },
-    "kit.stop.verified": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "STOP ✓"
+    "kit.stop.verified" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STOP ✓"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "СТОП ✓"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СТОП ✓"
           }
         }
       }
     },
-    "kit.wire.badDate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expected a date like 2026-01-02, got \"%@\""
+    "kit.wire.badDate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "expected a date like 2026-01-02, got \"%@\""
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ожидалась дата вида 2026-01-02, получено «%@»"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ожидалась дата вида 2026-01-02, получено «%@»"
           }
         }
       }
     },
-    "kit.wire.badDecimal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expected a decimal string, got \"%@\""
+    "kit.wire.badDecimal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "expected a decimal string, got \"%@\""
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ожидалось десятичное число строкой, получено «%@»"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ожидалось десятичное число строкой, получено «%@»"
           }
         }
       }
     },
-    "kit.wire.badTime": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expected a UTC time like 2026-01-02T15:04:05.000Z, got \"%@\""
+    "kit.wire.badTime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "expected a UTC time like 2026-01-02T15:04:05.000Z, got \"%@\""
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ожидалось время UTC вида 2026-01-02T15:04:05.000Z, получено «%@»"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ожидалось время UTC вида 2026-01-02T15:04:05.000Z, получено «%@»"
           }
         }
       }
     },
-    "kit.wire.expectedDate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expected a date string"
+    "kit.wire.expectedDate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "expected a date string"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ожидалась дата строкой"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ожидалась дата строкой"
           }
         }
       }
     },
-    "kit.wire.expectedDecimal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expected a decimal string"
+    "kit.wire.expectedDecimal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "expected a decimal string"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ожидалось десятичное число строкой"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ожидалось десятичное число строкой"
           }
         }
       }
     },
-    "kit.wire.expectedTime": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expected a time string"
+    "kit.wire.expectedTime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "expected a time string"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ожидалось время строкой"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ожидалось время строкой"
           }
         }
       }
     },
-    "kit.wire.nullableKeyMissing": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "nullable key must be present"
+    "kit.wire.nullableKeyMissing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nullable key must be present"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ключ, допускающий null, должен присутствовать"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ключ, допускающий null, должен присутствовать"
           }
         }
       }
     },
-    "kit.wire.unsupportedVersion": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "unsupported %@ %lld, this app reads %lld"
+    "kit.wire.unsupportedVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unsupported %@ %lld, this app reads %lld"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "неподдерживаемая версия %@ %lld, приложение читает %lld"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "неподдерживаемая версия %@ %lld, приложение читает %lld"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

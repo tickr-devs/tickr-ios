@@ -1,24 +1,60 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "NSFaceIDUsageDescription": {
-      "comment": "Why the app asks for Face ID (Info.plist).",
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Confirms commands that cancel orders or close positions."
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Aperture"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подтверждает команды, которые отменяют заявки или закрывают позиции."
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aperture"
+          }
+        }
+      }
+    },
+    "CFBundleName" : {
+      "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Aperture"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aperture"
+          }
+        }
+      }
+    },
+    "NSFaceIDUsageDescription" : {
+      "comment" : "Why the app asks for Face ID (Info.plist).",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Confirms commands that cancel orders or close positions."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подтверждает команды, которые отменяют заявки или закрывают позиции."
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }
