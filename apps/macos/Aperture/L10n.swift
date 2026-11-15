@@ -1614,5 +1614,69 @@ enum L10n {
       LocalizedStringResource("menuBar.brokerRead", defaultValue: "broker read \(age)", bundle: L10n.bundle)
     }
   }
+  enum Screener {
+    /// Pipeline stage value: symbols that reached the stage on the day.
+    static func symbols(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("screener.symbols", defaultValue: "\(count) symbols", bundle: L10n.bundle)
+    }
+    /// Pipeline stop stage: trades whose broker-side stop the broker confirmed.
+    static func stopsVerified(_ verified: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("screener.stopsVerified", defaultValue: "\(verified) of \(total) verified", bundle: L10n.bundle)
+    }
+    /// Pipeline reconcile stage: the broker and the bot's records disagree.
+    static var mismatch: LocalizedStringResource {
+      LocalizedStringResource("screener.mismatch", defaultValue: "Mismatch", bundle: L10n.bundle)
+    }
+    /// Screener name: top gainers.
+    static var gainers: LocalizedStringResource {
+      LocalizedStringResource("screener.gainers", defaultValue: "Gainers", bundle: L10n.bundle)
+    }
+    /// Screener name: top losers.
+    static var losers: LocalizedStringResource {
+      LocalizedStringResource("screener.losers", defaultValue: "Losers", bundle: L10n.bundle)
+    }
+    /// Screener name: most traded.
+    static var topActives: LocalizedStringResource {
+      LocalizedStringResource("screener.topActives", defaultValue: "Most active", bundle: L10n.bundle)
+    }
+    /// Tooltip of a screener chip the universe left out.
+    static func excluded(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("screener.excluded", defaultValue: "Left out of the universe: \(cause)", bundle: L10n.bundle)
+    }
+    /// No screener chips.
+    static var none: LocalizedStringResource {
+      LocalizedStringResource("screener.none", defaultValue: "The screeners returned nothing on this day.", bundle: L10n.bundle)
+    }
+    /// Flow read failed.
+    static func unavailable(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("screener.unavailable", defaultValue: "The bot's API did not return the flow: \(cause)", bundle: L10n.bundle)
+    }
+  }
+  enum Watching {
+    /// Card title: symbols the strategy is closest to entering.
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("watching.title", defaultValue: "Watching Closely", bundle: L10n.bundle)
+    }
+    /// Card trailing: rows shown of all watched symbols.
+    static func count(_ shown: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.count", defaultValue: "\(shown) of \(total)", bundle: L10n.bundle)
+    }
+    /// Watching card is empty.
+    static var none: LocalizedStringResource {
+      LocalizedStringResource("watching.none", defaultValue: "The strategy is not watching any symbol on this day.", bundle: L10n.bundle)
+    }
+    /// Watching read failed.
+    static func unavailable(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("watching.unavailable", defaultValue: "The bot's API did not return the watched symbols: \(cause)", bundle: L10n.bundle)
+    }
+    /// Bar and VoiceOver name: how close the deciding check is to passing.
+    static var closeness: LocalizedStringResource {
+      LocalizedStringResource("watching.closeness", defaultValue: "Closeness to entry", bundle: L10n.bundle)
+    }
+    /// Row without a deciding check.
+    static var noCheck: LocalizedStringResource {
+      LocalizedStringResource("watching.noCheck", defaultValue: "No deciding check recorded", bundle: L10n.bundle)
+    }
+  }
   // END Screens
 }

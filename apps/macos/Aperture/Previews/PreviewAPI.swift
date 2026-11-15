@@ -76,6 +76,10 @@ final class FixtureProtocol: URLProtocol {
   static let skippedFile = "skipped-v1.json"
   static let performancePath = "/performance"
   static let performanceFile = "performance-v1.json"
+  static let flowPath = "/flow"
+  static let flowFile = "flow-v1.json"
+  static let watchingPath = "/watching"
+  static let watchingFile = "watching-v1.json"
   /// HTTP status codes, version and the JSON content type of an answer.
   static let ok = 200
   static let notFound = 404
@@ -103,6 +107,8 @@ final class FixtureProtocol: URLProtocol {
     case decisionsPath: return decisionsFile
     case skippedPath: return skippedFile
     case performancePath: return performanceFile
+    case flowPath: return flowFile
+    case watchingPath: return watchingFile
     default: return path.hasPrefix(daysPath + "/") ? dayFile : nil
     }
   }

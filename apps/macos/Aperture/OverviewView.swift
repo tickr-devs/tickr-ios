@@ -9,7 +9,7 @@ struct OverviewView: View {
   @Environment(AppModel.self) private var model
 
   /// The order in which the cards rise in as the screen appears.
-  private enum Order: Int { case header = 0, result, flow, positions, middle, right }
+  private enum Order: Int { case header = 0, result, flow, watching, positions, middle, right }
 
   /// Columns of the three-column grid the Positions card spans.
   static let positionsColumns = 2
@@ -22,6 +22,7 @@ struct OverviewView: View {
           DayResult().frame(width: Tokens.Size.dayResultWidth).rise(step: Order.result.rawValue)
         }
         LiveFlowCard().rise(step: Order.flow.rawValue)
+        WatchingCard().rise(step: Order.watching.rawValue)
         // The design's grid: positions over two columns beside safety and the bot, then risk room,
         // observers and the journal in three equal columns, each row's cards one height. A window
         // too narrow for three columns stacks the cards instead.
@@ -263,6 +264,7 @@ private struct LiveFlowCard: View {
         .frame(height: Tokens.Size.ticker)
       Pipeline(stages: stages, moving: model.isLive)
         .frame(height: Pipeline.height)
+      ScreenerChips()
     }
   }
 
@@ -271,30 +273,51 @@ private struct LiveFlowCard: View {
     let positions = status.map(Board.positions) ?? []
     let position = positions.first { $0.stop.state != .verified } ?? positions.first
     // Green only while every open position's stop is verified at the broker.
+    // and no trade of the day ended without one (or with one the bot cannot account for).
     let stopVerified = positions.allSatisfy { $0.stop.state == .verified }
+      && !(model.flow?.stops ?? []).contains { $0.state == .neverVerified || $0.state == .unknown }
     let stopColor = stopVerified ? Palette.profit : Palette.loss
     let stopText = stopVerified ? Palette.profitText : Palette.lossText
     return [
-      .init(id: .screeners, name: L10n.Flow.screeners, value: nil, symbol: Self.screenersSymbol, color: Palette.accent,
-        text: Palette.accentText),
-      .init(id: .universe, name: L10n.Flow.universe, value: nil, symbol: Self.universeSymbol,
+      .init(id: .screeners, name: L10n.Flow.screeners, value: count(.screeners), symbol: Self.screenersSymbol,
+        color: Palette.accent, text: Palette.accentText),
+      .init(id: .universe, name: L10n.Flow.universe, value: count(.universe), symbol: Self.universeSymbol,
         color: Palette.seriesUniverse, text: Palette.seriesATRText),
-      .init(id: .strategy, name: L10n.Common.strategy, value: status.map { Format.strategy($0.strategy) },
+      .init(id: .strategy, name: L10n.Common.strategy,
+        value: count(.strategy) ?? status.map { Format.strategy($0.strategy) },
         symbol: Self.strategySymbol, color: Palette.highlight, text: Palette.highlightText),
+      // A live entry block outranks the day's count: it is what the operator must see first.
       .init(id: .risk, name: L10n.Common.risk,
-        value: status.map { String(localized: $0.entryBlock == nil ? L10n.Flow.entriesAllowed : L10n.Flow.blocked) },
+        value: status?.entryBlock.map { _ in String(localized: L10n.Flow.blocked) } ?? count(.risk)
+          ?? status.map { _ in String(localized: L10n.Flow.entriesAllowed) },
         symbol: Self.riskSymbol, color: Palette.warning, text: Palette.warningText),
-      .init(id: .order, name: L10n.Flow.order, value: status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
+      .init(id: .order, name: L10n.Flow.order,
+        value: count(.order) ?? status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
         symbol: Self.orderSymbol, color: Palette.info, text: Palette.infoText),
       .init(id: .stop, name: L10n.Flow.brokerStop,
-        value: status.map { _ in position.map { $0.stop.state.title } ?? String(localized: L10n.Common.noPosition) },
+        value: position.map { $0.stop.state.title } ?? stopsVerified
+          ?? status.map { _ in String(localized: L10n.Common.noPosition) },
         symbol: Self.stopSymbol, color: stopColor, text: stopText),
-      .init(id: .reconcile, name: L10n.Flow.reconcile,
-        value: status.map {
-          $0.fences.isEmpty ? String(localized: L10n.Flow.match) : String(localized: L10n.Common.fences($0.fences.count))
-        },
+      .init(id: .reconcile, name: L10n.Flow.reconcile, value: reconcile.value, note: reconcile.note,
         symbol: Self.reconcileSymbol, color: Palette.info, text: Palette.infoText),
     ]
+  }
+}
+
+extension LiveFlowCard {
+  /// "12 symbols": how many symbols reached `stage` on the shown day; nil without a flow.
+  fileprivate func count(_ stage: FlowStage) -> String? {
+    model.flow?.stages.first { $0.stage == stage }.map { String(localized: L10n.Screener.symbols($0.count)) }
+  }
+
+  /// "1 of 2 verified": the day's trades whose broker stop was confirmed; nil without trades.
+  fileprivate var stopsVerified: String? {
+    guard let stops = model.flow?.stops, !stops.isEmpty else { return nil }
+    return String(localized: L10n.Screener.stopsVerified(stops.filter { $0.state == .verified }.count, stops.count))
+  }
+
+  fileprivate var reconcile: FlowStages.Reconcile {
+    FlowStages.reconcile(liveFences: model.isLive ? model.status?.fences : nil, latest: model.flow?.reconcile)
   }
 }
 
@@ -334,6 +357,8 @@ private struct Pipeline: View {
     let name: LocalizedStringResource
     /// nil = the API does not report this stage yet.
     let value: String?
+    /// Why the value is missing, shown as its tooltip; nil = the API does not report it.
+    var note: String?
     let symbol: String
     /// Fill colour of the stage (ring, glow) and the colour of its name.
     let color: Color
@@ -431,7 +456,7 @@ private struct Pipeline: View {
         Text(verbatim: Format.missing)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .help(Text(L10n.Flow.notReported))
+          .help(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
       }
     }
     .frame(maxWidth: .infinity)

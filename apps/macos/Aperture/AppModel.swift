@@ -12,6 +12,9 @@ enum Pace {
   static let historySeconds: Double = 30
   /// Bars of the open positions (one new M1 bar a minute).
   static let barsSeconds: Double = 15
+  /// The day's flow (screener chips, stage counts, stops, reconciliation) and the symbols the
+  /// strategy is watching closely; both change with every decision.
+  static let flowSeconds: Double = 5
   /// The broker account read the bot keeps (GET /account); the API serves the bot's last read.
   static let accountSeconds: Double = 15
   /// How long a command toast stays on screen.
@@ -104,6 +107,11 @@ public final class AppModel {
   /// Gross performance in R over the `performanceDays` days that end on the shown day.
   public private(set) var performance: PerformanceV1?
   public private(set) var performanceError: String?
+  /// The shown day's flow and watched symbols (GET /flow, GET /watching).
+  public private(set) var flow: FlowV1?
+  public private(set) var flowError: String?
+  public private(set) var watching: WatchingV1?
+  public private(set) var watchingError: String?
 
   // Positions with their latest bars.
   private var barsBySymbol: [String: BarsV1] = [:]
@@ -254,6 +262,13 @@ public final class AppModel {
     tasks.append(Task { [weak self] in
       while !Task.isCancelled {
         guard let self else { return }
+        await self.refreshFlow()
+        try? await Task.sleep(for: .seconds(Pace.flowSeconds))
+      }
+    })
+    tasks.append(Task { [weak self] in
+      while !Task.isCancelled {
+        guard let self else { return }
         await self.refreshAccount()
         try? await Task.sleep(for: .seconds(Pace.accountSeconds))
       }
@@ -280,6 +295,8 @@ public final class AppModel {
     observers = nil
     skipped = nil
     performance = nil
+    flow = nil
+    watching = nil
     Task {
       await refreshStatus()
       await refreshHistory()
@@ -402,12 +419,43 @@ public final class AppModel {
     }
   }
 
+  /// Reads the shown day's flow and watched symbols. An answer for a day no longer shown is
+  /// dropped; a failed read clears its part, so an old one never reads as current.
+  public func refreshFlow() async {
+    let day = shownDay
+    do {
+      let document = try await client.flow(day: day)
+      guard day == shownDay else { return }
+      flow = document
+      flowError = nil
+    } catch {
+      guard day == shownDay else { return }
+      flow = nil
+      flowError = Self.describe(error)
+    }
+    do {
+      let document = try await client.watching(day: day)
+      guard day == shownDay else { return }
+      watching = document
+      watchingError = nil
+    } catch {
+      guard day == shownDay else { return }
+      watching = nil
+      watchingError = Self.describe(error)
+    }
+  }
+
   private func loadSelectedDay() async {
     observers = nil
     skipped = nil
     skippedError = nil
     performance = nil
     performanceError = nil
+    flow = nil
+    flowError = nil
+    watching = nil
+    watchingError = nil
+    await refreshFlow()
     await refreshObservers()
     await refreshSkipped()
     await refreshPerformance()

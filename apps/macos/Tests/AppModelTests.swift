@@ -137,6 +137,23 @@ struct AppModelTests {
     #expect(model.isLive)
   }
 
+  @Test("The shown day's flow and watched symbols are read; a failed read clears each")
+  func flowAndWatching() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    RouteProtocol.routes.withLock {
+      $0.bodies["/flow"] = try? Data(contentsOf: fixturesDir.appendingPathComponent("flow-v1.json"))
+      $0.bodies["/watching"] = try? Data(contentsOf: fixturesDir.appendingPathComponent("watching-v1.json"))
+    }
+    await model.refreshFlow()
+    #expect(model.flow?.stages.count == FlowStage.allCases.count)
+    #expect(model.watching?.rows.first?.symbol == "ABCD")
+    RouteProtocol.routes.withLock { $0.bodies["/flow"] = nil }
+    await model.refreshFlow()
+    #expect(model.flow == nil)
+    #expect(model.flowError != nil)
+    #expect(model.watching != nil)
+  }
+
   @Test("Performance over the days ending on the shown day is read; a failed read clears it")
   func performance() async throws {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)

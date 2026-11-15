@@ -261,6 +261,9 @@ enum Format {
   static let newYork = TimeZone(identifier: "America/New_York") ?? .current
   /// Placeholder for a value the app does not have.
   static let missing = "—"
+  /// Joins the items of a list ("Gainers, Most active") and the lines of a tooltip.
+  static let listSeparator = ", "
+  static let lineSeparator = "\n"
   /// Up to this many seconds an age reads in seconds, beyond it in minutes.
   static let secondsShownUpTo = 120
   /// Seconds in a minute.
