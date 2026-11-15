@@ -14,9 +14,14 @@ enum PreviewAPI {
   static let windowWidth: CGFloat = 1280
   static let windowHeight: CGFloat = 820
 
+  /// Whether the app was launched with `fixturesKey` set, so it shows fixture data.
+  static var servesFixtures: Bool {
+    ProcessInfo.processInfo.environment[fixturesKey] != nil
+  }
+
   /// Serve the API from the fixtures when the app was launched with `fixturesKey` set.
   static func serveFixturesIfAsked() {
-    guard ProcessInfo.processInfo.environment[fixturesKey] != nil else { return }
+    guard servesFixtures else { return }
     Container.shared.urlSession.register { FixtureProtocol.session() }
   }
 

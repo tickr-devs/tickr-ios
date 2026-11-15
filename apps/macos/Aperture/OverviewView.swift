@@ -79,6 +79,12 @@ private struct HeaderCard: View {
         HStack(spacing: Tokens.Space.s) {
           Text(verbatim: AppInfo.name).font(Tokens.Typography.title)
           Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textQuaternary)
+          #if DEBUG
+          // Fixture data looks live; say so on the screen it would be mistaken on.
+          if PreviewAPI.servesFixtures {
+            Badge(L10n.Overview.fixtures, color: Palette.warningText).help(Text(L10n.Overview.fixturesHelp))
+          }
+          #endif
           if let status = model.status {
             Badge(verbatim: status.environment, color: Palette.highlightText)
             Group {

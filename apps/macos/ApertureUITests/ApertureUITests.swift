@@ -24,6 +24,8 @@ final class ApertureUITests: XCTestCase {
   static let cancel = "Cancel"
   static let matches = "MATCHES"
   static let observer = "price-action-v1"
+  /// The Overview badge for fixture data (overview.fixtures, upper-cased as every badge is).
+  static let fixturesBadge = "FIXTURES"
   /// English titles of the standard Window menu and its Zoom item.
   static let windowMenu = "Window"
   static let zoomItem = "Zoom"
@@ -97,6 +99,13 @@ final class ApertureUITests: XCTestCase {
     let app = launch()
     open(Self.sections[3], in: app)
     XCTAssertTrue(app.staticTexts[Self.matches].firstMatch.waitForExistence(timeout: Self.timeout))
+  }
+
+  @MainActor
+  func testOverviewSaysItShowsFixtures() {
+    let app = launch()
+    open(Self.sections[0], in: app)
+    XCTAssertTrue(app.staticTexts[Self.fixturesBadge].firstMatch.waitForExistence(timeout: Self.timeout))
   }
 
   @MainActor

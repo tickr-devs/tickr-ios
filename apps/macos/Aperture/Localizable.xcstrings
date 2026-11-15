@@ -2585,6 +2585,40 @@
         }
       }
     },
+    "overview.fixtures": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixtures"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тестовые данные"
+          }
+        }
+      }
+    },
+    "overview.fixturesHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debug build reading the recorded contract fixtures, not a running bot."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отладочная сборка читает записанные тестовые данные, а не работающего бота."
+          }
+        }
+      }
+    },
     "overview.gateClosed": {
       "extractionState": "manual",
       "localizations": {

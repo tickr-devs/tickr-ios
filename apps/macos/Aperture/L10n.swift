@@ -375,6 +375,14 @@ enum L10n {
   }
 
   enum Overview {
+    static var fixtures: LocalizedStringResource {
+      LocalizedStringResource("overview.fixtures", defaultValue: "Fixtures", bundle: L10n.bundle)
+    }
+    static var fixturesHelp: LocalizedStringResource {
+      LocalizedStringResource("overview.fixturesHelp",
+        defaultValue: "Debug build reading the recorded contract fixtures, not a running bot.",
+        bundle: L10n.bundle)
+    }
     static var gateOpen: LocalizedStringResource {
       LocalizedStringResource("overview.gateOpen", defaultValue: "Gate open", bundle: L10n.bundle)
     }

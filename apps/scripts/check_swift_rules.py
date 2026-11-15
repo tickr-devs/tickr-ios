@@ -45,7 +45,11 @@ import check_swift_literals  # noqa: E402
 REPO = Path(__file__).resolve().parents[2]
 ROOTS = ("apps/shared", "apps/macos", "apps/ios")
 SKIPPED_FILES = {"Package.swift", "Package@swift-6.0.swift"}
-SKIPPED_DIRS = {"Tests", ".build", "build", "DerivedData", "SourcePackages"}
+# Folders of test targets: only the legacy rule applies inside them. Listed one by one, so a
+# product folder can't escape the text and number rules by a name that merely ends in "Tests".
+TEST_DIRS = {"Tests", "ApertureUITests"}
+BUILD_DIRS = {".build", "build", "DerivedData", "SourcePackages"}
+SKIPPED_DIRS = TEST_DIRS | BUILD_DIRS
 L10N_FILE = "L10n.swift"
 INDENT = 2
 
@@ -403,9 +407,7 @@ def swift_files() -> list[Path]:
     for root in ROOTS:
         for path in sorted((REPO / root).rglob("*.swift")):
             relative = path.relative_to(REPO)
-            # Test targets (Tests, ApertureMacTests, ApertureUITests, ...) get only the legacy rule.
-            if (path.name in SKIPPED_FILES or SKIPPED_DIRS.intersection(relative.parts)
-                    or any(part.endswith("Tests") for part in relative.parts)):
+            if path.name in SKIPPED_FILES or SKIPPED_DIRS.intersection(relative.parts):
                 continue
             files.append(path)
     return files
@@ -417,9 +419,8 @@ def test_swift_files() -> list[Path]:
     for root in ROOTS:
         for path in sorted((REPO / root).rglob("*.swift")):
             parts = path.relative_to(REPO).parts
-            if "Tests" in parts or any(part.endswith("Tests") for part in parts):
-                if not ({".build", "build", "DerivedData", "SourcePackages"} & set(parts)):
-                    files.append(path)
+            if TEST_DIRS.intersection(parts) and not BUILD_DIRS.intersection(parts):
+                files.append(path)
     return files
 
 
