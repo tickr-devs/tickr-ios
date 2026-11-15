@@ -135,7 +135,7 @@ GROUPS = [
             (
                 "stop_rejected_exiting",
                 "The protective stop was refused after retries: closing the position",
-                "Защитный стоп отклонён после повторов: позиция закрывается",
+                "Защитный стоп отклонён после повторных попыток: позиция закрывается",
             ),
             (
                 "exit_refused_no_stop",
@@ -217,9 +217,10 @@ GROUPS = [
             ),
             (
                 "held_untracked_sell",
-                "Stop and close on hold: an untracked sell order {orders} rests in {symbol}; "
-                "resolve it in the Webull app",
-                "Стоп и закрытие приостановлены: по {symbol} висит неучтённая продажа {orders}; "
+                "Stop and close on hold: an untracked sell order {orders} rests in {symbol} "
+                "after an unconfirmed stop move; resolve it in the Webull app",
+                "Стоп и закрытие приостановлены: по {symbol} висит неучтённый ордер "
+                "на продажу {orders} после неподтверждённого переноса стопа; "
                 "разберитесь в приложении Webull",
             ),
             (
@@ -237,8 +238,8 @@ GROUPS = [
                 "session; the stop stays. Close it in the Webull app, or clear this in the "
                 "next regular session and the bot sends the close",
                 "Закрытие {quantity} из {expected} {symbol} не отправлено вне основной "
-                "сессии; стоп остаётся. Закройте позицию в приложении Webull или снимите это "
-                "в следующей основной сессии, и бот отправит закрытие",
+                "сессии; стоп остаётся. Закройте позицию в приложении Webull или снимите "
+                "блокировку в следующей основной сессии, и бот отправит закрытие",
             ),
         ],
     ),

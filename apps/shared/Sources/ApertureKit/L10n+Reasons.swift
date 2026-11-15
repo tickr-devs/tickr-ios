@@ -198,7 +198,7 @@ extension L10n {
   static var fenceReasonHeldUntrackedSell: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.held_untracked_sell",
       // swiftlint:disable:next line_length
-      defaultValue: "Stop and close on hold: an untracked sell order {orders} rests in {symbol}; resolve it in the Webull app", bundle: bundle)
+      defaultValue: "Stop and close on hold: an untracked sell order {orders} rests in {symbol} after an unconfirmed stop move; resolve it in the Webull app", bundle: bundle)
   }
   /// A fence's cause (`Fence.code`). exit_not_filled (values: order, quantity, symbol, seconds, filled, state)
   static var fenceReasonExitNotFilled: LocalizedStringResource {

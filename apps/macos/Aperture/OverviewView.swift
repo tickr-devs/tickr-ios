@@ -779,7 +779,7 @@ private struct PositionDetail: View {
   }
 
   /// The newest bar is too old to be the current price: shown greyed, as of its time.
-  private var isStale: Bool { row.lastBarClose == nil && row.latestClose != nil }
+  private var isStale: Bool { row.isStale }
 
   private var staleHelp: Text {
     guard isStale, let time = row.lastBarAt else { return Text(L10n.Position.lastBarClose) }

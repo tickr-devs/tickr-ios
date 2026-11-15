@@ -1297,7 +1297,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закрытие {quantity} из {expected} {symbol} не отправлено вне основной сессии; стоп остаётся. Закройте позицию в приложении Webull или снимите это в следующей основной сессии, и бот отправит закрытие"
+            "value" : "Закрытие {quantity} из {expected} {symbol} не отправлено вне основной сессии; стоп остаётся. Закройте позицию в приложении Webull или снимите блокировку в следующей основной сессии, и бот отправит закрытие"
           }
         }
       }
@@ -1471,13 +1471,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop and close on hold: an untracked sell order {orders} rests in {symbol}; resolve it in the Webull app"
+            "value" : "Stop and close on hold: an untracked sell order {orders} rests in {symbol} after an unconfirmed stop move; resolve it in the Webull app"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Стоп и закрытие приостановлены: по {symbol} висит неучтённая продажа {orders}; разберитесь в приложении Webull"
+            "value" : "Стоп и закрытие приостановлены: по {symbol} висит неучтённый ордер на продажу {orders} после неподтверждённого переноса стопа; разберитесь в приложении Webull"
           }
         }
       }
@@ -1711,7 +1711,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Защитный стоп отклонён после повторов: позиция закрывается"
+            "value" : "Защитный стоп отклонён после повторных попыток: позиция закрывается"
           }
         }
       }

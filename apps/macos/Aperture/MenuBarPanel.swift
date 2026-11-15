@@ -190,7 +190,7 @@ struct MenuPosition: View {
             .foregroundStyle(Palette.textQuaternary)
         }
       }
-      StopTargetBar(progress: progress)
+      StopTargetBar(progress: progress, muted: row?.isStale ?? false)
       HStack {
         StopBadge(state: position.stop.state, compact: true, read: model.status?.freshness.lastBrokerReadAt?.date)
         Spacer()
@@ -210,6 +210,8 @@ struct MenuPosition: View {
 /// A track from the stop up the R scale with a knob at the last price that glides as it moves.
 private struct StopTargetBar: View {
   let progress: Double?
+  /// The position is as of an older bar: greyed like its figure.
+  var muted = false
 
   /// Diameter of the knob, in points.
   static let knob: CGFloat = 12
@@ -234,6 +236,8 @@ private struct StopTargetBar: View {
         }
       }
       .frame(maxHeight: .infinity)
+      .saturation(muted ? 0 : 1)
+      .opacity(muted ? Tokens.Opacity.medium : 1)
     }
     .frame(height: Self.knob)
     .animation(Tokens.Motion.fill, value: progress)
