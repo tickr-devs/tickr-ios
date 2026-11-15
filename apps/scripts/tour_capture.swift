@@ -6,21 +6,23 @@
 // the tour drops `<name>.request` files into a folder and waits; this writes `<name>.png` of the
 // app's window and then `<name>.done`.
 //
-// Usage: swift apps/scripts/tour_capture.swift <folder> [process name, default Aperture]
+// Usage: swift apps/scripts/tour_capture.swift <folder> [bundle id, default local.aperture.operator]
+// The app is found by bundle id, not by name: its display name (Tickr) is not its process name.
 // The sandboxed test runner can only write inside its container, so <folder> is
 // ~/Library/Containers/local.aperture.operator.uitests.xctrunner/Data/tmp/<TOUR_CAPTURE name>.
 // Stops when `<folder>/stop` appears (the tour writes it when it ends).
 
+import AppKit
 import CoreGraphics
 import Foundation
 
 let arguments = CommandLine.arguments
 guard arguments.count >= 2 else {
-  FileHandle.standardError.write(Data("usage: tour_capture.swift <folder> [process name]\n".utf8))
+  FileHandle.standardError.write(Data("usage: tour_capture.swift <folder> [bundle id]\n".utf8))
   exit(2)
 }
 let folder = URL(fileURLWithPath: arguments[1], isDirectory: true)
-let owner = arguments.count >= 3 ? arguments[2] : "Aperture"
+let bundleID = arguments.count >= 3 ? arguments[2] : "local.aperture.operator"
 let poll: UInt32 = 200_000  // microseconds between looks at the folder
 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
 // A folder reused from an earlier run: its stop, answers and pictures would end this run at once
@@ -31,12 +33,14 @@ where file == "stop" || leftovers.contains(where: file.hasSuffix) {
   try FileManager.default.removeItem(at: folder.appendingPathComponent(file))
 }
 
-/// On-screen normal windows of the app, front to back.
+/// On-screen normal windows of the app (every running process with its bundle id), front to back.
 func windows() -> [[String: Any]] {
+  let pids = Set(NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+    .map { Int($0.processIdentifier) })
   let all = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
     as? [[String: Any]] ?? []
   return all.filter {
-    ($0[kCGWindowOwnerName as String] as? String) == owner && ($0[kCGWindowLayer as String] as? Int) == 0
+    pids.contains($0[kCGWindowOwnerPID as String] as? Int ?? -1) && ($0[kCGWindowLayer as String] as? Int) == 0
   }
 }
 
@@ -62,7 +66,7 @@ func capture(_ name: String, kind: String) -> Bool {
   return task.terminationStatus == 0
 }
 
-print("tour_capture: watching \(folder.path) for \(owner)")
+print("tour_capture: watching \(folder.path) for \(bundleID)")
 while !FileManager.default.fileExists(atPath: folder.appendingPathComponent("stop").path) {
   let names = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
   for file in names where file.hasSuffix(".request") {
