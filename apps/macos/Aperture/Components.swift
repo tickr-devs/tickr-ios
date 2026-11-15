@@ -370,3 +370,43 @@ enum Geometry {
   /// One full turn, in radians.
   static let fullTurn = Double.pi * 2
 }
+
+extension AppModel {
+  /// Id of the ticker's placeholder item when nothing happened yet.
+  static let quietTickerID = "quiet"
+
+  /// The event ticker's entries: the live day's events, newest first, or the recorded day's
+  /// closed trades. Shared by Overview's live flow and the strip on top of the other screens.
+  var tickerItems: [TickerItem] {
+    guard let status, isLive else {
+      return shownTrades.map {
+        TickerItem(id: $0.tradeId, tag: Board.exitReasonTitle($0.exitReason).uppercased(),
+          text: "\($0.symbol) \(Money.signed($0.resultGrossUsd.value))",
+          tone: $0.resultGrossUsd.value >= 0 ? .green : .red)
+      }
+    }
+    let events = Board.events(status)
+    if events.isEmpty {
+      return [TickerItem(id: Self.quietTickerID, tag: String(localized: L10n.Flow.quietTag),
+        text: String(localized: L10n.Flow.nothingYet), tone: .muted)]
+    }
+    return events.map { TickerItem(id: $0.id, tag: $0.tag, text: $0.text, tone: $0.tone.tickerTone) }
+  }
+}
+
+/// The design's event strip under the title bar: the ticker across the screen's whole width on a
+/// sunken bar with a hairline below. Every section but Overview, whose live flow carries it.
+struct EventStrip: View {
+  @Environment(AppModel.self) private var model
+
+  var body: some View {
+    Ticker(model.tickerItems, moving: model.isLive)
+      .frame(height: Tokens.Size.ticker)
+      .padding(.horizontal, Tokens.Space.l)
+      .padding(.vertical, Tokens.Space.xs)
+      .background(Palette.surfaceSunken)
+      .overlay(alignment: .bottom) {
+        Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
+      }
+  }
+}

@@ -61,6 +61,9 @@ struct RootView: View {
       ZStack(alignment: .bottom) {
         ApertureBackground()
         detail
+          .safeAreaInset(edge: .top, spacing: 0) {
+            if section != .overview { EventStrip() }
+          }
           // One container element per screen, so its id holds even when the screen's root is a
           // split (the Chart's inspector) rather than a single view.
           .accessibilityElement(children: .contain)

@@ -242,8 +242,6 @@ private struct DayResult: View {
 private struct LiveFlowCard: View {
   @Environment(AppModel.self) private var model
 
-  /// Id of the ticker's placeholder item when nothing happened yet.
-  static let quietID = "quiet"
   /// SF Symbols of the pipeline stages.
   static let screenersSymbol = "magnifyingglass"
   static let universeSymbol = "line.3.horizontal.decrease"
@@ -261,27 +259,11 @@ private struct LiveFlowCard: View {
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textQuaternary)
     } content: {
-      Ticker(tickerItems, moving: model.isLive)
+      Ticker(model.tickerItems, moving: model.isLive)
         .frame(height: Tokens.Size.ticker)
       Pipeline(stages: stages, moving: model.isLive)
         .frame(height: Pipeline.height)
     }
-  }
-
-  private var tickerItems: [TickerItem] {
-    guard let status = model.status, model.isLive else {
-      return model.shownTrades.map {
-        TickerItem(id: $0.tradeId, tag: Board.exitReasonTitle($0.exitReason).uppercased(),
-          text: "\($0.symbol) \(Money.signed($0.resultGrossUsd.value))",
-          tone: $0.resultGrossUsd.value >= 0 ? .green : .red)
-      }
-    }
-    let events = Board.events(status)
-    if events.isEmpty {
-      return [TickerItem(id: Self.quietID, tag: String(localized: L10n.Flow.quietTag),
-        text: String(localized: L10n.Flow.nothingYet), tone: .muted)]
-    }
-    return events.map { TickerItem(id: $0.id, tag: $0.tag, text: $0.text, tone: $0.tone.tickerTone) }
   }
 
   private var stages: [Pipeline.Stage] {
