@@ -17,6 +17,9 @@ on:
 concurrency:
   group: ios-app-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+# The workflow only reads the repository: its token can change nothing.
+permissions:
+  contents: read
 jobs:
   build:
     # Drafts skip the macOS runner (the bottleneck); run it on a draft through workflow_dispatch.
@@ -39,6 +42,8 @@ jobs:
       - name: Install XcodeGen 2.46.0
         run: |
           curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
+          # The release asset's SHA-256: a replaced download fails here instead of running.
+          echo "4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806  $RUNNER_TEMP/xcodegen.zip" | shasum -a 256 -c -
           unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/xcodegen/bin" >> "$GITHUB_PATH"
       # The committed Tickr.xcodeproj must be exactly what project.yml generates. git status

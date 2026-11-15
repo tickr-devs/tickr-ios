@@ -9,6 +9,9 @@ on:
 concurrency:
   group: swift-rules-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+# The workflow only reads the repository: its token can change nothing.
+permissions:
+  contents: read
 jobs:
   check:
     runs-on: ubuntu-latest

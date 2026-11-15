@@ -19,6 +19,9 @@ on:
 concurrency:
   group: macos-app-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+# The workflow only reads the repository: its token can change nothing.
+permissions:
+  contents: read
 jobs:
   build-and-test:
     # Drafts skip the macOS runner (the bottleneck); run it on a draft through workflow_dispatch.

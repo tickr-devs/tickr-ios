@@ -12,6 +12,9 @@ on:
 concurrency:
   group: layout-sweep-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+# The workflow only reads the repository: its token can change nothing.
+permissions:
+  contents: read
 jobs:
   # Every screen at several window sizes, Chart inspector closed and open, in English and Russian
   # (apps/macos/scripts/layout-sweep.sh). Fails when a resize crashes or hangs the app; the
