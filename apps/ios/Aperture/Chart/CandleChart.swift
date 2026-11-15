@@ -111,6 +111,8 @@ struct CandleChart: View {
   let events: [ChartEvent]
   let lines: Lines
   @Binding var viewport: ChartViewport
+  /// The value scales' width, grown with Dynamic Type so a price such as 128.40 is never cut.
+  @ScaledMetric(relativeTo: .caption2) private var axisWidth = CandleChart.axisLabelWidth
 
   @State private var selected: Date?
 
@@ -441,7 +443,8 @@ struct CandleChart: View {
     if !items.isEmpty {
       HStack(spacing: Tokens.Space.s) {
         ForEach(Array(items.enumerated()), id: \.offset) { _, item in
-          HStack(spacing: Tokens.Space.xxs) {
+          // A clear gap between a name ending in a number and its value ("EMA9  28.84").
+          HStack(spacing: Tokens.Space.xs) {
             Text(item.name)
             Text(item.value.map { ChartFormat.price.format($0) } ?? ChartFormat.missing)
           }
@@ -601,7 +604,7 @@ struct CandleChart: View {
       .lineLimit(1)
       .minimumScaleFactor(Self.readoutMinimumScale)
       .padding(.horizontal, Tokens.Space.xxs)
-      .frame(width: Self.axisLabelWidth, alignment: .leading)
+      .frame(width: axisWidth, alignment: .leading)
       .background(tag.fill, in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
   }
 
@@ -614,7 +617,8 @@ struct CandleChart: View {
   /// Clock times on one day; beyond one day, where each session, week, month or quarter begins.
   @AxisContentBuilder private var timeAxis: some AxisContent {
     if times.marks.isEmpty {
-      AxisMarks(values: .automatic) { value in
+      // Aligned: the first and last labels stay inside the chart instead of being cut at its edges.
+      AxisMarks(preset: .aligned, values: .automatic) { value in
         AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
           .foregroundStyle(Palette.separator)
         AxisValueLabel {
@@ -629,7 +633,7 @@ struct CandleChart: View {
       }
     } else {
       let labels = Dictionary(times.marks.map { ($0.time, $0.text) }, uniquingKeysWith: { first, _ in first })
-      AxisMarks(values: times.marks.map(\.time)) { value in
+      AxisMarks(preset: .aligned, values: times.marks.map(\.time)) { value in
         AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
           .foregroundStyle(Palette.separator)
         AxisValueLabel {
@@ -650,7 +654,7 @@ struct CandleChart: View {
       .foregroundStyle(colour)
       .lineLimit(1)
       .minimumScaleFactor(Self.readoutMinimumScale)
-      .frame(width: Self.axisLabelWidth, alignment: .leading)
+      .frame(width: axisWidth, alignment: .leading)
   }
 
   // MARK: readout and zoom
@@ -767,6 +771,7 @@ private struct PaneAxes: ViewModifier {
   }
 
   let marks: Marks
+  @ScaledMetric(relativeTo: .caption2) private var axisWidth = CandleChart.axisLabelWidth
 
   func body(content: Content) -> some View {
     content
@@ -791,7 +796,7 @@ private struct PaneAxes: ViewModifier {
         .foregroundStyle(Palette.textQuaternary)
         .lineLimit(1)
         .minimumScaleFactor(CandleChart.readoutMinimumScale)
-        .frame(width: CandleChart.axisLabelWidth, alignment: .leading)
+        .frame(width: axisWidth, alignment: .leading)
     }
   }
 }

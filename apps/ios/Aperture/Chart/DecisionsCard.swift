@@ -135,7 +135,7 @@ private struct CheckLine: View {
         Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.loss)
       }
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        Text(verbatim: check.rule)
+        Text(verbatim: ApiText.rule(check.rule))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textPrimary)
         Text(verbatim: [check.measured?.text ?? ChartFormat.missing, check.operator,
