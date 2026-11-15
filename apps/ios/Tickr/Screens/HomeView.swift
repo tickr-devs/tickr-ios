@@ -191,9 +191,35 @@ private struct DayLine: View {
 
   private var isFresh: Bool { model.response?.stale == false && model.fetchError == nil }
 
-  private var freshness: Color {
-    guard let response = model.response, model.fetchError == nil else { return Palette.loss }
+  private var freshness: Color { ConnectionFreshness.color(response: model.response, fetchError: model.fetchError) }
+}
+
+/// The colour of Home's connection dot.
+enum ConnectionFreshness {
+  /// Red without an answer or after a failed read, amber while the status is stale, green while it
+  /// is current.
+  static func color(response: StatusResponseV1?, fetchError: String?) -> Color {
+    guard let response, fetchError == nil else { return Palette.loss }
     return response.stale ? Palette.warning : Palette.profit
+  }
+}
+
+/// The Home glyph for whether new entries can open.
+enum EntriesGlyph {
+  /// Symbols of the entries glyph: allowed, paused by the owner, calm "not now", blocked.
+  static let entriesAllowedSymbol = "lock.open.fill"
+  static let entriesPausedSymbol = "pause.fill"
+  static let entriesNotNowSymbol = "moon.fill"
+  static let entriesBlockedSymbol = "hand.raised.fill"
+
+  /// Whether new entries can open, as on the board: allowed, paused by the owner, a calm
+  /// "not now" (outside the session) or blocked; the gate, when closed, has its own glyph. The
+  /// bot's own entry block decides, in its precedence: a stopped bot outranks the owner's pause.
+  static func make(_ status: StatusV1) -> (symbol: String, tone: Tone, label: LocalizedStringResource) {
+    guard let block = status.entryBlock else { return (entriesAllowedSymbol, .profit, L10n.Home.entriesAllowed) }
+    if BlockCode(rawValue: block.cause) == .entryStop { return (entriesPausedSymbol, .warning, L10n.Home.entriesPaused) }
+    if status.entriesCalm { return (entriesNotNowSymbol, .neutral, L10n.Home.entriesNotNow(ApiText.entryBlock(block))) }
+    return (entriesBlockedSymbol, .warning, L10n.Home.entriesBlocked(ApiText.entryBlock(block)))
   }
 }
 
@@ -205,11 +231,6 @@ private struct Summary: View {
   static let winsLossesLines = 2
   /// Symbol of a closed trading gate.
   static let gateClosedSymbol = "lock.fill"
-  /// Symbols of the entries glyph: allowed, paused by the owner, calm "not now", blocked.
-  static let entriesAllowedSymbol = "lock.open.fill"
-  static let entriesPausedSymbol = "pause.fill"
-  static let entriesNotNowSymbol = "moon.fill"
-  static let entriesBlockedSymbol = "hand.raised.fill"
 
   @Environment(AppModel.self) private var model
   /// The ring grows with the text inside it.
@@ -280,7 +301,7 @@ private struct Summary: View {
               StateGlyph(Self.gateClosedSymbol, tone: .warning,
                 label: L10n.Home.gateClosed(ApiText.gate(status.tradingGate)), style: .compact)
             } else {
-              let entries = Self.entries(status)
+              let entries = EntriesGlyph.make(status)
               StateGlyph(entries.symbol, tone: entries.tone, label: entries.label, style: .compact)
             }
             Badge(verbatim: status.strategy.version, tone: .highlight)
@@ -293,16 +314,6 @@ private struct Summary: View {
     }
   }
 
-  /// Whether new entries can open, as on the board: allowed, paused by the owner, a calm
-  /// "not now" (outside the session) or blocked; the gate, when closed, has its own glyph. The
-  /// bot's own entry block decides, in its precedence: a stopped bot outranks the owner's pause.
-  static func entries(_ status: StatusV1) -> (symbol: String, tone: Tone, label: LocalizedStringResource) {
-    guard let block = status.entryBlock else { return (entriesAllowedSymbol, .profit, L10n.Home.entriesAllowed) }
-    if BlockCode(rawValue: block.cause) == .entryStop { return (entriesPausedSymbol, .warning, L10n.Home.entriesPaused) }
-    if status.entriesCalm { return (entriesNotNowSymbol, .neutral, L10n.Home.entriesNotNow(ApiText.entryBlock(block))) }
-    return (entriesBlockedSymbol, .warning, L10n.Home.entriesBlocked(ApiText.entryBlock(block)))
-  }
-
   private func subline(_ status: StatusV1) -> String {
     var parts: [LocalizedStringResource] = []
     for position in status.positions {
@@ -312,7 +323,7 @@ private struct Summary: View {
     }
     parts.append(L10n.Home.strategy(status.strategy.name, status.strategy.version))
     parts.append(status.tradingGate.open
-      ? Self.entries(status).label : L10n.Home.gateClosed(ApiText.gate(status.tradingGate)))
+      ? EntriesGlyph.make(status).label : L10n.Home.gateClosed(ApiText.gate(status.tradingGate)))
     return parts.map { String(localized: $0) }.joined(separator: " ")
   }
 }

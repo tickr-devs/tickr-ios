@@ -103,8 +103,7 @@ final class LabModel {
       guard url == replaySource else { return }
       replay = read
       replayFailure = nil
-      if let refused = refusedAt, refused.state != read.state || refused.runId != read.runId
-        || now().timeIntervalSince(refused.at) >= Self.replaySeconds {
+      if let refused = refusedAt, Self.refusalCleared(refused, by: read, now: now()) {
         replayRefusal = nil
         refusedAt = nil
       }
@@ -140,6 +139,15 @@ final class LabModel {
       guard url == replaySource else { return }
       replayFailure = AppModel.describe(error) ?? replayFailure
     }
+  }
+
+  /// Whether a refusal no longer holds: the replay read since moved on (another state or run), or
+  /// `replaySeconds` have passed since it came, so its reason (the session open) may be gone.
+  static func refusalCleared(
+    _ refused: (state: LabReplayState?, runId: String?, at: Date), by read: LabReplayV1, now: Date
+  ) -> Bool {
+    refused.state != read.state || refused.runId != read.runId
+      || now.timeIntervalSince(refused.at) >= replaySeconds
   }
 
   /// Read the replay until cancelled, more often while it runs; used while the Lab is open.

@@ -867,10 +867,13 @@ private struct SkippedRow: View {
 /// Where the price went after a signal or an exit, per share: "after 1m +0.12 · 5m −0.30 ·
 /// 15m —". Each change in its direction's colour; a minute with no captured bar shows a dash.
 /// Nothing when the bot sent no prices.
-private struct AfterLine: View {
+struct AfterLine: View {
   let prices: [PriceAfterV1]
 
-  private var line: AttributedString {
+  private var line: AttributedString { Self.line(prices) }
+
+  /// "after 1m +0.12 · 5m −0.30", each change coloured by its sign; a missing price reads "—".
+  static func line(_ prices: [PriceAfterV1]) -> AttributedString {
     var text = AttributedString(String(localized: L10n.Activity.after))
     text.swiftUI.foregroundColor = Palette.textQuaternary
     for (index, point) in prices.enumerated() {

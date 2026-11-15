@@ -79,6 +79,21 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
         ENABLE_PREVIEWS: YES
+  # Swift Testing tests of the screens' logic (Tests/TickrTests), hosted in the app so they can
+  # reach its internal types with @testable import.
+  TickrTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/TickrTests
+    dependencies:
+      - target: Tickr
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.tickr.ios.tests
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        GENERATE_INFOPLIST_FILE: YES
   # Walks every screen against a running bot API and keeps screenshots (Tests/TickrUITests).
   TickrUITests:
     type: bundle.ui-testing
@@ -99,8 +114,18 @@ targets:
 # Tickr.xcodeproj/xcshareddata/xcschemes, so building in Xcode leaves the tree clean.
 # postGenCommand above restores it after every `xcodegen generate`; change it in Xcode and commit.
 
-# The screen tour has its own generated scheme, so "Tickr iOS" stays as kept by hand.
+# The screen tour and the unit tests have their own generated schemes, so "Tickr iOS" stays as
+# kept by hand.
 schemes:
+  Tickr iOS Tests:
+    build:
+      targets:
+        Tickr: all
+        TickrTests: [test]
+    test:
+      config: Debug
+      targets:
+        - TickrTests
   Tickr iOS Screen Tour:
     build:
       targets:

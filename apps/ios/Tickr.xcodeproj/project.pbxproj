@@ -7,13 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0053F15DE4FC863E9C8EE886 /* LabReplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */; };
 		27CEFA4A2D48B4F273E8B0A2 /* TickrKit in Frameworks */ = {isa = PBXBuildFile; productRef = 86B51C088C14AA5D96ACD6BA /* TickrKit */; };
 		3F866FEB0A2FA91E6E8B686C /* TickrDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 4AA495158B683614736F354B /* TickrDesign */; };
+		51589A8560CE92B8AB86680D /* AfterLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305EC8E6FFF84288AEEE3CA6 /* AfterLineTests.swift */; };
 		650452331623CB514EA7765C /* LayoutSweepUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E4290BF0B075822E3AB8FC /* LayoutSweepUITests.swift */; };
+		7B4BF5774D5729ECC3B60380 /* Fixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA7D9B1FCD415F0FA14ABDCB /* Fixtures.swift */; };
+		A5A0D3F103F66BB6EA29091C /* SettingsLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */; };
 		BCF5F0DD9CD326D009134257 /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */; };
+		EF0B7AF46ABFCBFE7F693157 /* HomeLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A0BE654C494944100CB943 /* HomeLogicTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		7383CE06B447248A77F3A7FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8804777B56E9EE7633919BAF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 987D98E178E330760BB74690;
+			remoteInfo = Tickr;
+		};
 		D30AC1328B866D41295586E7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8804777B56E9EE7633919BAF /* Project object */;
@@ -24,11 +36,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		305EC8E6FFF84288AEEE3CA6 /* AfterLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AfterLineTests.swift; sourceTree = "<group>"; };
 		445FB381029F292DF0F650AC /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLogicTests.swift; sourceTree = "<group>"; };
+		758BF8CBBECA63FAAA6441C5 /* TickrTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TickrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabReplayTests.swift; sourceTree = "<group>"; };
 		B5E62E73C277781A649F0A49 /* shared */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shared; path = ../shared; sourceTree = SOURCE_ROOT; };
+		BA7D9B1FCD415F0FA14ABDCB /* Fixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixtures.swift; sourceTree = "<group>"; };
 		CCBF14049F8F57EDFC1AADE2 /* Tickr.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Tickr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3E4290BF0B075822E3AB8FC /* LayoutSweepUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSweepUITests.swift; sourceTree = "<group>"; };
 		D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
+		F2A0BE654C494944100CB943 /* HomeLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLogicTests.swift; sourceTree = "<group>"; };
 		F77B0309379A40BBAF7EB73B /* TickrUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TickrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -61,6 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				CCBF14049F8F57EDFC1AADE2 /* Tickr.app */,
+				758BF8CBBECA63FAAA6441C5 /* TickrTests.xctest */,
 				F77B0309379A40BBAF7EB73B /* TickrUITests.xctest */,
 			);
 			name = Products;
@@ -85,6 +104,18 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		747D4B518BECA601F8C9BB2E /* TickrTests */ = {
+			isa = PBXGroup;
+			children = (
+				305EC8E6FFF84288AEEE3CA6 /* AfterLineTests.swift */,
+				BA7D9B1FCD415F0FA14ABDCB /* Fixtures.swift */,
+				F2A0BE654C494944100CB943 /* HomeLogicTests.swift */,
+				AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */,
+				60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */,
+			);
+			path = TickrTests;
+			sourceTree = "<group>";
+		};
 		9408FC83A713BAA369A6B5DE /* TickrUITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -105,6 +136,7 @@
 		E111708A95C6BE725400E8B3 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				747D4B518BECA601F8C9BB2E /* TickrTests */,
 				9408FC83A713BAA369A6B5DE /* TickrUITests */,
 			);
 			path = Tests;
@@ -130,6 +162,24 @@
 			productName = TickrUITests;
 			productReference = F77B0309379A40BBAF7EB73B /* TickrUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		2E80DA4E1B933F2FA0F20DA3 /* TickrTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 442C6FA8D03C35F558B0B267 /* Build configuration list for PBXNativeTarget "TickrTests" */;
+			buildPhases = (
+				87F61554CC5D37799AFE1D7F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				02149842591634F78A6F77F4 /* PBXTargetDependency */,
+			);
+			name = TickrTests;
+			packageProductDependencies = (
+			);
+			productName = TickrTests;
+			productReference = 758BF8CBBECA63FAAA6441C5 /* TickrTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		987D98E178E330760BB74690 /* Tickr */ = {
 			isa = PBXNativeTarget;
@@ -169,6 +219,9 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 987D98E178E330760BB74690;
 					};
+					2E80DA4E1B933F2FA0F20DA3 = {
+						ProvisioningStyle = Automatic;
+					};
 					987D98E178E330760BB74690 = {
 						ProvisioningStyle = Automatic;
 					};
@@ -192,6 +245,7 @@
 			projectRoot = "";
 			targets = (
 				987D98E178E330760BB74690 /* Tickr */,
+				2E80DA4E1B933F2FA0F20DA3 /* TickrTests */,
 				05C7421E8E3C88E2B3FFB775 /* TickrUITests */,
 			);
 		};
@@ -224,9 +278,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		87F61554CC5D37799AFE1D7F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51589A8560CE92B8AB86680D /* AfterLineTests.swift in Sources */,
+				7B4BF5774D5729ECC3B60380 /* Fixtures.swift in Sources */,
+				EF0B7AF46ABFCBFE7F693157 /* HomeLogicTests.swift in Sources */,
+				0053F15DE4FC863E9C8EE886 /* LabReplayTests.swift in Sources */,
+				A5A0D3F103F66BB6EA29091C /* SettingsLogicTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		02149842591634F78A6F77F4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 987D98E178E330760BB74690 /* Tickr */;
+			targetProxy = 7383CE06B447248A77F3A7FB /* PBXContainerItemProxy */;
+		};
 		C37EC262A14FEFADD7A9745C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 987D98E178E330760BB74690 /* Tickr */;
@@ -253,6 +324,24 @@
 			};
 			name = Debug;
 		};
+		5B32E9B1147D9D315582CB46 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tickr.app/Tickr";
+			};
+			name = Debug;
+		};
 		980EA8A646B3CCB5313DB812 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 445FB381029F292DF0F650AC /* Signing.xcconfig */;
@@ -271,6 +360,24 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
+		};
+		A510AC99ABB62C861D5E69BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tickr.app/Tickr";
+			};
+			name = Release;
 		};
 		AC16527AF96722190C24C228 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -465,6 +572,15 @@
 			buildConfigurations = (
 				FF1DD9CADCF6F4FCDAD28FE7 /* Debug */,
 				AC16527AF96722190C24C228 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		442C6FA8D03C35F558B0B267 /* Build configuration list for PBXNativeTarget "TickrTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B32E9B1147D9D315582CB46 /* Debug */,
+				A510AC99ABB62C861D5E69BA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

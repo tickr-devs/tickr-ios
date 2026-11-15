@@ -90,12 +90,21 @@ struct JobsSection: View {
     }
   }
 
+  /// Whether the backup's last failure is newer than its last good run (or there is no good run).
+  static func backupFailed(_ job: BackupJobV1) -> Bool {
+    job.lastFailedAt.map { failure in job.lastAt.map { failure.date > $0.date } ?? true } ?? false
+  }
+
+  /// Red after a newer failure, green only when a good backup exists, neutral before any.
+  static func backupTone(_ job: BackupJobV1) -> Tone {
+    backupFailed(job) ? .loss : job.lastAt == nil ? .neutral : .profit
+  }
+
   /// The last good backup, or the failure when it is newer; the error and any cause below.
   @ViewBuilder
   private func backup(_ job: BackupJobV1) -> some View {
-    let failed = job.lastFailedAt.map { failure in job.lastAt.map { failure.date > $0.date } ?? true } ?? false
-    let tone: Tone = failed ? .loss : job.lastAt == nil ? .neutral : .profit
-    SettingsRow(L10n.Settings.backup, systemImage: Self.backupSymbol, tone: tone) {
+    let failed = Self.backupFailed(job)
+    SettingsRow(L10n.Settings.backup, systemImage: Self.backupSymbol, tone: Self.backupTone(job)) {
       if failed, let at = job.lastFailedAt {
         StatusPill(L10n.Settings.backupFailed(Format.time(at.date)), tone: .loss)
       } else if let at = job.lastAt {
