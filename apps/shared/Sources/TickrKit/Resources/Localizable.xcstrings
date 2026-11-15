@@ -3915,6 +3915,40 @@
         }
       }
     },
+    "kit.refusedByRisk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refused by risk"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отклонено риском"
+          }
+        }
+      }
+    },
+    "kit.refusedByRiskDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refused by risk: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отклонено риском: %@"
+          }
+        }
+      }
+    },
     "kit.rule.ask_above_trigger" : {
       "comment" : "Strategy check: ask_above_trigger",
       "extractionState" : "manual",
@@ -4442,6 +4476,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "СТОП ✓"
+          }
+        }
+      }
+    },
+    "kit.universe.conflictingRows" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listed by the screeners under conflicting details"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скринеры дали противоречивые данные"
+          }
+        }
+      }
+    },
+    "kit.universe.currency" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currency not allowed: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Валюта не разрешена: %@"
+          }
+        }
+      }
+    },
+    "kit.universe.exchange" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exchange not allowed: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Биржа не разрешена: %@"
+          }
+        }
+      }
+    },
+    "kit.universe.other" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left out by the universe filter"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не прошёл отбор"
+          }
+        }
+      }
+    },
+    "kit.universe.type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security type not allowed: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип бумаги не разрешён: %@"
+          }
+        }
+      }
+    },
+    "kit.universe.typeUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security type unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип бумаги неизвестен"
           }
         }
       }
