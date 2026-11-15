@@ -69,11 +69,7 @@ struct ApertureMacApp: App {
   var body: some Scene {
     Window(String(localized: L10n.App.name), id: WindowID.main) {
       RootView()
-        .overlay {
-          if !model.openingPlayed {
-            BrandOpening(target: model.overviewMarkCentre, finished: { model.openingPlayed = true })
-          }
-        }
+        .overlay { OpeningOverlay() }
         .environment(model)
         .environment(Container.shared.chartModel())
         // The design's accent for links, selection and controls (as on iOS), not the system blue.
@@ -160,6 +156,18 @@ struct AppCommands: Commands {
       Button(String(localized: L10n.Common.today)) { model.showToday() }
         .keyboardShortcut(Self.todayKey, modifiers: .command)
         .disabled(model.isLive)
+    }
+  }
+}
+
+/// The launch's opening over the first window. Its own view, so the header mark's moves while the
+/// window settles re-render only the opening, never the scene, whose rebuild would cut it short.
+private struct OpeningOverlay: View {
+  @Environment(AppModel.self) private var model
+
+  var body: some View {
+    if !model.openingPlayed {
+      BrandOpening(target: model.overviewMarkCentre, finished: { model.openingPlayed = true })
     }
   }
 }

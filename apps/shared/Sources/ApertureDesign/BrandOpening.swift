@@ -70,10 +70,12 @@ public struct BrandOpening: View {
       try? await Task.sleep(for: .seconds(Tokens.Motion.openingWaitSeconds))
       ready = true
     }
-    // `ready` only ever turns true, so this runs the opening once and is never cancelled midway.
-    .task(id: ready) {
-      guard ready, !started else { return }
-      await play()
+    // Played in a task of its own, not the view's: the window's first moments rebuild this view's
+    // tasks, and the opening must run to its end once started (`ready` only ever turns true).
+    .onChange(of: ready) { _, now in
+      guard now, !started else { return }
+      started = true
+      Task { await play() }
     }
   }
 
@@ -85,14 +87,19 @@ public struct BrandOpening: View {
   #endif
 
   private func play() async {
-    started = true
     if reduceMotion {
       withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
       return
     }
-    try? await Task.sleep(for: .seconds(Tokens.Motion.openingDelaySeconds + Tokens.Motion.openingDrawSeconds))
-    withAnimation(Tokens.Motion.openingFly) { flown = true }
-    try? await Task.sleep(for: .seconds(Tokens.Motion.openingFlySeconds))
+    // A cut-short wait must not rush the rest through in one frame: the opening then just goes.
+    do {
+      try await Task.sleep(for: .seconds(Tokens.Motion.openingDelaySeconds + Tokens.Motion.openingDrawSeconds))
+      withAnimation(Tokens.Motion.openingFly) { flown = true }
+      try await Task.sleep(for: .seconds(Tokens.Motion.openingFlySeconds))
+    } catch {
+      finished()
+      return
+    }
     withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
   }
 }

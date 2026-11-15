@@ -253,7 +253,9 @@ public enum Tokens {
     /// mark flies into the Home title as the launch background fades.
     public static let launchHoldSeconds = 0.45
     public static let launchFlySeconds = 0.75
-    public static let launchFly = Animation.smooth(duration: launchFlySeconds)
+    /// A timing curve, not a spring: it ends exactly at its seconds, where the fade that follows
+    /// starts (a spring still trails points behind its target then, and fades beside it).
+    public static let launchFly = Animation.easeInOut(duration: launchFlySeconds)
     /// Seconds the window shows the plain background before the mark starts drawing.
     public static let openingDelaySeconds = 0.15
     /// Seconds the opening waits for its window to come to the front; then it plays anyway, so a
@@ -263,7 +265,8 @@ public enum Tokens {
     /// into the Overview header.
     public static let openingDrawSeconds = 0.6
     public static let openingFlySeconds = 0.45
-    public static let openingFly = Animation.smooth(duration: openingFlySeconds)
+    /// A timing curve for the same reason as `launchFly`.
+    public static let openingFly = Animation.easeInOut(duration: openingFlySeconds)
     /// The cross-fade that replaces the opening animation under Reduce Motion.
     public static let launchFadeSeconds = 0.35
     /// Seconds for one turn of the radar sweep.
