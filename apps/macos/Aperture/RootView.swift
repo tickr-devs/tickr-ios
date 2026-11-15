@@ -245,7 +245,8 @@ private struct ConnectionStatus: View {
   var body: some View {
     TimelineView(.periodic(from: .now, by: Self.tick)) { context in
       HStack(spacing: Tokens.Space.s) {
-        PulseDot(model.headline.severity.color, size: Tokens.Size.dotSmall, pulsing: model.isLive)
+        // Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
+        PulseDot(model.headline.severity.color, size: Tokens.Size.dotSmall, pulsing: isFresh)
         Text(verbatim: text(now: model.botTime(context.date)))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
@@ -255,6 +256,8 @@ private struct ConnectionStatus: View {
     .accessibilityElement(children: .combine)
     .accessibilityIdentifier(Self.id)
   }
+
+  private var isFresh: Bool { model.response?.stale == false && model.fetchError == nil }
 
   private func text(now: Date) -> String {
     let host = model.baseURL.host() ?? model.baseURL.absoluteString

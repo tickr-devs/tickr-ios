@@ -72,6 +72,8 @@ final class FixtureProtocol: URLProtocol {
   static let observersFile = "observers-v1.json"
   static let decisionsPath = "/decisions"
   static let decisionsFile = "decisions-v1.json"
+  static let skippedPath = "/skipped"
+  static let skippedFile = "skipped-v1.json"
   /// HTTP status codes, version and the JSON content type of an answer.
   static let ok = 200
   static let notFound = 404
@@ -97,6 +99,7 @@ final class FixtureProtocol: URLProtocol {
     case accountPath: return accountFile
     case observersPath: return observersFile
     case decisionsPath: return decisionsFile
+    case skippedPath: return skippedFile
     default: return path.hasPrefix(daysPath + "/") ? dayFile : nil
     }
   }

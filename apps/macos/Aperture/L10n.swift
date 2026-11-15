@@ -1099,6 +1099,30 @@ enum L10n {
     static var trades: LocalizedStringResource {
       LocalizedStringResource("trades.trades", defaultValue: "Trades", bundle: L10n.bundle)
     }
+    /// Card title: the strategy's ENTERs that did not become a position.
+    static var notTaken: LocalizedStringResource {
+      LocalizedStringResource("trades.notTaken", defaultValue: "Not Taken", bundle: L10n.bundle)
+    }
+    /// Not taken list is empty.
+    static var notTakenEmpty: LocalizedStringResource {
+      LocalizedStringResource("trades.notTakenEmpty", defaultValue: "Every entry signal of this day became a position.", bundle: L10n.bundle)
+    }
+    /// Skipped read failed.
+    static func notTakenUnavailable(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.notTakenUnavailable", defaultValue: "The bot's API did not return the skipped signals: \(cause)", bundle: L10n.bundle)
+    }
+    /// Badge: the platform refused the entry (risk, gate or limit).
+    static var refused: LocalizedStringResource {
+      LocalizedStringResource("trades.refused", defaultValue: "Refused", bundle: L10n.bundle)
+    }
+    /// Badge: the entry was never put to the platform's checks.
+    static var notEvaluated: LocalizedStringResource {
+      LocalizedStringResource("trades.notEvaluated", defaultValue: "Not evaluated", bundle: L10n.bundle)
+    }
+    /// What-if entry and stop of a skipped signal.
+    static func whatIfLevels(_ entry: String, _ stop: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.whatIfLevels", defaultValue: "What-if entry \(entry) · stop \(stop)", bundle: L10n.bundle)
+    }
     /// Stat card: average result in R.
     static var averageR: LocalizedStringResource {
       LocalizedStringResource("trades.averageR", defaultValue: "Average R", bundle: L10n.bundle)

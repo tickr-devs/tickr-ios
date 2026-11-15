@@ -6359,6 +6359,23 @@
         }
       }
     },
+    "trades.notEvaluated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not evaluated"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не проверен"
+          }
+        }
+      }
+    },
     "trades.noTrades" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6393,6 +6410,57 @@
         }
       }
     },
+    "trades.notTaken" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Taken"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не взято"
+          }
+        }
+      }
+    },
+    "trades.notTakenEmpty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every entry signal of this day became a position."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все сигналы входа за этот день стали позициями."
+          }
+        }
+      }
+    },
+    "trades.notTakenUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's API did not return the skipped signals: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API бота не вернул пропущенные сигналы: %@"
+          }
+        }
+      }
+    },
     "trades.quantity" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6423,6 +6491,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Причина"
+          }
+        }
+      }
+    },
+    "trades.refused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отклонён"
           }
         }
       }
@@ -6610,6 +6695,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Если бы вошли…"
+          }
+        }
+      }
+    },
+    "trades.whatIfLevels" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What-if entry %1$@ · stop %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход был бы %1$@ · стоп %2$@"
           }
         }
       }

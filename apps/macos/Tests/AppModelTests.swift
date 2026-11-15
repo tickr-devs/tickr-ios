@@ -137,6 +137,19 @@ struct AppModelTests {
     #expect(model.isLive)
   }
 
+  @Test("The shown day's skipped signals are read; a failed read clears them")
+  func skippedSignals() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    RouteProtocol.routes.withLock { $0.bodies["/skipped"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("skipped-v1.json")) }
+    await model.refreshSkipped()
+    #expect(model.skipped?.signals.map(\.admission) == [.refused, .notEvaluated])
+    RouteProtocol.routes.withLock { $0.bodies["/skipped"] = nil }
+    await model.refreshSkipped()
+    #expect(model.skipped == nil)
+    #expect(model.skippedError != nil)
+  }
+
   @Test("The chart reads a symbol's decisions; a failed read clears them")
   func chartDecisions() async throws {
     let chart = ChartModel()

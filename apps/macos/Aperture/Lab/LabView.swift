@@ -103,9 +103,10 @@ struct ObserverRow: View {
         if let result = observer.resultGrossUSD {
           MoneyText(value: result.value, usd: true, font: Tokens.Typography.calloutMono)
         } else {
+          // The bot says why it has no result (no captured bars, no decisions...).
           Text(verbatim: Format.missing)
             .foregroundStyle(Palette.textQuaternary)
-            .help(Text(L10n.Lab.resultPending))
+            .help(observer.resultCause.map { Text(verbatim: $0) } ?? Text(L10n.Lab.resultPending))
         }
       }
       HStack(spacing: Tokens.Space.s) {
@@ -117,6 +118,11 @@ struct ObserverRow: View {
       }
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textTertiary)
+      if observer.resultGrossUSD == nil, let cause = observer.resultCause {
+        Text(verbatim: cause)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textQuaternary)
+      }
     }
   }
 }

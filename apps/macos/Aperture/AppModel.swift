@@ -98,6 +98,9 @@ public final class AppModel {
   /// Observers with their decisions on the shown day; nil until read.
   public private(set) var observers: ObserversV1?
   public private(set) var observersError: String?
+  /// The active strategy's ENTERs on the shown day that did not become a position; nil until read.
+  public private(set) var skipped: SkippedV1?
+  public private(set) var skippedError: String?
 
   // Positions with their latest bars.
   private var barsBySymbol: [String: BarsV1] = [:]
@@ -270,6 +273,7 @@ public final class AppModel {
     barsBySymbol = [:]
     account = nil
     observers = nil
+    skipped = nil
     Task {
       await refreshStatus()
       await refreshHistory()
@@ -330,6 +334,7 @@ public final class AppModel {
       historyError = Self.describe(error)
     }
     await refreshObservers()
+    await refreshSkipped()
   }
 
   public func refreshAccount() async {
@@ -358,9 +363,28 @@ public final class AppModel {
     }
   }
 
+  /// Reads the shown day's skipped ENTERs. An answer for a day no longer shown is dropped; a
+  /// failed read clears the list, so an old one never reads as current.
+  public func refreshSkipped() async {
+    let day = shownDay
+    do {
+      let document = try await client.skipped(day: day)
+      guard day == shownDay else { return }
+      skipped = document
+      skippedError = nil
+    } catch {
+      guard day == shownDay else { return }
+      skipped = nil
+      skippedError = Self.describe(error)
+    }
+  }
+
   private func loadSelectedDay() async {
     observers = nil
+    skipped = nil
+    skippedError = nil
     await refreshObservers()
+    await refreshSkipped()
     guard let day = selectedDay, day != today else {
       dayDocument = nil
       return

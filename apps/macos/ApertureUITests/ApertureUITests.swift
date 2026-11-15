@@ -28,6 +28,8 @@ final class ApertureUITests: XCTestCase {
   static let fixturesBadge = "FIXTURES"
   /// The toolbar's connection status (ConnectionStatus.id).
   static let connectionItem = "toolbar-connection"
+  /// The start of the refusal cause in skipped-v1.json.
+  static let refusalCause = "POSITION_LIMIT_REACHED"
   /// The Chart's decisions toggle (ChartView.decisionsToggleID) and a rule from decisions-v1.json.
   static let decisionsToggle = "chart-decisions"
   static let decisionRule = "ask_above_trigger"
@@ -129,6 +131,15 @@ final class ApertureUITests: XCTestCase {
     // The open inspector fits beside the chart: nothing is pushed off screen.
     XCTAssertTrue(app.descendants(matching: .any)[Self.rowPrefix + Self.sections[0]].firstMatch.isHittable,
       "sidebar pushed off screen\n\(app.debugDescription)")
+  }
+
+  @MainActor
+  func testTradesShowTheSkippedSignals() {
+    let app = launch()
+    open(Self.sections[2], in: app)
+    // A skipped row is one button, so the cause is part of its longer label.
+    let cause = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", Self.refusalCause))
+    XCTAssertTrue(cause.firstMatch.waitForExistence(timeout: Self.timeout), "refusal cause\n\(app.debugDescription)")
   }
 
   @MainActor

@@ -12,7 +12,7 @@ struct TradesView: View {
 
   /// Entrance order of the screen's parts.
   private enum Order: Int {
-    case days = 0, stats, trades, whatIf
+    case days = 0, stats, trades, notTaken, whatIf
   }
 
   var body: some View {
@@ -25,6 +25,8 @@ struct TradesView: View {
           .rise(step: Order.stats.rawValue)
         TradesTable(selection: $selection, showOnChart: showOnChart)
           .rise(step: Order.trades.rawValue)
+        NotTakenCard(showOnChart: showOnChart)
+          .rise(step: Order.notTaken.rawValue)
         WhatIfCard()
           .rise(step: Order.whatIf.rawValue)
       }
@@ -34,9 +36,9 @@ struct TradesView: View {
     .onChange(of: model.shownDay) { selection = nil }
   }
 
-  /// Opens the Chart on the trade's symbol (the shown day stays).
-  private func showOnChart(_ trade: DayTrade) {
-    chartSymbol = trade.symbol
+  /// Opens the Chart on `symbol` (the shown day stays).
+  private func showOnChart(_ symbol: String) {
+    chartSymbol = symbol
     model.section = .chart
   }
 }
@@ -211,7 +213,7 @@ private struct Stat<Value: View>: View {
 private struct TradesTable: View {
   @Environment(AppModel.self) private var model
   @Binding var selection: DayTrade.ID?
-  let showOnChart: (DayTrade) -> Void
+  let showOnChart: (String) -> Void
 
   /// The table's height before it has rows, in points.
   static let minimumHeight: CGFloat = 240
@@ -261,18 +263,90 @@ private struct TradesTable: View {
     }
     .contextMenu(forSelectionType: DayTrade.ID.self) { ids in
       if let trade = trade(ids) {
-        Button { showOnChart(trade) } label: {
+        Button { showOnChart(trade.symbol) } label: {
           Label { Text(L10n.Trades.showOnChart) } icon: { Image(systemName: "chart.xyaxis.line") }
         }
       }
     } primaryAction: { ids in
-      if let trade = trade(ids) { showOnChart(trade) }
+      if let trade = trade(ids) { showOnChart(trade.symbol) }
     }
   }
 
   private func trade(_ ids: Set<DayTrade.ID>) -> DayTrade? {
     guard let id = ids.first else { return nil }
     return model.shownTrades.first { $0.id == id }
+  }
+}
+
+/// The active strategy's entry signals of the shown day that did not become a position: refused
+/// by the platform (with the cause) or never evaluated, with their what-if levels.
+private struct NotTakenCard: View {
+  @Environment(AppModel.self) private var model
+  let showOnChart: (String) -> Void
+
+  var body: some View {
+    Card(L10n.Trades.notTaken) {
+      if let signals = model.skipped?.signals, !signals.isEmpty {
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
+          ForEach(Array(signals.reversed().enumerated()), id: \.offset) { index, signal in
+            if index > 0 { Divider() }
+            SkippedRow(signal: signal, showOnChart: showOnChart)
+          }
+        }
+      } else if let error = model.skippedError {
+        Footnote(L10n.Trades.notTakenUnavailable(error))
+      } else if model.skipped != nil {
+        Footnote(L10n.Trades.notTakenEmpty)
+      } else {
+        ProgressView().controlSize(.small)
+      }
+    }
+  }
+}
+
+/// One skipped signal; a click opens the Chart on its symbol.
+private struct SkippedRow: View {
+  let signal: SkippedSignalV1
+  let showOnChart: (String) -> Void
+
+  var body: some View {
+    Button { showOnChart(signal.symbol) } label: {
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        HStack(spacing: Tokens.Space.s) {
+          Text(verbatim: Format.marketMinute(signal.at.date))
+            .font(Tokens.Typography.calloutMono)
+            .foregroundStyle(Palette.textTertiary)
+          Text(verbatim: signal.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
+          admission
+          Spacer(minLength: 0)
+          Text(verbatim: Format.strategy(signal.strategy))
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textTertiary)
+        }
+        if let cause = signal.refusalCause {
+          Text(verbatim: cause)
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(Palette.textSecondary)
+        }
+        if let entry = signal.entryPrice, let stop = signal.stopPrice {
+          Text(L10n.Trades.whatIfLevels(Format.price(entry.value), Format.price(stop.value)))
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textTertiary)
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
+    .help(Text(L10n.Trades.showOnChart))
+  }
+
+  @ViewBuilder private var admission: some View {
+    if signal.admission == .refused {
+      Badge(L10n.Trades.refused, color: Palette.warningText)
+    } else {
+      Badge(L10n.Trades.notEvaluated, color: Palette.textTertiary)
+    }
   }
 }
 
