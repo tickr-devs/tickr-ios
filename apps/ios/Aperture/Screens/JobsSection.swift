@@ -94,7 +94,8 @@ struct JobsSection: View {
   @ViewBuilder
   private func backup(_ job: BackupJobV1) -> some View {
     let failed = job.lastFailedAt.map { failure in job.lastAt.map { failure.date > $0.date } ?? true } ?? false
-    SettingsRow(L10n.Settings.backup, systemImage: Self.backupSymbol, tone: failed ? .loss : job.lastAt == nil ? .neutral : .profit) {
+    let tone: Tone = failed ? .loss : job.lastAt == nil ? .neutral : .profit
+    SettingsRow(L10n.Settings.backup, systemImage: Self.backupSymbol, tone: tone) {
       if failed, let at = job.lastFailedAt {
         StatusPill(L10n.Settings.backupFailed(Format.time(at.date)), tone: .loss)
       } else if let at = job.lastAt {

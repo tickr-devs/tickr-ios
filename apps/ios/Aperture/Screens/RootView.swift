@@ -11,19 +11,39 @@ struct RootView: View {
     // set on each icon so the screens inside keep their own symbol variants.
     TabView(selection: $model.selectedTab) {
       NavigationStack { HomeView() }
-        .tabItem { Label { Text(L10n.App.home) } icon: { Image(systemName: "square.grid.2x2").environment(\.symbolVariants, .none) } }
+        .tabItem {
+          Label { Text(L10n.App.home) } icon: {
+            Image(systemName: "square.grid.2x2").environment(\.symbolVariants, .none)
+          }
+        }
         .tag(AppTab.home)
       NavigationStack { PositionsView() }
-        .tabItem { Label { Text(L10n.App.positions) } icon: { Image(systemName: "lock").environment(\.symbolVariants, .none) } }
+        .tabItem {
+          Label { Text(L10n.App.positions) } icon: {
+            Image(systemName: "lock").environment(\.symbolVariants, .none)
+          }
+        }
         .tag(AppTab.positions)
       NavigationStack { ChartTab() }
-        .tabItem { Label { Text(L10n.App.chart) } icon: { Image(systemName: "chart.line.uptrend.xyaxis").environment(\.symbolVariants, .none) } }
+        .tabItem {
+          Label { Text(L10n.App.chart) } icon: {
+            Image(systemName: "chart.line.uptrend.xyaxis").environment(\.symbolVariants, .none)
+          }
+        }
         .tag(AppTab.chart)
       NavigationStack { ActivityView() }
-        .tabItem { Label { Text(L10n.App.activity) } icon: { Image(systemName: "line.3.horizontal").environment(\.symbolVariants, .none) } }
+        .tabItem {
+          Label { Text(L10n.App.activity) } icon: {
+            Image(systemName: "line.3.horizontal").environment(\.symbolVariants, .none)
+          }
+        }
         .tag(AppTab.activity)
       NavigationStack { LabView() }
-        .tabItem { Label { Text(L10n.App.lab) } icon: { Image(systemName: "star").environment(\.symbolVariants, .none) } }
+        .tabItem {
+          Label { Text(L10n.App.lab) } icon: {
+            Image(systemName: "star").environment(\.symbolVariants, .none)
+          }
+        }
         .tag(AppTab.lab)
     }
     .modifier(NoticeOverlay())
@@ -35,7 +55,8 @@ struct RootView: View {
       }
     }
     .alert(
-      Text(L10n.Pair.ask(model.pendingPairing.flatMap { Connection.displayHost($0.url) } ?? String(localized: L10n.Pair.thisMac))),
+      Text(L10n.Pair.ask(
+        model.pendingPairing.flatMap { Connection.displayHost($0.url) } ?? String(localized: L10n.Pair.thisMac))),
       isPresented: Binding(get: { model.pendingPairing != nil }, set: { if !$0 { model.pendingPairing = nil } }),
       presenting: model.pendingPairing
     ) { pairing in

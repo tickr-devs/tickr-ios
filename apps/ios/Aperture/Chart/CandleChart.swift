@@ -260,7 +260,7 @@ struct CandleChart: View {
       }
     }
     .modifier(Scrolling(window: window, domain: timeDomain, scroll: $viewport.scroll))
-    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { chartWidth = $0 }
+    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { chartWidth = $0 })
     .chartXSelection(value: $selected)
     .chartPlotStyle { $0.background(Palette.surfaceSunken) }
     .accessibilityLabel(Text(ChartText.title))

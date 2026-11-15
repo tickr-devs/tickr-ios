@@ -25,11 +25,11 @@ struct BotControl: ViewModifier {
       .sheet(isPresented: $isPresented, onDismiss: {
         chosen?()
         chosen = nil
-      }) {
+      }, content: {
         sheet
           .presentationDetents([.medium, .large])
           .presentationDragIndicator(.visible)
-      }
+      })
   }
 
   /// The bot's state, one line on what the actions do to broker stops, the actions and Cancel.
@@ -75,8 +75,9 @@ struct BotControl: ViewModifier {
   }
 
   /// One action across the sheet; it runs once the sheet has closed.
-  private func action(_ title: LocalizedStringResource, symbol: String, kind: ActionButtonStyle.Kind,
-    _ perform: @escaping () -> Void) -> some View {
+  private func action(
+    _ title: LocalizedStringResource, symbol: String, kind: ActionButtonStyle.Kind, _ perform: @escaping () -> Void
+  ) -> some View {
     Button(role: kind == .destructive ? .destructive : nil) {
       chosen = perform
       isPresented = false

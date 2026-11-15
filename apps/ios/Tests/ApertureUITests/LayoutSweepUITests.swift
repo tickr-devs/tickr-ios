@@ -39,8 +39,9 @@ final class LayoutSweepUITests: XCTestCase {
     for language in Self.languages {
       for size in Self.textSizes {
         let app = XCUIApplication()
-        app.launchArguments = ["-apiBaseURL", api, "-AppleLanguages", "(\(language))",
-                               "-UIPreferredContentSizeCategoryName", size]
+        app.launchArguments = [
+          "-apiBaseURL", api, "-AppleLanguages", "(\(language))", "-UIPreferredContentSizeCategoryName", size,
+        ]
         app.launch()
         let tabs = app.tabBars.buttons
         guard tabs.firstMatch.waitForExistence(timeout: Self.wait) else {

@@ -639,9 +639,11 @@ private struct TradesList: View {
       .minimumScaleFactor(StatTile.minimumScale)
   }
 
-  private func row(symbol: String, time: String, tag: String, tagSymbol: String, tone: Tone, result: String,
+  private func row(
+    symbol: String, time: String, tag: String, tagSymbol: String, tone: Tone, result: String,
     figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil,
-    after: [PriceAfterV1] = []) -> some View {
+    after: [PriceAfterV1] = []
+  ) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // One line while it fits; at large text sizes the symbol and result keep a line of their own
       // and the time and tag wrap below, so no figure breaks in the middle or falls into letters.

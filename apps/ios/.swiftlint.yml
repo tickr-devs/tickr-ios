@@ -1,0 +1,9 @@
+# The iOS app follows the root .swiftlint.yml except for SwiftLint's size limits: several screens
+# (Home, Activity, Positions, the chart) and L10n.swift are longer than the limits allow. Each
+# limit comes back here once those files are split; formatting, colour and font rules all apply.
+disabled_rules:
+  - cyclomatic_complexity
+  - file_length
+  - function_body_length
+  - function_parameter_count
+  - type_body_length

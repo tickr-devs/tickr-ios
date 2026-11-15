@@ -1,8 +1,11 @@
-# SwiftLint for the operator apps (docs/design-system.md, "Rules"). Runs in CI (macos-app).
+# SwiftLint for the operator apps (docs/design-system.md, "Rules"). Runs in CI (swift-rules) on
+# every pull request, from the repository root and without --config, so the size limits each app
+# relaxes in its own .swiftlint.yml apply to that app only.
 # Magic numbers are checked by apps/scripts/check_swift_literals.py, which understands documented
 # constants; colours, fonts and indentation are checked here.
-# Each app joins when its code has moved onto the design system (macOS next, then iOS).
+# macOS joins next.
 included:
+  - apps/ios
   - apps/shared/Sources
   - apps/shared/Tests
 

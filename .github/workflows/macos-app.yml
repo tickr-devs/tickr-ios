@@ -10,7 +10,6 @@ on:
       - "src/aperture/api/schema/**"
       - "Aperture.xcworkspace/**"
       - ".github/workflows/macos-app.yml"
-      - ".swiftlint.yml"
   workflow_dispatch:
   # Weekly build of main, so a conflict between two separately green pull requests shows up.
   schedule:
@@ -34,12 +33,9 @@ jobs:
           newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
           sudo xcode-select -s "$newest"
           xcodebuild -version
+      # SwiftLint runs in the swift-rules workflow (Linux), on every pull request.
       - name: Design-system checks (docs/design-system.md)
-        run: |
-          python3 apps/scripts/check_swift_rules.py
-          command -v swiftlint >/dev/null || brew install swiftlint
-          swiftlint version
-          swiftlint lint --strict --quiet --config .swiftlint.yml
+        run: python3 apps/scripts/check_swift_rules.py
       - run: swift --version
       - name: Toolchain id for the build cache
         run: echo "XCODE_ID=$(xcodebuild -version | head -1 | tr ' ' '-')" >> "$GITHUB_ENV"

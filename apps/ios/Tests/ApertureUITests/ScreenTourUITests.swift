@@ -21,7 +21,7 @@ final class ScreenTourUITests: XCTestCase {
   private static let maxScrolls = 4
   /// Accessibility identifiers the tour taps, the same in every language (the app's
   /// `AccessibilityID`).
-  private enum ID {
+  private enum Identifier {
     static let botControl = "home.botControl"
     static let settings = "home.settings"
     static let risk = "home.risk"
@@ -57,15 +57,15 @@ final class ScreenTourUITests: XCTestCase {
   // MARK: - screens behind Home and Activity
 
   private func homeDetails() {
-    if tap(app.buttons[ID.botControl]) {
+    if tap(app.buttons[Identifier.botControl]) {
       shot("tab0-bot-control")
       guard dismiss() else { return }
     }
-    if tap(app.buttons[ID.risk]) {
+    if tap(app.buttons[Identifier.risk]) {
       capture(screen: "tab0-risk")
       back()
     }
-    if tap(app.buttons[ID.settings]) {
+    if tap(app.buttons[Identifier.settings]) {
       capture(screen: "tab0-settings")
       back()
     }
@@ -77,9 +77,9 @@ final class ScreenTourUITests: XCTestCase {
       sleep(Self.settle)
       capture(screen: "tab3-section\(index)")
     }
-    if tap(app.buttons[ID.calendar]) {
+    if tap(app.buttons[Identifier.calendar]) {
       shot("tab3-calendar")
-      _ = tap(app.buttons[ID.calendar])
+      _ = tap(app.buttons[Identifier.calendar])
     }
   }
 
@@ -98,7 +98,7 @@ final class ScreenTourUITests: XCTestCase {
   /// and leaves the remaining Home screens out, if Cancel cannot be reached or the sheet stays.
   @discardableResult
   private func dismiss() -> Bool {
-    let cancel = app.buttons[ID.botControlCancel].firstMatch
+    let cancel = app.buttons[Identifier.botControlCancel].firstMatch
     guard cancel.waitForExistence(timeout: Self.wait) else {
       XCTFail("the bot-control sheet has no Cancel button")
       return false

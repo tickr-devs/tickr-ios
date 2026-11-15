@@ -1,7 +1,7 @@
 name: swift-rules
 # The apps' Swift code rules (CLAUDE.md, "Swift code rules"): no words in code outside L10n.swift,
-# no magic numbers, 2-space indentation, Russian translation for every key. Runs on every pull
-# request, whatever it touches, so it can be a required check.
+# no magic numbers, 2-space indentation, Russian translation for every key, and SwiftLint. Runs on
+# every pull request, whatever it touches, so it can be a required check.
 on:
   pull_request:
   push:
@@ -12,8 +12,15 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Swift code rules (apps/scripts/check_swift_rules.py)
         run: python3 apps/scripts/check_swift_rules.py
+      # SwiftLint's own Linux image, pinned so a new release can't fail an unrelated pull request.
+      # No --config: the root .swiftlint.yml is found from here, and each app's own .swiftlint.yml
+      # is merged for its files.
+      - name: SwiftLint (.swiftlint.yml)
+        run: >-
+          docker run --rm -v "$PWD:/work" -w /work ghcr.io/realm/swiftlint:0.65.0
+          swiftlint lint --strict --quiet
