@@ -36,6 +36,10 @@ final class AppModel {
   private(set) var settings: SettingsV1?
   /// Why the settings could not be read, if they could not.
   private(set) var settingsError: String?
+  /// The bot's last broker read (GET /account), read while Settings is on screen.
+  private(set) var account: AccountResponseV1?
+  /// Why the broker read could not be fetched, if it could not.
+  private(set) var accountError: String?
   private(set) var sending = false
   var notice: Notice?
   var selectedTab: AppTab = .home
@@ -91,6 +95,8 @@ final class AppModel {
     fetchError = nil
     settings = nil
     settingsError = nil
+    account = nil
+    accountError = nil
     start()
   }
 
@@ -118,6 +124,25 @@ final class AppModel {
     await refresh()
     guard let url = connection.url, fetchError == nil else { return }
     await refreshSettings(url)
+  }
+
+  /// Reads the bot's last broker read; the answer is dropped when the address changed meanwhile.
+  func refreshAccount() async {
+    guard let url = connection.url else { return }
+    do {
+      let read = try await Container.shared.apiClient(connection.endpoint(for: url)).account()
+      guard connection.url == url else { return }
+      account = read
+      accountError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      // An old snapshot proves nothing about the broker now.
+      if connection.url == url {
+        account = nil
+        accountError = Self.describe(error)
+      }
+    }
   }
 
   /// Reads the bot's configuration; the answer is dropped when the address changed meanwhile.

@@ -645,6 +645,72 @@ enum L10n {
   }
 
   enum Settings {
+    static var environmentFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.environmentFooter",
+        defaultValue: "Sandbox or Production is set in config/bot.toml on the Mac; Production also needs your authorization file there. The phone only shows it.",
+        bundle: L10n.bundle)
+    }
+    static var session: LocalizedStringResource {
+      LocalizedStringResource("settings.session", defaultValue: "Session · New York", bundle: L10n.bundle)
+    }
+    static var sessionFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.sessionFooter",
+        defaultValue: "US exchange hours: extended 04:00–20:00, regular 09:30–16:00. Half days are not drawn.",
+        bundle: L10n.bundle)
+    }
+    static var regularHours: LocalizedStringResource {
+      LocalizedStringResource("settings.regularHours", defaultValue: "regular hours", bundle: L10n.bundle)
+    }
+    static var preMarket: LocalizedStringResource {
+      LocalizedStringResource("settings.preMarket", defaultValue: "pre-market", bundle: L10n.bundle)
+    }
+    static var afterHours: LocalizedStringResource {
+      LocalizedStringResource("settings.afterHours", defaultValue: "after hours", bundle: L10n.bundle)
+    }
+    static var closed: LocalizedStringResource {
+      LocalizedStringResource("settings.closed", defaultValue: "market closed", bundle: L10n.bundle)
+    }
+    static var preflight: LocalizedStringResource {
+      LocalizedStringResource("settings.preflight", defaultValue: "Preflight", bundle: L10n.bundle)
+    }
+    static var allPassed: LocalizedStringResource {
+      LocalizedStringResource("settings.allPassed", defaultValue: "all passed", bundle: L10n.bundle)
+    }
+    static var checking: LocalizedStringResource {
+      LocalizedStringResource("settings.checking", defaultValue: "checking…", bundle: L10n.bundle)
+    }
+    static var checkBotRunning: LocalizedStringResource {
+      LocalizedStringResource("settings.checkBotRunning", defaultValue: "Bot running", bundle: L10n.bundle)
+    }
+    static var checkStatusCurrent: LocalizedStringResource {
+      LocalizedStringResource("settings.checkStatusCurrent", defaultValue: "Status current", bundle: L10n.bundle)
+    }
+    static var checkStreamFresh: LocalizedStringResource {
+      LocalizedStringResource("settings.checkStreamFresh", defaultValue: "Quote stream fresh", bundle: L10n.bundle)
+    }
+    static var checkBrokerMatches: LocalizedStringResource {
+      LocalizedStringResource("settings.checkBrokerMatches", defaultValue: "Broker matches records", bundle: L10n.bundle)
+    }
+    static var checkStopsVerified: LocalizedStringResource {
+      LocalizedStringResource("settings.checkStopsVerified", defaultValue: "Every position has a stop", bundle: L10n.bundle)
+    }
+    static var checkGateOpen: LocalizedStringResource {
+      LocalizedStringResource("settings.checkGateOpen", defaultValue: "Trading gate open", bundle: L10n.bundle)
+    }
+    static func accountFailed(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.accountFailed",
+        defaultValue: "Couldn't read the broker check: \(cause)",
+        bundle: L10n.bundle)
+    }
+    static func failing(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("settings.failing", defaultValue: "\(count) failing", bundle: L10n.bundle)
+    }
+    static func brokerCounts(_ positions: Int, _ orders: Int) -> LocalizedStringResource {
+      LocalizedStringResource("settings.brokerCounts", defaultValue: "\(positions) pos · \(orders) orders", bundle: L10n.bundle)
+    }
+    static func stops(_ verified: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("settings.stops", defaultValue: "\(verified) of \(total) verified", bundle: L10n.bundle)
+    }
     static var title: LocalizedStringResource {
       LocalizedStringResource("settings.title", defaultValue: "Settings", bundle: L10n.bundle)
     }

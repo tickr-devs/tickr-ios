@@ -50,7 +50,6 @@ struct SettingsView: View {
       if let status = model.status {
         Section {
           row(L10n.Settings.state) { Text(status.botState.title) }
-          row(L10n.Settings.environment) { Text(verbatim: status.environment) }
           row(L10n.Settings.gate) {
             Text(status.tradingGate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed)
           }
@@ -66,6 +65,14 @@ struct SettingsView: View {
         } header: {
           Text(L10n.Settings.bot)
         }
+      }
+
+      if let status = model.status {
+        EnvironmentSection(status: status)
+      }
+      if model.isConfigured {
+        PreflightSection()
+        SessionSection(session: model.settings?.session)
       }
 
       Section {
@@ -87,6 +94,7 @@ struct SettingsView: View {
     }
     .navigationTitle(Text(L10n.Settings.title))
     .onAppear { draft = model.connection.address }
+    .task(id: model.connection.url) { await followAccount() }
     .onChange(of: model.connection.address) { _, address in draft = address }
     .sheet(isPresented: $showPairing) { PairingSheet() }
     .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {
@@ -105,6 +113,16 @@ struct SettingsView: View {
       value()
     } label: {
       Text(label)
+    }
+  }
+
+  /// While Settings is on screen, read the bot's last broker read as often as its status.
+  private func followAccount() async {
+    while !Task.isCancelled {
+      await model.refreshAccount()
+      let seconds = model.response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
+        ?? AppModel.initialPollSeconds
+      try? await Task.sleep(for: .seconds(max(seconds, AppModel.minimumPollSeconds)))
     }
   }
 

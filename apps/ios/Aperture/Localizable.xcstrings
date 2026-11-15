@@ -2976,6 +2976,23 @@
         }
       }
     },
+    "settings.accountFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read the broker check: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать сверку с брокером: %@"
+          }
+        }
+      }
+    },
     "settings.addressFooter": {
       "extractionState": "manual",
       "localizations": {
@@ -2989,6 +3006,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "В симуляторе подходит собственный адрес Mac. На телефоне свяжите его с Mac по ссылке, которую оставляет `python -m aperture.api pair`: телефон обращается к Mac через Tailscale по HTTPS. Токен хранится в Связке ключей телефона и отправляется только на связанный адрес."
+          }
+        }
+      }
+    },
+    "settings.afterHours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "after hours"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "постмаркет"
+          }
+        }
+      }
+    },
+    "settings.allPassed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "all passed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "всё в порядке"
           }
         }
       }
@@ -3040,6 +3091,159 @@
           "stringUnit": {
             "state": "translated",
             "value": "Бот на вашем Mac"
+          }
+        }
+      }
+    },
+    "settings.brokerCounts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pos · %lld orders"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "позиций: %lld · ордеров: %lld"
+          }
+        }
+      }
+    },
+    "settings.checkBotRunning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bot running"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бот работает"
+          }
+        }
+      }
+    },
+    "settings.checkBrokerMatches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Broker matches records"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Брокер совпадает с записями"
+          }
+        }
+      }
+    },
+    "settings.checkGateOpen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trading gate open"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торговый шлюз открыт"
+          }
+        }
+      }
+    },
+    "settings.checkStatusCurrent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status current"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Статус свежий"
+          }
+        }
+      }
+    },
+    "settings.checkStopsVerified": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every position has a stop"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У каждой позиции есть стоп"
+          }
+        }
+      }
+    },
+    "settings.checkStreamFresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quote stream fresh"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поток котировок свежий"
+          }
+        }
+      }
+    },
+    "settings.checking": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "checking…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "проверяю…"
+          }
+        }
+      }
+    },
+    "settings.closed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "market closed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "рынок закрыт"
           }
         }
       }
@@ -3125,6 +3329,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Окружение"
+          }
+        }
+      }
+    },
+    "settings.environmentFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sandbox or Production is set in config/bot.toml on the Mac; Production also needs your authorization file there. The phone only shows it."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sandbox или Production задаётся в config/bot.toml на Mac; для Production там же нужен ваш файл разрешения. Телефон только показывает среду."
+          }
+        }
+      }
+    },
+    "settings.failing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld failing"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "не пройдено: %lld"
           }
         }
       }
@@ -3299,6 +3537,57 @@
         }
       }
     },
+    "settings.preMarket": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pre-market"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "премаркет"
+          }
+        }
+      }
+    },
+    "settings.preflight": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preflight"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предполётная проверка"
+          }
+        }
+      }
+    },
+    "settings.regularHours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "regular hours"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "основная сессия"
+          }
+        }
+      }
+    },
     "settings.run": {
       "extractionState": "manual",
       "localizations": {
@@ -3333,6 +3622,40 @@
         }
       }
     },
+    "settings.session": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session · New York"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сессия · Нью-Йорк"
+          }
+        }
+      }
+    },
+    "settings.sessionFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "US exchange hours: extended 04:00–20:00, regular 09:30–16:00. Half days are not drawn."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Часы бирж США: расширенные 04:00–20:00, основные 09:30–16:00. Сокращённые дни не показаны."
+          }
+        }
+      }
+    },
     "settings.state": {
       "extractionState": "manual",
       "localizations": {
@@ -3363,6 +3686,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Статус"
+          }
+        }
+      }
+    },
+    "settings.stops": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld verified"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подтверждено %lld из %lld"
           }
         }
       }
