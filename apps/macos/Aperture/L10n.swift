@@ -1490,6 +1490,70 @@ enum L10n {
     static func refusedUntil(_ message: String, _ time: String) -> LocalizedStringResource {
       LocalizedStringResource("trades.refusedUntil", defaultValue: "\(message) · until \(time)", bundle: L10n.bundle)
     }
+    /// Not taken row: what the bot's replay says the signal would have made, and how it ended.
+    static func whatIfResult(_ r: String, _ usd: String, _ exit: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.whatIfResult", defaultValue: "If entered: \(r) · \(usd) · \(exit)", bundle: L10n.bundle)
+    }
+    /// Not taken row: the replay could not run, with why.
+    static func whatIfNoResult(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.whatIfNoResult", defaultValue: "If entered: not replayed · \(cause)", bundle: L10n.bundle)
+    }
+    /// How a replay ended: the stop was hit.
+    static var exitStop: LocalizedStringResource {
+      LocalizedStringResource("trades.exitStop", defaultValue: "stop", bundle: L10n.bundle)
+    }
+    /// How a replay ended: the strategy's own exit.
+    static var exitStrategy: LocalizedStringResource {
+      LocalizedStringResource("trades.exitStrategy", defaultValue: "strategy exit", bundle: L10n.bundle)
+    }
+    /// How a replay ended: flattened before the market close.
+    static var exitFlatten: LocalizedStringResource {
+      LocalizedStringResource("trades.exitFlatten", defaultValue: "flattened before the close", bundle: L10n.bundle)
+    }
+    /// How a replay ended: the captured bars ran out with it still open.
+    static var exitEndOfData: LocalizedStringResource {
+      LocalizedStringResource("trades.exitEndOfData", defaultValue: "bars ran out", bundle: L10n.bundle)
+    }
+    /// Price change per share at set minutes after an exit or a skipped signal.
+    static func afterPrices(_ items: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.afterPrices", defaultValue: "Price after: \(items)", bundle: L10n.bundle)
+    }
+    /// One point of the price after: minutes and the change per share.
+    static func afterMinutes(_ minutes: Int, _ change: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.afterMinutes", defaultValue: "\(minutes) min \(change)", bundle: L10n.bundle)
+    }
+    /// What if card: label before the replays' sum in R and USD.
+    static var whatIfSummary: LocalizedStringResource {
+      LocalizedStringResource("trades.whatIfSummary", defaultValue: "Each skipped setup entered once:", bundle: L10n.bundle)
+    }
+    /// What if card: replays that won, lost, or could not run.
+    static func whatIfCounts(_ wins: Int, _ losses: Int, _ unknown: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.whatIfCounts", defaultValue: "\(wins) W · \(losses) L · not replayed: \(unknown)", bundle: L10n.bundle)
+    }
+    /// What if card on a day without skipped signals.
+    static var whatIfNone: LocalizedStringResource {
+      LocalizedStringResource("trades.whatIfNone", defaultValue: "Nothing was skipped on this day.", bundle: L10n.bundle)
+    }
+    /// Footnote of the What if card.
+    static var whatIfHelp: LocalizedStringResource {
+      LocalizedStringResource("trades.whatIfHelp", defaultValue: "The bot replays each skipped setup on the captured bars from its first signal, with the strategy's stop and exits. Gross, before fees.", bundle: L10n.bundle)
+    }
+    /// Trade detail label: how far the price went on in the trade's favour after the exit.
+    static var overshoot: LocalizedStringResource {
+      LocalizedStringResource("trades.overshoot", defaultValue: "Went on after exit", bundle: L10n.bundle)
+    }
+    /// Tooltip of the overshoot row.
+    static var overshootHelp: LocalizedStringResource {
+      LocalizedStringResource("trades.overshootHelp", defaultValue: "How far the price went on in the trade's favour after the exit, from the captured bars.", bundle: L10n.bundle)
+    }
+    /// Overshoot in USD and in R.
+    static func overshootValue(_ usd: String, _ r: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.overshootValue", defaultValue: "\(usd) · \(r)", bundle: L10n.bundle)
+    }
+    /// Trade detail label: the price change at set minutes after the exit.
+    static var priceAfterExit: LocalizedStringResource {
+      LocalizedStringResource("trades.priceAfterExit", defaultValue: "Price after exit", bundle: L10n.bundle)
+    }
     /// Stat card: average result in R.
     static var averageR: LocalizedStringResource {
       LocalizedStringResource("trades.averageR", defaultValue: "Average R", bundle: L10n.bundle)
@@ -1549,14 +1613,6 @@ enum L10n {
     /// Card title: what-if replays.
     static var whatIf: LocalizedStringResource {
       LocalizedStringResource("trades.whatIf", defaultValue: "What if", bundle: L10n.bundle)
-    }
-    /// What-if card text.
-    static var whatIfDetail: LocalizedStringResource {
-      LocalizedStringResource("trades.whatIfDetail", defaultValue: "Replay a skipped signal as if the bot had entered, or the day under another strategy.", bundle: L10n.bundle)
-    }
-    /// Planned button: replay a skipped signal.
-    static var whatIfEntered: LocalizedStringResource {
-      LocalizedStringResource("trades.whatIfEntered", defaultValue: "If We Had Entered…", bundle: L10n.bundle)
     }
     /// Planned button: replay with another strategy.
     static var whatIfStrategy: LocalizedStringResource {

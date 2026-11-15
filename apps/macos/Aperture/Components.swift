@@ -227,6 +227,8 @@ enum Format {
   /// Joins the items of a list ("Gainers, Most active") and the lines of a tooltip.
   static let listSeparator = ", "
   static let lineSeparator = "\n"
+  /// Joins the parts of a one-line summary ("1 min +0.06 · 5 min +0.14").
+  static let itemSeparator = " · "
   /// Up to this many seconds an age reads in seconds, beyond it in minutes.
   static let secondsShownUpTo = 120
   /// Seconds in a minute.

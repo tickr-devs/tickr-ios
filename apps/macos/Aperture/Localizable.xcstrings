@@ -8085,6 +8085,40 @@
         }
       }
     },
+    "trades.afterMinutes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld min %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld мин %2$@"
+          }
+        }
+      }
+    },
+    "trades.afterPrices" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price after: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цена после: %@"
+          }
+        }
+      }
+    },
     "trades.allDays" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8370,6 +8404,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Выход"
+          }
+        }
+      }
+    },
+    "trades.exitEndOfData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bars ran out"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "бары закончились"
+          }
+        }
+      }
+    },
+    "trades.exitFlatten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flattened before the close"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрыта перед закрытием рынка"
+          }
+        }
+      }
+    },
+    "trades.exitStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп"
+          }
+        }
+      }
+    },
+    "trades.exitStrategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "strategy exit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выход стратегии"
           }
         }
       }
@@ -8765,6 +8867,57 @@
         }
       }
     },
+    "trades.overshoot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Went on after exit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ушла после выхода"
+          }
+        }
+      }
+    },
+    "trades.overshootHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How far the price went on in the trade's favour after the exit, from the captured bars."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Насколько цена ушла дальше в пользу сделки после выхода, по записанным барам."
+          }
+        }
+      }
+    },
+    "trades.overshootValue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "trades.percent" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8858,6 +9011,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Предыдущий месяц"
+          }
+        }
+      }
+    },
+    "trades.priceAfterExit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price after exit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цена после выхода"
           }
         }
       }
@@ -9236,36 +9406,36 @@
         }
       }
     },
-    "trades.whatIfDetail" : {
+    "trades.whatIfCounts" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Replay a skipped signal as if the bot had entered, or the day under another strategy."
+            "value" : "%1$lld W · %2$lld L · not replayed: %3$lld"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Проиграть пропущенный сигнал так, будто бот вошёл, или весь день с другой стратегией."
+            "value" : "%1$lld П · %2$lld У · без расчёта: %3$lld"
           }
         }
       }
     },
-    "trades.whatIfEntered" : {
+    "trades.whatIfHelp" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "If We Had Entered…"
+            "value" : "The bot replays each skipped setup on the captured bars from its first signal, with the strategy's stop and exits. Gross, before fees."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Если бы вошли…"
+            "value" : "Бот проигрывает каждый пропущенный сетап на записанных барах с первого сигнала, со стопом и выходами стратегии. Брутто, без комиссий."
           }
         }
       }
@@ -9287,6 +9457,57 @@
         }
       }
     },
+    "trades.whatIfNone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing was skipped on this day."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этот день ничего не пропущено."
+          }
+        }
+      }
+    },
+    "trades.whatIfNoResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If entered: not replayed · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если бы вошли: без расчёта · %@"
+          }
+        }
+      }
+    },
+    "trades.whatIfResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If entered: %1$@ · %2$@ · %3$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если бы вошли: %1$@ · %2$@ · %3$@"
+          }
+        }
+      }
+    },
     "trades.whatIfStrategy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9300,6 +9521,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Другая стратегия…"
+          }
+        }
+      }
+    },
+    "trades.whatIfSummary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each skipped setup entered once:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Каждый пропущенный сетап взят один раз:"
           }
         }
       }
