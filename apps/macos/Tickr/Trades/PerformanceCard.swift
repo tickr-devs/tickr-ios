@@ -12,9 +12,6 @@ struct PerformanceCard: View {
   static let id = "trades-performance"
   /// Height of the cumulative R curve, in points.
   static let curveHeight: CGFloat = 90
-  /// Decimals of a profit factor and of a win rate in percent.
-  static let factorDigits = 2
-  static let percentDigits = 0
   /// A win rate of 1 is 100 percent.
   static let percentFactor: Decimal = 100
   /// Narrowest a figure gets before the figures wrap to another row, in points (the card sits in
@@ -47,10 +44,10 @@ struct PerformanceCard: View {
       ) {
         Figure(L10n.Trades.expectancy, performance.expectancyGrossR, color: true) { Risk.text($0) }
         Figure(L10n.Trades.winRate, performance.winRate) {
-          String(localized: L10n.Trades.percent(Money.plain($0 * Self.percentFactor, fractionDigits: Self.percentDigits)))
+          String(localized: L10n.Trades.percent(Money.plain($0 * Self.percentFactor, fractionDigits: StatDigits.percent)))
         }
         Figure(L10n.Trades.profitFactor, performance.profitFactorGross) {
-          Money.plain($0, fractionDigits: Self.factorDigits)
+          Money.plain($0, fractionDigits: StatDigits.factor)
         }
         Figure(L10n.Trades.maxDrawdown, CausedDecimal(value: performance.maxDrawdownGrossR, cause: nil)) {
           Risk.text(-$0)

@@ -250,8 +250,6 @@ private struct DayToolbar: ToolbarContent {
 struct ConnectionStatus: View {
   @Environment(AppModel.self) private var model
 
-  /// How often the age refreshes, in seconds.
-  static let tick: TimeInterval = 1
   /// Accessibility id of the item, for the UI tests.
   static let id = "toolbar-connection"
   /// Width of the item, in points: fixed, so the age ticking from "9 s" to "10 s" or to "1 min"
@@ -261,7 +259,7 @@ struct ConnectionStatus: View {
   static let width: CGFloat = 190
 
   var body: some View {
-    TimelineView(.periodic(from: .now, by: Self.tick)) { context in
+    TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
       HStack(spacing: Tokens.Space.s) {
         // Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
         PulseDot(Self.color(hasStatus: model.status != nil, stale: model.response?.stale, failed: model.fetchError != nil),
@@ -329,9 +327,8 @@ struct UnattendedBanner: View {
 struct CommandToast: View {
   let command: SentCommand
 
-  /// Floating shadow under the toast: blur and downward offset, in points.
+  /// Blur of the floating shadow under the toast, in points (its offset is the cards').
   static let shadowRadius: CGFloat = 12
-  static let shadowOffset: CGFloat = 6
 
   var body: some View {
     HStack(spacing: Tokens.Space.m) {
@@ -347,7 +344,7 @@ struct CommandToast: View {
     .padding(.vertical, Tokens.Space.m)
     .background(.regularMaterial, in: Capsule())
     .overlay(Capsule().strokeBorder(color.opacity(Tokens.Opacity.border)))
-    .shadow(radius: Self.shadowRadius, y: Self.shadowOffset)
+    .shadow(radius: Self.shadowRadius, y: Tokens.Size.shadowOffset)
   }
 
   private var headline: String {

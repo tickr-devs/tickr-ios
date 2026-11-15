@@ -316,10 +316,6 @@ private struct ReplayCard: View {
   static let refusalSymbol = "info.circle"
   /// Narrowest a figure gets before the figures wrap to another row, in points.
   static let figureMinWidth: CGFloat = 96
-  /// Decimals of a mean R and its bounds, a win rate and a profit factor.
-  static let rDigits = 2
-  static let percentDigits = 0
-  static let factorDigits = 2
 
   private var replay: LabReplayV1? { model.labReplay }
   private var running: Bool { replay?.state == .running }
@@ -397,16 +393,16 @@ private struct ReplayCard: View {
         alignment: .leading, spacing: Tokens.Space.m) {
         figure(L10n.Lab.replayTrades, Text(verbatim: String(summary.trades)))
         figure(L10n.Lab.replayWinRate, number(summary.winRatePercent) {
-          String(localized: L10n.Trades.percent(Money.plain($0, fractionDigits: Self.percentDigits)))
+          String(localized: L10n.Trades.percent(Money.plain($0, fractionDigits: StatDigits.percent)))
         })
         figure(intervalTitle(summary), number(summary.meanR, colored: true) {
-          Risk.text($0, fractionDigits: Self.rDigits)
+          Risk.text($0, fractionDigits: StatDigits.r)
         })
         figure(L10n.Lab.replayProfitFactor, number(summary.profitFactor) {
-          Money.plain($0, fractionDigits: Self.factorDigits)
+          Money.plain($0, fractionDigits: StatDigits.factor)
         })
         figure(L10n.Lab.replayMaxDrawdown, number(summary.maxDrawdownR) {
-          Risk.text(-$0, fractionDigits: Self.rDigits)
+          Risk.text(-$0, fractionDigits: StatDigits.r)
         })
         figure(L10n.Lab.replayWithLimits(summary.botTrades), MoneyText(value: summary.botTotalUsd.value, usd: true,
           font: Tokens.Typography.metric))
@@ -421,8 +417,8 @@ private struct ReplayCard: View {
     guard let low = summary.meanRIntervalLow?.value, let high = summary.meanRIntervalHigh?.value else {
       return L10n.Lab.replayMeanR
     }
-    return L10n.Lab.replayMeanRInterval(Money.plain(summary.confidencePercent.value, fractionDigits: Self.percentDigits),
-      Risk.text(low, fractionDigits: Self.rDigits), Risk.text(high, fractionDigits: Self.rDigits))
+    return L10n.Lab.replayMeanRInterval(Money.plain(summary.confidencePercent.value, fractionDigits: StatDigits.percent),
+      Risk.text(low, fractionDigits: StatDigits.r), Risk.text(high, fractionDigits: StatDigits.r))
   }
 
   private func number(_ value: DecimalString?, colored: Bool = false, format: (Decimal) -> String) -> some View {

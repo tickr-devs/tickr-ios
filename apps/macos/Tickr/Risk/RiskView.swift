@@ -62,9 +62,6 @@ private struct LossRoomCard: View {
 
   /// Diameter of the ring, in points.
   static let ringSize: CGFloat = 220
-  /// Room left below this share of the limit turns the ring amber, below `alarm` red.
-  static let calm = 0.5
-  static let alarm = 0.2
 
   private var limit: Decimal? { model.settings?.risk.maxDailyLossUsd.value }
   /// Today's net result; nil while the bot's status is unknown. The limit counts the live day only.
@@ -85,8 +82,8 @@ private struct LossRoomCard: View {
 
   private var color: Color {
     if room == nil { return Palette.textQuaternary }
-    if fraction < Self.alarm { return Palette.loss }
-    if fraction < Self.calm { return Palette.warning }
+    if fraction < Tokens.Room.alarm { return Palette.loss }
+    if fraction < Tokens.Room.calm { return Palette.warning }
     return Palette.profit
   }
 
@@ -109,7 +106,7 @@ private struct LossRoomCard: View {
         }
         .frame(width: Self.ringSize, height: Self.ringSize)
         .frame(maxWidth: .infinity)
-        .modifier(AlarmPulse(active: room != nil && fraction < Self.alarm))
+        .modifier(AlarmPulse(active: room != nil && fraction < Tokens.Room.alarm))
         VStack(spacing: Tokens.Space.s) {
           StatLine(L10n.Risk.limit, value: limit.map(Format.usd) ?? Format.missing, symbol: Self.limitSymbol)
           StatLine(
@@ -377,13 +374,10 @@ private struct PositionSlots: View {
 private struct SessionCard: View {
   @Environment(AppModel.self) private var model
 
-  /// How often the clock ticks, in seconds.
-  static let tick: TimeInterval = 1
-
   var body: some View {
     Card(L10n.Risk.session) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        TimelineView(.periodic(from: .now, by: Self.tick)) { context in
+        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
           Text(L10n.Risk.clock(Format.marketTime(model.botTime(context.date))))
             .font(Tokens.Typography.metric)
             .monospacedDigit()

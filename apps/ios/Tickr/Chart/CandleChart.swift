@@ -73,10 +73,6 @@ struct CandleChart: View {
   static let tagClearance: CGFloat = 20
   /// Share of a candle's time slot its body fills; the rest is the gap between candles.
   static let bodyShare = 0.64
-  /// Space above and below the visible prices, as a share of their range.
-  static let pricePadding = 0.08
-  /// Height of the volume bars along the bottom of the price pane, as a share of the price range.
-  static let volumeShare = 0.22
   /// Value labels on a study pane's scale.
   static let paneAxisMarks = 2
   /// Width every pane gives its scale labels, so the plot areas of all panes are equally wide
@@ -795,8 +791,8 @@ struct CandleChart: View {
     }
     let low = prices.min() ?? 0
     let high = prices.max() ?? 1
-    let pad = max(high - low, high * Self.pricePadding) * Self.pricePadding
-    let volumeHeight = lines.volume ? (high - low + pad + pad) * Self.volumeShare : 0
+    let pad = max(high - low, high * Tokens.Chart.pricePadding) * Tokens.Chart.pricePadding
+    let volumeHeight = lines.volume ? (high - low + pad + pad) * Tokens.Chart.volumeShare : 0
     let bottom = low - pad - volumeHeight
     return PriceScale(
       domain: bottom...(high + pad), volumeBase: bottom, volumeHeight: volumeHeight,
@@ -880,8 +876,6 @@ struct ChartViewport: Equatable {
   static let defaultVisible = 40.0
   static let fewestVisible = 15.0
   static let mostVisible = 390.0
-  /// How much one zoom step changes the number of candles on screen.
-  static let zoomStep = 1.5
 
   var visible = ChartViewport.defaultVisible
   var scroll = Date.distantPast

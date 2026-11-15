@@ -10,8 +10,6 @@ struct MenuBarPanel: View {
   static let width: CGFloat = 380
   /// Lines the headline may wrap to.
   static let headlineLines = 2
-  /// How often the data ages are re-read, in seconds.
-  static let tick: TimeInterval = 1
 
   /// Entrance order of the panel's parts.
   private enum Order: Int {
@@ -320,7 +318,7 @@ private struct MenuFooter: View {
           Badge(verbatim: ApiText.environment(environment), color: Palette.accentText)
         }
         Spacer()
-        TimelineView(.periodic(from: .now, by: MenuBarPanel.tick)) { context in
+        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
           Text(L10n.MenuBar.brokerRead(
             Format.age(since: model.status?.freshness.lastBrokerReadAt?.date, now: model.botTime(context.date))))
             .font(Tokens.Typography.captionMono)

@@ -286,5 +286,26 @@ public enum Tokens {
     public static let rotationSeconds = 4.0
     /// Points per second of the event ticker.
     public static let tickerSpeed = 22.0
+    /// Seconds between redraws of a clock or an age ("3 s ago"), and of the session bar's cursor.
+    public static let clockTickSeconds: TimeInterval = 1
+  }
+
+  /// The loss-room ring (Risk on both apps), as shares of the daily loss limit.
+  public enum Room {
+    /// Room left below this share turns the ring amber.
+    public static let calm = 0.5
+    /// Room left below this share turns the ring red.
+    public static let alarm = 0.2
+  }
+
+  /// Candle charts on both apps.
+  public enum Chart {
+    /// Space above and below the visible prices, as a share of their range.
+    public static let pricePadding = 0.08
+    /// Height of the volume bars along the bottom of the price pane, as a share of the price
+    /// range.
+    public static let volumeShare = 0.22
+    /// Each zoom step shows this many times fewer (or more) candles.
+    public static let zoomStep = 1.5
   }
 }

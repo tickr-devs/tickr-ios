@@ -197,6 +197,25 @@ a step; it does not define its own factor.
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
 | `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event |
 | `hintDelay` | 0.45 s | Hover before a hint appears (Mac) |
+| `clockTickSeconds` | 1 s | Redraw of clocks, ages ("3 s ago") and the session bar's cursor |
+
+## Loss-room ring (`Tokens.Room`)
+
+| Token | Share of the daily limit | Use |
+|---|---|---|
+| `calm` | 0.5 | Room below it turns the ring amber |
+| `alarm` | 0.2 | Room below it turns the ring red |
+
+## Candle charts (`Tokens.Chart`)
+
+| Token | Value | Use |
+|---|---|---|
+| `pricePadding` | 0.08 | Space above and below the visible prices, share of their range |
+| `volumeShare` | 0.22 | Height of the volume bars, share of the price range |
+| `zoomStep` | ×1.5 | Candles shown per zoom step |
+
+Statistics on the Lab and performance cards use `StatDigits` (`Formatting.swift`): mean R and
+profit factor with 2 decimals, win rate and confidence in whole percents.
 
 ## Components
 

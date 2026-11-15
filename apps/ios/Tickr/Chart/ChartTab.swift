@@ -448,10 +448,10 @@ private struct ChartControls: View {
           .labelStyle(.iconOnly)
           .fixedSize()
           Group {
-            Button { zoom(by: ChartViewport.zoomStep) } label: { Image(systemName: "minus") }
+            Button { zoom(by: Tokens.Chart.zoomStep) } label: { Image(systemName: "minus") }
               .disabled(!viewport.canZoomOut(series))
               .accessibilityLabel(Text(ChartText.zoomOut))
-            Button { zoom(by: 1 / ChartViewport.zoomStep) } label: { Image(systemName: "plus") }
+            Button { zoom(by: 1 / Tokens.Chart.zoomStep) } label: { Image(systemName: "plus") }
               .disabled(!viewport.canZoomIn)
               .accessibilityLabel(Text(ChartText.zoomIn))
           }

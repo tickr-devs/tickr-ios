@@ -35,10 +35,6 @@ struct CandleChart: View {
   static let decisionLabelLimit = 3
   /// Share of a candle's slot its body fills; the rest is the gap between candles.
   static let bodyShare = 0.66
-  /// Space above and below the visible prices, as a share of their range.
-  static let pricePadding = 0.08
-  /// Height of the volume bars along the bottom of the price pane, as a share of the price range.
-  static let volumeShare = 0.22
   /// Smallest price range drawn, as a share of the price, so a flat stretch is not a line.
   static let minimumSpan = 0.0005
   /// Width of every pane's value labels, in points: one width keeps the panes' plot areas, and so
@@ -412,7 +408,7 @@ struct CandleChart: View {
     let values = visibleIndices.flatMap { index in lines.compactMap { $0[index] } }
     guard let low = values.min(), let high = values.max() else { return -1...1 }
     guard high > low else { return (low - 1)...(high + 1) }
-    let pad = (high - low) * Self.pricePadding
+    let pad = (high - low) * Tokens.Chart.pricePadding
     return (low - pad)...(high + pad)
   }
 
@@ -604,8 +600,8 @@ struct CandleChart: View {
       return PriceScale(domain: 0...1, volumeBase: 0, volumeHeight: 0, volumeCeiling: 0)
     }
     let span = max(high - low, high * Self.minimumSpan)
-    let pad = span * Self.pricePadding
-    let volumeHeight = lines.volume ? (span + pad + pad) * Self.volumeShare : 0
+    let pad = span * Tokens.Chart.pricePadding
+    let volumeHeight = lines.volume ? (span + pad + pad) * Tokens.Chart.volumeShare : 0
     let bottom = low - pad - volumeHeight
     return PriceScale(
       domain: bottom...(high + pad), volumeBase: bottom, volumeHeight: volumeHeight,

@@ -13,11 +13,6 @@ struct LabReplayCard: View {
   /// Narrowest a figure gets before the figures wrap to another row, in points at the default text
   /// size (scaled with Dynamic Type).
   static let figureMinWidth: CGFloat = 96
-  /// Decimals of a mean R and its bounds and of a profit factor; a win rate and a confidence are
-  /// whole percents.
-  static let rDigits = 2
-  static let factorDigits = 2
-  static let percentDigits = 0
 
   let lab: LabModel
   let url: URL?
@@ -119,7 +114,7 @@ struct LabReplayCard: View {
           tone: tone(summary.botTotalUsd.value), color: Palette.result(summary.botTotalUsd.value))
       }
       if let low = summary.meanRIntervalLow?.value, let high = summary.meanRIntervalHigh?.value {
-        InfoCaption(L10n.Lab.replayInterval(Money.plain(summary.confidencePercent.value, fractionDigits: Self.percentDigits),
+        InfoCaption(L10n.Lab.replayInterval(Money.plain(summary.confidencePercent.value, fractionDigits: StatDigits.percent),
           r(low), r(high)))
       }
       InfoCaption(L10n.Lab.replayBotTrades(summary.botTrades))
@@ -134,15 +129,15 @@ struct LabReplayCard: View {
 
   /// "+0.18 R": two decimals, as a mean or a bound would hide its difference at one.
   private func r(_ value: Decimal) -> String {
-    String(localized: L10n.Lab.replayR(Money.signed(value, fractionDigits: Self.rDigits)))
+    String(localized: L10n.Lab.replayR(Money.signed(value, fractionDigits: StatDigits.r)))
   }
 
   private func percent(_ value: DecimalString?) -> String {
-    value.map { Money.plain($0.value, fractionDigits: Self.percentDigits) + Format.percentSign } ?? Format.missing
+    value.map { Money.plain($0.value, fractionDigits: StatDigits.percent) + Format.percentSign } ?? Format.missing
   }
 
   private func factor(_ value: DecimalString?) -> String {
-    value.map { Money.plain($0.value, fractionDigits: Self.factorDigits) } ?? Format.missing
+    value.map { Money.plain($0.value, fractionDigits: StatDigits.factor) } ?? Format.missing
   }
 
   private func tone(_ value: DecimalString?) -> Tone? {

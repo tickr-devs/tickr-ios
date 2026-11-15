@@ -1,5 +1,15 @@
 import Foundation
 
+/// Decimals of the statistics on the Lab and performance cards (both apps).
+public enum StatDigits {
+  /// A mean R and its bounds.
+  public static let r = 2
+  /// A profit factor.
+  public static let factor = 2
+  /// A win rate or a confidence, in whole percents.
+  public static let percent = 0
+}
+
 /// Number formatting for the operator apps. Pure and locale-independent, so both apps and the
 /// tests agree on every string. Money keeps two decimals; a minus is the typographic U+2212.
 public enum Money {

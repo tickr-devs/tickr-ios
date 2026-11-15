@@ -80,9 +80,6 @@ private struct RiskLine: View {
 private struct RoomCard: View {
   /// Side of the ring, in points.
   static let ringSide: CGFloat = 180
-  /// Room left below this share of the limit turns the ring amber, below `alarm` red.
-  static let calm = 0.5
-  static let alarm = 0.2
 
   let status: StatusV1
   let risk: RiskSettings?
@@ -97,8 +94,8 @@ private struct RoomCard: View {
 
   private var color: Color {
     guard room != nil, limit != nil else { return Palette.textQuaternary }
-    if share < Self.alarm { return Palette.loss }
-    if share < Self.calm { return Palette.warning }
+    if share < Tokens.Room.alarm { return Palette.loss }
+    if share < Tokens.Room.calm { return Palette.warning }
     return Palette.profit
   }
 
@@ -245,14 +242,11 @@ private struct LimitsCard: View {
 
 /// The trading session in New York time: the clock, the last entry and the flatten time.
 private struct SessionCard: View {
-  /// How often the clock ticks, in seconds.
-  static let tick: TimeInterval = 1
-
   let session: SessionSettings?
 
   var body: some View {
     RiskCard(title: L10n.Risk.session) {
-      TimelineView(.periodic(from: .now, by: Self.tick)) { context in
+      TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
         Text(context.date, format: .dateTime.hour().minute().second())
           .environment(\.timeZone, WireDate.newYork.timeZone)
           .font(Tokens.Typography.metric)
