@@ -182,10 +182,12 @@ private struct PositionDetail: View {
     let quantity = position.quantity.value
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        HStack(alignment: .firstTextBaseline) {
+        RowStack(alignment: .firstTextBaseline) {
           Text(verbatim: position.symbol)
             .font(.largeTitle.monospaced().bold())
-          Spacer()
+            .lineLimit(1)
+            .fixedSize()
+          Spacer(minLength: 0)
           if let marks {
             // An old last bar (capture stopped, a past session) is shown as history: muted and
             // dated, never as a live result.
@@ -224,7 +226,8 @@ private struct PositionDetail: View {
         reconciled: model.isFresh && model.account?.stale == false)
         .rise(step: Order.chain.rawValue)
 
-      HStack(spacing: Tokens.Space.s) {
+      // Three tiles in a row; one under another at large text sizes, so labels and figures stay whole.
+      RowStack(spacing: Tokens.Space.s) {
         StatTile(label: L10n.Positions.maxLoss,
           value: Risk.plannedLoss(entry: entry, stop: stop, quantity: quantity).map { Money.plain($0) }
             ?? Format.missing)
@@ -281,6 +284,9 @@ private struct LevelsCard: View {
   static let labelLift: CGFloat = 9
   /// Where everything sits when the scale has no range (one price only), as a fraction from the top.
   static let middle: CGFloat = 0.5
+  /// Largest text size of the level labels: they sit on their lines in a drawing of fixed height,
+  /// so larger text would cover the other level. The levels are also in the drawing's VoiceOver label.
+  static let largestLabelSize = DynamicTypeSize.xxLarge
 
   @State private var drawn = false
   let entry: Decimal
@@ -346,6 +352,7 @@ private struct LevelsCard: View {
         }
       }
       .frame(height: Self.height)
+      .dynamicTypeSize(...Self.largestLabelSize)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(Text(L10n.Positions.levels(Money.plain(entry),
         stop.map { Money.plain($0) } ?? String(localized: L10n.Common.unknown))))

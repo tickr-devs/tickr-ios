@@ -129,6 +129,34 @@ enum Format {
   }
 }
 
+extension DynamicTypeSize {
+  /// Rows of several parts (a symbol, figures, a tag) stack their parts from the largest standard
+  /// text size up, so words and figures stay whole instead of breaking letter by letter.
+  var stacksRows: Bool { self >= .xxxLarge }
+}
+
+/// A row at ordinary text sizes that becomes a leading-aligned column when the text size
+/// `stacksRows`; alignment and spacing as an `HStack`'s.
+struct RowStack<Content: View>: View {
+  @Environment(\.dynamicTypeSize) private var typeSize
+  let alignment: VerticalAlignment
+  let spacing: CGFloat?
+  let content: Content
+
+  init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content) {
+    self.alignment = alignment
+    self.spacing = spacing
+    self.content = content()
+  }
+
+  var body: some View {
+    let layout = typeSize.stacksRows
+      ? AnyLayout(VStackLayout(alignment: .leading, spacing: spacing))
+      : AnyLayout(HStackLayout(alignment: alignment, spacing: spacing))
+    layout { content }
+  }
+}
+
 /// Every tab draws on the same background and keeps its own navigation stack.
 struct Screen<Content: View>: View {
   let title: LocalizedStringResource

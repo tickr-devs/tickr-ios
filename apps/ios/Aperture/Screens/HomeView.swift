@@ -130,40 +130,66 @@ extension HomeView {
 /// The session the status describes: "today" only when it is today's New York date on the bot's
 /// clock, else the last session (a weekend, a day off), which is never shown as live.
 private struct DayLine: View {
+  /// Smallest scale the day may shrink to before it truncates.
+  static let minimumScale = 0.7
+
   @Environment(AppModel.self) private var model
+  @Environment(\.dynamicTypeSize) private var typeSize
   let days: HomeDayModel
 
   var body: some View {
-    let written = model.status?.writtenAt.date ?? model.botNow
-    let isToday = WireDate(newYorkDateOf: written) == model.today
-    HStack(spacing: Tokens.Space.s) {
-      Button { days.back() } label: { Image(systemName: "chevron.left") }
-        .disabled(!days.canGoBack)
-        .accessibilityLabel(Text(L10n.Home.previousDay))
-      if let past = days.shown {
-        Text(verbatim: Format.day(past.day.noonInNewYork))
-          .foregroundStyle(Palette.highlightText)
-        Spacer()
-        Button { days.showToday() } label: { Text(L10n.Home.backToToday) }
-      } else {
-        // The connection's own health: green while fresh statuses arrive, amber when the status is
-        // stale, red with no status or a failed read. Only a fresh status of today pulses, and only
-        // when the health changes, not on every status write.
-        PulseDot(freshness, size: Tokens.Size.dotSmall, pulsing: isToday && isFresh,
-          event: freshness)
-        Text(isToday ? L10n.Common.today(Format.day(written)) : L10n.Activity.lastSession(Format.day(written)))
-        Spacer()
-        Text(Format.age(model.response))
-          .contentTransition(.numericText())
+    // At large text sizes the age (or the way back to today) moves under the day, so the arrows
+    // stay on screen.
+    let stacked = typeSize.stacksRows
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      HStack(spacing: Tokens.Space.s) {
+        Button { days.back() } label: { Image(systemName: "chevron.left") }
+          .disabled(!days.canGoBack)
+          .accessibilityLabel(Text(L10n.Home.previousDay))
+        day
+          .lineLimit(1)
+          .minimumScaleFactor(Self.minimumScale)
+        Spacer(minLength: 0)
+        if !stacked { trailing }
+        Button { days.forward() } label: { Image(systemName: "chevron.right") }
+          .disabled(!days.canGoForward)
+          .accessibilityLabel(Text(L10n.Home.nextDay))
       }
-      Button { days.forward() } label: { Image(systemName: "chevron.right") }
-        .disabled(!days.canGoForward)
-        .accessibilityLabel(Text(L10n.Home.nextDay))
+      if stacked { trailing }
     }
     .font(Tokens.Typography.captionMono)
     .foregroundStyle(Palette.textQuaternary)
     .buttonStyle(.borderless)
     .animation(Tokens.Motion.standard, value: days.shown)
+  }
+
+  /// The shown day: a recorded one, today (pulsing while current) or the last session.
+  @ViewBuilder
+  private var day: some View {
+    let written = model.status?.writtenAt.date ?? model.botNow
+    let isToday = WireDate(newYorkDateOf: written) == model.today
+    if let past = days.shown {
+      Text(verbatim: Format.day(past.day.noonInNewYork))
+        .foregroundStyle(Palette.highlightText)
+    } else {
+      // The connection's own health: green while fresh statuses arrive, amber when the status is
+      // stale, red with no status or a failed read. Only a fresh status of today pulses, and only
+      // when the health changes, not on every status write.
+      PulseDot(freshness, size: Tokens.Size.dotSmall, pulsing: isToday && isFresh,
+        event: freshness)
+      Text(isToday ? L10n.Common.today(Format.day(written)) : L10n.Activity.lastSession(Format.day(written)))
+    }
+  }
+
+  /// The way back to today on a recorded day, else the status's age.
+  @ViewBuilder
+  private var trailing: some View {
+    if days.shown != nil {
+      Button { days.showToday() } label: { Text(L10n.Home.backToToday) }
+    } else {
+      Text(Format.age(model.response))
+        .contentTransition(.numericText())
+    }
   }
 
   private var isFresh: Bool { model.response?.stale == false && model.fetchError == nil }
@@ -189,6 +215,8 @@ private struct Summary: View {
   static let entriesBlockedSymbol = "hand.raised.fill"
 
   @Environment(AppModel.self) private var model
+  /// The ring grows with the text inside it.
+  @ScaledMetric(relativeTo: .title) private var ringSide = Summary.ringSide
   /// A recorded past day to summarize instead of today's status.
   let past: DaySummary?
 
@@ -199,7 +227,7 @@ private struct Summary: View {
     // A recorded day says so, in the highlight colour and without a pulse; the live headline is about today.
     let text = past == nil ? headline.text : String(localized: L10n.Home.recordedDay)
     let tint = past == nil ? headline.severity.tint : Palette.highlightText
-    HStack(spacing: Tokens.Space.l) {
+    RowStack(spacing: Tokens.Space.l) {
       ResultRing(fraction: stats?.winShare ?? 0, color: result < 0 ? Palette.seriesATR : Palette.accent) {
         VStack(spacing: Tokens.Space.xxs) {
           CardLabel(L10n.Home.day)
@@ -218,10 +246,12 @@ private struct Summary: View {
           }
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
+          .lineLimit(1)
+          .minimumScaleFactor(Self.minimumScale)
         }
         .padding(Tokens.Space.l)
       }
-      .frame(width: Self.ringSide, height: Self.ringSide)
+      .frame(width: ringSide, height: ringSide)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(Text(L10n.Home.dayResult(Money.signedUSD(result), stats?.wins ?? 0, stats?.losses ?? 0)))
 
@@ -304,65 +334,73 @@ private struct PositionRow: View {
       model.selectedTab = .positions
     } label: {
       HStack(spacing: Tokens.Space.m) {
-        VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-          HStack(spacing: Tokens.Space.s) {
-            StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
-            Text(verbatim: position.symbol)
-              .font(.headline.monospaced())
-              .foregroundStyle(Palette.textPrimary)
-          }
-          Label {
-            Text(verbatim: position.stop.price?.text ?? Format.missing)
-          } icon: {
-            Image(systemName: StopGlyph.levelSymbol)
-          }
-          .labelStyle(ControlLabelStyle())
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(position.stop.state.isProtected ? Palette.profitText : Palette.lossText)
-          .accessibilityLabel(Text(stopLine))
-          // Long press names the stop, as on the shield beside the symbol, instead of opening the row.
-          .hint(stopLine)
-        }
-        Spacer()
-        // An old last bar (capture stopped, a quiet minute past the limit) shows muted with its
-        // time, as on Positions, never as a live result.
-        let current = marks.map(model.isCurrent) ?? false
-        if let marks, marks.closes.count > 1 {
-          ViewThatFits(in: .horizontal) {
-            DrawnSparkline(values: marks.closes.map { NSDecimalNumber(decimal: $0).doubleValue },
-              color: current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
-              .frame(width: Self.sparkWidth, height: Self.sparkHeight)
-            Color.clear.frame(width: 0, height: 0)
-          }
-          .accessibilityHidden(true)
-        }
-        VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
-          if let marks {
-            if current {
-              DeltaTag(marks.unrealized, text: Money.signedUSD(marks.unrealized))
-            } else {
-              Text(verbatim: Money.signedUSD(marks.unrealized))
-                .font(Tokens.Typography.calloutMono.weight(.semibold))
-                .foregroundStyle(Palette.textQuaternary)
-                .contentTransition(.numericText())
+        // At large text sizes the figures go under the symbol instead of squeezing it.
+        RowStack(spacing: Tokens.Space.m) {
+          VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+            HStack(spacing: Tokens.Space.s) {
+              StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
+              Text(verbatim: position.symbol)
+                .font(.headline.monospaced())
+                .foregroundStyle(Palette.textPrimary)
+                .lineLimit(1)
+                .fixedSize()
             }
-            if !current {
-              Text(L10n.Positions.asOf(Format.clock(marks.lastAt.addingTimeInterval(PositionMarks.barSeconds))))
-                .font(Tokens.Typography.annotationBold)
-                .foregroundStyle(Palette.warningText)
+            Label {
+              Text(verbatim: position.stop.price?.text ?? Format.missing)
+            } icon: {
+              Image(systemName: StopGlyph.levelSymbol)
             }
-          }
-          Text(L10n.Common.quantityAt(position.quantity.text, position.entryPrice.text))
-            .font(Tokens.Typography.calloutMono.weight(.semibold))
-            .foregroundStyle(Palette.textPrimary)
-          Text(L10n.Home.since(Format.time(position.openedAt.date)))
+            .labelStyle(ControlLabelStyle())
             .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
+            .foregroundStyle(position.stop.state.isProtected ? Palette.profitText : Palette.lossText)
+            .lineLimit(1)
+            .fixedSize()
+            .accessibilityLabel(Text(stopLine))
+            // Long press names the stop, as on the shield beside the symbol, instead of opening the row.
+            .hint(stopLine)
+          }
+          Spacer(minLength: 0)
+          // An old last bar (capture stopped, a quiet minute past the limit) shows muted with its
+          // time, as on Positions, never as a live result.
+          let current = marks.map(model.isCurrent) ?? false
+          if let marks, marks.closes.count > 1 {
+            ViewThatFits(in: .horizontal) {
+              DrawnSparkline(values: marks.closes.map { NSDecimalNumber(decimal: $0).doubleValue },
+                color: current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
+                .frame(width: Self.sparkWidth, height: Self.sparkHeight)
+              Color.clear.frame(width: 0, height: 0)
+            }
+            .accessibilityHidden(true)
+          }
+          VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
+            if let marks {
+              if current {
+                DeltaTag(marks.unrealized, text: Money.signedUSD(marks.unrealized))
+              } else {
+                Text(verbatim: Money.signedUSD(marks.unrealized))
+                  .font(Tokens.Typography.calloutMono.weight(.semibold))
+                  .foregroundStyle(Palette.textQuaternary)
+                  .contentTransition(.numericText())
+              }
+              if !current {
+                Text(L10n.Positions.asOf(Format.clock(marks.lastAt.addingTimeInterval(PositionMarks.barSeconds))))
+                  .font(Tokens.Typography.annotationBold)
+                  .foregroundStyle(Palette.warningText)
+              }
+            }
+            Text(L10n.Common.quantityAt(position.quantity.text, position.entryPrice.text))
+              .font(Tokens.Typography.calloutMono.weight(.semibold))
+              .foregroundStyle(Palette.textPrimary)
+            Text(L10n.Home.since(Format.time(position.openedAt.date)))
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.textQuaternary)
+          }
+          // Each value on one line; the sparkline gives way first when the row is narrow.
+          .lineLimit(1)
+          .fixedSize(horizontal: true, vertical: false)
+          .layoutPriority(1)
         }
-        // Each value on one line; the sparkline gives way first when the row is narrow.
-        .lineLimit(1)
-        .fixedSize(horizontal: true, vertical: false)
-        .layoutPriority(1)
+        .frame(maxWidth: .infinity, alignment: .leading)
         Image(systemName: "chevron.right")
           .font(.footnote.weight(.semibold))
           .foregroundStyle(Palette.textQuaternary)
@@ -423,6 +461,7 @@ private struct LiveFlowCard: View {
   /// The stage whose refused symbols are listed in a popover (a tap on its tray).
   @State private var openTray: StageID?
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   /// Symbol dots per row under a stage, and the most shown before "+N".
   static let poolColumns = 3
@@ -522,10 +561,19 @@ private struct LiveFlowCard: View {
       }
       .buttonStyle(.plain)
       .accessibilityIdentifier(AccessibilityID.risk)
-      HStack(alignment: .top) {
-        // Equal columns, as in the design: a long value never widens its stage.
-        ForEach(stages) { stage in
-          column(stage).frame(maxWidth: .infinity, alignment: .top)
+      // Six equal columns, as in the design (a long value never widens its stage); at large text
+      // sizes one row per stage, so the names stay whole.
+      Group {
+        if typeSize.stacksRows {
+          VStack(alignment: .leading, spacing: Tokens.Space.s) {
+            ForEach(stages) { stage in row(stage) }
+          }
+        } else {
+          HStack(alignment: .top) {
+            ForEach(stages) { stage in
+              column(stage).frame(maxWidth: .infinity, alignment: .top)
+            }
+          }
         }
       }
       // Until the first /flow read answers, a placeholder instead of numbers that would jump.
@@ -587,6 +635,34 @@ private struct LiveFlowCard: View {
         .foregroundStyle(Palette.textTertiary)
         .lineLimit(1)
         .minimumScaleFactor(FlowDot.minimumScale)
+      Group {
+        if stage.value != nil || stage.flag == nil {
+          Text(verbatim: stage.value ?? Format.missing)
+            .font(Tokens.Typography.annotationBold)
+            .foregroundStyle(stage.value == nil ? Palette.textQuaternary : Palette.textPrimary)
+            .contentTransition(.numericText())
+        }
+        if let flag = stage.flag {
+          Text(flag)
+            .font(Tokens.Typography.annotationBold)
+            .foregroundStyle(stage.flagColor)
+        }
+      }
+      .lineLimit(1)
+      .minimumScaleFactor(FlowDot.minimumScale)
+      pool(stage)
+    }
+    // .contain, not .combine: the refused tray inside stays a button VoiceOver can activate.
+    .accessibilityElement(children: .contain)
+    .unredacted(when: stage.urgent)
+  }
+
+  /// A stage as one row: its dot and name, then its value or flag and today's symbols at the end.
+  private func row(_ stage: Stage) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      FlowDot(color: stage.color, lit: stage.value != nil || stage.flag != nil, event: stage.value)
+      Text(stage.name).font(Tokens.Typography.annotation).foregroundStyle(Palette.textTertiary)
+      Spacer(minLength: Tokens.Space.s)
       Group {
         if stage.value != nil || stage.flag == nil {
           Text(verbatim: stage.value ?? Format.missing)
