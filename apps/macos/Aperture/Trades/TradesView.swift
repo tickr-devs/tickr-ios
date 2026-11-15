@@ -239,7 +239,15 @@ private struct TradesTable: View {
 
   var body: some View {
     Card(L10n.Trades.tradesOfDay) {
-      if model.shownTrades.isEmpty {
+      // On the live day, positions still open come first: the table holds closed trades only.
+      let open = model.isLive ? model.positions : []
+      ForEach(open) { row in
+        OpenPositionRow(row: row, showOnChart: showOnChart)
+        Divider()
+      }
+      if model.shownTrades.isEmpty && !open.isEmpty {
+        Footnote(L10n.Trades.noClosedTrades)
+      } else if model.shownTrades.isEmpty {
         ContentUnavailableView {
           Label { Text(model.isLive ? L10n.Trades.noTradesToday : L10n.Trades.noTrades) } icon: { BrandMark.empty() }
         }
@@ -297,6 +305,38 @@ private struct TradesTable: View {
   private func trade(_ ids: Set<DayTrade.ID>) -> DayTrade? {
     guard let id = ids.first else { return nil }
     return model.shownTrades.first { $0.id == id }
+  }
+}
+
+/// A position still open on the live day, in the columns of the closed trades; a click opens the
+/// Chart on its symbol.
+struct OpenPositionRow: View {
+  let row: PositionRow
+  let showOnChart: (String) -> Void
+
+  /// Accessibility id of an open position's row, for the UI tests.
+  static let id = "trades-open-position"
+
+  var body: some View {
+    Button { showOnChart(row.position.symbol) } label: {
+      HStack(spacing: Tokens.Space.m) {
+        Badge(L10n.Trades.open, color: Palette.accentText)
+        Text(verbatim: Format.marketTime(row.position.openedAt.date))
+        Text(verbatim: row.position.symbol).fontWeight(.semibold)
+        Text(verbatim: Format.quantity(row.quantity))
+        Text(verbatim: Format.price(row.entry))
+        Text(verbatim: Format.price(row.stop))
+          .foregroundStyle(row.position.stop.state == .verified ? Palette.textPrimary : Palette.lossText)
+        Spacer(minLength: 0)
+        Text(verbatim: row.resultR.map(Risk.text) ?? Format.missing)
+          .foregroundStyle(row.resultR.map(Palette.result) ?? Palette.textQuaternary)
+      }
+      .font(Tokens.Typography.calloutMono)
+      .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
+    .help(Text(L10n.Trades.showOnChart))
+    .accessibilityIdentifier(Self.id)
   }
 }
 

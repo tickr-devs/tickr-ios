@@ -1278,6 +1278,14 @@ enum L10n {
     static var refused: LocalizedStringResource {
       LocalizedStringResource("trades.refused", defaultValue: "Refused", bundle: L10n.bundle)
     }
+    /// Badge of a position still open, listed above the day's closed trades.
+    static var open: LocalizedStringResource {
+      LocalizedStringResource("trades.open", defaultValue: "Open", bundle: L10n.bundle)
+    }
+    /// Under the open positions when none has closed today.
+    static var noClosedTrades: LocalizedStringResource {
+      LocalizedStringResource("trades.noClosedTrades", defaultValue: "No closed trades yet.", bundle: L10n.bundle)
+    }
     /// Badge: the entry was never put to the platform's checks.
     static var notEvaluated: LocalizedStringResource {
       LocalizedStringResource("trades.notEvaluated", defaultValue: "Not evaluated", bundle: L10n.bundle)

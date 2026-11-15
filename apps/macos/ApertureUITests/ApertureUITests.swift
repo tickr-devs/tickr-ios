@@ -35,6 +35,9 @@ final class ApertureUITests: XCTestCase {
   static let stopConfirmedAfter = "Stop confirmed after"
   /// The first trade in day-v1.json.
   static let tradeSymbol = "WXYZ"
+  /// Id of an open position's row on Trades (OpenPositionRow.id), and the fixture position's symbol.
+  static let openPosition = "trades-open-position"
+  static let openSymbol = "ABCD"
   /// The performance card (PerformanceCard.id) and the start of its exclusion line.
   static let performanceCard = "trades-performance"
   static let excludedPrefix = "Left out: 1"
@@ -170,6 +173,16 @@ final class ApertureUITests: XCTestCase {
     // A skipped row is one button, so the cause is part of its longer label.
     let cause = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", Self.refusalCause))
     XCTAssertTrue(cause.firstMatch.waitForExistence(timeout: Self.timeout), "refusal cause\n\(app.debugDescription)")
+  }
+
+  @MainActor
+  func testTradesListTheOpenPosition() {
+    let app = launch()
+    open(Self.sections[2], in: app)
+    // The fixture's live day holds one open position; it is listed above the closed trades.
+    let row = app.buttons[Self.openPosition].firstMatch
+    XCTAssertTrue(row.waitForExistence(timeout: Self.timeout), "open position\n\(app.debugDescription)")
+    XCTAssertTrue(row.label.contains(Self.openSymbol), "open position symbol\n\(row.label)")
   }
 
   @MainActor

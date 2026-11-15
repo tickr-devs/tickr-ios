@@ -8221,6 +8221,23 @@
         }
       }
     },
+    "trades.noClosedTrades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No closed trades yet."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытых сделок пока нет."
+          }
+        }
+      }
+    },
     "trades.noDays" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8404,6 +8421,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 R · плановый убыток"
+          }
+        }
+      }
+    },
+    "trades.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыта"
           }
         }
       }
