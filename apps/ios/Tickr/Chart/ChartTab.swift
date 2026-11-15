@@ -231,20 +231,23 @@ private struct DayBar: View {
       }
       Spacer(minLength: 0)
       if !typeSize.stacksRows { dayStats }
-      Button {
-        if let day = chart.previousDay { Task { await chart.show(day, from: url) } }
-      } label: {
-        arrow(Self.previousSymbol)
+      // The demo day is the only day: no arrows to step away from it.
+      if !chart.dayLocked {
+        Button {
+          if let day = chart.previousDay { Task { await chart.show(day, from: url) } }
+        } label: {
+          arrow(Self.previousSymbol)
+        }
+        .disabled(chart.previousDay == nil)
+        .accessibilityLabel(Text(ChartText.previousDay))
+        Button {
+          if let day = chart.nextDay { Task { await chart.show(day, from: url) } }
+        } label: {
+          arrow(Self.nextSymbol)
+        }
+        .disabled(chart.nextDay == nil)
+        .accessibilityLabel(Text(ChartText.nextDay))
       }
-      .disabled(chart.previousDay == nil)
-      .accessibilityLabel(Text(ChartText.previousDay))
-      Button {
-        if let day = chart.nextDay { Task { await chart.show(day, from: url) } }
-      } label: {
-        arrow(Self.nextSymbol)
-      }
-      .disabled(chart.nextDay == nil)
-      .accessibilityLabel(Text(ChartText.nextDay))
     }
     .buttonStyle(.borderless)
   }

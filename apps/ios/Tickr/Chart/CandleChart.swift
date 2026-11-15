@@ -68,8 +68,12 @@ struct CandleChart: View {
   /// one teal (the swap keeps the fast line apart from the rising candles' green).
   static var fastEMAColour: Color { Palette.highlight }
   static var slowEMAColour: Color { Palette.accent }
-  /// Side of an entry or exit marker, a filled circle with its direction inside, in points.
+  /// Side of an entry or exit marker, a filled circle with its direction inside, and of a
+  /// watch, entry or refused mark, a plain filled circle, in points.
   static let markerSide: CGFloat = 16
+  /// How far a marker that would cover another one is moved at a time, in points: one side
+  /// and a small gap, so stacked markers on the same or neighbouring candles never touch.
+  static let markerStep: CGFloat = 18
 
   /// Height of the price pane, in points.
   static let priceHeight: CGFloat = 300
@@ -88,8 +92,6 @@ struct CandleChart: View {
   /// Width every pane gives its scale labels, so the plot areas of all panes are equally wide
   /// and candles, volume and studies line up.
   static let axisLabelWidth: CGFloat = 50
-  /// Size of a watch or entry mark on its candle, in points.
-  static let eventSize: CGFloat = 250
   /// Length of the leader line of the high and low labels, in points.
   static let extremeLeader: CGFloat = 12
   /// Room above a study pane's line for its legend, as a share of the pane's value range.
@@ -222,14 +224,17 @@ struct CandleChart: View {
       if lines.fastEMA { lineMarks(.fastEMA, series.fastEMA, CandleChart.fastEMAColour) }
       if lines.slowEMA { lineMarks(.slowEMA, series.slowEMA, CandleChart.slowEMAColour) }
       extremes(scale)
+      let lifts = markerLifts(scale)
       ForEach(trades) { trade in
-        tradeMarks(trade)
+        tradeMarks(trade, lifts)
       }
       if let position {
-        positionMarks(position)
+        positionMarks(position, lifts)
       }
       ForEach(events) { event in
-        eventMark(event)
+        if let lift = lifts[.event(event)] {
+          eventMark(event, lift: lift)
+        }
       }
       if let candle = selectedCandle {
         crosshair(candle)
@@ -573,31 +578,82 @@ struct CandleChart: View {
       }
     }
   }
+  /// A trade's entry and stop lines, and its entry and exit markers where they are on screen.
   @ChartContentBuilder
-  private func tradeMarks(_ trade: DayTrade) -> some ChartContent {
+  private func tradeMarks(_ trade: DayTrade, _ lifts: [MarkerID: Int]) -> some ChartContent {
     let entry = ChartFormat.double(trade.entryPrice)
     let exit = ChartFormat.double(trade.exitPrice)
     levelLines(entry: entry, stop: trade.stopPrice.map(ChartFormat.double))
-    PointMark(
-      x: .value(Plot.time, trade.openedAt.date),
-      y: .value(Plot.entry, entry))
-      .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info) }
-    PointMark(
-      x: .value(Plot.time, trade.closedAt.date),
-      y: .value(Plot.exit, exit))
-      .symbol { marker(Image(systemName: "arrowtriangle.down.fill"), Palette.result(trade.resultGrossUsd.value)) }
+    if let lift = lifts[.entry(trade.tradeId)] {
+      PointMark(
+        x: .value(Plot.time, trade.openedAt.date),
+        y: .value(Plot.entry, entry))
+        .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info, lift: lift) }
+    }
+    if let lift = lifts[.exit(trade.tradeId)] {
+      PointMark(
+        x: .value(Plot.time, trade.closedAt.date),
+        y: .value(Plot.exit, exit))
+        .symbol {
+          marker(Image(systemName: "arrowtriangle.down.fill"), Palette.result(trade.resultGrossUsd.value), lift: lift)
+        }
+    }
   }
 
-  /// The open position's entry and stop, with the entry marked at its time.
+  /// The open position's entry and stop, with the entry marked at its time when it is on screen.
   @ChartContentBuilder
-  private func positionMarks(_ position: Position) -> some ChartContent {
+  private func positionMarks(_ position: Position, _ lifts: [MarkerID: Int]) -> some ChartContent {
     let entry = ChartFormat.double(position.entryPrice)
     levelLines(entry: entry, stop: position.stop.price.map(ChartFormat.double),
       protected: position.stop.state.isProtected)
-    PointMark(
-      x: .value(Plot.time, position.openedAt.date),
-      y: .value(Plot.entry, entry))
-      .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info) }
+    if let lift = lifts[.position] {
+      PointMark(
+        x: .value(Plot.time, position.openedAt.date),
+        y: .value(Plot.entry, entry))
+        .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info, lift: lift) }
+    }
+  }
+
+  /// A round marker on the price pane.
+  enum MarkerID: Hashable, Sendable {
+    /// A closed trade's entry and exit, by its trade id.
+    case entry(String)
+    case exit(String)
+    /// The open position's entry.
+    case position
+    case event(ChartEvent)
+  }
+
+  /// How many steps each marker on screen is moved (up when positive) so none covers another
+  /// (`ChartMarkerLayout`); a marker missing here is off screen and not drawn.
+  private func markerLifts(_ scale: PriceScale) -> [MarkerID: Int] {
+    var markers: [ChartMarkerLayout.Marker<MarkerID>] = []
+    for trade in trades {
+      markers.append(.init(id: .entry(trade.tradeId), time: trade.openedAt.date,
+        price: ChartFormat.double(trade.entryPrice)))
+      markers.append(.init(id: .exit(trade.tradeId), time: trade.closedAt.date,
+        price: ChartFormat.double(trade.exitPrice)))
+    }
+    if let position {
+      markers.append(.init(id: .position, time: position.openedAt.date, price: ChartFormat.double(position.entryPrice)))
+    }
+    for event in events {
+      markers.append(.init(id: .event(event), time: eventTime(event), price: event.price))
+    }
+    let span = scale.domain.upperBound - scale.domain.lowerBound
+    let plot = max(chartWidth - axisWidth, 0)
+    let layout = ChartMarkerLayout.Scale(
+      shown: shownStretch,
+      prices: scale.domain,
+      pointsPerSecond: window > 0 ? Double(plot) / window : 0,
+      pointsPerPrice: span > 0 ? Double(Self.priceHeight) / span : 0,
+      side: Double(Self.markerSide), step: Double(Self.markerStep))
+    return ChartMarkerLayout.place(markers, scale: layout)
+  }
+
+  /// Where a watch, entry or refused mark sits: the middle of its candle.
+  private func eventTime(_ event: ChartEvent) -> Date {
+    event.candle.addingTimeInterval(series.timeframe.seconds / 2)
   }
 
   /// Dashed lines across the chart at an entry and its stop; a stop the broker has not proven
@@ -615,13 +671,17 @@ struct CandleChart: View {
   }
 
   /// A dot on the candle where the strategy began watching (amber), said enter (blue) or was
-  /// refused an entry (grey).
-  private func eventMark(_ event: ChartEvent) -> some ChartContent {
+  /// refused an entry (grey), moved `lift` steps (up when positive) clear of the markers before it.
+  private func eventMark(_ event: ChartEvent, lift: Int) -> some ChartContent {
     PointMark(
-      x: .value(Plot.time, event.candle.addingTimeInterval(series.timeframe.seconds / 2)),
+      x: .value(Plot.time, eventTime(event)),
       y: .value(Plot.price, event.price))
-      .symbolSize(Self.eventSize)
-      .foregroundStyle(Self.colour(event.kind))
+      .symbol {
+        Circle()
+          .fill(Self.colour(event.kind))
+          .frame(width: Self.markerSide, height: Self.markerSide)
+          .offset(y: -CGFloat(lift) * Self.markerStep)
+      }
       .accessibilityLabel(Text(Self.title(event.kind)))
   }
 
@@ -680,12 +740,14 @@ struct CandleChart: View {
       .background(tag.fill, in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
   }
 
-  private func marker(_ image: Image, _ colour: Color) -> some View {
+  /// An entry or exit marker, moved `lift` steps (up when positive) clear of the markers before it.
+  private func marker(_ image: Image, _ colour: Color, lift: Int) -> some View {
     image
       .font(Tokens.Typography.chevron)
       .foregroundStyle(Palette.onAccent)
       .frame(width: Self.markerSide, height: Self.markerSide)
       .background(colour, in: Circle())
+      .offset(y: -CGFloat(lift) * Self.markerStep)
   }
 
   /// Clock times on one day; beyond one day, where each session, week, month or quarter begins.

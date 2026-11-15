@@ -152,21 +152,24 @@ private struct DayLine: View {
   var body: some View {
     VStack(spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
-        Button { days.back() } label: { arrow(Self.previousSymbol) }
-          .disabled(!days.canGoBack)
-          .accessibilityLabel(Text(L10n.Home.previousDay))
-        day
-          .frame(maxWidth: .infinity)
-          .multilineTextAlignment(.center)
-          .lineLimit(typeSize.stacksRows ? Self.stackedDayLines : 1)
-          .minimumScaleFactor(Tokens.Shrink.standard)
         if days.locked {
-          Badge(L10n.Home.demoChip, tone: .warning)
+          // The demo day is the only day: no arrows. An invisible twin of the DEMO chip on the
+          // left keeps the day centred.
+          demoChip
+            .hidden()
+            .accessibilityHidden(true)
+          dayText
+          demoChip
             .accessibilityIdentifier(Self.demoChipID)
+        } else {
+          Button { days.back() } label: { arrow(Self.previousSymbol) }
+            .disabled(!days.canGoBack)
+            .accessibilityLabel(Text(L10n.Home.previousDay))
+          dayText
+          Button { days.forward() } label: { arrow(Self.nextSymbol) }
+            .disabled(!days.canGoForward)
+            .accessibilityLabel(Text(L10n.Home.nextDay))
         }
-        Button { days.forward() } label: { arrow(Self.nextSymbol) }
-          .disabled(!days.canGoForward)
-          .accessibilityLabel(Text(L10n.Home.nextDay))
       }
       if days.shown != nil {
         Button { days.showToday() } label: { Text(L10n.Home.backToToday) }
@@ -185,6 +188,19 @@ private struct DayLine: View {
       .font(.footnote.weight(.bold))
       .foregroundStyle(Palette.infoText)
       .frame(minWidth: Tokens.Size.iconButtonCompact, minHeight: Tokens.Size.iconButtonCompact)
+  }
+
+  /// The day, centred in the room between the arrows (or the DEMO chips).
+  private var dayText: some View {
+    day
+      .frame(maxWidth: .infinity)
+      .multilineTextAlignment(.center)
+      .lineLimit(typeSize.stacksRows ? Self.stackedDayLines : 1)
+      .minimumScaleFactor(Tokens.Shrink.standard)
+  }
+
+  private var demoChip: some View {
+    Badge(L10n.Home.demoChip, tone: .warning)
   }
 
   /// The shown day: a recorded one, today or the last session.
