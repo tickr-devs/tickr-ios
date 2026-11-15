@@ -36,7 +36,7 @@ public enum ApiText {
   static let symbolKeyed: Set<FenceKind> = [.foreignPosition]
 
   /// A fence's name ("foreign-position") as its case.
-  static func fenceKindCase(_ name: String) -> FenceKind? {
+  public static func fenceKindCase(_ name: String) -> FenceKind? {
     FenceKind(rawValue: name.replacing("-", with: "_"))
   }
 

@@ -2,15 +2,20 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Strategy lab: the active strategy with its shown-day results, observers, replays and the AI
-/// advisor; the advisor's page takes the screen while it is open.
+/// Strategy lab, as the design's board: the strategy versions, what each would have made on the
+/// shown day, the replay that compares versions, the AI advisor, why signals were refused, and
+/// one symbol's decision explained. Three equal columns in two rows that share the window; the
+/// advisor's page takes the screen while it is open.
 struct LabView: View {
   @Environment(AdvisorModel.self) private var advisor
 
   /// Entrance order of the cards.
   private enum Order: Int {
-    case active = 0, observers, refusals, replay, advisor
+    case versions = 0, curves, replay, advisor, refusals, explain
   }
+
+  /// Height of the scroll view, so the grid's two rows share the window as the design does.
+  @State private var viewport: CGFloat = 0
 
   var body: some View {
     Group {
@@ -24,100 +29,327 @@ struct LabView: View {
 
   private var cards: some View {
     ScrollView {
-      VStack(spacing: Tokens.Space.l) {
-        ActiveStrategyCard().rise(step: Order.active.rawValue)
-        HStack(alignment: .top, spacing: Tokens.Space.l) {
-          ObserversCard().rise(step: Order.observers.rawValue)
-          RefusalsCard().rise(step: Order.refusals.rawValue)
+      // The design's grid: three equal columns in two rows. A window too narrow for three
+      // columns gets two.
+      ViewThatFits(in: .horizontal) {
+        Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
+          GridRow {
+            versions
+            curves
+            replay
+          }
+          GridRow {
+            advisorCard
+            refusals
+            explain
+          }
         }
-        HStack(alignment: .top, spacing: Tokens.Space.l) {
-          ReplayCard().rise(step: Order.replay.rawValue)
-          AdvisorCard().rise(step: Order.advisor.rawValue)
+        Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
+          GridRow {
+            versions
+            curves
+          }
+          GridRow {
+            replay
+            refusals
+          }
+          GridRow {
+            explain
+            advisorCard
+          }
         }
       }
-      .padding(Tokens.Space.xl)
-      .frame(maxWidth: Tokens.Size.contentMaxWidth)
+      .filling()
+      .padding(Tokens.Space.l)
+      .frame(minHeight: viewport, alignment: .top)
+    }
+    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewport = $0 }
+    // Session times for the chart's axis, and the reconcile clock other screens read.
+    .task(id: model.baseURL) { await model.followJobs() }
+  }
+
+  @Environment(AppModel.self) private var model
+
+  private var versions: some View { VersionsCard().gridColumn().rise(step: Order.versions.rawValue) }
+  private var curves: some View { CurvesCard().gridColumn().rise(step: Order.curves.rawValue) }
+  private var replay: some View { ReplayCard().gridColumn().rise(step: Order.replay.rawValue) }
+  private var advisorCard: some View { AdvisorCard().gridColumn().rise(step: Order.advisor.rawValue) }
+  private var refusals: some View { RefusalsCard().gridColumn().rise(step: Order.refusals.rawValue) }
+  private var explain: some View { ExplainCard().gridColumn().rise(step: Order.explain.rawValue) }
+}
+
+/// A version's role tag, as the design draws it: a dot and an outlined word in the role's colour.
+private struct RoleTag: View {
+  let title: LocalizedStringResource
+  let color: Color
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      PulseDot(color, size: Tokens.Size.dotSmall, pulsing: false)
+      Badge(title, color: color)
     }
   }
 }
 
-/// The strategy the bot trades with, and how it did on the shown day.
-private struct ActiveStrategyCard: View {
+/// Every strategy version the bot knows: the active one that trades, the observers that decide
+/// live without trading, and candidates the replay can run; each with its role.
+private struct VersionsCard: View {
   @Environment(AppModel.self) private var model
 
-  var body: some View {
-    Card(L10n.Lab.activeStrategy, tint: Palette.accent) {
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Text(verbatim: model.status?.strategy.name ?? model.settings?.activeStrategy ?? Format.missing)
-            .font(Tokens.Typography.title)
-            .foregroundStyle(Palette.textPrimary)
-          if let version = model.status?.strategy.version {
-            Badge(verbatim: version, color: Palette.accentText)
-          }
-        }
-        HStack(spacing: Tokens.Space.xl) {
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            CardLabel(L10n.Lab.shownDayTrades)
-            Text(L10n.Lab.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses))
-              .font(Tokens.Typography.metric)
-              .foregroundStyle(Palette.textPrimary)
-          }
-          .fixedSize()
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            CardLabel(L10n.Lab.shownDayResult)
-            MoneyText(value: model.shownResult, usd: true, font: Tokens.Typography.metric)
-          }
-          .fixedSize()
-          // The figures keep their one line; the curve takes the room left, so it neither squeezes
-          // them in a narrow window nor leaves a gap before it in a wide one.
-          DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
-            .frame(maxWidth: .infinity)
-            .frame(height: Tokens.Size.sparkline)
-        }
-        Footnote(L10n.Lab.swapNote)
-      }
-    }
+  private var activeName: String { model.status?.strategy.name ?? model.settings?.activeStrategy ?? Format.missing }
+
+  /// Candidate versions the bot offers for replay, which neither trade nor observe.
+  private var candidates: [LabVersionV1] {
+    model.labReplay?.versions.filter { $0.role == .candidate } ?? []
   }
-}
-
-/// Observer strategies: shadow versions that see the same data and never trade, with what they
-/// decided on the shown day.
-private struct ObserversCard: View {
-  @Environment(AppModel.self) private var model
 
   var body: some View {
-    Card(L10n.Lab.observers) {
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+    Card(L10n.Lab.versions) {
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        VStack(spacing: 0) {
+          row(name: activeName, version: model.status?.strategy.version, tag: L10n.Lab.tagActive,
+            color: Palette.accentText) {
+            Text(L10n.Lab.activeRole)
+          }
+          activePanel
+        }
         if let observers = model.observers?.observers {
-          if observers.isEmpty {
-            Footnote(L10n.Lab.observersEmpty)
-          }
-          let lines = lines(observers)
-          if realDayMatches, let span = span(observers) {
-            DayCurvesChart(lines: lines, start: span.start, end: span.end, live: model.isLive)
-            Footnote(L10n.Lab.curvesNote)
-            if let active = lines.first(where: \.active) {
-              HStack(spacing: Tokens.Space.s) {
-                CurveSwatch(color: active.color, curve: active.curve)
-                Text(L10n.Lab.activeLine(active.name)).font(Tokens.Typography.calloutMono)
-                Spacer()
-                MoneyText(value: model.shownResult, usd: true, font: Tokens.Typography.calloutMono)
-              }
+          ForEach(observers) { observer in
+            row(name: observer.name, version: observer.version, tag: L10n.Lab.tagObserver,
+              color: Palette.highlightText) {
+              Text(L10n.Lab.observerNote(observer.decisions.count))
             }
           }
-          ForEach(Array(observers.enumerated()), id: \.element.id) { index, observer in
-            ObserverRow(observer: observer, live: model.isLive, traded: traded,
-              color: DayCurveLine.color(observerIndex: index))
-              .transition(.opacity)
+        } else if let names = model.settings?.observers {
+          ForEach(names, id: \.self) { name in
+            row(name: name, version: nil, tag: L10n.Lab.tagObserver, color: Palette.highlightText) {
+              Text(L10n.Lab.observerNoteUnread)
+            }
           }
-        } else if model.observersError != nil {
-          Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
         }
-        Footnote(L10n.Lab.observersNote)
+        ForEach(candidates, id: \.folder) { item in
+          row(name: item.strategy ?? item.folder, version: item.version, tag: L10n.Lab.tagCandidate,
+            color: Palette.warningText) {
+            Text(L10n.Lab.candidateNote)
+          }
+        }
+        Spacer(minLength: 0)
+        Text(L10n.Lab.swapNote)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textTertiary)
+          .fixedSize(horizontal: false, vertical: true)
       }
       .animation(Tokens.Motion.standard, value: model.observers)
     }
+  }
+
+  /// Height of the active version's curve, in points.
+  static let sparkHeight: CGFloat = 24
+
+  /// The active version's shown day under its row: trades, gross result and the day's curve.
+  private var activePanel: some View {
+    HStack(alignment: .bottom, spacing: Tokens.Space.l) {
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        CardLabel(L10n.Lab.shownDayTrades)
+        Text(L10n.Lab.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses))
+          .font(Tokens.Typography.calloutMono.bold())
+          .foregroundStyle(Palette.textPrimary)
+      }
+      .fixedSize()
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        CardLabel(L10n.Lab.shownDayResult)
+        MoneyText(value: model.shownResult, usd: true, font: Tokens.Typography.calloutMono.bold())
+      }
+      .fixedSize()
+      DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
+        .frame(maxWidth: .infinity)
+        .frame(height: Self.sparkHeight)
+    }
+    .padding(.horizontal, Tokens.Space.m)
+    .padding(.vertical, Tokens.Space.s)
+    .background(Palette.accent.opacity(Tokens.Opacity.wash), in: .rect(cornerRadius: Tokens.Radius.medium))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+        .strokeBorder(Palette.accent.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin)
+    }
+  }
+
+  private func row(
+    name: String, version: String?, tag: LocalizedStringResource, color: Color, @ViewBuilder note: () -> some View
+  ) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        HStack(spacing: 0) {
+          Text(verbatim: name)
+          if let version {
+            Text(L10n.Lab.versionSuffix(version))
+          }
+        }
+        .font(Tokens.Typography.calloutMono.bold())
+        .foregroundStyle(Palette.textPrimary)
+        note()
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      .lineLimit(1)
+      .minimumScaleFactor(Tokens.Shrink.standard)
+      Spacer(minLength: Tokens.Space.s)
+      RoleTag(title: tag, color: color)
+    }
+    .padding(.horizontal, Tokens.Space.m)
+    .padding(.vertical, Tokens.Space.s)
+    .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.medium))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+        .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
+    }
+    .accessibilityElement(children: .combine)
+  }
+}
+
+/// "Today if each version traded": the active strategy's real result through the shown day and
+/// each observer's simulated one, as step lines over the session, with a legend row per version.
+private struct CurvesCard: View {
+  @Environment(AppModel.self) private var model
+
+  /// Widths of the legend's columns, in points: the swatch, the figures and the result.
+  static let figuresWidth: CGFloat = 84
+  static let resultWidth: CGFloat = 68
+
+  var body: some View {
+    Card(model.isLive ? L10n.Lab.curves : L10n.Lab.curvesOnDay, trailing: { trailing }, content: {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        if let observers = model.observers?.observers {
+          let lines = lines(observers)
+          if realDayMatches, let span = span(observers) {
+            DayCurvesChart(lines: lines, start: span.start, end: span.end, domain: span.domain, live: model.isLive)
+          }
+          legend(lines, observers)
+          if observers.isEmpty {
+            Footnote(L10n.Lab.observersEmpty)
+          }
+        } else if model.observersError != nil {
+          Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
+        } else {
+          ProgressView().controlSize(.small)
+        }
+        Spacer(minLength: 0)
+        Text(L10n.Lab.curvesNote)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .animation(Tokens.Motion.standard, value: model.observers)
+    })
+  }
+
+  @ViewBuilder private var trailing: some View {
+    if model.isLive, model.status?.botState == .running {
+      HStack(spacing: Tokens.Space.xs) {
+        PulseDot(Palette.profit, size: Tokens.Size.dotSmall, pulsing: false)
+        Text(L10n.Lab.curvesRunning)
+      }
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.profitText)
+    } else if let day = model.observers?.day {
+      Text(verbatim: Format.dayLabel(day))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+    }
+  }
+
+  /// The design's legend: swatch, name, figures, result; a reason line under a row without one.
+  private func legend(_ lines: [DayCurveLine], _ observers: [ObserverV1]) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      if let active = lines.first(where: \.active) {
+        legendRow(color: active.color, curve: active.curve, name: Text(L10n.Lab.activeLine(active.name)),
+          figures: Text(L10n.Lab.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses)),
+          result: model.shownResult)
+      }
+      ForEach(Array(observers.enumerated()), id: \.element.id) { index, observer in
+        legendRow(color: DayCurveLine.color(observerIndex: index), curve: DayCurve.observer(observer),
+          name: Text(verbatim: observer.name), figures: figures(observer), result: observer.resultGrossUSD?.value,
+          cause: cause(observer))
+          .help(help(observer))
+          .transition(.opacity)
+      }
+    }
+  }
+
+  private func legendRow(
+    color: Color, curve: DayCurve?, name: Text, figures: Text, result: Decimal?, cause: String? = nil
+  ) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      HStack(spacing: Tokens.Space.s) {
+        CurveSwatch(color: color, curve: curve)
+        name
+          .foregroundStyle(Palette.textPrimary)
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.Shrink.most)
+        Spacer(minLength: Tokens.Space.xs)
+        figures
+          .foregroundStyle(Palette.textQuaternary)
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.Shrink.standard)
+          .frame(width: Self.figuresWidth, alignment: .leading)
+        Group {
+          if let result {
+            MoneyText(value: result, usd: true, font: Tokens.Typography.calloutMono)
+          } else {
+            Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+          }
+        }
+        .frame(width: Self.resultWidth, alignment: .trailing)
+      }
+      .font(Tokens.Typography.calloutMono)
+      if let cause {
+        Text(verbatim: cause)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textQuaternary)
+          .padding(.leading, CurveSwatch.width + Tokens.Space.s)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    }
+  }
+
+  /// "6/6 also traded": how many symbols the observer would have entered the bot also traded;
+  /// "no entries" when it would have entered none.
+  private func figures(_ observer: ObserverV1) -> Text {
+    guard let traded else { return Text(L10n.Lab.decisionCount(observer.decisions.count)) }
+    let summary = ObserverSummary(observer, traded: traded)
+    guard summary.agreement != nil else { return Text(L10n.Lab.noEntries) }
+    return Text(L10n.Lab.alsoTraded(summary.shared.count, summary.entered.count))
+  }
+
+  /// Why the row has no result, no line, or a dashed one.
+  private func cause(_ observer: ObserverV1) -> String? {
+    if observer.resultGrossUSD == nil, let cause = ApiText.prose(observer.resultCauseCodes, text: observer.resultCause) {
+      return cause
+    }
+    if observer.trades == nil, let cause = ApiText.prose(observer.tradesCauseCodes, text: observer.tradesCause) {
+      return cause
+    }
+    if observer.tradesTruncated {
+      return String(localized: L10n.Lab.tradesIncomplete(String(localized: L10n.Lab.tradesTruncated)))
+    }
+    return nil
+  }
+
+  /// The tooltip: decisions, the latest one and the symbols both entered.
+  private func help(_ observer: ObserverV1) -> Text {
+    var lines = [String(localized: L10n.Lab.decisionCount(observer.decisions.count))]
+    if let last = observer.decisions.last {
+      lines.append(String(localized: L10n.Lab.lastDecision(String(localized: last.action.title), last.symbol,
+        Format.marketMinute(last.at.date))))
+    }
+    if let traded {
+      let summary = ObserverSummary(observer, traded: traded)
+      if summary.agreement != nil {
+        lines.append(String(localized: L10n.Lab.agreement(summary.shared.count, summary.entered.count,
+          summary.entered.joined(separator: Format.listSeparator))))
+      }
+    }
+    return Text(verbatim: lines.joined(separator: Format.lineSeparator))
   }
 
   /// The active strategy's real trades, then each observer's simulated ones, in the rows' order.
@@ -131,16 +363,20 @@ private struct ObserversCard: View {
     }
   }
 
-  /// From the day's first recorded event to the latest status (live) or its last event; nil
-  /// when nothing was recorded, so no axis is drawn around nothing.
-  private func span(_ observers: [ObserverV1]) -> (start: Date, end: Date)? {
+  /// The lines run from the session's open (or the day's first event) to now (live) or the
+  /// session's close; the axis spans the session when the bot reports its times for that day,
+  /// else the recorded events. Nil when nothing was recorded, so no axis is drawn around nothing.
+  private func span(_ observers: [ObserverV1]) -> (start: Date, end: Date, domain: ClosedRange<Date>)? {
     var times = observers.flatMap { observer in
       observer.decisions.map(\.at.date) + (observer.trades ?? []).flatMap { [$0.at.date] + [$0.closedAt?.date].compactMap { $0 } }
     }
     times += model.shownTrades.flatMap { [$0.openedAt.date, $0.closedAt.date] }
     guard let first = times.min(), let last = times.max() else { return nil }
-    let end = model.isLive ? max(model.status?.writtenAt.date ?? last, last) : last
-    return (first, end)
+    let session = model.jobs?.session.flatMap { $0.day == model.observers?.day ? $0 : nil }
+    let start = min(session?.regularOpen.date ?? first, first)
+    let close = max(session?.regularClose.date ?? last, last)
+    let end = model.isLive ? max(model.status?.writtenAt.date ?? last, last) : close
+    return (start, end, start...max(close, end))
   }
 
   /// True when the real trades and result the app shows are of the observers' day, so the
@@ -164,46 +400,66 @@ private struct ObserversCard: View {
   }
 }
 
-/// Why the active strategy's signals were refused on the shown day: one bar per cause, the most
-/// frequent first (GET /skipped, counted by `RefusalCount`).
+/// Why the active strategy's signals were refused on the shown day: one compact row per cause,
+/// the most frequent first, each cause in its own colour (GET /skipped, counted by
+/// `RefusalCount`).
 private struct RefusalsCard: View {
   @Environment(AppModel.self) private var model
 
+  /// Width of a cause's label and of its count, in points, as the design's three columns.
+  static let labelWidth: CGFloat = 170
+  static let countWidth: CGFloat = 30
+  /// One colour per cause, in the rows' order.
+  static let colors = [Palette.warning, Palette.info, Palette.highlight, Palette.loss, Palette.accent, Palette.profit]
+
   var body: some View {
-    Card(L10n.Lab.refusals) {
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+    Card(model.isLive ? L10n.Lab.refusalsToday : L10n.Lab.refusals) {
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
         if let signals = model.skipped?.signals {
           let counts = RefusalCount.make(signals)
           if counts.isEmpty {
             Footnote(L10n.Lab.noRefusals)
           }
           let most = Double(counts.first?.count ?? 1)
-          ForEach(counts) { count in
-            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-              HStack(alignment: .firstTextBaseline) {
-                title(count.cause)
-                  .font(Tokens.Typography.callout)
-                  .foregroundStyle(Palette.textSecondary)
-                Spacer()
-                Text(verbatim: String(count.count))
-                  .font(Tokens.Typography.calloutMono.bold())
-                  .foregroundStyle(Palette.textPrimary)
-              }
-              ProgressView(value: Double(count.count), total: most)
-                .tint(Palette.warning)
-                .accessibilityHidden(true)
-            }
-            .help(help(count.cause))
-            .accessibilityElement(children: .combine)
+          ForEach(Array(counts.enumerated()), id: \.element.id) { index, count in
+            row(count, share: Double(count.count) / most, color: Self.colors[index % Self.colors.count])
           }
         } else if let error = model.skippedError {
           Footnote(L10n.Trades.notTakenUnavailable(error), color: Palette.warningText)
         } else {
           ProgressView().controlSize(.small)
         }
+        Spacer(minLength: 0)
+        PlannedLine(text: L10n.Lab.screenerBacklog)
       }
       .animation(Tokens.Motion.standard, value: model.skipped)
     }
+  }
+
+  private func row(_ count: RefusalCount, share: Double, color: Color) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      title(count.cause)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textSecondary)
+        .lineLimit(1)
+        .truncationMode(.tail)
+        .frame(width: Self.labelWidth, alignment: .leading)
+      Capsule()
+        .fill(Palette.surfaceSunken)
+        .overlay(alignment: .leading) {
+          GeometryReader { proxy in
+            Capsule().fill(color).frame(width: proxy.size.width * share)
+          }
+        }
+        .frame(height: Tokens.Size.bar)
+        .accessibilityHidden(true)
+      Text(verbatim: String(count.count))
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(Palette.textPrimary)
+        .frame(width: Self.countWidth, alignment: .trailing)
+    }
+    .help(help(count.cause))
+    .accessibilityElement(children: .combine)
   }
 
   private func title(_ cause: RefusalCause?) -> Text {
@@ -217,6 +473,25 @@ private struct RefusalsCard: View {
     guard let cause, cause.hasCode, !cause.detail.isEmpty else { return title(cause) }
     return Text(verbatim: cause.readable(time: Format.marketMinute))
   }
+}
+
+/// A BACKLOG tag with what is planned, as the design marks features the bot does not serve yet.
+private struct PlannedLine: View {
+  let text: LocalizedStringResource
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.s) {
+      PlannedTag(.backlog)
+      Text(text)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textTertiary)
+        .lineLimit(Self.lines)
+      Spacer(minLength: 0)
+    }
+  }
+
+  /// Lines the planned feature may take before it is cut.
+  static let lines = 2
 }
 
 /// One observer: name and version, how many decisions it made, the latest one and its result.
@@ -317,10 +592,11 @@ extension Verdict {
   }
 }
 
-/// The Lab's replay: a strategy version SIMULATED over the last sessions of data fetched on the
-/// Mac, or over one of its days, optionally compared with a second version over the same days
-/// (GET/POST /lab/replay), started here and read while the Lab is open. A refusal (the session is
-/// open, a run is going, no data) reads as a calm reason.
+/// The Lab's replay, as the design's compare card: a strategy version SIMULATED over the last
+/// sessions of data fetched on the Mac, or over one of its days, optionally against a second
+/// version over the same days (GET/POST /lab/replay), started here and read while the Lab is
+/// open. The result is a table with a column per version and their difference. A refusal (the
+/// session is open, a run is going, no data) reads as a calm reason.
 private struct ReplayCard: View {
   @Environment(AppModel.self) private var model
   /// The chosen folders and day; nil means the API's default (the active version, no comparison,
@@ -330,11 +606,12 @@ private struct ReplayCard: View {
   @State private var day: WireDate?
   @State private var oneDay = false
 
-  /// Symbols of the start button and a refusal.
-  static let startSymbol = "play.circle"
+  /// Symbol of a refusal.
   static let refusalSymbol = "info.circle"
-  /// Narrowest a figure gets before the figures wrap to another row, in points.
-  static let figureMinWidth: CGFloat = 96
+  /// Width of the header's note, which wraps so the title keeps its line, in points.
+  static let noteWidth: CGFloat = 96
+  /// Symbol of a chip's menu.
+  static let menuSymbol = "chevron.down"
 
   private var replay: LabReplayV1? { model.labReplay }
   private var running: Bool { replay?.state == .running }
@@ -361,33 +638,46 @@ private struct ReplayCard: View {
   }
 
   var body: some View {
-    Card(L10n.Lab.replay) {
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        Footnote(L10n.Lab.replayNote)
+    Card(L10n.Lab.replay, trailing: {
+      Text(L10n.Lab.replaySimulated)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+        .multilineTextAlignment(.trailing)
+        .frame(maxWidth: Self.noteWidth, alignment: .trailing)
+        .help(Text(L10n.Lab.replayNote))
+    }, content: {
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
         choices
-        HStack(spacing: Tokens.Space.s) {
-          Button {
-            Task { await model.startLabReplay(version: first, compare: second, day: chosenDay) }
-          } label: {
-            Label {
-              Text(second == nil ? L10n.Lab.replayRun : L10n.Lab.replayRunCompare)
-            } icon: {
-              Image(systemName: Self.startSymbol)
-            }
-          }
-          .disabled(running || model.labReplayStarting || replay == nil || (first == nil && !listsNone)
-            || (oneDay && chosenDay == nil))
-          if running || model.labReplayStarting {
-            ProgressView().controlSize(.small)
-          }
+        Button {
+          Task { await model.startLabReplay(version: first, compare: second, day: chosenDay) }
+        } label: {
+          Text(runTitle).frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.action(.secondary))
+        .disabled(running || model.labReplayStarting || replay == nil || (first == nil && !listsNone)
+          || (oneDay && chosenDay == nil))
+        if running || model.labReplayStarting {
+          ProgressView().progressViewStyle(.linear).tint(Palette.info)
         }
         status
+        Spacer(minLength: 0)
+        Text(L10n.Lab.replayPriority)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textTertiary)
+          .fixedSize(horizontal: false, vertical: true)
       }
-    }
+    })
     .task(id: model.baseURL) { await model.followLabReplay() }
   }
 
-  /// Which version, which second version and which days the next run replays.
+  /// "Run again" once a replay has a result, else what the next run does.
+  private var runTitle: LocalizedStringResource {
+    if replay?.state == .done { return L10n.Lab.replayRunAgain }
+    return second == nil ? L10n.Lab.replayRun : L10n.Lab.replayRunCompare
+  }
+
+  /// Which version, which second version and which days the next run replays, as the design's
+  /// chips and two-part switch.
   @ViewBuilder private var choices: some View {
     if runnable.isEmpty, let cause = replay?.versions.first?.cause {
       // Every version the bot lists is refused: say why rather than leave the start dead.
@@ -396,9 +686,8 @@ private struct ReplayCard: View {
         .foregroundStyle(Palette.warningText)
     }
     if !runnable.isEmpty {
-      Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
-        GridRow {
-          Text(L10n.Lab.replayVersion).foregroundStyle(Palette.textSecondary)
+      HStack(spacing: Tokens.Space.s) {
+        Menu {
           Picker(selection: Binding(get: { first ?? "" }, set: { version = $0 })) {
             ForEach(runnable, id: \.folder) { item in
               Text(name(item)).tag(item.folder)
@@ -406,56 +695,129 @@ private struct ReplayCard: View {
           } label: {
             Text(L10n.Lab.replayVersion)
           }
-          .labelsHidden()
-          .fixedSize()
+          .pickerStyle(.inline)
+        } label: {
+          chip(first.flatMap(item).map(name) ?? Format.missing, color: Palette.accent, text: Palette.accentText)
         }
-        GridRow {
-          Text(L10n.Lab.replayCompare).foregroundStyle(Palette.textSecondary)
-          Picker(selection: Binding(get: { second }, set: { compare = $0 })) {
-            Text(L10n.Lab.replayCompareNone).tag(String?.none)
-            ForEach(runnable.filter { $0.folder != first }, id: \.folder) { item in
-              Text(name(item)).tag(String?.some(item.folder))
-            }
-          } label: {
-            Text(L10n.Lab.replayCompare)
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel(Text(L10n.Lab.replayVersion))
+        Text(L10n.Lab.replayVersus)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      Menu {
+        Picker(selection: Binding(get: { second }, set: { compare = $0 })) {
+          Text(L10n.Lab.replayCompareNone).tag(String?.none)
+          ForEach(runnable.filter { $0.folder != first }, id: \.folder) { item in
+            Text(name(item)).tag(String?.some(item.folder))
           }
-          .labelsHidden()
-          .fixedSize()
+        } label: {
+          Text(L10n.Lab.replayCompare)
         }
-        GridRow {
-          Text(L10n.Lab.replayDays).foregroundStyle(Palette.textSecondary)
-          HStack(spacing: Tokens.Space.s) {
-            Picker(selection: $oneDay) {
-              Text(L10n.Lab.replayLastSessions(replay?.sessions ?? .zero)).tag(false)
-              Text(L10n.Lab.replayOneDay).tag(true)
-            } label: {
-              Text(L10n.Lab.replayDays)
-            }
-            .labelsHidden()
-            .pickerStyle(.segmented)
-            .fixedSize()
-            if oneDay, let days = replay?.days, !days.isEmpty {
-              Picker(selection: Binding(get: { chosenDay ?? days[0] }, set: { day = $0 })) {
-                ForEach(days, id: \.self) { item in
-                  Text(verbatim: Format.dayLabel(item)).tag(item)
-                }
-              } label: {
-                Text(L10n.Lab.replayDay)
-              }
-              .labelsHidden()
-              .fixedSize()
-            }
-          }
+        .pickerStyle(.inline)
+      } label: {
+        if let second, let item = item(second) {
+          chip(name(item), color: Palette.highlight, text: Palette.highlightText)
+        } else {
+          chip(String(localized: L10n.Lab.replayCompareNone), color: Palette.separatorStrong, text: Palette.textTertiary)
         }
       }
-      .font(Tokens.Typography.callout)
+      .menuStyle(.button)
+      .buttonStyle(.plain)
+      .menuIndicator(.hidden)
+      .fixedSize()
+      .accessibilityLabel(Text(L10n.Lab.replayCompare))
       .onChange(of: first) { _, now in
         if compare == now { compare = nil }
       }
+      daySwitch
     }
   }
 
-  /// "price-action-v2 v2 · observer": a version as the pickers and the comparison name it.
+  /// The design's two-part switch: the last sessions, or one day picked from a menu.
+  private var daySwitch: some View {
+    HStack(spacing: 0) {
+      Button {
+        oneDay = false
+      } label: {
+        segment(Text(L10n.Lab.replayLastSessions(replay?.sessions ?? .zero)), on: !oneDay)
+      }
+      .buttonStyle(.plain)
+      Rectangle().fill(Palette.separatorStrong).frame(width: Tokens.Stroke.thin)
+      Menu {
+        ForEach(replay?.days ?? [], id: \.self) { item in
+          Button {
+            day = item
+            oneDay = true
+          } label: {
+            Text(verbatim: Format.dayLabel(item))
+          }
+        }
+      } label: {
+        segment(oneDayTitle, on: oneDay, menu: true)
+      }
+      .menuStyle(.button)
+      .buttonStyle(.plain)
+      .menuIndicator(.hidden)
+      .disabled(replay?.days.isEmpty ?? true)
+    }
+    .fixedSize()
+    .clipShape(.rect(cornerRadius: Tokens.Radius.medium))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
+        .strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin)
+    }
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(Text(L10n.Lab.replayDays))
+  }
+
+  private var oneDayTitle: Text {
+    if let chosenDay { return Text(L10n.Lab.replayOneDayOn(Format.dayLabel(chosenDay))) }
+    return Text(L10n.Lab.replayOneDay)
+  }
+
+  private func segment(_ title: Text, on: Bool, menu: Bool = false) -> some View {
+    HStack(spacing: Tokens.Space.xs) {
+      title
+      if menu {
+        Image(systemName: Self.menuSymbol).font(Tokens.Typography.annotation)
+      }
+    }
+    .font(Tokens.Typography.annotationBold)
+    .foregroundStyle(on ? Palette.onAccent : Palette.textTertiary)
+    .padding(.horizontal, Tokens.Space.m)
+    .padding(.vertical, Tokens.Space.s)
+    .background(on ? Palette.info : Color.clear)
+    .contentShape(.rect)
+  }
+
+  /// A version chip: a dot in the version's colour, its name and a menu mark.
+  private func chip(_ title: String, color: Color, text: Color) -> some View {
+    HStack(spacing: Tokens.Space.xs) {
+      Circle().fill(color).frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
+      Text(verbatim: title).lineLimit(1)
+      Image(systemName: Self.menuSymbol).font(Tokens.Typography.annotation)
+    }
+    .font(Tokens.Typography.annotationBold)
+    .foregroundStyle(text)
+    .padding(.horizontal, Tokens.Space.s)
+    .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
+    .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.small))
+    .overlay {
+      RoundedRectangle(cornerRadius: Tokens.Radius.small)
+        .strokeBorder(color.opacity(Tokens.Opacity.medium), lineWidth: Tokens.Stroke.thin)
+    }
+    .contentShape(.rect)
+  }
+
+  private func item(_ folder: String) -> LabVersionV1? {
+    runnable.first { $0.folder == folder }
+  }
+
+  /// "price-action-v2 v2 · observer": a version as the chips and the comparison name it.
   private func name(_ item: LabVersionV1) -> String {
     let title = String(localized: L10n.Lab.versionName(item.strategy ?? item.folder, item.version ?? Format.missing))
     return String(localized: L10n.Lab.versionWithRole(title, String(localized: role(item.role))))
@@ -482,7 +844,6 @@ private struct ReplayCard: View {
     if let replay {
       switch replay.state {
       case .running:
-        ProgressView().progressViewStyle(.linear)
         if let started = replay.startedAt {
           Footnote(L10n.Lab.replayRunningSince(Format.marketTime(started.date)))
         }
@@ -490,10 +851,8 @@ private struct ReplayCard: View {
           Footnote(L10n.Lab.replayThen(String(localized: L10n.Lab.versionName(second.strategy, second.version))))
         }
       case .done:
-        if let second = replay.compare, let summary = replay.summary {
-          comparison(replay, summary, second)
-        } else if let summary = replay.summary {
-          result(summary)
+        if let summary = replay.summary {
+          table(replay, summary)
         }
         if let cause = replay.cause { Footnote(verbatim: cause) }
         if let day = replay.day { Footnote(L10n.Lab.replayOneDayNote(Format.dayLabel(day))) }
@@ -511,137 +870,268 @@ private struct ReplayCard: View {
     }
   }
 
-  private func result(_ summary: LabReplaySummaryV1) -> some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.figureMinWidth), spacing: Tokens.Space.m, alignment: .topLeading)],
-        alignment: .leading, spacing: Tokens.Space.m) {
-        figure(L10n.Lab.replayTrades, Text(verbatim: String(summary.trades)))
-        figure(L10n.Lab.replayWinRate, number(summary.winRatePercent) {
-          String(localized: L10n.Trades.percent(Money.plain($0, fractionDigits: StatDigits.percent)))
-        })
-        figure(intervalTitle(summary), number(summary.meanR, colored: true) {
-          Risk.text($0, fractionDigits: StatDigits.r)
-        })
-        figure(L10n.Lab.replayProfitFactor, number(summary.profitFactor) {
-          Money.plain($0, fractionDigits: StatDigits.factor)
-        })
-        figure(L10n.Lab.replayMaxDrawdown, number(summary.maxDrawdownR) {
-          Risk.text(-$0, fractionDigits: StatDigits.r)
-        })
-        figure(L10n.Lab.replayWithLimits(summary.botTrades), MoneyText(value: summary.botTotalUsd.value, usd: true,
-          font: Tokens.Typography.metric))
-      }
-      Footnote(L10n.Lab.replayData(Format.dayLabel(summary.firstDay), Format.dayLabel(summary.lastDay),
-        summary.sessions))
-    }
-  }
-
-  /// Both versions side by side over the same days, with the second minus the first.
-  @ViewBuilder private func comparison(
-    _ replay: LabReplayV1, _ summary: LabReplaySummaryV1, _ second: LabReplayLegV1
-  ) -> some View {
+  /// The design's compare table: a column for the replayed version, one for the second version
+  /// and their difference when there is one, a row per figure, then where the data came from.
+  @ViewBuilder private func table(_ replay: LabReplayV1, _ summary: LabReplaySummaryV1) -> some View {
     let firstName = String(localized: L10n.Lab.versionName(replay.strategy ?? Format.missing,
       replay.version ?? Format.missing))
-    let secondName = String(localized: L10n.Lab.versionName(second.strategy, second.version))
-    if let other = second.summary {
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        Grid(alignment: .trailing, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.s) {
-          GridRow {
-            Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
-            Text(verbatim: firstName).foregroundStyle(Palette.textSecondary)
-            Text(verbatim: secondName).foregroundStyle(Palette.textSecondary)
-            Text(L10n.Lab.replayDifference).foregroundStyle(Palette.textTertiary)
+    let other = replay.compare?.summary
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      Grid(alignment: .trailing, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.xs) {
+        GridRow {
+          Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+          Text(verbatim: firstName).foregroundStyle(Palette.accentText)
+          if let second = replay.compare, other != nil {
+            Text(verbatim: String(localized: L10n.Lab.versionName(second.strategy, second.version)))
+              .foregroundStyle(Palette.highlightText)
+            Text(L10n.Lab.replayDifference).foregroundStyle(Palette.textQuaternary)
           }
-          .font(Tokens.Typography.caption)
-          compareRow(L10n.Lab.replayTrades, Decimal(summary.trades), Decimal(other.trades), colored: false,
-            format: { Money.plain($0, fractionDigits: .zero) },
-            delta: { Money.signed($0, fractionDigits: .zero) })
-          compareRow(L10n.Lab.replayWinRate, summary.winRatePercent?.value, other.winRatePercent?.value,
-            format: { String(localized: L10n.Trades.percent(Money.plain($0, fractionDigits: StatDigits.percent))) },
-            delta: { String(localized: L10n.Lab.replayPoints(Money.signed($0, fractionDigits: StatDigits.percent))) })
-          compareRow(L10n.Lab.replayMeanR, summary.meanR?.value, other.meanR?.value,
-            format: { Risk.text($0, fractionDigits: StatDigits.r) },
-            delta: { Risk.text($0, fractionDigits: StatDigits.r) })
-          compareRow(L10n.Lab.replayProfitFactor, summary.profitFactor?.value, other.profitFactor?.value,
-            format: { Money.plain($0, fractionDigits: StatDigits.factor) },
-            delta: { Money.signed($0, fractionDigits: StatDigits.factor) })
-          compareRow(L10n.Lab.replayMaxDrawdown, summary.maxDrawdownR.map { -$0.value },
-            other.maxDrawdownR.map { -$0.value },
-            format: { Risk.text($0, fractionDigits: StatDigits.r) },
-            delta: { Risk.text($0, fractionDigits: StatDigits.r) })
-          compareRow(L10n.Lab.replayWithBotLimits, summary.botTotalUsd.value, other.botTotalUsd.value,
-            format: { Money.signedUSD($0) }, delta: { Money.signedUSD($0) })
         }
-        Footnote(L10n.Lab.replayData(Format.dayLabel(summary.firstDay), Format.dayLabel(summary.lastDay),
-          summary.sessions))
+        .font(Tokens.Typography.annotation)
+        .lineLimit(1)
+        .minimumScaleFactor(Tokens.Shrink.standard)
+        compareRow(L10n.Lab.replayTrades, Decimal(summary.trades), other.map { Decimal($0.trades) },
+          compared: other != nil, colored: false,
+          format: { Money.plain($0, fractionDigits: .zero) },
+          delta: { Money.signed($0, fractionDigits: .zero) })
+        compareRow(L10n.Lab.replayWinRate, summary.winRatePercent?.value, other?.winRatePercent?.value, compared: other != nil,
+          format: { String(localized: L10n.Trades.percent(Money.plain($0, fractionDigits: StatDigits.percent))) },
+          delta: { String(localized: L10n.Lab.replayPoints(Money.signed($0, fractionDigits: StatDigits.percent))) })
+        compareRow(L10n.Lab.replayMeanR, summary.meanR?.value, other?.meanR?.value, compared: other != nil,
+          format: { Risk.text($0, fractionDigits: StatDigits.r) },
+          delta: { Risk.text($0, fractionDigits: StatDigits.r) })
+        compareRow(L10n.Lab.replayProfitFactor, summary.profitFactor?.value, other?.profitFactor?.value, compared: other != nil,
+          format: { Money.plain($0, fractionDigits: StatDigits.factor) },
+          delta: { Money.signed($0, fractionDigits: StatDigits.factor) })
+        compareRow(L10n.Lab.replayMaxDrawdown, summary.maxDrawdownR.map { -$0.value },
+          other?.maxDrawdownR.map { -$0.value }, compared: other != nil,
+          format: { Risk.text($0, fractionDigits: StatDigits.r) },
+          delta: { Risk.text($0, fractionDigits: StatDigits.r) })
+        compareRow(L10n.Lab.replayWithBotLimits, summary.botTotalUsd.value, other?.botTotalUsd.value, compared: other != nil,
+          format: { Money.signedUSD($0) }, delta: { Money.signedUSD($0) })
       }
-    } else {
-      result(summary)
-      Text(L10n.Lab.replayCompareFailed(secondName, second.cause ?? Format.missing))
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.warningText)
+      Text(L10n.Lab.replayData(Format.dayLabel(summary.firstDay), Format.dayLabel(summary.lastDay), summary.sessions))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+      if let interval = interval(summary) {
+        Text(verbatim: interval)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      if let second = replay.compare, second.summary == nil {
+        Text(L10n.Lab.replayCompareFailed(String(localized: L10n.Lab.versionName(second.strategy, second.version)),
+          second.cause ?? Format.missing))
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.warningText)
+      }
     }
   }
 
-  /// One metric of both versions and their difference; a missing number reads as a dash.
+  /// One figure of the version, and of the second version with their difference when compared;
+  /// a missing number reads as a dash.
   private func compareRow(
-    _ title: LocalizedStringResource, _ first: Decimal?, _ second: Decimal?,
+    _ title: LocalizedStringResource, _ first: Decimal?, _ second: Decimal?, compared: Bool = false,
     colored: Bool = true, format: (Decimal) -> String, delta: (Decimal) -> String
   ) -> some View {
     GridRow {
       Text(title)
-        .font(Tokens.Typography.caption)
+        .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)
+        .lineLimit(1)
+        .minimumScaleFactor(Tokens.Shrink.most)
         .gridColumnAlignment(.leading)
-      cell(first, format)
-      cell(second, format)
-      if let first, let second {
-        let difference = second - first
-        Text(verbatim: delta(difference))
-          .foregroundStyle(colored ? Palette.result(difference) : Palette.textSecondary)
-      } else {
-        Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+      cell(first, format, colored: colored)
+      if compared {
+        cell(second, format, colored: colored)
+        if let first, let second {
+          let difference = second - first
+          Text(verbatim: delta(difference))
+            .foregroundStyle(colored ? Palette.result(difference) : Palette.textSecondary)
+        } else {
+          Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+        }
       }
     }
-    .font(Tokens.Typography.calloutMono)
+    .font(Tokens.Typography.calloutMono.bold())
   }
 
-  private func cell(_ value: Decimal?, _ format: (Decimal) -> String) -> some View {
+  private func cell(_ value: Decimal?, _ format: (Decimal) -> String, colored: Bool) -> some View {
     Text(verbatim: value.map(format) ?? Format.missing)
       .foregroundStyle(value == nil ? Palette.textQuaternary : Palette.textPrimary)
       .lineLimit(1)
       .minimumScaleFactor(Tokens.Shrink.standard)
   }
 
-  /// "mean R · 95%: −0.21 … +0.57", or plain "mean R" without an interval.
-  private func intervalTitle(_ summary: LabReplaySummaryV1) -> LocalizedStringResource {
-    guard let low = summary.meanRIntervalLow?.value, let high = summary.meanRIntervalHigh?.value else {
-      return L10n.Lab.replayMeanR
-    }
-    return L10n.Lab.replayMeanRInterval(Money.plain(summary.confidencePercent.value, fractionDigits: StatDigits.percent),
-      Risk.text(low, fractionDigits: StatDigits.r), Risk.text(high, fractionDigits: StatDigits.r))
+  /// "mean R · 95%: −0.21 … +0.57", or nil without an interval.
+  private func interval(_ summary: LabReplaySummaryV1) -> String? {
+    guard let low = summary.meanRIntervalLow?.value, let high = summary.meanRIntervalHigh?.value else { return nil }
+    return String(localized: L10n.Lab.replayMeanRInterval(
+      Money.plain(summary.confidencePercent.value, fractionDigits: StatDigits.percent),
+      Risk.text(low, fractionDigits: StatDigits.r), Risk.text(high, fractionDigits: StatDigits.r)))
+  }
+}
+
+/// Explain a symbol: what the active strategy last decided on a symbol on the shown day, check by
+/// check, from the decisions the bot recorded (GET /decisions). Opens on the day's latest traded
+/// symbol.
+private struct ExplainCard: View {
+  @Environment(AppModel.self) private var model
+  @State private var symbol = ""
+  @State private var explain = ExplainModel()
+
+  /// Width of the symbol field, in points.
+  static let fieldWidth: CGFloat = 110
+  /// Size of a check's mark, in points.
+  static let markSize: CGFloat = 14
+  /// Symbols of a passed, a failed and a not-reached check.
+  static let passedSymbol = "checkmark"
+  static let failedSymbol = "xmark"
+  static let unreachedSymbol = "minus"
+
+  /// The answer for the typed symbol on the shown day; nil for any other.
+  private var decisions: DecisionsV1? { current ? explain.decisions : nil }
+
+  /// Why the read for the typed symbol on the shown day failed; nil for any other.
+  private var error: String? { current ? explain.error : nil }
+
+  /// True when the model's last read is for the typed symbol on the shown day.
+  private var current: Bool { explain.request == ExplainModel.Request(symbol: wanted, day: model.shownDay) }
+
+  /// The typed symbol as the bot names it.
+  private var wanted: String { symbol.trimmingCharacters(in: .whitespaces).uppercased() }
+
+  /// The decision to explain: the active strategy's latest, else an observer's.
+  private var decision: DecisionV1? {
+    guard let list = decisions?.decisions else { return nil }
+    return list.last { !$0.observer } ?? list.last
   }
 
-  private func number(_ value: DecimalString?, colored: Bool = false, format: (Decimal) -> String) -> some View {
-    Group {
-      if let value = value?.value {
-        Text(verbatim: format(value)).foregroundStyle(colored ? Palette.result(value) : Palette.textPrimary)
-      } else {
-        Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+  var body: some View {
+    Card(L10n.Lab.explain) {
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        HStack(spacing: Tokens.Space.s) {
+          TextField(text: $symbol, prompt: Text(L10n.Lab.explainPrompt)) {
+            Text(L10n.Lab.explainSymbol)
+          }
+          .textFieldStyle(.roundedBorder)
+          .font(Tokens.Typography.calloutMono.bold())
+          .frame(width: Self.fieldWidth)
+          .onSubmit { load() }
+          Button {
+            load()
+          } label: {
+            Text(L10n.Lab.explainRun)
+          }
+          .buttonStyle(.action(.secondary, size: .compact))
+          .disabled(wanted.isEmpty || explain.loading)
+          if explain.loading {
+            ProgressView().controlSize(.small)
+          }
+        }
+        content
+        Spacer(minLength: 0)
+        PlannedLine(text: L10n.Lab.explainBacklog)
       }
     }
-    .font(Tokens.Typography.metric)
+    // A new day reads the typed symbol again; the read for the old day is cancelled.
+    .task(id: model.shownDay) {
+      if symbol.isEmpty, let latest = model.shownTrades.last?.symbol {
+        symbol = latest
+      }
+      if wanted.isEmpty { explain.cancel() } else { load() }
+    }
+    // Typing another symbol stops the read for the old one; Explain starts the new read.
+    .onChange(of: wanted) { _, now in
+      if explain.request?.symbol != now { explain.cancel() }
+    }
   }
 
-  private func figure(_ title: LocalizedStringResource, _ value: some View) -> some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      value
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
-      Text(title)
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.textTertiary)
+  @ViewBuilder private var content: some View {
+    if let error {
+      Footnote(verbatim: error, color: Palette.warningText)
+    } else if let decision {
+      Text(headline(decision))
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(Palette.textSecondary)
+        .fixedSize(horizontal: false, vertical: true)
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        ForEach(Array(decision.checks.enumerated()), id: \.offset) { _, check in
+          checkRow(check)
+        }
+        admissionRow(decision.admission)
+      }
+    } else if decisions != nil {
+      Footnote(L10n.Lab.explainNone)
+    } else if symbol.isEmpty {
+      Footnote(L10n.Lab.explainHint)
     }
+  }
+
+  /// "KLMN · 10:43 · IGNORE · cause: round trip / ATR 0.31 > 0.25".
+  private func headline(_ decision: DecisionV1) -> LocalizedStringResource {
+    let head = [decisions?.symbol ?? symbol, Format.marketMinute(decision.at.date),
+      String(localized: decision.action.title).uppercased()].joined(separator: Format.itemSeparator)
+    if let reason = RefusalText.text(decision.refusal, cause: decision.refusalCause) {
+      return L10n.Lab.explainHeadline(head, reason)
+    }
+    if let failed = decision.checks.first(where: { !$0.passed }) {
+      return L10n.Lab.explainHeadline(head, failed.comparisonText)
+    }
+    return L10n.Lab.explainHead(head)
+  }
+
+  private func checkRow(_ check: CheckV1) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      mark(check.passed ? Self.passedSymbol : Self.failedSymbol, color: check.passed ? Palette.accent : Palette.loss)
+      Text(verbatim: ApiText.rule(check.rule))
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textSecondary)
+        .lineLimit(1)
+      Spacer(minLength: Tokens.Space.s)
+      Text(verbatim: check.valueText)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+        .lineLimit(1)
+    }
+    .help(check.note.isEmpty ? Text(verbatim: ApiText.rule(check.rule)) : Text(verbatim: check.note))
+    .accessibilityElement(children: .combine)
+    .accessibilityValue(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
+  }
+
+  private func admissionRow(_ admission: Admission) -> some View {
+    let state: (symbol: String, color: Color, text: LocalizedStringResource) = switch admission {
+    case .taken: (Self.passedSymbol, Palette.accent, L10n.Lab.admissionTaken)
+    case .refused: (Self.failedSymbol, Palette.loss, L10n.Lab.admissionRefused)
+    case .notEvaluated: (Self.unreachedSymbol, Palette.separatorStrong, L10n.Lab.admissionNotEvaluated)
+    case .notApplicable: (Self.unreachedSymbol, Palette.separatorStrong, L10n.Lab.admissionNotReached)
+    }
+    return HStack(spacing: Tokens.Space.s) {
+      mark(state.symbol, color: state.color)
+      Text(L10n.Lab.admission)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textSecondary)
+      Spacer(minLength: Tokens.Space.s)
+      Text(state.text)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+    }
+    .accessibilityElement(children: .combine)
+  }
+
+  private func mark(_ symbol: String, color: Color) -> some View {
+    Image(systemName: symbol)
+      .font(Tokens.Typography.badge)
+      .foregroundStyle(Palette.onAccent)
+      .frame(width: Self.markSize, height: Self.markSize)
+      .background(Circle().fill(color))
+      .accessibilityHidden(true)
+  }
+
+  /// Reads the decisions on the typed symbol on the shown day.
+  private func load() {
+    guard !wanted.isEmpty else { return }
+    symbol = wanted
+    explain.load(symbol: wanted, day: model.shownDay, baseURL: model.baseURL)
   }
 }
 
