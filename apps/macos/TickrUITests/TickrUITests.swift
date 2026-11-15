@@ -7,6 +7,9 @@ final class TickrUITests: XCTestCase {
   /// Environment variable of the fixture API (PreviewAPI.fixturesKey in the app) and its value.
   static let fixturesKey = "TICKR_FIXTURES"
   static let fixturesOn = "1"
+  /// Environment variable that opens Overview with the Safety · bot card at its top
+  /// (LayoutSweep.safetyFirstKey), turned on with `fixturesOn`'s value.
+  static let safetyFirstKey = "TICKR_OVERVIEW_SAFETY_FIRST"
   /// Pins the app to English so the texts below match the String Catalog's English values.
   /// Also starts without restoring windows saved by an earlier run.
   static let languageArguments = [
@@ -88,10 +91,11 @@ final class TickrUITests: XCTestCase {
 
   /// The app, started on the fixture API in English.
   @MainActor
-  private func launch(settings: [String] = []) -> XCUIApplication {
+  private func launch(settings: [String] = [], environment: [String: String] = [:]) -> XCUIApplication {
     let app = XCUIApplication()
     app.launchArguments = Self.languageArguments + settings
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
+    app.launchEnvironment.merge(environment) { _, given in given }
     app.launch()
     XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.timeout), "no window after launch")
     // The first window size can be larger than a small display; Zoom fits it to the screen so
@@ -147,16 +151,19 @@ final class TickrUITests: XCTestCase {
 
   @MainActor
   func testFlattenAsksBeforeSending() {
-    let app = launch()
+    // Overview opens with the Safety · bot card at its top: the click lands where the button
+    // stands, never after XCUITest's own scroll, which could leave it at the screen's bottom edge
+    // under a hidden Dock rising at the pointer.
+    let app = launch(environment: [Self.safetyFirstKey: Self.fixturesOn])
     open(Self.sections[0], in: app)
     let flatten = app.buttons[Self.flattenButton].firstMatch
     XCTAssertTrue(flatten.waitForExistence(timeout: Self.timeout))
     let enabled = NSPredicate(format: "isEnabled == true")
     expectation(for: enabled, evaluatedWith: flatten)
     waitForExpectations(timeout: Self.timeout)
-    // The controls card rises in below the fold; clicked while it moved, the click (after the
-    // scroll that brings it into view) once missed the button and no confirmation came.
+    // Cards rise in and the screen reflows as reads arrive: click only once the button is still.
     waitUntilStill(flatten, "flatten button", in: app)
+    XCTAssertTrue(flatten.isHittable, "flatten is not hittable\n\(app.debugDescription)")
     flatten.click()
     let sheet = app.sheets.firstMatch
     XCTAssertTrue(sheet.waitForExistence(timeout: Self.timeout), "flatten asks for confirmation")

@@ -42,6 +42,7 @@ struct TickrMacApp: App {
     model.start()
     #if DEBUG
     LayoutSweep.startIfAsked(model: model)
+    LayoutSweep.smallestIfAsked()
     #endif
     // The bot shows its alerts through this app (AlertCommand.swift): ask once, here, where the
     // question can be seen. Not in the UI tests' fixture mode, where nobody could answer.

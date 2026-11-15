@@ -47,24 +47,27 @@ struct OverviewView: View {
   }
 
   var body: some View {
-    ScrollView {
-      VStack(spacing: Tokens.Space.l) {
-        top
-        if threeColumns {
-          WeightedColumns(weights: Self.bottomRowWeights, spacing: Tokens.Space.l) {
-            bottomRow
+    ScrollViewReader { proxy in
+      ScrollView {
+        VStack(spacing: Tokens.Space.l) {
+          top
+          if threeColumns {
+            WeightedColumns(weights: Self.bottomRowWeights, spacing: Tokens.Space.l) {
+              bottomRow
+            }
+            .frame(height: bottomRowHeight)
+          } else {
+            WeightedColumns(weights: Self.twoColumnWeights, spacing: Tokens.Space.l) {
+              RiskRoomCard().filling()
+              ObserversCard().filling()
+            }
+            .rise(step: Order.right.rawValue)
+            JournalCard().rise(step: Order.right.rawValue)
           }
-          .frame(height: bottomRowHeight)
-        } else {
-          WeightedColumns(weights: Self.twoColumnWeights, spacing: Tokens.Space.l) {
-            RiskRoomCard().filling()
-            ObserversCard().filling()
-          }
-          .rise(step: Order.right.rawValue)
-          JournalCard().rise(step: Order.right.rawValue)
         }
+        .padding(Tokens.Space.l)
       }
-      .padding(Tokens.Space.l)
+      .onChange(of: aboveBottomHeight) { showSafetyFirstIfAsked(proxy) }
     }
     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewportHeight = $0 }
     .onGeometryChange(for: Bool.self) { [threshold = Self.headerBesideResultMinWidth] in $0.size.width >= threshold } action: {
@@ -73,6 +76,14 @@ struct OverviewView: View {
     .onGeometryChange(for: Bool.self) { [threshold = Self.threeColumnsMinWidth] in $0.size.width >= threshold } action: {
       threeColumns = $0
     }
+  }
+
+  /// UI tests (`LayoutSweep.safetyFirst`): the Safety · bot card at the top of the screen, kept
+  /// there while the cards above it load, so a test clicks its commands without a scroll.
+  private func showSafetyFirstIfAsked(_ proxy: ScrollViewProxy) {
+    #if DEBUG
+    if LayoutSweep.safetyFirst { proxy.scrollTo(SafetyCard.id, anchor: .top) }
+    #endif
   }
 
   /// Everything above the bottom row; its height sets the bottom row's (never the reverse).
@@ -124,7 +135,7 @@ struct OverviewView: View {
   }
 
   private var safety: some View {
-    SafetyCard().filling().rise(step: Order.middle.rawValue)
+    SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
   }
 
   @ViewBuilder private var bottomRow: some View {
@@ -1086,6 +1097,9 @@ private struct SafetyCard: View {
   /// Grows to its row's height (`filling()`), as a `Card` does.
   @Environment(\.cardFills) private var fills
 
+  /// Accessibility id of the card, for the UI tests.
+  static let id = "overview-safety"
+
   /// Fence names the bot raises for a position or an open order it did not place (engine
   /// Fence.FOREIGN_POSITION and FOREIGN_ORDER). A fence kind is the name, then ":" and a key
   /// when it has one, as in "foreign-position:ABCD".
@@ -1125,6 +1139,8 @@ private struct SafetyCard: View {
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, maxHeight: fills ? .infinity : nil, alignment: .topLeading)
     .tickrCard(radius: Tokens.Radius.large)
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier(Self.id)
   }
 
   private enum RowID: Hashable { case status, stops, entries, reconcile, stream, read, foreign, foreignOrders, pause }
