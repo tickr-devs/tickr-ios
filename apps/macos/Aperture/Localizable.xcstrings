@@ -4931,6 +4931,23 @@
         }
       }
     },
+    "safety.foreignOrders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foreign orders"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чужие ордера"
+          }
+        }
+      }
+    },
     "safety.foreignPositions" : {
       "extractionState" : "manual",
       "localizations" : {

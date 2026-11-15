@@ -627,6 +627,9 @@ enum L10n {
     static var foreignPositions: LocalizedStringResource {
       LocalizedStringResource("safety.foreignPositions", defaultValue: "Foreign positions", bundle: L10n.bundle)
     }
+    static var foreignOrders: LocalizedStringResource {
+      LocalizedStringResource("safety.foreignOrders", defaultValue: "Foreign orders", bundle: L10n.bundle)
+    }
     static var present: LocalizedStringResource {
       LocalizedStringResource("safety.present", defaultValue: "present", bundle: L10n.bundle)
     }
