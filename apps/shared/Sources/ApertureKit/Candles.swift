@@ -81,9 +81,16 @@ public struct ChartSeries: Hashable, Sendable {
 }
 
 public enum Candles {
-  /// Candles of `timeframe` from M1 bars (oldest first). A candle starts on a whole multiple of
-  /// the timeframe (09:35, 09:40 for M5) and holds the bars that start inside it; a candle without
-  /// bars is not made, so gaps stay gaps.
+  /// Starts of the session parts in New York, as (hour, minute): pre-market, the regular
+  /// session, after-hours. Candles are counted from the start of the part a bar is in, as the
+  /// bot's /chart does, so no candle mixes two parts. Half days (a 13:00 close) are not known
+  /// here: their after-hours bars stay in the regular part.
+  static let sessionParts = [(4, 0), (9, 30), (16, 0)]
+
+  /// Candles of `timeframe` from M1 bars (oldest first). Candles are counted from the start of
+  /// the session part (09:35, 09:40 for M5; 09:30, 10:30 … 15:30 for H1, as brokers draw them,
+  /// not clock hours), end where the part ends at the latest, and hold the bars that start
+  /// inside them; a candle without bars is not made, so gaps stay gaps.
   public static func make(_ bars: [BarV1], timeframe: Timeframe) -> [Candle] {
     groups(bars, timeframe: timeframe).map(\.candle)
   }
@@ -93,7 +100,7 @@ public enum Candles {
     var groups: [(candle: Candle, lastBar: Int)] = []
     let length = timeframe.seconds
     for (index, bar) in bars.enumerated() {
-      let start = Date(timeIntervalSince1970: (bar.start.date.timeIntervalSince1970 / length).rounded(.down) * length)
+      let (start, end) = candleSpan(bar.start.date, length: length)
       let high = double(bar.high)
       let low = double(bar.low)
       let close = double(bar.close)
@@ -105,12 +112,27 @@ public enum Candles {
         groups[groups.count - 1] = (merged, index)
       } else {
         let candle = Candle(
-          start: start, end: start.addingTimeInterval(length), open: double(bar.open), high: high,
+          start: start, end: end, open: double(bar.open), high: high,
           low: low, close: close, volume: volume)
         groups.append((candle, index))
       }
     }
     return groups
+  }
+
+  /// Start and end of the candle of `length` seconds holding `date`: whole lengths from the
+  /// start of its session part, cut at the next part's start (the 15:30 H1 candle ends at 16:00).
+  /// Before 04:00 the day's first part is the calendar day's start.
+  static func candleSpan(_ date: Date, length: TimeInterval) -> (start: Date, end: Date) {
+    let calendar = WireDate.newYork
+    let day = calendar.startOfDay(for: date)
+    let starts = [day] + sessionParts.compactMap { part in
+      calendar.date(bySettingHour: part.0, minute: part.1, second: 0, of: date)
+    }
+    let anchor = starts.last { $0 <= date } ?? day
+    let next = starts.first { $0 > date } ?? calendar.date(byAdding: .day, value: 1, to: day) ?? date
+    let start = anchor.addingTimeInterval((date.timeIntervalSince(anchor) / length).rounded(.down) * length)
+    return (start, min(start.addingTimeInterval(length), next))
   }
 
   static func double(_ value: DecimalString) -> Double {
