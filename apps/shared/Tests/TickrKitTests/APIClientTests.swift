@@ -174,6 +174,28 @@ final class StubProtocol: URLProtocol {
     #expect(sent == [:])
   }
 
+  @Test func redeemPairingPostsTheCodeWithoutAToken() async throws {
+    let remote = APIClient(baseURL: try #require(URL(string: "https://mac.ts.net")), session: StubProtocol.session())
+    StubProtocol.answer = try (200, fixture("paired-v1.json"))
+    let paired = try await remote.redeemPairing(code: "c0de")
+    #expect(paired.token == "example-token-not-a-secret_0123456789-abcdef")
+    let sent = try #require(StubProtocol.seen.first)
+    #expect(sent.httpMethod == "POST")
+    #expect(sent.url?.absoluteString == "https://mac.ts.net/pair")
+    #expect(sent.value(forHTTPHeaderField: "Authorization") == nil)
+    let body = try JSONSerialization.jsonObject(with: StubProtocol.seenBodies[0]) as? [String: String]
+    #expect(body == ["code": "c0de"])
+  }
+
+  @Test func refusedPairingCodeIsATypedRefusal() async throws {
+    let remote = APIClient(baseURL: try #require(URL(string: "https://mac.ts.net")), session: StubProtocol.session())
+    let body = Data(#"{"error":"unauthorized","cause":"the pairing code has expired","api_version":1}"#.utf8)
+    StubProtocol.answer = (401, body)
+    await #expect(throws: APIError.refused(status: 401, error: "unauthorized", cause: "the pairing code has expired")) {
+      try await remote.redeemPairing(code: "old")
+    }
+  }
+
   @Test func labReplayRunningIsAConflict() async throws {
     let body = Data(#"{"error":"conflict","cause":"replay running","api_version":1}"#.utf8)
     StubProtocol.answer = (409, body)

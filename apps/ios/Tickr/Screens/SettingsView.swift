@@ -199,7 +199,7 @@ private struct PairingSheet: View {
         }
         ToolbarItem(placement: .confirmationAction) {
           Button {
-            if let pairing { model.pair(pairing) }
+            if let pairing { Task { await model.pair(pairing) } }
             dismiss()
           } label: {
             Text(L10n.Pair.pair)

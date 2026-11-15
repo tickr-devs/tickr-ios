@@ -27,10 +27,10 @@ struct Connection: Equatable {
     self.pairedAddress = pairedAddress
   }
 
-  /// A connection to the Mac a pairing link names, with its token. Replaces any earlier pairing.
-  init(_ pairing: Pairing) {
-    self.init(address: pairing.url.absoluteString, token: pairing.token,
-      pairedAddress: pairing.url.absoluteString)
+  /// A connection to the Mac at `url`, with the token its pairing code bought. Replaces any
+  /// earlier pairing.
+  init(paired url: URL, token: String) {
+    self.init(address: url.absoluteString, token: token, pairedAddress: url.absoluteString)
   }
 
   var isRemote: Bool { url?.scheme?.lowercased() == Self.remoteScheme }

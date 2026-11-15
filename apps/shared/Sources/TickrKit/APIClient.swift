@@ -112,6 +112,10 @@ public struct APIClient: Sendable {
   static let jobsPath = "/jobs"
   static let journalPath = "/journal"
   static let labReplayPath = "/lab/replay"
+  /// Remote port only: redeem a pairing link's one-time code for the bearer token.
+  static let pairPath = "/pair"
+  /// Body key of the pairing code.
+  static let codeKey = "code"
   static let observersPath = "/observers"
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
@@ -227,6 +231,14 @@ public struct APIClient: Sendable {
   public func startLabReplay() async throws -> LabReplayV1 {
     let body = try JSONSerialization.data(withJSONObject: [String: String]())
     return try await perform(request(path: Self.labReplayPath, body: body), expect: Self.accepted)
+  }
+
+  /// Redeem a pairing link's one-time code at the Mac's HTTPS address for the bearer token the
+  /// phone keeps from then on. Sent without a token; the code works once, before it expires, and
+  /// a refused code is thrown as `APIError.refused` (401 `unauthorized`).
+  public func redeemPairing(code: String) async throws -> PairedV1 {
+    let body = try JSONSerialization.data(withJSONObject: [Self.codeKey: code], options: [.sortedKeys])
+    return try await perform(request(path: Self.pairPath, body: body), expect: Self.ok)
   }
 
   /// Risk limits and session times from the bot's config, as the API loaded them.

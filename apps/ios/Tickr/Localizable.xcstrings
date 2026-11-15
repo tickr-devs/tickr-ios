@@ -5700,19 +5700,36 @@
         }
       }
     },
+    "pair.notRedeemed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not paired: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связь не установлена: %@"
+          }
+        }
+      }
+    },
     "pair.notSaved" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Not paired: the phone could not keep the token in its Keychain."
+            "value" : "Not paired: the phone could not keep the token in its Keychain. Run pair on the Mac again."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Связь не установлена: телефону не удалось сохранить токен в Связке ключей."
+            "value" : "Связь не установлена: телефону не удалось сохранить токен в Связке ключей. Запустите pair на Mac ещё раз."
           }
         }
       }

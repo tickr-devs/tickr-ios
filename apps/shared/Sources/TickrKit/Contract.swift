@@ -294,6 +294,29 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
   }
 }
 
+/// POST /pair on the remote port: the bearer token a pairing code bought, answered once.
+public struct PairedV1: Codable, Hashable, Sendable {
+  public let token: String
+  public let apiVersion: Int
+
+  enum CodingKeys: String, CodingKey {
+    case token
+    case apiVersion = "api_version"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
+    token = try c.decode(String.self, forKey: .token)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(apiVersion, forKey: .apiVersion)
+    try c.encode(token, forKey: .token)
+  }
+}
+
 /// POST /commands/*: queued for the bot, not yet executed.
 public struct CommandAcceptedV1: Codable, Hashable, Sendable {
   public let command: CommandV1

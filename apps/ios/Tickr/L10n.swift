@@ -1108,9 +1108,12 @@ enum L10n {
         defaultValue: "That link is not a Tickr pairing link.",
         bundle: L10n.bundle)
     }
+    static func notRedeemed(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("pair.notRedeemed", defaultValue: "Not paired: \(cause)", bundle: L10n.bundle)
+    }
     static var notSaved: LocalizedStringResource {
       LocalizedStringResource("pair.notSaved",
-        defaultValue: "Not paired: the phone could not keep the token in its Keychain.",
+        defaultValue: "Not paired: the phone could not keep the token in its Keychain. Run pair on the Mac again.",
         bundle: L10n.bundle)
     }
     static var invalid: LocalizedStringResource {

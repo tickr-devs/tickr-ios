@@ -60,7 +60,7 @@ struct RootView: View {
       isPresented: Binding(get: { model.pendingPairing != nil }, set: { if !$0 { model.pendingPairing = nil } }),
       presenting: model.pendingPairing
     ) { pairing in
-      Button { model.pair(pairing) } label: { Text(L10n.Pair.pair) }
+      Button { Task { await model.pair(pairing) } } label: { Text(L10n.Pair.pair) }
       Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
     } message: { _ in
       Text(L10n.Pair.askMessage)

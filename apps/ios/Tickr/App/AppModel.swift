@@ -330,14 +330,24 @@ final class AppModel {
     await refresh()
   }
 
-  /// Uses a pairing link: the Mac's HTTPS address and its token replace the current connection.
-  /// Refused, with the earlier connection kept, when the Keychain does not take the token.
-  func pair(_ pairing: Pairing) {
-    guard Container.shared.keychain().saveToken(pairing.token) else {
+  /// Uses a pairing link: redeems its one-time code at the Mac's HTTPS address for the bearer
+  /// token, then that address and token replace the current connection. Refused, with the earlier
+  /// connection kept, when the Mac refuses the code (used, expired, or another pairing started) or
+  /// the Keychain does not take the token.
+  func pair(_ pairing: Pairing) async {
+    let redeemed: PairedV1
+    do {
+      redeemed = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: pairing.url))
+        .redeemPairing(code: pairing.code)
+    } catch {
+      notice = Notice(L10n.Pair.notRedeemed(ErrorText.text(error)), tone: .failure)
+      return
+    }
+    guard Container.shared.keychain().saveToken(redeemed.token) else {
       notice = Notice(L10n.Pair.notSaved, tone: .failure)
       return
     }
-    connection = Connection(pairing)
+    connection = Connection(paired: pairing.url, token: redeemed.token)
     notice = Notice(L10n.Pair.paired(Connection.displayHost(pairing.url) ?? String(localized: L10n.Pair.thisMac)),
       tone: .success)
   }

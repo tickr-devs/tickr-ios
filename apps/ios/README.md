@@ -44,8 +44,9 @@ settings": the project is generated, so such changes go into `project.yml`.
 The phone reaches the Mac through Tailscale (`tailscale serve` in front of the API, HTTPS, only
 inside your tailnet) with a paired token: follow "Remote access" in `docs/api.md`, AirDrop the
 pairing file to the phone and paste the link in Settings › Pair with Mac (or open it on the phone).
-The token is kept in the phone's Keychain (this device only) and sent only over HTTPS to the
-address it was paired with.
+The link holds a one-time code that the app redeems at the Mac for the token, so the link is
+worthless once used. The token is kept in the phone's Keychain (this device only) and sent only
+over HTTPS to the address it was paired with.
 
 The project is generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 Swift files under `Tickr/` are picked up automatically; only after changing `project.yml` run
