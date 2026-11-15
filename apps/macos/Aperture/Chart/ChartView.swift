@@ -204,24 +204,21 @@ struct ChartView: View {
 
   // MARK: Content
 
-  private var series: ChartSeries? {
-    guard let bars = chart.bars, !bars.bars.isEmpty else { return nil }
-    return ChartSeries(bars: bars.bars, timeframe: timeframe)
-  }
+  /// The shown bars as candles and lines; built once per new bars or timeframe (ChartModel).
+  private var plot: ChartPlot? { chart.plot(timeframe: timeframe) }
 
-  private var candleCount: Int { series?.candles.count ?? 0 }
+  private var candleCount: Int { plot?.candles.count ?? 0 }
 
   @ViewBuilder private var content: some View {
-    if let symbol, let bars = chart.bars, let series {
+    if let symbol, let plot {
       CandleChart(
-        series: series,
-        atr: ChartSeries.atr(bars: bars.bars, timeframe: timeframe),
+        plot: plot,
         lines: ChartLines(
           vwap: showVWAP, fastEMA: showFastEMA, slowEMA: showSlowEMA, volume: showVolume, atr: showATR),
         marks: ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol }),
         levels: ChartMarkers.levels(position: model.positions.first { $0.id == symbol }),
         decisions: showDecisions
-          ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], candles: series.candles) : [],
+          ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], candles: plot.candles) : [],
         live: model.isLive,
         viewport: $viewport)
         .id(ChartID(symbol: symbol, day: model.shownDay, timeframe: timeframe))

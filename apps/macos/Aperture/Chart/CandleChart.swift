@@ -6,8 +6,7 @@ import SwiftUI
 /// Candles with the bot's lines, trades and levels, plus optional volume and ATR panes that
 /// scroll, zoom and point together. Times read in New York, like the bot.
 struct CandleChart: View {
-  let series: ChartSeries
-  let atr: [Double?]
+  let plot: ChartPlot
   let lines: ChartLines
   let marks: [ChartMark]
   let levels: [ChartLevel]
@@ -15,7 +14,9 @@ struct CandleChart: View {
   let live: Bool
   @Binding var viewport: Viewport
 
-  @State private var selection: Date?
+  @State private var pointer = ChartPointer()
+  /// The pointer state, for the shared axis and crosshair of every pane.
+  var pointerModel: ChartPointer { pointer }
   @State private var appeared = false
   @State private var pinchStart: Int?
 
@@ -27,6 +28,9 @@ struct CandleChart: View {
   static let pricePadding = 0.08
   /// Smallest price range drawn, as a share of the price, so a flat stretch is not a line.
   static let minimumSpan = 0.0005
+  /// Width of every pane's value labels, in points: one width keeps the panes' plot areas, and so
+  /// their candles and crosshairs, lined up.
+  static let axisLabelWidth: CGFloat = 56
   /// Gridlines each pane asks for on its value axis.
   static let priceTicks = 6
   static let paneTicks = 3
@@ -36,12 +40,17 @@ struct CandleChart: View {
   /// Symbols of decision marks: one the strategy acted on, and one that did not trade.
   static let decisionSymbol = "diamond.fill"
   static let observerSymbol = "diamond"
+  /// Candles drawn beyond each side of the window while zoomed, as a share of the window, so a
+  /// fast scroll never shows a bare edge before the next redraw. Farther candles are not drawn.
+  static let drawnMargin = 1.0
 
-  private var candles: [Candle] { series.candles }
+  private var series: ChartSeries { plot.series }
+  private var atr: [Double?] { plot.atr }
+  private var candles: [Candle] { plot.candles }
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      ChartReadout(series: series, atr: atr, lines: lines, index: shownIndex)
+      ChartReadout(plot: plot, lines: lines, pointer: pointer)
       priceChart
         .frame(maxHeight: .infinity)
       if lines.volume {
@@ -69,7 +78,7 @@ struct CandleChart: View {
 
   private var priceChart: some View {
     Chart {
-      ForEach(candles) { candle in
+      ForEach(candles[drawn]) { candle in
         RuleMark(
           x: .value(Plot.time, candle.middle),
           yStart: .value(Plot.price, candle.low),
@@ -137,42 +146,53 @@ struct CandleChart: View {
               .foregroundStyle(color(last))
           }
       }
-      crosshair
     }
     .chartYScale(domain: priceDomain)
-    .chartYAxis { AxisMarks(position: .trailing, values: .automatic(desiredCount: Self.priceTicks)) }
+    .chartYAxis { valueAxis(ticks: Self.priceTicks, format: Self.priceFormat) }
     .chartXAxis(hasPaneBelow ? .hidden : .automatic)
-    .modifier(SharedAxis(chart: self, selection: $selection))
+    .modifier(SharedAxis(chart: self))
   }
 
   private var volumeChart: some View {
     Chart {
-      ForEach(candles) { candle in
+      ForEach(candles[drawn]) { candle in
         BarMark(
           xStart: .value(Plot.time, bodyStart(candle)),
           xEnd: .value(Plot.time, bodyEnd(candle)),
           y: .value(Plot.volume, candle.volume))
           .foregroundStyle(color(candle).opacity(Tokens.Opacity.medium))
       }
-      crosshair
     }
-    .chartYAxis { AxisMarks(position: .trailing, values: .automatic(desiredCount: Self.paneTicks)) }
+    .chartYAxis { valueAxis(ticks: Self.paneTicks, format: .number.notation(.compactName)) }
     .chartXAxis(lines.atr ? .hidden : .automatic)
-    .modifier(SharedAxis(chart: self, selection: $selection))
+    .modifier(SharedAxis(chart: self))
   }
 
   private var atrChart: some View {
     Chart {
       line(atr, name: Plot.atr, color: Palette.seriesATR)
-      crosshair
     }
-    .chartYAxis { AxisMarks(position: .trailing, values: .automatic(desiredCount: Self.paneTicks)) }
-    .modifier(SharedAxis(chart: self, selection: $selection))
+    .chartYAxis { valueAxis(ticks: Self.paneTicks, format: Self.priceFormat) }
+    .modifier(SharedAxis(chart: self))
     .overlay {
       if !atr.contains(where: { $0 != nil }) {
         Text(L10n.Chart.atrWaiting(Indicators.atrPeriod))
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textQuaternary)
+      }
+    }
+  }
+
+  /// A pane's value scale on the right, its labels all `axisLabelWidth` wide: scales of different
+  /// widths (prices, volumes in thousands, ATR) gave each pane a plot area of its own width, so the
+  /// same minute, and the crosshair on it, sat at a different x in each pane.
+  private func valueAxis(ticks: Int, format: FloatingPointFormatStyle<Double>) -> some AxisContent {
+    AxisMarks(position: .trailing, values: .automatic(desiredCount: ticks)) { value in
+      AxisGridLine()
+      AxisTick()
+      AxisValueLabel {
+        Text(verbatim: value.as(Double.self)?.formatted(format) ?? Format.missing)
+          .frame(width: Self.axisLabelWidth, alignment: .leading)
       }
     }
   }
@@ -189,18 +209,10 @@ struct CandleChart: View {
     }
   }
 
-  /// The defined values of a line, at the middle of their candles.
+  /// The defined values of a line among the drawn candles, at the middle of their candles.
   private func points(_ values: [Double?]) -> [LinePoint] {
-    zip(candles, values).compactMap { candle, value in
-      value.map { LinePoint(time: candle.middle, value: $0) }
-    }
-  }
-
-  @ChartContentBuilder private var crosshair: some ChartContent {
-    if let index = selectedIndex {
-      RuleMark(x: .value(Plot.time, candles[index].middle))
-        .foregroundStyle(Palette.textQuaternary.opacity(Tokens.Opacity.border))
-        .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin))
+    drawn.compactMap { index in
+      values[index].map { LinePoint(time: candles[index].middle, value: $0) }
     }
   }
 
@@ -228,6 +240,26 @@ struct CandleChart: View {
     Binding(get: { windowStart }, set: { viewport.position = $0 })
   }
 
+  /// What the pointer is over. The chart reports a time; only a move to another candle changes
+  /// what the crosshair and the readout show, and only they redraw for it.
+  var selection: Binding<Date?> {
+    Binding(
+      get: { pointer.time },
+      set: { time in
+        pointer.time = time
+        let index = time.flatMap(plot.index(at:))
+        if pointer.index != index { pointer.index = index }
+      })
+  }
+
+  /// Candles drawn: the whole day, or while zoomed the window with `drawnMargin` on each side.
+  private var drawn: Range<Int> {
+    guard zoomed else { return candles.indices }
+    let margin = visibleLength * Self.drawnMargin
+    return plot.indices(
+      from: windowStart.addingTimeInterval(-margin), to: windowStart.addingTimeInterval(visibleLength + margin))
+  }
+
   private var gap: TimeInterval { series.timeframe.seconds * (1 - Self.bodyShare) / 2 }
   private func bodyStart(_ candle: Candle) -> Date { candle.start.addingTimeInterval(gap) }
   private func bodyEnd(_ candle: Candle) -> Date { candle.end.addingTimeInterval(-gap) }
@@ -236,22 +268,13 @@ struct CandleChart: View {
 
   /// Prices of the candles and levels on screen, padded so nothing touches the edge.
   private var priceDomain: ClosedRange<Double> {
-    let end = windowStart.addingTimeInterval(visibleLength)
-    let shown = candles.filter { $0.end > windowStart && $0.start < end }
+    let shown = candles[plot.indices(from: windowStart, to: windowStart.addingTimeInterval(visibleLength))]
     let prices = shown.flatMap { [$0.low, $0.high] } + levels.map(\.price)
     guard let low = prices.min(), let high = prices.max() else { return 0...1 }
     let span = max(high - low, high * Self.minimumSpan)
     let pad = span * Self.pricePadding
     return (low - pad)...(high + pad)
   }
-
-  private var selectedIndex: Int? {
-    guard let selection else { return nil }
-    return candles.firstIndex { $0.start <= selection && selection < $0.end }
-  }
-
-  /// The candle the readout describes: the pointed one, else the newest.
-  private var shownIndex: Int? { selectedIndex ?? candles.indices.last }
 
   private var pinch: some Gesture {
     MagnifyGesture()
@@ -263,8 +286,11 @@ struct CandleChart: View {
       .onEnded { _ in pinchStart = nil }
   }
 
+  /// Prices and ATR values: dollars and cents.
+  static let priceFormat = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(Money.centsDigits))
+
   static func price(_ value: Double) -> String {
-    value.formatted(.number.precision(.fractionLength(Money.centsDigits)))
+    value.formatted(priceFormat)
   }
 }
 
@@ -279,7 +305,6 @@ private struct LinePoint: Identifiable {
 /// The time axis every pane shares: same domain, same window, same pointer.
 private struct SharedAxis: ViewModifier {
   let chart: CandleChart
-  @Binding var selection: Date?
 
   func body(content: Content) -> some View {
     content
@@ -287,19 +312,48 @@ private struct SharedAxis: ViewModifier {
       .chartScrollableAxes(chart.zoomed ? .horizontal : [])
       .chartXVisibleDomain(length: chart.visibleLength)
       .chartScrollPosition(x: chart.scrollPosition)
-      .chartXSelection(value: $selection)
+      .chartXSelection(value: chart.selection)
+      .chartOverlay { proxy in Crosshair(pointer: chart.pointerModel, candles: chart.plot.candles, proxy: proxy) }
   }
 }
 
-/// Values of the candle under the pointer (or the newest), above the price pane.
-private struct ChartReadout: View {
-  let series: ChartSeries
-  let atr: [Double?]
-  let lines: ChartLines
-  let index: Int?
+/// The vertical line through the pointed candle, drawn over a pane rather than as a mark in it,
+/// so moving the pointer redraws one line instead of the whole chart.
+private struct Crosshair: View {
+  let pointer: ChartPointer
+  let candles: [Candle]
+  let proxy: ChartProxy
 
   var body: some View {
-    if let index {
+    GeometryReader { geometry in
+      if let index = pointer.index, candles.indices.contains(index), let plotFrame = proxy.plotFrame,
+        let x = proxy.position(forX: candles[index].middle) {
+        let frame = geometry[plotFrame]
+        if x >= 0, x <= frame.width {
+          Rectangle()
+            .fill(Palette.textQuaternary.opacity(Tokens.Opacity.border))
+            .frame(width: Tokens.Stroke.thin, height: frame.height)
+            .position(x: frame.minX + x, y: frame.midY)
+        }
+      }
+    }
+    .allowsHitTesting(false)
+  }
+}
+
+/// Values of the candle under the pointer (or the newest), above the price pane. It alone reads
+/// the pointer, so a pointer move redraws this row and not the panes.
+private struct ChartReadout: View {
+  let plot: ChartPlot
+  let lines: ChartLines
+  let pointer: ChartPointer
+
+  private var series: ChartSeries { plot.series }
+  private var atr: [Double?] { plot.atr }
+
+  var body: some View {
+    let pointed = pointer.index.flatMap { series.candles.indices.contains($0) ? $0 : nil }
+    if let index = pointed ?? series.candles.indices.last {
       let candle = series.candles[index]
       HStack(spacing: Tokens.Space.m) {
         Text(verbatim: Format.marketMinute(candle.start))
@@ -337,16 +391,17 @@ private struct ChartReadout: View {
   }
 }
 
-/// Localized names of the plotted values (VoiceOver and Audio Graphs read them).
+/// Localized names of the plotted values (VoiceOver and Audio Graphs read them). Looked up once:
+/// every mark names its values, and a lookup per mark per redraw cost thousands of lookups.
 private enum Plot {
-  static var time: String { String(localized: L10n.Chart.axisTime) }
-  static var price: String { String(localized: L10n.Chart.axisPrice) }
-  static var volume: String { String(localized: L10n.Chart.volume) }
-  static var series: String { String(localized: L10n.Chart.axisSeries) }
-  static var vwap: String { String(localized: L10n.Chart.vwap) }
-  static var fastEMA: String { String(localized: L10n.Chart.ema(Indicators.fastEMAPeriod)) }
-  static var slowEMA: String { String(localized: L10n.Chart.ema(Indicators.slowEMAPeriod)) }
-  static var atr: String { String(localized: L10n.Chart.atr(Indicators.atrPeriod)) }
+  static let time = String(localized: L10n.Chart.axisTime)
+  static let price = String(localized: L10n.Chart.axisPrice)
+  static let volume = String(localized: L10n.Chart.volume)
+  static let series = String(localized: L10n.Chart.axisSeries)
+  static let vwap = String(localized: L10n.Chart.vwap)
+  static let fastEMA = String(localized: L10n.Chart.ema(Indicators.fastEMAPeriod))
+  static let slowEMA = String(localized: L10n.Chart.ema(Indicators.slowEMAPeriod))
+  static let atr = String(localized: L10n.Chart.atr(Indicators.atrPeriod))
 }
 
 extension Candle {

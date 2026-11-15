@@ -68,8 +68,10 @@ struct RootView: View {
           // split (the Chart's inspector) rather than a single view.
           .accessibilityElement(children: .contain)
           .accessibilityIdentifier(section.screenID)
+          // A new section replaces the screen at once, as a sidebar does in Apple's apps; the
+          // screen's own cards then rise in. Sliding whole screens in and out kept two of them
+          // (one maybe the chart) laid out and animating together, and stuttered.
           .id(section)
-          .transition(.opacity.combined(with: .move(edge: .bottom)))
         if let unattended = model.unattendedPositions {
           UnattendedBanner(unattended: unattended)
             .padding(Tokens.Space.l)
@@ -82,7 +84,6 @@ struct RootView: View {
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
       }
-      .animation(Tokens.Motion.standard, value: section)
       .animation(Tokens.Motion.standard, value: model.toast)
       .animation(Tokens.Motion.standard, value: model.unattendedPositions)
       .navigationTitle(Text(section.title))

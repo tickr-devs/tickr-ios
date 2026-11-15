@@ -232,4 +232,21 @@ struct AppModelTests {
     #expect(BotAction.stopBot.command == .stopBot)
     #expect(BotAction.emergency.command == .emergency)
   }
+
+  @Test("The chart builds its plot once per new bars or timeframe; an unchanged read reuses it")
+  func chartPlotIsCached() async throws {
+    let chart = ChartModel()
+    let day = try WireDate("2026-11-16")
+    #expect(chart.plot(timeframe: .m1) == nil)
+    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    let first = try #require(chart.plot(timeframe: .m1))
+    #expect(chart.plot(timeframe: .m1)?.revision == first.revision)
+    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    #expect(chart.revision == first.revision, "the same bars read again must not redraw the chart")
+    #expect(chart.plot(timeframe: .m5)?.timeframe == .m5)
+    chart.clear()
+    #expect(chart.plot(timeframe: .m1) == nil)
+    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    #expect(try #require(chart.plot(timeframe: .m1)).revision > first.revision)
+  }
 }
