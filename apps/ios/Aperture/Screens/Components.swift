@@ -69,6 +69,14 @@ extension StreamHealth {
 extension StatusV1 {
   /// The bot may open a position now: no entry block, no operator pause, and the trading gate open.
   var entriesAllowed: Bool { entryBlock == nil && !entryStop && tradingGate.open }
+
+  /// Entries are held only by an ordinary state the bot reports without attention (its own trade
+  /// open, outside the regular session, after the last entry time, no session today): a calm
+  /// "not now", grey, never a warning.
+  var entriesCalm: Bool {
+    guard let entryBlock, !entryBlock.attention else { return false }
+    return !entryStop && tradingGate.open
+  }
 }
 
 extension DecimalString {

@@ -4899,6 +4899,23 @@
         }
       }
     },
+    "risk.notNow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не сейчас"
+          }
+        }
+      }
+    },
     "risk.openPositions" : {
       "extractionState" : "manual",
       "localizations" : {

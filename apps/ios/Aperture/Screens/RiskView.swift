@@ -138,14 +138,17 @@ private struct GateCard: View {
   let status: StatusV1
 
   private var allowed: Bool { status.entriesAllowed }
+  /// Held by an ordinary state, not a problem: grey and still.
+  private var calm: Bool { status.entriesCalm }
 
   var body: some View {
-    RiskCard(title: L10n.Risk.entries, tint: allowed ? nil : Palette.warning) {
+    RiskCard(title: L10n.Risk.entries, tint: allowed || calm ? nil : Palette.warning) {
       HStack(spacing: Tokens.Space.s) {
-        PulseDot(allowed ? Palette.profit : Palette.warning, pulsing: !allowed)
-        Text(allowed ? L10n.Risk.allowed : L10n.Risk.blocked)
+        PulseDot(allowed ? Palette.profit : calm ? Palette.textQuaternary : Palette.warning,
+          pulsing: !allowed && !calm)
+        Text(allowed ? L10n.Risk.allowed : calm ? L10n.Risk.notNow : L10n.Risk.blocked)
           .font(Tokens.Typography.body.bold())
-          .foregroundStyle(allowed ? Palette.profitText : Palette.warningText)
+          .foregroundStyle(allowed ? Palette.profitText : calm ? Palette.textSecondary : Palette.warningText)
           .contentTransition(.opacity)
       }
       if let block = status.entryBlock {
@@ -169,7 +172,7 @@ private struct GateCard: View {
           .foregroundStyle(Palette.textQuaternary)
       }
     }
-    .animation(Tokens.Motion.standard, value: allowed)
+    .animation(Tokens.Motion.standard, value: [allowed, calm])
   }
 }
 

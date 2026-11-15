@@ -371,8 +371,9 @@ private struct LiveFlowCard: View {
         color: Palette.highlight),
       Stage(id: .risk, name: L10n.Flow.risk,
         value: status.entriesAllowed
-          ? count(.risk) ?? RiskFormat.amount(status.dailyRoomUsd?.value) : String(localized: L10n.Flow.blocked),
-        color: status.entriesAllowed ? Palette.warning : Palette.loss),
+          ? count(.risk) ?? RiskFormat.amount(status.dailyRoomUsd?.value)
+          : String(localized: status.entriesCalm ? L10n.Risk.notNow : L10n.Flow.blocked),
+        color: status.entriesAllowed ? Palette.warning : status.entriesCalm ? Palette.textQuaternary : Palette.loss),
       Stage(id: .order, name: L10n.Flow.order, value: count(.order) ?? String(status.tradesToday.count),
         color: Palette.info),
       Stage(id: .stop, name: L10n.Flow.stop, value: stops ?? Format.missing,
