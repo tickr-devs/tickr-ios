@@ -167,6 +167,26 @@ enum L10n {
   }
 
   enum Control {
+    static var stopTitle: LocalizedStringResource {
+      LocalizedStringResource("control.stopTitle",
+        defaultValue: "Stop the bot?",
+        bundle: L10n.bundle)
+    }
+    static var stopWarning: LocalizedStringResource {
+      LocalizedStringResource("control.stopWarning",
+        defaultValue: "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. The phone cannot start the bot again: start it on the Mac.",
+        bundle: L10n.bundle)
+    }
+    static var emergencyTitle: LocalizedStringResource {
+      LocalizedStringResource("control.emergencyTitle",
+        defaultValue: "Emergency stop?",
+        bundle: L10n.bundle)
+    }
+    static var emergencyWarning: LocalizedStringResource {
+      LocalizedStringResource("control.emergencyWarning",
+        defaultValue: "The bot pauses entries, cancels its entry orders and sells every position it holds at market through the normal exit. Each stop is cancelled only right before its sale. Entries stay paused until you resume them.",
+        bundle: L10n.bundle)
+    }
     static var resume: LocalizedStringResource {
       LocalizedStringResource("control.resume", defaultValue: "Resume Entries", bundle: L10n.bundle)
     }
@@ -179,9 +199,15 @@ enum L10n {
     static var flattenAll: LocalizedStringResource {
       LocalizedStringResource("control.flattenAll", defaultValue: "Flatten All Positions", bundle: L10n.bundle)
     }
+    static var stopBot: LocalizedStringResource {
+      LocalizedStringResource("control.stopBot", defaultValue: "Stop the Bot", bundle: L10n.bundle)
+    }
+    static var emergency: LocalizedStringResource {
+      LocalizedStringResource("control.emergency", defaultValue: "Emergency: Pause, Cancel, Flatten", bundle: L10n.bundle)
+    }
     static var message: LocalizedStringResource {
       LocalizedStringResource("control.message",
-        defaultValue: "Pausing and cancelling never touch broker stops. Flatten closes the bot's own positions through the normal exit. Each command is queued once; the bot reports the result.",
+        defaultValue: "Pausing and cancelling never touch broker stops. Flatten closes the bot's own positions through the normal exit. Stop ends the bot gracefully: positions stay open under DAY stops and nothing closes them at the session's end; only the Mac can start it again. Emergency pauses entries, cancels entry orders and flattens everything. Each command is queued once; the bot reports the result.",
         bundle: L10n.bundle)
     }
     static var unknown: LocalizedStringResource {
@@ -319,7 +345,7 @@ enum L10n {
     }
     static var flattenMessage: LocalizedStringResource {
       LocalizedStringResource("positions.flattenMessage",
-        defaultValue: "The bot cancels the stop, re-reads the quantity and sells at market through the normal exit. Flatten closes every position the bot holds; positions not opened by the bot are not touched.",
+        defaultValue: "The bot cancels this position's stop, re-reads the quantity and sells at market through the normal exit. Only this symbol closes; the bot's other positions and positions not opened by the bot are not touched.",
         bundle: L10n.bundle)
     }
     static var riskBand: LocalizedStringResource {

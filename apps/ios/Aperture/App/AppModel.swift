@@ -188,7 +188,9 @@ final class AppModel {
       return
     }
     do {
-      let accepted = try await Container.shared.apiClient(connection.endpoint(for: url)).send(command)
+      // One key per decision: should this very request ever reach the bot twice, it queues once.
+      let accepted = try await Container.shared.apiClient(connection.endpoint(for: url))
+        .send(command, idempotencyKey: UUID().uuidString)
       awaited[accepted.command.commandId] = command.kind
       if let warning = accepted.warning {
         notice = Notice(L10n.Notice.queuedWarning(title, warning), tone: .failure)

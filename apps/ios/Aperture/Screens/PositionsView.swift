@@ -176,7 +176,7 @@ private struct PositionDetail: View {
         titleVisibility: .visible) {
         if model.canCommand {
           Button(role: .destructive) {
-            Task { await BotControl.confirmAndSend(.flatten, model: model) }
+            Task { await BotControl.confirmAndSend(.flattenSymbol(position.symbol), model: model) }
           } label: {
             Text(L10n.Positions.flatten(position.symbol))
           }
