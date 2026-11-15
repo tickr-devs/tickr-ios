@@ -250,8 +250,8 @@ private struct DayToolbar: ToolbarContent {
 }
 
 /// The bot's address and how old its status is ("127.0.0.1 · 3 s ago"), with a dot in the
-/// headline's colour; the tooltip says what the headline says.
-private struct ConnectionStatus: View {
+/// connection's colour (green while fresh statuses arrive); the tooltip says what the headline says.
+struct ConnectionStatus: View {
   @Environment(AppModel.self) private var model
 
   /// How often the age refreshes, in seconds.
@@ -268,7 +268,8 @@ private struct ConnectionStatus: View {
     TimelineView(.periodic(from: .now, by: Self.tick)) { context in
       HStack(spacing: Tokens.Space.s) {
         // Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
-        PulseDot(model.headline.severity.color, size: Tokens.Size.dotSmall, pulsing: isFresh, event: model.headline.text)
+        PulseDot(Self.color(hasStatus: model.status != nil, stale: model.response?.stale, failed: model.fetchError != nil),
+          size: Tokens.Size.dotSmall, pulsing: isFresh, event: model.headline.text)
         Text(verbatim: text(now: model.botTime(context.date)))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textTertiary)
@@ -283,6 +284,13 @@ private struct ConnectionStatus: View {
   }
 
   private var isFresh: Bool { model.response?.stale == false && model.fetchError == nil }
+
+  /// The dot sits next to the status's age, so it tells the connection's health, not the
+  /// headline's: green for a fresh status, amber for a stale one, red for none or a failed read.
+  static func color(hasStatus: Bool, stale: Bool?, failed: Bool) -> Color {
+    guard hasStatus, !failed else { return Palette.loss }
+    return stale == false ? Palette.profit : Palette.warning
+  }
 
   private func text(now: Date) -> String {
     let host = model.baseURL.host() ?? model.baseURL.absoluteString
