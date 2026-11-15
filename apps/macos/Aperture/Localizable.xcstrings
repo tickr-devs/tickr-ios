@@ -6257,6 +6257,23 @@
         }
       }
     },
+    "trades.cumulativeR" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumulative R"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Накопленный R"
+          }
+        }
+      }
+    },
     "trades.day" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6325,6 +6342,23 @@
         }
       }
     },
+    "trades.excluded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left out: %1$lld · %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не учтено: %1$lld · %2$@"
+          }
+        }
+      }
+    },
     "trades.excursionLowerBound" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6359,6 +6393,40 @@
         }
       }
     },
+    "trades.expectancy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expectancy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ожидание"
+          }
+        }
+      }
+    },
+    "trades.grossNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gross: before fees. 1 R is each trade's planned loss."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Брутто: до комиссий. 1 R — плановый убыток каждой сделки."
+          }
+        }
+      }
+    },
     "trades.maeAtLeast" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6372,6 +6440,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Худший открытый результат (MAE), не меньше"
+          }
+        }
+      }
+    },
+    "trades.maxDrawdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Max drawdown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Макс. просадка"
           }
         }
       }
@@ -6423,6 +6508,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Записанных дней пока нет."
+          }
+        }
+      }
+    },
+    "trades.noPerformance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No closed trades in these days."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За эти дни закрытых сделок нет."
           }
         }
       }
@@ -6559,6 +6661,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 R · плановый убыток"
+          }
+        }
+      }
+    },
+    "trades.percent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%%"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%%"
+          }
+        }
+      }
+    },
+    "trades.performance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Performance in R · %lld days"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Результаты в R · %lld дн."
+          }
+        }
+      }
+    },
+    "trades.performanceCounts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades · %2$lld W · %3$lld L · %4$lld flat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделок: %1$lld · %2$lld П · %3$lld У · %4$lld в ноль"
+          }
+        }
+      }
+    },
+    "trades.performanceUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's API did not return performance: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API бота не вернул результаты: %@"
+          }
+        }
+      }
+    },
+    "trades.profitFactor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profit factor"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профит-фактор"
           }
         }
       }
@@ -6784,6 +6971,23 @@
         }
       }
     },
+    "trades.totalR" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Итого"
+          }
+        }
+      }
+    },
     "trades.tradeDetail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6933,6 +7137,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Другая стратегия…"
+          }
+        }
+      }
+    },
+    "trades.winRate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Win rate"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доля прибыльных"
           }
         }
       }

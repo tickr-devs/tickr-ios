@@ -12,7 +12,7 @@ struct TradesView: View {
 
   /// Entrance order of the screen's parts.
   private enum Order: Int {
-    case days = 0, stats, trades, detail, notTaken, whatIf
+    case days = 0, stats, performance, trades, detail, notTaken, whatIf
   }
 
   var body: some View {
@@ -23,6 +23,8 @@ struct TradesView: View {
       VStack(alignment: .leading, spacing: Tokens.Space.l) {
         DayStatsRow()
           .rise(step: Order.stats.rawValue)
+        PerformanceCard()
+          .rise(step: Order.performance.rawValue)
         TradesTable(selection: $selection, showOnChart: showOnChart)
           .rise(step: Order.trades.rawValue)
         TradeDetailCard(trade: model.shownTrades.first { $0.id == selection })

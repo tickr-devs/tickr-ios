@@ -1167,6 +1167,58 @@ enum L10n {
     static var notRecorded: LocalizedStringResource {
       LocalizedStringResource("trades.notRecorded", defaultValue: "Not recorded", bundle: L10n.bundle)
     }
+    /// Card title: gross performance over the days that end on the shown day.
+    static func performance(_ days: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.performance", defaultValue: "Performance in R · \(days) days", bundle: L10n.bundle)
+    }
+    /// Performance figure: average result per trade, in R.
+    static var expectancy: LocalizedStringResource {
+      LocalizedStringResource("trades.expectancy", defaultValue: "Expectancy", bundle: L10n.bundle)
+    }
+    /// Performance figure: share of winning trades.
+    static var winRate: LocalizedStringResource {
+      LocalizedStringResource("trades.winRate", defaultValue: "Win rate", bundle: L10n.bundle)
+    }
+    /// Performance figure: gross profit over gross loss.
+    static var profitFactor: LocalizedStringResource {
+      LocalizedStringResource("trades.profitFactor", defaultValue: "Profit factor", bundle: L10n.bundle)
+    }
+    /// Performance figure: deepest fall from a running peak, in R.
+    static var maxDrawdown: LocalizedStringResource {
+      LocalizedStringResource("trades.maxDrawdown", defaultValue: "Max drawdown", bundle: L10n.bundle)
+    }
+    /// Performance figure: sum of results, in R.
+    static var totalR: LocalizedStringResource {
+      LocalizedStringResource("trades.totalR", defaultValue: "Total", bundle: L10n.bundle)
+    }
+    /// A percentage.
+    static func percent(_ value: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.percent", defaultValue: "\(value)%", bundle: L10n.bundle)
+    }
+    /// Counts under the performance figures.
+    static func performanceCounts(_ trades: Int, _ wins: Int, _ losses: Int, _ scratches: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.performanceCounts", defaultValue: "\(trades) trades · \(wins) W · \(losses) L · \(scratches) flat", bundle: L10n.bundle)
+    }
+    /// Trades left out of every performance figure, with why.
+    static func excluded(_ trades: Int, _ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.excluded", defaultValue: "Left out: \(trades) · \(cause)", bundle: L10n.bundle)
+    }
+    /// Performance read failed.
+    static func performanceUnavailable(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.performanceUnavailable", defaultValue: "The bot's API did not return performance: \(cause)", bundle: L10n.bundle)
+    }
+    /// Performance card with no trades.
+    static var noPerformance: LocalizedStringResource {
+      LocalizedStringResource("trades.noPerformance", defaultValue: "No closed trades in these days.", bundle: L10n.bundle)
+    }
+    /// Plotted value name of the performance curve (VoiceOver).
+    static var cumulativeR: LocalizedStringResource {
+      LocalizedStringResource("trades.cumulativeR", defaultValue: "Cumulative R", bundle: L10n.bundle)
+    }
+    /// Footnote of the performance card.
+    static var grossNote: LocalizedStringResource {
+      LocalizedStringResource("trades.grossNote", defaultValue: "Gross: before fees. 1 R is each trade's planned loss.", bundle: L10n.bundle)
+    }
     /// Stat card: average result in R.
     static var averageR: LocalizedStringResource {
       LocalizedStringResource("trades.averageR", defaultValue: "Average R", bundle: L10n.bundle)
@@ -1353,6 +1405,10 @@ enum L10n {
     static var settingsUnavailable: LocalizedStringResource {
       LocalizedStringResource("risk.settingsUnavailable", defaultValue: "Settings are unavailable; the bot's API did not answer.", bundle: L10n.bundle)
     }
+    /// The market clock on the Session card: "14:46:17 ET", 24-hour New York time.
+    static func clock(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.clock", defaultValue: "\(time) ET", bundle: L10n.bundle)
+    }
     /// Card title: the trading session.
     static var session: LocalizedStringResource {
       LocalizedStringResource("risk.session", defaultValue: "Session · New York", bundle: L10n.bundle)
@@ -1410,10 +1466,6 @@ enum L10n {
       LocalizedStringResource("risk.stale", defaultValue: "STALE", bundle: L10n.bundle)
     }
     /// When the bot last read the broker (New York time) and how long ago.
-    /// The market clock on the Session card: "14:46:17 ET", 24-hour New York time.
-    static func clock(_ time: String) -> LocalizedStringResource {
-      LocalizedStringResource("risk.clock", defaultValue: "\(time) ET", bundle: L10n.bundle)
-    }
     static func readAt(_ time: String, _ age: String) -> LocalizedStringResource {
       LocalizedStringResource("risk.readAt", defaultValue: "Broker read at \(time) · \(age) s ago", bundle: L10n.bundle)
     }

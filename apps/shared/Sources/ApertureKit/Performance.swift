@@ -7,6 +7,11 @@ import Foundation
 public struct CausedDecimal: Hashable, Sendable {
   public let value: DecimalString?
   public let cause: String?
+
+  public init(value: DecimalString?, cause: String?) {
+    self.value = value
+    self.cause = cause
+  }
 }
 
 /// Trades left out of every figure, grouped by why.

@@ -35,6 +35,9 @@ final class ApertureUITests: XCTestCase {
   static let stopConfirmedAfter = "Stop confirmed after"
   /// The first trade in day-v1.json.
   static let tradeSymbol = "WXYZ"
+  /// The performance card (PerformanceCard.id) and the start of its exclusion line.
+  static let performanceCard = "trades-performance"
+  static let excludedPrefix = "Left out: 1"
   /// The Chart's decisions toggle (ChartView.decisionsToggleID) and a rule from decisions-v1.json.
   static let decisionsToggle = "chart-decisions"
   static let decisionRule = "ask_above_trigger"
@@ -158,6 +161,17 @@ final class ApertureUITests: XCTestCase {
     let detail = app.descendants(matching: .any)[Self.tradeDetail].firstMatch
     XCTAssertTrue(detail.staticTexts[Self.stopConfirmedAfter].waitForExistence(timeout: Self.timeout),
       "trade detail\n\(app.debugDescription)")
+  }
+
+  @MainActor
+  func testTradesShowThePerformance() {
+    let app = launch()
+    open(Self.sections[2], in: app)
+    let card = app.descendants(matching: .any)[Self.performanceCard].firstMatch
+    XCTAssertTrue(card.waitForExistence(timeout: Self.timeout), "performance card\n\(app.debugDescription)")
+    // The fixture leaves one trade out; the card says so next to the totals.
+    let excluded = card.staticTexts.matching(NSPredicate(format: "value BEGINSWITH %@", Self.excludedPrefix))
+    XCTAssertTrue(excluded.firstMatch.waitForExistence(timeout: Self.timeout), "exclusion\n\(app.debugDescription)")
   }
 
   @MainActor

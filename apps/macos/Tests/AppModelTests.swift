@@ -137,6 +137,20 @@ struct AppModelTests {
     #expect(model.isLive)
   }
 
+  @Test("Performance over the days ending on the shown day is read; a failed read clears it")
+  func performance() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    RouteProtocol.routes.withLock { $0.bodies["/performance"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("performance-v1.json")) }
+    await model.refreshPerformance()
+    #expect(model.performance?.trades == 5)
+    #expect(model.performance?.exclusions.count == 1)
+    RouteProtocol.routes.withLock { $0.bodies["/performance"] = nil }
+    await model.refreshPerformance()
+    #expect(model.performance == nil)
+    #expect(model.performanceError != nil)
+  }
+
   @Test("The shown day's skipped signals are read; a failed read clears them")
   func skippedSignals() async throws {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)

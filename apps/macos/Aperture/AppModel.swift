@@ -101,6 +101,9 @@ public final class AppModel {
   /// The active strategy's ENTERs on the shown day that did not become a position; nil until read.
   public private(set) var skipped: SkippedV1?
   public private(set) var skippedError: String?
+  /// Gross performance in R over the `performanceDays` days that end on the shown day.
+  public private(set) var performance: PerformanceV1?
+  public private(set) var performanceError: String?
 
   // Positions with their latest bars.
   private var barsBySymbol: [String: BarsV1] = [:]
@@ -175,6 +178,8 @@ public final class AppModel {
   static let barSeconds: TimeInterval = 60
   /// A change of the bot's clock offset smaller than this (network delay) is ignored, in seconds.
   static let clockToleranceSeconds: TimeInterval = 2
+  /// Calendar days of the performance card, counting the shown day (the design's "30 days").
+  static let performanceDays = 30
 
   /// Trades of the shown day: live from status for today, else from the day document.
   public var shownTrades: [DayTrade] {
@@ -274,6 +279,7 @@ public final class AppModel {
     account = nil
     observers = nil
     skipped = nil
+    performance = nil
     Task {
       await refreshStatus()
       await refreshHistory()
@@ -335,6 +341,7 @@ public final class AppModel {
     }
     await refreshObservers()
     await refreshSkipped()
+    await refreshPerformance()
   }
 
   public func refreshAccount() async {
@@ -379,12 +386,31 @@ public final class AppModel {
     }
   }
 
+  /// Reads performance over the days that end on the shown day. An answer for a day no longer
+  /// shown is dropped; a failed read clears it, so old figures never read as current.
+  public func refreshPerformance() async {
+    let day = shownDay
+    do {
+      let document = try await client.performance(from: day.adding(days: 1 - Self.performanceDays), to: day)
+      guard day == shownDay else { return }
+      performance = document
+      performanceError = nil
+    } catch {
+      guard day == shownDay else { return }
+      performance = nil
+      performanceError = Self.describe(error)
+    }
+  }
+
   private func loadSelectedDay() async {
     observers = nil
     skipped = nil
     skippedError = nil
+    performance = nil
+    performanceError = nil
     await refreshObservers()
     await refreshSkipped()
+    await refreshPerformance()
     guard let day = selectedDay, day != today else {
       dayDocument = nil
       return
