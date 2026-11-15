@@ -336,6 +336,26 @@ LEGACY = [
     (re.compile(r"\bnonisolated\(unsafe\)|@unchecked\s+Sendable\b|@preconcurrency\b"), UNSAFE),
     (re.compile(r"ignoringOtherApps"),
      "activate(ignoringOtherApps:) is deprecated: use NSApp.activate()"),
+    (re.compile(r"\.accessibility\(\s*(?:label|hidden|identifier|value|hint|addTraits|removeTraits"
+                r"|sortPriority|inputLabels|selectionIdentifier|activationPoint):"),
+     "accessibility(label:) and its siblings are deprecated: use accessibilityLabel(_:) etc."),
+    (re.compile(r"\bActionSheet\b|\.actionSheet\("),
+     "ActionSheet is deprecated: use confirmationDialog"),
+    (re.compile(r"\bAlert\("), "Alert is deprecated: use alert(_:isPresented:actions:message:)"),
+    (re.compile(r"\.navigationBarItems\(|\.navigationBarHidden\(|\.navigationViewStyle\("),
+     "NavigationView bar modifiers are deprecated: use toolbar and toolbarVisibility"),
+    (re.compile(r"\.statusBar\(\s*hidden:"),
+     "statusBar(hidden:) is deprecated: use statusBarHidden"),
+    (re.compile(r"\.disableAutocorrection\("),
+     "disableAutocorrection is deprecated: use autocorrectionDisabled"),
+    (re.compile(r"\bonEditingChanged:|\bonCommit:"),
+     "TextField(onEditingChanged:onCommit:) is deprecated: use focused and onSubmit"),
+    # `alignment:` at the call's own level: not the one of a `.frame(…, alignment:)` inside it.
+    (re.compile(r"\.(?:overlay|background)\((?!\s*alignment:)"
+                r"(?:[^(){}]|\((?:[^()]|\([^()]*\))*\))*,\s*alignment:"),
+     "overlay(_:alignment:), background(_:alignment:) are deprecated: use (alignment:) { }"),
+    (re.compile(r"\bUIApplication\.shared\.(?:windows|keyWindow)\b"),
+     "UIApplication.windows and keyWindow are deprecated: use the view's window scene"),
 ]
 # `.onChange(of: value, perform: action)` spread over several lines.
 ON_CHANGE = ".onChange("
@@ -371,7 +391,8 @@ SWIFT_MODE = 6
 LATEST_OS = 26
 SETTINGS = [
     (re.compile(r"swift-tools-version:\s*(\d+)"), SWIFT_MODE),
-    (re.compile(r"\.(?:macOS|iOS)\(\.v(\d+)"), LATEST_OS),
+    (re.compile(r"\.(?:macOS|iOS)\(\s*(?:\.v|\")(\d+)"), LATEST_OS),
+    (re.compile(r"swiftLanguage(?:Modes?|Versions)\b\W*\.v(\d+)"), SWIFT_MODE),
     (re.compile(r"\bSWIFT_VERSION[\s=:]+\"?(\d+)"), SWIFT_MODE),
     (re.compile(r"_DEPLOYMENT_TARGET[\s=:]+\"?(\d+)"), LATEST_OS),
     (re.compile(r"^\s*(?:iOS|macOS):\s*\"?(\d+)"), LATEST_OS),
@@ -379,7 +400,8 @@ SETTINGS = [
 # Settings that weaken strict concurrency: unsafe compiler flags and any checking level below
 # complete.
 WEAKENED = re.compile(
-    r"unsafeFlags|-strict-concurrency=|SWIFT_STRICT_CONCURRENCY[\s=:\"]+(?!complete\b)\w")
+    r"unsafeFlags|-strict-concurrency=|-swift-version\s+[1-5]\b"
+    r"|SWIFT_STRICT_CONCURRENCY[\s=:\"]+(?!complete\b)\w")
 SETTINGS_FILES = ("Package.swift", "project.pbxproj", "project.yml")
 
 
