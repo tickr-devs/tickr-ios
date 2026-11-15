@@ -28,9 +28,9 @@ struct HomeView: View {
           .apertureCard()
           .rise(step: Order.positions.rawValue)
       } else if let status = model.status {
-        if let event = Board.events(status).first {
-          LatestEventLine(event: event)
-            .rise(step: Order.ticker.rawValue)
+        if let line = LatestEventLine.latest(status: status,
+          skipped: model.skipped?.day == model.today ? model.skipped : nil) {
+          line.rise(step: Order.ticker.rawValue)
         }
         ForEach(Array(Board.positions(status).enumerated()), id: \.element.symbol) { index, position in
           PositionRow(position: position, marks: prices.marks[position.symbol])
@@ -391,6 +391,8 @@ private struct LiveFlowCard: View {
   }
 
   @Namespace private var board
+  /// The stage whose refused symbols are listed in a popover (a tap on its tray).
+  @State private var openTray: StageID?
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   /// Symbol dots per row under a stage, and the most shown before "+N".
@@ -559,7 +561,8 @@ private struct LiveFlowCard: View {
       .minimumScaleFactor(FlowDot.minimumScale)
       pool(stage)
     }
-    .accessibilityElement(children: .combine)
+    // .contain, not .combine: the refused tray inside stays a button VoiceOver can activate.
+    .accessibilityElement(children: .contain)
     .unredacted(when: stage.urgent)
   }
 
@@ -571,18 +574,29 @@ private struct LiveFlowCard: View {
     let passed = here.filter { !$0.refused }
     let refused = here.filter(\.refused)
     VStack(spacing: Tokens.Space.xs) {
-      if !passed.isEmpty { dots(passed, color: stage.color) }
+      if !passed.isEmpty { dots(passed, color: stage.color).accessibilityHidden(true) }
       if !refused.isEmpty {
-        dots(refused, color: Palette.loss)
-          .padding(Tokens.Space.xs)
-          .overlay {
-            RoundedRectangle(cornerRadius: Tokens.Radius.small)
-              .strokeBorder(Palette.separatorStrong,
-                style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
-          }
+        // No hover on a phone: a tap on the tray lists who was refused and why (HIG: popover).
+        Button {
+          openTray = stage.id
+        } label: {
+          dots(refused, color: Palette.loss)
+            .padding(Tokens.Space.xs)
+            .overlay {
+              RoundedRectangle(cornerRadius: Tokens.Radius.small)
+                .strokeBorder(Palette.separatorStrong,
+                  style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(L10n.Flow.refusedCount(refused.count)))
+        .popover(isPresented: Binding(get: { openTray == stage.id }, set: { if !$0 { openTray = nil } })) {
+          RefusedList(marks: refused)
+            .presentationCompactAdaptation(.popover)
+        }
       }
     }
-    .accessibilityHidden(true)
   }
 
   private func dots(_ marks: [FlowMark], color: Color) -> some View {
@@ -604,17 +618,62 @@ private struct LiveFlowCard: View {
   }
 }
 
+/// The symbols a stage refused today, each with why: the tray's popover.
+private struct RefusedList: View {
+  let marks: [FlowMark]
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      ForEach(marks) { mark in
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          Text(verbatim: mark.id)
+            .font(.subheadline.monospaced().bold())
+            .foregroundStyle(Palette.textPrimary)
+          if let note = mark.note {
+            Text(verbatim: note)
+              .font(.footnote)
+              .foregroundStyle(Palette.textSecondary)
+              .fixedSize(horizontal: false, vertical: true)
+          }
+        }
+        .accessibilityElement(children: .combine)
+      }
+    }
+    .padding(Tokens.Space.l)
+  }
+}
+
 /// The bot's latest event on one still line, as in the design: its New York time, its tag in its
 /// tone and what happened. A new event replaces the line; nothing scrolls.
 private struct LatestEventLine: View {
-  let event: Board.Event
+  let time: Date
+  let tag: String
+  let text: String
+  let color: Color
+
+  /// The newest of the status's events and today's risk refusals (a refusal is an event too).
+  static func latest(status: StatusV1, skipped: SkippedV1?) -> LatestEventLine? {
+    let event = Board.events(status).first.map {
+      LatestEventLine(time: $0.time, tag: $0.tag, text: $0.text, color: $0.tone.color)
+    }
+    let refusal = skipped?.signals.filter { $0.admission == .refused }.max { $0.at.date < $1.at.date }.map {
+      LatestEventLine(time: $0.at.date, tag: String(localized: L10n.Flow.refusedTag),
+        text: [$0.symbol, $0.refusal?.message ?? $0.refusalCause].compactMap { $0 }.joined(separator: Self.gap),
+        color: Palette.warning)
+    }
+    guard let event, let refusal else { return event ?? refusal }
+    return refusal.time > event.time ? refusal : event
+  }
+
+  /// Between the refused symbol and why.
+  static let gap = " "
 
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-      Text(L10n.Home.clockET(Format.clock(event.time)))
+      Text(L10n.Home.clockET(Format.clock(time)))
         .foregroundStyle(Palette.textQuaternary)
-      Text(verbatim: event.tag).bold().foregroundStyle(event.tone.color)
-      Text(verbatim: event.text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
+      Text(verbatim: tag).bold().textCase(.uppercase).foregroundStyle(color)
+      Text(verbatim: text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
       Spacer(minLength: 0)
     }
     .font(Tokens.Typography.annotation.monospaced())
