@@ -170,10 +170,12 @@ public enum Tokens {
     /// SF Symbols inside an icon well.
     public static let iconWellSymbol: CGFloat = 15
     /// The brand mark (BrandMark) in a header, and small in a panel.
-    public static let logo: CGFloat = 56
+    public static let logo: CGFloat = 64
     public static let logoSmall: CGFloat = 26
     /// The brand mark as the illustration of an empty screen.
     public static let emptyMark: CGFloat = 88
+    /// The brand mark on the iOS launch screen (LAUNCH_MARK in apps/scripts/make_brand_assets.py).
+    public static let launchMark: CGFloat = 160
     /// Height of a sparkline and of a progress bar.
     public static let sparkline: CGFloat = 34
     public static let bar: CGFloat = 8
@@ -242,6 +244,13 @@ public enum Tokens {
     public static let breatheSeconds = 2.4
     /// How much a breathing glow grows.
     public static let breatheScale: CGFloat = 1.08
+    /// iOS opening: seconds the launch screen's mark holds while its spark flashes once, then the
+    /// mark flies into the Home title as the launch background fades.
+    public static let launchHoldSeconds = 0.45
+    public static let launchFlySeconds = 0.75
+    public static let launchFly = Animation.smooth(duration: launchFlySeconds)
+    /// The cross-fade that replaces the opening animation under Reduce Motion.
+    public static let launchFadeSeconds = 0.35
     /// Seconds for one turn of the radar sweep.
     public static let rotationSeconds = 4.0
     /// Points per second of the event ticker.

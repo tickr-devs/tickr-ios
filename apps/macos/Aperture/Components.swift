@@ -294,17 +294,6 @@ enum Format {
   }
 }
 
-/// Facts about the running app, read from its bundle rather than written into views.
-enum AppInfo {
-  /// Info.plist key of the product name.
-  static let bundleNameKey = "CFBundleName"
-
-  /// The product name shown in the header ("Aperture"), from the bundle or the process.
-  static var name: String {
-    Bundle.main.object(forInfoDictionaryKey: bundleNameKey) as? String ?? ProcessInfo.processInfo.processName
-  }
-}
-
 extension StreamHealth {
   /// The quote stream's state in the person's language.
   var title: String {

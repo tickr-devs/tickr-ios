@@ -58,6 +58,7 @@ contrast on `surface` in both appearances.
 | `seriesUniverse` | Universe stage of the live flow | = `seriesATR` | = `seriesATR` |
 | `glowIndigo`, `glowTeal` | Light background corner glows (at `Opacity.glow`, reach 420 pt; teal centred on the right edge, a fifth down) | `#6366F1`, `#14B8A6` | not drawn |
 | `shadow` | Light card shadow (at `Opacity.shadow`) | `#283C96` | not drawn |
+| `shine` | Highlight running along the brand mark's line while live (at `Opacity.medium`) | `#FFFFFF` | `#FFFFFF` |
 
 A money result uses `profitText` above zero, `lossText` below and `textTertiary` at zero.
 
@@ -147,7 +148,7 @@ and `display` → `.largeTitle`; `title` and `subtitle` → `.title`; `symbol` �
 | `stage` | 52 | Stages of the live flow |
 | `dayResultWidth` | 300 | Overview's day result beside the header |
 | `gridColumnMin` | 300 | Narrowest column of a card grid before it stacks |
-| `logo` / `logoSmall` / `emptyMark` | 56 / 26 / 88 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |
+| `logo` / `logoSmall` / `emptyMark` | 64 / 26 / 88 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |
 | `sparkline` | 34 | Sparkline height |
 | `bar` | 8 | Progress bar height |
 | `barThin` | 4 | Thin progress bar inside a row (Watching closely) |
@@ -245,7 +246,11 @@ breaks upward, with a spark at its end.
   (`LaunchBackground` = `background`, `LaunchMark`). Change the script and run it; never edit the
   generated files. `tests/test_brand_assets.py` fails when they differ.
 - In the apps the same line is `BrandMark` (ApertureDesign): it draws itself on appear and its
-  spark then pulses while the bot's data is live; still otherwise and with Reduce Motion.
+  spark then pulses (a shine runs up the line, a ring leaves the spark) while the bot's data is
+  current (macOS Overview header, iOS Home bar); still otherwise and with Reduce Motion.
+- iOS opening (`LaunchHandoff`): the app starts exactly as the launch screen, flashes the spark
+  once, then flies the mark into Home's bar mark while the background fades (`launchHoldSeconds`,
+  `launchFly`). Reduce Motion: a cross-fade (`launchFadeSeconds`). macOS has no launch screen.
 - Empty screens (nothing yet, no trades, bot unreachable) use `BrandMark.empty()` as the
   `ContentUnavailableView` illustration, muted (`.muted`) when the bot cannot be reached. Errors
   keep a warning SF Symbol, so they never look like a calm empty state.

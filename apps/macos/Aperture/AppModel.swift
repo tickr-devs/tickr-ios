@@ -148,10 +148,11 @@ public final class AppModel {
   public var isLive: Bool { selectedDay == nil || selectedDay == today }
   public var shownDay: WireDate { selectedDay ?? today }
 
+  /// The live day, with a status the app can trust (read without error and not stale).
+  public var isCurrent: Bool { isLive && status != nil && response?.stale == false && fetchError == nil }
+
   /// Commands make sense only for the live day with a status the app can trust.
-  public var commandsEnabled: Bool {
-    isLive && !sending && status != nil && response?.stale == false && fetchError == nil
-  }
+  public var commandsEnabled: Bool { isCurrent && !sending }
 
   public var positions: [PositionRow] {
     guard isLive, let status else { return [] }

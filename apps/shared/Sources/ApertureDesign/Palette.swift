@@ -82,6 +82,8 @@ public enum Palette {
   /// The two soft corner glows of the light background (indigo top left, teal right).
   public static let glowIndigo = Color(light: 0x6366F1, dark: 0x6366F1)
   public static let glowTeal = Color(light: 0x14B8A6, dark: 0x14B8A6)
+  /// A highlight running along a line (the brand mark's live shine).
+  public static let shine = Color(light: 0xFFFFFF, dark: 0xFFFFFF)
   /// Blue-tinted card shadow in light mode.
   public static let shadow = Color(light: 0x283C96, dark: 0x283C96)
 

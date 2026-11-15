@@ -47,6 +47,8 @@ final class AppModel {
   private(set) var sending = false
   var notice: Notice?
   var selectedTab: AppTab = .home
+  /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
+  var homeMarkCentre: CGPoint?
   var selectedSymbol: String?
   /// A pairing link opened from outside (AirDrop), waiting for the owner to confirm.
   var pendingPairing: Pairing?

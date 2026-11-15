@@ -6,10 +6,15 @@ import SwiftUI
 struct ApertureApp: App {
   @State private var model = Container.shared.appModel()
   @Environment(\.scenePhase) private var scenePhase
+  /// Until the opening animation has handed the launch screen over to Home.
+  @State private var opening = true
 
   var body: some Scene {
     WindowGroup {
       RootView()
+        .overlay {
+          if opening { LaunchHandoff { opening = false } }
+        }
         .environment(model)
         .tint(Palette.info)
     }
