@@ -478,14 +478,28 @@ struct OpenPositionRow: View {
 /// The selected trade's risk (1 R), price excursion and how fast the broker confirmed its stop.
 private struct TradeDetailCard: View {
   let trade: DayTrade?
+  @State private var anotherShown = false
 
   /// Accessibility id of the card, for the UI tests.
   static let id = "trades-detail"
+  /// Symbol of the "Another Strategy…" button.
+  static let anotherSymbol = "arrow.triangle.branch"
 
   var body: some View {
     Group {
       if let trade {
-        Card(L10n.Trades.tradeDetail(trade.symbol)) {
+        Card(L10n.Trades.tradeDetail(trade.symbol), trailing: {
+          Button {
+            anotherShown.toggle()
+          } label: {
+            Label { Text(L10n.Trades.whatIfStrategy) } icon: { Image(systemName: Self.anotherSymbol) }
+          }
+          .controlSize(.small)
+          .help(Text(L10n.Trades.anotherHelp))
+          .popover(isPresented: $anotherShown, arrowEdge: .bottom) {
+            AnotherStrategyView(trade: trade)
+          }
+        }, content: {
           VStack(alignment: .leading, spacing: Tokens.Space.m) {
             Grid(alignment: .leading, horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.s) {
               GridRow {
@@ -540,7 +554,7 @@ private struct TradeDetailCard: View {
             }
             Footnote(L10n.Trades.excursionLowerBound)
           }
-        }
+        })
       } else {
         Card(L10n.Trades.selectedTrade) { Footnote(L10n.Trades.selectTrade) }
       }
@@ -562,6 +576,166 @@ private struct TradeDetailCard: View {
 
   private var notRecorded: some View {
     Text(L10n.Trades.notRecorded).foregroundStyle(Palette.textQuaternary)
+  }
+}
+
+/// "Another Strategy…" on one closed trade: a strategy version picked here, replayed by the API
+/// on the trade's symbol and day (GET /trades/whatif), next to what the bot did. Simulated; the
+/// API refuses it during the session, and that reason is shown as it is.
+private struct AnotherStrategyView: View {
+  @Environment(AppModel.self) private var model
+  let trade: DayTrade
+  @State private var version: String?
+  @State private var answer: TradeWhatIfAnswer?
+
+  /// Width of the popover, in points.
+  static let width: CGFloat = 380
+  /// Columns of the result grid: what, R, USD.
+  static let columns = 3
+
+  private var day: WireDate { WireDate(newYorkDateOf: trade.openedAt.date) }
+  /// Versions the API can replay; the active one last, since the bot already traded it.
+  private var versions: [LabVersionV1] {
+    let all = model.labReplay?.versions.filter { $0.cause == nil } ?? []
+    return all.filter { $0.role != .active } + all.filter { $0.role == .active }
+  }
+  private var chosen: String? {
+    if let version, versions.contains(where: { $0.folder == version }) { return version }
+    return versions.first?.folder
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      Text(L10n.Trades.anotherTitle(trade.symbol))
+        .font(Tokens.Typography.body)
+        .fontWeight(.semibold)
+      if model.labReplay == nil {
+        if let error = model.labReplayError {
+          Text(verbatim: error)
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(Palette.warningText)
+        } else {
+          ProgressView().controlSize(.small)
+        }
+      } else if versions.isEmpty {
+        Footnote(L10n.Trades.anotherNoVersions)
+      } else {
+        Picker(selection: Binding(get: { chosen ?? "" }, set: { version = $0 })) {
+          ForEach(versions, id: \.folder) { item in
+            Text(L10n.Lab.versionName(item.strategy ?? item.folder, item.version ?? Format.missing)).tag(item.folder)
+          }
+        } label: {
+          Text(L10n.Lab.replayVersion)
+        }
+        .fixedSize()
+      }
+      Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.s) {
+        GridRow {
+          Text(L10n.Trades.anotherBot).foregroundStyle(Palette.textSecondary)
+          botR
+          MoneyText(value: trade.resultGrossUsd.value, usd: true, font: Tokens.Typography.calloutMono)
+        }
+        if chosen != nil { result }
+      }
+      .font(Tokens.Typography.callout)
+      Footnote(L10n.Trades.anotherNote)
+    }
+    .padding(Tokens.Space.l)
+    .frame(width: Self.width, alignment: .leading)
+    .task(id: chosen) { await load() }
+    .task { if model.labReplay == nil { await model.refreshLabReplay() } }
+  }
+
+  /// The bot's own result in R (per share, as the version's).
+  @ViewBuilder private var botR: some View {
+    if let r = trade.resultR {
+      Text(verbatim: Risk.text(r, fractionDigits: StatDigits.r))
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(Palette.result(r))
+    } else {
+      Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+    }
+  }
+
+  @ViewBuilder private var result: some View {
+    switch answer {
+    case nil:
+      GridRow {
+        ProgressView().controlSize(.small)
+        Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+        Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+      }
+    case .refused(let cause):
+      GridRow {
+        Text(verbatim: cause)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.warningText)
+          .gridCellColumns(Self.columns)
+      }
+    case .found(let found):
+      if let cause = found.cause {
+        GridRow {
+          Text(verbatim: cause)
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(Palette.textTertiary)
+            .gridCellColumns(Self.columns)
+        }
+      } else {
+        ForEach(Array(found.trades.enumerated()), id: \.offset) { _, item in
+          GridRow {
+            Text(L10n.Trades.anotherLeg(Format.marketTime(item.openedAt.date), Format.marketTime(item.closedAt.date),
+              WhatIfText.exit(item.exitReason)))
+              .font(Tokens.Typography.captionMono)
+              .foregroundStyle(Palette.textTertiary)
+            Text(verbatim: Risk.text(item.resultR.value, fractionDigits: StatDigits.r))
+              .font(Tokens.Typography.captionMono)
+              .foregroundStyle(Palette.result(item.resultR.value))
+            if let usd = item.resultGrossUsd?.value {
+              Text(verbatim: Money.signedUSD(usd))
+                .font(Tokens.Typography.captionMono)
+                .foregroundStyle(Palette.result(usd))
+            } else {
+              Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+            }
+          }
+        }
+        Divider().gridCellUnsizedAxes(.horizontal)
+        GridRow {
+          Text(L10n.Lab.versionName(found.strategy ?? found.folder, found.version ?? Format.missing))
+            .fontWeight(.semibold)
+          if let r = found.resultR?.value {
+            Text(verbatim: Risk.text(r, fractionDigits: StatDigits.r))
+              .font(Tokens.Typography.calloutMono)
+              .foregroundStyle(Palette.result(r))
+          } else {
+            Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+          }
+          if let usd = found.resultGrossUsd?.value {
+            MoneyText(value: usd, usd: true, font: Tokens.Typography.calloutMono)
+          } else {
+            Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+          }
+        }
+        if let signals = found.signals {
+          GridRow {
+            Text(signals.filled + signals.missed + signals.rejected + signals.ignored == .zero
+              ? L10n.Trades.anotherNoEntry
+              : L10n.Trades.anotherSignals(signals.filled, signals.missed, signals.rejected, signals.ignored))
+              .font(Tokens.Typography.caption)
+              .foregroundStyle(Palette.textTertiary)
+              .gridCellColumns(Self.columns)
+          }
+        }
+      }
+    }
+  }
+
+  private func load() async {
+    guard let chosen else { return }
+    answer = nil
+    let read = await model.tradeWhatIf(symbol: trade.symbol, day: day, version: chosen)
+    guard chosen == self.chosen else { return }
+    answer = read
   }
 }
 
@@ -724,11 +898,6 @@ private struct WhatIfCard: View {
           }
         }
         Footnote(L10n.Trades.whatIfHelp)
-        HStack(spacing: Tokens.Space.s) {
-          Button {} label: { Text(L10n.Trades.whatIfStrategy) }
-            .disabled(true)
-          PlannedTag(.backlog)
-        }
       }
     }
   }

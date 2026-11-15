@@ -434,14 +434,15 @@ public final class AppModel {
     }
   }
 
-  /// Starts the Lab's replay once; a refusal (a run going, the session open, no data) is kept as
-  /// the reason, never retried.
-  public func startLabReplay() async {
+  /// Starts the Lab's replay once, of strategy folder `version` (the active one when nil), then of
+  /// `compare` over the same days, over the last sessions or `day` only; a refusal (a run going,
+  /// the session open, no data) is kept as the reason, never retried.
+  public func startLabReplay(version: String? = nil, compare: String? = nil, day: WireDate? = nil) async {
     let url = baseURL
     labReplayStarting = true
     defer { labReplayStarting = false }
     do {
-      let started = try await client.startLabReplay()
+      let started = try await client.startLabReplay(version: version, compare: compare, day: day)
       guard url == baseURL else { return }
       labReplay = started
       labReplayRefusal = nil
@@ -454,6 +455,18 @@ public final class AppModel {
     } catch {
       guard url == baseURL else { return }
       labReplayError = Self.describe(error) ?? labReplayError
+    }
+  }
+
+  /// What strategy folder `version` would have done on `symbol`'s `day` (simulated, read-only):
+  /// the document, or the API's refusal (the session is open) or the failed read in words.
+  public func tradeWhatIf(symbol: String, day: WireDate, version: String) async -> TradeWhatIfAnswer {
+    do {
+      return .found(try await client.tradeWhatIf(symbol: symbol, day: day, version: version))
+    } catch APIError.refused(_, _, let cause) {
+      return .refused(cause)
+    } catch {
+      return .refused(ErrorText.text(error))
     }
   }
 
@@ -678,4 +691,10 @@ public final class AppModel {
   static func describe(_ error: Error) -> String? {
     ErrorText.describe(error)
   }
+}
+
+/// The answer of another version on one trade: the simulated document, or why there is none.
+public enum TradeWhatIfAnswer: Sendable, Equatable {
+  case found(TradeWhatIfV1)
+  case refused(String)
 }

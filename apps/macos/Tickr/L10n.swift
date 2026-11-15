@@ -1759,6 +1759,50 @@ enum L10n {
     static var whatIfStrategy: LocalizedStringResource {
       LocalizedStringResource("trades.whatIfStrategy", defaultValue: "Another Strategy…", bundle: L10n.bundle)
     }
+    /// Tooltip of the Another Strategy button.
+    static var anotherHelp: LocalizedStringResource {
+      LocalizedStringResource("trades.anotherHelp",
+        defaultValue: "What another strategy version would have done with this symbol that day (simulated)",
+        bundle: L10n.bundle)
+    }
+    /// Title of the Another Strategy popover.
+    static func anotherTitle(_ symbol: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.anotherTitle", defaultValue: "If another version traded \(symbol)", bundle: L10n.bundle)
+    }
+    /// Another Strategy: the API offered no version.
+    static var anotherNoVersions: LocalizedStringResource {
+      LocalizedStringResource("trades.anotherNoVersions",
+        defaultValue: "No strategy version to replay: the bot lists none.",
+        bundle: L10n.bundle)
+    }
+    /// Another Strategy: the row of what the bot actually did.
+    static var anotherBot: LocalizedStringResource {
+      LocalizedStringResource("trades.anotherBot", defaultValue: "The bot", bundle: L10n.bundle)
+    }
+    /// Another Strategy: how the result was made.
+    static var anotherNote: LocalizedStringResource {
+      LocalizedStringResource("trades.anotherNote",
+        // swiftlint:disable:next line_length
+        defaultValue: "Simulated on that day's captured bars with the version's own stop, exit and size, gross before fees. Outside the session only.",
+        bundle: L10n.bundle)
+    }
+    /// Another Strategy: one simulated trade, its times and how it ended.
+    static func anotherLeg(_ opened: String, _ closed: String, _ reason: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.anotherLeg", defaultValue: "\(opened) → \(closed) · \(reason)", bundle: L10n.bundle)
+    }
+    /// Another Strategy: the version never entered.
+    static var anotherNoEntry: LocalizedStringResource {
+      LocalizedStringResource("trades.anotherNoEntry",
+        defaultValue: "No entry that day: its rules never said enter.",
+        bundle: L10n.bundle)
+    }
+    /// Another Strategy: what the simulation did with each entry decision.
+    static func anotherSignals(_ filled: Int, _ missed: Int, _ rejected: Int, _ ignored: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.anotherSignals",
+        // swiftlint:disable:next line_length
+        defaultValue: "Entries: \(filled) filled · \(missed) missed the window · \(rejected) too late · \(ignored) while in a trade",
+        bundle: L10n.bundle)
+    }
   }
   /// A refused entry in words: the rule behind its code, and the detail of a pause after a loss.
   enum Cause {
@@ -2184,25 +2228,9 @@ enum L10n {
     static var replay: LocalizedStringResource {
       LocalizedStringResource("lab.replay", defaultValue: "Replay", bundle: L10n.bundle)
     }
-    /// What the replay does.
-    static var replayNote: LocalizedStringResource {
-      LocalizedStringResource("lab.replayNote",
-        // swiftlint:disable:next line_length
-        defaultValue: "Replays the active strategy over the data fetched on the Mac, at low priority. Simulated: the bot never reads it.",
-        bundle: L10n.bundle)
-    }
-    /// Replay button when the number of days is unknown.
-    static var replayStart: LocalizedStringResource {
-      LocalizedStringResource("lab.replayStart", defaultValue: "Replay Recent Days", bundle: L10n.bundle)
-    }
     /// Replay card before any run.
     static var replayIdle: LocalizedStringResource {
       LocalizedStringResource("lab.replayIdle", defaultValue: "No replay yet.", bundle: L10n.bundle)
-    }
-    /// Planned replay features.
-    static var replayMore: LocalizedStringResource {
-      LocalizedStringResource("lab.replayMore", defaultValue: "Compare with another version, replay one day.",
-        bundle: L10n.bundle)
     }
     /// Replay result label: trades taken.
     static var replayTrades: LocalizedStringResource {
@@ -2223,10 +2251,6 @@ enum L10n {
     /// Replay result label: largest drawdown in R.
     static var replayMaxDrawdown: LocalizedStringResource {
       LocalizedStringResource("lab.replayMaxDrawdown", defaultValue: "max drawdown", bundle: L10n.bundle)
-    }
-    /// Replay button with the number of recent sessions.
-    static func replayLast(_ sessions: Int) -> LocalizedStringResource {
-      LocalizedStringResource("lab.replayLast", defaultValue: "Replay Last \(sessions) Days", bundle: L10n.bundle)
     }
     /// Replay running, with its start time.
     static func replayRunningSince(_ time: String) -> LocalizedStringResource {
@@ -2254,6 +2278,95 @@ enum L10n {
     static var advisorNote: LocalizedStringResource {
       LocalizedStringResource("lab.advisorNote",
         defaultValue: "Proposes new strategy versions from recorded days, with the evidence, for you to accept or reject.",
+        bundle: L10n.bundle)
+    }
+    /// Replay choice: the version to replay.
+    static var replayVersion: LocalizedStringResource {
+      LocalizedStringResource("lab.replayVersion", defaultValue: "Version", bundle: L10n.bundle)
+    }
+    /// Replay choice: a second version over the same days.
+    static var replayCompare: LocalizedStringResource {
+      LocalizedStringResource("lab.replayCompare", defaultValue: "Compare with", bundle: L10n.bundle)
+    }
+    /// Replay choice: no second version.
+    static var replayCompareNone: LocalizedStringResource {
+      LocalizedStringResource("lab.replayCompareNone", defaultValue: "No comparison", bundle: L10n.bundle)
+    }
+    /// Replay choice: which days.
+    static var replayDays: LocalizedStringResource {
+      LocalizedStringResource("lab.replayDays", defaultValue: "Days", bundle: L10n.bundle)
+    }
+    /// Replay days: the latest sessions of the fetched data.
+    static func replayLastSessions(_ sessions: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayLastSessions", defaultValue: "Last \(sessions) sessions", bundle: L10n.bundle)
+    }
+    /// Replay days: one day of the fetched data.
+    static var replayOneDay: LocalizedStringResource {
+      LocalizedStringResource("lab.replayOneDay", defaultValue: "One day", bundle: L10n.bundle)
+    }
+    /// Replay choice: the one day (picker label for VoiceOver).
+    static var replayDay: LocalizedStringResource {
+      LocalizedStringResource("lab.replayDay", defaultValue: "Day", bundle: L10n.bundle)
+    }
+    /// Replay button.
+    static var replayRun: LocalizedStringResource {
+      LocalizedStringResource("lab.replayRun", defaultValue: "Replay", bundle: L10n.bundle)
+    }
+    /// Replay button with a second version chosen.
+    static var replayRunCompare: LocalizedStringResource {
+      LocalizedStringResource("lab.replayRunCompare", defaultValue: "Replay and Compare", bundle: L10n.bundle)
+    }
+    /// A strategy version: its name and version.
+    static func versionName(_ name: String, _ version: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.versionName", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
+    }
+    /// A strategy version in a picker, with its role.
+    static func versionWithRole(_ name: String, _ role: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.versionWithRole", defaultValue: "\(name) · \(role)", bundle: L10n.bundle)
+    }
+    /// Role of the version that trades.
+    static var roleActive: LocalizedStringResource {
+      LocalizedStringResource("lab.roleActive", defaultValue: "active", bundle: L10n.bundle)
+    }
+    /// Role of a version that decides live but never trades.
+    static var roleObserver: LocalizedStringResource {
+      LocalizedStringResource("lab.roleObserver", defaultValue: "observer", bundle: L10n.bundle)
+    }
+    /// Role of any other strategy folder.
+    static var roleCandidate: LocalizedStringResource {
+      LocalizedStringResource("lab.roleCandidate", defaultValue: "candidate", bundle: L10n.bundle)
+    }
+    /// Replay running: the second version waits for the first.
+    static func replayThen(_ name: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayThen", defaultValue: "Then \(name), over the same days", bundle: L10n.bundle)
+    }
+    /// Replay of one day: how to read it.
+    static func replayOneDayNote(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayOneDayNote",
+        defaultValue: "\(day) only: one day proves nothing, read it as an example.",
+        bundle: L10n.bundle)
+    }
+    /// Comparison column: the second version minus the first.
+    static var replayDifference: LocalizedStringResource {
+      LocalizedStringResource("lab.replayDifference", defaultValue: "difference", bundle: L10n.bundle)
+    }
+    /// Comparison row: the result under the bot's risk limits, USD.
+    static var replayWithBotLimits: LocalizedStringResource {
+      LocalizedStringResource("lab.replayWithBotLimits", defaultValue: "with bot limits", bundle: L10n.bundle)
+    }
+    /// A difference of two percentages, in points.
+    static func replayPoints(_ value: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayPoints", defaultValue: "\(value) pt", bundle: L10n.bundle)
+    }
+    /// Comparison: the second version failed, with the cause.
+    static func replayCompareFailed(_ name: String, _ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayCompareFailed", defaultValue: "\(name) was not replayed: \(cause)", bundle: L10n.bundle)
+    }
+    /// What the replay does.
+    static var replayNote: LocalizedStringResource {
+      LocalizedStringResource("lab.replayNote",
+        // swiftlint:disable:next line_length
+        defaultValue: "Replays a strategy version over the data fetched on the Mac, at low priority. Simulated: the bot never reads it.",
         bundle: L10n.bundle)
     }
   }
