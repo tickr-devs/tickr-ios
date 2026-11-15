@@ -521,7 +521,8 @@ private struct TradeDetailCard: View {
                   Text(L10n.Trades.overshootValue(Money.signedUSD(usd), trade.overshootR.map { Risk.text($0.value) }
                     ?? Format.missing))
                     .font(Tokens.Typography.bodyMono)
-                    .foregroundStyle(Palette.result(usd))
+                    // Neutral, not green: this is profit the trade left behind, not a gain.
+                    .foregroundStyle(Palette.textPrimary)
                 } else {
                   Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
                     .help(Text(verbatim: trade.overshootCause ?? Format.missing))
