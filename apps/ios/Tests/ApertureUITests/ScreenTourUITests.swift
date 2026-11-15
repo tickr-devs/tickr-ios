@@ -24,7 +24,8 @@ final class ScreenTourUITests: XCTestCase {
     static let settings = "Settings"
     static let botControl = "Bot control"
     static let cancel = "Cancel"
-    static let dailyLossRoom = "Daily loss room"
+    /// Title of the Home card that opens Risk (L10n.Flow.title).
+    static let liveFlow = "Live flow"
     static let calendar = "Calendar"
   }
 
@@ -60,9 +61,11 @@ final class ScreenTourUITests: XCTestCase {
   private func homeDetails() {
     if english, tap(app.buttons[Label.botControl]) {
       shot("tab0-bot-control")
-      _ = tap(app.buttons[Label.cancel].firstMatch)
+      guard dismiss() else { return }
     }
-    if english, tap(app.buttons[Label.dailyLossRoom].firstMatch) {
+    // The Live flow card is one link whose label also carries its stages and values.
+    let flow = NSPredicate(format: "label BEGINSWITH[c] %@", Label.liveFlow)
+    if english, tap(app.buttons.matching(flow).firstMatch) {
       capture(screen: "tab0-risk")
       back()
     }
@@ -90,6 +93,35 @@ final class ScreenTourUITests: XCTestCase {
     guard element.waitForExistence(timeout: Self.wait), element.isHittable else { return false }
     element.tap()
     sleep(Self.settle)
+    return true
+  }
+
+  /// Closes the bot-control sheet with its own Cancel button, never with a tap elsewhere: the
+  /// sheet's other buttons send commands. At the medium height Cancel can sit below the fold, so
+  /// the sheet is scrolled (a swipe presses nothing) until Cancel can be tapped. Fails the step,
+  /// and leaves the remaining Home screens out, if Cancel cannot be reached or the sheet stays.
+  @discardableResult
+  private func dismiss() -> Bool {
+    let cancel = app.buttons[Label.cancel].firstMatch
+    guard cancel.waitForExistence(timeout: Self.wait) else {
+      XCTFail("the bot-control sheet has no Cancel button")
+      return false
+    }
+    var scrolls = 0
+    while !cancel.isHittable && scrolls < Self.maxScrolls {
+      app.scrollViews.firstMatch.swipeUp()
+      scrolls += 1
+    }
+    guard cancel.isHittable else {
+      XCTFail("Cancel of the bot-control sheet cannot be reached")
+      return false
+    }
+    cancel.tap()
+    sleep(Self.settle)
+    guard !cancel.exists else {
+      XCTFail("the bot-control sheet stayed open after Cancel")
+      return false
+    }
     return true
   }
 
