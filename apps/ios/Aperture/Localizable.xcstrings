@@ -103,6 +103,23 @@
         }
       }
     },
+    "activity.lastSession" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · last session"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · последняя сессия"
+          }
+        }
+      }
+    },
     "activity.loadingDay" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -37,8 +37,12 @@ struct ActivityView: View {
       if let selected = activity.selectedDay {
         pastDay(selected)
       } else if let status = model.status {
-        DayCard(label: String(localized: L10n.Common.today(Format.day(status.writtenAt.date))),
-          live: model.response?.stale == false, figures: DayFigures(status))
+        // "Today" only when the status is of today's New York session; over a weekend or after a
+        // day off it is the last session, and nothing about it is live.
+        let isToday = activity.sessionDay(of: status) == activity.today
+        let day = Format.day(status.writtenAt.date)
+        DayCard(label: String(localized: isToday ? L10n.Common.today(day) : L10n.Activity.lastSession(day)),
+          live: isToday && model.response?.stale == false, figures: DayFigures(status))
           .rise(step: Order.day.rawValue)
         panes(status: status)
       }
@@ -62,12 +66,29 @@ struct ActivityView: View {
       guard let url = model.connection.url else { return }
       await activity.loadDays(url)
     }
+    .task(id: sessionKey) {
+      guard let url = model.connection.url, let status = model.status else { return }
+      await activity.loadSession(url, of: status)
+    }
     .refreshable {
       await model.refresh()
       guard let url = model.connection.url else { return }
       await activity.loadDays(url)
       if let selected = activity.selectedDay { await activity.show(selected, from: url) }
     }
+  }
+
+  /// Changes when the status's session or its closed trades change, reloading the session's
+  /// record (for each trade's result in R).
+  private var sessionKey: SessionKey {
+    SessionKey(url: model.connection.url, day: model.status.map(activity.sessionDay(of:)),
+      trades: model.status?.tradesToday.count ?? 0)
+  }
+
+  private struct SessionKey: Hashable {
+    let url: URL?
+    let day: WireDate?
+    let trades: Int
   }
 
   @ViewBuilder
@@ -122,7 +143,8 @@ struct ActivityView: View {
       switch section {
       case .trades:
         if let status {
-          TradesList(positions: status.positions, trades: status.tradesToday.map(TradeLine.init),
+          TradesList(positions: status.positions,
+            trades: status.tradesToday.map { TradeLine($0, recorded: activity.session?.trades ?? []) },
             empty: (L10n.Activity.noTrades, L10n.Activity.noTradesBody))
         } else {
           TradesList(positions: [], trades: activity.day?.trades.map(TradeLine.init) ?? [],
@@ -411,7 +433,9 @@ private struct TradeLine {
   /// Result in R, when the day's record carries the planned loss.
   let resultR: Decimal?
 
-  init(_ trade: Trade) {
+  /// A trade of today's status; its result in R comes from the session's record when it holds the
+  /// same trade (symbol, opening and closing time).
+  init(_ trade: Trade, recorded: [DayTrade]) {
     symbol = trade.symbol
     openedAt = trade.openedAt.date
     closedAt = trade.closedAt.date
@@ -420,7 +444,9 @@ private struct TradeLine {
     entryPrice = trade.entryPrice.text
     exitPrice = trade.exitPrice.text
     result = trade.resultGrossUsd.value
-    resultR = nil
+    resultR = recorded.first {
+      $0.symbol == trade.symbol && $0.openedAt == trade.openedAt && $0.closedAt == trade.closedAt
+    }?.resultR
   }
 
   init(_ trade: DayTrade) {

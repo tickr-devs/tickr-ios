@@ -25,6 +25,8 @@ final class ActivityModel {
   private(set) var selectedDay: WireDate?
   /// The chosen past day's trades, once loaded.
   private(set) var day: DayV1?
+  /// The record of the status's session (GET /days/<date>), for what the status leaves out.
+  private(set) var session: DayV1?
   /// The month the calendar shows.
   var month = DayCalendar.Month(WireDate(newYorkDateOf: .now))
   /// Number of the newest load of a day; an answer to an older one is dropped.
@@ -71,6 +73,20 @@ final class ActivityModel {
     } catch {
       if request == latestDaysRequest { daysFailure = error.localizedDescription }
     }
+  }
+
+  /// The New York date of the session `status` describes.
+  func sessionDay(of status: StatusV1) -> WireDate {
+    WireDate(newYorkDateOf: status.writtenAt.date)
+  }
+
+  /// Read the record of `status`'s session. A failed read leaves the rows without R; nothing
+  /// else depends on it.
+  func loadSession(_ url: URL, of status: StatusV1) async {
+    let day = sessionDay(of: status)
+    if session?.day != day { session = nil }
+    guard let loaded = try? await client(url).day(day), loaded.day == day else { return }
+    session = loaded
   }
 
   /// Show `day`: today goes back to the live view, any other recorded day loads its trades.

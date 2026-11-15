@@ -490,6 +490,9 @@ enum L10n {
     static func pastDay(_ day: String) -> LocalizedStringResource {
       LocalizedStringResource("activity.pastDay", defaultValue: "\(day) · read-only", bundle: L10n.bundle)
     }
+    static func lastSession(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.lastSession", defaultValue: "\(day) · last session", bundle: L10n.bundle)
+    }
     static var backToToday: LocalizedStringResource {
       LocalizedStringResource("activity.backToToday", defaultValue: "Today", bundle: L10n.bundle)
     }
