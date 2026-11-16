@@ -27,7 +27,7 @@ jobs:
   # overlaps.
   macos-layout-sweep:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'layout-sweep')
-    # The Xcode 27 image: the app uses its SDK (title bar visibility priorities); macos-latest has Xcode 26.x only.
+    # The Xcode 27 image: the one Xcode of every app job (apps/scripts/select-xcode.sh); macos-latest has Xcode 26.x only.
     runs-on: xcode-27
     timeout-minutes: 20
     steps:

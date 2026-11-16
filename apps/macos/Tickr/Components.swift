@@ -480,6 +480,9 @@ struct EventStrip: View {
   @Environment(AppModel.self) private var model
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+  /// Height of the strip, in points: the ticker and its padding (the hairline lies over it).
+  static let height: CGFloat = Tokens.Size.ticker + Tokens.Space.xs * 2
+
   var body: some View {
     // Scrolls only while the bot is at work (OrnamentGate); still on a recorded day, stopped or stale.
     Ticker(model.tickerItems, moving: model.ornamentsMove(reduceMotion: reduceMotion))

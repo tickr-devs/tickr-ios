@@ -71,9 +71,9 @@ jobs:
     if: >-
       ${{ !cancelled() && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
       && (needs.macos-changes.result != 'success' || needs.macos-changes.outputs.app == 'true') }}
-    # The Xcode 27 image: the owner builds with Xcode 27, and the app uses its SDK (the title bar's
-    # toolbar visibility priorities); macos-latest (macOS 26) has Xcode 26.x only. The iOS app builds
-    # on the same image with the same Xcode (apps/scripts/select-xcode.sh).
+    # The Xcode 27 image: the one Xcode every app job builds with is the owner's Xcode 27
+    # (apps/scripts/select-xcode.sh); macos-latest (macOS 26) has Xcode 26.x only. The iOS app
+    # builds on the same image with the same Xcode.
     runs-on: xcode-27
     timeout-minutes: 20
     steps:

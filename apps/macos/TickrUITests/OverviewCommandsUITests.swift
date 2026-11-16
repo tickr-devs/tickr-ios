@@ -30,9 +30,13 @@ final class OverviewCommandsUITests: XCTestCase {
   static let hold: TimeInterval = 2
   /// How long a plain click on the emergency stop is watched for a question that must not come.
   static let noQuestion: TimeInterval = 2
-  /// The narrowest window, in points: TickrMacApp.minWidth (the sidebar's widest, 260, beside
-  /// TradesView.leastScreenWidth, 826), which this test target cannot read from the app.
-  static let minWidth: CGFloat = 1086
+  /// The narrowest window on the fixtures, in points: TickrMacApp.leastWidth, which this test
+  /// target cannot read from the app. The title bar's need is wider than the screens' (1086): the
+  /// sidebar's widest 260, AppKit's insets 4 + 4 and gap 8, the fixtures' longest line (Overview,
+  /// 572 points in English, 535 in Russian) and the right-hand group (512 and 528, Today and
+  /// Сегодня), each item 8.5 wider than its content.
+  static let minWidthEnglish: CGFloat = 1377
+  static let minWidthRussian: CGFloat = 1356
   /// Environment variable that opens the window at its least size (LayoutSweep.smallestKey).
   static let smallestKey = "TICKR_SMALLEST_WINDOW"
   /// Environment variable that opens Overview with the Safety · bot card at its top
@@ -51,16 +55,16 @@ final class OverviewCommandsUITests: XCTestCase {
 
   @MainActor
   func testEveryCommandFitsAndAsksInTheNarrowestWindowInEnglish() {
-    check(Self.english)
+    check(Self.english, minWidth: Self.minWidthEnglish)
   }
 
   @MainActor
   func testEveryCommandFitsAndAsksInTheNarrowestWindowInRussian() {
-    check(Self.russian)
+    check(Self.russian, minWidth: Self.minWidthRussian)
   }
 
   @MainActor
-  private func check(_ arguments: [String]) {
+  private func check(_ arguments: [String], minWidth: CGFloat) {
     let app = XCUIApplication()
     app.launchArguments = arguments
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
@@ -70,7 +74,7 @@ final class OverviewCommandsUITests: XCTestCase {
     let window = app.windows.firstMatch
     XCTAssertTrue(window.waitForExistence(timeout: Self.timeout), "no window after launch")
     waitUntilStill(window, "window", in: app)
-    XCTAssertEqual(window.frame.width, Self.minWidth, accuracy: 1, "the window is not at its least width")
+    XCTAssertEqual(window.frame.width, minWidth, accuracy: 1, "the window is not at its least width")
 
     let row = app.descendants(matching: .any)[Self.overviewRow].firstMatch
     XCTAssertTrue(row.waitForExistence(timeout: Self.timeout), "sidebar row\n\(app.debugDescription)")

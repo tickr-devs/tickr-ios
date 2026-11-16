@@ -29,6 +29,8 @@ struct ScreenPicturesTests {
   static let menuBarHeight: CGFloat = 760
   /// Seconds a screen gets to read the fixtures and finish its entrance animations.
   static let settle: Duration = .seconds(3)
+  /// How often the fixtures' status is looked for before the least width is read.
+  static let statusPoll: Duration = .milliseconds(100)
   /// Where the windows are drawn: far off every display.
   static let offscreen = CGPoint(x: -20000, y: -20000)
 
@@ -46,7 +48,10 @@ struct ScreenPicturesTests {
     Container.shared.appModel.register { model }
     let chart = Container.shared.chartModel()
     let advisor = PreviewAPI.advisor()
-    let least = CGSize(width: TickrMacApp.minWidth, height: TickrMacApp.minHeight)
+    // The least width holds the title bar's line, which shows the status: read it first.
+    while model.status == nil { try await Task.sleep(for: Self.statusPoll) }
+    let leastWidth = TickrMacApp.leastWidth(model: model, chart: chart)
+    let least = CGSize(width: leastWidth, height: TickrMacApp.minHeight)
     let first = CGSize(width: TickrMacApp.defaultWidth, height: TickrMacApp.defaultHeight)
     let sizes = [
       ("least", least), ("first", first),
@@ -61,7 +66,7 @@ struct ScreenPicturesTests {
           let root = RootView()
             .environment(model).environment(chart).environment(advisor)
             .tint(Palette.info)
-            .frame(minWidth: TickrMacApp.minWidth, maxWidth: .infinity,
+            .frame(minWidth: leastWidth, maxWidth: .infinity,
               minHeight: TickrMacApp.minHeight, maxHeight: .infinity)
           let parts = [name, section.rawValue] + (inspector ? [LayoutSweep.inspectorSuffix] : [])
           try await picture(root, size: size, toolbar: true,

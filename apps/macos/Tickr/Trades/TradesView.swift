@@ -397,9 +397,14 @@ private struct TradesTable: View {
 
   /// Height of the "no trades" message in place of the table, in points.
   static let emptyHeight: CGFloat = 280
-  /// Height of the header and of one row, and the fewest rows the table is tall for, in points.
-  static let headerHeight: CGFloat = 32
-  static let rowHeight: CGFloat = 28
+  /// The table's vertical geometry, in points, as AppKit lays it out (read with Accessibility,
+  /// 2026-11-16, 3 and 9 rows): the first row starts `headerHeight` under the table's top (the
+  /// 28-point header and the gap under it), rows are `rowHeight` apart, and `bottomInset` stays
+  /// under the last row. The fewest rows the table is tall for. With 32 and 28 the table was 10
+  /// points plus one per row too short and scrolled inside its card.
+  static let headerHeight: CGFloat = 33
+  static let rowHeight: CGFloat = 29
+  static let bottomInset: CGFloat = 10
   static let fewestRows = 2
 
   /// The table's height: every row of the day, so the screen scrolls as one and no row is cut
@@ -407,7 +412,7 @@ private struct TradesTable: View {
   /// of its own; a fixed height left empty striped rows under a day of two trades.
   private var tableHeight: CGFloat {
     let count = CGFloat(max(rows.count, Self.fewestRows))
-    return Self.headerHeight + count * Self.rowHeight
+    return Self.headerHeight + count * Self.rowHeight + Self.bottomInset
   }
 
   /// The day's closed trades in the order they closed, then on the live day the positions still

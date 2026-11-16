@@ -53,10 +53,14 @@ struct RootView: View {
   /// Least size of a screen, in points. The width is the widest any screen needs at its narrowest,
   /// Trades & days' table with every column whole (`TradesView.leastScreenWidth`); the others,
   /// the Chart with its rail open included, need less. With the sidebar at its widest it makes the
-  /// window's least width (TickrMacApp.minWidth), so a screen never asks for more than the window
+  /// window's least width (TickrMacApp.screensMinWidth), so a screen never asks for more than the window
   /// leaves it.
   static let screenMinWidth: CGFloat = TradesView.leastScreenWidth
-  static let screenMinHeight: CGFloat = 400
+  /// The height is the tallest any screen needs at its least: the Chart with every study pane
+  /// (`ChartView.leastHeight`). Overview, Trades & days, Risk & account and Strategy lab scroll as
+  /// a whole, their card rows at least as tall as their cards, so none of their cards scrolls
+  /// inside; the sidebar's rows and bot card need far less (about 360 points).
+  static let screenMinHeight: CGFloat = ChartView.leastHeight
 
   /// Whether the sidebar shows: the title bar's sidebar button and View > Hide Sidebar (⌃⌘S)
   /// switch it.
@@ -350,20 +354,22 @@ private struct BotStateCard: View {
 }
 
 /// The title bar as the design draws it (the sidebar button right after the window buttons is
-/// the sidebar column's item, `SidebarButton`): one centred mono line, and on the right the
-/// connection status, the day stepper ‹ day › and Today.
+/// the sidebar column's item, `SidebarButton`): the mono line at the screen column's leading edge
+/// (right after the sidebar, or after the sidebar button while the sidebar is hidden), and at the
+/// trailing edge the connection status, the day stepper ‹ day › and Today, a flexible space
+/// between them. The window is never narrower than both whole (`TitleBarWidth`), so neither is
+/// cut nor moved into the toolbar's overflow menu.
 private struct WindowToolbar: ToolbarContent {
   var body: some ToolbarContent {
-    ToolbarItem(placement: .principal) {
+    ToolbarItem(placement: .navigation) {
       WindowLine()
     }
     .sharedBackgroundVisibility(.hidden)
-    .visibilityPriority(.low)
+    ToolbarSpacer(.flexible)
     ToolbarItem(placement: .primaryAction) {
       DayStepper()
     }
     .sharedBackgroundVisibility(.hidden)
-    .visibilityPriority(.high)
   }
 }
 
@@ -402,15 +408,12 @@ struct SidebarButton: View {
 /// Overview "tickr — sandbox — price-action-v1 v1 — up to 3 positions", Chart "tickr — sandbox —
 /// chart — ABCD · Day · 1m", Trades & days "… — trades & days — 3 closed", Risk & account
 /// "… — risk & account — 10:47:03 ET", Strategy lab "… — strategy lab — price-action-v1 v1".
-/// The line is the toolbar's principal item, as wide as its text, centred in the title bar, with
-/// the right-hand group at the trailing edge. When the window is too narrow for both, the line has
-/// the lower visibility priority, so it moves into the toolbar's overflow menu and the connection
-/// status and the day stepper stay in sight (they then follow the window buttons). A SwiftUI view in a toolbar item gets its
-/// ideal width and does not stretch or cut, so the line is not given a flexible frame. Its width
-/// was once computed from the screen column's and the group's measured widths: those arrived a
-/// layout pass late, so during a window resize the line and the date jumped after the window's
-/// edge on every step.
-private struct WindowLine: View {
+/// A SwiftUI view in a toolbar item gets its ideal width and does not stretch or cut, so the line
+/// is always whole: the window's least width holds the longest of the five sections' lines
+/// (`TitleBarWidth`). Nothing here is measured during layout: the line's width was once computed
+/// from the screen column's and the group's measured widths, which arrived a layout pass late, so
+/// during a window resize the line and the date jumped after the window's edge on every step.
+struct WindowLine: View {
   @Environment(AppModel.self) private var model
   @Environment(ChartModel.self) private var chart
 
@@ -430,31 +433,36 @@ private struct WindowLine: View {
   }
 
   private func line(now: Date?) -> LocalizedStringResource {
+    Self.line(for: model.section, model: model, chart: chart, now: now)
+  }
+
+  /// The line `section`'s screen shows; `now` is the market clock of Risk & account.
+  static func line(for section: AppSection, model: AppModel, chart: ChartModel, now: Date?) -> LocalizedStringResource {
     guard let status = model.status else { return L10n.Toolbar.windowLineEmpty }
     let environment = ApiText.environment(status.environment).localizedLowercase
     let strategy = Format.strategy(status)
-    let section = String(localized: model.section.title).localizedLowercase
-    switch model.section {
+    let sectionTitle = String(localized: section.title).localizedLowercase
+    switch section {
     case .overview:
       guard let limit = model.settings?.risk.maxOpenPositions else {
         return L10n.Toolbar.windowLine(environment, strategy)
       }
       return L10n.Toolbar.windowLineLimit(environment, strategy, limit)
     case .chart:
-      guard let shown = chart.shown else { return L10n.Toolbar.windowLineSectionOnly(environment, section) }
+      guard let shown = chart.shown else { return L10n.Toolbar.windowLineSectionOnly(environment, sectionTitle) }
       let range = String(localized: ChartView.title(shown.range))
       let interval = String(localized: ChartView.title(shown.interval))
       let detail = [shown.symbol, range, interval].joined(separator: Format.itemSeparator)
-      return L10n.Toolbar.windowLineSection(environment, section, detail)
+      return L10n.Toolbar.windowLineSection(environment, sectionTitle, detail)
     case .trades:
       let closed = String(localized: L10n.Toolbar.closedTrades(model.shownTradeCount))
-      return L10n.Toolbar.windowLineSection(environment, section, closed)
+      return L10n.Toolbar.windowLineSection(environment, sectionTitle, closed)
     case .risk:
-      guard let now else { return L10n.Toolbar.windowLineSectionOnly(environment, section) }
+      guard let now else { return L10n.Toolbar.windowLineSectionOnly(environment, sectionTitle) }
       let clock = String(localized: L10n.Risk.clock(Format.marketTime(now)))
-      return L10n.Toolbar.windowLineSection(environment, section, clock)
+      return L10n.Toolbar.windowLineSection(environment, sectionTitle, clock)
     case .lab:
-      return L10n.Toolbar.windowLineSection(environment, section, strategy)
+      return L10n.Toolbar.windowLineSection(environment, sectionTitle, strategy)
     }
   }
 }
@@ -471,6 +479,9 @@ struct DayStepper: View {
   /// "Сб, 28 февр. · сегодня" (157 points; "сент." and "февр." are the longest month
   /// abbreviations), as well as the English "Wed Jan 28 · today" (128).
   static let dayMinWidth: CGFloat = 158
+  /// The stepper's arrows (‹ and ›), and its items `s` apart: ‹, the day, › and Today.
+  static let arrowCount = 2
+  static let stepperItems = 4
   /// Accessibility id of the DEMO chip, for the UI tests.
   static let demoChipID = "toolbar-demo"
 
@@ -504,6 +515,22 @@ struct DayStepper: View {
           .fixedSize()
       }
     }
+  }
+
+  /// The group's width, in points, the widest of its three forms: ‹ day › and Today (`today` its
+  /// title), the demo day's chip (`demoChip`) and day (`demoDay`), or the day alone. The connection
+  /// status, the day label and the buttons have fixed widths; the texts are measured in the fonts
+  /// they are drawn in (`TitleBarWidth.Fonts`). Used for the window's least width.
+  static func width(today: String, demoChip: String, demoDay: String) -> CGFloat {
+    let gap = Tokens.Space.s
+    let edges = CardArrangement.paddedEdges
+    let todayButton = max(TitleBarButtonStyle.width, TextMeasure.width(today, font: TitleBarWidth.Fonts.button) + gap * edges)
+    let arrows = TitleBarButtonStyle.width * CGFloat(arrowCount)
+    let stepper = arrows + dayMinWidth + todayButton + gap * CGFloat(stepperItems - 1)
+    let chip = TextMeasure.width(demoChip.uppercased(), font: TitleBarWidth.Fonts.badge,
+      kern: Tokens.Typography.badgeTracking) + gap * edges
+    let demo = chip + gap + TextMeasure.width(demoDay, font: TitleBarWidth.Fonts.day)
+    return ConnectionStatus.width + connectionGap + gap + max(stepper, demo, dayMinWidth)
   }
 
   /// Which of ‹ › step somewhere; neither while the day is locked or no other day is recorded.

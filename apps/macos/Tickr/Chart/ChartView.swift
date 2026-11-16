@@ -68,6 +68,39 @@ struct ChartView: View {
 
   /// Height of the separators between chip groups, in points.
   static let separatorHeight: CGFloat = 20
+
+  /// Settings keys of the study panes under the price pane (`CandleChart`'s `PaneStack`).
+  static let paneKeys = [Keys.volume, Keys.atr, Keys.rsi, Keys.macd, Keys.stochastic]
+  /// Rows of controls the window's least height holds: the range, interval and style chips
+  /// wrapped onto two rows (the controls' narrow form) and the study chips in one. At the window's
+  /// least width, with the sidebar at its widest and the rail open (the narrowest the chart
+  /// column gets), the chips took one row in English (ending 1 point short of the column's edge)
+  /// and in Russian, and the study chips one (both read with Accessibility, 2026-11-16).
+  static let leastControlRows = 3
+  /// Height of the history scroller's small slider, in points: AppKit's small slider, read with
+  /// Accessibility (2026-11-16).
+  static let scrollerHeight: CGFloat = 14
+  /// Parts of the chart column, stacked `m` apart: the header, the controls, the chart's card and
+  /// the history scroller.
+  static let columnParts = 4
+
+  /// Least height of the Chart screen, in points: with every study pane on, no pane is under its
+  /// least height (`CandleChart.priceMinHeight`, `paneMinHeight`) and the history scroller stays
+  /// in the window. The screen's padding, the header (one line of the 24-point symbol), the
+  /// controls (`leastControlRows` rows of chips, a chip being one label line with its padding), the
+  /// chart's card (its padding around the panes) and the scroller, `m` apart (`columnParts`).
+  static var leastHeight: CGFloat {
+    let header = TextMeasure.lineHeight(NSFont.monospacedSystemFont(ofSize: Tokens.Typography.metricSize, weight: .bold))
+    let label = NSFont.monospacedSystemFont(ofSize: Tokens.Typography.labelSize, weight: .semibold)
+    let edges = CardArrangement.paddedEdges
+    let chip = TextMeasure.lineHeight(label) + (Tokens.Space.xs + Tokens.Space.xxs) * edges
+    let rows = CGFloat(leastControlRows)
+    let controls = chip * rows + Tokens.Space.s * (rows - 1)
+    let panes = CandleChart.priceMinHeight + CGFloat(paneKeys.count) * CandleChart.paneMinHeight
+    let card = panes + Tokens.Space.s * edges
+    let gaps = Tokens.Space.m * CGFloat(columnParts - 1)
+    return Tokens.Space.l * edges + header + controls + card + scrollerHeight + gaps
+  }
   /// Key equivalent of the rail (with ⌥⌘), as for inspectors in Apple's apps.
   static let decisionsKey: KeyEquivalent = "i"
   /// Accessibility id of the rail's toggle, for the UI tests.

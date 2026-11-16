@@ -24,13 +24,21 @@ enum Defaults {
 /// Started by `Launcher` (AlertCommand.swift), which first handles the bot's notify mode.
 @MainActor
 struct TickrMacApp: App {
-  /// Smallest size of the main window, in points. The width is the narrowest at which no screen
-  /// breaks: the sidebar at its widest (the person can drag it there) beside the widest least
-  /// screen (`RootView.screenMinWidth`, Trades & days' table). Derived, not set: a set 1000 cut
-  /// the trades table at the card's edge.
-  static let minWidth: CGFloat = RootView.sidebarMax + RootView.screenMinWidth
-  /// Smallest height of the main window, in points.
-  static let minHeight: CGFloat = 700
+  /// Narrowest window at which no screen breaks, in points: the sidebar at its widest (the person
+  /// can drag it there) beside the widest least screen (`RootView.screenMinWidth`, Trades & days'
+  /// table). Derived, not set: a set 1000 cut the trades table at the card's edge.
+  static let screensMinWidth: CGFloat = RootView.sidebarMax + RootView.screenMinWidth
+
+  /// Least width of the main window, in points: the screens' need or the title bar's
+  /// (`TitleBarWidth`), whichever is wider, so neither a card nor the title bar's line is cut.
+  static func leastWidth(model: AppModel, chart: ChartModel) -> CGFloat {
+    max(screensMinWidth, TitleBarWidth.need(model: model, chart: chart))
+  }
+
+  /// Least height of the main window's content (under the title bar), in points: the event strip
+  /// above every screen but the Overview and the tallest least screen (`RootView.screenMinHeight`,
+  /// the Chart with every study pane), so no card is cut or scrolls inside.
+  static let minHeight: CGFloat = EventStrip.height + RootView.screenMinHeight
   /// First size of the main window, in points.
   static let defaultWidth: CGFloat = 1440
   static let defaultHeight: CGFloat = 920
@@ -46,7 +54,7 @@ struct TickrMacApp: App {
     model.start()
     #if DEBUG
     LayoutSweep.startIfAsked(model: model)
-    LayoutSweep.smallestIfAsked()
+    LayoutSweep.smallestIfAsked(model: model)
     #endif
     // The bot shows its alerts through this app (AlertCommand.swift): ask once, here, where the
     // question can be seen. Not in the UI tests' fixture mode, where nobody could answer.
@@ -82,20 +90,7 @@ struct TickrMacApp: App {
 
   var body: some Scene {
     Window(String(localized: L10n.App.name), id: WindowID.main) {
-      // The window's least size is these numbers and nothing else, so a screen that changes its
-      // layout while the window is resized (a ViewThatFits picking another arrangement, a chart's
-      // panes) can never move the window's minimum and start AppKit's "Update Constraints in
-      // Window" loop. Screens fit themselves into the window instead.
-      WindowFrame(minSize: CGSize(width: Self.minWidth, height: Self.minHeight)) {
-        RootView()
-          .overlay { OpeningOverlay() }
-          .readFailureContext(model)
-          .environment(model)
-          .environment(Container.shared.chartModel())
-          .environment(Container.shared.advisorModel())
-          // The design's accent for links, selection and controls (as on iOS), not the system blue.
-          .tint(Palette.info)
-      }
+      MainWindow(model: model, chart: Container.shared.chartModel())
     }
     .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
     // The design's low title bar (about 40 points) with one line in it.
@@ -192,6 +187,32 @@ private struct OpeningOverlay: View {
       BrandOpening(
         target: model.overviewMarkCentre, flying: { model.openingFlying = true },
         finished: { model.openingPlayed = true })
+    }
+  }
+}
+
+/// The main window's content at its least size or larger.
+///
+/// The least size comes from data and constants only (`TickrMacApp.leastWidth`, `minHeight`),
+/// never from the screens' layout, so a screen that changes its layout while the window is
+/// resized (a card arrangement picked by width, a chart's panes) can never move the window's
+/// minimum and start AppKit's "Update Constraints in Window" loop. Screens fit themselves into
+/// the window instead. The width follows the title bar's line, so it changes only when that
+/// line's data does (the strategy, the chart's symbol), never during a resize.
+private struct MainWindow: View {
+  let model: AppModel
+  let chart: ChartModel
+
+  var body: some View {
+    WindowFrame(minSize: CGSize(width: TickrMacApp.leastWidth(model: model, chart: chart), height: TickrMacApp.minHeight)) {
+      RootView()
+        .overlay { OpeningOverlay() }
+        .readFailureContext(model)
+        .environment(model)
+        .environment(chart)
+        .environment(Container.shared.advisorModel())
+        // The design's accent for links, selection and controls (as on iOS), not the system blue.
+        .tint(Palette.info)
     }
   }
 }

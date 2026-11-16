@@ -31,17 +31,14 @@ enum LayoutSweep {
   /// Name part of the window filling the display's visible area (as Zoom makes it).
   static let zoomedName = "zoomed"
 
-  /// Window sizes pictured, in points: the smallest the app allows, the size it first opens at,
-  /// then the common laptop and desktop widths. The display's whole visible area (`zoomedName`)
-  /// is added at run time.
-  static let sizes: [CGSize] = [
-    CGSize(width: TickrMacApp.minWidth, height: TickrMacApp.minHeight),
-    CGSize(width: TickrMacApp.defaultWidth, height: TickrMacApp.defaultHeight),
-    small, laptop, desktop, large,
-  ]
+  /// Window sizes pictured, in points: the smallest the app allows (`least`, which follows the
+  /// title bar's data), the size it first opens at, then the common laptop and desktop widths.
+  /// The display's whole visible area (`zoomedName`) is added at run time.
+  static func sizes(least: CGSize) -> [CGSize] {
+    [least, CGSize(width: TickrMacApp.defaultWidth, height: TickrMacApp.defaultHeight), small, laptop, desktop, large]
+  }
   /// A 1024 × 768 display, a 13-inch laptop, a 15-inch laptop and a 16-inch laptop, in points.
-  /// A size under the window's least one (1024 × 768 since the least width is 1086) is left out
-  /// at run time and named in `skippedFile`.
+  /// A size under the window's least one is left out at run time and named in `skippedFile`.
   static let small = CGSize(width: 1024, height: 768)
   static let laptop = CGSize(width: 1280, height: 800)
   static let desktop = CGSize(width: 1440, height: 900)
@@ -67,17 +64,23 @@ enum LayoutSweep {
   /// Seconds between looks for the main window while it opens.
   static let windowPollSeconds = 0.1
 
-  /// Sets the main window to the app's least size when the app was launched with `smallestKey`.
-  static func smallestIfAsked() {
+  /// Sets the main window to the app's least size when the app was launched with `smallestKey`,
+  /// once the status is read (the least width holds the title bar's line, which shows it).
+  static func smallestIfAsked(model: AppModel) {
     guard ProcessInfo.processInfo.environment[smallestKey] != nil else { return }
     Task { @MainActor in
-      while mainWindow() == nil {
+      while mainWindow() == nil || model.status == nil {
         try? await Task.sleep(for: .seconds(windowPollSeconds))
       }
       if let window = mainWindow() {
-        resize(window, to: CGSize(width: TickrMacApp.minWidth, height: TickrMacApp.minHeight))
+        resize(window, to: least(model))
       }
     }
+  }
+
+  /// The main window's least size for the data shown now (`TickrMacApp.leastWidth`).
+  static func least(_ model: AppModel) -> CGSize {
+    CGSize(width: TickrMacApp.leastWidth(model: model, chart: Container.shared.chartModel()), height: TickrMacApp.minHeight)
   }
 
   /// Starts the sweep when the app was launched with `sweepKey` set.
@@ -97,15 +100,19 @@ enum LayoutSweep {
     guard let window = mainWindow() else {
       exit(EXIT_FAILURE)
     }
-    var named = sizes.map { (name(of: $0), $0) }
+    let smallest = least(model)
+    var named = sizes(least: smallest).map { (name(of: $0), $0) }
     if let visible = window.screen?.visibleFrame.size { named.append((zoomedName, visible)) }
     // A size under the window's least one cannot be had (AppKit would keep the least size and
     // the picture would carry a wrong name): it is left out and named in `skippedFile`.
-    let skipped = named.filter { !allowed($0.1) }
-    named.removeAll { !allowed($0.1) }
+    let skipped = named.filter { !allowed($0.1, least: smallest) }
+    named.removeAll { !allowed($0.1, least: smallest) }
     note(skipped, in: folder)
-    for (sizeName, size) in named {
+    for (wanted, size) in named {
       resize(window, to: size)
+      // The least size is the content's; AppKit adds the title bar to it, so that picture is named
+      // by the window's own size.
+      let sizeName = wanted == name(of: smallest) ? name(of: window.frame.size) : wanted
       for section in AppSection.allCases {
         for inspector in section == .chart ? [false, true] : [false] {
           fullChart(inspector)
@@ -124,15 +131,14 @@ enum LayoutSweep {
       for inspector in section == .chart ? [false, true] : [false] {
         fullChart(inspector)
         model.section = section
-        await drag(window, from: largest)
+        await drag(window, from: largest, to: smallest)
       }
     }
     fullChart(false)
   }
 
   /// Shrinks the window step by step from `largest` to the app's smallest size and back.
-  private static func drag(_ window: NSWindow, from largest: CGSize) async {
-    let smallest = CGSize(width: TickrMacApp.minWidth, height: TickrMacApp.minHeight)
+  private static func drag(_ window: NSWindow, from largest: CGSize, to smallest: CGSize) async {
     let steps = Int(max(largest.width - smallest.width, largest.height - smallest.height) / dragStep)
     let path = (0...steps) + (0...steps).reversed()
     for step in path {
@@ -157,8 +163,8 @@ enum LayoutSweep {
   }
 
   /// Whether the window can take `size`: never under its least size.
-  private static func allowed(_ size: CGSize) -> Bool {
-    size.width >= TickrMacApp.minWidth && size.height >= TickrMacApp.minHeight
+  private static func allowed(_ size: CGSize, least: CGSize) -> Bool {
+    size.width >= least.width && size.height >= least.height
   }
 
   /// Writes the sizes left out, one "name width×height" per line, so the run reports them.

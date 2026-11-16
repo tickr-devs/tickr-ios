@@ -9,7 +9,7 @@ let package = Package(
   name: "TickrApp",
   // Text a person reads is English in Tickr/L10n.swift, translated in Tickr/Localizable.xcstrings.
   defaultLocalization: "en",
-  platforms: [.macOS("26.1")],
+  platforms: [.macOS(.v26)],
   products: [
     .executable(name: "TickrMac", targets: ["TickrMac"]),
   ],
