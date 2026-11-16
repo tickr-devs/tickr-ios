@@ -220,7 +220,7 @@ a step; it does not define its own factor.
 | `bump` / `bumpSeconds` / `bumpScale` | ease-in-out, two halves of 0.6 s / ×1.35 (iPhone), ×1.25 (Mac) | A count growing and settling once when it rises (`bumps(on:)`: Lab refusal counts), never when it falls or first appears |
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
 | `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event; also today's Trades calendar tile, once per change of today's trading (a trade closed, a position opened or closed) |
-| `shineSeconds` | 3.5 s | One pass of the light across the Lab's AI advisor title (ornament, `OrnamentGate`) |
+| `shineSeconds` | 3.5 s | One pass of the light across the Lab's AI advisor title (ornament, `OrnamentGate`); Core Animation runs the sweep (`ShineBand`), like the brand halo and the ticker |
 | `hintDelay` | 0.45 s | Hover before a hint appears (Mac) |
 | `clockTickSeconds` | 1 s | Redraw of clocks, ages ("3 s ago") and the session bar's cursor |
 | `nowGlide` | linear, `clockTickSeconds` (1 s) | The session strip's now line (Settings) gliding to each new minute, at an even pace: one move per real change of the time |
