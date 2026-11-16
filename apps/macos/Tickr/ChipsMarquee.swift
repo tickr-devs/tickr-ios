@@ -66,7 +66,11 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
   }
 
   private var marquee: some View {
-    ChipsMarqueeHost(row: { AnyView(row(copy: $0)) }, speed: Tokens.Motion.tickerSpeed, handle: handle)
+    let pointed = spot(at: pointer)
+    return ChipsMarqueeHost(
+      row: { AnyView(row(copy: $0)) },
+      shows: ChipsMarqueeShows(items: items, pointedItem: pointed?.item, pointedCopy: pointed?.copy),
+      speed: Tokens.Motion.tickerSpeed, handle: handle)
       // The chips' widths, from a hidden copy laid out with the screen: they change with the
       // chips only.
       .background {
@@ -152,6 +156,14 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
   private static var fadeEdge: Double { ChipsMarqueeView.fadeEdge }
 }
 
+/// What the moving row draws: its chips and the one outlined under the pointer. The row is drawn
+/// again only when this changes.
+struct ChipsMarqueeShows<Item: Hashable>: Hashable {
+  let items: [Item]
+  let pointedItem: Item?
+  let pointedCopy: Int?
+}
+
 /// Lets the strip hold the moving row and read where it holds it.
 @MainActor
 final class ChipsMarqueeHandle {
@@ -168,6 +180,9 @@ final class ChipsMarqueeHandle {
 private struct ChipsMarqueeHost: NSViewRepresentable {
   /// A copy of the row, by its place in the strip (0 first).
   let row: (Int) -> AnyView
+  /// What the row draws (`ChipsMarqueeShows`): the row is drawn and measured again only when it
+  /// changes, never on every update of the screen around it.
+  let shows: AnyHashable
   /// Points per second.
   let speed: Double
   let handle: ChipsMarqueeHandle
@@ -180,12 +195,11 @@ private struct ChipsMarqueeHost: NSViewRepresentable {
 
   func updateNSView(_ view: ChipsMarqueeView, context: Context) {
     handle.view = view
-    view.show(row, speed: speed)
+    view.show(row, shows: shows, speed: speed)
   }
 
   func sizeThatFits(_ proposal: ProposedViewSize, nsView: ChipsMarqueeView, context: Context) -> CGSize? {
-    let size = nsView.rowSize
-    return CGSize(width: proposal.width ?? nsView.loopWidth, height: size.height)
+    CGSize(width: proposal.width ?? nsView.loopWidth, height: nsView.rowSize.height)
   }
 }
 
@@ -205,6 +219,12 @@ final class ChipsMarqueeView: NSView {
   private let mover = NSView()
   private let host: NSHostingView<AnyView>
   private var row: (Int) -> AnyView
+  /// What the hosting view draws now (`ChipsMarqueeShows`).
+  private var shows: AnyHashable?
+  /// Size of all copies of the row, in points, measured when the row is drawn anew (new chips,
+  /// another chip outlined, another number of copies), never per layout pass: the hosting view
+  /// lays out the whole row to answer it.
+  private(set) var rowSize: CGSize = .zero
   /// Copies of the row in the hosting view: enough to fill the strip while one loop scrolls by.
   private var copies = ChipsMarqueeView.fewestCopies
   private var speed = 0.0
@@ -219,6 +239,7 @@ final class ChipsMarqueeView: NSView {
     // chips, never per frame. No minimum or maximum: the row never sizes the window.
     host.sizingOptions = [.intrinsicContentSize]
     super.init(frame: .zero)
+    rowSize = host.intrinsicContentSize
     wantsLayer = true
     layer?.masksToBounds = true
     mover.wantsLayer = true
@@ -232,8 +253,6 @@ final class ChipsMarqueeView: NSView {
   // The strip around this view takes the pointer: hover and clicks go to it.
   override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
-  /// Size of all copies of the row, in points.
-  var rowSize: CGSize { host.intrinsicContentSize }
   /// Width of one copy, in points.
   var loopWidth: CGFloat { rowSize.width / CGFloat(copies) }
 
@@ -245,9 +264,12 @@ final class ChipsMarqueeView: NSView {
     .accessibilityHidden(true))
   }
 
-  func show(_ row: @escaping (Int) -> AnyView, speed: Double) {
+  func show(_ row: @escaping (Int) -> AnyView, shows: AnyHashable, speed: Double) {
     self.row = row
-    host.rootView = Self.strip(row, copies: copies)
+    if shows != self.shows {
+      self.shows = shows
+      draw()
+    }
     let restart = speed != self.speed
     self.speed = speed
     place(restart: restart)
@@ -266,10 +288,10 @@ final class ChipsMarqueeView: NSView {
       let needed = max(Self.fewestCopies, Int((bounds.width / one).rounded(.up)) + 1)
       if needed != copies {
         copies = needed
-        host.rootView = Self.strip(row, copies: copies)
+        draw()
       }
     }
-    let size = host.intrinsicContentSize
+    let size = rowSize
     host.frame = CGRect(origin: .zero, size: size)
     mover.frame = CGRect(x: mover.frame.minX, y: 0, width: size.width, height: size.height)
     let width = size.width / CGFloat(copies)
@@ -279,6 +301,12 @@ final class ChipsMarqueeView: NSView {
     if changed || restart || mover.layer?.animation(forKey: Self.animationKey) == nil {
       scroll(from: current)
     }
+  }
+
+  /// Draws the copies of the row anew and measures them.
+  private func draw() {
+    host.rootView = Self.strip(row, copies: copies)
+    rowSize = host.intrinsicContentSize
   }
 
   /// How far the row is drawn shifted to the left now, in points.

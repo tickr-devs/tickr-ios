@@ -82,19 +82,19 @@ struct TickrMacApp: App {
 
   var body: some Scene {
     Window(String(localized: L10n.App.name), id: WindowID.main) {
-      RootView()
-        .overlay { OpeningOverlay() }
-        .environment(model)
-        .environment(Container.shared.chartModel())
-        .environment(Container.shared.advisorModel())
-        // The design's accent for links, selection and controls (as on iOS), not the system blue.
-        .tint(Palette.info)
-        // The window's least size is these numbers and nothing else: with a maximum given, the
-        // frame takes the window's size whatever its content asks for, so a screen that changes
-        // its layout while the window is resized (a ViewThatFits picking another arrangement,
-        // a chart's panes) can never move the window's minimum and start AppKit's
-        // "Update Constraints in Window" loop. Screens fit themselves into the window instead.
-        .frame(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: Self.minHeight, maxHeight: .infinity)
+      // The window's least size is these numbers and nothing else, so a screen that changes its
+      // layout while the window is resized (a ViewThatFits picking another arrangement, a chart's
+      // panes) can never move the window's minimum and start AppKit's "Update Constraints in
+      // Window" loop. Screens fit themselves into the window instead.
+      WindowFrame(minSize: CGSize(width: Self.minWidth, height: Self.minHeight)) {
+        RootView()
+          .overlay { OpeningOverlay() }
+          .environment(model)
+          .environment(Container.shared.chartModel())
+          .environment(Container.shared.advisorModel())
+          // The design's accent for links, selection and controls (as on iOS), not the system blue.
+          .tint(Palette.info)
+      }
     }
     .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
     // The design's low title bar (about 40 points) with one line in it.
@@ -189,6 +189,30 @@ private struct OpeningOverlay: View {
       BrandOpening(
         target: model.overviewMarkCentre, flying: { model.openingFlying = true },
         finished: { model.openingPlayed = true })
+    }
+  }
+}
+
+/// The main window's content at the window's size, never smaller than `minSize`.
+///
+/// It answers every size question from those numbers alone and never asks its content. The
+/// window's hosting view asks for its least size on every layout pass (each display frame of a
+/// scroll or an animation): through a `.frame(minWidth:maxWidth:minHeight:maxHeight:)` that
+/// question laid out the whole screen a second time at another size, its scroll view and every
+/// text included (Instruments on the installed app, 2026-11-16: 8% of the main thread while
+/// scrolling the Overview).
+struct WindowFrame: Layout {
+  let minSize: CGSize
+
+  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    CGSize(
+      width: max(proposal.width ?? minSize.width, minSize.width),
+      height: max(proposal.height ?? minSize.height, minSize.height))
+  }
+
+  func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    for subview in subviews {
+      subview.place(at: bounds.origin, anchor: .topLeading, proposal: ProposedViewSize(bounds.size))
     }
   }
 }
