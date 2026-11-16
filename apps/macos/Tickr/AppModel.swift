@@ -164,7 +164,13 @@ public final class AppModel {
   public private(set) var botStart: BotStartOutcome?
 
   // Navigation (the sidebar selection lives here so any card can jump to a section).
-  var section: AppSection = .overview
+  var section: AppSection = .overview {
+    // The Symbols screen belongs to the Overview: another section closes it.
+    didSet { if section != .overview { symbolsTab = nil } }
+  }
+  /// The Symbols screen's tab while it is open over the Overview (a funnel stage or "Show all"
+  /// of the fast movers opened it); nil shows the Overview itself.
+  var symbolsTab: SymbolsTab?
   /// Whether this launch's opening animation (BrandOpening) has played: once per launch, not on
   /// reopening the window.
   var openingPlayed = false
@@ -206,6 +212,12 @@ public final class AppModel {
   public private(set) var flowError: String?
   public private(set) var watching: WatchingV1?
   public private(set) var watchingError: String?
+  /// The shown day's symbols by the stage they got to, and its fast movers (GET /symbols,
+  /// GET /movers): the funnel's counts, the Symbols screen and the Fast movers card.
+  public private(set) var symbols: SymbolsV1?
+  public private(set) var symbolsError: String?
+  public private(set) var movers: MoversV1?
+  public private(set) var moversError: String?
 
   // Positions with their latest bars.
   private var barsBySymbol: [String: BarsV1] = [:]
@@ -467,6 +479,8 @@ public final class AppModel {
     performance = nil
     flow = nil
     watching = nil
+    symbols = nil
+    movers = nil
     Task {
       await refreshStatus()
       await refreshHistory()
@@ -709,8 +723,8 @@ public final class AppModel {
     }
   }
 
-  /// Reads the shown day's flow and watched symbols. An answer for a day no longer shown is
-  /// dropped; a failed read clears its part, so an old one never reads as current.
+  /// Reads the shown day's flow, watched symbols, symbols and fast movers. An answer for a day
+  /// no longer shown is dropped; a failed read clears its part, so an old one never reads as current.
   public func refreshFlow() async {
     let day = shownDay
     do {
@@ -733,6 +747,26 @@ public final class AppModel {
       watching = nil
       watchingError = Self.describe(error) ?? watchingError
     }
+    do {
+      let document = try await client.symbols(day: day)
+      guard day == shownDay else { return }
+      symbols = document
+      symbolsError = nil
+    } catch {
+      guard day == shownDay else { return }
+      symbols = nil
+      symbolsError = Self.describe(error) ?? symbolsError
+    }
+    do {
+      let document = try await client.movers(day: day)
+      guard day == shownDay else { return }
+      movers = document
+      moversError = nil
+    } catch {
+      guard day == shownDay else { return }
+      movers = nil
+      moversError = Self.describe(error) ?? moversError
+    }
   }
 
   private func loadSelectedDay() async {
@@ -745,6 +779,10 @@ public final class AppModel {
     flowError = nil
     watching = nil
     watchingError = nil
+    symbols = nil
+    symbolsError = nil
+    movers = nil
+    moversError = nil
     await refreshFlow()
     await refreshObservers()
     await refreshSkipped()

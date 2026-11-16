@@ -529,7 +529,24 @@ enum L10n {
     }
     /// Accessibility hint of a live-flow stage: a click opens its detail.
     static var stageDetailsHint: LocalizedStringResource {
-      LocalizedStringResource("flow.stageDetailsHint", defaultValue: "Shows what this stage did today", bundle: L10n.bundle)
+      // swiftlint:disable:next line_length
+      LocalizedStringResource("flow.stageDetailsHint", defaultValue: "Shows every symbol at this stage today", bundle: L10n.bundle)
+    }
+    /// Pipeline stage: a fresh quote and the strategy's spread rule.
+    static var quote: LocalizedStringResource {
+      LocalizedStringResource("flow.quote", defaultValue: "Quote", bundle: L10n.bundle)
+    }
+    /// Pipeline stage: minute bars and the strategy's dollar volume rule.
+    static var bars: LocalizedStringResource {
+      LocalizedStringResource("flow.bars", defaultValue: "Bars", bundle: L10n.bundle)
+    }
+    /// The quote stage's value: symbols that got to it.
+    static func quoted(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.quoted", defaultValue: "\(count) quoted", bundle: L10n.bundle)
+    }
+    /// The bars stage's value: symbols that got to it.
+    static func liquid(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.liquid", defaultValue: "\(count) liquid", bundle: L10n.bundle)
     }
     static func seen(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.seen", defaultValue: "\(count) seen", bundle: L10n.bundle)
@@ -3470,6 +3487,143 @@ enum L10n {
     /// Send outcome: no send was recorded.
     static var absent: LocalizedStringResource {
       LocalizedStringResource("entrySent.absent", defaultValue: "no send", bundle: L10n.bundle)
+    }
+  }
+  enum Symbols {
+    /// Screen title: every symbol of the day by the stage it got to.
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("symbols.title", defaultValue: "Symbols", bundle: L10n.bundle)
+    }
+    /// Back capsule: returns to the Overview.
+    static var back: LocalizedStringResource {
+      LocalizedStringResource("symbols.back", defaultValue: "Overview", bundle: L10n.bundle)
+    }
+    /// Under the title: day, end of the latest discovery pass, symbols the screeners listed.
+    static func context(_ day: String, _ time: String, _ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("symbols.context", defaultValue: "\(day) · \(time) ET · \(count) screened", bundle: L10n.bundle)
+    }
+    /// A failed read of the symbols or movers; argument: the error.
+    static func unavailable(_ error: String) -> LocalizedStringResource {
+      LocalizedStringResource("symbols.unavailable", defaultValue: "Unavailable: \(error)", bundle: L10n.bundle)
+    }
+    /// Search field: filters the rows by symbol.
+    static var search: LocalizedStringResource {
+      LocalizedStringResource("symbols.search", defaultValue: "Search symbol", bundle: L10n.bundle)
+    }
+    /// Accessibility: the row of stage tabs.
+    static var stages: LocalizedStringResource {
+      LocalizedStringResource("symbols.stages", defaultValue: "Stages", bundle: L10n.bundle)
+    }
+    /// Accessibility: the All / Passed / Dropped here control.
+    static var show: LocalizedStringResource {
+      LocalizedStringResource("symbols.show", defaultValue: "Show", bundle: L10n.bundle)
+    }
+    /// Label before the sort control.
+    static var sort: LocalizedStringResource {
+      LocalizedStringResource("symbols.sort", defaultValue: "Sort", bundle: L10n.bundle)
+    }
+    /// Accessibility: the list of symbols.
+    static var listLabel: LocalizedStringResource {
+      LocalizedStringResource("symbols.listLabel", defaultValue: "Symbol list", bundle: L10n.bundle)
+    }
+    /// Accessibility: the selected symbol's path.
+    static var detailLabel: LocalizedStringResource {
+      LocalizedStringResource("symbols.detailLabel", defaultValue: "Symbol detail", bundle: L10n.bundle)
+    }
+    /// Under the list: every row is shown, never capped.
+    static func showingAll(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("symbols.showingAll", defaultValue: "Showing all \(count)", bundle: L10n.bundle)
+    }
+    /// The search left no row.
+    static func noMatch(_ query: String) -> LocalizedStringResource {
+      LocalizedStringResource("symbols.noMatch", defaultValue: "No symbol matches “\(query)” here.", bundle: L10n.bundle)
+    }
+    /// A stage tab with no rows.
+    static var noneHere: LocalizedStringResource {
+      LocalizedStringResource("symbols.noneHere", defaultValue: "No symbol got to this stage.", bundle: L10n.bundle)
+    }
+    /// The fast movers tab with no rows.
+    static var noMovers: LocalizedStringResource {
+      LocalizedStringResource("symbols.noMovers", defaultValue: "No fast movers yet.", bundle: L10n.bundle)
+    }
+    /// Column title.
+    static var columnSymbol: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnSymbol", defaultValue: "Symbol", bundle: L10n.bundle)
+    }
+    /// Column title.
+    static var columnSources: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnSources", defaultValue: "Screeners · rank · change", bundle: L10n.bundle)
+    }
+    /// Column title.
+    static var columnFurthest: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnFurthest", defaultValue: "Furthest stage", bundle: L10n.bundle)
+    }
+    /// Column title.
+    static var columnOutcome: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnOutcome", defaultValue: "Outcome", bundle: L10n.bundle)
+    }
+    /// Column title.
+    static var columnSeen: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnSeen", defaultValue: "First seen", bundle: L10n.bundle)
+    }
+    /// Column title: the bar's volume against the average.
+    static var columnVolume: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnVolume", defaultValue: "Last bar vol", bundle: L10n.bundle)
+    }
+    /// Column title: the bar's move in ATR.
+    static var columnMove: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnMove", defaultValue: "Move", bundle: L10n.bundle)
+    }
+    /// Column title: the bar's dollar volume.
+    static var columnDollars: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnDollars", defaultValue: "$ volume", bundle: L10n.bundle)
+    }
+    /// Column title.
+    static var columnScreeners: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnScreeners", defaultValue: "Screeners", bundle: L10n.bundle)
+    }
+    /// Column title: the bar's time.
+    static var columnTime: LocalizedStringResource {
+      LocalizedStringResource("symbols.columnTime", defaultValue: "Time", bundle: L10n.bundle)
+    }
+    /// Detail: the symbol's stages today.
+    static var pathToday: LocalizedStringResource {
+      LocalizedStringResource("symbols.pathToday", defaultValue: "Path today", bundle: L10n.bundle)
+    }
+    /// Detail link: the Chart on this symbol.
+    static var openChart: LocalizedStringResource {
+      LocalizedStringResource("symbols.openChart", defaultValue: "Open chart", bundle: L10n.bundle)
+    }
+    /// Detail link: the Trades & days screen.
+    static var tradesAndDays: LocalizedStringResource {
+      LocalizedStringResource("symbols.tradesAndDays", defaultValue: "Trades & days", bundle: L10n.bundle)
+    }
+    /// Detail with no symbol selected.
+    static var selectHint: LocalizedStringResource {
+      LocalizedStringResource("symbols.selectHint", defaultValue: "Select a symbol to see its path today.", bundle: L10n.bundle)
+    }
+    /// Detail: the fast mover bar; time, volume, move, dollar volume.
+    static func moverLine(_ time: String, _ volume: String, _ move: String, _ dollars: String) -> LocalizedStringResource {
+      // swiftlint:disable:next line_length
+      LocalizedStringResource("symbols.moverLine", defaultValue: "Fast mover \(time) · \(volume) · \(move) · \(dollars)", bundle: L10n.bundle)
+    }
+  }
+  enum FastMovers {
+    /// Card title: symbols with a sudden jump against the bars before.
+    static var title: LocalizedStringResource {
+      LocalizedStringResource("fastMovers.title", defaultValue: "Fast Movers", bundle: L10n.bundle)
+    }
+    /// Link under the rows: opens the Symbols screen on its Fast movers tab.
+    static var showAll: LocalizedStringResource {
+      LocalizedStringResource("fastMovers.showAll", defaultValue: "Show all", bundle: L10n.bundle)
+    }
+    /// The card with no fast mover.
+    static var none: LocalizedStringResource {
+      LocalizedStringResource("fastMovers.none", defaultValue: "No fast movers yet today.", bundle: L10n.bundle)
+    }
+    /// A failed read of GET /movers; argument: the error.
+    static func unavailable(_ error: String) -> LocalizedStringResource {
+      LocalizedStringResource("fastMovers.unavailable", defaultValue: "Fast movers unavailable: \(error)", bundle: L10n.bundle)
     }
   }
   // END Screens

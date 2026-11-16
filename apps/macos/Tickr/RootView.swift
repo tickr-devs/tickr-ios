@@ -140,7 +140,13 @@ struct RootView: View {
 
   @ViewBuilder private var detail: some View {
     switch section {
-    case .overview: OverviewView()
+    case .overview:
+      // A funnel stage or the fast movers' "Show all" opens the Symbols screen in its place.
+      if model.symbolsTab != nil {
+        SymbolsView()
+      } else {
+        OverviewView()
+      }
     case .chart: ChartView()
     case .trades: TradesView()
     case .risk: RiskView()

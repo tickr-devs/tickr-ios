@@ -320,7 +320,7 @@ struct WatchingRow: View {
 
 /// A watched symbol's verdict as the design draws it: small mono capitals in an outline of the
 /// verdict's colour, no fill.
-private struct VerdictTag: View {
+struct VerdictTag: View {
   let verdict: Verdict
 
   var body: some View {
@@ -349,5 +349,84 @@ extension CheckV1 {
   /// "rule measured operator threshold" as the bot recorded them; a missing side is a dash.
   var comparisonText: String {
     "\(ApiText.rule(rule)) \(valueText)"
+  }
+}
+
+/// The day's fast movers (GET /movers): a few newest rows (symbol, its last bar's volume against
+/// the average, its move in ATR, its dollar volume, the time and whether the strategy watches it),
+/// then "Show all N ›" opening the Symbols screen on its Fast movers tab. A new mover rises in as
+/// it arrives, a real event of the bot.
+struct FastMoversCard: View {
+  @Environment(AppModel.self) private var model
+
+  /// Rows the card shows; the rest are on the Symbols screen.
+  static let rowCap = 4
+  /// Accessibility id of the card, for the UI tests.
+  static let id = "overview-fast-movers"
+
+  var body: some View {
+    Card(L10n.FastMovers.title) {
+      if let rules = model.movers?.rules {
+        Text(verbatim: SymbolsBoard.rules(rules))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+          .multilineTextAlignment(.trailing)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    } content: {
+      if let movers = model.movers {
+        if movers.movers.isEmpty {
+          Footnote(verbatim: movers.rulesCause ?? String(localized: L10n.FastMovers.none))
+        } else {
+          VStack(spacing: Tokens.Space.xs) {
+            ForEach(Array(movers.movers.prefix(Self.rowCap).enumerated()), id: \.element.symbol) { index, mover in
+              ChartLink(mover.symbol) { FastMoverRow(mover: mover) }
+                .rise(step: index)
+            }
+          }
+          .animation(Tokens.Motion.standard, value: movers.movers.prefix(Self.rowCap).map(\.symbol))
+          CardFooterLink(L10n.FastMovers.showAll, count: movers.movers.count) {
+            withAnimation(Tokens.Motion.standard) { model.symbolsTab = .fastMovers }
+          }
+        }
+      } else if let error = model.moversError {
+        Footnote(L10n.FastMovers.unavailable(error), color: Palette.warningText)
+      } else {
+        TickrLoader(L10n.Common.loading)
+      }
+    }
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier(Self.id)
+  }
+}
+
+/// One fast mover on the Overview: the symbol and the bar's time, then its three figures, each
+/// bright when its signal fired; a WATCH tag when the strategy watches it. Texts wrap, never cut.
+private struct FastMoverRow: View {
+  let mover: FastMoverV1
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+        Text(verbatim: mover.symbol)
+          .font(Tokens.Typography.chip)
+          .foregroundStyle(Palette.textPrimary)
+        if mover.watching { VerdictTag(verdict: .watch) }
+        Spacer(minLength: 0)
+        Text(verbatim: Format.marketTime(mover.at.date))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      ChipFlow(spacing: Tokens.Space.s) {
+        MoverFigure(text: SymbolsBoard.volume(mover), fired: mover.fired(.volume))
+        MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move),
+          color: mover.moveAtr.isNegative ? Palette.lossText : Palette.profitText)
+        MoverFigure(text: SymbolsBoard.dollars(mover), fired: mover.fired(.dollars))
+      }
+    }
+    .padding(Tokens.Space.s)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
+    .accessibilityElement(children: .combine)
   }
 }

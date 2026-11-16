@@ -9,7 +9,7 @@ import SwiftUI
 public enum DesignGlyph: Sendable, CaseIterable {
   case home, positions, chart, activity, lab, power, settings, calendar, candles, line
   /// The live flow's stages, in the order a setup passes them.
-  case screeners, universe, strategy, risk, order, brokerStop, reconcile
+  case screeners, universe, quote, bars, strategy, risk, order, brokerStop, reconcile
 
   /// The design's SVG path data, on the 24-point grid (the boards' `<path d>`).
   public var pathData: String {
@@ -26,6 +26,8 @@ public enum DesignGlyph: Sendable, CaseIterable {
     case .line: return Self.linePath
     case .screeners: return Self.screenersPath
     case .universe: return Self.universePath
+    case .quote: return Self.quotePath
+    case .bars: return Self.barsPath
     case .strategy: return Self.strategyPath
     case .risk: return Self.riskPath
     case .order: return Self.orderPath
@@ -84,6 +86,22 @@ public enum DesignGlyph: Sendable, CaseIterable {
   /// (two arrows going round).
   static let screenersPath = "M4+6h10M4+11h6M4+16h4M15.5+10.5a3.5+3.5+0+1+0+0+7a3.5+3.5+0+1+0+0-7zM18+17l3+3"
   static let universePath = "M4+7h16M7+12h10M10+17h4"
+  /// Quote (mockup v89): a coin, then the dollar sign's S and its two strokes.
+  static let quotePath = quoteCoinPath + quoteDollarPath
+  /// The quote glyph's coin.
+  static let quoteCoinPath = "M12+4a8+8+0+1+0+0+16a8+8+0+1+0+0-16z"
+  /// The quote glyph's dollar sign: its S, then its two strokes.
+  static let quoteDollarPath = quoteSPath + quoteStrokesPath
+  /// The dollar sign's S: its upper curve, then its lower one.
+  static let quoteSPath = quoteUpperPath + quoteLowerPath
+  /// The S's upper curve, from its top right end to its middle.
+  static let quoteUpperPath = "M14.5+9.2c-.5-.8-1.4-1.2-2.5-1.2-1.4+0-2.5.7-2.5+1.9+0+2.6+5+1.4+5+4.1"
+  /// The S's lower curve, from its middle to its bottom left end.
+  static let quoteLowerPath = "c0+1.2-1.1+2-2.5+2-1.2+0-2.1-.5-2.6-1.3"
+  /// The dollar sign's strokes above and below the S.
+  static let quoteStrokesPath = "M12+6.5V8M12+16v1.5"
+  /// Bars (mockup v89): four bars on a baseline.
+  static let barsPath = "M5+20V12M10+20V6M15+20V9M20+20V14M3+20h18"
   static let strategyPath = "M6+20V10a4+4+0+0+1+4-4h9M16+3l3+3-3+3M6+14a4+4+0+0+0+4+4h9M16+15l3+3-3+3"
   static let riskPath = "M3.5+17a8.5+8.5+0+0+1+17+0M12+17l4-5M6.5+11l1+.8M12+8.5V10M17.5+11l-1+.8"
   static let orderPath = "M21+3L3+10.5l7.5+3L13+21zM21+3L10.5+13.5"
