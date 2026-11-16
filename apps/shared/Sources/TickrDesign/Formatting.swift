@@ -43,6 +43,17 @@ public enum Money {
     fixed(abs(value), fractionDigits: abs(value) < subPennyBelow ? subPennyDigits : centsDigits, grouped: true)
   }
 
+  /// A distance between two prices in the decimals of the price it is measured at (`price`'s
+  /// rule: cents from one dollar, hundredths of a cent below), rounded up so a distance that is
+  /// not zero never reads as "0.00": 0.00985 at 57.11 is "0.01"; never a sign.
+  public static func priceDistance(_ distance: Decimal, at price: Decimal) -> String {
+    let digits = abs(price) < subPennyBelow ? subPennyDigits : centsDigits
+    var input = abs(distance)
+    var output = Decimal()
+    NSDecimalRound(&output, &input, digits, .up)
+    return fixed(output, fractionDigits: digits)
+  }
+
   /// "+$11.80", "−$1,234.50", "$0.00": a money result (a day, a trade, an open position),
   /// thousands grouped with "," in every language.
   public static func signedUSD(_ value: Decimal) -> String {
@@ -129,6 +140,11 @@ public enum Money {
     formatter.minimumIntegerDigits = 1
     return formatter.string(from: number) ?? number.stringValue
   }
+}
+
+extension PriceText {
+  /// The apps' one price rule (`Money.price`, `Money.priceDistance`) for TickrKit's sentences.
+  public static let money = PriceText(price: Money.price, distance: Money.priceDistance)
 }
 
 /// Risk arithmetic shown next to a position. Long positions only (v1 trades long only).

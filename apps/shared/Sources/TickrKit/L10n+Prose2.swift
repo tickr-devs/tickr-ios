@@ -3,6 +3,21 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). bot_not_stopped (values: state)
+  static var proseReasonBotNotStopped: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.bot_not_stopped",
+      defaultValue: "The bot is {state}: nothing to start", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). lock_unreadable (values: error)
+  static var proseReasonLockUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.lock_unreadable",
+      defaultValue: "The bot's lock file cannot be read ({error}): nothing was started", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). lock_held (values: pid)
+  static var proseReasonLockHeld: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.lock_held",
+      defaultValue: "A bot process (pid {pid}) still holds the lock: wait for it to end, then start again", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). stop_not_cleared (values: error)
   static var proseReasonStopNotCleared: LocalizedStringResource {
     LocalizedStringResource("kit.prose.stop_not_cleared",
@@ -368,20 +383,5 @@ extension L10n {
   static var proseReasonNoAdvisorRuns: LocalizedStringResource {
     LocalizedStringResource("kit.prose.no_advisor_runs",
       defaultValue: "No advisor run yet", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). proposals_unreadable (values: error)
-  static var proseReasonProposalsUnreadable: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.proposals_unreadable",
-      defaultValue: "The advisor's folder cannot be read ({error})", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). run_folder_misnamed
-  static var proseReasonRunFolderMisnamed: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.run_folder_misnamed",
-      defaultValue: "The run folder's name is not a run's", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). run_folder_unreadable (values: error)
-  static var proseReasonRunFolderUnreadable: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.run_folder_unreadable",
-      defaultValue: "The run folder cannot be read ({error})", bundle: bundle)
   }
 }

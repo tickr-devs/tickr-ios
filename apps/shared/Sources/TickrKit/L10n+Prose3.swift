@@ -3,6 +3,21 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). proposals_unreadable (values: error)
+  static var proseReasonProposalsUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.proposals_unreadable",
+      defaultValue: "The advisor's folder cannot be read ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). run_folder_misnamed
+  static var proseReasonRunFolderMisnamed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.run_folder_misnamed",
+      defaultValue: "The run folder's name is not a run's", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). run_folder_unreadable (values: error)
+  static var proseReasonRunFolderUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.run_folder_unreadable",
+      defaultValue: "The run folder cannot be read ({error})", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). run_file_missing (values: file)
   static var proseReasonRunFileMissing: LocalizedStringResource {
     LocalizedStringResource("kit.prose.run_file_missing",

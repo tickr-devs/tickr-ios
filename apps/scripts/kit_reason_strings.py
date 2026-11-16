@@ -597,6 +597,22 @@ GROUPS = [
                 "{rule}: записана как не пройденная, но измерение проходит порог",
             ),
             (
+                "no_invalidation",
+                "{rule}: no invalidation level recorded, so the distance to the trigger "
+                "has no scale",
+                "{rule}: уровень отмены не записан, расстояние до триггера не с чем сравнить",
+            ),
+            (
+                "invalidation_wrong_side",
+                "{rule}: the invalidation level is not on the far side of the trigger",
+                "{rule}: уровень отмены не по другую сторону от триггера",
+            ),
+            (
+                "past_invalidation",
+                "{rule}: the measured price is already past the invalidation level",
+                "{rule}: измеренная цена уже за уровнем отмены",
+            ),
+            (
                 "planned_loss_not_positive_r",
                 "Planned loss is not positive: no 1 R to divide by",
                 "Плановый убыток не положителен: нет 1 R для деления",

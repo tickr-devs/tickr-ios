@@ -144,8 +144,8 @@ private struct CheckLine: View {
         Text(verbatim: ApiText.rule(check.rule))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textPrimary)
-        Text(verbatim: [check.measured?.text ?? ChartFormat.missing, check.operator,
-          check.threshold?.text ?? ChartFormat.missing].joined(separator: ChartFormat.space))
+        // What it measured against what it needs, never a comparison a failed check contradicts.
+        Text(verbatim: check.valueText)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textTertiary)
         if !check.note.isEmpty {

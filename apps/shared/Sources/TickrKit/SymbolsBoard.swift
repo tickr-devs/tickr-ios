@@ -206,13 +206,12 @@ public enum SymbolsBoard {
     return parts.isEmpty ? ApiText.missing : parts.joined(separator: separator)
   }
 
-  /// "Close above VWAP 5.12 >= 5.20": the rule in words, then the recorded comparison.
+  /// "Close above VWAP 5.12 · needs >= 5.20": the rule in words, then the recorded values in
+  /// words that stay true for a failed check (`CheckV1.valueText`).
   public static func checkText(_ check: CheckV1) -> String {
     let rule = ApiText.rule(check.rule)
     guard check.measured != nil || check.threshold != nil else { return rule }
-    let measured = check.measured?.text ?? ApiText.missing
-    let threshold = check.threshold?.text ?? ApiText.missing
-    return String(localized: L10n.symbolsCheck(rule, measured, check.operator, threshold))
+    return String(localized: L10n.symbolsCheck(rule, check.valueText))
   }
 
   /// "Top gainers #3": a screener and the symbol's rank in it.

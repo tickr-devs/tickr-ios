@@ -70,13 +70,15 @@ struct StageDetailsTests {
     #expect(value(detail, L10n.stageDecided) == "3")
     let closest = try #require(group(detail, L10n.stageClosest))
     #expect(closest.rows.map(\.symbol) == ["ABCD", "WXYZ", "EFGH"])
-    // The deciding check, measured against its threshold, then the closeness in whole percents.
+    // The deciding check, what it measured and what it needs, then the closeness in whole percents.
     let abcd = try #require(closest.rows.first?.text)
-    // 0.9983 is not there yet: rounded down, never shown as 100.
-    #expect(abcd.hasSuffix(String(localized: L10n.stageCloseness("99"))))
-    #expect(abcd.contains("12.33 > 12.35"))
-    // A side the bot did not measure is a dash; no closeness, no closeness text.
-    #expect(closest.rows.last?.text?.contains("— is —") == true)
+    // 0.92 of the way from the invalidation to the trigger, in whole percents.
+    #expect(abcd.hasSuffix(String(localized: L10n.stageCloseness("92"))))
+    // A failed check never reads as a true comparison ("12.33 > 12.35").
+    #expect(abcd.contains(String(localized: L10n.checkNeeds("12.33", ">", "12.35"))))
+    #expect(!abcd.contains("12.33 > 12.35"))
+    // A yes/no check (nothing measured) says it is not met; no closeness, no closeness text.
+    #expect(closest.rows.last?.text?.contains(String(localized: L10n.checkNotMet)) == true)
     #expect(closest.rows.last?.text?.contains(String(localized: L10n.stageCloseness("0"))) == false)
     // A recorded day has no live status: no strategy line.
     #expect(value(StageDetail.make(.strategy, from: fixtures.recorded), L10n.stageActiveStrategy) == nil)

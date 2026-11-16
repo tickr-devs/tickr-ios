@@ -173,14 +173,20 @@ struct LatestEvent: View {
 }
 
 /// The symbols the strategy is closest to entering, with the check that decides each and how
-/// close it is to passing: the closest few at a fixed height, and "Show all N ›" opening the full
-/// list (`WatchingAllPanel`) over the Overview.
+/// close it is to passing: as many of the closest as fill the card's grid cell (no gap under the
+/// footer), and "Show all N ›" opening the full list (`WatchingAllPanel`) over the Overview.
 struct WatchingCard: View {
   @Environment(AppModel.self) private var model
   @Environment(\.openWatchingAll) private var openWatchingAll
+  /// Each shown row's height as last laid out, by symbol: how many rows fit (`WatchingList.fitting`).
+  @State private var rowHeights: [String: CGFloat] = [:]
+  /// Height of the rows' space: the card's cell less its header and footer.
+  @State private var rowsHeight: CGFloat = 0
 
   /// Accessibility id of the card, for the UI tests.
   static let id = "overview-watching"
+  /// Space between two rows.
+  static let rowSpacing = Tokens.Space.s
 
   var body: some View {
     Card(L10n.Watching.title) {
@@ -193,20 +199,36 @@ struct WatchingCard: View {
         if watching.rows.isEmpty {
           Footnote(L10n.Watching.none)
         } else {
-          let rows = WatchingList.top(watching.rows)
-          VStack(spacing: Tokens.Space.s) {
-            // Each row opens the Chart on its symbol.
-            // The rows rise one after another as the card shows them (a symbol the bot starts
-            // watching rises as it arrives).
-            ForEach(Array(rows.enumerated()), id: \.element.symbol) { index, row in
-              ChartLink(row.symbol) { WatchingRow(row: row) }
-                .rise(step: index)
+          let ordered = WatchingList.sorted(watching.rows, by: .closest)
+          let fit = WatchingList.fitting(ordered.map { rowHeights[$0.symbol].map { Double($0) } },
+            available: Double(rowsHeight), spacing: Double(Self.rowSpacing))
+          let rows = Array(ordered.prefix(fit))
+          // The rows' space takes what the grid cell leaves under the header and over the footer;
+          // its own height never depends on how many rows it holds (at least the tallest row), so
+          // the count cannot feed back into the cell. The rows fill it from the top.
+          Color.clear
+            .frame(maxWidth: .infinity, minHeight: rowHeights.values.max() ?? 0, maxHeight: .infinity)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowsHeight = $0 }
+            .overlay(alignment: .top) {
+              VStack(spacing: Self.rowSpacing) {
+                // Each row opens the Chart on its symbol.
+                // The rows rise one after another as the card shows them (a symbol the bot starts
+                // watching rises as it arrives).
+                ForEach(Array(rows.enumerated()), id: \.element.symbol) { index, row in
+                  ChartLink(row.symbol) { WatchingRow(row: row) }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowHeights[row.symbol] = $0 }
+                    .rise(step: index)
+                }
+              }
             }
-          }
+            .clipped()
+            .onChange(of: ordered.map(\.symbol)) { _, symbols in
+              rowHeights = rowHeights.filter { symbols.contains($0.key) }
+            }
           // "Show all N · closest 3 of N ›": the card's footer link, last in the card, as on the
           // Controls board; without more rows, only how many of all the watched symbols it shows.
           let closest = watching.total > rows.count ? L10n.Watching.closestOf(rows.count, watching.total) : nil
-          if WatchingList.hasMore(watching.rows) {
+          if WatchingList.hasMore(watching.rows, shown: rows.count) {
             CardFooterLink(L10n.Watching.showAll, count: watching.rows.count, hint: closest) { openWatchingAll() }
           } else if let closest {
             Footnote(closest)
@@ -224,7 +246,8 @@ struct WatchingCard: View {
 }
 
 /// One watched symbol as the design draws it: a sunken box with the symbol, its verdict tag and
-/// the time on top, the deciding check below, and a thin bar of how close it is to passing.
+/// the time on top, the deciding check and where it stands below (`WatchingCheck`), and a thin
+/// bar of how far the measured value has come; without a measured distance, why instead of a bar.
 struct WatchingRow: View {
   let row: WatchingRowV1
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -240,28 +263,38 @@ struct WatchingRow: View {
         quoteAge
       }
       Group {
-        if let check = row.decisiveCheck {
-          // The check's name, then what it measured against what it needs, as in the design.
-          // The name wraps in a narrow row; the figures stay whole beside it.
+        let state = WatchingCheck.state(row, prices: .money)
+        if let check = row.decisiveCheck, let title = WatchingCheck.title(row) {
+          // The check's name, then where the measured value stands against what it needs. Both
+          // wrap in a narrow row, the figures first to keep their width.
           HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-            Text(verbatim: ApiText.rule(check.rule))
+            Text(verbatim: title)
               .font(Tokens.Typography.caption)
               .foregroundStyle(Palette.textTertiary)
               .frame(maxWidth: .infinity, alignment: .leading)
-            Text(verbatim: check.valueText)
+            Text(verbatim: state)
               .font(Tokens.Typography.captionMono)
               .foregroundStyle(Palette.textSecondary)
-              .fixedSize()
+              .multilineTextAlignment(.trailing)
+              .layoutPriority(1)
           }
           .help(Text(verbatim: check.note))
         } else {
-          Text(L10n.Watching.noCheck)
+          // No failed check: what the record holds and lacks, in place of the check.
+          Text(verbatim: state)
             .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textQuaternary)
+            .foregroundStyle(Palette.textTertiary)
         }
       }
       .fixedSize(horizontal: false, vertical: true)
-      closeness
+      if let share = WatchingCheck.progress(row) {
+        closeness(share)
+      } else if let cause = WatchingCheck.unmeasured(row) {
+        Text(verbatim: cause)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
     }
     .padding(.horizontal, Tokens.Space.s)
     .padding(.vertical, Tokens.Space.s)
@@ -293,28 +326,21 @@ struct WatchingRow: View {
   /// Decimals of the quote's age, as the design writes it ("0.6 s").
   static let ageDigits = 1
 
-  /// How close the deciding check is to passing, as a thin bar in the verdict's colour; empty
-  /// with the cause as its tooltip when the bot cannot say.
-  private var closeness: some View {
-    let share = row.closeness.map { min(max(NSDecimalNumber(decimal: $0.value).doubleValue, 0), 1) }
-    return GeometryReader { proxy in
+  /// How far the measured value has come towards passing, as a thin bar in the verdict's colour;
+  /// for a check against the trigger, from the invalidation (empty) to the trigger (full), which
+  /// the tooltip names.
+  private func closeness(_ share: Double) -> some View {
+    GeometryReader { proxy in
       ZStack(alignment: .leading) {
-        if let share {
-          Capsule().fill(Palette.separator)
-          Capsule().fill(row.verdict.color).frame(width: proxy.size.width * share)
-        } else {
-          // Unknown is a dashed outline, never an empty track that reads as 0 %.
-          Capsule().strokeBorder(Palette.separatorStrong,
-            style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
-        }
+        Capsule().fill(Palette.separator)
+        Capsule().fill(row.verdict.color).frame(width: proxy.size.width * share)
       }
     }
     .frame(height: Tokens.Size.barThin)
     .animation(reduceMotion ? nil : Tokens.Motion.fill, value: share)
-    .help(share == nil ? row.closenessCauseText.map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness)
-      : Text(L10n.Watching.closeness))
+    .help(WatchingCheck.scale(row, prices: .money).map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness))
     .accessibilityLabel(Text(L10n.Watching.closeness))
-    .accessibilityValue(share.map { Text($0, format: .percent) } ?? Text(verbatim: Format.missing))
+    .accessibilityValue(Text(share, format: .percent))
   }
 }
 

@@ -141,10 +141,9 @@ private struct CheckRow: View {
     .accessibilityElement(children: .combine)
   }
 
-  /// "measured operator threshold" as the bot recorded them (a missing side shows as a dash),
-  /// then the bot's note.
+  /// The measured value against what it needs, in words that stay true for a failed check
+  /// (`CheckV1.valueText`), then the bot's note.
   private var help: String {
-    let comparison = "\(check.measured?.text ?? Format.missing) \(check.operator) \(check.threshold?.text ?? Format.missing)"
-    return ([comparison] + (check.note.isEmpty ? [] : [check.note])).joined(separator: Format.lineSeparator)
+    ([check.valueText] + (check.note.isEmpty ? [] : [check.note])).joined(separator: Format.lineSeparator)
   }
 }

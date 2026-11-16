@@ -42,6 +42,25 @@ private func row(
     #expect(!WatchingList.hasMore(Array(try rows().prefix(WatchingList.shown))))
   }
 
+  @Test("The card shows as many rows as fit its height, never a gap and never none")
+  func fittingFillsTheHeight() {
+    // Four rows of 50 points, 8 apart: 50 + 58 + 58 = 166 fits 170, a fourth does not.
+    #expect(WatchingList.fitting([50, 50, 50, 50], available: 170, spacing: 8) == 3)
+    #expect(WatchingList.fitting([50, 50, 50, 50, 50], available: 300, spacing: 8) == 5)
+    // A row not measured yet counts as the tallest measured one.
+    #expect(WatchingList.fitting([50, 60, nil, nil], available: 190, spacing: 8) == 3)
+    #expect(WatchingList.fitting([50, 60, nil, nil], available: 185, spacing: 8) == 2)
+    // A taller row ends the run where it no longer fits.
+    #expect(WatchingList.fitting([50, 90, 50], available: 150, spacing: 8) == 2)
+    // At least one row, however small the card; none without rows.
+    #expect(WatchingList.fitting([80, 50], available: 40, spacing: 8) == 1)
+    #expect(WatchingList.fitting([], available: 400, spacing: 8) == 0)
+    // Before the first measurement: the design's three.
+    #expect(WatchingList.fitting([nil, nil, nil, nil], available: 400, spacing: 8) == WatchingList.shown)
+    #expect(WatchingList.fitting([50, 50, 50, 50], available: 0, spacing: 8) == WatchingList.shown)
+    #expect(WatchingList.fitting([nil, nil], available: 0, spacing: 8) == 2)
+  }
+
   @Test func closestMatchesTheAPIOrder() throws {
     // Closeness high to low, the tie by symbol, unknown closeness last.
     #expect(WatchingList.sorted(try rows(), by: .closest).map(\.symbol) == ["ABCD", "UVWX", "QRST", "MNOP", "EFGH"])

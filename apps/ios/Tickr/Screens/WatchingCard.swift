@@ -52,11 +52,6 @@ struct WatchingRow: View {
   /// False while a refresh failed and the row is the last read: its bar is dimmed.
   let current: Bool
 
-  /// How close the decisive check is to passing, 0 to 1, when the bot measured it.
-  private var closeness: Double? {
-    row.closeness.map { NSDecimalNumber(decimal: $0.value).doubleValue }
-  }
-
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
@@ -72,17 +67,17 @@ struct WatchingRow: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }
-      if let check = row.decisiveCheck {
-        Text(verbatim: [ApiText.rule(check.rule), check.measured?.text ?? Format.missing, check.operator,
-          check.threshold?.text ?? Format.missing].joined(separator: ChartFormat.space))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textTertiary)
-          // Wraps rather than cutting the figures.
-          .fixedSize(horizontal: false, vertical: true)
-      }
-      if let closeness {
-        // As on the board: a thin bar that grows in, and to each new closeness the bot measures.
-        let share = min(max(closeness, 0), 1)
+      // The check's name, then where the measured value stands against what it needs
+      // (`WatchingCheck`: never a comparison the record contradicts); without a failed check,
+      // what the record holds and lacks. Wraps rather than cutting the figures.
+      Text(verbatim: [WatchingCheck.title(row), WatchingCheck.state(row, prices: .money)].compactMap { $0 }
+        .joined(separator: Format.separator))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
+      if let share = WatchingCheck.progress(row) {
+        // As on the board: a thin bar that grows in, and to each new closeness the bot measures;
+        // for a check against the trigger it runs from the invalidation to the trigger.
         GeometryReader { proxy in
           ZStack(alignment: .leading) {
             Capsule().fill(Palette.separator)
@@ -96,10 +91,12 @@ struct WatchingRow: View {
         .accessibilityElement()
         .accessibilityLabel(Text(L10n.Watching.closeness))
         .accessibilityValue(Text(share, format: .percent.precision(.fractionLength(0))))
-      } else if let cause = row.closenessCauseText {
+        .accessibilityHint(Text(verbatim: WatchingCheck.scale(row, prices: .money) ?? String()))
+      } else if let cause = WatchingCheck.unmeasured(row) {
         Text(verbatim: cause)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
     .accessibilityElement(children: .combine)

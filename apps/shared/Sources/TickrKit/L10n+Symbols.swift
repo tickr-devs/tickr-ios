@@ -86,9 +86,9 @@ extension L10n {
   static func symbolsNotReached(_ stage: String, _ reason: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.symbols.notReached", defaultValue: "\(stage) not reached: \(reason)", bundle: bundle)
   }
-  /// A failed check: rule, measured, operator, threshold.
-  static func symbolsCheck(_ rule: String, _ measured: String, _ op: String, _ threshold: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.check", defaultValue: "\(rule) \(measured) \(op) \(threshold)", bundle: bundle)
+  /// A failed check: the rule, then its values in words (`CheckV1.valueText`).
+  static func symbolsCheck(_ rule: String, _ values: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.check", defaultValue: "\(rule) \(values)", bundle: bundle)
   }
   /// A screener and the symbol's rank in it.
   static func symbolsSource(_ screener: String, _ rank: Int) -> LocalizedStringResource {

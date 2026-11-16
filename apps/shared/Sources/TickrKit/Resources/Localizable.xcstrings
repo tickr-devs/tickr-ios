@@ -1528,6 +1528,57 @@
         }
       }
     },
+    "kit.check.met" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "met"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выполнено"
+          }
+        }
+      }
+    },
+    "kit.check.needs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · needs %2$@ %3$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · нужно %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "kit.check.notMet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not met"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не выполнено"
+          }
+        }
+      }
+    },
     "kit.command.cancelOwnOrders" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5639,6 +5690,24 @@
         }
       }
     },
+    "kit.prose.invalidation_wrong_side" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). invalidation_wrong_side",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: the invalidation level is not on the far side of the trigger"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: уровень отмены не по другую сторону от триггера"
+          }
+        }
+      }
+    },
     "kit.prose.journal_unreadable" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). journal_unreadable",
       "extractionState" : "manual",
@@ -6377,6 +6446,24 @@
         }
       }
     },
+    "kit.prose.no_invalidation" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_invalidation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: no invalidation level recorded, so the distance to the trigger has no scale"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: уровень отмены не записан, расстояние до триггера не с чем сравнить"
+          }
+        }
+      }
+    },
     "kit.prose.no_losses" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). no_losses",
       "extractionState" : "manual",
@@ -6787,6 +6874,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Хранится только последний статус, а не статус за каждый день"
+          }
+        }
+      }
+    },
+    "kit.prose.past_invalidation" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). past_invalidation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: the measured price is already past the invalidation level"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{rule}: измеренная цена уже за уровнем отмены"
           }
         }
       }
@@ -9938,13 +10043,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ %2$@ %3$@ %4$@"
+            "value" : "%1$@ %2$@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ %2$@ %3$@ %4$@"
+            "value" : "%1$@ %2$@"
           }
         }
       }
@@ -10999,6 +11104,159 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@: ждём сетап"
+          }
+        }
+      }
+    },
+    "kit.watching.aboveTrigger" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · above trigger %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · выше триггера %2$@"
+          }
+        }
+      }
+    },
+    "kit.watching.atTrigger" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · at trigger %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · на триггере %2$@"
+          }
+        }
+      }
+    },
+    "kit.watching.atTriggerNeedsAbove" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · at the trigger, needs above"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · на триггере, нужно выше"
+          }
+        }
+      }
+    },
+    "kit.watching.atTriggerNeedsBelow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · at the trigger, needs below"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · на триггере, нужно ниже"
+          }
+        }
+      }
+    },
+    "kit.watching.belowTrigger" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · below trigger %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · ниже триггера %2$@"
+          }
+        }
+      }
+    },
+    "kit.watching.noQuoteCheck" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trigger %@ · every recorded check passed, no quote check recorded"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Триггер %@ · все записанные проверки пройдены, проверки котировки в записи нет"
+          }
+        }
+      }
+    },
+    "kit.watching.nothingToMeasure" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every recorded check passed · nothing recorded to measure"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все записанные проверки пройдены · измерять нечего"
+          }
+        }
+      }
+    },
+    "kit.watching.scale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty at the invalidation %1$@, full at the trigger %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пусто на уровне отмены %1$@, полно на триггере %2$@"
+          }
+        }
+      }
+    },
+    "kit.watching.toGo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · trigger %2$@ · %3$@ to go"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · триггер %2$@ · осталось %3$@"
           }
         }
       }

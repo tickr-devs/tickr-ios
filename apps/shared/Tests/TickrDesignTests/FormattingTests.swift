@@ -32,6 +32,20 @@ func d(_ text: String) -> Decimal { Decimal(string: text, locale: Locale(identif
     #expect(Money.price(d("12.345678901234567890123456789")) == "12.35")
     #expect(Money.price(d("1")) == "1.00")
     #expect(Money.price(d("0.456789")) == "0.4568")
+    // The watched rows' recorded values: a trigger from a dollar never shows four decimals.
+    #expect(Money.price(d("57.1099")) == "57.11")
+    #expect(Money.price(d("9.6300")) == "9.63")
+    #expect(Money.price(d("57.10")) == "57.10")
+  }
+
+  @Test("A distance between prices takes the price's decimals and never rounds down to zero")
+  func priceDistance() {
+    #expect(Money.priceDistance(d("0.00985"), at: d("57.1099")) == "0.01")
+    #expect(Money.priceDistance(d("0.02"), at: d("9.63")) == "0.02")
+    #expect(Money.priceDistance(d("0.001"), at: d("12.35")) == "0.01")
+    #expect(Money.priceDistance(d("0.00012"), at: d("0.4567")) == "0.0002")
+    #expect(Money.priceDistance(d("-0.5"), at: d("12")) == "0.50")
+    #expect(Money.priceDistance(d("0"), at: d("12")) == "0.00")
   }
 
   // Every number below is the same in English and Russian: `Money`, `Percent` and `Volume` take

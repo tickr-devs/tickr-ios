@@ -3396,10 +3396,6 @@ enum L10n {
     static var closeness: LocalizedStringResource {
       LocalizedStringResource("watching.closeness", defaultValue: "Closeness to entry", bundle: L10n.bundle)
     }
-    /// Row without a deciding check.
-    static var noCheck: LocalizedStringResource {
-      LocalizedStringResource("watching.noCheck", defaultValue: "No deciding check recorded", bundle: L10n.bundle)
-    }
     /// The card's caption: what each row shows besides the symbol.
     static var columns: LocalizedStringResource {
       LocalizedStringResource("watching.columns", defaultValue: "decisive check · quote age", bundle: L10n.bundle)

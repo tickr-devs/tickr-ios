@@ -372,11 +372,16 @@ extension StageDetail {
 }
 
 extension CheckV1 {
-  /// "measured operator threshold": what the check measured against what it needs, as the bot
-  /// recorded them; a side it did not record is a dash.
+  /// What the check measured against what it needs, as the bot recorded them, in words that stay
+  /// true: a passed check states the comparison ("12.40 > 12.35"); a failed one never does, it
+  /// says what it needs ("12.33 · needs > 12.35"); a yes/no check (nothing measured) says "met"
+  /// or "not met".
   public var valueText: String {
-    [measured?.text ?? StageDetail.missing, `operator`, threshold?.text ?? StageDetail.missing]
-      .joined(separator: StageDetail.space)
+    guard let measured, let threshold else {
+      return String(localized: passed ? L10n.checkMet : L10n.checkNotMet)
+    }
+    if passed { return [measured.text, `operator`, threshold.text].joined(separator: StageDetail.space) }
+    return String(localized: L10n.checkNeeds(measured.text, `operator`, threshold.text))
   }
 }
 

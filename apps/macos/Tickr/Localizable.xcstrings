@@ -15367,23 +15367,6 @@
         }
       }
     },
-    "watching.noCheck" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No deciding check recorded"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Решающая проверка не записана"
-          }
-        }
-      }
-    },
     "watching.none" : {
       "extractionState" : "manual",
       "localizations" : {
