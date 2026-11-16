@@ -217,9 +217,7 @@ struct SwitchRow: View {
     HStack(spacing: Tokens.Space.m) {
       Toggle(isOn: $isOn) { Text(title) }
         .labelsHidden()
-        .toggleStyle(.switch)
-        .controlSize(.small)
-        .tint(Palette.accent)
+        .toggleStyle(.designSwitch(tint: Palette.accent))
       Text(title)
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textSecondary)

@@ -91,11 +91,14 @@ struct CandleChart: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       PaneStack(priceMinimum: Self.priceMinHeight, paneHeight: Self.paneHeight, paneMinimum: Self.paneMinHeight) {
-        priceChart
-          .overlay(alignment: .topLeading) {
-            ChartLegend(plot: plot, lines: lines, pointer: pointer)
-              .padding(Tokens.Space.s)
-          }
+        // The legend in its own row above the plot, never over it: the marks' plates are kept
+        // inside the plot, so a plate near the top ("ENTER · OBSERVER") can no longer sit on the
+        // lines' values.
+        VStack(alignment: .leading, spacing: 0) {
+          ChartLegend(plot: plot, lines: lines, pointer: pointer)
+            .padding([.horizontal, .top], Tokens.Space.s)
+          priceChart
+        }
         ForEach(studyPanes, id: \.self) { pane in
           studyChart(pane)
             .overlay(alignment: .top) {
@@ -136,7 +139,7 @@ struct CandleChart: View {
             xEnd: .value(Plot.time, bodyEnd(candle)),
             yStart: .value(Plot.price, min(candle.open, candle.close)),
             yEnd: .value(Plot.price, max(candle.open, candle.close)))
-            .foregroundStyle(color(candle))
+            .foregroundStyle(candle.isUp ? Palette.candleUpBody : Palette.candleDown)
         }
       }
       if lines.bollinger {
@@ -212,7 +215,7 @@ struct CandleChart: View {
   /// The close as a line with a fill fading down to the bottom of the pane, coloured by whether
   /// the visible stretch ended above where it began.
   @ChartContentBuilder private func lineArea(_ scale: ClosedRange<Double>) -> some ChartContent {
-    let tint = visibleTrendUp ? Palette.profit : Palette.loss
+    let tint = visibleTrendUp ? Palette.candleUp : Palette.candleDown
     ForEach(candles[drawn]) { candle in
       AreaMark(
         x: .value(Plot.time, candle.middle),
@@ -601,7 +604,7 @@ struct CandleChart: View {
     switch pane {
     case .price:
       if lines.style == .line {
-        dots.append(PointedDot(value: candle.close, color: visibleTrendUp ? Palette.profit : Palette.loss))
+        dots.append(PointedDot(value: candle.close, color: visibleTrendUp ? Palette.candleUp : Palette.candleDown))
       } else {
         box = PointedBox(start: bodyStart(candle), end: bodyEnd(candle), top: candle.high, bottom: candle.low)
       }
@@ -693,7 +696,8 @@ struct CandleChart: View {
   private func bodyStart(_ candle: Candle) -> Date { candle.start.addingTimeInterval(gap) }
   private func bodyEnd(_ candle: Candle) -> Date { candle.end.addingTimeInterval(-gap) }
 
-  private func color(_ candle: Candle) -> Color { candle.isUp ? Palette.profit : Palette.loss }
+  /// A candle's colour (its wick, last-price line and tag), as the Chart board: teal up, pink down.
+  private func color(_ candle: Candle) -> Color { candle.isUp ? Palette.candleUp : Palette.candleDown }
 
   /// Prices of the candles and levels on screen and of every line drawn over them (Bollinger
   /// bands, moving averages, VWAP, EMAs), so no line runs off the plot, padded so nothing touches

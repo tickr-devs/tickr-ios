@@ -241,9 +241,7 @@ private struct DemoDaySection: View {
           Text(L10n.Settings.demoDay)
         }
         .labelsHidden()
-        .toggleStyle(.switch)
-        .controlSize(.small)
-        .tint(Palette.warning)
+        .toggleStyle(.designSwitch(tint: Palette.warning))
         .accessibilityIdentifier(Self.id)
         Text(L10n.Settings.demoDay)
           .font(Tokens.Typography.callout)

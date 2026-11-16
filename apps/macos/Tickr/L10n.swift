@@ -6,15 +6,16 @@ import TickrKit
 /// `Text` and the components, or read them with `String(localized:)`. Generated keys are
 /// `<namespace>.<name>`.
 enum L10n {
-  /// Where the String Catalog is: the package's resource bundle in a `swift build`, the app
-  /// bundle in the Xcode build.
-  static var bundle: LocalizedStringResource.BundleDescription {
+  /// Where the String Catalog is: the package's resource bundle in a `swift build` (in the
+  /// language given at launch, if any: `StringsBundle`), the app bundle in the Xcode build. Read
+  /// once, at the first text.
+  static let bundle: LocalizedStringResource.BundleDescription = {
     #if SWIFT_PACKAGE
-    return .atURL(Bundle.module.bundleURL)
+    return StringsBundle.description(of: .module)
     #else
     return .main
     #endif
-  }
+  }()
 
   enum About {
     static var tagline: LocalizedStringResource {

@@ -40,9 +40,10 @@ jobs:
             -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
             CODE_SIGN_IDENTITY=- test
   # No text is ever cut (owner rule 2026-11-16): every screen, Settings pane and the menu-bar panel
-  # drawn offscreen at the window's least and first sizes on the fixtures, in English and Russian
-  # (Tests/ScreenPicturesTests.swift), then read for a text ending in an ellipsis the String
-  # Catalogs do not have (apps/scripts/find_truncated_text.swift). The pictures are kept.
+  # drawn offscreen at the window's least and first sizes on the fixtures, in English and Russian,
+  # each in the light and the dark appearance (Tests/ScreenPicturesTests.swift), then read for a
+  # text ending in an ellipsis the String Catalogs do not have (apps/scripts/find_truncated_text.swift).
+  # The pictures are kept.
   no-truncated-text:
     # Like the UI tests: only with the `ui-tests` label, a manual run, or nightly on main
     # (owner 2026-11-16: no third macOS job on every push).
@@ -51,7 +52,10 @@ jobs:
       && contains(github.event.pull_request.labels.*.name, 'ui-tests')) }}
     # The Xcode 27 image: the one Xcode of every app job (apps/scripts/select-xcode.sh); macos-latest has Xcode 26.x only.
     runs-on: xcode-27
-    timeout-minutes: 20
+    # Drawing takes about 8 minutes per language (31 pictures in each of two appearances, each
+    # given 3 s to settle, measured on an M-series Mac), so two languages and the build need more
+    # than the 20 minutes one appearance had.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
       - name: Select Xcode
@@ -68,7 +72,7 @@ jobs:
             apps/macos/.build
           key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
           restore-keys: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-
-      - name: Draw every screen in English and Russian
+      - name: Draw every screen in English and Russian, light and dark
         working-directory: apps/macos
         run: |
           swift build --build-tests

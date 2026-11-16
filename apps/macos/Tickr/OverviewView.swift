@@ -1091,15 +1091,17 @@ private struct SafetyCard: View {
     // the commands never do, so they are always in reach.
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // Stop bot beside the bot's state; under the header when the card is too narrow for both.
+      // The state is one short word, always on one line: a pill that may wrap was squeezed by
+      // the header's spacer to one letter per line instead of the button moving down.
       ViewThatFits(in: .horizontal) {
         SectionHeader(L10n.Safety.titleWithBot) {
           HStack(spacing: Tokens.Space.s) {
-            BotPill()
+            BotPill().fixedSize()
             BotStopButton()
           }
         }
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          SectionHeader(L10n.Safety.titleWithBot) { BotPill() }
+          SectionHeader(L10n.Safety.titleWithBot) { BotPill().fixedSize() }
           BotStopButton()
         }
       }
@@ -1420,13 +1422,20 @@ private struct AdvisorRow: View {
 
   var body: some View {
     // On one line while everything fits whole; in a narrow column the pill and the link go on
-    // a line of their own, so no word is broken or cut.
+    // a line of their own, and in the narrowest one each on its own line, so no word is broken
+    // or cut. The last arrangement is the narrowest: a `ViewThatFits` keeps its last child even
+    // when it is wider than the column, which pushed the card over its neighbour (Fast movers).
     ViewThatFits(in: .horizontal) {
       HStack(spacing: Tokens.Space.s) {
         words.fixedSize()
         Spacer(minLength: Tokens.Space.s)
-        actions
+        HStack(spacing: Tokens.Space.s) { actions }
       }
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        words
+        HStack(spacing: Tokens.Space.s) { actions }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         words
         actions
@@ -1459,14 +1468,13 @@ private struct AdvisorRow: View {
     }
   }
 
-  private var actions: some View {
-    HStack(spacing: Tokens.Space.s) {
-      if let count = advisor.runs?.awaitingReview, count > 0 {
-        StatusPill(AdvisorWords.awaiting(count), tone: .highlight).fixedSize()
-      }
-      HeaderLink(advisor.runs?.lead == nil ? L10n.Observers.lab : AdvisorWords.review, tone: .highlight, action: open)
-        .fixedSize()
+  /// The pill and the link, laid out by the stack around them (a row, or one under the other).
+  @ViewBuilder private var actions: some View {
+    if let count = advisor.runs?.awaitingReview, count > 0 {
+      StatusPill(AdvisorWords.awaiting(count), tone: .highlight).fixedSize()
     }
+    HeaderLink(advisor.runs?.lead == nil ? L10n.Observers.lab : AdvisorWords.review, tone: .highlight, action: open)
+      .fixedSize()
   }
 
   /// Opens the Lab, on the latest proposal when there is one.

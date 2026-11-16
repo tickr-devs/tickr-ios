@@ -49,7 +49,10 @@ func ownEllipses() -> [NSRegularExpression] {
       for case let localization as [String: Any] in localizations.values {
         collect(localization, into: &texts)
       }
-      for text in texts where text.contains(ellipsis) { patterns.insert(pattern(text)) }
+      for text in texts where text.contains(ellipsis) {
+        patterns.insert(pattern(text))
+        if let tail = tailPattern(text) { patterns.insert(tail) }
+      }
       for text in texts where !text.contains("%") {
         let plain = normalized(text)
         if plain.count >= shortest { wholeTexts.insert(plain) }
@@ -85,6 +88,21 @@ func pattern(_ text: String) -> String {
   }
   parts.append(NSRegularExpression.escapedPattern(for: normalized(ns.substring(from: last))))
   return parts.joined()
+}
+
+/// For a catalog text whose own ellipsis has more after it ("mean R · %@%: %@ … %@"): a pattern
+/// of just its ellipsis and what follows, anchored at the line's end with at least one letter or
+/// digit after the ellipsis. Recognition sometimes splits the words before the values off into a
+/// line of their own ("• 95%: -0.21 R ... +0.57 R" without "mean R"); a text SwiftUI cuts ends at
+/// its ellipsis, so a line with text after the ellipsis that matches such an ending is the
+/// catalog's own.
+func tailPattern(_ text: String) -> String? {
+  guard let range = text.range(of: ellipsis, options: .backwards) else { return nil }
+  let after = pattern(String(text[range.upperBound...]))
+  guard !after.isEmpty else { return nil }
+  // A placeholder after the ellipsis stands for at least one letter or digit here.
+  return NSRegularExpression.escapedPattern(for: ellipsis)
+    + after.replacingOccurrences(of: ".*", with: ".+") + "$"
 }
 
 /// Text reduced to its letters, digits and ellipses, lowercased: recognition misreads spacing,

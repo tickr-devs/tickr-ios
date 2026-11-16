@@ -83,6 +83,14 @@ public enum Palette {
 
   // MARK: chart series
 
+  /// A candle that closed at or above its open: its wick and edge (the Chart board's `--teal`).
+  public static let candleUp = accent
+  /// The body of a rising candle: the teal at three quarters (the board's
+  /// `color-mix(var(--teal) 75%, transparent)`), so the edge reads around it.
+  public static let candleUpBody = accent.opacity(0.75)
+  /// A candle that closed below its open: wick, edge and solid body (the board's `--pink`, the
+  /// pink of a loss in the apps; red stays for danger).
+  public static let candleDown = seriesATR
   /// VWAP line.
   public static let seriesVWAP = warning
   /// Fast EMA line.

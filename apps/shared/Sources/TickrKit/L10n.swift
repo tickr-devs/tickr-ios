@@ -3,8 +3,9 @@ import Foundation
 /// Every text of TickrKit that a person reads, in English, with its Russian translation in
 /// Resources/Localizable.xcstrings (docs/design-system.md, rule 2). Read with `String(localized:)`.
 enum L10n {
-  /// The package's resource bundle, which holds the String Catalog.
-  static var bundle: LocalizedStringResource.BundleDescription { .atURL(Bundle.module.bundleURL) }
+  /// The package's resource bundle, which holds the String Catalog, in the language given at
+  /// launch if any (`StringsBundle`); read once, at the first text.
+  static let bundle = StringsBundle.description(of: .module)
 
   // MARK: Event texts (Board.events)
 

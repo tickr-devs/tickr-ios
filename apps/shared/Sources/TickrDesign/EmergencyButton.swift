@@ -175,6 +175,9 @@ private struct EmergencyFace: View {
     .padding(.trailing, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
     .frame(maxWidth: .infinity, minHeight: Tokens.Command.emergencyHeight, alignment: .leading)
+    // As tall as its lines: a card short of room never squeezes the face under its wrapped
+    // second line (the red shape ended mid-text, cutting "sells all").
+    .fixedSize(horizontal: false, vertical: true)
     .background {
       shape.fill(Palette.lossFill)
         .overlay(shape.fill(Palette.textPrimary.opacity(pressed ? Tokens.Command.pressShade : 0)))

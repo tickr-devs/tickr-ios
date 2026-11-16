@@ -9,10 +9,12 @@ import TickrKit
 /// each section of the main window at the window's least and first sizes, and as tall as its whole
 /// content at those widths, the Chart with its inspector and every study too, every Settings pane
 /// and the menu-bar panel, on the contract fixtures, drawn offscreen in windows that are never
-/// shown. `apps/scripts/find_truncated_text.swift` then reads them for an ellipsis
+/// shown, in the light and the dark appearance (`<folder>/<language>/<appearance>/`).
+/// `apps/scripts/find_truncated_text.swift` then reads them for an ellipsis
 /// (.github/workflows/ui-tests.yml, job `no-truncated-text`). Runs only with
-/// `TICKR_SCREEN_PICTURES=<folder>`; `TICKR_SCREEN_PICTURES_LANGUAGE` (en, ru) picks the language,
-/// so run it once per language, each in its own process:
+/// `TICKR_SCREEN_PICTURES=<folder>`; `TICKR_SCREEN_PICTURES_LANGUAGE` (en, ru) picks the language
+/// and the locale, given to the process as a launch argument would be (the argument domain, which
+/// `StringsBundle` reads at the first text), so run it once per language, each in its own process:
 ///   TICKR_SCREEN_PICTURES=/tmp/pictures TICKR_SCREEN_PICTURES_LANGUAGE=ru \
 ///     swift test --filter ScreenPicturesTests
 @MainActor
@@ -21,6 +23,16 @@ struct ScreenPicturesTests {
   static let folderKey = "TICKR_SCREEN_PICTURES"
   static let languageKey = "TICKR_SCREEN_PICTURES_LANGUAGE"
   static let defaultLanguage = "en"
+  /// The preference keys of the process's languages and locale (Foundation's own names).
+  static let languagesKey = "AppleLanguages"
+  static let localeKey = "AppleLocale"
+  /// One text in every language the pictures are drawn in: the pass fails when the catalogs
+  /// answer in another language (a Russian pass that draws English checks nothing).
+  static let quitText = ["en": "Quit", "ru": "Выйти"]
+  /// The appearances every screen is drawn in, with the folder each one's pictures go to.
+  static let appearances: [(folder: String, name: NSAppearance.Name)] = [
+    ("light", .aqua), ("dark", .darkAqua),
+  ]
   /// Height of a "tall" picture, in points: every screen's whole content at the fixture data.
   static let tallHeight: CGFloat = 2600
   /// Height of the Settings window as the design draws it (MacSystem), in points.
@@ -38,12 +50,22 @@ struct ScreenPicturesTests {
     // Named reads only: the whole environment is never bound, printed or passed on.
     guard let path = ProcessInfo.processInfo.environment[Self.folderKey] else { return }
     let language = ProcessInfo.processInfo.environment[Self.languageKey] ?? Self.defaultLanguage
-    // Before any text is looked up: the process's language, in memory only.
-    UserDefaults.standard.setVolatileDomain(["AppleLanguages": [language]], forName: UserDefaults.argumentDomain)
-    let folder = URL(fileURLWithPath: path, isDirectory: true).appending(path: language)
-    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-    NSApplication.shared.appearance = NSAppearance(named: .darkAqua)
+    // Before any text is looked up: the process's language and locale, as `-AppleLanguages` and
+    // `-AppleLocale` at launch would give them, in memory only.
+    UserDefaults.standard.setVolatileDomain(
+      [Self.languagesKey: [language], Self.localeKey: language], forName: UserDefaults.argumentDomain)
+    #expect(String(localized: L10n.App.quit) == Self.quitText[language])
+    for appearance in Self.appearances {
+      let folder = URL(fileURLWithPath: path, isDirectory: true)
+        .appending(path: language).appending(path: appearance.folder)
+      try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+      NSApplication.shared.appearance = NSAppearance(named: appearance.name)
+      try await pictures(in: folder)
+    }
+  }
 
+  /// Every screen's pictures, in the current appearance, into `folder`.
+  private func pictures(in folder: URL) async throws {
     let model = PreviewAPI.model()
     Container.shared.appModel.register { model }
     let chart = Container.shared.chartModel()
