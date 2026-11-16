@@ -36,6 +36,19 @@ extension Board.Event.Tone {
     case .muted: return Palette.textQuaternary
     }
   }
+
+  /// The tone as a text colour, readable on `surface` (docs/design-system.md, colour roles).
+  var textColor: Color {
+    switch self {
+    case .teal: return Palette.accentText
+    case .green: return Palette.profitText
+    case .blue: return Palette.infoText
+    case .amber: return Palette.warningText
+    case .violet: return Palette.highlightText
+    case .red: return Palette.lossText
+    case .muted: return Palette.textTertiary
+    }
+  }
 }
 
 extension StopState {

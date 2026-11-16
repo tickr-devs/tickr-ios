@@ -97,11 +97,15 @@ struct HomeView: View {
             .rise(step: Order.positions.rawValue)
         }
         let todayFlow = model.flow?.day == model.today ? model.flow : nil
+        let todaySkipped = model.skipped?.day == model.today ? model.skipped : nil
+        let current = model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today
         LiveFlowCard(status: status, flow: todayFlow, flowPending: model.flowPending,
           slotLimit: model.settings?.risk.maxOpenPositions,
-          marks: FlowBoard.marks(flow: todayFlow, skipped: model.skipped?.day == model.today ? model.skipped : nil,
-            positions: status.positions),
-          current: model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today)
+          marks: FlowBoard.marks(flow: todayFlow, skipped: todaySkipped, positions: status.positions),
+          current: current,
+          // The status only while it is current, as the stages' own values.
+          sources: StageSources(flow: todayFlow, skipped: todaySkipped, watching: nil,
+            status: current ? status : nil, settings: model.settings))
           .rise(step: Order.flow.rawValue)
       }
     }
@@ -543,6 +547,8 @@ private struct LiveFlowCard: View {
   let marks: [FlowMark]
   /// The status is fresh and describes today's session.
   let current: Bool
+  /// What the stages' details are built from (`StageDetail`); the detail reads the watching rows.
+  let sources: StageSources
 
   /// The stages, in the order a setup passes them.
   private enum StageID: Int {
@@ -559,11 +565,23 @@ private struct LiveFlowCard: View {
       case .stop: .stop
       }
     }
+
+    /// The stage of the detail a tap opens.
+    var pipeline: PipelineStage {
+      switch self {
+      case .screen: .screeners
+      case .stocks: .universe
+      case .strategy: .strategy
+      case .risk: .risk
+      case .order: .order
+      case .stop: .stop
+      }
+    }
   }
 
   @Namespace private var board
-  /// The stage whose refused symbols are listed in a popover (a tap on its tray).
-  @State private var openTray: StageID?
+  /// The stage whose detail is open in a popover (a tap on the stage, its dots or its tray).
+  @State private var openStage: StageID?
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -639,8 +657,8 @@ private struct LiveFlowCard: View {
   }
 
   var body: some View {
-    // Only the header opens Risk: a whole-card link would swallow the refused trays' taps and
-    // host their popovers inside its label.
+    // Only the header opens Risk: a whole-card link would swallow the stages' taps and host their
+    // popovers inside its label.
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       NavigationLink {
         RiskView()
@@ -687,12 +705,12 @@ private struct LiveFlowCard: View {
       Group {
         if typeSize.stacksRows {
           VStack(alignment: .leading, spacing: Tokens.Space.s) {
-            ForEach(stages) { stage in row(stage) }
+            ForEach(stages) { stage in opens(stage) { row(stage) } }
           }
         } else {
           HStack(alignment: .top) {
             ForEach(stages) { stage in
-              column(stage).frame(maxWidth: .infinity, alignment: .top)
+              opens(stage) { column(stage).frame(maxWidth: .infinity, alignment: .top) }
             }
           }
         }
@@ -756,6 +774,25 @@ private struct LiveFlowCard: View {
     }
   }
 
+  /// A stage as a button: a tap anywhere on it (its dot, name, value, dots or tray) opens what it
+  /// did today in a popover that stays until dismissed (HIG), the stage's colour washing behind it
+  /// while the finger is down.
+  private func opens(_ stage: Stage, @ViewBuilder label: () -> some View) -> some View {
+    Button {
+      openStage = stage.id
+    } label: {
+      label().contentShape(Rectangle())
+    }
+    .buttonStyle(StagePressStyle(color: stage.color))
+    .accessibilityElement(children: .combine)
+    .accessibilityHint(Text(L10n.Flow.stageDetailsHint))
+    .popover(isPresented: Binding(get: { openStage == stage.id }, set: { if !$0 { openStage = nil } })) {
+      StageDetailView(name: stage.name, color: stage.color, stage: stage.id.pipeline, sources: sources)
+        .presentationCompactAdaptation(.popover)
+        .presentationBackground(Palette.surface)
+    }
+  }
+
   private func column(_ stage: Stage) -> some View {
     VStack(spacing: Tokens.Space.xs) {
       FlowDot(color: stage.color, lit: stage.value != nil || stage.flag != nil, event: stage.value)
@@ -781,8 +818,6 @@ private struct LiveFlowCard: View {
       .minimumScaleFactor(Tokens.Shrink.standard)
       pool(stage)
     }
-    // .contain, not .combine: the refused tray inside stays a button VoiceOver can activate.
-    .accessibilityElement(children: .contain)
     .unredacted(when: stage.urgent)
   }
 
@@ -812,8 +847,6 @@ private struct LiveFlowCard: View {
       }
       pool(stage)
     }
-    // .contain, not .combine: the refused tray inside stays a button VoiceOver can activate.
-    .accessibilityElement(children: .contain)
     .unredacted(when: stage.urgent)
   }
 
@@ -831,33 +864,22 @@ private struct LiveFlowCard: View {
         dots(passed, color: stage.id == .stop ? Palette.profit : stage.color).accessibilityHidden(true)
       }
       if !refused.isEmpty {
-        // No hover on a phone: a tap anywhere on the tray, a full touch target wide and tall,
-        // lists who was refused and why in a popover that stays until dismissed (HIG).
-        Button {
-          openTray = stage.id
-        } label: {
-          dots(refused, color: Palette.loss, hinted: false)
-            .padding(Tokens.Space.xs)
-            .overlay {
-              RoundedRectangle(cornerRadius: Tokens.Radius.small)
-                .strokeBorder(Palette.separatorStrong,
-                  style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
-            }
-            .frame(maxWidth: .infinity, minHeight: Tokens.Size.touchTarget)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(Text(L10n.Flow.refusedCount(refused.count)))
-        .popover(isPresented: Binding(get: { openTray == stage.id }, set: { if !$0 { openTray = nil } })) {
-          RefusedList(marks: refused)
-            .presentationCompactAdaptation(.popover)
-            .presentationBackground(Palette.surface)
-        }
+        // No hover on a phone: the tray is part of its stage, whose tap lists who was refused
+        // and why in the stage's detail.
+        dots(refused, color: Palette.loss, hinted: false)
+          .padding(Tokens.Space.xs)
+          .overlay {
+            RoundedRectangle(cornerRadius: Tokens.Radius.small)
+              .strokeBorder(Palette.separatorStrong,
+                style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+          }
+          .frame(maxWidth: .infinity, minHeight: Tokens.Size.touchTarget)
+          .accessibilityLabel(Text(L10n.Flow.refusedCount(refused.count)))
       }
     }
   }
 
-  /// `hinted`: each dot names itself on a long press; off inside the tray, whose tap lists them all.
+  /// `hinted`: each dot names itself on a long press; off inside the tray, whose stage's tap lists them all.
   private func dots(_ marks: [FlowMark], color: Color, hinted: Bool = true) -> some View {
     VStack(spacing: Tokens.Space.xxs) {
       LazyVGrid(columns: Array(repeating: GridItem(.fixed(Tokens.Size.dotSmall), spacing: Tokens.Space.xxs),
@@ -914,45 +936,6 @@ private struct BrokerReadAge: View {
 private enum LiveFlowCardSymbols {
   /// The last broker read: a clock going round.
   static let brokerSymbol = "clock.arrow.circlepath"
-}
-
-/// The symbols a stage refused today, each with why: the tray's popover.
-private struct RefusedList: View {
-  let marks: [FlowMark]
-
-  var body: some View {
-    // Text at reading size, never the card's shrunk or redacted styles; a list too tall for
-    // the popover (large Dynamic Type) scrolls.
-    ViewThatFits(in: .vertical) {
-      list
-      ScrollView { list }
-    }
-    .frame(width: Tokens.Size.hintMaxWidth)
-    .lineLimit(nil)
-    .minimumScaleFactor(1)
-    .unredacted()
-  }
-
-  private var list: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      ForEach(marks) { mark in
-        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-          Text(verbatim: mark.id)
-            .font(.headline.monospaced())
-            .foregroundStyle(Palette.textPrimary)
-          if let note = mark.note {
-            Text(verbatim: note)
-              .font(.subheadline)
-              .foregroundStyle(Palette.textSecondary)
-              .fixedSize(horizontal: false, vertical: true)
-          }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
-      }
-    }
-    .padding(Tokens.Space.l)
-  }
 }
 
 /// The day's events as the design's ticker strip: each event's tag in its tone and what happened,
@@ -1022,7 +1005,7 @@ private extension View {
 private struct SymbolDot: View {
   let mark: FlowMark
   let color: Color
-  /// Whether a long press names the dot; off where a tap on the whole tray lists the dots.
+  /// Whether a long press names the dot; off in a tray, whose stage's tap lists the dots.
   var hinted = true
 
   /// Joins the symbol and its note in the hint.

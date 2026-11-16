@@ -4384,6 +4384,23 @@
         }
       }
     },
+    "flow.stageDetailsHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows what this stage did today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает, что этот этап сделал сегодня"
+          }
+        }
+      }
+    },
     "flow.stocks" : {
       "extractionState" : "manual",
       "localizations" : {

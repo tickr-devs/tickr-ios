@@ -358,9 +358,4 @@ extension CheckV1 {
   var comparisonText: String {
     "\(ApiText.rule(rule)) \(valueText)"
   }
-
-  /// "measured operator threshold": what the check measured against what it needs.
-  var valueText: String {
-    "\(measured?.text ?? Format.missing) \(`operator`) \(threshold?.text ?? Format.missing)"
-  }
 }

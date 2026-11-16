@@ -4425,6 +4425,23 @@
         }
       }
     },
+    "flow.moreRows" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld more"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ещё %lld"
+          }
+        }
+      }
+    },
     "flow.notCurrent" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4438,6 +4455,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "не актуально"
+          }
+        }
+      }
+    },
+    "flow.openOnChart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the chart on this symbol"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает график этого символа"
           }
         }
       }
@@ -4608,6 +4642,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "слоты %1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "flow.stageDetailsHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows what this stage did today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает, что этот этап сделал сегодня"
           }
         }
       }

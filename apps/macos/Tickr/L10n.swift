@@ -488,6 +488,10 @@ enum L10n {
     static func more(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.more", defaultValue: "+\(count)", bundle: L10n.bundle)
     }
+    /// Accessibility hint of a live-flow stage: a click opens its detail.
+    static var stageDetailsHint: LocalizedStringResource {
+      LocalizedStringResource("flow.stageDetailsHint", defaultValue: "Shows what this stage did today", bundle: L10n.bundle)
+    }
     static func seen(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.seen", defaultValue: "\(count) seen", bundle: L10n.bundle)
     }
