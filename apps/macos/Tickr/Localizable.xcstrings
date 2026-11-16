@@ -14940,57 +14940,6 @@
         }
       }
     },
-    "watching.filterAll" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All %lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Все %lld"
-          }
-        }
-      }
-    },
-    "watching.filterIgnore" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ignore %lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пропуск %lld"
-          }
-        }
-      }
-    },
-    "watching.filterWatch" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watch %lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Наблюдение %lld"
-          }
-        }
-      }
-    },
     "watching.live" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -15048,30 +14997,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The strategy is not watching any symbol on this day."
+            "value" : "Nothing armed right now. A symbol shows here while the strategy waits for its setup."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "В этот день стратегия ни за чем не следит."
-          }
-        }
-      }
-    },
-    "watching.noneFiltered" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No watched symbol has this verdict."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет тикеров с таким решением."
+            "value" : "Сейчас ничего не взведено. Символ появляется здесь, пока стратегия ждёт его сетап."
           }
         }
       }

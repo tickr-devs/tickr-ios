@@ -19,14 +19,14 @@ private func row(
 }
 
 @Suite struct WatchingListTests {
-  /// Five rows in no particular order: two WATCH, three IGNORE, one without closeness.
+  /// Five WATCH rows in no particular order, one without closeness (the API sends only WATCH).
   private func rows() throws -> [WatchingRowV1] {
     [
-      try row("MNOP", "IGNORE", closeness: "0.3", quoteAge: "0.4", at: "2026-11-16T15:02:00.000Z"),
+      try row("MNOP", "WATCH", closeness: "0.3", quoteAge: "0.4", at: "2026-11-16T15:02:00.000Z"),
       try row("ABCD", "WATCH", closeness: "0.9", quoteAge: "1.2", at: "2026-11-16T15:00:00.000Z"),
-      try row("EFGH", "IGNORE", closeness: nil, at: "2026-11-16T15:04:00.000Z"),
+      try row("EFGH", "WATCH", closeness: nil, at: "2026-11-16T15:04:00.000Z"),
       try row("QRST", "WATCH", closeness: "0.5", quoteAge: "2.5", at: "2026-11-16T15:01:00.000Z"),
-      try row("UVWX", "IGNORE", closeness: "0.9", quoteAge: "0.4", at: "2026-11-16T15:02:00.000Z"),
+      try row("UVWX", "WATCH", closeness: "0.9", quoteAge: "0.4", at: "2026-11-16T15:02:00.000Z"),
     ]
   }
 
@@ -66,15 +66,5 @@ private func row(
     for sort in WatchingSort.allCases {
       #expect(WatchingList.sorted(forward, by: sort) == WatchingList.sorted(forward.reversed(), by: sort))
     }
-  }
-
-  @Test func filterByVerdictWithCounts() throws {
-    let all = try rows()
-    #expect(WatchingList.rows(all, sort: .closest, filter: .watch).map(\.symbol) == ["ABCD", "QRST"])
-    #expect(WatchingList.rows(all, sort: .symbol, filter: .ignore).map(\.symbol) == ["EFGH", "MNOP", "UVWX"])
-    #expect(WatchingList.rows(all, sort: .closest, filter: .all).count == all.count)
-    #expect(WatchingList.count(all, .all) == 5)
-    #expect(WatchingList.count(all, .watch) == 2)
-    #expect(WatchingList.count(all, .ignore) == 3)
   }
 }

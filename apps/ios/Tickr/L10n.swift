@@ -1156,7 +1156,8 @@ enum L10n {
       LocalizedStringResource("watching.title", defaultValue: "Watching closely", bundle: L10n.bundle)
     }
     static var none: LocalizedStringResource {
-      LocalizedStringResource("watching.none", defaultValue: "The strategy is not watching any symbol closely.",
+      LocalizedStringResource("watching.none",
+        defaultValue: "Nothing armed right now. A symbol shows here while the strategy waits for its setup.",
         bundle: L10n.bundle)
     }
     static var closeness: LocalizedStringResource {

@@ -3361,23 +3361,6 @@ enum L10n {
     static var sortLatest: LocalizedStringResource {
       LocalizedStringResource("watching.sortLatest", defaultValue: "Latest", bundle: L10n.bundle)
     }
-    /// Filter chip: every verdict, with the count.
-    static func filterAll(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.filterAll", defaultValue: "All \(count)", bundle: L10n.bundle)
-    }
-    /// Filter chip: WATCH rows only, with the count.
-    static func filterWatch(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.filterWatch", defaultValue: "Watch \(count)", bundle: L10n.bundle)
-    }
-    /// Filter chip: IGNORE rows only, with the count.
-    static func filterIgnore(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.filterIgnore", defaultValue: "Ignore \(count)", bundle: L10n.bundle)
-    }
-    /// The full list has no row with the chosen verdict.
-    static var noneFiltered: LocalizedStringResource {
-      LocalizedStringResource("watching.noneFiltered", defaultValue: "No watched symbol has this verdict.",
-        bundle: L10n.bundle)
-    }
     /// VoiceOver name of the full list's close button.
     static var close: LocalizedStringResource {
       LocalizedStringResource("watching.close", defaultValue: "Close", bundle: L10n.bundle)
@@ -3392,7 +3375,8 @@ enum L10n {
     }
     /// Watching card is empty.
     static var none: LocalizedStringResource {
-      LocalizedStringResource("watching.none", defaultValue: "The strategy is not watching any symbol on this day.",
+      LocalizedStringResource("watching.none",
+        defaultValue: "Nothing armed right now. A symbol shows here while the strategy waits for its setup.",
         bundle: L10n.bundle)
     }
     /// Watching read failed.

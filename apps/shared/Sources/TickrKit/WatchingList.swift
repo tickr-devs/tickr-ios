@@ -1,7 +1,6 @@
 import Foundation
 
-// "Watching closely" on both apps: the few rows a card shows, and the full list's sort orders
-// and verdict filter. Pure functions over the rows of GET /watching (WatchingV1).
+// "Watching closely" on both apps: the few rows a card shows, and the full list's sort orders. Pure functions over the rows of GET /watching (WatchingV1).
 
 /// How the full "Watching closely" list is ordered.
 public enum WatchingSort: String, CaseIterable, Sendable {
@@ -13,22 +12,6 @@ public enum WatchingSort: String, CaseIterable, Sendable {
   case quoteAge
   /// Latest decision first, closest first among equals.
   case latest
-}
-
-/// Which verdicts the full "Watching closely" list shows.
-public enum WatchingFilter: String, CaseIterable, Sendable {
-  case all
-  case watch
-  case ignore
-
-  /// Whether `row` passes the filter.
-  public func admits(_ row: WatchingRowV1) -> Bool {
-    switch self {
-    case .all: return true
-    case .watch: return row.verdict == .watch
-    case .ignore: return row.verdict == .ignore
-    }
-  }
 }
 
 /// The rows of "Watching closely" as the cards and the full list show them.
@@ -44,16 +27,6 @@ public enum WatchingList {
   /// Whether the card has rows beyond the ones it shows, so "Show all" leads somewhere.
   public static func hasMore(_ rows: [WatchingRowV1], shown count: Int = shown) -> Bool {
     rows.count > count
-  }
-
-  /// `rows` that pass `filter`, in `sort` order.
-  public static func rows(_ rows: [WatchingRowV1], sort: WatchingSort, filter: WatchingFilter) -> [WatchingRowV1] {
-    sorted(rows.filter(filter.admits), by: sort)
-  }
-
-  /// How many of `rows` pass `filter` (the filter chips' counts).
-  public static func count(_ rows: [WatchingRowV1], _ filter: WatchingFilter) -> Int {
-    rows.count(where: filter.admits)
   }
 
   /// `rows` in `sort` order; every order ends on the symbol, so it never depends on the input order.
