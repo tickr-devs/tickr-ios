@@ -3,11 +3,6 @@ on:
   pull_request:
     # ready_for_review: a draft skips this job; marking it ready runs it.
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "apps/ios/**"
-      - "apps/shared/**"
-      - ".github/workflows/ios-app.yml"
-      - "Tickr.xcworkspace/**"
   workflow_dispatch:
   # Weekly build of main, so a conflict between two separately green pull requests shows up.
   schedule:
@@ -21,9 +16,41 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  changes:
+    # Says whether this pull request touches the iOS app. A workflow skipped by a `paths`
+    # filter never reports its checks, and `build` is a required check of main, so the filter
+    # lives here: the job below is skipped (which satisfies the requirement) instead of missing.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      app: ${{ steps.diff.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Its own command, so a failing diff stops the job instead of reading as "no changes".
+          files=$(git diff --name-only --no-renames "$BASE...$HEAD")
+          hits=$(printf '%s\n' "$files" | grep -E \
+            '^(apps/ios/|apps/shared/|Tickr\.xcworkspace/|\.github/workflows/ios-app\.yml$)' \
+            || true)
+          if [ -n "$hits" ]; then echo "app=true"; else echo "app=false"; fi >> "$GITHUB_OUTPUT"
   build:
     # Drafts skip the macOS runner (the bottleneck); run it on a draft through workflow_dispatch.
-    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    needs: changes
+    # Runs when the app changed, and also when `changes` failed, so a broken diff never skips
+    # the build into a pass. Skipped (reported as passing) for other pull requests.
+    if: >-
+      ${{ !cancelled() && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
+      && (needs.changes.result != 'success' || needs.changes.outputs.app == 'true') }}
     runs-on: macos-latest
     timeout-minutes: 25
     defaults:
