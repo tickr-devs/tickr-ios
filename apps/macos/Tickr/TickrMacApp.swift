@@ -24,10 +24,14 @@ enum Defaults {
 /// Started by `Launcher` (AlertCommand.swift), which first handles the bot's notify mode.
 @MainActor
 struct TickrMacApp: App {
-  /// Smallest and first size of the main window, in points. The smallest fits a 1024-point-wide
-  /// display (the CI runner's, where the UI tests zoom the window to the screen).
-  static let minWidth: CGFloat = 1000
+  /// Smallest size of the main window, in points. The width is the narrowest at which no screen
+  /// breaks: the sidebar at its widest (the person can drag it there) beside the widest least
+  /// screen (`RootView.screenMinWidth`, Trades & days' table). Derived, not set: a set 1000 cut
+  /// the trades table at the card's edge.
+  static let minWidth: CGFloat = RootView.sidebarMax + RootView.screenMinWidth
+  /// Smallest height of the main window, in points.
   static let minHeight: CGFloat = 700
+  /// First size of the main window, in points.
   static let defaultWidth: CGFloat = 1440
   static let defaultHeight: CGFloat = 920
 

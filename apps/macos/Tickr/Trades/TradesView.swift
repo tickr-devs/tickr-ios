@@ -10,15 +10,18 @@ struct TradesView: View {
   @Environment(AppModel.self) private var model
   @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   @State private var selection: DayTrade.ID?
-  /// Whether the screen is wide enough for the days column beside the trades.
-  @State private var sideBySide = true
 
-  /// Narrowest screen, in points, that shows the days column beside the trades: the column, the
-  /// four figures of the day at full size and the trades table's columns at their least widths
-  /// (the selected trade beside Not taken needs less). Narrower, the days follow the trades (the
-  /// toolbar's day picker stays at the top). Measured on the screen's own width, which the window
-  /// sets, so the choice never feeds back into it.
-  static let sideBySideMinWidth: CGFloat = 1180
+  /// Least width of this screen, in points: the screen's padding (`Space.xl`) and the trades
+  /// card's own padding (`Space.l`) around the trades table at its least width. It is the widest
+  /// least width of all screens, so it sets the window's (`RootView.screenMinWidth`).
+  static let leastScreenWidth: CGFloat = Tokens.Space.xl * CardArrangement.paddedEdges
+    + Tokens.Space.l * CardArrangement.paddedEdges + TradesTable.leastWidth
+  /// Narrowest screen, in points, that shows the days column beside the trades: the least screen
+  /// with the days column and its gap beside the table (the four figures of the day and the
+  /// selected trade beside Not taken need less). Narrower, the days follow the trades (the
+  /// toolbar's day picker stays at the top). Derived, not set: a set 1180 left the table 6 points
+  /// short of its columns, so the columns were cut to "10:07:…".
+  static let sideBySideMinWidth: CGFloat = leastScreenWidth + Tokens.Size.sideColumn + Tokens.Space.l
   /// Width of the selected trade's card beside Not taken, in points.
   static let detailWidth: CGFloat = 330
 
@@ -33,9 +36,6 @@ struct TradesView: View {
     ScrollView {
       content
     }
-    .onGeometryChange(for: Bool.self) { [threshold = Self.sideBySideMinWidth] in $0.size.width >= threshold } action: {
-      sideBySide = $0
-    }
     .plainCardLabels()
     // The first trade of the day is selected until another is picked, so its details show at once.
     .onChange(of: model.shownTrades.map(\.id), initial: true) { _, ids in
@@ -43,19 +43,44 @@ struct TradesView: View {
     }
   }
 
+  /// The days column beside the day's detail, or after it in a narrow window so the day's trades
+  /// are on the first screen. The same two views in both: a resize moves them and never makes
+  /// them anew (new ones played their entrance again mid-drag).
+  static let arrangements: [CardArrangement] = [
+    CardArrangement(minWidth: sideBySideMinWidth - Tokens.Space.xl * CardArrangement.paddedEdges, rows: [
+      CardRow(columns: [
+        CardColumn(width: .fixed(Tokens.Size.sideColumn), cards: [Part.side.rawValue]),
+        CardColumn(width: .share(1), cards: [Part.day.rawValue]),
+      ], linesUp: false)
+    ]),
+    CardArrangement(minWidth: 0, rows: [
+      CardRow(columns: [CardColumn(width: .share(1), cards: [Part.day.rawValue])], linesUp: false),
+      CardRow(columns: [CardColumn(width: .share(1), cards: [Part.side.rawValue])], linesUp: false),
+    ]),
+  ]
+
+  /// The selected trade beside the signals not taken, one height, while the day's column holds
+  /// the trade's card and a Not taken card of the least width; one above the other otherwise.
+  static let detailArrangements: [CardArrangement] = [
+    CardArrangement(minWidth: detailWidth + Tokens.Space.l + Tokens.Size.gridColumnMin, rows: [
+      CardRow(columns: [
+        CardColumn(width: .fixed(detailWidth), cards: [Part.side.rawValue]),
+        CardColumn(width: .share(1), cards: [Part.day.rawValue]),
+      ])
+    ]),
+    CardArrangement(minWidth: 0, rows: [
+      CardRow(columns: [CardColumn(width: .share(1), cards: [Part.side.rawValue, Part.day.rawValue])], linesUp: false)
+    ]),
+  ]
+
+  /// Positions of the two parts in a `CardGrid` of this screen: the first (the days column, the
+  /// selected trade) and the second (the day's detail, Not taken).
+  private enum Part: Int { case side = 0, day }
+
   private var content: some View {
-    Group {
-      if sideBySide {
-        HStack(alignment: .top, spacing: Tokens.Space.l) {
-          sideColumn.frame(width: Tokens.Size.sideColumn)
-          dayDetail
-        }
-      } else {
-        VStack(alignment: .leading, spacing: Tokens.Space.l) {
-          dayDetail
-          sideColumn
-        }
-      }
+    CardGrid(arrangements: Self.arrangements, spacing: Tokens.Space.l) {
+      sideColumn
+      dayDetail
     }
     .padding(Tokens.Space.xl)
     .frame(maxWidth: Tokens.Size.contentMaxWidth)
@@ -112,24 +137,14 @@ struct TradesView: View {
 
   /// As on the board, the selected trade beside the signals that did not become one, one height;
   /// one above the other in a narrow window.
-  @ViewBuilder private var selectedAndNotTaken: some View {
-    let detail = TradeDetailCard(trade: model.shownTrades.first { $0.id == selection })
-      .rise(step: Order.detail.rawValue)
-    let notTaken = NotTakenCard(showOnChart: showOnChart)
-      .rise(step: Order.notTaken.rawValue)
-    if sideBySide {
-      HStack(alignment: .top, spacing: Tokens.Space.l) {
-        detail.frame(width: Self.detailWidth)
-        notTaken
-      }
-      .filling()
-      .fixedSize(horizontal: false, vertical: true)
-    } else {
-      VStack(alignment: .leading, spacing: Tokens.Space.l) {
-        detail
-        notTaken
-      }
+  private var selectedAndNotTaken: some View {
+    CardGrid(arrangements: Self.detailArrangements, spacing: Tokens.Space.l) {
+      TradeDetailCard(trade: model.shownTrades.first { $0.id == selection })
+        .rise(step: Order.detail.rawValue)
+      NotTakenCard(showOnChart: showOnChart)
+        .rise(step: Order.notTaken.rawValue)
     }
+    .filling()
   }
 
   /// Opens the Chart on `symbol` (the shown day stays).
@@ -338,29 +353,47 @@ private struct TradesTable: View {
   @State private var risen: Set<TradeRow.ID> = []
   let showOnChart: (String) -> Void
 
-  /// Least and preferred widths of the table's columns, in points: the least keeps a time, a
-  /// symbol, a price or a figure whole in a narrow window; the preferred share out a wide one.
+  /// Least and preferred widths of the table's columns, in points. Each least width holds the
+  /// column's widest content and its heading whole, in English and Russian (measured in the
+  /// table's fonts: values in 12-point mono, headings and badges in 10-point mono; a heading cell
+  /// keeps a few points of inset, a value cell none); the preferred widths share out a wide table.
   private enum Column {
-    /// Least and preferred width of each column, in points: the preferred widths (with the
-    /// table's cell spacing) add up to what the day column leaves the table beside the side
-    /// column, so every column shows without scrolling.
-    static let timeMin: CGFloat = 56
-    static let time: CGFloat = 60
-    static let symbolMin: CGFloat = 52
+    /// "10:07:00" (59.3).
+    static let timeMin: CGFloat = 60
+    static let time: CGFloat = 64
+    /// A five-letter symbol such as "BRK.B" and the heading "SYMBOL" (37.1 each).
+    static let symbolMin: CGFloat = 40
     static let symbol: CGFloat = 56
-    static let quantityMin: CGFloat = 32
-    static let quantity: CGFloat = 40
+    /// The Russian heading "КОЛ-ВО" (37.1, and the header cell's own inset: at 38 it read
+    /// "КОЛ-…"); a four-digit quantity takes 29.7.
+    static let quantityMin: CGFloat = 46
+    static let quantity: CGFloat = 48
+    /// A four-digit price "1234.56" (51.9).
     static let priceMin: CGFloat = 52
     static let price: CGFloat = 58
-    /// The reason badge's column holds the widest exit reason whole, the Russian "ЗАКРЫТО
-    /// ОПЕРАТОРОМ" (it ran into the R column at 96).
-    static let reasonMin: CGFloat = 144
-    static let reason: CGFloat = 150
-    static let figureMin: CGFloat = 48
-    static let figure: CGFloat = 52
-    static let moneyMin: CGFloat = 72
+    /// The reason badge with the widest exit reason, the Russian "ВРЕМЯ УДЕРЖАНИЯ ВЫШЛО" (129.8
+    /// and the badge's padding, 146).
+    static let reasonMin: CGFloat = 148
+    static let reason: CGFloat = 152
+    /// "−10.0 R" (51.9).
+    static let figureMin: CGFloat = 52
+    static let figure: CGFloat = 56
+    /// "−$1,234.56" (74.2).
+    static let moneyMin: CGFloat = 76
     static let money: CGFloat = 80
+    /// The least widths of the nine columns in the table's order.
+    static let leastWidths = [timeMin, symbolMin, quantityMin, priceMin, priceMin, priceMin, reasonMin, figureMin, moneyMin]
   }
+
+  /// AppKit's table layout around the columns, in points (measured with Accessibility on macOS
+  /// 27): the inset at each edge of the table and the gap between two cells.
+  static let edgeInset: CGFloat = 16
+  static let cellSpacing: CGFloat = 17
+
+  /// Width the table needs for every column at its least width, in points: below it the columns
+  /// are cut.
+  static let leastWidth: CGFloat = Column.leastWidths.reduce(0, +)
+    + cellSpacing * CGFloat(Column.leastWidths.count - 1) + edgeInset * CardArrangement.paddedEdges
 
   /// Height of the "no trades" message in place of the table, in points.
   static let emptyHeight: CGFloat = 280

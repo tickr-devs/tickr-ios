@@ -17,6 +17,8 @@ import TickrKit
 enum LayoutSweep {
   /// Environment variable naming the folder the pictures go to.
   static let sweepKey = "TICKR_LAYOUT_SWEEP"
+  /// File naming the sizes left out because the window cannot be that small.
+  static let skippedFile = "skipped-sizes.txt"
   /// File written into the folder once every picture is taken and every size held.
   static let doneFile = "done"
   /// Extension of a picture.
@@ -36,6 +38,8 @@ enum LayoutSweep {
     small, laptop, desktop, large,
   ]
   /// A 1024 × 768 display, a 13-inch laptop, a 15-inch laptop and a 16-inch laptop, in points.
+  /// A size under the window's least one (1024 × 768 since the least width is 1086) is left out
+  /// at run time and named in `skippedFile`.
   static let small = CGSize(width: 1024, height: 768)
   static let laptop = CGSize(width: 1280, height: 800)
   static let desktop = CGSize(width: 1440, height: 900)
@@ -93,6 +97,11 @@ enum LayoutSweep {
     }
     var named = sizes.map { (name(of: $0), $0) }
     if let visible = window.screen?.visibleFrame.size { named.append((zoomedName, visible)) }
+    // A size under the window's least one cannot be had (AppKit would keep the least size and
+    // the picture would carry a wrong name): it is left out and named in `skippedFile`.
+    let skipped = named.filter { !allowed($0.1) }
+    named.removeAll { !allowed($0.1) }
+    note(skipped, in: folder)
     for (sizeName, size) in named {
       resize(window, to: size)
       for section in AppSection.allCases {
@@ -143,6 +152,18 @@ enum LayoutSweep {
   /// The inspector with every study (`on`), or the inspector and the studies off.
   private static func fullChart(_ on: Bool) {
     for key in fullChartKeys { UserDefaults.standard.set(on, forKey: key) }
+  }
+
+  /// Whether the window can take `size`: never under its least size.
+  private static func allowed(_ size: CGSize) -> Bool {
+    size.width >= TickrMacApp.minWidth && size.height >= TickrMacApp.minHeight
+  }
+
+  /// Writes the sizes left out, one "name width×height" per line, so the run reports them.
+  private static func note(_ skipped: [(String, CGSize)], in folder: URL) {
+    guard !skipped.isEmpty else { return }
+    let lines = skipped.map { "\($0.0) \(name(of: $0.1))" }.joined(separator: Format.lineSeparator)
+    try? lines.write(to: folder.appending(path: skippedFile), atomically: true, encoding: .utf8)
   }
 
   /// The main window (the SwiftUI scene `WindowID.main`).

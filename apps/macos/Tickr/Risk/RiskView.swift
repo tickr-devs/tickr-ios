@@ -12,34 +12,44 @@ struct RiskView: View {
     case lossRoom = 0, limits, account, session, fences, budget, stream
   }
 
-  /// Height of the scroll view, so the columns reach the window's bottom as the design does.
-  @State private var viewport: CGFloat = 0
+  /// Positions of the cards in the screen's `CardGrid`.
+  private enum Slot: Int { case lossRoom = 0, session, budget, limits, fences, account, stream }
 
-  var body: some View {
-    ScrollView {
-      // The design's three columns; a window too narrow for three gets two.
-      ViewThatFits(in: .horizontal) {
-        HStack(alignment: .top, spacing: Tokens.Space.l) {
-          column { lossRoom.hugging(); session.hugging(); budget.filling() }
-          column { limits.hugging(); fences.filling() }
-          column { account.hugging(); stream.filling() }
-        }
-        HStack(alignment: .top, spacing: Tokens.Space.l) {
-          column { lossRoom.hugging(); session.hugging(); limits.hugging(); budget.filling() }
-          column { account.hugging(); fences.hugging(); stream.filling() }
-        }
-      }
-      .padding(Tokens.Space.l)
-      .frame(minHeight: viewport, alignment: .top)
-    }
-    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewport = $0 }
+  /// The design's three columns; a screen too narrow for three columns of the least width gets
+  /// two. The same cards in both: a resize moves them and never makes them anew. Each column's
+  /// last card fills it to the bottom of the window.
+  static let arrangements: [CardArrangement] = [
+    CardArrangement(minWidth: CardArrangement.columnsMinWidth(CardArrangement.wideColumns), rows: [
+      columns([[.lossRoom, .session, .budget], [.limits, .fences], [.account, .stream]])
+    ]),
+    CardArrangement(minWidth: 0, rows: [
+      columns([[.lossRoom, .session, .limits, .budget], [.account, .fences, .stream]])
+    ]),
+  ]
+
+  private static func columns(_ stacks: [[Slot]]) -> CardRow {
+    CardRow(columns: stacks.map { CardColumn(width: .share(1), cards: $0.map(\.rawValue)) },
+      height: .fillsRest(atLeast: 0))
   }
 
-  /// A column of cards as wide as its share of the window and as tall as the tallest column.
-  private func column(@ViewBuilder _ cards: () -> some View) -> some View {
-    VStack(spacing: Tokens.Space.l) { cards() }
-      .frame(minWidth: Tokens.Size.gridColumnMin, idealWidth: Tokens.Size.gridColumnMin, maxWidth: .infinity,
-        maxHeight: .infinity, alignment: .top)
+  var body: some View {
+    // The visible height is read in the same layout pass that places the cards (no view state),
+    // so the columns follow the window's bottom edge during a resize.
+    GeometryReader { viewport in
+      ScrollView {
+        CardGrid(arrangements: Self.arrangements, spacing: Tokens.Space.l,
+          minHeight: max(viewport.size.height - Tokens.Space.l * CardArrangement.paddedEdges, 0)) {
+          lossRoom.hugging()
+          session.hugging()
+          budget.filling()
+          limits.hugging()
+          fences.filling()
+          account.hugging()
+          stream.filling()
+        }
+        .padding(Tokens.Space.l)
+      }
+    }
   }
 
   private var lossRoom: some View { LossRoomCard().rise(step: Order.lossRoom.rawValue) }

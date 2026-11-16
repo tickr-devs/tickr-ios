@@ -23,8 +23,9 @@ final class OverviewCommandsUITests: XCTestCase {
   /// (status-response-v1.json). Pausing acts at once; the others ask first.
   static let pause = "pause"
   static let confirmed = ["cancel", "flatten-ABCD", "flatten-all", "stop", "emergency"]
-  /// The narrowest window (TickrMacApp.minWidth), in points.
-  static let minWidth: CGFloat = 1000
+  /// The narrowest window, in points: TickrMacApp.minWidth (the sidebar's widest, 260, beside
+  /// TradesView.leastScreenWidth, 826), which this test target cannot read from the app.
+  static let minWidth: CGFloat = 1086
   /// Environment variable that opens the window at its least size (LayoutSweep.smallestKey).
   static let smallestKey = "TICKR_SMALLEST_WINDOW"
   /// Environment variable that opens Overview with the Safety · bot card at its top

@@ -50,15 +50,14 @@ struct RootView: View {
   static let sidebarMin: CGFloat = 200
   static let sidebarIdeal: CGFloat = 237
   static let sidebarMax: CGFloat = 260
-  /// Least size of a screen, in points: with the sidebar (200) and the inspector (240) it stays
-  /// under the window's least size (TickrMacApp.minWidth, minHeight).
-  static let screenMinWidth: CGFloat = 420
+  /// Least size of a screen, in points. The width is the widest any screen needs at its narrowest,
+  /// Trades & days' table with every column whole (`TradesView.leastScreenWidth`); the others,
+  /// the Chart with its rail open included, need less. With the sidebar at its widest it makes the
+  /// window's least width (TickrMacApp.minWidth), so a screen never asks for more than the window
+  /// leaves it.
+  static let screenMinWidth: CGFloat = TradesView.leastScreenWidth
   static let screenMinHeight: CGFloat = 400
 
-  /// Width of the screen column and of the title bar's right-hand group, as last laid out: the
-  /// title line gets the room between them (see `WindowLine`).
-  @State private var detailWidth: CGFloat = 0
-  @State private var stepperWidth: CGFloat = 0
   /// Whether the sidebar shows: the title bar's sidebar button and View > Hide Sidebar (⌃⌘S)
   /// switch it.
   @State private var columns = NavigationSplitViewVisibility.all
@@ -123,13 +122,7 @@ struct RootView: View {
       // the design's one centred line instead.
       .navigationTitle(Text(section.title))
       .toolbar(removing: .title)
-      .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { detailWidth = $0 }
-      .toolbar {
-        WindowToolbar(lineWidth: WindowLine.width(detail: detailWidth, stepper: stepperWidth,
-          sidebarHidden: columns == .detailOnly)) {
-          stepperWidth = $0
-        }
-      }
+      .toolbar { WindowToolbar() }
       .toolbarBackground(Palette.titleBar, for: .windowToolbar)
       .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
     }
@@ -350,21 +343,17 @@ private struct BotStateCard: View {
 /// the sidebar column's item, `SidebarButton`): one centred mono line, and on the right the
 /// connection status, the day stepper ‹ day › and Today.
 private struct WindowToolbar: ToolbarContent {
-  /// Width of the title line (`WindowLine.width`).
-  let lineWidth: CGFloat
-  /// Called with the right-hand group's width whenever it changes.
-  let stepperWidthChanged: (CGFloat) -> Void
-
   var body: some ToolbarContent {
-    ToolbarItem(placement: .navigation) {
-      WindowLine(width: lineWidth)
+    ToolbarItem(placement: .principal) {
+      WindowLine()
     }
     .sharedBackgroundVisibility(.hidden)
+    .visibilityPriority(.low)
     ToolbarItem(placement: .primaryAction) {
       DayStepper()
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { stepperWidthChanged($0) }
     }
     .sharedBackgroundVisibility(.hidden)
+    .visibilityPriority(.high)
   }
 }
 
@@ -403,30 +392,17 @@ private struct SidebarButton: View {
 /// Overview "tickr — sandbox — price-action-v1 v1 — up to 3 positions", Chart "tickr — sandbox —
 /// chart — ABCD · Day · 1m", Trades & days "… — trades & days — 3 closed", Risk & account
 /// "… — risk & account — 10:47:03 ET", Strategy lab "… — strategy lab — price-action-v1 v1".
-/// The line fills the room between the screen column's leading edge and the right-hand group,
-/// centred in it as the design centres it between the window buttons and the controls. A toolbar
-/// item is as wide as its view asks, so the width is given outright: a line wider than the room
-/// pushed the connection status and the day stepper into the toolbar's overflow menu in a narrow
-/// window (the 1000-point least width, the CI runner's 1024-point display); now the line is cut
-/// at its end instead.
+/// The line is the toolbar's principal item, as wide as its text, centred in the title bar, with
+/// the right-hand group at the trailing edge. When the window is too narrow for both, the line has
+/// the lower visibility priority, so it moves into the toolbar's overflow menu and the connection
+/// status and the day stepper stay in sight (they then follow the window buttons). A SwiftUI view in a toolbar item gets its
+/// ideal width and does not stretch or cut, so the line is not given a flexible frame. Its width
+/// was once computed from the screen column's and the group's measured widths: those arrived a
+/// layout pass late, so during a window resize the line and the date jumped after the window's
+/// edge on every step.
 private struct WindowLine: View {
   @Environment(AppModel.self) private var model
   @Environment(ChartModel.self) private var chart
-  let width: CGFloat
-
-  /// Least width of the line, in points.
-  static let minWidth: CGFloat = 120
-  /// The toolbar's own margins and item spacing around the two items, in points.
-  static let toolbarInsets: CGFloat = 40
-
-  /// What the window buttons and the sidebar button take of a screen column that has the whole
-  /// window to itself (the sidebar hidden), in points.
-  static let windowButtonsWidth: CGFloat = 130
-
-  /// The room the line gets beside the right-hand group in a screen column `detail` wide.
-  static func width(detail: CGFloat, stepper: CGFloat, sidebarHidden: Bool) -> CGFloat {
-    max(minWidth, detail - stepper - toolbarInsets - (sidebarHidden ? windowButtonsWidth : 0))
-  }
 
   var body: some View {
     Group {
@@ -442,8 +418,6 @@ private struct WindowLine: View {
     .font(Tokens.Typography.calloutMono)
     .foregroundStyle(Palette.textQuaternary)
     .lineLimit(1)
-    .truncationMode(.tail)
-    .frame(width: width)
   }
 
   private func line(now: Date?) -> LocalizedStringResource {

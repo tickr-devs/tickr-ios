@@ -11,12 +11,14 @@ struct OverviewView: View {
   /// The order in which the cards rise in as the screen appears.
   private enum Order: Int { case header = 0, result, flow, watching, positions, middle, right }
 
+  /// Positions of the cards in the screen's `CardGrid`.
+  private enum Slot: Int { case header = 0, result, flow, watching, positions, safety, riskRoom, observers, journal }
+
   /// Narrowest screen, in points, with the day's result beside the header: the mark, the name,
-  /// its badges and the result column. Measured on the screen's width, which the window sets, so
-  /// the choice never feeds back into it.
+  /// its badges and the result column.
   static let headerBesideResultMinWidth: CGFloat = 1000
   /// Narrowest screen, in points, with the design's three columns of cards; below it the cards
-  /// sit in two columns. Measured like `headerBesideResultMinWidth`.
+  /// sit in two columns.
   static let threeColumnsMinWidth: CGFloat = 1040
   /// The design's column widths (CSS fr units): Watching closely, Positions, Safety and the bot;
   /// then Risk room, Observers, the journal.
@@ -31,58 +33,81 @@ struct OverviewView: View {
   /// Least height of the bottom row (Risk room, Observers, the journal), in points. It takes
   /// the rest of the window's height as in the design, never less than this.
   static let bottomRowMinHeight: CGFloat = 150
-  /// `Space.l` gaps in the screen's height besides its parts: the padding above and below, and
-  /// the gap between the cards above the bottom row and the row.
-  static let verticalGaps: CGFloat = 3
+  /// Padding around the cards on each side: the screen's widths above are the grid's plus twice this.
+  static let padding = Tokens.Space.l
 
-  @State private var headerBesideResult = true
-  @State private var threeColumns = true
-  /// Height of the visible screen, and of everything above the bottom row, in points.
-  @State private var viewportHeight: CGFloat = 0
-  @State private var aboveBottomHeight: CGFloat = 0
+  /// The design's grid at the widest, then two columns of cards with the result beside the
+  /// header, then the result under the header. The same cards in each: a resize moves them and
+  /// never makes them anew.
+  static let arrangements: [CardArrangement] = [
+    CardArrangement(minWidth: threeColumnsMinWidth - padding * CardArrangement.paddedEdges, rows: [
+      headerBesideResult,
+      single(.flow),
+      weighted(middleRowWeights, [.watching, .positions, .safety], height: .atLeast(middleRowHeight)),
+      weighted(bottomRowWeights, [.riskRoom, .observers, .journal], height: .fillsRest(atLeast: bottomRowMinHeight)),
+    ]),
+    CardArrangement(minWidth: headerBesideResultMinWidth - padding * CardArrangement.paddedEdges,
+      rows: [headerBesideResult] + twoColumnRows),
+    CardArrangement(minWidth: 0, rows: [single(.header), single(.result)] + twoColumnRows),
+  ]
 
-  /// The bottom row fills the window under the cards above it, as the design's grid does.
-  private var bottomRowHeight: CGFloat {
-    max(Self.bottomRowMinHeight, viewportHeight - aboveBottomHeight - Tokens.Space.l * Self.verticalGaps)
+  /// The day's result in its own column beside the header, each at its own height.
+  private static let headerBesideResult = CardRow(
+    columns: [
+      CardColumn(width: .share(1), cards: [Slot.header.rawValue]),
+      CardColumn(width: .fixed(Tokens.Size.dayResultWidth), cards: [Slot.result.rawValue]),
+    ],
+    linesUp: false, columnGap: Tokens.Space.xl)
+
+  /// Below the flow on a narrower screen: Positions across both columns, then the cards in pairs.
+  private static let twoColumnRows: [CardRow] = [
+    single(.flow),
+    single(.positions),
+    weighted(twoColumnWeights, [.watching, .safety], height: .atLeast(middleRowHeight)),
+    weighted(twoColumnWeights, [.riskRoom, .observers]),
+    single(.journal),
+  ]
+
+  private static func single(_ slot: Slot) -> CardRow {
+    CardRow(columns: [CardColumn(width: .share(1), cards: [slot.rawValue])])
+  }
+
+  private static func weighted(_ weights: [CGFloat], _ slots: [Slot], height: CardRow.Height = .natural) -> CardRow {
+    CardRow(columns: zip(weights, slots).map { CardColumn(width: .share($0), cards: [$1.rawValue]) }, height: height)
   }
 
   var body: some View {
-    ScrollViewReader { proxy in
-      ScrollView {
-        VStack(spacing: Tokens.Space.l) {
-          top
-          if threeColumns {
-            WeightedColumns(weights: Self.bottomRowWeights, spacing: Tokens.Space.l) {
-              bottomRow
-            }
-            .frame(height: bottomRowHeight)
-          } else {
-            WeightedColumns(weights: Self.twoColumnWeights, spacing: Tokens.Space.l) {
+    // The visible height is read in the same layout pass that places the cards (no view state),
+    // so the bottom row follows the window's edge during a resize instead of a pass behind it.
+    GeometryReader { viewport in
+      ScrollViewReader { proxy in
+        ScrollView {
+          CardGrid(arrangements: Self.arrangements, spacing: Tokens.Space.l,
+            minHeight: max(viewport.size.height - Self.padding * CardArrangement.paddedEdges, 0)) {
+            Header().rise(step: Order.header.rawValue)
+            DayResult().rise(step: Order.result.rawValue)
+            LiveFlowCard().rise(step: Order.flow.rawValue)
+            WatchingCard().filling().rise(step: Order.watching.rawValue)
+            PositionsCard().filling().rise(step: Order.positions.rawValue)
+            SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
+            Group {
               RiskRoomCard().filling()
               ObserversCard().filling()
+              JournalCard().filling()
             }
             .rise(step: Order.right.rawValue)
-            JournalCard().rise(step: Order.right.rawValue)
           }
+          .padding(Self.padding)
         }
-        .padding(Tokens.Space.l)
-      }
-      .onChange(of: aboveBottomHeight) { showSafetyFirstIfAsked(proxy) }
-      // Also when the cards below grow: until they load, the page can be too short to bring the
-      // card to the top, and it stayed a little lower until the next change above it.
-      .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, _ in
-        showSafetyFirstIfAsked(proxy)
+        // Also when the cards below grow: until they load, the page can be too short to bring the
+        // card to the top.
+        .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, _ in
+          showSafetyFirstIfAsked(proxy)
+        }
       }
     }
     // The cards wait under the launch's opening and rise as its mark flies to the header.
     .environment(\.risesHeld, !model.openingPlayed && !model.openingFlying)
-    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewportHeight = $0 }
-    .onGeometryChange(for: Bool.self) { [threshold = Self.headerBesideResultMinWidth] in $0.size.width >= threshold } action: {
-      headerBesideResult = $0
-    }
-    .onGeometryChange(for: Bool.self) { [threshold = Self.threeColumnsMinWidth] in $0.size.width >= threshold } action: {
-      threeColumns = $0
-    }
   }
 
   /// UI tests (`LayoutSweep.safetyFirst`): the Safety · bot card at the top of the screen, kept
@@ -91,101 +116,6 @@ struct OverviewView: View {
     #if DEBUG
     if LayoutSweep.safetyFirst { proxy.scrollTo(SafetyCard.id, anchor: .top) }
     #endif
-  }
-
-  /// Everything above the bottom row; its height sets the bottom row's (never the reverse).
-  private var top: some View {
-    VStack(spacing: Tokens.Space.l) {
-      // The day's result beside the header; under it on a narrower screen (side by side they
-      // were wider than a 1000-point window and pushed every card off the right edge).
-      if headerBesideResult {
-        HStack(alignment: .top, spacing: Tokens.Space.xl) {
-          Header().rise(step: Order.header.rawValue)
-          DayResult().frame(width: Tokens.Size.dayResultWidth).rise(step: Order.result.rawValue)
-        }
-      } else {
-        VStack(alignment: .leading, spacing: Tokens.Space.l) {
-          Header().rise(step: Order.header.rawValue)
-          DayResult().rise(step: Order.result.rawValue)
-        }
-      }
-      LiveFlowCard().rise(step: Order.flow.rawValue)
-      // The design's grid: Watching closely, Positions and Safety with the bot in one row, as
-      // tall as its tallest card (1 : 1.4 : 1), then Risk room, Observers and the journal (1 : 1 : 1.4),
-      // each row's cards one height. A narrower screen keeps two columns: Positions across
-      // both, then the cards in pairs.
-      if threeColumns {
-        WeightedColumns(weights: Self.middleRowWeights, spacing: Tokens.Space.l) {
-          watching
-          positions
-          safety
-        }
-        .frame(minHeight: Self.middleRowHeight)
-      } else {
-        positions
-        WeightedColumns(weights: Self.twoColumnWeights, spacing: Tokens.Space.l) {
-          watching
-          safety
-        }
-        .frame(minHeight: Self.middleRowHeight)
-      }
-    }
-    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { aboveBottomHeight = $0 }
-  }
-
-  private var watching: some View {
-    WatchingCard().filling().rise(step: Order.watching.rawValue)
-  }
-
-  private var positions: some View {
-    PositionsCard().filling().rise(step: Order.positions.rawValue)
-  }
-
-  private var safety: some View {
-    SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
-  }
-
-  @ViewBuilder private var bottomRow: some View {
-    Group {
-      RiskRoomCard().filling()
-      ObserversCard().filling()
-      JournalCard().filling()
-    }
-    .rise(step: Order.right.rawValue)
-  }
-}
-
-/// Columns side by side whose widths follow `weights` (the design's CSS fr units), every cell as
-/// tall as the row: the height offered, or else the tallest cell's.
-/// SwiftUI's `Grid` has only equal columns.
-struct WeightedColumns: Layout {
-  let weights: [CGFloat]
-  let spacing: CGFloat
-
-  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-    let width = proposal.width ?? subviews.map { $0.sizeThatFits(.unspecified).width }.reduce(0, +)
-      + spacing * CGFloat(max(subviews.count - 1, 0))
-    let widths = columnWidths(width, count: subviews.count)
-    let height = proposal.height ?? zip(subviews, widths)
-      .map { $0.sizeThatFits(ProposedViewSize(width: $1, height: nil)).height }.max() ?? 0
-    return CGSize(width: width, height: height)
-  }
-
-  func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-    var x = bounds.minX
-    for (subview, width) in zip(subviews, columnWidths(bounds.width, count: subviews.count)) {
-      subview.place(at: CGPoint(x: x, y: bounds.minY), proposal: ProposedViewSize(width: width, height: bounds.height))
-      x += width + spacing
-    }
-  }
-
-  /// Each column's width: the width left after the gaps, shared by weight. A cell beyond the
-  /// weights given counts as one.
-  private func columnWidths(_ width: CGFloat, count: Int) -> [CGFloat] {
-    let shares = (0..<count).map { $0 < weights.count ? weights[$0] : 1 }
-    let total = shares.reduce(0, +)
-    let free = max(width - spacing * CGFloat(max(count - 1, 0)), 0)
-    return shares.map { total > 0 ? free * $0 / total : 0 }
   }
 }
 

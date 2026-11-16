@@ -26,7 +26,9 @@ jobs:
   build-and-test:
     # Drafts skip the macOS runner (the bottleneck); run it on a draft through workflow_dispatch.
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
-    runs-on: macos-latest
+    # The Xcode 27 image: the owner builds with Xcode 27, and the app uses its SDK (the title bar's
+    # toolbar visibility priorities); macos-latest (macOS 26) has Xcode 26.x only.
+    runs-on: xcode-27
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4

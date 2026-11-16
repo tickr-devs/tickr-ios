@@ -60,6 +60,11 @@ for lang in en ru; do
   fi
   if wait "$pid" && [ -f "$OUT/$lang/done" ]; then
     echo "layout sweep ($lang): $(ls "$OUT/$lang"/*.png | wc -l | tr -d ' ') pictures"
+    # Sizes under the window's least size (TickrMacApp.minWidth) are left out, not faked.
+    if [ -f "$OUT/$lang/skipped-sizes.txt" ]; then
+      echo "layout sweep ($lang): left out, smaller than the window's least size:"
+      cat "$OUT/$lang/skipped-sizes.txt"; echo
+    fi
   else
     echo "::error::layout sweep ($lang) crashed; last log lines:"
     tail -n 40 "$OUT/$lang.log"

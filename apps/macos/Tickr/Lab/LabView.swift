@@ -25,37 +25,37 @@ struct LabView: View {
     }
   }
 
+  /// Positions of the cards in the screen's `CardGrid`.
+  private enum Slot: Int { case versions = 0, curves, replay, advisor, refusals, explain }
+
+  /// The design's grid: three equal columns in two rows; a screen too narrow for three columns
+  /// of the least width gets two. The same cards in both: a resize moves them and never makes
+  /// them anew.
+  static let arrangements: [CardArrangement] = [
+    CardArrangement(minWidth: CardArrangement.columnsMinWidth(CardArrangement.wideColumns), rows: [
+      row([.versions, .curves, .replay]),
+      row([.advisor, .refusals, .explain]),
+    ]),
+    CardArrangement(minWidth: 0, rows: [
+      row([.versions, .curves]),
+      row([.replay, .refusals]),
+      row([.explain, .advisor]),
+    ]),
+  ]
+
+  private static func row(_ slots: [Slot]) -> CardRow {
+    CardRow(columns: slots.map { CardColumn(width: .share(1), cards: [$0.rawValue]) })
+  }
+
   private var cards: some View {
     ScrollView {
-      // The design's grid: three equal columns in two rows. A window too narrow for three
-      // columns gets two.
-      ViewThatFits(in: .horizontal) {
-        Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
-          GridRow {
-            versions
-            curves
-            replay
-          }
-          GridRow {
-            advisorCard
-            refusals
-            explain
-          }
-        }
-        Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
-          GridRow {
-            versions
-            curves
-          }
-          GridRow {
-            replay
-            refusals
-          }
-          GridRow {
-            explain
-            advisorCard
-          }
-        }
+      CardGrid(arrangements: Self.arrangements, spacing: Tokens.Space.l) {
+        versions
+        curves
+        replay
+        advisorCard
+        refusals
+        explain
       }
       .filling()
       .padding(Tokens.Space.l)

@@ -23,7 +23,7 @@ the three operator commands. It never talks to the broker.
 ## Open in Xcode
 
 Kept current with Xcode 27.2: its upgrade check and recommended settings are already applied, so
-Xcode offers no project update. The app needs macOS 26 and builds with Xcode 26 or later (Swift 6 language mode).
+Xcode offers no project update. The app needs macOS 26.1 and builds with Xcode 26.1 or later (Swift 6 language mode).
 
 ```sh
 open Tickr.xcworkspace        # at the repository root
@@ -37,7 +37,7 @@ editing the project. Start the API first (below), or the app shows "unavailable"
 
 ## Run without Xcode
 
-Needs Swift 6.2+ command line tools (Xcode 26) and macOS 26.
+Needs Swift 6.2+ command line tools (Xcode 26.1) and macOS 26.1.
 
 ```sh
 # 1. Start the API (the bot writes data/status.json; without the bot the app shows "unavailable").

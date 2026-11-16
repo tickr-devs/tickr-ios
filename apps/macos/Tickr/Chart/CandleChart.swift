@@ -22,8 +22,10 @@ struct CandleChart: View {
   /// The pointer state, for the shared axis and crosshair of every pane.
   var pointerModel: ChartPointer { pointer }
   @State private var appeared = false
-  /// The price pane's width, for spacing the time labels of a range.
-  @State private var chartWidth: CGFloat = 0
+  /// How many time labels fit across the price pane, `timeLabelSlot` apart. Kept as a count, not
+  /// the pane's width: during a window resize the width changed every frame and each change built
+  /// the whole chart again, while the count changes only when a label more or fewer fits.
+  @State private var labelSlots = 0
   @State private var pinchStart: Int?
 
   /// Height of each study pane (volume, MACD, RSI, stochastic, ATR), in points.
@@ -41,7 +43,7 @@ struct CandleChart: View {
   static let minimumSpan = 0.0005
   /// Width of every pane's value labels, in points: one width keeps the panes' plot areas, and so
   /// their candles and crosshairs, lined up.
-  static let axisLabelWidth: CGFloat = 56
+  nonisolated static let axisLabelWidth: CGFloat = 56
   /// Gridlines each pane asks for on its value axis.
   static let priceTicks = 6
   /// Share of the price pane's height a tag covers on the scale (with a gap): an axis price
@@ -65,7 +67,7 @@ struct CandleChart: View {
   static let drawnMargin = 1.0
   /// Width a range's time label needs with a gap to the next, in points: labels closer than
   /// this are left out ("Mon 9Tue 10").
-  static let timeLabelSlot: CGFloat = 64
+  nonisolated static let timeLabelSlot: CGFloat = 64
   /// Annotations near an edge move inside the chart instead of being cut off.
   static let keepInside = AnnotationOverflowResolution(x: .fit(to: .plot), y: .fit(to: .plot))
   /// Least distance between the centres of two tags on a value axis, in points: closer tags are
@@ -204,7 +206,7 @@ struct CandleChart: View {
     }
     .chartXAxis { timeAxis(labels: studyPanes.isEmpty) }
     .modifier(SharedAxis(chart: self, pane: .price, showsTime: studyPanes.isEmpty, tags: priceTags))
-    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { chartWidth = $0 })
+    .onGeometryChange(for: Int.self, of: { Self.slotCount(chartWidth: $0.size.width) }, action: { labelSlots = $0 })
   }
 
   /// The close as a line with a fill fading down to the bottom of the pane, coloured by whether
@@ -523,11 +525,16 @@ struct CandleChart: View {
   /// One day's clock labels: round New York times in the window that a candle starts at, as
   /// many as fit `timeLabelSlot` apart.
   private var dayMarks: [ChartAxisMark] {
-    let plotWidth = chartWidth - Self.axisLabelWidth
-    guard plotWidth > 0 else { return [] }
-    let count = Int(plotWidth / Self.timeLabelSlot)
-    return ChartAxis.clockMarks(in: windowDomain, shown: visibleLength, count: count)
+    guard labelSlots > 0 else { return [] }
+    return ChartAxis.clockMarks(in: windowDomain, shown: visibleLength, count: labelSlots)
       .map { ChartAxisMark(time: $0, text: Format.marketMinute($0)) }
+  }
+
+  /// Time labels `timeLabelSlot` apart that fit across a price pane `chartWidth` wide (its value
+  /// scale takes `axisLabelWidth` of it).
+  nonisolated static func slotCount(chartWidth: CGFloat) -> Int {
+    let plotWidth = chartWidth - axisLabelWidth
+    return plotWidth > 0 ? Int(plotWidth / timeLabelSlot) : 0
   }
 
   /// The range's labels in the window, none closer than `timeLabelSlot`; where a year begins
@@ -535,9 +542,8 @@ struct CandleChart: View {
   private var rangeMarks: [ChartAxisMark] {
     let shown = windowDomain
     let inside = plot.axisMarks.filter { shown.contains($0.time) }
-    let plotWidth = chartWidth - Self.axisLabelWidth
-    guard plotWidth > 0 else { return inside }
-    let gap = visibleLength * Double(Self.timeLabelSlot / plotWidth)
+    guard labelSlots > 0 else { return inside }
+    let gap = visibleLength / Double(labelSlots)
     return ChartAxis.spaced(inside.map(\.time), gap: gap, shown: shown, preferred: { inside[$0].major })
       .map { inside[$0] }
   }
