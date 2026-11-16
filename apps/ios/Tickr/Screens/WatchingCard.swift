@@ -3,21 +3,31 @@ import TickrDesign
 import TickrKit
 
 /// "Watching closely": the symbols the strategy is nearest to entering, each with its verdict, the
-/// check that decided it and how close that check is to passing.
+/// check that decided it and how close that check is to passing. The closest few here; "Show all
+/// N ›" opens every row the bot sent in a sheet (`WatchingSheet`).
 struct WatchingCard: View {
   let watching: WatchingV1?
   let failure: String?
+  @State private var showsAll = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      // The label, then its note; the note goes under it at large text sizes.
+      // The label, then the link; the link goes under it at large text sizes.
       RowStack {
         CardLabel(L10n.Watching.title)
         Spacer()
-        if let watching, watching.total > watching.rows.count {
-          Text(L10n.Watching.shown(watching.rows.count, watching.total))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
+        if let watching, WatchingList.hasMore(watching.rows) {
+          Button { showsAll = true } label: {
+            HStack(spacing: Tokens.Space.xxs) {
+              Text(L10n.Watching.showAll(watching.rows.count))
+              Chevron()
+            }
+            .font(Tokens.Typography.callout.weight(.semibold))
+            .foregroundStyle(Palette.infoText)
+            .frame(minHeight: Tokens.Size.touchTarget)
+            .contentShape(Rectangle())
+          }
+          .buttonStyle(.plain)
         }
       }
       if let failure {
@@ -31,7 +41,7 @@ struct WatchingCard: View {
             .font(Tokens.Typography.callout)
             .foregroundStyle(Palette.textTertiary)
         }
-        ForEach(watching.rows, id: \.symbol) { row in
+        ForEach(WatchingList.top(watching.rows), id: \.symbol) { row in
           WatchingRow(row: row, current: failure == nil)
         }
       } else if failure == nil {
@@ -41,11 +51,14 @@ struct WatchingCard: View {
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard()
+    .sheet(isPresented: $showsAll) {
+      // The card's own rows, so the sheet follows each new read while it is open.
+      WatchingSheet(watching: watching, current: failure == nil)
+    }
   }
 }
 
-private struct WatchingRow: View {
-  @Environment(\.dynamicTypeSize) private var typeSize
+struct WatchingRow: View {
   let row: WatchingRowV1
   /// False while a refresh failed and the row is the last read: its bar is dimmed.
   let current: Bool
@@ -86,9 +99,8 @@ private struct WatchingRow: View {
           check.threshold?.text ?? Format.missing].joined(separator: ChartFormat.space))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textTertiary)
-          // One line at ordinary sizes; at large ones it wraps rather than cutting the figures.
-          .lineLimit(typeSize.stacksRows ? nil : 1)
-          .minimumScaleFactor(Tokens.Shrink.standard)
+          // Wraps rather than cutting the figures.
+          .fixedSize(horizontal: false, vertical: true)
       }
       if let closeness {
         // As on the board: a thin bar that grows in, and to each new closeness the bot measures.

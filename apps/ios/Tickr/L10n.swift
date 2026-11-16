@@ -1109,8 +1109,46 @@ enum L10n {
       LocalizedStringResource("watching.closeness", defaultValue: "How close the deciding check is to passing",
         bundle: L10n.bundle)
     }
-    static func shown(_ shown: Int, _ total: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.shown", defaultValue: "\(shown) of \(total)", bundle: L10n.bundle)
+    /// Link on the card: opens the sheet with all `count` rows the bot sent.
+    static func showAll(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.showAll", defaultValue: "Show all \(count)", bundle: L10n.bundle)
+    }
+    /// The sheet's caption: how many symbols it holds.
+    static func symbols(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.symbols", defaultValue: "\(count) symbols", bundle: L10n.bundle)
+    }
+    /// The sheet's caption while reads succeed: rows follow the bot's decisions.
+    static var live: LocalizedStringResource {
+      LocalizedStringResource("watching.live", defaultValue: "live", bundle: L10n.bundle)
+    }
+    /// Under the sheet's rows when the bot sent fewer rows than it watches ([api] watching_max_rows).
+    static func capped(_ shown: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.capped",
+        defaultValue: "The bot sends its closest \(shown); it watches \(total) in all.", bundle: L10n.bundle)
+    }
+    /// VoiceOver name of the sort control.
+    static var sortLabel: LocalizedStringResource {
+      LocalizedStringResource("watching.sortLabel", defaultValue: "Sort", bundle: L10n.bundle)
+    }
+    /// Sort: closest to entering first.
+    static var sortClosest: LocalizedStringResource {
+      LocalizedStringResource("watching.sortClosest", defaultValue: "Closest", bundle: L10n.bundle)
+    }
+    /// Sort: by symbol, A to Z.
+    static var sortSymbol: LocalizedStringResource {
+      LocalizedStringResource("watching.sortSymbol", defaultValue: "Symbol", bundle: L10n.bundle)
+    }
+    /// Sort: oldest quote first.
+    static var sortQuoteAge: LocalizedStringResource {
+      LocalizedStringResource("watching.sortQuoteAge", defaultValue: "Quote age", bundle: L10n.bundle)
+    }
+    /// Sort: latest decision first.
+    static var sortLatest: LocalizedStringResource {
+      LocalizedStringResource("watching.sortLatest", defaultValue: "Latest", bundle: L10n.bundle)
+    }
+    /// VoiceOver name of the sheet's close button.
+    static var close: LocalizedStringResource {
+      LocalizedStringResource("watching.close", defaultValue: "Close", bundle: L10n.bundle)
     }
     static func failed(_ cause: String) -> LocalizedStringResource {
       LocalizedStringResource("watching.failed", defaultValue: "Couldn't read the watched symbols: \(cause)",

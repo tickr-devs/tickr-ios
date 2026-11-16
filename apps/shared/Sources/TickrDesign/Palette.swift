@@ -96,6 +96,8 @@ public enum Palette {
   public static let glowTeal = Color(light: 0x14B8A6, dark: 0x14B8A6)
   /// Blue-tinted card shadow in light mode.
   public static let shadow = Color(light: 0x283C96, dark: 0x283C96)
+  /// Deep navy behind an overlay panel (the Mac "Watching closely" list), at `Opacity.faint`, and its shadow.
+  public static let scrim = Color(light: 0x080C1E, dark: 0x080C1E)
 
   /// Text colour for a money result: gains profit, losses loss, zero tertiary.
   public static func result(_ value: Decimal) -> Color {

@@ -3276,17 +3276,79 @@ enum L10n {
     static var title: LocalizedStringResource {
       LocalizedStringResource("watching.title", defaultValue: "Watching Closely", bundle: L10n.bundle)
     }
-    /// Card trailing: rows shown of all watched symbols.
-    static func count(_ shown: Int, _ total: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.count", defaultValue: "\(shown) of \(total)", bundle: L10n.bundle)
+    /// Link under the card's rows: opens the full list (`WatchingAllPanel`) of `count` symbols.
+    static func showAll(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.showAll", defaultValue: "Show all \(count)", bundle: L10n.bundle)
     }
-    /// Button under the Watching rows: shows the rows beyond the first few.
+    /// Caption beside "Show all": the card shows the closest `shown` of `total` watched symbols.
+    static func closestOf(_ shown: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.closestOf", defaultValue: "closest \(shown) of \(total)", bundle: L10n.bundle)
+    }
+    /// VoiceOver name of the full list.
+    static var panelLabel: LocalizedStringResource {
+      LocalizedStringResource("watching.panelLabel", defaultValue: "Watching closely, all symbols", bundle: L10n.bundle)
+    }
+    /// The full list's caption: how many symbols it holds.
+    static func symbols(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.symbols", defaultValue: "\(count) symbols", bundle: L10n.bundle)
+    }
+    /// The full list's caption on the live day: rows follow the bot's decisions.
+    static var live: LocalizedStringResource {
+      LocalizedStringResource("watching.live", defaultValue: "live", bundle: L10n.bundle)
+    }
+    /// Under the full list when the bot sent fewer rows than it watches ([api] watching_max_rows).
+    static func capped(_ shown: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.capped",
+        defaultValue: "The bot sends its closest \(shown); it watches \(total) in all.", bundle: L10n.bundle)
+    }
+    /// Label before the sort chips.
+    static var sortLabel: LocalizedStringResource {
+      LocalizedStringResource("watching.sortLabel", defaultValue: "Sort", bundle: L10n.bundle)
+    }
+    /// Sort chip: closest to entering first.
+    static var sortClosest: LocalizedStringResource {
+      LocalizedStringResource("watching.sortClosest", defaultValue: "Closest", bundle: L10n.bundle)
+    }
+    /// Sort chip: by symbol, A to Z.
+    static var sortSymbol: LocalizedStringResource {
+      LocalizedStringResource("watching.sortSymbol", defaultValue: "Symbol", bundle: L10n.bundle)
+    }
+    /// Sort chip: oldest quote first.
+    static var sortQuoteAge: LocalizedStringResource {
+      LocalizedStringResource("watching.sortQuoteAge", defaultValue: "Quote age", bundle: L10n.bundle)
+    }
+    /// Sort chip: latest decision first.
+    static var sortLatest: LocalizedStringResource {
+      LocalizedStringResource("watching.sortLatest", defaultValue: "Latest", bundle: L10n.bundle)
+    }
+    /// Filter chip: every verdict, with the count.
+    static func filterAll(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.filterAll", defaultValue: "All \(count)", bundle: L10n.bundle)
+    }
+    /// Filter chip: WATCH rows only, with the count.
+    static func filterWatch(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.filterWatch", defaultValue: "Watch \(count)", bundle: L10n.bundle)
+    }
+    /// Filter chip: IGNORE rows only, with the count.
+    static func filterIgnore(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.filterIgnore", defaultValue: "Ignore \(count)", bundle: L10n.bundle)
+    }
+    /// The full list has no row with the chosen verdict.
+    static var noneFiltered: LocalizedStringResource {
+      LocalizedStringResource("watching.noneFiltered", defaultValue: "No watched symbol has this verdict.",
+        bundle: L10n.bundle)
+    }
+    /// VoiceOver name of the full list's close button.
+    static var close: LocalizedStringResource {
+      LocalizedStringResource("watching.close", defaultValue: "Close", bundle: L10n.bundle)
+    }
+    /// Tooltip of the full list's close button.
+    static var closeHelp: LocalizedStringResource {
+      LocalizedStringResource("watching.closeHelp", defaultValue: "Close (Esc)", bundle: L10n.bundle)
+    }
+    /// Button under a list's first rows (a stage's details): shows the rows beyond them.
     static func more(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("watching.more", defaultValue: "\(count) more", bundle: L10n.bundle)
-    }
-    /// Button under all the Watching rows: back to the first few.
-    static var fewer: LocalizedStringResource {
-      LocalizedStringResource("watching.fewer", defaultValue: "Show fewer", bundle: L10n.bundle)
     }
     /// Watching card is empty.
     static var none: LocalizedStringResource {

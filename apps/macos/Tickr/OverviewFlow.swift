@@ -175,17 +175,14 @@ struct LatestEvent: View {
 }
 
 /// The symbols the strategy is closest to entering, with the check that decides each and how
-/// close it is to passing.
+/// close it is to passing: the closest few at a fixed height, and "Show all N ›" opening the full
+/// list (`WatchingAllPanel`) over the Overview.
 struct WatchingCard: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.openWatchingAll) private var openWatchingAll
 
-  /// Rows shown until the person asks for all (not an API limit), as the design's card holds
-  /// them without a scroll; "N more" shows the rest.
-  static let shown = 3
   /// Accessibility id of the card, for the UI tests.
   static let id = "overview-watching"
-
-  @State private var expanded = false
 
   var body: some View {
     Card(L10n.Watching.title) {
@@ -198,7 +195,7 @@ struct WatchingCard: View {
         if watching.rows.isEmpty {
           Footnote(L10n.Watching.none)
         } else {
-          let rows = expanded ? watching.rows : Array(watching.rows.prefix(Self.shown))
+          let rows = WatchingList.top(watching.rows)
           VStack(spacing: Tokens.Space.s) {
             // Each row opens the Chart on its symbol.
             // The rows rise one after another as the card shows them (a symbol the bot starts
@@ -208,16 +205,14 @@ struct WatchingCard: View {
                 .rise(step: index)
             }
           }
-          HStack(spacing: Tokens.Space.s) {
-            if watching.rows.count > Self.shown {
-              MoreButton(expanded ? L10n.Watching.fewer : L10n.Watching.more(watching.rows.count - Self.shown)) {
-                withAnimation(Tokens.Motion.standard) { expanded.toggle() }
-              }
+          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+            if WatchingList.hasMore(watching.rows) {
+              MoreButton(L10n.Watching.showAll(watching.rows.count)) { openWatchingAll() }
             }
             Spacer(minLength: 0)
-            // The bot sends the closest rows; it says how many it watches in all.
-            if watching.total > watching.rows.count {
-              Footnote(L10n.Watching.count(watching.rows.count, watching.total))
+            // How many of all the watched symbols the card shows.
+            if watching.total > rows.count {
+              Footnote(L10n.Watching.closestOf(rows.count, watching.total))
             }
           }
         }
@@ -234,7 +229,7 @@ struct WatchingCard: View {
 
 /// One watched symbol as the design draws it: a sunken box with the symbol, its verdict tag and
 /// the time on top, the deciding check below, and a thin bar of how close it is to passing.
-private struct WatchingRow: View {
+struct WatchingRow: View {
   let row: WatchingRowV1
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -251,14 +246,16 @@ private struct WatchingRow: View {
       Group {
         if let check = row.decisiveCheck {
           // The check's name, then what it measured against what it needs, as in the design.
-          HStack(spacing: Tokens.Space.s) {
+          // The name wraps in a narrow row; the figures stay whole beside it.
+          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
             Text(verbatim: ApiText.rule(check.rule))
               .font(Tokens.Typography.caption)
               .foregroundStyle(Palette.textTertiary)
-            Spacer(minLength: Tokens.Space.s)
+              .frame(maxWidth: .infinity, alignment: .leading)
             Text(verbatim: check.valueText)
               .font(Tokens.Typography.captionMono)
               .foregroundStyle(Palette.textSecondary)
+              .fixedSize()
           }
           .help(Text(verbatim: check.note))
         } else {
@@ -267,7 +264,7 @@ private struct WatchingRow: View {
             .foregroundStyle(Palette.textQuaternary)
         }
       }
-      .lineLimit(1)
+      .fixedSize(horizontal: false, vertical: true)
       closeness
     }
     .padding(.horizontal, Tokens.Space.s)

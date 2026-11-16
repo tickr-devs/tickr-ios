@@ -108,6 +108,8 @@ struct OverviewView: View {
     }
     // The cards wait under the launch's opening and rise as its mark flies to the header.
     .environment(\.risesHeld, !model.openingPlayed && !model.openingFlying)
+    // "Show all" of Watching closely opens its full list over the cards.
+    .watchingAllPanel()
   }
 
   /// UI tests (`LayoutSweep.safetyFirst`): the Safety · bot card at the top of the screen, kept
