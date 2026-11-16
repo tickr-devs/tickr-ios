@@ -93,4 +93,46 @@ struct SymbolsBoardTests {
     #expect(SymbolsBoard.movers(movers.movers, search: "efg").map(\.symbol) == ["EFGH"])
     #expect(!SymbolsBoard.rules(try #require(movers.rules)).isEmpty)
   }
+
+  @Test("The table sorts by a clicked column, missing values last; a second click turns it")
+  func tableOrder() {
+    let standard = SymbolsOrder.standard(.stage(.screeners))
+    #expect(standard == SymbolsOrder(column: .stage, ascending: false))
+    let byStage = SymbolsBoard.lines(.stage(.screeners), symbols: symbols, movers: movers, positions: [],
+      query: SymbolsQuery(filter: .all, search: "", order: standard))
+    #expect(byStage.first?.symbol == "ABCD")  // through the stop
+    let byChange = standard.clicked(.change)
+    #expect(byChange == SymbolsOrder(column: .change, ascending: false))
+    let changes = SymbolsBoard.lines(.stage(.screeners), symbols: symbols, movers: movers, positions: [],
+      query: SymbolsQuery(filter: .all, search: "", order: byChange))
+    #expect(changes.first?.symbol == "ABCD")
+    #expect(changes.last?.row?.changePct == nil)  // WXYZ has no change: last either way
+    let turned = SymbolsBoard.lines(.stage(.screeners), symbols: symbols, movers: movers, positions: [],
+      query: SymbolsQuery(filter: .all, search: "", order: byChange.clicked(.change)))
+    #expect(turned.last?.row?.changePct == nil)
+    #expect(byChange.clicked(.symbol) == SymbolsOrder(column: .symbol, ascending: true))
+  }
+
+  @Test("Fast movers: positions and watches without a bar are pinned on top; the rest by |ATR|")
+  func fastMoverLines() {
+    let lines = SymbolsBoard.lines(.fastMovers, symbols: symbols, movers: movers, positions: ["QRST"],
+      query: SymbolsQuery(filter: .all, search: "", order: .standard(.fastMovers)))
+    #expect(lines.map(\.symbol) == ["QRST", "KLMN", "EFGH"])
+    #expect(lines.first?.mover == nil && lines.first?.position == true)
+  }
+
+  @Test("Table cells read as the design writes them")
+  func tableCells() throws {
+    let klmn = try #require(movers.movers.first)
+    #expect(SymbolsBoard.ratio(klmn.volumeRatio) == String(localized: L10n.symbolsRatio(SymbolsBoard.fixed(13.3, digits: 1))))
+    let efgh = try #require(movers.movers.last)
+    #expect(SymbolsBoard.atr(efgh.moveAtr).hasPrefix(SymbolsBoard.minus))
+    let abcd = try #require(symbols.rows.first { $0.symbol == "ABCD" })
+    #expect(SymbolsBoard.screenerCell(abcd)?.more == String(localized: L10n.symbolsMore(1)))
+    #expect(abcd.reached.count == SymbolStage.allCases.count)
+    #expect(abcd.checks.count == 2 && abcd.strategy != nil)
+    #expect(SymbolsBoard.why(abcd) == nil)  // passed
+    let qrst = try #require(symbols.rows.first { $0.symbol == "QRST" })
+    #expect(SymbolsBoard.why(qrst) == SymbolsBoard.reason(qrst))
+  }
 }

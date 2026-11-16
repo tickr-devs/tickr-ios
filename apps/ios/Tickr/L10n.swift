@@ -1241,12 +1241,6 @@ enum L10n {
     static var rowHint: LocalizedStringResource {
       LocalizedStringResource("symbols.rowHint", defaultValue: "Shows the symbol's path today", bundle: L10n.bundle)
     }
-    /// Detail: the symbol's fast mover bar.
-    static func moverLine(_ time: String, _ volume: String, _ move: String, _ dollars: String) -> LocalizedStringResource {
-      LocalizedStringResource("symbols.moverLine",
-        defaultValue: "Fast mover at \(time): \(volume) · \(move) · \(dollars)",
-        bundle: L10n.bundle)
-    }
   }
   enum FastMovers {
     /// Card title: symbols with a sudden jump against the bars before.

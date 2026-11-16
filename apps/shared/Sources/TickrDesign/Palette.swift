@@ -94,6 +94,9 @@ public enum Palette {
   public static let seriesATRText = Color(Swatch.seriesATRText)
   /// Universe filter stage in the live flow.
   public static let seriesUniverse = seriesATR
+  /// A symbol the funnel dropped (mockup v100: pink; red stays for danger).
+  public static let dropped = seriesATR
+  public static let droppedText = seriesATRText
 
   // MARK: light-mode depth
 

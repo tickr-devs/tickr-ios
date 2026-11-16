@@ -10112,23 +10112,6 @@
         }
       }
     },
-    "symbols.moverLine" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fast mover at %1$@: %2$@ · %3$@ · %4$@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Быстрое движение в %1$@: %2$@ · %3$@ · %4$@"
-          }
-        }
-      }
-    },
     "symbols.noMatch" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -3509,10 +3509,6 @@ enum L10n {
     static var show: LocalizedStringResource {
       LocalizedStringResource("symbols.show", defaultValue: "Show", bundle: L10n.bundle)
     }
-    /// Label before the sort control.
-    static var sort: LocalizedStringResource {
-      LocalizedStringResource("symbols.sort", defaultValue: "Sort", bundle: L10n.bundle)
-    }
     /// Accessibility: the list of symbols.
     static var listLabel: LocalizedStringResource {
       LocalizedStringResource("symbols.listLabel", defaultValue: "Symbol list", bundle: L10n.bundle)
@@ -3537,46 +3533,6 @@ enum L10n {
     static var noMovers: LocalizedStringResource {
       LocalizedStringResource("symbols.noMovers", defaultValue: "No fast movers yet.", bundle: L10n.bundle)
     }
-    /// Column title.
-    static var columnSymbol: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnSymbol", defaultValue: "Symbol", bundle: L10n.bundle)
-    }
-    /// Column title.
-    static var columnSources: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnSources", defaultValue: "Screeners · rank · change", bundle: L10n.bundle)
-    }
-    /// Column title.
-    static var columnFurthest: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnFurthest", defaultValue: "Furthest stage", bundle: L10n.bundle)
-    }
-    /// Column title.
-    static var columnOutcome: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnOutcome", defaultValue: "Outcome", bundle: L10n.bundle)
-    }
-    /// Column title.
-    static var columnSeen: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnSeen", defaultValue: "First seen", bundle: L10n.bundle)
-    }
-    /// Column title: the bar's volume against the average.
-    static var columnVolume: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnVolume", defaultValue: "Vol ×", bundle: L10n.bundle)
-    }
-    /// Column title: the bar's move in ATR.
-    static var columnMove: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnMove", defaultValue: "ATR", bundle: L10n.bundle)
-    }
-    /// Column title: the bar's dollar volume against the average.
-    static var columnDollars: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnDollars", defaultValue: "$vol ×", bundle: L10n.bundle)
-    }
-    /// Column title.
-    static var columnScreeners: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnScreeners", defaultValue: "Screeners", bundle: L10n.bundle)
-    }
-    /// Column title: the bar's time.
-    static var columnTime: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnTime", defaultValue: "Time", bundle: L10n.bundle)
-    }
     /// Detail: the symbol's stages today.
     static var pathToday: LocalizedStringResource {
       LocalizedStringResource("symbols.pathToday", defaultValue: "Path today", bundle: L10n.bundle)
@@ -3592,11 +3548,6 @@ enum L10n {
     /// Detail with no symbol selected.
     static var selectHint: LocalizedStringResource {
       LocalizedStringResource("symbols.selectHint", defaultValue: "Select a symbol to see its path today.", bundle: L10n.bundle)
-    }
-    /// Detail: the fast mover bar; time, volume, move, dollar volume.
-    static func moverLine(_ time: String, _ volume: String, _ move: String, _ dollars: String) -> LocalizedStringResource {
-      // swiftlint:disable:next line_length
-      LocalizedStringResource("symbols.moverLine", defaultValue: "Fast mover \(time) · \(volume) · \(move) · \(dollars)", bundle: L10n.bundle)
     }
   }
   enum FastMovers {
