@@ -37,7 +37,7 @@ struct ChartExplainCard: View {
   @ViewBuilder private var content: some View {
     if let decision = shown {
       HStack(spacing: Tokens.Space.s) {
-        CardLabel(L10n.Chart.explain(symbol ?? Format.missing, Format.marketMinute(decision.at.date)))
+        CardLabel(label(decision))
           .lineLimit(1)
           .minimumScaleFactor(Tokens.Shrink.standard)
         Spacer(minLength: 0)
@@ -55,7 +55,9 @@ struct ChartExplainCard: View {
         .foregroundStyle(Palette.textQuaternary)
     } else {
       CardLabel(L10n.Chart.explainSymbol(symbol ?? Format.missing))
-      if !showsDay {
+      if let candle = pointed, decisions?.decisions.isEmpty == false {
+        note(L10n.Chart.noDecisionInCandle(Format.marketMinute(candle.start)))
+      } else if !showsDay {
         note(L10n.Chart.decisionsDayOnly)
       } else if let error {
         note(L10n.Chart.decisionsUnavailable(error))
@@ -67,16 +69,33 @@ struct ChartExplainCard: View {
     }
   }
 
-  /// The decision at the pointed candle (the last made before it closed), else the latest; the
-  /// trading strategy's own before an observer's made at the same time or earlier.
+  /// The candle under the pointer, on a chart of one day.
+  private var pointed: Candle? {
+    guard showsDay, let plot, let index = pointer.index, plot.candles.indices.contains(index) else { return nil }
+    return plot.candles[index]
+  }
+
+  /// The decision made inside the pointed candle (the last one, when a candle of several minutes
+  /// holds several), else with the pointer off the chart the latest; the trading strategy's own
+  /// before an observer's. A pointed candle without a decision shows none, never an older one.
   private var shown: DecisionV1? {
     guard showsDay, let all = decisions?.decisions, !all.isEmpty else { return nil }
     var made = all
-    if let plot, let index = pointer.index, plot.candles.indices.contains(index) {
-      let end = plot.candles[index].end
-      made = all.filter { $0.at.date < end }
+    if let candle = pointed {
+      made = all.filter { $0.at.date >= candle.start && $0.at.date < candle.end }
     }
     return made.last { !$0.observer } ?? made.last
+  }
+
+  /// "Explain ABCD · 12:54", and in a candle of several minutes which candle it is the last
+  /// decision of ("· last in the 12:50 candle"), so the time never reads as a different candle.
+  private func label(_ decision: DecisionV1) -> LocalizedStringResource {
+    let symbol = symbol ?? Format.missing
+    let time = Format.marketMinute(decision.at.date)
+    guard let candle = pointed, Format.marketMinute(candle.start) != time else {
+      return L10n.Chart.explain(symbol, time)
+    }
+    return L10n.Chart.explainInCandle(symbol, time, Format.marketMinute(candle.start))
   }
 
   /// One line on what the decision came to: the refusal, the entry and stop, or the strategy.

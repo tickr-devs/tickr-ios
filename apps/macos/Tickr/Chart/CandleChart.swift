@@ -67,7 +67,10 @@ struct CandleChart: View {
   /// this are left out ("Mon 9Tue 10").
   static let timeLabelSlot: CGFloat = 64
   /// Annotations near an edge move inside the chart instead of being cut off.
-  static let keepInside = AnnotationOverflowResolution(x: .fit(to: .chart), y: .fit(to: .chart))
+  static let keepInside = AnnotationOverflowResolution(x: .fit(to: .plot), y: .fit(to: .plot))
+  /// Least distance between the centres of two tags on a value axis, in points: closer tags are
+  /// moved apart so none covers another ("Entry 29.55" over the last price).
+  static let tagSpacing: CGFloat = 18
   /// Colours of the moving-average lines, in the order of `Studies.movingAveragePeriods`.
   static let movingAverageColors = [Palette.info, Palette.warning, Palette.highlight]
 
@@ -199,8 +202,7 @@ struct CandleChart: View {
     .chartYAxis {
       valueAxis(ticks: Self.priceTicks, hiding: priceTags.map(\.value), span: scale)
     }
-    .chartXAxis(studyPanes.isEmpty ? .automatic : .hidden)
-    .chartXAxis { timeAxis }
+    .chartXAxis { timeAxis(labels: studyPanes.isEmpty) }
     .modifier(SharedAxis(chart: self, pane: .price, showsTime: studyPanes.isEmpty, tags: priceTags))
     .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { chartWidth = $0 })
   }
@@ -279,8 +281,7 @@ struct CandleChart: View {
       }
       .chartYScale(domain: span)
       .chartYAxis { volumeAxis(span: span) }
-      .chartXAxis(bottom ? .automatic : .hidden)
-      .chartXAxis { timeAxis }
+      .chartXAxis { timeAxis(labels: bottom) }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
     case .macd:
       Chart {
@@ -298,8 +299,7 @@ struct CandleChart: View {
       }
       .chartYScale(domain: paneSpan([plot.macd, plot.macdSignal, plot.macdHistogram]))
       .chartYAxis { valueAxis(ticks: Self.paneTicks, span: paneSpan([plot.macd, plot.macdSignal, plot.macdHistogram])) }
-      .chartXAxis(bottom ? .automatic : .hidden)
-      .chartXAxis { timeAxis }
+      .chartXAxis { timeAxis(labels: bottom) }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
       .overlay { waiting(plot.macd) }
     case .rsi:
@@ -309,8 +309,7 @@ struct CandleChart: View {
       }
       .chartYScale(domain: 0...Studies.oscillatorScale)
       .chartYAxis { valueAxis(values: [Studies.rsiLow, Studies.rsiHigh]) }
-      .chartXAxis(bottom ? .automatic : .hidden)
-      .chartXAxis { timeAxis }
+      .chartXAxis { timeAxis(labels: bottom) }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: lastTag(plot.rsi, color: Palette.info)))
       .overlay { waiting(plot.rsi) }
     case .stochastic:
@@ -321,8 +320,7 @@ struct CandleChart: View {
       }
       .chartYScale(domain: 0...Studies.oscillatorScale)
       .chartYAxis { valueAxis(values: [Studies.stochasticLow, Studies.stochasticHigh]) }
-      .chartXAxis(bottom ? .automatic : .hidden)
-      .chartXAxis { timeAxis }
+      .chartXAxis { timeAxis(labels: bottom) }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
       .overlay { waiting(plot.stochasticK) }
     case .atr:
@@ -331,8 +329,7 @@ struct CandleChart: View {
       }
       .chartYScale(domain: paneSpan([plot.atr]))
       .chartYAxis { valueAxis(ticks: Self.paneTicks, span: paneSpan([plot.atr])) }
-      .chartXAxis(bottom ? .automatic : .hidden)
-      .chartXAxis { timeAxis }
+      .chartXAxis { timeAxis(labels: bottom) }
       .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
       .overlay {
         if !plot.atr.contains(where: { $0 != nil }) {
@@ -495,35 +492,42 @@ struct CandleChart: View {
     }
   }
 
-  /// The time scale under the bottom pane: on one day, 24-hour market time ("14:30") whatever
-  /// the Mac's clock setting; over a longer range, where each session, week, month or quarter
-  /// begins (the candles sit back to back there, so clock times would not read).
-  @AxisContentBuilder private var timeAxis: some AxisContent {
-    if plot.axisMarks.isEmpty {
-      AxisMarks(values: .automatic) { value in
-        AxisGridLine()
-        AxisTick()
-        AxisValueLabel {
-          if let date = value.as(Date.self) {
-            Text(verbatim: Format.marketMinute(date))
-          }
-        }
-      }
-    } else {
-      let marks = rangeMarks
-      let shown = windowDomain
-      let byTime = Dictionary(marks.map { ($0.time, $0) }, uniquingKeysWith: { first, _ in first })
-      AxisMarks(values: marks.map(\.time)) { value in
+  /// The time gridlines every pane draws, through the middle of the candles they name, so they
+  /// line up with the candles and the crosshair in every pane; `labels` only under the bottom
+  /// pane. On one day, round 24-hour market times ("14:30", never "14:31") whatever the Mac's
+  /// clock setting; over a longer range, where each session, week, month or quarter begins (the
+  /// candles sit back to back there, so clock times would not read).
+  @AxisContentBuilder private func timeAxis(labels: Bool) -> some AxisContent {
+    let marks = plot.axisMarks.isEmpty ? dayMarks : rangeMarks
+    let shown = windowDomain
+    let byMiddle = Dictionary(marks.compactMap { mark in plot.index(at: mark.time).map { (candles[$0].middle, mark) } },
+      uniquingKeysWith: { first, _ in first })
+    if labels {
+      AxisMarks(values: Array(byMiddle.keys)) { value in
         AxisGridLine()
         AxisTick()
         // By time, never by position; near either end of the window a label hangs inward.
-        let mark = value.as(Date.self).flatMap { byTime[$0] }
+        let mark = value.as(Date.self).flatMap { byMiddle[$0] }
         AxisValueLabel(anchor: Self.unitPoint(mark.map { ChartAxis.anchor(of: $0.time, shown: shown) } ?? .centre)) {
           Text(verbatim: mark?.text ?? Format.missing)
             .fixedSize()
         }
       }
+    } else {
+      AxisMarks(values: Array(byMiddle.keys)) { _ in
+        AxisGridLine()
+      }
     }
+  }
+
+  /// One day's clock labels: round New York times in the window that a candle starts at, as
+  /// many as fit `timeLabelSlot` apart.
+  private var dayMarks: [ChartAxisMark] {
+    let plotWidth = chartWidth - Self.axisLabelWidth
+    guard plotWidth > 0 else { return [] }
+    let count = Int(plotWidth / Self.timeLabelSlot)
+    return ChartAxis.clockMarks(in: windowDomain, shown: visibleLength, count: count)
+      .map { ChartAxisMark(time: $0, text: Format.marketMinute($0)) }
   }
 
   /// The range's labels in the window, none closer than `timeLabelSlot`; where a year begins
@@ -573,6 +577,50 @@ struct CandleChart: View {
     drawn.compactMap { index in
       values[index].map { LinePoint(time: candles[index].middle, value: $0) }
     }
+  }
+
+  // MARK: Pointed candle
+
+  /// What the crosshair marks on the candle at `index` in `pane`: the candle (or volume bar)
+  /// outlined, and a dot on every line drawn there (the close in the line style, the bot's lines,
+  /// the studies).
+  func pointedMarks(_ pane: ChartPane, _ index: Int) -> PointedMarks {
+    guard candles.indices.contains(index) else { return PointedMarks(box: nil, dots: []) }
+    let candle = candles[index]
+    var dots: [PointedDot] = []
+    func add(_ values: [Double?], _ color: Color) {
+      if values.indices.contains(index), let value = values[index] { dots.append(PointedDot(value: value, color: color)) }
+    }
+    var box: PointedBox?
+    switch pane {
+    case .price:
+      if lines.style == .line {
+        dots.append(PointedDot(value: candle.close, color: visibleTrendUp ? Palette.profit : Palette.loss))
+      } else {
+        box = PointedBox(start: bodyStart(candle), end: bodyEnd(candle), top: candle.high, bottom: candle.low)
+      }
+      if lines.bollinger { add(plot.bollingerMiddle, Palette.accent) }
+      if lines.movingAverages {
+        for (offset, values) in plot.movingAverages.enumerated() { add(values, Self.movingAverageColors[offset]) }
+      }
+      if lines.vwap { add(series.vwap, Palette.seriesVWAP) }
+      if lines.fastEMA { add(series.fastEMA, Palette.seriesFastEMA) }
+      if lines.slowEMA { add(series.slowEMA, Palette.seriesSlowEMA) }
+    case .volume:
+      box = PointedBox(start: bodyStart(candle), end: bodyEnd(candle), top: candle.volume, bottom: 0)
+      add(plot.volumeAverage, Palette.warning)
+    case .macd:
+      add(plot.macd, Palette.info)
+      add(plot.macdSignal, Palette.warning)
+    case .rsi:
+      add(plot.rsi, Palette.info)
+    case .stochastic:
+      add(plot.stochasticK, Palette.info)
+      add(plot.stochasticD, Palette.warning)
+    case .atr:
+      add(plot.atr, Palette.seriesATR)
+    }
+    return PointedMarks(box: box, dots: dots)
   }
 
   // MARK: Geometry
@@ -691,6 +739,26 @@ struct CandleChart: View {
   }
 }
 
+/// The pointed candle's outline in a pane: its slot's body width, from `bottom` to `top`.
+struct PointedBox {
+  let start: Date
+  let end: Date
+  let top: Double
+  let bottom: Double
+}
+
+/// A dot on a line at the pointed candle.
+struct PointedDot {
+  let value: Double
+  let color: Color
+}
+
+/// What the crosshair marks at the pointed candle in one pane.
+struct PointedMarks {
+  let box: PointedBox?
+  let dots: [PointedDot]
+}
+
 /// One defined value of an indicator line.
 private struct LinePoint: Identifiable {
   let time: Date
@@ -732,7 +800,8 @@ private struct SharedAxis: ViewModifier {
       .chartOverlay { proxy in
         ZStack {
           AxisTags(tags: tags, proxy: proxy)
-          Crosshair(pointer: pointer, plot: chart.plot, pane: pane, showsTime: showsTime, proxy: proxy)
+          Crosshair(pointer: pointer, plot: chart.plot, pane: pane, showsTime: showsTime, proxy: proxy,
+            marks: { chart.pointedMarks(pane, $0) })
         }
       }
   }
@@ -782,23 +851,45 @@ private struct AxisTags: View {
   var body: some View {
     GeometryReader { geometry in
       if let plotFrame = proxy.plotFrame {
-        let frame = geometry[plotFrame]
-        ForEach(tags) { tag in
-          if let y = proxy.position(forY: tag.value), y >= 0, y <= frame.height {
+        let plot = geometry[plotFrame]
+        let frame = plot.intersection(CGRect(origin: .zero, size: geometry.size))
+        if !frame.isNull {
+          ForEach(Self.placed(tags, proxy: proxy, height: plot.height), id: \.tag.id) { item in
             Group {
-              if tag.plain {
-                ExtremeLabel(text: tag.text, color: tag.color)
+              if item.tag.plain {
+                ExtremeLabel(text: item.tag.text, color: item.tag.color)
               } else {
-                TagPlate(text: tag.text, color: tag.color)
+                TagPlate(text: item.tag.text, color: item.tag.color)
               }
             }
             .fixedSize()
-            .position(x: frame.maxX + CandleChart.axisLabelWidth / 2 + Tokens.Space.xs, y: frame.minY + y)
+            .position(x: frame.maxX + CandleChart.axisLabelWidth / 2 + Tokens.Space.xs, y: plot.minY + item.y)
           }
         }
       }
     }
     .allowsHitTesting(false)
+  }
+
+  /// The tags inside the plot with where each sits, moved apart top to bottom so no two are
+  /// closer than `CandleChart.tagSpacing`; a coloured plate (last price, entry, stop) keeps its
+  /// place and a plain high or low moves out of its way.
+  static func placed(_ tags: [AxisTag], proxy: ChartProxy, height: CGFloat) -> [(tag: AxisTag, y: CGFloat)] {
+    let inside: [(tag: AxisTag, y: CGFloat)] = tags.compactMap { tag in
+      guard let y = proxy.position(forY: tag.value), y >= 0, y <= height else { return nil }
+      return (tag: tag, y: y)
+    }
+    let plates = inside.filter { !$0.tag.plain }.sorted { $0.y < $1.y }
+    var placed: [(tag: AxisTag, y: CGFloat)] = []
+    for item in plates {
+      let y = placed.last.map { max(item.y, $0.y + CandleChart.tagSpacing) } ?? item.y
+      placed.append((tag: item.tag, y: y))
+    }
+    // A plain tag too close to a plate is left out: the plate already says where the price is.
+    let plain = inside.filter { item in
+      item.tag.plain && !placed.contains { abs($0.y - item.y) < CandleChart.tagSpacing }
+    }
+    return placed + plain
   }
 }
 
@@ -813,29 +904,40 @@ private struct Crosshair: View {
   let pane: ChartPane
   let showsTime: Bool
   let proxy: ChartProxy
+  /// The outline and dots to draw at a pointed candle.
+  let marks: (Int) -> PointedMarks
+
+  /// Side of a dot on a line at the pointed candle, in points.
+  static let dotSide: CGFloat = 7
 
   private var candles: [Candle] { plot.candles }
 
   var body: some View {
     GeometryReader { geometry in
       if let plotFrame = proxy.plotFrame {
-        let frame = geometry[plotFrame]
-        if let index = pointer.index, candles.indices.contains(index),
-          let x = proxy.position(forX: candles[index].middle), x >= 0, x <= frame.width {
-          let top = pane == .price ? frame.minY : 0
-          let bottom = showsTime ? frame.maxY : geometry.size.height
-          Rectangle()
-            .fill(Palette.textTertiary.opacity(Tokens.Opacity.medium))
-            .frame(width: Tokens.Stroke.hairline, height: bottom - top)
-            .position(x: frame.minX + x, y: (top + bottom) / 2)
-          if showsTime {
-            TagPlate(text: plot.timeText(index), color: Palette.textSecondary)
-              .fixedSize()
-              .position(x: frame.minX + x, y: frame.maxY + Tokens.Space.s)
+        // The part of the plot on screen: a scrolling pane's plot is as wide as the whole day, so
+        // its own frame reached past the chart card.
+        let frame = geometry[plotFrame].intersection(CGRect(origin: .zero, size: geometry.size))
+        if !frame.isNull, let index = pointer.index, candles.indices.contains(index),
+          let position = proxy.position(forX: candles[index].middle) {
+          let x = geometry[plotFrame].minX + position
+          if x >= frame.minX, x <= frame.maxX {
+            let top = pane == .price ? frame.minY : 0
+            let bottom = showsTime ? frame.maxY : geometry.size.height
+            Rectangle()
+              .fill(Palette.textTertiary.opacity(Tokens.Opacity.medium))
+              .frame(width: Tokens.Stroke.hairline, height: bottom - top)
+              .position(x: x, y: (top + bottom) / 2)
+            highlight(marks(index), origin: geometry[plotFrame].origin)
+            if showsTime {
+              TagPlate(text: plot.timeText(index), color: Palette.textSecondary)
+                .fixedSize()
+                .position(x: x, y: frame.maxY + Tokens.Space.s)
+            }
           }
         }
-        if let hover = pointer.hover, hover.pane == pane, frame.contains(hover.location),
-          let value = proxy.value(atY: hover.location.y - frame.minY, as: Double.self) {
+        if !frame.isNull, let hover = pointer.hover, hover.pane == pane, frame.contains(hover.location),
+          let value = proxy.value(atY: hover.location.y - geometry[plotFrame].minY, as: Double.self) {
           Rectangle()
             .fill(Palette.textTertiary.opacity(Tokens.Opacity.medium))
             .frame(width: frame.width, height: Tokens.Stroke.hairline)
@@ -846,11 +948,44 @@ private struct Crosshair: View {
         }
       }
     }
+    .clipped()
     .allowsHitTesting(false)
   }
 
+  /// The pointed candle outlined and a dot on each line, at the plot's `origin` in this view.
+  @ViewBuilder private func highlight(_ marks: PointedMarks, origin: CGPoint) -> some View {
+    if let box = marks.box, let left = proxy.position(forX: box.start), let right = proxy.position(forX: box.end),
+      let top = proxy.position(forY: box.top), let bottom = proxy.position(forY: box.bottom) {
+      RoundedRectangle(cornerRadius: Tokens.Radius.small)
+        .strokeBorder(Palette.textPrimary.opacity(Tokens.Opacity.medium), lineWidth: Tokens.Stroke.thin)
+        .frame(width: max(right - left, Tokens.Stroke.thin) + Tokens.Space.xs,
+          height: abs(bottom - top) + Tokens.Space.xs)
+        .position(x: origin.x + (left + right) / 2, y: origin.y + (top + bottom) / 2)
+    }
+    ForEach(Array(marks.dots.enumerated()), id: \.offset) { _, dot in
+      if let x = proxy.position(forX: plotTime(marks)), let y = proxy.position(forY: dot.value) {
+        Circle()
+          .fill(dot.color)
+          .overlay(Circle().strokeBorder(Palette.surface, lineWidth: Tokens.Stroke.thin))
+          .frame(width: Self.dotSide, height: Self.dotSide)
+          .position(x: origin.x + x, y: origin.y + y)
+      }
+    }
+  }
+
+  /// The pointed candle's middle, where its line values sit.
+  private func plotTime(_ marks: PointedMarks) -> Date {
+    guard let index = pointer.index, candles.indices.contains(index) else { return .distantPast }
+    return candles[index].middle
+  }
+
   private func text(_ value: Double) -> String {
-    pane == .price ? CandleChart.price(value) : value.formatted(CandleChart.valueFormat)
+    switch pane {
+    case .price: CandleChart.price(value)
+    // Volume as on its scale ("240K"), never "240,525.83".
+    case .volume: CandleChart.volumeText(value)
+    default: value.formatted(CandleChart.valueFormat)
+    }
   }
 }
 

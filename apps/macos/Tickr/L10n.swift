@@ -1646,6 +1646,17 @@ enum L10n {
       LocalizedStringResource("chart.explainHint", defaultValue: "hover a candle: its decision and every check",
         bundle: L10n.bundle)
     }
+    /// The explain card's title in a candle of several minutes; arguments: the symbol, the
+    /// decision's minute, the candle's start.
+    static func explainInCandle(_ symbol: String, _ time: String, _ candle: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.explainInCandle", defaultValue: "Explain \(symbol) · \(time), last in the \(candle) candle",
+        bundle: L10n.bundle)
+    }
+    /// The explain card under a pointed candle the strategy made no decision in; argument: its start.
+    static func noDecisionInCandle(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.noDecisionInCandle", defaultValue: "No decision in the \(time) candle.",
+        bundle: L10n.bundle)
+    }
     /// The explain card's title while there is no decision to explain.
     static func explainSymbol(_ symbol: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.explainSymbol", defaultValue: "Explain \(symbol)", bundle: L10n.bundle)

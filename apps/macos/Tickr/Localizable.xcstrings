@@ -1742,6 +1742,23 @@
         }
       }
     },
+    "chart.explainInCandle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explain %1$@ · %2$@, last in the %3$@ candle"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему %1$@ · %2$@, последнее в свече %3$@"
+          }
+        }
+      }
+    },
     "chart.explainSymbol" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2180,6 +2197,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "В рыночных данных нет свечей по этой бумаге за этот период: %@"
+          }
+        }
+      }
+    },
+    "chart.noDecisionInCandle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No decision in the %@ candle."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В свече %@ решений нет."
           }
         }
       }

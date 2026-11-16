@@ -104,6 +104,8 @@ struct ChartView: View {
           .padding(Tokens.Space.s)
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.large))
+          // Nothing the chart draws (crosshair, tags) reaches past its card.
+          .clipShape(.rect(cornerRadius: Tokens.Radius.large))
           .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.large)
               .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
