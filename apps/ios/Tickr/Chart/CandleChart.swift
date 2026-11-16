@@ -212,49 +212,14 @@ struct CandleChart: View {
   private var priceChart: some View {
     let scale = priceScale
     return Chart {
-      if lines.volume {
-        ForEach(series.candles) { candle in
-          RectangleMark(
-            xStart: .value(Plot.time, bodyStart(candle)),
-            xEnd: .value(Plot.time, bodyEnd(candle)),
-            yStart: .value(Plot.price, scale.volumeBase),
-            yEnd: .value(Plot.price, scale.volumeTop(candle.volume)))
-            .foregroundStyle((candle.isUp ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.faint))
-        }
-      }
-      if lines.style == .line {
-        lineArea(scale)
-      } else {
-        ForEach(series.candles) { candle in
-          candleMarks(candle)
-        }
-      }
-      if lines.bollinger {
-        lineMarks(.bollingerUpper, studies.bollinger.map { $0?.upper }, Palette.accent.opacity(Tokens.Opacity.medium))
-        lineMarks(.bollingerMiddle, studies.bollinger.map { $0?.middle }, Palette.accent)
-        lineMarks(.bollingerLower, studies.bollinger.map { $0?.lower }, Palette.accent.opacity(Tokens.Opacity.medium))
-      }
-      if lines.movingAverages {
-        ForEach(Array(studies.movingAverages.enumerated()), id: \.offset) { item in
-          lineMarks(Self.averageSeries[item.offset], item.element, Self.averageColours[item.offset])
-        }
-      }
-      if showsVWAP { lineMarks(.vwap, series.vwap, Palette.seriesVWAP) }
-      if lines.fastEMA { lineMarks(.fastEMA, series.fastEMA, CandleChart.fastEMAColour) }
-      if lines.slowEMA { lineMarks(.slowEMA, series.slowEMA, CandleChart.slowEMAColour) }
+      // The lines and marks are clipped to the plot: a value off the scale (a closed trade's
+      // stop, a line just past the stretch on screen) ends at the plot's edge instead of running
+      // over the chips above the chart. The labels below are kept inside by their own fit.
+      seriesMarks(scale)
+        .clipShape(Rectangle())
+      markerMarks(scale)
+        .clipShape(Rectangle())
       extremes(scale)
-      let lifts = markerLifts(scale)
-      ForEach(trades) { trade in
-        tradeMarks(trade, lifts)
-      }
-      if let position {
-        positionMarks(position, lifts)
-      }
-      ForEach(events) { event in
-        if let lift = lifts[.event(event)] {
-          eventMark(event, lift: lift)
-        }
-      }
       if let candle = selectedCandle {
         band(candle)
         // The time on a pill at the top of the line, clear of the time axis's labels.
@@ -327,6 +292,58 @@ struct CandleChart: View {
     .chartXSelection(value: $selected)
     .chartPlotStyle { $0.background(Palette.surfaceSunken) }
     .accessibilityLabel(Text(ChartText.title))
+  }
+
+  /// The volume bars, the candles or the close line, and the lines drawn over them.
+  @ChartContentBuilder
+  private func seriesMarks(_ scale: PriceScale) -> some ChartContent {
+    if lines.volume {
+      ForEach(series.candles) { candle in
+        RectangleMark(
+          xStart: .value(Plot.time, bodyStart(candle)),
+          xEnd: .value(Plot.time, bodyEnd(candle)),
+          yStart: .value(Plot.price, scale.volumeBase),
+          yEnd: .value(Plot.price, scale.volumeTop(candle.volume)))
+          .foregroundStyle((candle.isUp ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.faint))
+      }
+    }
+    if lines.style == .line {
+      lineArea(scale)
+    } else {
+      ForEach(series.candles) { candle in
+        candleMarks(candle)
+      }
+    }
+    if lines.bollinger {
+      lineMarks(.bollingerUpper, studies.bollinger.map { $0?.upper }, Palette.accent.opacity(Tokens.Opacity.medium))
+      lineMarks(.bollingerMiddle, studies.bollinger.map { $0?.middle }, Palette.accent)
+      lineMarks(.bollingerLower, studies.bollinger.map { $0?.lower }, Palette.accent.opacity(Tokens.Opacity.medium))
+    }
+    if lines.movingAverages {
+      ForEach(Array(studies.movingAverages.enumerated()), id: \.offset) { item in
+        lineMarks(Self.averageSeries[item.offset], item.element, Self.averageColours[item.offset])
+      }
+    }
+    if showsVWAP { lineMarks(.vwap, series.vwap, Palette.seriesVWAP) }
+    if lines.fastEMA { lineMarks(.fastEMA, series.fastEMA, CandleChart.fastEMAColour) }
+    if lines.slowEMA { lineMarks(.slowEMA, series.slowEMA, CandleChart.slowEMAColour) }
+  }
+
+  /// Closed trades' and the open position's levels and markers, and the strategy's event dots.
+  @ChartContentBuilder
+  private func markerMarks(_ scale: PriceScale) -> some ChartContent {
+    let lifts = markerLifts(scale)
+    ForEach(trades) { trade in
+      tradeMarks(trade, lifts)
+    }
+    if let position {
+      positionMarks(position, lifts)
+    }
+    ForEach(events) { event in
+      if let lift = lifts[.event(event)] {
+        eventMark(event, lift: lift)
+      }
+    }
   }
 
   /// The close as a line with a fill fading down to the volume bars, coloured by whether
@@ -952,18 +969,24 @@ struct CandleChart: View {
     return series.candles[last].close >= series.candles[first].open
   }
 
-  /// Prices of the candles on screen, the open position's entry and stop and the drawn Bollinger
-  /// bands, with a little room above and below and room under them for the volume bars.
+  /// Prices of the candles on screen, the open position's entry and stop and every line drawn
+  /// over them (Bollinger bands, moving averages, VWAP, EMAs), so no line runs off the plot, with
+  /// a little room above and below and room under them for the volume bars.
   private var priceScale: PriceScale {
     let shown = visibleIndices
     let candles = series.candles[shown]
-    var prices = candles.flatMap { [$0.low, $0.high] }
-    prices += [position?.entryPrice, position?.stop.price].compactMap { $0.map(ChartFormat.double) }
+    var drawn: [[Double?]] = []
     if lines.bollinger {
-      prices += shown.compactMap { studies.bollinger[$0] }.flatMap { [$0.lower, $0.upper] }
+      drawn += [studies.bollinger.map { $0?.lower }, studies.bollinger.map { $0?.upper }]
     }
-    let low = prices.min() ?? 0
-    let high = prices.max() ?? 1
+    if lines.movingAverages { drawn += studies.movingAverages }
+    if showsVWAP { drawn.append(series.vwap) }
+    if lines.fastEMA { drawn.append(series.fastEMA) }
+    if lines.slowEMA { drawn.append(series.slowEMA) }
+    let levels = [position?.entryPrice, position?.stop.price].compactMap { $0.map(ChartFormat.double) }
+    let span = ChartPriceSpan.bounds(of: series.candles, shown: shown, lines: drawn, levels: levels)
+    let low = span?.lowerBound ?? 0
+    let high = span?.upperBound ?? 1
     let pad = max(high - low, high * Tokens.Chart.pricePadding) * Tokens.Chart.pricePadding
     let volumeHeight = lines.volume ? (high - low + pad + pad) * Tokens.Chart.volumeShare : 0
     let bottom = low - pad - volumeHeight

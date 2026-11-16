@@ -269,6 +269,12 @@ A card link ("Open chart", "Details") ends only with the disclosure chevron (`He
 | `volumeShare` | 0.22 | Height of the volume bars, share of the price range |
 | `zoomStep` | ×1.5 | Candles shown per zoom step |
 
+The price scale holds the candles on screen, the levels drawn across the chart (an open
+position's entry and stop) and every line that is switched on over them (VWAP, the EMAs, the
+moving averages, the Bollinger bands), so a VWAP far above the price is drawn, not cut
+(`ChartPriceSpan`). Every series and marker is clipped to the plot: a value off the scale ends at
+the plot's edge and never draws over the controls around the chart.
+
 Statistics on the Lab and performance cards use `StatDigits` (`Formatting.swift`): mean R and
 profit factor with 2 decimals, win rate and confidence in whole percents.
 
