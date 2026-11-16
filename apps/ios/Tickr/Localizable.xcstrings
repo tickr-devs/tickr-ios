@@ -9687,23 +9687,6 @@
         }
       }
     },
-    "watching.capped" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The bot sends its closest %1$lld; it watches %2$lld in all."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Бот присылает ближайшие %1$lld; всего он следит за %2$lld."
-          }
-        }
-      }
-    },
     "watching.close" : {
       "extractionState" : "manual",
       "localizations" : {

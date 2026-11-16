@@ -103,9 +103,6 @@ struct WatchingAllPanel: View {
                 .rise(step: index)
             }
           }
-          if let watching = model.watching, watching.total > all.count {
-            Footnote(L10n.Watching.capped(all.count, watching.total))
-          }
         }
         .padding(Tokens.Space.l)
         .animation(Tokens.Motion.standard, value: shown.map(\.symbol))

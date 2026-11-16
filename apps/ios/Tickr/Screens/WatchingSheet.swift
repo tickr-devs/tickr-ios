@@ -38,11 +38,6 @@ struct WatchingSheet: View {
               }
               .rise(step: index)
           }
-          if let watching, watching.total > all.count {
-            Text(L10n.Watching.capped(all.count, watching.total))
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(Palette.textQuaternary)
-          }
         }
         .animation(Tokens.Motion.standard, value: rows.map(\.symbol))
         .padding(.bottom, Tokens.Space.xl)

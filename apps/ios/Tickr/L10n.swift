@@ -1137,11 +1137,6 @@ enum L10n {
     static var live: LocalizedStringResource {
       LocalizedStringResource("watching.live", defaultValue: "live", bundle: L10n.bundle)
     }
-    /// Under the sheet's rows when the bot sent fewer rows than it watches ([api] watching_max_rows).
-    static func capped(_ shown: Int, _ total: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.capped",
-        defaultValue: "The bot sends its closest \(shown); it watches \(total) in all.", bundle: L10n.bundle)
-    }
     /// VoiceOver name of the sort control.
     static var sortLabel: LocalizedStringResource {
       LocalizedStringResource("watching.sortLabel", defaultValue: "Sort", bundle: L10n.bundle)
