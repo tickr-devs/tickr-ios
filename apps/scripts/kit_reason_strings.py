@@ -516,7 +516,8 @@ GROUPS = [
             ),
             (
                 "no_day_end",
-                "No day-end record that day (the bot was not running after the flatten time)",
+                "No day-end record that day (the bot was not running after the close-positions"
+                " time)",
                 "За этот день нет записи конца дня (бот не работал после времени закрытия позиций)",
             ),
             (
