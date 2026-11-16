@@ -5,6 +5,8 @@ import TickrKit
 
 /// "Today if each version traded": the running result of the trading strategy (real trades) and
 /// of every observer (simulated trades) through the day, one line each, with the totals below.
+/// The lines draw themselves in from the left on appear and again when a version closes a trade
+/// (the board's `draw`); still with Reduce Motion.
 struct VersionsCard: View {
   /// Height of the chart, in points.
   static let chartHeight: CGFloat = 120
@@ -72,6 +74,7 @@ struct VersionsCard: View {
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
         .frame(height: Self.chartHeight)
+        .drawsIn(on: curves.map(\.points))
         .accessibilityHidden(true)
       } else {
         Text(L10n.Lab.noClosed)

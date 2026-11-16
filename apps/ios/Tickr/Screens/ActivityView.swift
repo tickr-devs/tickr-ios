@@ -245,6 +245,14 @@ private struct DayPicker: View {
   let url: URL
 
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  @Environment(AppModel.self) private var model
+
+  /// Today's live dot pulses once when today's trading changes: a trade closed, a position opened
+  /// or closed (the status's counts); still in between.
+  private var todayEvent: AnyHashable? {
+    guard let status = model.status else { return nil }
+    return AnyHashable([status.tradesToday.count, status.positions.count])
+  }
 
   var body: some View {
     VStack(spacing: Tokens.Space.s) {
@@ -263,21 +271,26 @@ private struct DayPicker: View {
         }
       }
       .accessibilityHidden(true)
-      ForEach(Array(activity.weeks.enumerated()), id: \.offset) { _, week in
-        // Wider gaps at accessibility sizes, where the day numbers fill their cells.
-        HStack(spacing: dynamicTypeSize.isAccessibilitySize ? Tokens.Space.s : Tokens.Space.xs) {
-          ForEach(week.indices, id: \.self) { column in
-            if let cell = week[column] {
-              DayCell(cell: cell, isToday: cell.day == activity.today,
-                selected: cell.day == (activity.selectedDay ?? activity.today)) {
-                Task { await activity.show(cell.day, from: url) }
+      // A new month assembles cell by cell (the board's per-cell fade-up, `Motion.cellStagger` apart).
+      VStack(spacing: Tokens.Space.s) {
+        ForEach(Array(activity.weeks.enumerated()), id: \.offset) { row, week in
+          // Wider gaps at accessibility sizes, where the day numbers fill their cells.
+          HStack(spacing: dynamicTypeSize.isAccessibilitySize ? Tokens.Space.s : Tokens.Space.xs) {
+            ForEach(week.indices, id: \.self) { column in
+              if let cell = week[column] {
+                DayCell(cell: cell, isToday: cell.day == activity.today,
+                  selected: cell.day == (activity.selectedDay ?? activity.today), todayEvent: todayEvent) {
+                  Task { await activity.show(cell.day, from: url) }
+                }
+                .rise(Double(row * week.count + column) * Tokens.Motion.cellStagger)
+              } else {
+                Color.clear.frame(maxWidth: .infinity, minHeight: DayCell.height)
               }
-            } else {
-              Color.clear.frame(maxWidth: .infinity, minHeight: DayCell.height)
             }
           }
         }
       }
+      .id(activity.month)
       if let failure = activity.daysFailure {
         VStack(spacing: Tokens.Space.xxs) {
           Text(L10n.Activity.daysFailed).font(Tokens.Typography.callout)
@@ -351,6 +364,8 @@ private struct DayCell: View {
   let cell: DayCalendar.Cell
   let isToday: Bool
   let selected: Bool
+  /// Today's real change (see `DayPicker.todayEvent`): one pulse of today's dot per change.
+  let todayEvent: AnyHashable?
   let action: () -> Void
 
   var body: some View {
@@ -371,7 +386,7 @@ private struct DayCell: View {
             .lineLimit(1)
             .minimumScaleFactor(Tokens.Shrink.tight)
         } else if isToday {
-          PulseDot(Palette.accent, size: Tokens.Size.dotSmall)
+          PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: todayEvent)
         }
       }
       .frame(maxWidth: .infinity, minHeight: Self.height)
@@ -397,7 +412,7 @@ private struct DayCell: View {
 /// What a day card shows: the net result, the counts and the running total of closed trades.
 private struct DayFigures: Equatable {
   /// The day's trades counted for the chips under the result; `open` only for today.
-  struct Tally: Equatable {
+  struct Tally: Hashable {
     let closed: Int
     let wins: Int
     let losses: Int
@@ -483,7 +498,8 @@ private struct DayCard: View {
     layout {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         HStack(spacing: Tokens.Space.s) {
-          if live { PulseDot(Palette.profit, size: Tokens.Size.dotSmall) }
+          // One pulse per real change of the day's tally (a trade closed, a position opened).
+          if live { PulseDot(Palette.profit, size: Tokens.Size.dotSmall, event: figures.tally) }
           Text(verbatim: label)
         }
         .font(Tokens.Typography.annotation)
@@ -902,6 +918,8 @@ private struct TradesList: View {
 private struct NotTaken: View {
   let groups: [SkippedGroup]?
   let failure: String?
+  /// Rows a new read brought while the list was on screen: each flashes once.
+  @State private var arrived: Set<String> = []
 
   var body: some View {
     if let groups {
@@ -920,10 +938,12 @@ private struct NotTaken: View {
       }
       VStack(spacing: Tokens.Space.s) {
         ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
-          SkippedRow(group: group)
+          // A genuinely new refusal tints its row once (the board flashes the newest row).
+          SkippedRow(group: group, arrived: arrived.contains(group.id))
             .rise(step: ActivityView.Order.list.rawValue + index)
         }
       }
+      .onArrival(of: groups.map(\.id)) { arrived = $0 }
     } else if let failure {
       ContentUnavailableView {
         Label { Text(L10n.Activity.notTakenFailed) } icon: { Image(systemName: "exclamationmark.triangle") }
@@ -943,6 +963,8 @@ private struct SkippedRow: View {
   static let whenSymbol = "clock"
 
   let group: SkippedGroup
+  /// Whether the row just arrived with a new read: it tints once.
+  var arrived = false
 
   private var refused: Bool { group.latest.admission == .refused }
 
@@ -1012,6 +1034,9 @@ private struct SkippedRow: View {
     }
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)
+    // Inside the card, inset from its rounded edge.
+    .arrivalFlash(arrived, color: Palette.info, outset: EdgeInsets(top: -Tokens.Space.xs,
+      leading: -Tokens.Space.xs, bottom: -Tokens.Space.xs, trailing: -Tokens.Space.xs))
     .tickrCard()
     .accessibilityElement(children: .combine)
   }
@@ -1147,6 +1172,8 @@ private struct Journal: View {
   static let dotSide: CGFloat = 7
 
   @Environment(\.dynamicTypeSize) private var typeSize
+  /// Events a new read brought while the journal was on screen: each flashes once.
+  @State private var arrived: Set<String> = []
   let events: [Board.Event]
 
   var body: some View {
@@ -1181,6 +1208,8 @@ private struct Journal: View {
         }
         .padding(.horizontal, Tokens.Space.m)
         .padding(.vertical, Tokens.Space.s)
+        // A genuinely new event washes its row once (the board's `flashA/B`), never a rotation.
+        .arrivalFlash(arrived.contains(event.id), color: Palette.info)
         .rise(step: ActivityView.Order.list.rawValue + min(index, Self.staggeredRows))
       }
       if events.isEmpty {
@@ -1193,6 +1222,7 @@ private struct Journal: View {
     .padding(.vertical, Tokens.Space.s)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard(radius: Tokens.Radius.card)
+    .onArrival(of: events.map(\.id)) { arrived = $0 }
   }
 
   private func time(_ event: Board.Event) -> some View {

@@ -336,7 +336,8 @@ private struct DayBar: View {
     } label: {
       HStack(spacing: Tokens.Space.xs) {
         if chart.isToday {
-          PulseDot(Palette.accent, size: Tokens.Size.dotSmall, pulsing: false)
+          // One pulse per new minute bar of the shown symbol (a real read), still in between.
+          PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: chart.series?.candles.last?.start)
         }
         // One line: "today · live" gives way first, the date never wraps (the dot still says live).
         ViewThatFits(in: .horizontal) {
@@ -373,6 +374,13 @@ private struct SymbolChips: View {
     .sensoryFeedback(.selection, trigger: chart.symbol)
   }
 
+  /// The open position on `symbol` as the status reports it: its quantity and its stop.
+  private func positionEvent(_ symbol: String) -> AnyHashable? {
+    guard let position = app.status?.positions.first(where: { $0.symbol == symbol }) else { return nil }
+    return AnyHashable([AnyHashable(position.quantity.text), AnyHashable(position.stop.state),
+      AnyHashable(position.stop.price)])
+  }
+
   private func reveal(_ proxy: ScrollViewProxy, animated: Bool) {
     guard let symbol = chart.symbol else { return }
     withAnimation(animated ? Tokens.Motion.quick : nil) { proxy.scrollTo(symbol, anchor: .center) }
@@ -393,7 +401,10 @@ private struct SymbolChips: View {
             HStack(spacing: Tokens.Space.xs) {
               Text(symbol).bold()
               if open {
-                PulseDot(Palette.accent, size: Tokens.Size.dotSmall, pulsing: app.response?.stale == false)
+                // One pulse when the position changes at the broker: filled, stop placed or
+                // verified, quantity changed; still in between.
+                PulseDot(Palette.accent, size: Tokens.Size.dotSmall, pulsing: app.response?.stale == false,
+                  event: positionEvent(symbol))
                   .accessibilityLabel(Text(ChartText.openPosition))
               } else if traded {
                 Circle()

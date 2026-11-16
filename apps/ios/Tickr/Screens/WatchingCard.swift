@@ -91,9 +91,21 @@ private struct WatchingRow: View {
           .minimumScaleFactor(Tokens.Shrink.standard)
       }
       if let closeness {
-        ProgressView(value: min(max(closeness, 0), 1))
-          .tint(current ? Self.color(row.verdict) : Palette.textQuaternary)
-          .accessibilityLabel(Text(L10n.Watching.closeness))
+        // As on the board: a thin bar that grows in, and to each new closeness the bot measures.
+        let share = min(max(closeness, 0), 1)
+        GeometryReader { proxy in
+          ZStack(alignment: .leading) {
+            Capsule().fill(Palette.separator)
+            Capsule()
+              .fill(current ? Self.color(row.verdict) : Palette.textQuaternary)
+              .frame(width: proxy.size.width * share)
+              .grows(with: share)
+          }
+        }
+        .frame(height: Tokens.Size.barThin)
+        .accessibilityElement()
+        .accessibilityLabel(Text(L10n.Watching.closeness))
+        .accessibilityValue(Text(share, format: .percent.precision(.fractionLength(0))))
       } else if let cause = row.closenessCause {
         Text(verbatim: ApiText.prose(row.closenessCauseCodes, text: cause))
           .font(Tokens.Typography.annotation)

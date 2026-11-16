@@ -211,17 +211,25 @@ extension TickerItem.Tone {
 public struct Ticker: View {
   let items: [TickerItem]
   let moving: Bool
-  /// Points per second.
-  let speed: Double
+  let pace: MarqueePace
 
   public init(_ items: [TickerItem], moving: Bool = true, speed: Double = Tokens.Motion.tickerSpeed) {
+    self.init(items, moving: moving, pace: .speed(speed))
+  }
+
+  /// `loopSeconds`: the whole row passes once in this many seconds, however long it is.
+  public init(_ items: [TickerItem], moving: Bool = true, loopSeconds: Double) {
+    self.init(items, moving: moving, pace: .loop(seconds: loopSeconds))
+  }
+
+  private init(_ items: [TickerItem], moving: Bool, pace: MarqueePace) {
     self.items = items
     self.moving = moving
-    self.speed = speed
+    self.pace = pace
   }
 
   public var body: some View {
-    Marquee(moving: moving && !items.isEmpty, content: items, speed: speed) { row }
+    Marquee(moving: moving && !items.isEmpty, content: items, pace: pace) { row }
   }
 
   /// The design's ticker pills: a ringed dot and the bold tag in the event's colour, then the
@@ -272,17 +280,25 @@ public struct Marquee<Row: View>: View {
   let moving: Bool
   /// What the row shows; a change draws the picture again.
   let content: AnyHashable
-  /// Points per second.
-  let speed: Double
+  let pace: MarqueePace
   let row: Row
 
   public init(
-    moving: Bool = true, content: AnyHashable, speed: Double = Tokens.Motion.tickerSpeed, @ViewBuilder row: () -> Row
+    moving: Bool = true, content: AnyHashable, pace: MarqueePace = .speed(Tokens.Motion.tickerSpeed),
+    @ViewBuilder row: () -> Row
   ) {
     self.moving = moving
     self.content = content
-    self.speed = speed
+    self.pace = pace
     self.row = row()
+  }
+
+  /// Points per second for the row's current width.
+  private var speed: Double {
+    switch pace {
+    case .speed(let speed): return speed
+    case .loop(let seconds): return seconds > 0 ? Double(rowWidth) / seconds : 0
+    }
   }
 
   /// Everything the picture depends on.

@@ -6,6 +6,14 @@ import UIKit
 import AppKit
 #endif
 
+/// How fast a `Marquee` scrolls.
+public enum MarqueePace: Hashable, Sendable {
+  /// Points per second.
+  case speed(Double)
+  /// The whole row passes once in this many seconds, however long it is.
+  case loop(seconds: Double)
+}
+
 /// A picture of a marquee's row, drawn twice side by side and scrolled left in a loop by Core
 /// Animation. The render server moves it: the app's main thread and SwiftUI do no work per frame,
 /// where a SwiftUI-driven offset (or a TimelineView) recomputed the strip, and with it the screen

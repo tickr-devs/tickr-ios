@@ -8,12 +8,15 @@ struct TickrApp: App {
   @Environment(\.scenePhase) private var scenePhase
   /// Until the opening animation has handed the launch screen over to Home.
   @State private var opening = true
+  /// Until the flying mark has landed in Home's title: Home's cards wait to rise until then.
+  @State private var landed = false
 
   var body: some Scene {
     WindowGroup {
       RootView()
+        .environment(\.risesHeld, !landed)
         .overlay {
-          if opening { LaunchHandoff { opening = false } }
+          if opening { LaunchHandoff { landed = true } finished: { opening = false } }
         }
         .environment(model)
         .tint(Palette.info)

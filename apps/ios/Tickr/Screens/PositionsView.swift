@@ -454,10 +454,10 @@ private struct ProtectionChain: View {
   static let dotSide: CGFloat = 14
   /// Glow around a step's dot, in points.
   static let glowRadius: CGFloat = 5
-  /// Scale of a dot the drawn line has not reached yet (not zero, so the transform stays invertible).
-  static let hiddenScale: CGFloat = 0.01
 
   @State private var progress: CGFloat = 0
+  /// Once the chain has assembled, a dot that changes pops at once instead of in its turn.
+  @State private var assembled = false
   let position: Position
   /// When the bot last read the broker's positions and orders, and whether that read is current:
   /// the status is current and GET /account says the read is within account_stale_seconds. A
@@ -486,7 +486,10 @@ private struct ProtectionChain: View {
                 .frame(width: Self.dotSide, height: Self.dotSide)
                 .shadow(color: (step.ok ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.medium),
                   radius: Self.glowRadius)
-                .scaleEffect(progress >= CGFloat(index) / CGFloat(max(steps.count - 1, 1)) ? 1 : Self.hiddenScale)
+                // As on the board: the dots pop in one after another as the line comes down, and
+                // a step pops again when the bot proves it (or loses it): one pop per real change.
+                .popIn(delay: assembled ? 0 : Self.firstDelay + Double(index) * Tokens.Motion.popStagger)
+                .id(step.ok)
               Text(step.label).font(.footnote)
               Spacer()
               if step.badge {
@@ -509,11 +512,17 @@ private struct ProtectionChain: View {
     .padding(.vertical, Tokens.Space.m)
     .tickrCard()
     .onAppear {
-      withAnimation(Tokens.Motion.fill.delay(Tokens.Motion.stagger * Double(PositionDetail.Order.flatten.rawValue))) {
-        progress = 1
-      }
+      withAnimation(Tokens.Motion.fill.delay(Self.firstDelay)) { progress = 1 }
+    }
+    .task {
+      // Later changes pop at once; the first assembly keeps its rhythm.
+      try? await Task.sleep(for: .seconds(Self.firstDelay + Double(steps.count) * Tokens.Motion.popStagger))
+      assembled = true
     }
   }
+
+  /// When the line starts down and the first dot pops: the card's turn as the screen assembles.
+  private static var firstDelay: Double { Tokens.Motion.stagger * Double(PositionDetail.Order.flatten.rawValue) }
 
   /// The entry order went out exactly once and the broker took it: acknowledged, or filled.
   private var entryProven: Bool {

@@ -137,6 +137,14 @@ struct CandleChart: View {
   @State private var chartWidth: CGFloat = 0
 
   @State private var selected: Date?
+  /// Start of the newest candle the chart has taken in. A candle after it, a new minute bar that
+  /// just arrived, is left out until it has grown in over the chart (the board's `grow`).
+  @State private var grownThrough: Date?
+  /// The new candle growing in now, drawn over the chart (`GrowingCandle`) instead of as a mark:
+  /// Core Animation scales the small view, where an animated mark redrew the whole chart on every
+  /// frame and the growth showed as a jump.
+  @State private var growing: Date?
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
@@ -163,7 +171,18 @@ struct CandleChart: View {
     .padding(Tokens.Space.l)
     .tickrCard()
     .animation(Tokens.Motion.standard, value: lines)
-    .onAppear { place() }
+    .onAppear {
+      place()
+      grownThrough = series.candles.last?.start
+    }
+    .onChange(of: GrowthKey(timeframe: series.timeframe, first: series.candles.first?.start,
+      last: series.candles.last?.start)) { old, new in
+      // Only a new bar on the same chart grows; another range, interval or day just shows.
+      let newBar = old.timeframe == new.timeframe && old.first == new.first
+        && (new.last ?? .distantPast) > (old.last ?? .distantFuture)
+      if newBar && !reduceMotion { growing = new.last }
+      grownThrough = new.last
+    }
     .onChange(of: fitsAll) { place() }
     .onChange(of: series.timeframe) { place() }
     .onChange(of: series.candles.first?.start) { if fitsAll { viewport.fit(series) } }
@@ -249,6 +268,23 @@ struct CandleChart: View {
       }
     }
     .chartYScale(domain: scale.domain)
+    .chartOverlay(alignment: .topLeading) { proxy in
+      if let start = growing, lines.style != .line, let candle = series.candles.last(where: { $0.start == start }) {
+        GeometryReader { geometry in
+          if let plot = proxy.plotFrame.map({ geometry[$0] }), let frame = growthFrame(candle, proxy) {
+            GrowingCandle(candle: candle, frame: frame) {
+              if growing == start { growing = nil }
+            }
+            .frame(width: plot.width, height: plot.height)
+            .clipped()
+            .offset(x: plot.minX, y: plot.minY)
+          }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .id(start)
+      }
+    }
     .chartXAxis { timeAxis }
     .chartYAxis {
       // Coloured tags over the scale: the last price, entries and stops; a plain axis price
@@ -541,26 +577,30 @@ struct CandleChart: View {
 
   @ChartContentBuilder
   private func candleMarks(_ candle: Candle) -> some ChartContent {
-    let colour = candle.isUp ? Palette.profit : Palette.loss
+    // A bar that has not grown in yet stands flat on its low, faded out.
+    // A new bar not taken in yet, or growing in over the chart, is not drawn here.
+    let shown = candle.start <= (grownThrough ?? .distantFuture) && candle.start != growing
+    let height = { (price: Double) in shown ? price : candle.low }
+    let colour = (candle.isUp ? Palette.profit : Palette.loss).opacity(shown ? 1 : 0)
     RuleMark(
       x: .value(Plot.time, middle(candle)),
       yStart: .value(Plot.price, candle.low),
-      yEnd: .value(Plot.price, candle.high))
+      yEnd: .value(Plot.price, height(candle.high)))
       .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin))
       .foregroundStyle(colour)
     if candle.open == candle.close {
       RuleMark(
         xStart: .value(Plot.time, bodyStart(candle)),
         xEnd: .value(Plot.time, bodyEnd(candle)),
-        y: .value(Plot.price, candle.close))
+        y: .value(Plot.price, height(candle.close)))
         .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.regular))
         .foregroundStyle(colour)
     } else {
       RectangleMark(
         xStart: .value(Plot.time, bodyStart(candle)),
         xEnd: .value(Plot.time, bodyEnd(candle)),
-        yStart: .value(Plot.price, candle.open),
-        yEnd: .value(Plot.price, candle.close))
+        yStart: .value(Plot.price, height(candle.open)),
+        yEnd: .value(Plot.price, height(candle.close)))
         .foregroundStyle(colour)
     }
   }
@@ -907,6 +947,15 @@ struct CandleChart: View {
       volumeCeiling: candles.map(\.volume).max() ?? 0)
   }
 
+  /// Where `candle` stands in the plot, in points from its top left: its body's left and right,
+  /// and the prices of its high, open, close and low.
+  private func growthFrame(_ candle: Candle, _ proxy: ChartProxy) -> GrowingCandle.Frame? {
+    guard let left = proxy.position(forX: bodyStart(candle)), let right = proxy.position(forX: bodyEnd(candle)),
+      let high = proxy.position(forY: candle.high), let low = proxy.position(forY: candle.low),
+      let open = proxy.position(forY: candle.open), let close = proxy.position(forY: candle.close) else { return nil }
+    return GrowingCandle.Frame(left: left, right: right, high: high, open: open, close: close, low: low)
+  }
+
   private func middle(_ candle: Candle) -> Date {
     candle.start.addingTimeInterval(series.timeframe.seconds / 2)
   }
@@ -921,6 +970,61 @@ struct CandleChart: View {
 }
 
 /// The price pane's value range and where its volume bars sit.
+/// A new minute bar growing up from its low to its full height once, over the chart where its
+/// mark will be (the board's `grow`: scale from nothing, fading in, `Motion.standard`); then it
+/// calls `done` and the chart draws the bar itself.
+private struct GrowingCandle: View {
+  /// The candle's place in the plot, in points.
+  struct Frame {
+    let left: CGFloat
+    let right: CGFloat
+    let high: CGFloat
+    let open: CGFloat
+    let close: CGFloat
+    let low: CGFloat
+  }
+
+  @State private var grown = false
+  let candle: Candle
+  let frame: Frame
+  let done: () -> Void
+
+  var body: some View {
+    let colour = candle.isUp ? Palette.profit : Palette.loss
+    let middle = (frame.left + frame.right) / 2
+    let top = min(frame.open, frame.close)
+    let isGrown = grown
+    ZStack(alignment: .topLeading) {
+      Rectangle()
+        .fill(colour)
+        .frame(width: Tokens.Stroke.thin, height: max(frame.low - frame.high, Tokens.Stroke.thin))
+        .offset(x: middle - Tokens.Stroke.thin / 2, y: frame.high)
+      Rectangle()
+        .fill(colour)
+        .frame(width: frame.right - frame.left, height: max(abs(frame.close - frame.open), Tokens.Stroke.regular))
+        .offset(x: frame.left, y: top)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    // Drawn as a scale, not in layout: Core Animation plays it.
+    .visualEffect { effect, proxy in
+      effect
+        .scaleEffect(x: 1, y: isGrown ? 1 : PopIn.hiddenScale,
+          anchor: UnitPoint(x: middle / max(proxy.size.width, 1), y: frame.low / max(proxy.size.height, 1)))
+        .opacity(isGrown ? 1 : 0)
+    }
+    .onAppear {
+      withAnimation(Tokens.Motion.standard) { grown = true } completion: { done() }
+    }
+  }
+}
+
+/// What tells a new bar from another chart: the interval, the first candle and the newest one.
+private struct GrowthKey: Equatable {
+  let timeframe: Timeframe
+  let first: Date?
+  let last: Date?
+}
+
 struct PriceScale {
   let domain: ClosedRange<Double>
   /// Price at the bottom of the volume bars.

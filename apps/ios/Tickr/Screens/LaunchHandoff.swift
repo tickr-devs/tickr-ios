@@ -5,7 +5,8 @@ import TickrKit
 /// The app's opening: it starts exactly as the system's launch screen (the window background with
 /// the mark centred in the safe area, Support/Info.plist `UILaunchScreen`), flashes the spark once,
 /// then flies the mark into Home's title while the background fades and the screen shows through.
-/// Under Reduce Motion it only cross-fades. Design: the "Бренд Tickr" board.
+/// Home's cards rise right after the mark lands (the board's `lrise` after `lfly`). Under Reduce
+/// Motion it only cross-fades. Design: the "Бренд Tickr" board.
 struct LaunchHandoff: View {
   /// Height of the navigation bar's row: where the Home mark sits until it has reported its place.
   static let navigationBarHeight: CGFloat = 44
@@ -19,6 +20,9 @@ struct LaunchHandoff: View {
   @State private var target: CGPoint?
   /// This view's origin on screen, to bring Home's mark into its coordinates.
   @State private var origin = CGPoint.zero
+  /// Called when the mark has landed on Home's mark (at once under Reduce Motion): the screen
+  /// below may assemble.
+  let landed: () -> Void
   /// Called when the opening is over and the overlay can go.
   let finished: () -> Void
 
@@ -52,6 +56,7 @@ struct LaunchHandoff: View {
 
   private func play() async {
     if reduceMotion {
+      landed()
       withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
     } else {
       withAnimation(.easeOut(duration: Tokens.Motion.launchHoldSeconds)) { flashing = true }
@@ -62,12 +67,13 @@ struct LaunchHandoff: View {
       withAnimation(Tokens.Motion.launchFly) { flown = true }
       // The mark lands on Home's own mark, then gives way to it.
       try? await Task.sleep(for: .seconds(Tokens.Motion.launchFlySeconds))
+      landed()
       withAnimation(Tokens.Motion.quick) { faded = true } completion: { finished() }
     }
   }
 }
 
 #Preview {
-  Color.clear.overlay { LaunchHandoff {} }
+  Color.clear.overlay { LaunchHandoff {} finished: {} }
     .environment(Container.shared.appModel())
 }

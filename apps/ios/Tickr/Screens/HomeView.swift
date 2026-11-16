@@ -16,11 +16,21 @@ struct HomeView: View {
   @State private var showControl = false
   @State private var prices = Container.shared.positionsModel()
   @State private var dayModel = Container.shared.homeDayModel()
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+  /// Whether Home's looping ornaments (the brand mark's halo, the ticker's scroll) move: they read
+  /// as "the bot is at work", so only on the live day with a fresh status while the bot runs.
+  private var ornamentMoves: Bool {
+    guard let status = model.status, dayModel.shown == nil else { return false }
+    return OrnamentGate.moves(reduceMotion: reduceMotion,
+      current: model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today,
+      botState: status.botState)
+  }
 
   var body: some View {
     Screen(L10n.App.name, tab: .home) {
       // The mark the opening animation flies into (LaunchHandoff); it pulses while data is current.
-      BrandMark(size: Tokens.Size.glyph, live: model.isFresh)
+      BrandMark(size: Tokens.Size.glyph, live: ornamentMoves)
         .onGeometryChange(for: CGPoint.self) { proxy in
           let frame = proxy.frame(in: .global)
           return CGPoint(x: frame.midX, y: frame.midY)
@@ -70,7 +80,7 @@ struct HomeView: View {
       } else if let status = model.status {
         if let strip = EventStrip.make(status: status,
           skipped: model.skipped?.day == model.today ? model.skipped : nil) {
-          strip.rise(step: Order.ticker.rawValue)
+          strip.moving(ornamentMoves).rise(step: Order.ticker.rawValue)
         }
         ForEach(Array(Board.positions(status).enumerated()), id: \.element.symbol) { index, position in
           PositionRow(position: position, marks: prices.marks[position.symbol])
@@ -301,10 +311,10 @@ private struct Summary: View {
         lineWidth: Self.ringLine) {
         VStack(spacing: Tokens.Space.xxs) {
           CardLabel(L10n.Home.day)
-          Text(verbatim: Money.signed(result))
+          // Counts up from zero as the ring appears and on to each new result (the board's count).
+          CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signed(Decimal($0)) }
             .font(Tokens.Typography.metric)
             .foregroundStyle(result < 0 ? Palette.seriesATRText : Palette.profitText)
-            .contentTransition(.numericText(value: NSDecimalNumber(decimal: result).doubleValue))
             .minimumScaleFactor(Tokens.Shrink.tight)
             .lineLimit(1)
           Group {
@@ -367,7 +377,7 @@ private struct Summary: View {
           AgeLine()
         }
       }
-      .animation(.default, value: pulse)
+      .animation(Tokens.Motion.standard, value: pulse)
     }
   }
 
@@ -938,8 +948,11 @@ private struct RefusedList: View {
 }
 
 /// The day's events as the design's ticker strip: each event's tag in its tone and what happened,
-/// newest first (a risk refusal counts as an event), on a sunken strip faded at both ends. It holds
-/// still: a finger scrolls it, nothing moves on its own (docs/design-system.md, rule 5).
+/// newest first (a risk refusal counts as an event), on a sunken strip faded at both ends. As on
+/// the board it scrolls, the whole row once every `Motion.tickerLoopSeconds`: the scroll is
+/// ornament (docs/design-system.md, rule 5); its items change only on real events. It scrolls only
+/// while `OrnamentGate` allows; otherwise, and under Reduce Motion, it holds still and a finger
+/// scrolls it.
 private struct EventStrip: View {
   /// Most events the strip carries.
   static let maxEvents = 12
@@ -947,6 +960,15 @@ private struct EventStrip: View {
   static var radius: CGFloat { Tokens.Radius.large }
 
   let items: [TickerItem]
+  /// Whether the strip scrolls (`OrnamentGate`); still otherwise, and a finger scrolls it.
+  var scrolls = false
+
+  /// The same strip, scrolling when `on`.
+  func moving(_ on: Bool) -> EventStrip {
+    var strip = self
+    strip.scrolls = on
+    return strip
+  }
 
   /// Today's events from the status and the day's refusals, newest first; nil when there are none.
   static func make(status: StatusV1, skipped: SkippedV1?) -> EventStrip? {
@@ -959,13 +981,23 @@ private struct EventStrip: View {
   }
 
   var body: some View {
-    Ticker(items, moving: false)
+    Ticker(items, moving: scrolls, loopSeconds: Tokens.Motion.tickerLoopSeconds)
       // The first tag starts clear of the faded edge.
       .contentMargins(.horizontal, Tokens.Space.l, for: .scrollContent)
       .padding(.vertical, Tokens.Space.s)
       .frame(maxWidth: .infinity, alignment: .leading)
       .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Self.radius, style: .continuous))
       .overlay(RoundedRectangle(cornerRadius: Self.radius, style: .continuous).strokeBorder(Palette.separator))
+  }
+}
+
+/// When a looping ornament that reads as activity moves (Home's brand halo and ticker scroll): only
+/// while the bot runs and the app shows the live day with a fresh status. Stopped, stale,
+/// unreachable or on a recorded day it stands still, as with Reduce Motion (the macOS radar's
+/// `RadarGate` rule).
+enum OrnamentGate {
+  static func moves(reduceMotion: Bool, current: Bool, botState: BotState?) -> Bool {
+    !reduceMotion && current && botState == .running
   }
 }
 

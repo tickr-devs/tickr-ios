@@ -361,6 +361,13 @@ public enum Tokens {
     public static let tickerSpeed = 22.0
     /// Seconds between redraws of a clock or an age ("3 s ago"), and of the session bar's cursor.
     public static let clockTickSeconds: TimeInterval = 1
+    /// Seconds the iOS Home ticker takes to scroll its whole row once (the board's 45 s marquee).
+    public static let tickerLoopSeconds = 45.0
+    /// A dot or step popping in (`popIn`): a quick spring that overshoots a little, as the boards'
+    /// `pop` (0.5 s, overshooting curve).
+    public static let pop = Animation.spring(response: 0.5, dampingFraction: 0.55)
+    /// Seconds between the protection chain's steps popping in, top to bottom.
+    public static let popStagger = 0.4
   }
 
   /// The loss-room ring (Risk on both apps), as shares of the daily loss limit.
