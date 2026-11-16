@@ -33,7 +33,7 @@ struct MenuBarPanel: View {
       MenuPositions().rise(step: Order.positions.rawValue)
       FlowDots().rise(step: Order.flow.rawValue)
       // The commands as one pill, centred under the flow.
-      BotControls(compact: true)
+      BotControls(compact: true, place: .menuBar)
         .frame(maxWidth: .infinity)
         .rise(step: Order.controls.rawValue)
       Rectangle()
@@ -45,6 +45,8 @@ struct MenuBarPanel: View {
     .frame(width: Self.width)
     .foregroundStyle(Palette.textPrimary)
     .background(Palette.surface)
+    // The panel's commands ask here, on the panel that lives while it is open.
+    .botCommandQuestions(in: .menuBar)
   }
 }
 

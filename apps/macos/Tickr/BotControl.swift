@@ -130,13 +130,30 @@ enum BotAction: Identifiable, Equatable {
   }
 }
 
-/// The bot control buttons with standard confirmation alerts. Used on Overview and in the menu bar.
+/// Where a bot command was pressed: the main window or the menu-bar panel. Each presents only
+/// its own questions, so one press never asks twice.
+enum CommandPlace: Sendable, Hashable {
+  case window, menuBar
+}
+
+/// A bot command waiting for the operator's yes (`AppModel.confirming`). Each press asks anew:
+/// two presses of the same command are two questions, never one carried over.
+struct PendingConfirmation: Identifiable, Equatable {
+  let id = UUID()
+  let action: BotAction
+  let place: CommandPlace
+}
+
+/// The bot control buttons. A press that asks first opens its question in the model
+/// (`AppModel.press`); the window or panel around them shows it (`botCommandQuestions(in:)`).
+/// Used on Overview and in the menu bar.
 struct BotControls: View {
   @Environment(AppModel.self) private var model
-  @State private var confirming: BotAction?
   var compact = false
   /// Small labelled buttons, as the design draws them in the Overview's Safety card.
   var small = false
+  /// Where the buttons stand, so their questions open there.
+  var place = CommandPlace.window
 
   /// Button columns in the menu-bar panel and on Overview.
   static let compactColumns = 3
@@ -148,39 +165,23 @@ struct BotControls: View {
     // A plain Grid, not a lazy one: the few buttons always exist, so they stay reachable (and
     // visible to accessibility) while scrolled out of view.
     let rows = stride(from: 0, to: list.count, by: count).map { Array(list[$0..<min($0 + count, list.count)]) }
-    Group {
-      if compact {
-        // The menu-bar panel: one toolbar of symbols; each names itself in its hint.
-        IconToolbar {
-          ForEach(list) { action in
-            button(action)
-          }
+    if compact {
+      // The menu-bar panel: one toolbar of symbols; each names itself in its hint.
+      IconToolbar {
+        ForEach(list) { action in
+          button(action)
         }
-      } else {
-        Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
-          ForEach(rows.indices, id: \.self) { index in
-            GridRow {
-              ForEach(rows[index]) { action in
-                button(action)
-              }
+      }
+    } else {
+      Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
+        ForEach(rows.indices, id: \.self) { index in
+          GridRow {
+            ForEach(rows[index]) { action in
+              button(action)
             }
           }
         }
       }
-    }
-    .alert(Text(verbatim: confirming?.question ?? ""), isPresented: Binding(get: { confirming != nil },
-      set: { if !$0 { confirming = nil } }),
-      presenting: confirming) { action in
-      Button(role: action.isDestructive ? .destructive : nil) { run(action) } label: { Text(verbatim: action.title) }
-      Button(String(localized: L10n.Common.cancel), role: .cancel) {}
-    } message: { action in
-      // Where the command goes, named in every confirmation: a demo switch left on must never
-      // swallow a real command unnoticed.
-      Text(Self.confirmation(action.explanation, demo: model.demoDay))
-    }
-    // Close an open confirmation as soon as commands are no longer safe to send.
-    .onChange(of: model.commandsEnabled) { _, enabled in
-      if !enabled { confirming = nil }
     }
   }
 
@@ -190,9 +191,7 @@ struct BotControls: View {
   }
 
   @ViewBuilder private func button(_ action: BotAction) -> some View {
-    let tap = {
-      if action.needsConfirmation { confirming = action } else { run(action) }
-    }
+    let tap = { model.press(action, in: place) }
     if compact {
       Button(role: action.isDestructive ? .destructive : nil, action: tap) {
         Label { Text(verbatim: action.title) } icon: { Image(systemName: action.symbol) }
@@ -246,8 +245,42 @@ struct BotControls: View {
     default: return true
     }
   }
+}
 
-  private func run(_ action: BotAction) {
-    Task { await model.send(action.command, title: action.title) }
+/// Shows the bot command questions asked in `place` (`AppModel.confirming`) as standard alerts.
+/// Put on a view that lives as long as its window, never on the buttons: SwiftUI rebuilds the
+/// buttons' cards as the layout changes, and a question attached to them closed with them.
+private struct BotCommandQuestions: ViewModifier {
+  @Environment(AppModel.self) private var model
+  let place: CommandPlace
+
+  func body(content: Content) -> some View {
+    let question = model.confirming.flatMap { $0.place == place ? $0 : nil }
+    content
+      // The alert closes its binding around its buttons' actions, in an order SwiftUI does not
+      // promise; the question is closed by its buttons instead (Escape is the cancel button), so
+      // the yes is always read against the question still open.
+      .alert(Text(verbatim: question?.action.question ?? ""), isPresented: Binding(get: { question != nil },
+        set: { _ in }), presenting: question) { asked in
+        Button(role: asked.action.isDestructive ? .destructive : nil) {
+          model.accept(asked)
+        } label: { Text(verbatim: asked.action.title) }
+        Button(String(localized: L10n.Common.cancel), role: .cancel) { model.withdraw(asked) }
+      } message: { asked in
+        // Where the command goes, named in every confirmation: a demo switch left on must never
+        // swallow a real command unnoticed.
+        Text(BotControls.confirmation(asked.action.explanation, demo: model.demoDay))
+      }
+      // A question lives only while its window or panel does: closed, or opened anew, it holds no
+      // question from before (a question never reappears without a new press).
+      .onAppear { model.withdrawQuestion(in: place) }
+      .onDisappear { model.withdrawQuestion(in: place) }
+  }
+}
+
+extension View {
+  /// Shows the bot command questions asked in `place` (`BotCommandQuestions`).
+  func botCommandQuestions(in place: CommandPlace) -> some View {
+    modifier(BotCommandQuestions(place: place))
   }
 }

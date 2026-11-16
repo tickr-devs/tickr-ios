@@ -135,6 +135,9 @@ struct RootView: View {
     }
     // The advisor's runs for the Overview's advisor row and the Lab, read again now and then.
     .task(id: model.baseURL) { await advisor.follow(model.baseURL) }
+    // The window's bot command questions (Overview's Safety card), on the view that lives as long
+    // as the window: never on the card, which a layout change or a section switch rebuilds.
+    .botCommandQuestions(in: .window)
   }
 
   @ViewBuilder private var detail: some View {

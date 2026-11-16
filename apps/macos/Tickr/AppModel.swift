@@ -182,6 +182,7 @@ public final class AppModel {
         return
       }
       if oldValue != selectedDay { Task { await loadSelectedDay() } }
+      withdrawIfCommandsOff()
     }
   }
   public private(set) var dayDocument: DayV1?
@@ -203,11 +204,19 @@ public final class AppModel {
 
   // Positions with their latest bars.
   private var barsBySymbol: [String: BarsV1] = [:]
+  /// The open positions (symbols, on `barsDay`) the last bars read was for. A status that lists
+  /// others has their bars read at once (`refreshStatus`), not at the next bars poll.
+  private var barsReadFor: [String] = []
+  private var barsDay: WireDate?
 
   // Commands.
   public private(set) var sending = false
   public private(set) var sent: [SentCommand] = []
   public private(set) var toast: SentCommand?
+  /// The bot command waiting for the operator's yes, and where it was asked (`BotControls`).
+  /// Held here, not in the view that asked: SwiftUI drops a view's own state whenever it rebuilds
+  /// the view (Overview's cards change columns at a width breakpoint), and the question went with it.
+  private(set) var confirming: PendingConfirmation?
 
   private var tasks: [Task<Void, Never>] = []
 
@@ -405,6 +414,9 @@ public final class AppModel {
 
   /// Start again from nothing on `baseURL`: nothing read from the other address stays on screen.
   private func reconnect() {
+    // A question asked of the other address (or the other side of the demo switch) is never
+    // answered here: it names a command for where the app no longer points.
+    confirming = nil
     let url = baseURL
     client = Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
     response = nil
@@ -413,6 +425,7 @@ public final class AppModel {
     dayDocument = nil
     todayDocument = nil
     barsBySymbol = [:]
+    barsReadFor = []
     account = nil
     jobs = nil
     jobsError = nil
@@ -452,6 +465,13 @@ public final class AppModel {
         await refreshHistory()
       }
       resolveSentCommands()
+      // Open positions whose bars were not read yet (the first status after launch, a new
+      // position, a new day): read them now. Waiting for the bars poll left a position card
+      // without its price rows for up to `Pace.barsSeconds`, and the rows then arriving grew the
+      // card and moved the Safety card's commands under the operator's pointer.
+      if let symbols = status?.positions.map(\.symbol), symbols != barsReadFor || barsDay != today {
+        await refreshPositionBars()
+      }
       // A start answer stays until the bot is seen alive; then its status says the rest.
       if !fresh.stale, let state = status?.botState, state != .stopped { botStart = nil }
       // Counts come from status, the trade list from /days/<today>: when status shows a
@@ -462,6 +482,8 @@ public final class AppModel {
     } catch {
       fetchError = Self.describe(error) ?? fetchError
     }
+    // A stale status or a failed read turns commands off: an open question goes with them.
+    withdrawIfCommandsOff()
     if settings == nil { await refreshSettings() }
   }
 
@@ -718,6 +740,8 @@ public final class AppModel {
 
   public func refreshPositionBars() async {
     let symbols = status?.positions.map(\.symbol) ?? []
+    barsReadFor = symbols
+    barsDay = today
     for symbol in symbols {
       do {
         let fresh = try await client.bars(symbol: symbol, day: today)
@@ -785,6 +809,46 @@ public final class AppModel {
     await refreshStatus()
   }
 
+  /// A press of a bot command in `place`: a command that asks first only opens its question
+  /// (`confirming`); pausing and resuming are sent at once. Nothing is asked or sent while
+  /// commands are off.
+  func press(_ action: BotAction, in place: CommandPlace) {
+    guard commandsEnabled else { return }
+    if action.needsConfirmation {
+      confirming = PendingConfirmation(action: action, place: place)
+    } else {
+      Task { await send(action.command, title: action.title) }
+    }
+  }
+
+  /// The operator's yes to `question`. Only the question still open is accepted: it is closed in
+  /// the same step, and its own command (never another) goes to `send`, which checks again that
+  /// commands are on. A withdrawn, replaced or already answered question sends nothing, so one
+  /// question sends at most once. Returns the send, or nil when nothing is sent.
+  @discardableResult
+  func accept(_ question: PendingConfirmation) -> Task<Void, Never>? {
+    guard confirming == question else { return nil }
+    confirming = nil
+    return Task { await send(question.action.command, title: question.action.title) }
+  }
+
+  /// Closes `question` unanswered (Cancel or Escape); a newer question stays.
+  func withdraw(_ question: PendingConfirmation) {
+    if confirming == question { confirming = nil }
+  }
+
+  /// Closes the question asked in `place`, if one is open: its window or panel closed, so it can
+  /// no longer be answered there and must not come back when that place opens again.
+  func withdrawQuestion(in place: CommandPlace) {
+    if confirming?.place == place { confirming = nil }
+  }
+
+  /// Closes an open question once commands are off (a stale or failed status read, a recorded
+  /// day, a command being sent): it was asked in a state that no longer holds.
+  private func withdrawIfCommandsOff() {
+    if !commandsEnabled { confirming = nil }
+  }
+
   public func send(_ command: OperatorCommand, title: String) async {
     // A confirmation alert can stay open while the status goes stale or the day changes:
     // check again at the moment of sending, never trust the state the alert was opened in.
@@ -794,6 +858,7 @@ public final class AppModel {
       return
     }
     sending = true
+    withdrawIfCommandsOff()
     defer { sending = false }
     do {
       // One key per operator action: a repeat of this exact send answers the first, never queues twice.

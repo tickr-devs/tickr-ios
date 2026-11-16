@@ -68,6 +68,11 @@ struct OverviewView: View {
         .padding(Tokens.Space.l)
       }
       .onChange(of: aboveBottomHeight) { showSafetyFirstIfAsked(proxy) }
+      // Also when the cards below grow: until they load, the page can be too short to bring the
+      // card to the top, and it stayed a little lower until the next change above it.
+      .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, _ in
+        showSafetyFirstIfAsked(proxy)
+      }
     }
     // The cards wait under the launch's opening and rise as its mark flies to the header.
     .environment(\.risesHeld, !model.openingPlayed && !model.openingFlying)

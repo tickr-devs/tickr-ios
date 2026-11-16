@@ -102,6 +102,21 @@ struct AppModelTests {
     #expect(Set(RouteProtocol.routes.withLock { $0.barSymbols }) == ["ABCD", "EFGH"])
   }
 
+  @Test("A status listing positions whose bars were not read reads them at once, not at the next bars poll")
+  func positionBarsWithTheirStatus() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    // At launch the bars poll runs before any status: it knows no position and reads nothing.
+    await model.refreshPositionBars()
+    #expect(RouteProtocol.routes.withLock { $0.barSymbols }.isEmpty)
+    await model.refreshStatus()
+    #expect(Set(RouteProtocol.routes.withLock { $0.barSymbols }) == ["ABCD", "EFGH"])
+    #expect(model.positionBars("ABCD") != nil, "the position card has its price rows with the first status")
+    // The same positions again: the bars poll keeps them current, the status read does not repeat it.
+    let reads = RouteProtocol.routes.withLock { $0.barSymbols.count }
+    await model.refreshStatus()
+    #expect(RouteProtocol.routes.withLock { $0.barSymbols.count } == reads)
+  }
+
   @Test("The daily room is the bot's own number, never computed by the app")
   func dailyRoomComesFromStatus() async throws {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)
@@ -240,6 +255,128 @@ struct AppModelTests {
     await model.send(.flattenSymbol("ABCD"), title: "Flatten ABCD")
     let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
     #expect(keys.count == 2 && Set(keys).count == 2)
+  }
+
+  /// Commands sent so far (each POST carries one idempotency key).
+  static func sentCount() -> Int { RouteProtocol.routes.withLock { $0.idempotencyKeys.count } }
+
+  @Test("A flatten press only asks; the model holds the question, and only the yes sends it, once")
+  func flattenAsksBeforeSending() async throws {
+    RouteProtocol.routes.withLock { $0.bodies["/commands/flatten"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("command-accepted-v1.json")) }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    model.press(.flatten(symbol: "ABCD"), in: .window)
+    let question = try #require(model.confirming, "a press opens its question")
+    #expect(question.action == .flatten(symbol: "ABCD") && question.place == .window)
+    // The question lives in the model, not in the view that asked: status reads (which redraw
+    // and can rebuild Overview's cards) leave it open, and nothing is sent meanwhile.
+    await model.refreshStatus()
+    await model.refreshStatus()
+    #expect(model.confirming == question)
+    #expect(Self.sentCount() == 0, "nothing is sent before the yes")
+    let send = try #require(model.accept(question), "the yes to the open question sends")
+    #expect(model.confirming == nil, "accepting closes the question in the same step")
+    #expect(model.accept(question) == nil, "a second yes to the same question sends nothing")
+    await send.value
+    #expect(Self.sentCount() == 1)
+  }
+
+  @Test("Only the open question is accepted: a cancelled or replaced one sends nothing")
+  func onlyTheOpenQuestionSends() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    model.press(.flatten(symbol: "ABCD"), in: .window)
+    let cancelled = try #require(model.confirming)
+    model.withdraw(cancelled)
+    #expect(model.accept(cancelled) == nil)
+    model.press(.emergency, in: .window)
+    let older = try #require(model.confirming)
+    model.press(.flattenAll, in: .window)
+    let newer = try #require(model.confirming)
+    #expect(model.accept(older) == nil, "a replaced question sends nothing")
+    #expect(model.confirming == newer, "and leaves the newer one open")
+    model.withdraw(newer)
+    #expect(Self.sentCount() == 0)
+  }
+
+  /// A model with a current status and a flatten question open in `place`.
+  static func modelAsking(in place: CommandPlace = .window) async throws -> AppModel {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    model.press(.flatten(symbol: "ABCD"), in: place)
+    _ = try #require(model.confirming)
+    return model
+  }
+
+  @Test("A question closes when its window or panel closes, and only there")
+  func questionClosesWithItsPlace() async throws {
+    let model = try await Self.modelAsking(in: .menuBar)
+    model.withdrawQuestion(in: .window)
+    #expect(model.confirming != nil, "the main window closing leaves the panel's question")
+    model.withdrawQuestion(in: .menuBar)
+    #expect(model.confirming == nil, "the panel closing withdraws its question: it never reappears")
+  }
+
+  @Test("A question closes on a stale status")
+  func questionClosesOnStaleStatus() async throws {
+    let model = try await Self.modelAsking()
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Self.status(botState: "running", stale: true) }
+    await model.refreshStatus()
+    #expect(model.confirming == nil)
+  }
+
+  @Test("A question closes on a failed status read")
+  func questionClosesOnFailedRead() async throws {
+    let model = try await Self.modelAsking()
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = nil }
+    await model.refreshStatus()
+    #expect(model.fetchError != nil)
+    #expect(model.confirming == nil)
+  }
+
+  @Test("A question closes when commands turn off for a recorded day")
+  func questionClosesOnRecordedDay() async throws {
+    let model = try await Self.modelAsking()
+    model.selectedDay = WireDate(newYorkDateOf: model.botNow.addingTimeInterval(-Self.daySeconds))
+    #expect(!model.commandsEnabled)
+    #expect(model.confirming == nil)
+  }
+
+  /// Seconds in a day, to name yesterday.
+  static let daySeconds: TimeInterval = 86_400
+
+  @Test("A question closes when the API address changes")
+  func questionClosesOnAddressSwitch() async throws {
+    let model = try await Self.modelAsking()
+    model.connect(to: try #require(URL(string: "http://127.0.0.1:9")))
+    #expect(model.confirming == nil)
+  }
+
+  @Test("A question closes when the demo day is switched")
+  func questionClosesOnDemoSwitch() async throws {
+    let model = try await Self.modelAsking()
+    model.setDemoDay(true)
+    #expect(model.confirming == nil)
+  }
+
+  @Test("Cancel sends nothing; each press is its own question; nothing is asked while commands are off")
+  func withdrawnQuestionsSendNothing() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    model.press(.flatten(symbol: "ABCD"), in: .window)
+    #expect(model.confirming == nil, "no status yet: commands are off, so nothing is asked")
+    await model.refreshStatus()
+    model.press(.emergency, in: .menuBar)
+    let first = try #require(model.confirming)
+    model.withdraw(first)
+    #expect(model.confirming == nil)
+    model.press(.emergency, in: .menuBar)
+    let second = try #require(model.confirming)
+    #expect(second != first, "a second press is a new question")
+    model.withdraw(first)
+    #expect(model.confirming == second, "closing an old question leaves the newer one open")
+    model.withdraw(second)
+    #expect(Self.sentCount() == 0)
   }
 
   @Test("Start is offered only when no current status says the bot is alive; it is sent once")
