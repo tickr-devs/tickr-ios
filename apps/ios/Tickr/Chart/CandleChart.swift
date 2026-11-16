@@ -101,6 +101,8 @@ struct CandleChart: View {
   /// Width a time label needs with a gap to the next, in points at the default text size:
   /// labels closer than this are left out.
   static let timeLabelSlot: CGFloat = 52
+  /// Area of the dot on the touched candle's close, in square points (a Charts symbol size).
+  static let scrubDotArea: CGFloat = 36
   /// Annotations near an edge move inside the chart instead of being cut off.
   static let keepInside = AnnotationOverflowResolution(x: .fit(to: .chart), y: .fit(to: .chart))
   /// Colours of the moving-average lines, in the order of `Studies.movingAveragePeriods`.
@@ -256,8 +258,10 @@ struct CandleChart: View {
         }
       }
       if let candle = selectedCandle {
+        band(candle)
+        // The time on a pill at the top of the line, clear of the time axis's labels.
         crosshair(candle)
-          .annotation(position: .bottom, spacing: 0, overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
+          .annotation(position: .top, spacing: 0, overflowResolution: .init(x: .fit(to: .plot), y: .fit(to: .plot))) {
             Text(verbatim: times.text(candle.start))
               .fixedSize()
               .font(Tokens.Typography.annotationBold)
@@ -265,6 +269,17 @@ struct CandleChart: View {
               .padding(.horizontal, Tokens.Space.xs)
               .background(Palette.textSecondary, in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
           }
+        // The touched candle's close: a line across, its price on the scale and a dot on it.
+        RuleMark(y: .value(Plot.price, candle.close))
+          .foregroundStyle(Palette.textTertiary)
+          .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+          .annotation(position: .trailing, alignment: .center, spacing: 0,
+            overflowResolution: .init(x: .fit(to: .chart), y: .fit(to: .plot))) {
+            priceTag(PriceTag(price: candle.close, fill: Palette.textSecondary, shownAt: candle.close))
+          }
+        PointMark(x: .value(Plot.time, middle(candle)), y: .value(Plot.price, candle.close))
+          .symbolSize(Self.scrubDotArea)
+          .foregroundStyle(candle.isUp ? Palette.profit : Palette.loss)
       }
     }
     .chartYScale(domain: scale.domain)
@@ -405,6 +420,12 @@ struct CandleChart: View {
     .fixedSize()
   }
 
+  /// The touched candle's slot, lightly lit behind it, in every pane.
+  private func band(_ candle: Candle) -> some ChartContent {
+    RectangleMark(xStart: .value(Plot.time, candle.start), xEnd: .value(Plot.time, candle.end))
+      .foregroundStyle(Palette.textPrimary.opacity(Tokens.Opacity.wash))
+  }
+
   /// The touched candle's line, drawn in every pane so it reads as one line through them.
   private func crosshair(_ candle: Candle) -> some ChartContent {
     RuleMark(x: .value(Plot.time, middle(candle)))
@@ -430,7 +451,10 @@ struct CandleChart: View {
         }
         lineMarks(.macd, studies.macd.map { $0?.macd }, Palette.info)
         lineMarks(.signal, studies.macd.map { $0?.signal }, Palette.warning)
-        if let candle = selectedCandle { crosshair(candle) }
+        if let candle = selectedCandle {
+          band(candle)
+          crosshair(candle)
+        }
       }
       .chartYScale(domain: macdDomain)
       .modifier(PaneAxes(marks: .automatic(desiredCount: Self.paneAxisMarks)))
@@ -440,7 +464,10 @@ struct CandleChart: View {
         bands(high: Studies.stochasticHigh, low: Studies.stochasticLow)
         lineMarks(.stochasticK, studies.stochastic.map { $0?.k }, Palette.info)
         lineMarks(.stochasticD, studies.stochastic.map { $0?.d }, Palette.warning)
-        if let candle = selectedCandle { crosshair(candle) }
+        if let candle = selectedCandle {
+          band(candle)
+          crosshair(candle)
+        }
       }
       .chartYScale(domain: 0...(Studies.oscillatorScale * (1 + Self.legendHeadroom)))
       .modifier(PaneAxes(marks: .values([Studies.stochasticLow, Studies.stochasticHigh])))
@@ -449,7 +476,10 @@ struct CandleChart: View {
       Chart {
         bands(high: Studies.rsiHigh, low: Studies.rsiLow)
         lineMarks(.rsi, studies.rsi, Palette.info)
-        if let candle = selectedCandle { crosshair(candle) }
+        if let candle = selectedCandle {
+          band(candle)
+          crosshair(candle)
+        }
       }
       .chartYScale(domain: 0...(Studies.oscillatorScale * (1 + Self.legendHeadroom)))
       .modifier(PaneAxes(marks: .values([Studies.rsiLow, Studies.rsiHigh])))
@@ -457,7 +487,10 @@ struct CandleChart: View {
     case .atr:
       Chart {
         lineMarks(.atr, atr, Palette.seriesATR)
-        if let candle = selectedCandle { crosshair(candle) }
+        if let candle = selectedCandle {
+          band(candle)
+          crosshair(candle)
+        }
       }
       .chartYScale(domain: .automatic(includesZero: false))
       .modifier(PaneAxes(marks: .automatic(desiredCount: Self.paneAxisMarks)))

@@ -32,8 +32,12 @@ struct ChartTab: View {
     .safeAreaBar(edge: .top) {
       if let url = app.connection.url, !chart.days.isEmpty, showsContent {
         DayBar(chart: chart, url: url)
-          .padding(.horizontal, Tokens.Space.l)
+          .padding(.horizontal, Tokens.Space.m)
           .padding(.vertical, Tokens.Space.s)
+          // On Liquid Glass, as the system's own bars: the chart scrolling under it never shows
+          // through the symbol and its price.
+          .glassEffect(.regular, in: .rect(cornerRadius: Tokens.Radius.large))
+          .padding(.horizontal, Tokens.Space.s)
       }
     }
     .task(id: app.connection.url) {
