@@ -134,17 +134,3 @@ jobs:
           xcodebuild -workspace Tickr.xcworkspace -scheme "Tickr macOS" \
             -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
             CODE_SIGN_IDENTITY=- build-for-testing
-  # The old name of `macos-build-and-test`, kept until main's required checks list the new names: it only
-  # repeats that job's result (a skipped job counts as passed, as it does for the requirement).
-  # Remove this job once the ruleset no longer names `build-and-test`.
-  build-and-test:
-    needs: macos-build-and-test
-    if: ${{ !cancelled() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - env:
-          RESULT: ${{ needs.macos-build-and-test.result }}
-        run: |
-          echo "macos-build-and-test: $RESULT"
-          [ "$RESULT" = "success" ] || [ "$RESULT" = "skipped" ]

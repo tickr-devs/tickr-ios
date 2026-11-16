@@ -31,16 +31,3 @@ jobs:
         run: >-
           docker run --rm -v "$PWD:/work" -w /work ghcr.io/realm/swiftlint:0.65.0
           swiftlint lint --strict --quiet
-  # The old name of `swift-lint`, kept until main's required checks list the new names: it only
-  # repeats that job's result. Remove this job once the ruleset no longer names `check`.
-  check:
-    needs: swift-lint
-    if: ${{ !cancelled() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - env:
-          RESULT: ${{ needs.swift-lint.result }}
-        run: |
-          echo "swift-lint: $RESULT"
-          [ "$RESULT" = "success" ] || [ "$RESULT" = "skipped" ]
