@@ -2,11 +2,14 @@ import SwiftUI
 
 /// Outline glyphs the design draws itself and SF Symbols has no match for: the iOS tab bar
 /// (dashboard panels, thin lock, a bare polyline, three lines, star), the title-row actions
-/// (Home's thin power and "sun" settings mark, Activity's calendar) and the chart-type buttons.
+/// (Home's thin power and "sun" settings mark, Activity's calendar), the chart-type buttons and
+/// the macOS Overview live flow's stages.
 /// Each is the design's own SVG path on its 24-point grid, stroked with round caps and joins; the
 /// path data separates numbers with "+" signs (valid SVG) rather than spaces.
 public enum DesignGlyph: Sendable, CaseIterable {
   case home, positions, chart, activity, lab, power, settings, calendar, candles, line
+  /// The live flow's stages, in the order a setup passes them.
+  case screeners, universe, strategy, risk, order, brokerStop, reconcile
 
   /// The design's SVG path data, on the 24-point grid (the boards' `<path d>`).
   public var pathData: String {
@@ -21,6 +24,13 @@ public enum DesignGlyph: Sendable, CaseIterable {
     case .calendar: return Self.calendarPath
     case .candles: return Self.candlesPath
     case .line: return Self.linePath
+    case .screeners: return Self.screenersPath
+    case .universe: return Self.universePath
+    case .strategy: return Self.strategyPath
+    case .risk: return Self.riskPath
+    case .order: return Self.orderPath
+    case .brokerStop: return Self.brokerStopPath
+    case .reconcile: return Self.reconcilePath
     }
   }
 
@@ -46,6 +56,17 @@ public enum DesignGlyph: Sendable, CaseIterable {
   /// The chart-type buttons (the design's 16-point drawings, scaled onto the 24-point grid).
   static let candlesPath = "M7.5+3v18M16.5+4.5v15M5.25+7.5h4.5v7.5h-4.5zM14.25+9h4.5v6h-4.5z"
   static let linePath = "M3+18l6-6l4.5+3l7.5-9"
+  /// The live flow's stages, as on the Overview board: screeners (lines under a magnifier),
+  /// universe (lines narrowing), strategy (a path branching right), risk (a half gauge with ticks
+  /// and its needle), order (a paper plane), broker stop (a shield with a check) and reconcile
+  /// (two arrows going round).
+  static let screenersPath = "M4+6h10M4+11h6M4+16h4M15.5+10.5a3.5+3.5+0+1+0+0+7a3.5+3.5+0+1+0+0-7zM18+17l3+3"
+  static let universePath = "M4+7h16M7+12h10M10+17h4"
+  static let strategyPath = "M6+20V10a4+4+0+0+1+4-4h9M16+3l3+3-3+3M6+14a4+4+0+0+0+4+4h9M16+15l3+3-3+3"
+  static let riskPath = "M3.5+17a8.5+8.5+0+0+1+17+0M12+17l4-5M6.5+11l1+.8M12+8.5V10M17.5+11l-1+.8"
+  static let orderPath = "M21+3L3+10.5l7.5+3L13+21zM21+3L10.5+13.5"
+  static let brokerStopPath = "M12+3l7+3v6c0+4.5-3+7.5-7+9c-4-1.5-7-4.5-7-9V6zM9+12l2+2+4-4"
+  static let reconcilePath = "M4+12a8+8+0+0+1+14-5.3M20+3v4h-4M20+12a8+8+0+0+1-14+5.3M4+21v-4h4"
 }
 
 /// A `DesignGlyph` as a shape filling its rectangle (the 24-point grid scaled to fit).
@@ -89,7 +110,8 @@ public struct DesignGlyphView: View {
 }
 
 /// The part of SVG path data the design's glyphs use: moves, lines (also horizontal and vertical),
-/// elliptical arcs without rotation and close, absolute (upper case) or relative (lower case).
+/// cubic curves, elliptical arcs without rotation and close, absolute (upper case) or relative
+/// (lower case).
 enum SVGPath {
   /// Line segments that stand in for a quarter turn of an arc.
   static let segmentsPerQuarter: CGFloat = 6
@@ -98,7 +120,7 @@ enum SVGPath {
 
   /// The commands read, by their upper-case letter.
   enum Command: Character {
-    case move = "M", line = "L", horizontal = "H", vertical = "V", arc = "A", close = "Z"
+    case move = "M", line = "L", horizontal = "H", vertical = "V", cubic = "C", arc = "A", close = "Z"
   }
 
   static func parse(_ data: String) -> Path {
@@ -115,6 +137,11 @@ enum SVGPath {
       case .close:
         path.closeSubpath()
         current = start
+      case .cubic:
+        guard let first = tokens.point(base), let second = tokens.point(base), let end = tokens.point(base)
+        else { return path }
+        path.addCurve(to: end, control1: first, control2: second)
+        current = end
       case .arc:
         guard let arc = tokens.arc(base) else { return path }
         addArc(to: &path, from: current, arc)

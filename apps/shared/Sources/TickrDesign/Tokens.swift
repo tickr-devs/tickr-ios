@@ -62,8 +62,6 @@ public enum Tokens {
     public static let titleSize: CGFloat = 28
     /// The mono word next to a screen title ("Operator"): as large as the title, lighter.
     public static let subtitleSize: CGFloat = 28
-    /// SF Symbols inside a live-flow stage.
-    public static let stageSymbolSize: CGFloat = 20
     /// The day result in the macOS menu-bar panel: a little smaller than `hero`, drawn tight.
     public static let panelFigureSize: CGFloat = 32
     /// Letter spacing of `panelFigure`, in points (negative: tighter).
@@ -98,8 +96,6 @@ public enum Tokens {
     public static let figure = Font.system(.headline, design: .monospaced, weight: .bold)
     /// SF Symbols inside a round icon well.
     public static let symbol = Font.system(.subheadline, weight: .semibold)
-    /// SF Symbols inside a live-flow stage.
-    public static let stageSymbol = Font.system(.title3, weight: .semibold)
     public static let panelFigure = Font.system(.largeTitle, design: .monospaced, weight: .bold)
     /// SF Symbols inside a compact round icon button.
     public static let symbolCompact = Font.system(.footnote, weight: .semibold)
@@ -120,8 +116,6 @@ public enum Tokens {
     public static let figure = Font.system(size: figureSize, weight: .bold, design: .monospaced)
     /// SF Symbols inside a round icon well.
     public static let symbol = Font.system(size: Size.iconWellSymbol, weight: .semibold)
-    /// SF Symbols inside a live-flow stage.
-    public static let stageSymbol = Font.system(size: stageSymbolSize, weight: .semibold)
     /// The day result in the macOS menu-bar panel.
     public static let panelFigure = Font.system(size: panelFigureSize, weight: .bold, design: .monospaced)
     /// SF Symbols inside a compact round icon button.
@@ -223,6 +217,8 @@ public enum Tokens {
     public static let iconWell: CGFloat = 44
     /// Stages of the live flow, larger than an icon well so the pipeline reads at a glance.
     public static let stage: CGFloat = 52
+    /// The line glyph inside a live-flow stage (`DesignGlyph`), as on the Overview board.
+    public static let stageGlyph: CGFloat = 22
     /// Width of the day result set beside Overview's header.
     public static let dayResultWidth: CGFloat = 300
     /// Narrowest a column of a card grid gets before the grid stacks into fewer columns.

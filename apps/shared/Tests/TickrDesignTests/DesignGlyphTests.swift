@@ -30,6 +30,13 @@ import Testing
     #expect(bounds.minY == 3)
   }
 
+  @Test("A cubic curve bends where its control points pull: the broker stop's shield reaches its tip")
+  func shieldCurvesReachTheTip() {
+    // M12+3l7+3v6c0+4.5-3+7.5-7+9: the right side curves from (19, 12) down to the tip at (12, 21).
+    let bounds = SVGPath.parse(DesignGlyph.brokerStopPath).boundingRect
+    #expect(bounds == CGRect(x: 5, y: 3, width: 14, height: 18))
+  }
+
   @Test("A shape scales its grid into any square, centred")
   func shapeScalesToItsRect() {
     let path = DesignGlyphShape(.home).path(in: CGRect(x: 0, y: 0, width: 48, height: 48))

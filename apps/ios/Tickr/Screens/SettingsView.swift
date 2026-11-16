@@ -10,7 +10,7 @@ struct SettingsView: View {
   /// Symbols of the rows' icons.
   static let statusSymbol = "antenna.radiowaves.left.and.right"
   static let pairSymbol = "qrcode"
-  static let forgetSymbol = "link.badge.minus"
+  static let forgetSymbol = "minus.circle"
   static let stateSymbol = "power"
   static let gateClosedSymbol = "lock.fill"
   static let configSymbol = "doc.plaintext.fill"

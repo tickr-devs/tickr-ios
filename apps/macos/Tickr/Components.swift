@@ -26,7 +26,7 @@ extension Severity {
   }
 
   /// SF Symbols of the menu-bar extra for each severity.
-  static let okSymbol = "camera.tickr"
+  static let okSymbol = "chart.line.uptrend.xyaxis"
   static let attentionSymbol = "pause.circle"
   static let alarmSymbol = "exclamationmark.triangle.fill"
 

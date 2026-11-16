@@ -883,7 +883,7 @@ private struct BrokerReadAge: View {
       Label {
         Text(text)
       } icon: {
-        Image(systemName: LiveFlowCardSymbols.broker)
+        Image(systemName: LiveFlowCardSymbols.brokerSymbol)
       }
       .labelStyle(ControlLabelStyle())
       .font(Tokens.Typography.annotation)
@@ -905,7 +905,7 @@ private struct BrokerReadAge: View {
 /// Symbols of the live flow's inputs, shared with `BrokerReadAge`.
 private enum LiveFlowCardSymbols {
   /// The last broker read: a clock going round.
-  static let broker = "clock.arrow.circlepath"
+  static let brokerSymbol = "clock.arrow.circlepath"
 }
 
 /// The symbols a stage refused today, each with why: the tray's popover.

@@ -115,7 +115,6 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `annotation` / `annotationBold` | 10.5 pt mono | Chart axes, ticker, pipeline values |
 | `symbol` | `Size.iconWellSymbol` semibold | SF Symbols in icon wells |
 | `symbolCompact` | 13 pt semibold | SF Symbols in compact round icon buttons |
-| `stageSymbol` | 20 pt semibold | SF Symbols in a live-flow stage |
 | `button` | `.body` semibold | Command buttons (bot controls) |
 | `chip` | `.callout` bold mono | Tabs and chips naming a symbol (position tabs) |
 | `buttonCompact` | `.callout` semibold | Compact buttons |
@@ -125,7 +124,7 @@ in rows uses the platform text styles so Dynamic Type applies.
 Sizes above are the Mac's (macOS has no Dynamic Type). On iOS every role follows a text style, so
 Dynamic Type scales it: `label`, `badge`, `annotation` → `.caption2`; `metric` → `.title2`; `hero`
 and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`; `figure` → `.headline`; `title` and `subtitle` → `.title`; `symbol` → `.subheadline`;
-`stageSymbol` → `.title3`; `panelFigure` → `.largeTitle`; `symbolCompact` → `.footnote`. At the default text size these match the design within a point or two.
+`panelFigure` → `.largeTitle`; `symbolCompact` → `.footnote`. At the default text size these match the design within a point or two.
 
 ## Lines (`Tokens.Stroke`)
 
@@ -173,6 +172,7 @@ a step; it does not define its own factor.
 | `dot` / `dotSmall` | 8 / 6 | Status dots |
 | `iconWell` / `iconWellSymbol` | 44 / 15 | Round icon wells |
 | `stage` | 52 | Stages of the live flow |
+| `stageGlyph` | 22 | The line glyph in a live-flow stage (`DesignGlyph`, the board's own paths, 2 grid units = 1.8 pt stroke) |
 | `dayResultWidth` | 300 | Overview's day result beside the header |
 | `gridColumnMin` | 300 | Narrowest column of a card grid before it stacks |
 | `logo` / `logoSmall` / `emptyMark` | 64 / 26 / 88 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |
