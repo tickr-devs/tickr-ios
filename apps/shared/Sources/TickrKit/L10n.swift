@@ -146,11 +146,6 @@ enum L10n {
 
   // MARK: Headline
 
-  /// Headline when /status cannot be read; argument: the failure.
-  static func headlineFetchFailed(_ error: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.headline.fetchFailed", defaultValue: "\(error). Entry status unknown.",
-      bundle: bundle)
-  }
   /// Headline before the first answer of the local API.
   static var headlineConnecting: LocalizedStringResource {
     LocalizedStringResource("kit.headline.connecting", defaultValue: "Connecting to the local API…",

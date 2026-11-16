@@ -16,7 +16,7 @@ struct ChartTab: View {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         ConnectionPrompt()
         if let url = app.connection.url {
-          content(url)
+          content(url).lastKnown(app.connectionState.isLastKnown)
         }
       }
       .padding(.horizontal, Tokens.Space.l)
@@ -74,6 +74,9 @@ struct ChartTab: View {
   @ViewBuilder
   private func loaded(_ url: URL) -> some View {
     switch chart.phase {
+    case .failed where app.connectionState.failure != nil:
+      // The link to the bot is down: the connection notice above says so once, for every screen.
+      EmptyView()
     case .failed(let cause):
       ContentUnavailableView {
         Label { Text(ChartText.failedTitle) } icon: { Image(systemName: "exclamationmark.triangle") }

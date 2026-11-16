@@ -1630,6 +1630,193 @@
         }
       }
     },
+    "kit.connection.address" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адрес: %@"
+          }
+        }
+      }
+    },
+    "kit.connection.details" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подробности"
+          }
+        }
+      }
+    },
+    "kit.connection.lastKnown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "showing data from %1$@ · retrying every %2$lld s · commands off"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "данные на %1$@ · повтор каждые %2$lld с · команды выключены"
+          }
+        }
+      }
+    },
+    "kit.connection.noBotStatusBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the Mac answers, the bot has no status · entries not possible"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac отвечает, у бота нет состояния · входы невозможны"
+          }
+        }
+      }
+    },
+    "kit.connection.noBotStatusTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot has not reported yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот ещё не прислал состояние"
+          }
+        }
+      }
+    },
+    "kit.connection.notConfiguredBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pair this device with the Mac in Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "свяжите это устройство с Mac в настройках"
+          }
+        }
+      }
+    },
+    "kit.connection.notConfiguredTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect to your Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключитесь к Mac"
+          }
+        }
+      }
+    },
+    "kit.connection.nothingYet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nothing received yet · retrying every %lld s · commands off"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "данных пока нет · повтор каждые %lld с · команды выключены"
+          }
+        }
+      }
+    },
+    "kit.connection.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
+          }
+        }
+      }
+    },
+    "kit.connection.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "kit.connection.unreachableTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach the bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет связи с ботом"
+          }
+        }
+      }
+    },
     "kit.environment.demo" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3348,23 +3535,6 @@
         }
       }
     },
-    "kit.headline.fetchFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@. Entry status unknown."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@. Разрешены ли входы, неизвестно."
-          }
-        }
-      }
-    },
     "kit.headline.holding" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3419,6 +3589,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Держим 1 позицию · она защищена стопом у брокера"
+          }
+        }
+      }
+    },
+    "kit.headline.noConnection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach the bot. Entry status unknown."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет связи с ботом. Разрешены ли входы, неизвестно."
           }
         }
       }

@@ -83,6 +83,9 @@ struct RootView: View {
         // comes and goes, which made the screen's safe area change during layout.
         VStack(spacing: 0) {
           if section != .overview { EventStrip() }
+          // The link to the bot, said once above every section: the section keeps its last
+          // known data under it.
+          ConnectionBanner()
           detail
             // One container element per screen.
             .accessibilityElement(children: .contain)
@@ -99,6 +102,7 @@ struct RootView: View {
             .frame(minWidth: Self.screenMinWidth, maxWidth: .infinity, minHeight: Self.screenMinHeight,
               maxHeight: .infinity, alignment: .topLeading)
             .clipped()
+            .lastKnown(model.connectionState.isLastKnown)
         }
         if let unattended = model.unattendedPositions {
           UnattendedBanner(unattended: unattended)
@@ -116,6 +120,7 @@ struct RootView: View {
       .overlay(alignment: .top) { Hairline(axis: .horizontal) }
       .animation(Tokens.Motion.standard, value: model.toast)
       .animation(Tokens.Motion.standard, value: model.unattendedPositions)
+      .animation(Tokens.Motion.standard, value: model.connectionState)
       // Hints of the screen, the banner and the toast, drawn above all of them.
       .hintHost()
       // The window keeps the section's name (Window menu, Mission Control); the title bar shows

@@ -192,6 +192,7 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
   let leading: Leading
   let actions: Actions
   let content: Content
+  @Environment(AppModel.self) private var model
 
   init(
     _ title: LocalizedStringResource, tab: AppTab? = nil, back: LocalizedStringResource? = nil,
@@ -213,7 +214,10 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
         } else {
           PushedHeader(title: title, back: back) { leading } actions: { actions }
         }
-        content
+        // The link to the bot, said the same on every screen: a banner over the last known
+        // data (drawn dimmer), or an empty state in the card area when nothing was read.
+        ConnectionPrompt()
+        content.lastKnown(model.connectionState.isLastKnown)
       }
       .padding(.horizontal, Tokens.Space.l)
       .padding(.bottom, Tokens.Space.xl)
@@ -578,29 +582,45 @@ struct SegmentChips<Value: Hashable>: View {
   }
 }
 
-/// Shown instead of data when the phone has no address for the bot or cannot reach it.
+/// What every screen says about the link to the bot (TickrKit `ConnectionState`), at the top of
+/// its content (`Screen`, the Chart tab): the mockup's calm banner over the last known data when a
+/// read fails, an empty state in the card area when there is no data yet, nothing while the link
+/// is fine. The technical cause (address, port, the API's own words) is behind "Details"; commands
+/// stay off while it shows (`canCommand`), and its line says so.
 struct ConnectionPrompt: View {
   @Environment(AppModel.self) private var model
+  /// A Retry is on its way: the button waits for it.
+  @State private var retrying = false
 
   var body: some View {
-    if !model.isConfigured {
-      ContentUnavailableView {
-        Label { Text(L10n.Connect.title) } icon: { BrandMark.empty() }
-      } description: {
-        Text(L10n.Connect.body)
-      } actions: {
-        NavigationLink { SettingsView() } label: { Text(L10n.Connect.openSettings) }
-          .buttonStyle(.action(.primary))
-      }
-      .rise()
-    } else if model.status == nil, let cause = model.fetchError ?? model.response?.unavailableCause {
-      ContentUnavailableView {
-        Label { Text(L10n.Connect.noStatus) } icon: { BrandMark.empty(.muted) }
-      } description: {
-        Text(verbatim: cause)
+    let state = model.connectionState
+    if let message = model.connectionMessage {
+      ConnectionNotice(state.hasNoData ? .empty : .banner, title: message.title, subtitle: message.subtitle,
+        detailsLabel: ConnectionMessage.detailsLabel, details: details(message)) {
+        if state != .notConfigured {
+          Button {
+            Task {
+              retrying = true
+              await model.refreshAll()
+              retrying = false
+            }
+          } label: { Text(ConnectionMessage.retry) }
+            .buttonStyle(.action(.secondary, size: .compact))
+            .disabled(retrying)
+        }
+        NavigationLink { SettingsView() } label: { Text(ConnectionMessage.settings) }
+          .buttonStyle(.action(state == .notConfigured ? .primary : .ghost, size: .compact))
       }
       .rise()
     }
+  }
+
+  /// The technical lines under "Details": the address read from, then the failure as the API
+  /// client describes it.
+  private func details(_ message: ConnectionMessage) -> [String] {
+    guard let detail = message.details else { return [] }
+    let address = model.connection.url.map { String(localized: ConnectionMessage.address($0.absoluteString)) }
+    return [address, detail].compactMap(\.self)
   }
 }
 

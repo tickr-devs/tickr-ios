@@ -307,7 +307,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
 
   @Test("An open, protected position is calm, and the headline says what the bot holds, not the refusal")
   func ordinaryBlockIsCalm() throws {
-    let headline = Headline.make(response: try response("status-response-v1.json"), fetchError: nil)
+    let headline = Headline.make(response: try response("status-response-v1.json"), readFailed: false)
     #expect(headline.severity == .ok)
     #expect(headline.text == "Holding 1 position · protected by a broker stop")
   }
@@ -318,30 +318,29 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       .replacingOccurrences(of: "\"attention\": false", with: "\"attention\": true")
     let response = try Wire.decoder().decode(StatusResponseV1.self, from: Data(text.utf8))
     #expect(response.status?.entryBlock?.attention == true)
-    #expect(Headline.make(response: response, fetchError: nil).severity == .attention)
+    #expect(Headline.make(response: response, readFailed: false).severity == .attention)
   }
 
   @Test func allowedIsOK() throws {
-    let headline = Headline.make(response: try response("status-response-v1.minimal.json"), fetchError: nil)
+    let headline = Headline.make(response: try response("status-response-v1.minimal.json"), readFailed: false)
     #expect(headline == Headline(text: "Entries allowed.", severity: .ok))
   }
 
   @Test(arguments: ["status-response-v1.stale.json", "status-response-v1.unavailable.json"])
   func staleAndUnavailableAreAlarms(name: String) throws {
-    #expect(Headline.make(response: try response(name), fetchError: nil).severity == .alarm)
+    #expect(Headline.make(response: try response(name), readFailed: false).severity == .alarm)
   }
 
-  @Test func fetchErrorWinsOverOldResponse() throws {
-    let headline = Headline.make(response: try response("status-response-v1.minimal.json"),
-      fetchError: "Local API not reachable: refused")
+  @Test func failedReadWinsOverOldResponse() throws {
+    let headline = Headline.make(response: try response("status-response-v1.minimal.json"), readFailed: true)
     #expect(headline.severity == .alarm)
-    #expect(headline.text.hasPrefix("Local API not reachable"))
+    #expect(headline.text == String(localized: L10n.headlineNoConnection))
   }
 
-  @Test("A failure that ends its own sentence is not followed by a second full stop")
-  func fetchErrorKeepsOneFullStop() {
-    let headline = Headline.make(response: nil, fetchError: "Could not connect to the server.")
-    #expect(headline.text == "Could not connect to the server. Entry status unknown.")
+  @Test("A failed read's headline is plain words: no address, port or system error in it")
+  func failedReadHeadlineHasNoTechnicalDetail() {
+    let headline = Headline.make(response: nil, readFailed: true)
+    #expect(headline.text == "Can't reach the bot. Entry status unknown.")
   }
 
   /// A stale status read again is older but no new state: its pulse key stays, though its text
@@ -349,16 +348,16 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
   @Test func staleStatusReadAgainKeepsItsPulse() throws {
     let older = try #require(String(data: try fixture("status-response-v1.stale.json"), encoding: .utf8))
       .replacingOccurrences(of: "\"age_seconds\": \"42.500\"", with: "\"age_seconds\": \"43.500\"")
-    let first = Headline.make(response: try response("status-response-v1.stale.json"), fetchError: nil)
+    let first = Headline.make(response: try response("status-response-v1.stale.json"), readFailed: false)
     let second = Headline.make(
-      response: try Wire.decoder().decode(StatusResponseV1.self, from: Data(older.utf8)), fetchError: nil)
+      response: try Wire.decoder().decode(StatusResponseV1.self, from: Data(older.utf8)), readFailed: false)
     #expect(first.text != second.text)
     #expect(first.pulse == .stale)
     #expect(second.pulse == first.pulse)
   }
 
   @Test func freshHeadlinePulsesOnItsText() throws {
-    let headline = Headline.make(response: try response("status-response-v1.minimal.json"), fetchError: nil)
+    let headline = Headline.make(response: try response("status-response-v1.minimal.json"), readFailed: false)
     #expect(headline.pulse == .text(headline.text))
   }
 }

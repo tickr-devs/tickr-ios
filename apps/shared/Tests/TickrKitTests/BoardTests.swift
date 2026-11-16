@@ -77,7 +77,7 @@ import Testing
     let opened = Board.events(status).filter { $0.tag == "OPEN" }.map(\.text)
     #expect(opened.count == 2)
     #expect(opened.contains { $0.hasPrefix("EFGH") })
-    let headline = Headline.make(response: response, fetchError: nil)
+    let headline = Headline.make(response: response, readFailed: false)
     #expect(headline.severity == .alarm)
     #expect(headline.text.contains("EFGH"))
   }

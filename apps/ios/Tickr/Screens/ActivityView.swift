@@ -48,7 +48,6 @@ struct ActivityView: View {
       .accessibilityLabel(Text(L10n.Activity.calendar))
       .accessibilityIdentifier(AccessibilityID.calendar)
     } content: {
-      ConnectionPrompt()
       if showsCalendar, let url = model.connection.url {
         DayPicker(activity: activity, url: url)
           .transition(.move(edge: .top).combined(with: .opacity))

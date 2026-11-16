@@ -62,7 +62,6 @@ struct HomeView: View {
       .accessibilityLabel(Text(L10n.Home.settings))
       .accessibilityIdentifier(AccessibilityID.settings)
     } content: {
-      ConnectionPrompt()
       if model.connection.demo {
         // Every command from here goes to the demo day: said at the top, as loud as a warning.
         WarningBanner(L10n.Home.demoTitle, detail: L10n.Home.demoDetail, systemImage: SettingsView.demoSymbol)

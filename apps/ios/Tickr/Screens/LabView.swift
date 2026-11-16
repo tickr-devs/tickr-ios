@@ -23,7 +23,6 @@ struct LabView: View {
 
   var body: some View {
     Screen(L10n.Lab.title, tab: .lab) {
-      ConnectionPrompt()
       if let status = model.status {
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
           // The label, then its note; the note goes under it at large text sizes.

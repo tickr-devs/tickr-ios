@@ -31,7 +31,12 @@ final class AppModel {
     }
   }
   private(set) var response: StatusResponseV1?
-  private(set) var fetchError: String?
+  /// Why the last read of /status failed; nil after an answer.
+  private(set) var readFailure: ReadFailure?
+  /// When /status last answered, on this phone's clock; nil until it answers at this address.
+  private(set) var lastReadAt: Date?
+  /// The last failure's technical text (Settings, preflight); screens say `connection` instead.
+  var fetchError: String? { readFailure?.detail }
   /// The bot's configuration (GET /settings): risk limits and session. Read once per address.
   private(set) var settings: SettingsV1?
   /// Why the settings could not be read, if they could not.
@@ -106,8 +111,23 @@ final class AppModel {
     guard isConfigured else {
       return Headline(text: String(localized: L10n.Connect.notConnected), severity: .attention)
     }
-    return Headline.make(response: response, fetchError: fetchError)
+    return Headline.make(response: response, readFailed: readFailure != nil)
   }
+
+  /// What every screen says about the link to the bot: last known data under a banner, or an
+  /// empty state when nothing was read (TickrKit `ConnectionState`).
+  var connectionState: ConnectionState {
+    ConnectionState.make(configured: isConfigured, response: response, failure: readFailure, lastSuccess: lastReadAt)
+  }
+
+  /// Seconds between two reads of /status: the server's poll_seconds once it answered.
+  var pollSeconds: Double {
+    let asked = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue } ?? Self.initialPollSeconds
+    return max(asked, Self.minimumPollSeconds)
+  }
+
+  /// The words of the connection banner: the reads go on every `pollSeconds`.
+  var connectionMessage: ConnectionMessage? { connectionState.message(retrySeconds: Int(pollSeconds.rounded())) }
 
   /// The last read succeeded and the bot's status is current.
   var isFresh: Bool { status != nil && response?.stale == false && fetchError == nil }
@@ -130,9 +150,7 @@ final class AppModel {
       while !Task.isCancelled {
         guard let self else { return }
         await self.refresh()
-        let seconds = self.response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
-          ?? Self.initialPollSeconds
-        try? await Task.sleep(for: .seconds(max(seconds, Self.minimumPollSeconds)))
+        try? await Task.sleep(for: .seconds(self.pollSeconds))
       }
     }
   }
@@ -145,7 +163,8 @@ final class AppModel {
   private func restart() {
     stop()
     response = nil
-    fetchError = nil
+    readFailure = nil
+    lastReadAt = nil
     botClockOffset = 0
     settings = nil
     settingsError = nil
@@ -165,17 +184,18 @@ final class AppModel {
   func refresh() async {
     guard let url = connection.url else {
       response = nil
-      fetchError = nil
+      readFailure = nil
       return
     }
     do {
       let fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
       response = fresh
-      fetchError = nil
+      readFailure = nil
+      lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
       resolveAwaited(fresh)
     } catch {
-      fetchError = Self.describe(error) ?? fetchError
+      readFailure = ReadFailure(error) ?? readFailure
       return
     }
     if settings == nil { await refreshSettings(url) }

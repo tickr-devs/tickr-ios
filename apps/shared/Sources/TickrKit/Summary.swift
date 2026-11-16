@@ -31,15 +31,12 @@ public struct Headline: Equatable, Sendable {
     self.pulse = pulse ?? .text(text)
   }
 
-  /// The full stop that ends a sentence.
-  static let fullStop = "."
-
-  /// `fetchError` is the last failure to read /status; it wins over an older good response.
-  public static func make(response: StatusResponseV1?, fetchError: String?) -> Headline {
-    if let fetchError {
-      // The failure is often a sentence of its own ("…to the server."): one full stop, not two.
-      let cause = fetchError.hasSuffix(Self.fullStop) ? String(fetchError.dropLast()) : fetchError
-      return Headline(text: String(localized: L10n.headlineFetchFailed(cause)), severity: .alarm)
+  /// `readFailed`: the last read of /status failed; it wins over an older good response. The
+  /// headline says so in plain words; the failure's technical detail is the connection banner's
+  /// (ConnectionState), behind its "Details".
+  public static func make(response: StatusResponseV1?, readFailed: Bool) -> Headline {
+    if readFailed {
+      return Headline(text: String(localized: L10n.headlineNoConnection), severity: .alarm)
     }
     guard let response else {
       return Headline(text: String(localized: L10n.headlineConnecting), severity: .attention)

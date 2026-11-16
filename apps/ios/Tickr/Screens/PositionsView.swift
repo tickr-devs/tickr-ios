@@ -20,7 +20,6 @@ struct PositionsView: View {
           .contentTransition(.numericText())
       }
     } content: {
-      ConnectionPrompt()
       if let status = model.status {
         let positions = Board.positions(status)
         if positions.isEmpty {

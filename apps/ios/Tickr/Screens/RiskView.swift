@@ -14,7 +14,6 @@ struct RiskView: View {
 
   var body: some View {
     Screen(L10n.Risk.title, back: L10n.App.home) {
-      ConnectionPrompt()
       if let status = model.status {
         RoomCard(status: status, risk: model.settings?.risk).rise(step: Order.room.rawValue)
         GateCard(status: status).rise(step: Order.gate.rawValue)

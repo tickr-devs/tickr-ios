@@ -335,6 +335,21 @@ struct AppModelTests {
     #expect(model.confirming == nil)
   }
 
+  @Test("A failed read keeps the last known status under a banner, with commands off")
+  func failedReadKeepsLastKnownData() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    #expect(model.connectionState == .connected)
+    #expect(model.commandsEnabled)
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = nil }
+    await model.refreshStatus()
+    #expect(model.connectionState.isLastKnown, "the last good read is kept and named as last known")
+    #expect(model.status != nil, "the screens keep the last known data")
+    #expect(!model.commandsEnabled, "commands that need a live bot stay off")
+    #expect(model.headline.severity == .alarm)
+    #expect(model.connectionMessage?.details != nil, "the technical cause is kept for Details")
+  }
+
   @Test("A question closes when commands turn off for a recorded day")
   func questionClosesOnRecordedDay() async throws {
     let model = try await Self.modelAsking()
