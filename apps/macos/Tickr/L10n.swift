@@ -1302,12 +1302,6 @@ enum L10n {
         defaultValue: "Environment · trading gate",
         bundle: L10n.bundle)
     }
-    static var gateOpenShort: LocalizedStringResource {
-      LocalizedStringResource("settings.gateOpenShort", defaultValue: "gate open", bundle: L10n.bundle)
-    }
-    static var gateClosedShort: LocalizedStringResource {
-      LocalizedStringResource("settings.gateClosedShort", defaultValue: "gate closed", bundle: L10n.bundle)
-    }
     static var backups: LocalizedStringResource {
       LocalizedStringResource("settings.backups", defaultValue: "Backups · storage", bundle: L10n.bundle)
     }

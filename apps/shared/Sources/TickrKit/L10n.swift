@@ -304,6 +304,10 @@ enum L10n {
   static var environmentProduction: LocalizedStringResource {
     LocalizedStringResource("kit.environment.production", defaultValue: "Production", bundle: bundle)
   }
+  /// The environment badge as VoiceOver reads it, on every screen of both apps: "Environment: Sandbox".
+  static func environmentLabel(_ name: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.environment.label", defaultValue: "Environment: \(name)", bundle: bundle)
+  }
   /// Where the bot trades, when the bot sends no environment name.
   static var environmentUnknown: LocalizedStringResource {
     LocalizedStringResource("kit.environment.unknown", defaultValue: "Unknown environment", bundle: bundle)

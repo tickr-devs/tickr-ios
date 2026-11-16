@@ -3949,23 +3949,6 @@
         }
       }
     },
-    "connect.environment" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Environment %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Окружение %@"
-          }
-        }
-      }
-    },
     "connect.faceIDUnavailable" : {
       "extractionState" : "manual",
       "localizations" : {

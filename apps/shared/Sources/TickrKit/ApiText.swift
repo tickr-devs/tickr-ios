@@ -117,6 +117,11 @@ public enum ApiText {
     return raw.isEmpty ? String(localized: L10n.environmentUnknown) : raw
   }
 
+  /// The environment badge's spoken name ("Environment: Sandbox"), the same on every screen.
+  public static func environmentLabel(_ raw: String) -> String {
+    String(localized: L10n.environmentLabel(environment(raw)))
+  }
+
   /// A strategy check's rule; a rule this app does not know (a newer strategy) reads as
   /// "Other check", never as the strategy's key.
   public static func rule(_ raw: String) -> String {

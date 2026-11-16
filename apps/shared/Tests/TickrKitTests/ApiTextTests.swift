@@ -30,6 +30,13 @@ struct ApiTextTests {
     #expect(ApiText.environment("") == String(localized: L10n.environmentUnknown))
   }
 
+  @Test("The environment badge reads its name after the word Environment, the same on every screen")
+  func environmentLabels() {
+    #expect(ApiText.environmentLabel("sandbox") == String(localized: L10n.environmentLabel(ApiText.environment("sandbox"))))
+    #expect(ApiText.environmentLabel("production").contains(ApiText.environment("production")))
+    #expect(ApiText.environmentLabel("paper_v2").contains("paper_v2"))
+  }
+
   @Test("A fence reads as its kind; only a symbol key follows it, never a trade or order id")
   func fences() throws {
     #expect(ApiText.fence(try fence("foreign-position:EFGH"))

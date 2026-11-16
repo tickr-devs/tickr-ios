@@ -221,7 +221,7 @@ private struct ThemeCard: View {
 }
 
 /// The "Demo day" switch as a card: the name with a one-line explanation, the demo chip while it
-/// is on, and the switch in the environment chip's colour. On, the app shows the demo day behind
+/// is on, and the switch in the Sandbox badge's colour. On, the app shows the demo day behind
 /// the bot's address (AppModel.setDemoDay) and remembers the choice; the address above is
 /// untouched.
 private struct DemoDaySection: View {
@@ -454,9 +454,9 @@ private struct PhoneDot: View {
 
 // MARK: - Environment
 
-/// The environment and the trading gate as the design's two-part strip: the environment the bot
-/// runs in lit in its tone with the gate's state, the others muted and closed; then the gate, its
-/// cause, the environment's name and the API version.
+/// The environment and the trading gate: the environment the bot runs in as the one
+/// `EnvironmentBadge` of both apps beside the gate's open or closed badge (as in the Overview
+/// header); then the gate, its cause, the environment's name and the API version.
 private struct EnvironmentSettings: View {
   @Environment(AppModel.self) private var model
 
@@ -466,9 +466,15 @@ private struct EnvironmentSettings: View {
       // The environment in use as a status, not a picker: config/bot.toml sets it, the app never does.
       HStack(spacing: Tokens.Space.s) {
         if let raw {
-          StatusPill(verbatim: label(raw), tone: tone(raw))
+          EnvironmentBadge(ApiText.environment(raw), raw: raw, accessibilityLabel: ApiText.environmentLabel(raw))
         } else {
           Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+        }
+        // The gate at a glance beside it, the same badge as the Overview header's; its cause on hover.
+        if let gate = model.status?.tradingGate {
+          Badge(gate.open ? L10n.Overview.gateOpen : L10n.Overview.gateClosed,
+            color: gate.open ? Palette.profitText : Palette.warningText)
+            .help(Text(verbatim: ApiText.gate(gate)))
         }
         Spacer(minLength: 0)
       }
@@ -483,17 +489,6 @@ private struct EnvironmentSettings: View {
         value: raw.map { ApiText.environment($0).localizedLowercase } ?? Format.missing)
       SettingsRow(L10n.Settings.apiVersion, value: model.settings.map { "\($0.apiVersion)" } ?? Format.missing)
     }
-  }
-
-  /// "SANDBOX · gate open"; only the name before the first status.
-  private func label(_ raw: String) -> String {
-    let name = ApiText.environment(raw).localizedUppercase
-    guard let open = model.status?.tradingGate.open else { return name }
-    return name + Format.itemSeparator + String(localized: open ? L10n.Settings.gateOpenShort : L10n.Settings.gateClosedShort)
-  }
-
-  private func tone(_ raw: String) -> Tone {
-    raw == BotEnvironment.production.rawValue ? .loss : .warning
   }
 }
 

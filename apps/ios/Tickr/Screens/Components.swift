@@ -622,31 +622,6 @@ struct StatTile: View {
   }
 }
 
-/// The environment badge (SANDBOX / PRODUCTION) from the status document.
-struct EnvironmentBadge: View {
-  /// The environment name of the demo day.
-  static let demo = "demo"
-
-  let environment: String
-
-  var body: some View {
-    // As on the design: Sandbox in amber; the demo day in violet with a dashed edge, so it never
-    // passes for a real environment.
-    let demo = environment == Self.demo
-    let tone = demo ? Palette.highlight : Palette.warning
-    Text(verbatim: ApiText.environment(environment).uppercased())
-      .font(Tokens.Typography.badge)
-      .tracking(Tokens.Typography.badgeTracking)
-      .padding(.horizontal, Tokens.Space.s)
-      .padding(.vertical, Tokens.Space.xs)
-      .foregroundStyle(demo ? Palette.highlightText : Palette.warningText)
-      .background(tone.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
-      .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.small).strokeBorder(tone.opacity(Tokens.Opacity.border),
-        style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: demo ? Tokens.Stroke.dashFine : [])))
-      .accessibilityLabel(Text(L10n.Connect.environment(ApiText.environment(environment))))
-  }
-}
-
 /// The command notice floating at the top of the screen, with haptics, gone after a few seconds.
 struct NoticeOverlay: ViewModifier {
   /// Seconds a notice stays on screen.

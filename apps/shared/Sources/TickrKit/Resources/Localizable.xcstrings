@@ -2118,6 +2118,23 @@
         }
       }
     },
+    "kit.environment.label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Environment: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Среда: %@"
+          }
+        }
+      }
+    },
     "kit.environment.production" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -122,9 +122,6 @@ enum L10n {
     static var noStatus: LocalizedStringResource {
       LocalizedStringResource("connect.noStatus", defaultValue: "No status from the bot", bundle: L10n.bundle)
     }
-    static func environment(_ name: String) -> LocalizedStringResource {
-      LocalizedStringResource("connect.environment", defaultValue: "Environment \(name)", bundle: L10n.bundle)
-    }
     static var notConnected: LocalizedStringResource {
       LocalizedStringResource("connect.notConnected",
         defaultValue: "Not connected. Add your Mac's address in Settings.",

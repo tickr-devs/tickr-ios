@@ -66,14 +66,17 @@ public struct StatusPill: View {
   }
 }
 
-/// A fact in a small tag: an exit reason, an environment, a verdict, a version, the trading gate,
-/// a day's clean-day verdict. Square corners set it apart from a `StatusPill`; `planned` draws it
-/// dashed (BACKLOG). An optional symbol stands before the words (the Trades header's clean day).
+/// A fact in a small tag: an exit reason, a verdict, a version, the trading gate, a day's
+/// clean-day verdict; the environment is the `EnvironmentBadge`, drawn by this. Square corners set
+/// it apart from a `StatusPill`; `planned` draws it dashed (BACKLOG, NEEDS API). An optional symbol
+/// stands before the words (the Trades header's clean day).
 public struct Badge: View {
   let text: Text
   let fill: Color
   let color: Color
   let planned: Bool
+  /// A dashed edge on the usual wash (the demo day's `EnvironmentBadge`); `planned` drops the wash too.
+  let dashed: Bool
   /// Badges are capitals; a value whose case means something (a version, "v1") keeps its own.
   var textCase: Text.Case? = .uppercase
   /// An SF Symbol before the words, in the badge's colour.
@@ -89,7 +92,7 @@ public struct Badge: View {
     textCase = nil
   }
 
-  /// A badge showing data (an environment name, a protocol value), not a sentence.
+  /// A badge showing data (a protocol value), not a sentence.
   public init(verbatim text: String, tone: Tone, planned: Bool = false) {
     self.init(Text(verbatim: text), fill: tone.fill, color: tone.text, planned: planned)
   }
@@ -107,11 +110,12 @@ public struct Badge: View {
     if keepingCase { textCase = nil }
   }
 
-  init(_ text: Text, fill: Color, color: Color, planned: Bool) {
+  init(_ text: Text, fill: Color, color: Color, planned: Bool, dashed: Bool = false) {
     self.text = text
     self.fill = fill
     self.color = color
     self.planned = planned
+    self.dashed = dashed
   }
 
   public var body: some View {
@@ -130,7 +134,7 @@ public struct Badge: View {
     .foregroundStyle(color)
     .background(planned ? Color.clear : fill.opacity(Tokens.Opacity.wash), in: shape)
     .overlay(shape.strokeBorder(fill.opacity(planned ? 1 : Tokens.Opacity.border),
-      style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: planned ? Tokens.Stroke.dashFine : [])))
+      style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: planned || dashed ? Tokens.Stroke.dashFine : [])))
     .fixedSize()
   }
 }

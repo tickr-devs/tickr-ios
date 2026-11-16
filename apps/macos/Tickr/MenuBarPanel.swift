@@ -340,7 +340,7 @@ private struct FlowDots: View {
   }
 }
 
-/// One row as designed: open the window, the environment chip, how fresh the broker read is (a
+/// One row as designed: open the window, the environment badge, how fresh the broker read is (a
 /// bank symbol and its short age in the read's colour, named in its hint), settings and quit.
 /// When the row does not fit (longer Russian), it splits into two.
 private struct MenuFooter: View {
@@ -388,11 +388,13 @@ private struct MenuFooter: View {
     .buttonStyle(.action(.primary, size: .medium))
   }
 
-  /// The environment chip (the demo day's own warning stands above the panel's banner).
+  /// The environment badge (the demo day's own warning stands above the panel's banner).
   private var badges: some View {
     HStack(spacing: Tokens.Space.xs) {
       if let environment = model.status?.environment {
-        EnvironmentChip(text: ApiText.environment(environment))
+        EnvironmentBadge(ApiText.environment(environment), raw: environment,
+          accessibilityLabel: ApiText.environmentLabel(environment))
+          .hint(L10n.Settings.environment)
       }
     }
   }
@@ -440,24 +442,6 @@ private struct MenuFooter: View {
       .buttonStyle(.icon(compact: true))
       .hint(L10n.App.quit)
     }
-  }
-}
-
-/// The environment as the design's small chip: the bot's word in lower case on an accent-washed
-/// capsule, without an outline.
-private struct EnvironmentChip: View {
-  let text: String
-
-  var body: some View {
-    Text(verbatim: text)
-      .textCase(.lowercase)
-      .font(Tokens.Typography.captionMono.weight(.bold))
-      .foregroundStyle(Palette.accentText)
-      .padding(.horizontal, Tokens.Space.xs + Tokens.Space.xxs)
-      .padding(.vertical, Tokens.Space.xxs)
-      .background(Palette.accent.opacity(Tokens.Opacity.glow), in: Capsule())
-      .fixedSize()
-      .hint(L10n.Settings.environment)
   }
 }
 

@@ -160,7 +160,8 @@ private struct Header: View {
           }
           #endif
           if let status = model.status {
-            Badge(verbatim: ApiText.environment(status.environment), color: Palette.warningText)
+            EnvironmentBadge(ApiText.environment(status.environment), raw: status.environment,
+              accessibilityLabel: ApiText.environmentLabel(status.environment))
             // The gate as a word, as in the design; its cause on hover.
             let open = status.tradingGate.open
             Badge(open ? L10n.Overview.gateOpen : L10n.Overview.gateClosed,
