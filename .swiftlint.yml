@@ -78,5 +78,5 @@ custom_rules:
     name: "Font size outside Tokens"
     message: "Pick a font from Tokens.Typography."
     regex: '\.system\(\s*size:'
-    excluded: ".*/Tokens\\.swift"
+    excluded: ".*/Tokens(\\+[A-Za-z]+)?\\.swift"
     severity: error

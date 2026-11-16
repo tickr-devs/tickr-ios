@@ -142,7 +142,7 @@ struct AdvisorCard: View {
     } else if let failure = advisor.failure {
       ReadFailureNote(AdvisorWords.failed, detail: failure)
     } else if url != nil {
-      ProgressView().frame(maxWidth: .infinity)
+      TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
     }
   }
 }

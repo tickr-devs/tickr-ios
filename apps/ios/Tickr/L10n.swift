@@ -32,6 +32,10 @@ enum L10n {
   }
 
   enum Common {
+    /// VoiceOver's name of the loader (`TickrLoader`) while a card's data is read.
+    static var loading: LocalizedStringResource {
+      LocalizedStringResource("common.loading", defaultValue: "Loading…", bundle: L10n.bundle)
+    }
     /// A pushed screen's way back: VoiceOver's name of the back button (its value is the screen
     /// under it), and its title when that screen has no name to show.
     static var back: LocalizedStringResource {
@@ -544,7 +548,7 @@ enum L10n {
         bundle: L10n.bundle)
     }
     static var openChart: LocalizedStringResource {
-      LocalizedStringResource("positions.openChart", defaultValue: "open full chart →", bundle: L10n.bundle)
+      LocalizedStringResource("positions.openChart", defaultValue: "Full chart", bundle: L10n.bundle)
     }
     static var riskBand: LocalizedStringResource {
       LocalizedStringResource("positions.riskBand", defaultValue: "Risk band", bundle: L10n.bundle)
@@ -1808,8 +1812,10 @@ enum L10n {
 /// Every text of the Chart tab, in Localizable.xcstrings with the rest.
 enum ChartText {
   static let title = LocalizedStringResource("chart.title", defaultValue: "Chart")
-  static let loading = LocalizedStringResource("chart.loading",
-    defaultValue: "Loading the chart…")
+  /// The loader's caption while a symbol's bars load: the symbol and the interval ("1m").
+  static func loadingBars(_ symbol: String, interval: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.loadingBars", defaultValue: "Loading \(symbol) · \(interval) bars")
+  }
   static let noDaysTitle = LocalizedStringResource("chart.noDays.title",
     defaultValue: "No recorded days yet")
   static let noDaysBody = LocalizedStringResource("chart.noDays.body",

@@ -78,7 +78,7 @@ struct ConfigView: View {
       } else if let error = model.configError {
         ReadFailureNote(L10n.ReadFailed.config, detail: error)
       } else {
-        ProgressView()
+        TickrLoader(L10n.Common.loading)
       }
     }
     .contentMargins(.top, 0, for: .scrollContent)

@@ -53,6 +53,10 @@ enum L10n {
   }
 
   enum Common {
+    /// VoiceOver's name of the loader (`TickrLoader`) while a card's data is read.
+    static var loading: LocalizedStringResource {
+      LocalizedStringResource("common.loading", defaultValue: "Loading…", bundle: L10n.bundle)
+    }
     /// Hint of a row or chip that opens the Chart on its symbol.
     static func openOnChart(_ symbol: String) -> LocalizedStringResource {
       LocalizedStringResource("common.openOnChart", defaultValue: "Opens \(symbol) on the chart", bundle: L10n.bundle)
@@ -626,7 +630,7 @@ enum L10n {
 
   enum Position {
     static var openChart: LocalizedStringResource {
-      LocalizedStringResource("position.openChart", defaultValue: "Open chart →", bundle: L10n.bundle)
+      LocalizedStringResource("position.openChart", defaultValue: "Open chart", bundle: L10n.bundle)
     }
     static var picker: LocalizedStringResource {
       LocalizedStringResource("position.picker", defaultValue: "Position", bundle: L10n.bundle)
@@ -776,7 +780,7 @@ enum L10n {
       LocalizedStringResource("riskRoom.title", defaultValue: "Risk room today", bundle: L10n.bundle)
     }
     static var details: LocalizedStringResource {
-      LocalizedStringResource("riskRoom.details", defaultValue: "Details →", bundle: L10n.bundle)
+      LocalizedStringResource("riskRoom.details", defaultValue: "Details", bundle: L10n.bundle)
     }
     static func left(_ limit: String) -> LocalizedStringResource {
       LocalizedStringResource("riskRoom.left", defaultValue: "of \(limit) USD left", bundle: L10n.bundle)
@@ -1653,9 +1657,9 @@ enum L10n {
       LocalizedStringResource("chart.barsUnavailableDetail", defaultValue: "The bot's API did not return bars",
         bundle: L10n.bundle)
     }
-    /// While bars load.
-    static var loading: LocalizedStringResource {
-      LocalizedStringResource("chart.loading", defaultValue: "Loading Bars…", bundle: L10n.bundle)
+    /// The loader's caption while a symbol's bars load: the symbol and the interval ("1m").
+    static func loadingBars(_ symbol: String, interval: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.loadingBars", defaultValue: "Loading \(symbol) · \(interval) bars", bundle: L10n.bundle)
     }
     /// The symbol has no bars on the day.
     static var noBars: LocalizedStringResource {

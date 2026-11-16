@@ -43,7 +43,7 @@ struct WatchingCard: View {
           WatchingRow(row: row, current: failure == nil)
         }
       } else if failure == nil {
-        ProgressView().frame(maxWidth: .infinity)
+        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
       }
     }
     .padding(Tokens.Space.l)

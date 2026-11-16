@@ -21,7 +21,7 @@ the approved design canvas. Code follows it one to one:
    - Protocol values from the bot (`exit_reason`, fence `kind`) are shown through a localized title and never translated in place.
 3. **System appearance only.** Light and dark follow macOS/iOS; there is no theme switch. Light is designed on its own (soft glows and a tinted shadow), not as an inverted dark.
 4. **Components carry the spacing.** Cards, rows, section labels, badges and tags come from shared components. A screen arranges components; it does not restyle them.
-5. **Motion has meaning and respects Reduce Motion.** Every animation uses a `Tokens.Motion` curve. With Reduce Motion on, every piece shows its still final state. Anything that reads as data or activity (status dots, flow stages, alarms, counts) moves only when the bot's data changes: one pulse, flight or fade per real event, still in between, never on a timer. Only pure ornament may loop, marked `// decorative: <why>` in code: the brand mark's spark halo, the empty-positions radar (sweep and blips), the event ticker's and the screener chips' scroll, the Lab's AI advisor title shine (owner wants the design's motion, 2026-11-16), and the Settings session card's drifting pre/post-market stripes (owner's request, 2026-11-16). Each loops only while `OrnamentGate` holds (macOS and iOS: Reduce Motion off, the live day shown, fresh status, the bot running), still otherwise; the `loop` rule of `check_swift_rules.py` rejects any other `repeatForever`, `TimelineView(.animation)` or Core Animation `repeatCount = .infinity` (owner, 2026-11-15).
+5. **Motion has meaning and respects Reduce Motion.** Every animation uses a `Tokens.Motion` curve. With Reduce Motion on, every piece shows its still final state. Anything that reads as data or activity (status dots, flow stages, alarms, counts) moves only when the bot's data changes: one pulse, flight or fade per real event, still in between, never on a timer. Only pure ornament may loop, marked `// decorative: <why>` in code: the brand mark's spark halo, the empty-positions radar (sweep and blips), the event ticker's and the screener chips' scroll, the Lab's AI advisor title shine (owner wants the design's motion, 2026-11-16), and the Settings session card's drifting pre/post-market stripes (owner's request, 2026-11-16). Each loops only while `OrnamentGate` holds (macOS and iOS: Reduce Motion off, the live day shown, fresh status, the bot running), still otherwise. The one exception is the loader (`TickrLoader`, owner, 2026-11-16): it marks only that a read is in flight and is on screen only while one is, so it turns whenever it shows, in Core Animation like the brand halo and `ShineBand`; under Reduce Motion its beam stands still and its rings pulse gently in opacity (nothing moves) instead. The `loop` rule of `check_swift_rules.py` rejects any other `repeatForever`, `TimelineView(.animation)` or Core Animation `repeatCount = .infinity` (owner, 2026-11-15).
 6. **Formatting: Swift uses 2-space indentation.**
    - `.editorconfig`, SwiftLint's `indentation_width` (every app) and the rules check (rule `indent`, every app) enforce it.
    - Planned with each app's move: the Xcode projects' text settings get the same values, so Xcode indents with 2.
@@ -129,11 +129,14 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `buttonCompact` | `.callout` semibold | Compact buttons |
 | `chipValue` | `.headline` bold mono | Figures of metric chips, icon metrics, large delta tags |
 | `chevron` | `.caption2` bold | Chevrons and direction triangles |
+| `link` | 12 pt semibold | A card header link (`HeaderLink`) |
+| `footerLink` | 12.5 pt semibold | A card footer link's title (`CardFooterLink`) |
+| `backTitle` / `backChevron` | 15 pt medium / 17 pt semibold | The back capsule's name and chevron (`BackCapsule`) |
 
 Sizes above are the Mac's (macOS has no Dynamic Type). On iOS every role follows a text style, so
 Dynamic Type scales it: `label`, `badge`, `annotation` → `.caption2`; `metric` → `.title2`; `hero`
 and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`; `figure` → `.headline`; `title` and `subtitle` → `.title`; `symbol` → `.subheadline`;
-`panelFigure` → `.largeTitle`; `symbolCompact` → `.footnote`. At the default text size these match the design within a point or two.
+`panelFigure` → `.largeTitle`; `symbolCompact` → `.footnote`; `link` → `.footnote`; `footerLink` and `backTitle` → `.subheadline`; `backChevron` → `.body`. At the default text size these match the design within a point or two.
 
 ## Lines (`Tokens.Stroke`)
 
@@ -161,6 +164,9 @@ and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`;
 | `medium` | 0.70 | Inactive elements, pulse start |
 | `overlay` | 0.85 | Readouts over content |
 | `flash` | 0.22 | A new row's tint as it arrives (`arrivalFlash`) |
+| `rowHover` | 0.06 | A footer link's row under the pointer (`CardFooterLink`) |
+| `tint` | 0.14 | A tinted chip's fill (the footer link's chevron chip) |
+| `linkHover` / `linkOutline` | 0.20 / 0.22 | A header link's fill under the pointer and its tinted outline (`HeaderLink`) |
 
 ## Text shrink (`Tokens.Shrink`)
 
@@ -204,6 +210,11 @@ a step; it does not define its own factor.
 | `popover` | 340 | Widest a detail popover grows (a live-flow stage's details); it narrows and wraps where the screen is narrower, never clips |
 | `glowRadius` | 8 | Glow under a primary button |
 | `ringHalo` | 60 | Reach of the halo behind a ring |
+| `glassShadowRadius` / `glassShadowOffset` | 7 / 4 | Soft shadow under a glass control (`glassSurface`: back capsule, header icons) |
+| `headerLink` | 24 (Mac) / 30 (iOS) | A card header link's capsule (`HeaderLink`); on iOS its touch target is `touchTarget` |
+| `footerLink` / `footerChip` | 36 (Mac) / 44 (iOS), 22 | A card footer link's row and its round chevron chip (`CardFooterLink`) |
+| `loader` / `loaderLarge` | 28 (Mac) / 32 (iOS), 56 | The loader inside a card and over a whole pane (`TickrLoader`) |
+| `loaderDot` / `loaderDotLarge` | 5 / 7 | The loader's ping dot |
 
 ## Motion (`Tokens.Motion`)
 
@@ -229,6 +240,10 @@ a step; it does not define its own factor.
 | `pop` / `popStagger` | spring 0.5 s, damping 0.55 / 0.4 s | A dot popping in (`popIn`): the protection chain's steps, one after another, and again when a step changes |
 | `bump` / `bumpSeconds` / `bumpScale` | ease-in-out, two halves of 0.6 s / ×1.35 (iPhone), ×1.25 (Mac) | A count growing and settling once when it rises (`bumps(on:)`: Lab refusal counts), never when it falls or first appears |
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
+| `rowPressScale` / `backPressScale` | ×0.99 / ×0.96 | A footer link's row and the back capsule while pressed |
+| `linkNudge` | 2 pt | A footer link's chevron chip moving on under the pointer |
+| `loaderTurnSeconds` / `loaderPingScale` / `loaderTail` | 1.4 s / ×1.7 / 0.32 of a turn | The loader's beam turning (ornament), its dot's ping once a turn, the beam's tail |
+| `loaderPulseSeconds` / `loaderPulseLow` / `loaderPulseLagSeconds` | 2.4 s / 0.3 / 0.4 s | The loader under Reduce Motion: each ring's opacity pulse, its faintest, each inner ring's lag |
 | `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event; also today's Trades calendar tile, once per change of today's trading (a trade closed, a position opened or closed) |
 | `shineSeconds` | 3.5 s | One pass of the light across the Lab's AI advisor title (ornament, `OrnamentGate`); Core Animation runs the sweep (`ShineBand`), like the brand halo and the ticker |
 | `hintDelay` | 0.45 s | Hover before a hint appears (Mac) |
@@ -260,6 +275,10 @@ profit factor with 2 decimals, win rate and confidence in whole percents.
 | Card | `tickrCard()` + `CardLabel` | `surface` (`surfaceSunken` for the Mac journal's console), `Radius.card` (iOS) or `Radius.large` (Mac), `Space.l` padding, `separator` border; light mode adds `shadow`. Cards sharing a grid row are one height (`filling()` on the Mac); in a row of a set height a card scrolls under its header when its content is taller (`ScrollsWhenTall`) |
 | Card grid (Mac) | `Grid` of cards | Fills the window's width: equal columns of at least `Size.gridColumnMin`, `Space.l` apart; a narrower window stacks into fewer columns |
 | Overview grid (Mac) | `WeightedColumns` | As the Main board: Live flow across the width; Watching closely, Positions, Safety with the bot at 1 : 1.4 : 1 in a 298-point row (cards scroll inside). The "Safety · bot" card has the bot's state pill in its header, the safety facts as `surfaceSunken` tiles in two columns (compact glyph, name in `caption`, value in `annotation` in its tone), then every command as small labelled buttons in two columns; the tiles scroll when the card is short, the commands never do; Risk room, Observers, the journal at 1 : 1 : 1.4 filling the rest of the window's height (at least 150 points). Below a 1040-point screen: Positions across, then the cards in two equal columns |
+| Header link | `HeaderLink` (TickrDesign) | A card header's way elsewhere (Details, Lab, Open chart, Full chart, Review): a capsule `Size.headerLink` tall, its tone (`info`; `highlight` in the advisor's box) at `Opacity.wash` fill (`linkHover` under the pointer) and `linkOutline` stroke, text in the tone's text colour in `Typography.link`, an optional leading symbol, the disclosure chevron last (never an arrow) |
+| Footer link | `CardFooterLink` (TickrDesign) | A card's "Show all": the card's last row, across its whole width under a `separator` hairline, `Size.footerLink` tall and one button: title in `footerLink` `textPrimary`, a count capsule (`annotationBold`, `surfaceSunken`), an optional hint right-aligned in `annotation` `textQuaternary`, then a `footerChip` circle of `info` at `Opacity.tint` holding the chevron in `infoText`; under the pointer the row tints `info` at `rowHover` and the chip moves on `linkNudge` |
+| Back capsule | `BackCapsule` + `.backCapsule` (TickrDesign) | The way back from a pushed screen (iOS `BackButton`; available to the Mac's Symbols screen): glass capsule `Size.iconButton` tall, chevron and name both `textPrimary`; pressed ×`backPressScale`, dimmed to `Opacity.medium` |
+| Loader | `TickrLoader` (TickrDesign) | Every wait for data, never the system spinner: three `separatorStrong` rings, an `accent` beam turning and an `accent` dot pinging at the top; `.compact` (`Size.loader`) in cards, `.large` (`loaderLarge`) with a caption over a whole pane ("Loading ABCD · 1m bars" on the Chart); one VoiceOver element named by its label |
 | Section label | `CardLabel` | `Typography.label`, uppercase, `textLabel` |
 | Stat row | label … value | label `callout` `textTertiary`, value `bodyMono` |
 | Badge | `Badge` (TickrDesign) | A fact (exit reason, environment, version): `Typography.badge`, tone text colour, `Opacity.wash` fill, `Opacity.border` stroke, `Radius.small`; `planned:` draws it dashed |

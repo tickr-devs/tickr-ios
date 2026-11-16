@@ -352,12 +352,7 @@ private struct LevelsCard: View {
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
         } else {
-          Button(action: openChart) {
-            Text(L10n.Positions.openChart)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(Palette.infoText)
-          }
-          .buttonStyle(.plain)
+          HeaderLink(L10n.Positions.openChart, action: openChart)
         }
       }
       GeometryReader { geometry in

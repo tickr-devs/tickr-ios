@@ -251,7 +251,7 @@ private struct CurvesCard: View {
         } else if model.observersError != nil {
           Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
         } else {
-          ProgressView().controlSize(.small)
+          TickrLoader(L10n.Common.loading)
         }
         Spacer(minLength: 0)
         Text(L10n.Lab.curvesNote)
@@ -447,7 +447,7 @@ private struct RefusalsCard: View {
         } else if let error = model.skippedError {
           ReadFailureNote(L10n.Trades.notTakenUnavailable, detail: error)
         } else {
-          ProgressView().controlSize(.small)
+          TickrLoader(L10n.Common.loading)
         }
         Spacer(minLength: 0)
         PlannedLine(text: L10n.Lab.screenerBacklog)
@@ -588,8 +588,7 @@ struct ObserverRow: View {
   /// How many of the symbols the observer would have entered the bot also traded, as a bar.
   @ViewBuilder private func agreement(_ summary: ObserverSummary) -> some View {
     if let share = summary.agreement {
-      ProgressView(value: share)
-        .tint(Palette.highlight)
+      MeterBar(fraction: share, tone: .highlight)
         .accessibilityHidden(true)
       Text(L10n.Lab.agreement(summary.shared.count, summary.entered.count,
         summary.entered.joined(separator: Format.listSeparator)))
@@ -681,7 +680,7 @@ private struct ReplayCard: View {
         .disabled(running || model.labReplayStarting || replay == nil || (first == nil && !listsNone)
           || (oneDay && chosenDay == nil))
         if running || model.labReplayStarting {
-          ProgressView().progressViewStyle(.linear).tint(Palette.info)
+          TickrLoader(L10n.Common.loading)
         }
         status
         Spacer(minLength: 0)
@@ -1047,7 +1046,7 @@ private struct ExplainCard: View {
           .buttonStyle(.action(.secondary, size: .compact))
           .disabled(wanted.isEmpty || explain.loading)
           if explain.loading {
-            ProgressView().controlSize(.small)
+            TickrLoader(L10n.Common.loading)
           }
         }
         content

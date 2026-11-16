@@ -159,7 +159,10 @@ struct ChartTab: View {
   }
 
   private var loadingView: some View {
-    ProgressView { Text(ChartText.loading) }
+    TickrLoader(
+      chart.symbol.map { ChartText.loadingBars($0, interval: String(localized: ChartFormat.title(chart.timeframe))) }
+        ?? L10n.Common.loading,
+      size: .large, caption: true)
       .frame(maxWidth: .infinity)
       .padding(.top, Tokens.Space.xxl)
       .transition(.opacity)

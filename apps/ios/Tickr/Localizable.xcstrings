@@ -3065,19 +3065,19 @@
         }
       }
     },
-    "chart.loading" : {
+    "chart.loadingBars" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loading the chart…"
+            "value" : "Loading %1$@ · %2$@ bars"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Загружаю график…"
+            "value" : "Загрузка %1$@ · свечи %2$@"
           }
         }
       }
@@ -3809,6 +3809,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отмена"
+          }
+        }
+      }
+    },
+    "common.loading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузка…"
           }
         }
       }
@@ -7466,13 +7483,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "open full chart →"
+            "value" : "Full chart"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "открыть график →"
+            "value" : "Полный график"
           }
         }
       }

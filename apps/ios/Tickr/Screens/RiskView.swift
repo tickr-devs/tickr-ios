@@ -347,7 +347,7 @@ private struct LimitsCard: View {
       } else if let failure {
         ReadFailureNote(L10n.Risk.settingsFailed, detail: failure)
       } else {
-        ProgressView().frame(maxWidth: .infinity)
+        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
       }
     }
   }

@@ -212,7 +212,7 @@ private struct RefusalsCard: View {
           .accessibilityElement(children: .combine)
         }
       } else if failure == nil {
-        ProgressView().frame(maxWidth: .infinity)
+        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
       }
     }
     .padding(Tokens.Space.l)
@@ -252,7 +252,7 @@ private struct ObserversCard: View {
       } else if let failure = lab.failure {
         ReadFailureNote(L10n.Lab.failed, detail: failure)
       } else {
-        ProgressView().frame(maxWidth: .infinity)
+        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
       }
     }
     .padding(Tokens.Space.l)

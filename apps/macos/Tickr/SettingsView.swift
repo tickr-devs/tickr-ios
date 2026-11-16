@@ -710,7 +710,7 @@ private struct ConfigCard: View {
       } else if let error = model.configError {
         ReadFailureNote(L10n.ReadFailed.config, detail: error)
       } else {
-        ProgressView().controlSize(.small)
+        TickrLoader(L10n.Common.loading)
       }
     } trailing: {
       HStack(spacing: Tokens.Space.xs) {
@@ -803,7 +803,7 @@ struct JobsSection: View {
       } else if let error = model.jobsError {
         ReadFailureNote(L10n.ReadFailed.jobs, detail: error)
       } else {
-        ProgressView().controlSize(.small)
+        TickrLoader(L10n.Common.loading)
       }
     } trailing: {
       Text(L10n.Settings.timesET)
@@ -1099,7 +1099,7 @@ private struct BackupSection: View {
       } else if let error = model.jobsError {
         ReadFailureNote(L10n.ReadFailed.jobs, detail: error)
       } else {
-        ProgressView().controlSize(.small)
+        TickrLoader(L10n.Common.loading)
       }
       Label {
         Text(L10n.Settings.cleanup)

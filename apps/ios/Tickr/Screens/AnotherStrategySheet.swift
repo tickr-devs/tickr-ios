@@ -58,7 +58,7 @@ struct AnotherStrategySheet: View {
   @ViewBuilder private var picker: some View {
     switch versions {
     case nil:
-      ProgressView().frame(maxWidth: .infinity)
+      TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
     case .failure(let failure):
       ReadFailureNote(L10n.ReadFailed.versions, detail: failure.cause)
     case .success(let list) where list.isEmpty:
@@ -88,7 +88,7 @@ struct AnotherStrategySheet: View {
       line(Text(L10n.Activity.anotherBot).foregroundStyle(Palette.textSecondary), r: botR, usd: botUsd)
       switch shown {
       case nil:
-        ProgressView().frame(maxWidth: .infinity)
+        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
       case .failure(let failure):
         ReadFailureNote(L10n.ReadFailed.whatIf, detail: failure.cause)
       case .success(let found):

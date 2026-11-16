@@ -163,7 +163,7 @@ struct ActivityView: View {
         }
         .rise()
       default:
-        ProgressView { Text(L10n.Activity.loadingDay) }
+        TickrLoader(L10n.Activity.loadingDay, size: .large, caption: true)
           .frame(maxWidth: .infinity)
           .padding(.top, Tokens.Space.xl)
       }
@@ -952,7 +952,7 @@ private struct NotTaken: View {
       ReadFailureNote(L10n.Activity.notTakenFailed, detail: failure)
         .frame(maxWidth: .infinity, alignment: .leading)
     } else {
-      ProgressView().frame(maxWidth: .infinity).padding(.top, Tokens.Space.xl)
+      TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity).padding(.top, Tokens.Space.xl)
     }
   }
 }

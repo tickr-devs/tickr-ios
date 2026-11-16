@@ -64,7 +64,7 @@ struct ChartExplainCard: View {
       } else if decisions != nil || symbol == nil {
         note(L10n.Chart.noDecisions)
       } else {
-        ProgressView().controlSize(.small)
+        TickrLoader(L10n.Common.loading)
       }
     }
   }

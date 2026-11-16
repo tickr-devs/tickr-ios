@@ -207,7 +207,7 @@ struct WatchingCard: View {
           }
           HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
             if WatchingList.hasMore(watching.rows) {
-              MoreButton(L10n.Watching.showAll(watching.rows.count)) { openWatchingAll() }
+              HeaderLink(L10n.Watching.showAll(watching.rows.count)) { openWatchingAll() }
             }
             Spacer(minLength: 0)
             // How many of all the watched symbols the card shows.
@@ -219,7 +219,7 @@ struct WatchingCard: View {
       } else if let error = model.watchingError {
         Footnote(L10n.Watching.unavailable(error), color: Palette.warningText)
       } else {
-        ProgressView().controlSize(.small)
+        TickrLoader(L10n.Common.loading)
       }
     }
     .accessibilityElement(children: .contain)

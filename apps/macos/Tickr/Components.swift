@@ -293,31 +293,6 @@ struct ChartLink<Label: View>: View {
   }
 }
 
-/// A quiet "Details ›" action in a card header or under a message: the ghost button with a
-/// chevron, optionally led by a symbol.
-struct MoreButton: View {
-  let title: Text
-  var systemImage: String?
-  let action: () -> Void
-
-  init(_ title: LocalizedStringResource, systemImage: String? = nil, action: @escaping () -> Void) {
-    self.title = Text(title)
-    self.systemImage = systemImage
-    self.action = action
-  }
-
-  var body: some View {
-    Button(action: action) {
-      HStack(spacing: Tokens.Space.xs) {
-        if let systemImage { Image(systemName: systemImage) }
-        title
-        Chevron()
-      }
-    }
-    .buttonStyle(.action(.ghost, size: .compact))
-  }
-}
-
 /// A short caption under a card's content (where a value comes from, why a control is off).
 struct Footnote: View {
   let text: Text
