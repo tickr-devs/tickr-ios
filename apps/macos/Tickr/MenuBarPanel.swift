@@ -114,7 +114,7 @@ private struct TodayResult: View {
   }
 
   private func summary(_ status: StatusV1) -> LocalizedStringResource {
-    let results = status.tradesToday.map(\.resultGrossUsd.value)
+    let results = status.tradesToday.map(\.resultUsd.value)
     let wins = results.filter { $0 > 0 }.count
     let losses = results.filter { $0 < 0 }.count
     // The room is the bot's own number; without it (or the limit) the line shows trades only.
@@ -128,7 +128,7 @@ private struct TodayResult: View {
   private func curve(_ status: StatusV1) -> [Double] {
     var sum: Decimal = 0
     return [0] + status.tradesToday.map { trade in
-      sum += trade.resultGrossUsd.value
+      sum += trade.resultUsd.value
       return NSDecimalNumber(decimal: sum).doubleValue
     }
   }

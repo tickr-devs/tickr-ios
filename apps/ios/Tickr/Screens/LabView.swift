@@ -126,7 +126,7 @@ struct LabView: View {
 
   /// "today · 3 closed · 2 W · 1 L · 1 open".
   static func daySummary(_ status: StatusV1) -> LocalizedStringResource {
-    let results = status.tradesToday.map(\.resultGrossUsd.value)
+    let results = status.tradesToday.map(\.resultUsd.value)
     return L10n.Lab.daySummary(results.count, results.filter { $0 > 0 }.count, results.filter { $0 < 0 }.count,
       status.positions.count)
   }
@@ -151,7 +151,7 @@ struct LabView: View {
     let sorted = status.tradesToday.sorted { $0.closedAt.date < $1.closedAt.date }
     var total = Decimal.zero
     return [0] + sorted.map { trade in
-      total += trade.resultGrossUsd.value
+      total += trade.resultUsd.value
       return NSDecimalNumber(decimal: total).doubleValue
     }
   }

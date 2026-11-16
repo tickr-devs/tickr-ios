@@ -198,7 +198,7 @@ private struct AccountCard: View {
           none
         }
         ForEach(account.fills, id: \.self) { fill in
-          let price: String = fill.price?.text ?? Format.missing
+          let price: String = (fill.exactPrice ?? fill.price)?.text ?? Format.missing
           let feeAmount: String = fill.feesUsd.map { RiskFormat.amount($0.value) } ?? Format.missing
           let fees: String = String(localized: L10n.Risk.fees(feeAmount))
           row(fill.symbol,

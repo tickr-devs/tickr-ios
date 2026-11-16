@@ -28,10 +28,17 @@ public struct Trade: Codable, Hashable, Sendable {
   /// The bot code version (git commit, `-dirty` with changed tracked files) of the run that
   /// opened the trade; nil for a run recorded before the bot recorded it. See `CodeVersion`.
   public let codeVersion: String?
+  /// The exact result after fees from the account's cash activities; nil until every fill's
+  /// activity is listed (the order rows round sub-dollar prices).
+  public let resultExactUsd: DecimalString?
+
+  /// The result as shown: exact once known, else the gross from the order rows.
+  public var resultUsd: DecimalString { resultExactUsd ?? resultGrossUsd }
 
   enum CodingKeys: String, CodingKey {
     case symbol, quantity, strategy
     case codeVersion = "code_version"
+    case resultExactUsd = "result_exact_usd"
     case entryPrice = "entry_price"
     case exitPrice = "exit_price"
     case openedAt = "opened_at"
@@ -64,6 +71,7 @@ public struct Trade: Codable, Hashable, Sendable {
     strategy = try c.decodeIfPresent(StrategyId.self, forKey: .strategy)
     // Added after version 1 shipped as well.
     codeVersion = try c.decodeIfPresent(String.self, forKey: .codeVersion)
+    resultExactUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultExactUsd)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -83,5 +91,6 @@ public struct Trade: Codable, Hashable, Sendable {
     try c.encode(entryCauseCodes, forKey: .entryCauseCodes)
     try c.encodeNullable(strategy, forKey: .strategy)
     try c.encodeNullable(codeVersion, forKey: .codeVersion)
+    try c.encodeNullable(resultExactUsd, forKey: .resultExactUsd)
   }
 }

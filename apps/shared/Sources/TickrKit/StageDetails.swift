@@ -261,8 +261,8 @@ extension StageDetail {
     let closed = status.tradesToday.enumerated().map { index, trade in
       Row(id: "\(trade.symbol) \(index)", symbol: trade.symbol,
         text: String(localized: L10n.stageTrade(trade.quantity.text, trade.entryPrice.text, trade.exitPrice.text,
-          Board.signed(trade.resultGrossUsd))),
-        tone: Board.exitTone(trade.exitReason, result: trade.resultGrossUsd.value))
+          Board.signed(trade.resultUsd))),
+        tone: Board.exitTone(trade.exitReason, result: trade.resultUsd.value))
     }
     let open = status.positions.map { position in
       Row(id: position.symbol, symbol: position.symbol,

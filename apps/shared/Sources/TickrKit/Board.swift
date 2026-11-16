@@ -18,7 +18,7 @@ public enum Board {
   }
 
   public static func dayStats(_ status: StatusV1) -> DayStats {
-    let results = status.tradesToday.map(\.resultGrossUsd.value)
+    let results = status.tradesToday.map(\.resultUsd.value)
     return DayStats(
       trades: results.count,
       wins: results.filter { $0 > 0 }.count,
@@ -72,10 +72,10 @@ public enum Board {
         id: "\(tradeID)\(index)\(enterID)", time: trade.openedAt.date, tag: String(localized: L10n.tagEnter),
         text: String(localized: L10n.eventQuantityAt(trade.symbol, trade.quantity.text, trade.entryPrice.text)),
         tone: .teal))
-      let result = trade.resultGrossUsd.value
+      let result = trade.resultUsd.value
       events.append(Event(
         id: "\(tradeID)\(index)\(exitID)", time: trade.closedAt.date, tag: exitReasonTitle(trade.exitReason).uppercased(),
-        text: String(localized: L10n.eventExitAt(trade.symbol, trade.exitPrice.text, signed(trade.resultGrossUsd))),
+        text: String(localized: L10n.eventExitAt(trade.symbol, trade.exitPrice.text, signed(trade.resultUsd))),
         tone: exitTone(trade.exitReason, result: result)))
     }
     for position in status.positions {

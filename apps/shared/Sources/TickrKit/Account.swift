@@ -65,9 +65,14 @@ public struct AccountFillV1: Codable, Hashable, Sendable {
   public let feesUsd: DecimalString?
   /// True when the order is in the bot's records.
   public let ours: Bool
+  /// The exact signed cash amount and average price from the cash activities; nil until listed.
+  public let netAmountUsd: DecimalString?
+  public let exactPrice: DecimalString?
 
   enum CodingKeys: String, CodingKey {
     case symbol, side, type, quantity, price, ours
+    case netAmountUsd = "net_amount_usd"
+    case exactPrice = "exact_price"
     case clientOrderId = "client_order_id"
     case filledAt = "filled_at"
     case feesUsd = "fees_usd"
@@ -84,6 +89,8 @@ public struct AccountFillV1: Codable, Hashable, Sendable {
     filledAt = try c.decodeNullable(WireTime.self, forKey: .filledAt)
     feesUsd = try c.decodeNullable(DecimalString.self, forKey: .feesUsd)
     ours = try c.decode(Bool.self, forKey: .ours)
+    netAmountUsd = try c.decodeIfPresent(DecimalString.self, forKey: .netAmountUsd)
+    exactPrice = try c.decodeIfPresent(DecimalString.self, forKey: .exactPrice)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -97,6 +104,8 @@ public struct AccountFillV1: Codable, Hashable, Sendable {
     try c.encodeNullable(filledAt, forKey: .filledAt)
     try c.encodeNullable(feesUsd, forKey: .feesUsd)
     try c.encode(ours, forKey: .ours)
+    try c.encodeNullable(netAmountUsd, forKey: .netAmountUsd)
+    try c.encodeNullable(exactPrice, forKey: .exactPrice)
   }
 }
 

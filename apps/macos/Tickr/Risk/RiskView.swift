@@ -973,7 +973,7 @@ private struct AccountCard: View {
           Text(verbatim: ApiText.orderType(fill.type))
           Text(verbatim: fill.quantity.text)
           Spacer()
-          Text(verbatim: fill.price?.text ?? Format.missing)
+          Text(verbatim: (fill.exactPrice ?? fill.price)?.text ?? Format.missing)
           Text(verbatim: fill.feesUsd?.text ?? Format.missing)
             .foregroundStyle(Palette.warningText)
           if !fill.ours {

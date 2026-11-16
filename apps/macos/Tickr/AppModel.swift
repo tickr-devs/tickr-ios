@@ -342,7 +342,7 @@ public final class AppModel {
     var sum: Decimal = 0
     var values: [Double] = [0]
     let results: [Decimal] = isLive
-      ? (status?.tradesToday.map(\.resultGrossUsd.value) ?? [])
+      ? (status?.tradesToday.map(\.resultUsd.value) ?? [])
       : shownTrades.map(\.resultGrossUsd.value)
     for value in results {
       sum += value
@@ -356,12 +356,12 @@ public final class AppModel {
   }
 
   public var shownWins: Int {
-    let results = isLive ? (status?.tradesToday.map(\.resultGrossUsd.value) ?? []) : shownTrades.map(\.resultGrossUsd.value)
+    let results = isLive ? (status?.tradesToday.map(\.resultUsd.value) ?? []) : shownTrades.map(\.resultGrossUsd.value)
     return results.filter { $0 > 0 }.count
   }
 
   public var shownLosses: Int {
-    let results = isLive ? (status?.tradesToday.map(\.resultGrossUsd.value) ?? []) : shownTrades.map(\.resultGrossUsd.value)
+    let results = isLive ? (status?.tradesToday.map(\.resultUsd.value) ?? []) : shownTrades.map(\.resultGrossUsd.value)
     return results.filter { $0 < 0 }.count
   }
 

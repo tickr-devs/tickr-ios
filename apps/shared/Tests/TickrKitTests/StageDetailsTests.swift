@@ -119,7 +119,7 @@ struct StageDetailsTests {
     #expect(value(detail, L10n.stageOpen) == "1")
     let closed = try #require(group(detail, L10n.stageClosedTrades)?.rows.first)
     #expect(closed.symbol == "WXYZ")
-    #expect(closed.text == String(localized: L10n.stageTrade("20", "5.10", "5.02", "-1.60")))
+    #expect(closed.text == String(localized: L10n.stageTrade("20", "5.10", "5.02", "-1.67")))
     #expect(group(detail, L10n.stageOpenPositions)?.rows.first?.text
       == String(localized: L10n.stagePosition("10", "12.34")))
   }

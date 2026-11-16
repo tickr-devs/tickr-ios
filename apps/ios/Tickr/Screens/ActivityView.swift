@@ -587,9 +587,9 @@ private struct TradeLine: Identifiable {
     quantity = trade.quantity.text
     entryPrice = Money.price(trade.entryPrice.value)
     exitPrice = Money.price(trade.exitPrice.value)
-    result = trade.resultGrossUsd.value
+    result = trade.resultUsd.value
     let planned = trade.plannedLossUsd.value
-    resultR = planned == 0 ? nil : trade.resultGrossUsd.value / planned
+    resultR = planned == 0 ? nil : trade.resultUsd.value / planned
     stopAfter = trade.stopConfirmedAfterSeconds?.value
     let same = recorded.first {
       $0.symbol == trade.symbol && $0.openedAt == trade.openedAt && $0.closedAt == trade.closedAt

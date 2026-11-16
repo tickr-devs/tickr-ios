@@ -71,7 +71,7 @@ struct VersionCurvesTests {
     let reported = try #require(Decimal(string: "123.45"))
     let curve = VersionCurve.active(name: "price-action", version: "1", trades: status.tradesToday, total: reported)
     #expect(curve.points.count == status.tradesToday.count)
-    #expect(curve.points.last?.total == status.tradesToday.map(\.resultGrossUsd.value).reduce(0, +))
+    #expect(curve.points.last?.total == status.tradesToday.map(\.resultUsd.value).reduce(0, +))
     #expect(curve.total == reported)
   }
 }
