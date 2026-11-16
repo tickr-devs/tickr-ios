@@ -2537,7 +2537,7 @@ enum L10n {
     }
     /// Account buying power.
     static var buyingPower: LocalizedStringResource {
-      LocalizedStringResource("risk.buyingPower", defaultValue: "Buying power", bundle: L10n.bundle)
+      LocalizedStringResource("risk.buyingPower", defaultValue: "Buying power · day", bundle: L10n.bundle)
     }
     /// Positions the broker reports.
     static var brokerPositions: LocalizedStringResource {
@@ -2550,7 +2550,49 @@ enum L10n {
     /// Why equity and buying power are empty.
     static var balanceNote: LocalizedStringResource {
       LocalizedStringResource("risk.balanceNote",
-        defaultValue: "The bot does not read equity and buying power from the broker yet.",
+        defaultValue: "The bot has not read the balance from the broker yet.",
+        bundle: L10n.bundle)
+    }
+    /// Account cash.
+    static var cash: LocalizedStringResource {
+      LocalizedStringResource("risk.cash", defaultValue: "Cash", bundle: L10n.bundle)
+    }
+    /// Buying power held overnight.
+    static var overnightBuyingPower: LocalizedStringResource {
+      LocalizedStringResource("risk.overnightBuyingPower", defaultValue: "Buying power · overnight", bundle: L10n.bundle)
+    }
+    /// Positions at market value.
+    static var positionsValue: LocalizedStringResource {
+      LocalizedStringResource("risk.positionsValue", defaultValue: "Positions value", bundle: L10n.bundle)
+    }
+    /// Unrealized profit or loss of open positions.
+    static var unrealized: LocalizedStringResource {
+      LocalizedStringResource("risk.unrealized", defaultValue: "Unrealized P&L", bundle: L10n.bundle)
+    }
+    /// The broker's profit or loss for today.
+    static var dayResult: LocalizedStringResource {
+      LocalizedStringResource("risk.dayResult", defaultValue: "Day P&L · broker", bundle: L10n.bundle)
+    }
+    /// Day trades left when the broker sets no limit.
+    static var noLimit: LocalizedStringResource {
+      LocalizedStringResource("risk.noLimit", defaultValue: "no limit", bundle: L10n.bundle)
+    }
+    /// Margin facts under the balances: day trades left, margin calls, maintenance margin, read time.
+    static func marginLine(_ dayTrades: String, _ calls: String, _ margin: String, _ time: String)
+      -> LocalizedStringResource {
+      LocalizedStringResource("risk.marginLine",
+        defaultValue: "day trades left \(dayTrades) · margin calls \(calls) · maintenance \(margin) · balance at \(time) ET",
+        bundle: L10n.bundle)
+    }
+    /// Help on the account kind badge.
+    static var accountKindHelp: LocalizedStringResource {
+      LocalizedStringResource("risk.accountKindHelp",
+        defaultValue: "The account kind as the broker names it. The account id is never shown or stored.",
+        bundle: L10n.bundle)
+    }
+    /// Account card: what the broker could show that the bot does not read yet.
+    static var accountPlanned: LocalizedStringResource {
+      LocalizedStringResource("risk.accountPlanned", defaultValue: "per-position P&L · order history and fees",
         bundle: L10n.bundle)
     }
     /// Badge: the broker's view matches the bot's records.
@@ -2701,10 +2743,6 @@ enum L10n {
     /// A free slot the bot may not fill now.
     static var admissionClosed: LocalizedStringResource {
       LocalizedStringResource("risk.admissionClosed", defaultValue: "admission closed", bundle: L10n.bundle)
-    }
-    /// Account card: the full account page is planned.
-    static var accountBacklog: LocalizedStringResource {
-      LocalizedStringResource("risk.accountBacklog", defaultValue: "Backlog · full page", bundle: L10n.bundle)
     }
     /// Planned card: broker calls per route.
     static var budget: LocalizedStringResource {

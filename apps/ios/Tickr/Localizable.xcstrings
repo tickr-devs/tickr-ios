@@ -7528,6 +7528,40 @@
         }
       }
     },
+    "risk.account" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account · broker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Счёт · брокер"
+          }
+        }
+      }
+    },
+    "risk.accountUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's broker read is not available."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтение брокера ботом недоступно."
+          }
+        }
+      }
+    },
     "risk.allowed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7541,6 +7575,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Разрешены"
+          }
+        }
+      }
+    },
+    "risk.balanceNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot has not read the balance from the broker yet."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот ещё не прочитал баланс у брокера."
           }
         }
       }
@@ -7579,6 +7630,57 @@
         }
       }
     },
+    "risk.buyingPower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buying power · day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Покупательная способность · день"
+          }
+        }
+      }
+    },
+    "risk.cash" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cash"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наличные"
+          }
+        }
+      }
+    },
+    "risk.dayResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day P&L · broker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P&L за день · брокер"
+          }
+        }
+      }
+    },
     "risk.entries" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7592,6 +7694,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Новые входы"
+          }
+        }
+      }
+    },
+    "risk.equity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equity"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Капитал"
           }
         }
       }
@@ -7749,6 +7868,23 @@
         }
       }
     },
+    "risk.marginLine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "day trades left %1$@ · margin calls %2$@ · maintenance %3$@ · balance at %4$@ ET"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "дневных сделок осталось: %1$@ · маржин-коллы: %2$@ · поддерживающая маржа %3$@ · баланс на %4$@ ET"
+          }
+        }
+      }
+    },
     "risk.minRoom" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7796,6 +7932,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ограждений нет: бот ничего не блокировал."
+          }
+        }
+      }
+    },
+    "risk.noLimit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no limit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "без ограничений"
           }
         }
       }
@@ -7851,6 +8004,23 @@
         }
       }
     },
+    "risk.overnightBuyingPower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buying power · overnight"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Покупательная способность · на ночь"
+          }
+        }
+      }
+    },
     "risk.pausedByYou" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7881,6 +8051,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Плановый убыток на сделку"
+          }
+        }
+      }
+    },
+    "risk.positionsValue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Positions value"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоимость позиций"
           }
         }
       }
@@ -8085,6 +8272,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Торговый шлюз"
+          }
+        }
+      }
+    },
+    "risk.unrealized" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unrealized P&L"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нереализованный P&L"
           }
         }
       }

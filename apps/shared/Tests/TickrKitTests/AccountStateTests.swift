@@ -31,4 +31,43 @@ import Testing
     let stale = text.replacingOccurrences(of: "\"stale\": false", with: "\"stale\": true")
     #expect(try response(text).state != response(stale).state)
   }
+
+  @Test func accountValues() throws {
+    let fresh = try Wire.decoder().decode(AccountResponseV1.self, from: fixture("account-response-v1.json"))
+    #expect(!fresh.stale)
+    #expect(fresh.account.matchesRecords)
+    #expect(fresh.account.mismatch == nil)
+    let balances = try #require(fresh.account.balances)
+    #expect(balances.equityUsd.text == "100123.40")
+    #expect(balances.buyingPowerUsd.text == "400493.60")
+    #expect(balances.dayPlUsd.text == "-1.00")
+    #expect(balances.marginCalls == 0)
+    #expect(balances.dayTradesLeft == nil)
+    #expect(fresh.account.accountLabel == "Individual Margin")
+    #expect(fresh.account.orders.first?.stopPrice?.text == "11.90")
+    let stale = try Wire.decoder().decode(AccountResponseV1.self, from: fixture("account-response-v1.stale.json"))
+    #expect(stale.stale)
+    #expect(!stale.account.matchesRecords)
+    #expect(stale.account.positions.last?.avgPrice == nil)
+    #expect(stale.account.orders.map(\.ours) == [true, false])
+    #expect(stale.account.orders.last?.limitPrice?.text == "19.80")
+    #expect(stale.account.balances == nil)
+    #expect(stale.account.accountLabel == nil)
+  }
+
+  /// A file from a bot older than the balance read has none of its keys: no balances, no error.
+  @Test func olderBotFileHasNoBalances() throws {
+    var object = try #require(try JSONSerialization.jsonObject(with: fixture("account-response-v1.json")) as? [String: Any])
+    var account = try #require(object["account"] as? [String: Any])
+    for key in [
+      "balance_read_at", "cash_usd", "positions_value_usd", "unrealized_pl_usd", "day_pl_usd",
+      "overnight_buying_power_usd", "maintenance_margin_usd", "margin_calls", "day_trades_left", "account_label",
+    ] {
+      account.removeValue(forKey: key)
+    }
+    object["account"] = account
+    let decoded = try Wire.decoder().decode(AccountResponseV1.self, from: JSONSerialization.data(withJSONObject: object))
+    #expect(decoded.account.balances == nil)
+    #expect(decoded.account.accountLabel == nil)
+  }
 }

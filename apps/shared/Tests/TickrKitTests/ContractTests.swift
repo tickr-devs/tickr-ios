@@ -256,20 +256,6 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     #expect(settings.risk.minDailyRoomUsd.text == "10")
   }
 
-  @Test func accountValues() throws {
-    let fresh = try Wire.decoder().decode(AccountResponseV1.self, from: fixture("account-response-v1.json"))
-    #expect(!fresh.stale)
-    #expect(fresh.account.matchesRecords)
-    #expect(fresh.account.mismatch == nil)
-    #expect(fresh.account.equityUsd == nil)
-    #expect(fresh.account.orders.first?.stopPrice?.text == "11.90")
-    let stale = try Wire.decoder().decode(AccountResponseV1.self, from: fixture("account-response-v1.stale.json"))
-    #expect(stale.stale)
-    #expect(!stale.account.matchesRecords)
-    #expect(stale.account.positions.last?.avgPrice == nil)
-    #expect(stale.account.orders.map(\.ours) == [true, false])
-  }
-
   @Test func settingsValues() throws {
     let settings = try Wire.decoder().decode(SettingsV1.self, from: fixture("settings-v1.json"))
     #expect(settings.risk.maxDailyLossUsd.text == "300")

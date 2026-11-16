@@ -3,12 +3,12 @@ import TickrDesign
 import TickrKit
 
 /// Risk: what is left of the daily loss limit and what used it, whether the bot may open a
-/// position now and why not, its fences, the configured limits and the trading session. Every
-/// figure is what the bot wrote in its status or reads from its configuration (GET /settings);
-/// the phone computes nothing the bot acts on.
+/// position now and why not, its fences, the broker account's balances, the configured limits
+/// and the trading session. Every figure is what the bot wrote in its status or account file or
+/// reads from its configuration (GET /settings); the phone computes nothing the bot acts on.
 struct RiskView: View {
   /// Order in which the cards rise in (`rise(step:)`).
-  private enum Order: Int { case room = 1, gate, fences, limits, session }
+  private enum Order: Int { case room = 1, gate, fences, account, limits, session }
 
   @Environment(AppModel.self) private var model
 
@@ -19,10 +19,12 @@ struct RiskView: View {
         GateCard(status: status).rise(step: Order.gate.rawValue)
         FencesCard(status: status).rise(step: Order.fences.rawValue)
       }
+      AccountCard(response: model.account, failure: model.accountError).rise(step: Order.account.rawValue)
       LimitsCard(risk: model.settings?.risk, failure: model.settingsError).rise(step: Order.limits.rawValue)
       SessionCard(session: model.settings?.session).rise(step: Order.session.rawValue)
     }
     .refreshable { await model.refreshAll() }
+    .task(id: model.connection.url) { await model.followAccount() }
   }
 }
 
@@ -137,6 +139,57 @@ private struct RoomCard: View {
         .fixedSize(horizontal: false, vertical: true)
     }
     .animation(Tokens.Motion.fill, value: share)
+  }
+}
+
+/// The broker account's money at the bot's latest balance read, and the account kind. Display
+/// only: the bot's limits are its settings, never these numbers. The account id is never shown.
+private struct AccountCard: View {
+  let response: AccountResponseV1?
+  let failure: String?
+
+  private var account: AccountV1? { response?.account }
+
+  var body: some View {
+    RiskCard(title: L10n.Risk.account, tint: response?.stale == true ? Palette.warning : nil) {
+      if let label = account?.accountLabel {
+        Text(verbatim: label)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textSecondary)
+      }
+      if let b = account?.balances {
+        Text(verbatim: RiskFormat.amount(b.equityUsd.value))
+          .font(Tokens.Typography.metric)
+          .foregroundStyle(Palette.textPrimary)
+          .contentTransition(.numericText())
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.Shrink.tight)
+          .accessibilityLabel(Text(L10n.Risk.equity))
+          .accessibilityValue(Text(verbatim: RiskFormat.amount(b.equityUsd.value)))
+        RiskLine(label: L10n.Risk.cash, value: RiskFormat.amount(b.cashUsd.value))
+        RiskLine(label: L10n.Risk.buyingPower, value: RiskFormat.amount(b.buyingPowerUsd.value),
+          color: Palette.accentText)
+        RiskLine(label: L10n.Risk.overnightBuyingPower, value: RiskFormat.amount(b.overnightBuyingPowerUsd.value))
+        RiskLine(label: L10n.Risk.positionsValue, value: RiskFormat.amount(b.positionsValueUsd.value))
+        RiskLine(label: L10n.Risk.unrealized, value: Money.signedUSD(b.unrealizedPlUsd.value),
+          color: Palette.result(b.unrealizedPlUsd.value))
+        RiskLine(label: L10n.Risk.dayResult, value: Money.signedUSD(b.dayPlUsd.value),
+          color: Palette.result(b.dayPlUsd.value))
+        Text(L10n.Risk.marginLine(
+          b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit),
+          String(b.marginCalls), RiskFormat.amount(b.maintenanceMarginUsd.value),
+          Format.timeOrDash(account?.balanceReadAt)))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(b.marginCalls > 0 ? Palette.warningText : Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
+      } else {
+        Text(failure == nil || response != nil ? L10n.Risk.balanceNote : L10n.Risk.accountUnavailable)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    }
+    .animation(Tokens.Motion.standard, value: response?.state)
   }
 }
 

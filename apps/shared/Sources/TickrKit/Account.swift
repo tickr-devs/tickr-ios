@@ -78,17 +78,49 @@ public struct AccountOrderV1: Codable, Hashable, Sendable {
   }
 }
 
+/// The account's money at the bot's latest successful balance read. Display only: no limit or
+/// decision of the bot reads it (limits live in the platform settings).
+public struct AccountBalances: Hashable, Sendable {
+  /// Net liquidation value: cash plus positions at market.
+  public let equityUsd: DecimalString
+  /// Day (intraday) buying power.
+  public let buyingPowerUsd: DecimalString
+  public let overnightBuyingPowerUsd: DecimalString
+  public let cashUsd: DecimalString
+  /// Positions at market.
+  public let positionsValueUsd: DecimalString
+  public let unrealizedPlUsd: DecimalString
+  public let dayPlUsd: DecimalString
+  public let maintenanceMarginUsd: DecimalString
+  public let marginCalls: Int
+  /// Day trades the broker still allows; nil means no limit.
+  public let dayTradesLeft: Int?
+}
+
 public struct AccountV1: Codable, Hashable, Sendable {
   public let readAt: WireTime
-  /// Nil until the bot reads balances from the broker.
+  /// Nil until a balance read succeeds.
   public let equityUsd: DecimalString?
-  /// Nil until the bot reads balances from the broker.
+  /// Day buying power; nil until a balance read succeeds.
   public let buyingPowerUsd: DecimalString?
   public let positions: [AccountPositionV1]
   public let orders: [AccountOrderV1]
   public let matchesRecords: Bool
   /// What differs from the bot's records, in the bot's words; nil when everything matches.
   public let mismatch: String?
+  /// When the balances were read; nil until a balance read succeeds.
+  public let balanceReadAt: WireTime?
+  public let cashUsd: DecimalString?
+  public let positionsValueUsd: DecimalString?
+  public let unrealizedPlUsd: DecimalString?
+  public let dayPlUsd: DecimalString?
+  public let overnightBuyingPowerUsd: DecimalString?
+  public let maintenanceMarginUsd: DecimalString?
+  public let marginCalls: Int?
+  /// Nil with a balance read means no limit.
+  public let dayTradesLeft: Int?
+  /// The broker's name for the account kind ("Individual Margin"); never an id or number.
+  public let accountLabel: String?
   public let schemaVersion: Int
 
   enum CodingKeys: String, CodingKey {
@@ -97,6 +129,16 @@ public struct AccountV1: Codable, Hashable, Sendable {
     case equityUsd = "equity_usd"
     case buyingPowerUsd = "buying_power_usd"
     case matchesRecords = "matches_records"
+    case balanceReadAt = "balance_read_at"
+    case cashUsd = "cash_usd"
+    case positionsValueUsd = "positions_value_usd"
+    case unrealizedPlUsd = "unrealized_pl_usd"
+    case dayPlUsd = "day_pl_usd"
+    case overnightBuyingPowerUsd = "overnight_buying_power_usd"
+    case maintenanceMarginUsd = "maintenance_margin_usd"
+    case marginCalls = "margin_calls"
+    case dayTradesLeft = "day_trades_left"
+    case accountLabel = "account_label"
     case schemaVersion = "schema_version"
   }
 
@@ -110,6 +152,17 @@ public struct AccountV1: Codable, Hashable, Sendable {
     orders = try c.decode([AccountOrderV1].self, forKey: .orders)
     matchesRecords = try c.decode(Bool.self, forKey: .matchesRecords)
     mismatch = try c.decodeNullable(String.self, forKey: .mismatch)
+    // Added after version 1 shipped: an older bot's file has no balance read.
+    balanceReadAt = try c.decodeIfPresent(WireTime.self, forKey: .balanceReadAt)
+    cashUsd = try c.decodeIfPresent(DecimalString.self, forKey: .cashUsd)
+    positionsValueUsd = try c.decodeIfPresent(DecimalString.self, forKey: .positionsValueUsd)
+    unrealizedPlUsd = try c.decodeIfPresent(DecimalString.self, forKey: .unrealizedPlUsd)
+    dayPlUsd = try c.decodeIfPresent(DecimalString.self, forKey: .dayPlUsd)
+    overnightBuyingPowerUsd = try c.decodeIfPresent(DecimalString.self, forKey: .overnightBuyingPowerUsd)
+    maintenanceMarginUsd = try c.decodeIfPresent(DecimalString.self, forKey: .maintenanceMarginUsd)
+    marginCalls = try c.decodeIfPresent(Int.self, forKey: .marginCalls)
+    dayTradesLeft = try c.decodeIfPresent(Int.self, forKey: .dayTradesLeft)
+    accountLabel = try c.decodeIfPresent(String.self, forKey: .accountLabel)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -121,7 +174,29 @@ public struct AccountV1: Codable, Hashable, Sendable {
     try c.encode(orders, forKey: .orders)
     try c.encode(matchesRecords, forKey: .matchesRecords)
     try c.encodeNullable(mismatch, forKey: .mismatch)
+    try c.encodeNullable(balanceReadAt, forKey: .balanceReadAt)
+    try c.encodeNullable(cashUsd, forKey: .cashUsd)
+    try c.encodeNullable(positionsValueUsd, forKey: .positionsValueUsd)
+    try c.encodeNullable(unrealizedPlUsd, forKey: .unrealizedPlUsd)
+    try c.encodeNullable(dayPlUsd, forKey: .dayPlUsd)
+    try c.encodeNullable(overnightBuyingPowerUsd, forKey: .overnightBuyingPowerUsd)
+    try c.encodeNullable(maintenanceMarginUsd, forKey: .maintenanceMarginUsd)
+    try c.encodeNullable(marginCalls, forKey: .marginCalls)
+    try c.encodeNullable(dayTradesLeft, forKey: .dayTradesLeft)
+    try c.encodeNullable(accountLabel, forKey: .accountLabel)
     try c.encode(schemaVersion, forKey: .schemaVersion)
+  }
+
+  /// The balances of the latest successful balance read; nil until one succeeds.
+  public var balances: AccountBalances? {
+    guard balanceReadAt != nil, let equityUsd, let buyingPowerUsd, let overnightBuyingPowerUsd,
+      let cashUsd, let positionsValueUsd, let unrealizedPlUsd, let dayPlUsd, let maintenanceMarginUsd,
+      let marginCalls
+    else { return nil }
+    return AccountBalances(
+      equityUsd: equityUsd, buyingPowerUsd: buyingPowerUsd, overnightBuyingPowerUsd: overnightBuyingPowerUsd,
+      cashUsd: cashUsd, positionsValueUsd: positionsValueUsd, unrealizedPlUsd: unrealizedPlUsd, dayPlUsd: dayPlUsd,
+      maintenanceMarginUsd: maintenanceMarginUsd, marginCalls: marginCalls, dayTradesLeft: dayTradesLeft)
   }
 }
 
@@ -162,8 +237,8 @@ public struct AccountResponseV1: Codable, Hashable, Sendable {
 /// What the account card shows of a broker read, without when it was read or served: motion
 /// beside the account keys on it, so a read that finds the same account moves nothing.
 public struct AccountState: Hashable, Sendable {
-  public let equityUsd: DecimalString?
-  public let buyingPowerUsd: DecimalString?
+  public let balances: AccountBalances?
+  public let accountLabel: String?
   public let positions: [AccountPositionV1]
   public let orders: [AccountOrderV1]
   public let matchesRecords: Bool
@@ -175,7 +250,7 @@ extension AccountResponseV1 {
   /// The account as it stands, without the read's times (`readAt`, `servedAt`, `ageSeconds`).
   public var state: AccountState {
     AccountState(
-      equityUsd: account.equityUsd, buyingPowerUsd: account.buyingPowerUsd, positions: account.positions,
+      balances: account.balances, accountLabel: account.accountLabel, positions: account.positions,
       orders: account.orders, matchesRecords: account.matchesRecords, mismatch: account.mismatch, stale: stale)
   }
 }

@@ -7276,19 +7276,36 @@
         }
       }
     },
-    "risk.accountBacklog" : {
+    "risk.accountKindHelp" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backlog · full page"
+            "value" : "The account kind as the broker names it. The account id is never shown or stored."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Позже · полная страница"
+            "value" : "Тип счёта, как его называет брокер. Номер счёта не показывается и не хранится."
+          }
+        }
+      }
+    },
+    "risk.accountPlanned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "per-position P&L · order history and fees"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P&L по позициям · история ордеров и комиссии"
           }
         }
       }
@@ -7367,13 +7384,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot does not read equity and buying power from the broker yet."
+            "value" : "The bot has not read the balance from the broker yet."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бот пока не читает у брокера капитал и покупательную способность."
+            "value" : "Бот ещё не прочитал баланс у брокера."
           }
         }
       }
@@ -7452,13 +7469,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buying power"
+            "value" : "Buying power · day"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Покупательная способность"
+            "value" : "Покупательная способность · день"
+          }
+        }
+      }
+    },
+    "risk.cash" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cash"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наличные"
           }
         }
       }
@@ -7493,6 +7527,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дневной лимит убытка"
+          }
+        }
+      }
+    },
+    "risk.dayResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day P&L · broker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P&L за день · брокер"
           }
         }
       }
@@ -7973,6 +8024,23 @@
         }
       }
     },
+    "risk.marginLine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "day trades left %1$@ · margin calls %2$@ · maintenance %3$@ · balance at %4$@ ET"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "дневных сделок осталось: %1$@ · маржин-коллы: %2$@ · поддерживающая маржа %3$@ · баланс на %4$@ ET"
+          }
+        }
+      }
+    },
     "risk.matches" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8109,6 +8177,23 @@
         }
       }
     },
+    "risk.noLimit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no limit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "без ограничений"
+          }
+        }
+      }
+    },
     "risk.none" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8211,6 +8296,23 @@
         }
       }
     },
+    "risk.overnightBuyingPower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buying power · overnight"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Покупательная способность · на ночь"
+          }
+        }
+      }
+    },
     "risk.plannedLoss" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8241,6 +8343,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "кол-во · средняя"
+          }
+        }
+      }
+    },
+    "risk.positionsValue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Positions value"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоимость позиций"
           }
         }
       }
@@ -8666,6 +8785,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ET"
+          }
+        }
+      }
+    },
+    "risk.unrealized" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unrealized P&L"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нереализованный P&L"
           }
         }
       }

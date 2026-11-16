@@ -582,6 +582,59 @@ enum L10n {
     static var room: LocalizedStringResource {
       LocalizedStringResource("risk.room", defaultValue: "Daily loss room", bundle: L10n.bundle)
     }
+    /// The broker account card.
+    static var account: LocalizedStringResource {
+      LocalizedStringResource("risk.account", defaultValue: "Account · broker", bundle: L10n.bundle)
+    }
+    /// Account equity: cash plus positions at market.
+    static var equity: LocalizedStringResource {
+      LocalizedStringResource("risk.equity", defaultValue: "Equity", bundle: L10n.bundle)
+    }
+    /// Account cash.
+    static var cash: LocalizedStringResource {
+      LocalizedStringResource("risk.cash", defaultValue: "Cash", bundle: L10n.bundle)
+    }
+    /// Intraday buying power.
+    static var buyingPower: LocalizedStringResource {
+      LocalizedStringResource("risk.buyingPower", defaultValue: "Buying power · day", bundle: L10n.bundle)
+    }
+    /// Buying power held overnight.
+    static var overnightBuyingPower: LocalizedStringResource {
+      LocalizedStringResource("risk.overnightBuyingPower", defaultValue: "Buying power · overnight", bundle: L10n.bundle)
+    }
+    /// Positions at market value.
+    static var positionsValue: LocalizedStringResource {
+      LocalizedStringResource("risk.positionsValue", defaultValue: "Positions value", bundle: L10n.bundle)
+    }
+    /// Unrealized profit or loss of open positions.
+    static var unrealized: LocalizedStringResource {
+      LocalizedStringResource("risk.unrealized", defaultValue: "Unrealized P&L", bundle: L10n.bundle)
+    }
+    /// The broker's profit or loss for today.
+    static var dayResult: LocalizedStringResource {
+      LocalizedStringResource("risk.dayResult", defaultValue: "Day P&L · broker", bundle: L10n.bundle)
+    }
+    /// Day trades left when the broker sets no limit.
+    static var noLimit: LocalizedStringResource {
+      LocalizedStringResource("risk.noLimit", defaultValue: "no limit", bundle: L10n.bundle)
+    }
+    /// Margin facts under the balances: day trades left, margin calls, maintenance margin, read time.
+    static func marginLine(_ dayTrades: String, _ calls: String, _ margin: String, _ time: String)
+      -> LocalizedStringResource {
+      LocalizedStringResource("risk.marginLine",
+        defaultValue: "day trades left \(dayTrades) · margin calls \(calls) · maintenance \(margin) · balance at \(time) ET",
+        bundle: L10n.bundle)
+    }
+    /// No balance read yet.
+    static var balanceNote: LocalizedStringResource {
+      LocalizedStringResource("risk.balanceNote",
+        defaultValue: "The bot has not read the balance from the broker yet.", bundle: L10n.bundle)
+    }
+    /// The account file could not be read.
+    static var accountUnavailable: LocalizedStringResource {
+      LocalizedStringResource("risk.accountUnavailable",
+        defaultValue: "The bot's broker read is not available.", bundle: L10n.bundle)
+    }
     static var left: LocalizedStringResource {
       LocalizedStringResource("risk.left", defaultValue: "left", bundle: L10n.bundle)
     }
