@@ -192,6 +192,7 @@ A card link ("Open chart", "Details") ends only with the disclosure chevron (`He
 | `iconWell` / `iconWellSymbol` | 44 / 15 | Round icon wells |
 | `stage` | 52 | Stages of the live flow |
 | `stageGlyph` | 22 | The line glyph in a live-flow stage (`DesignGlyph`, the board's own paths, 2 grid units = 1.8 pt stroke) |
+| `menuGlyph` | 13 | The settings gear (`DesignGlyph.settings`) in the macOS menu-bar panel, at `Stroke.glyphHeavy` (2.2 grid units); elsewhere the gear is stroked at `Stroke.gear` (1.9). Both apps draw this one gear for Settings (iOS Home header, Mac menu bar, Mac Settings General tab), never an SF Symbol |
 | `dayResultWidth` | 300 | Overview's day result beside the header |
 | `gridColumnMin` | 300 | Narrowest column of a card grid before it stacks |
 | `logo` / `logoSmall` / `emptyMark` | 64 / 26 / 88 | Brand mark (`BrandMark`): the tick-shaped price line of the app icon |

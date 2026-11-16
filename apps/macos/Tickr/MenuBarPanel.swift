@@ -349,7 +349,6 @@ private struct MenuFooter: View {
 
   /// Symbols of the footer's actions and of the broker read.
   static let openSymbol = "macwindow"
-  static let settingsSymbol = "gearshape"
   static let quitSymbol = "power"
   static let readSymbol = "building.columns"
 
@@ -429,7 +428,9 @@ private struct MenuFooter: View {
   private var icons: some View {
     HStack(spacing: Tokens.Space.xs + Tokens.Space.xxs) {
       SettingsLink {
-        Label { Text(L10n.App.settings) } icon: { Image(systemName: Self.settingsSymbol) }
+        Label { Text(L10n.App.settings) } icon: {
+          DesignGlyphView(.settings, side: Tokens.Size.menuGlyph, gridStroke: Tokens.Stroke.glyphHeavy)
+        }
       }
       .buttonStyle(.icon(compact: true))
       .hint(L10n.App.settings)
