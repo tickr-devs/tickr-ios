@@ -135,4 +135,14 @@ struct SymbolsBoardTests {
     let qrst = try #require(symbols.rows.first { $0.symbol == "QRST" })
     #expect(SymbolsBoard.why(qrst) == SymbolsBoard.reason(qrst))
   }
+
+  @Test("The day line measures against the previous close behind the price and its change")
+  func dayLinePreviousClose() throws {
+    let previous = SymbolDayLine.previousClose(price: try DecimalString("11"), changePct: try DecimalString("10"))
+    #expect(previous == 10)
+    #expect(SymbolDayLine.previousClose(price: nil, changePct: try DecimalString("10")) == nil)
+    #expect(SymbolDayLine.previousClose(price: try DecimalString("11"), changePct: try DecimalString("-100")) == nil)
+    let plotted = SymbolDayLine(closes: [10, 11], previousClose: 10).plotted
+    #expect(plotted.closes == [10, 11] && plotted.previousClose == 10)
+  }
 }

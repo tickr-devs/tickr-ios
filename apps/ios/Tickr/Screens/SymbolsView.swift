@@ -416,6 +416,9 @@ struct FastMoversCard: View {
 /// screeners and the strategy's last decision with its checks, and the links.
 private struct SymbolDetailScreen: View {
   @Environment(AppModel.self) private var model
+  /// Today's price line, kept while the same symbol's line is read again.
+  @State private var dayLine: SymbolDayLine?
+  @State private var shownLineSymbol: String?
   let line: SymbolsLine
   let rules: FastMoverRulesV1?
 
@@ -454,6 +457,11 @@ private struct SymbolDetailScreen: View {
           Text(SymbolsText.today)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
+        }
+        .task(id: line) { await readDayLine() }
+        if let dayLine {
+          let plotted = dayLine.plotted
+          DayLine(closes: plotted.closes, previousClose: plotted.previousClose)
         }
       }
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
@@ -494,6 +502,17 @@ private struct SymbolDetailScreen: View {
         }
       }
     }
+  }
+
+  /// Reads the line again whenever the row changes; another symbol's line never stays shown.
+  private func readDayLine() async {
+    let symbol = line.symbol
+    let previous = SymbolDayLine.previousClose(price: SymbolsBoard.price(line), changePct: line.row?.changePct)
+    if shownLineSymbol != symbol { dayLine = nil }
+    let read = await model.symbolDayLine(symbol, previousClose: previous)
+    guard !Task.isCancelled, line.symbol == symbol else { return }
+    dayLine = read
+    shownLineSymbol = symbol
   }
 
   /// The outcome badge, then "at Strategy · Close above VWAP 5.12 >= 5.20" or "reached Stop".

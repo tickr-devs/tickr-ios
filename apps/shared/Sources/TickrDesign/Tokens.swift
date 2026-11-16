@@ -229,6 +229,8 @@ public enum Tokens {
     public static let launchMark: CGFloat = 160
     /// Height of a sparkline and of a progress bar.
     public static let sparkline: CGFloat = 34
+    /// Height of a symbol's price line today in the Symbols detail (mockup v101, 266×40).
+    public static let dayLine: CGFloat = 40
     /// A tab bar glyph (`DesignGlyph`), as on the iOS boards.
     public static let tabGlyph: CGFloat = 24
     /// iOS header glyphs (power, settings, calendar): a bar-button glyph's size, in a `touchTarget`.

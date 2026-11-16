@@ -329,6 +329,15 @@ final class AppModel {
     await refreshSymbols(client, url: url, day: day)
   }
 
+  /// Today's price line of `symbol` for the Symbols detail, against `previousClose`
+  /// (`SymbolDayLine`: the bot's stored bars, a chart read only without them); nil unconnected.
+  func symbolDayLine(_ symbol: String, previousClose: Decimal?) async -> SymbolDayLine? {
+    guard let url = connection.url else { return nil }
+    let client = Container.shared.apiClient(connection.endpoint(for: url))
+    return await SymbolDayLine.read(symbol, day: symbols?.day ?? today, today: today,
+      previousClose: previousClose, client: client)
+  }
+
   /// Reads today's symbols and fast movers (the funnel's Quote and Bars, the Symbols screen and
   /// the Fast movers card); an answer is dropped when the address or the day changed meanwhile.
   private func refreshSymbols(_ client: APIClient, url: URL, day: WireDate) async {
