@@ -22,9 +22,12 @@ public struct FlowChipV1: Codable, Hashable, Sendable {
   /// Each screener's rank of the symbol in its latest list, in `sources` order; empty from a bot
   /// that does not send it yet.
   public let ranks: [SymbolSourceV1]
+  /// The price in the latest captured row that listed it; nil when that row has none, or from a
+  /// bot that does not send it yet.
+  public let price: DecimalString?
 
   enum CodingKeys: String, CodingKey {
-    case symbol, sources, ranks
+    case symbol, sources, ranks, price
     case changePct = "change_pct"
     case changeCause = "change_cause"
     case excludedCause = "excluded_cause"
@@ -38,6 +41,7 @@ public struct FlowChipV1: Codable, Hashable, Sendable {
     changeCause = try c.decodeNullable(String.self, forKey: .changeCause)
     excludedCause = try c.decodeNullable(String.self, forKey: .excludedCause)
     ranks = try c.decodeIfPresent([SymbolSourceV1].self, forKey: .ranks) ?? []
+    price = try c.decodeIfPresent(DecimalString.self, forKey: .price)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -48,6 +52,7 @@ public struct FlowChipV1: Codable, Hashable, Sendable {
     try c.encodeNullable(changeCause, forKey: .changeCause)
     try c.encodeNullable(excludedCause, forKey: .excludedCause)
     try c.encode(ranks, forKey: .ranks)
+    try c.encodeNullable(price, forKey: .price)
   }
 }
 

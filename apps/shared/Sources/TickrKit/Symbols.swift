@@ -26,6 +26,26 @@ public enum SymbolState: String, Codable, Sendable, CaseIterable {
   case notReached = "not_reached"
 }
 
+/// When a symbol first got to a stage; nil where no record says (the order and stop stages).
+public struct SymbolReachV1: Codable, Hashable, Sendable {
+  public let stage: SymbolStage
+  public let at: WireTime?
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    stage = try c.decode(SymbolStage.self, forKey: .stage)
+    at = try c.decodeNullable(WireTime.self, forKey: .at)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(stage, forKey: .stage)
+    try c.encodeNullable(at, forKey: .at)
+  }
+
+  enum CodingKeys: String, CodingKey { case stage, at }
+}
+
 /// One symbol seen on the day: its furthest stage, and where and why it stands now.
 public struct SymbolRowV1: Codable, Hashable, Sendable {
   public let symbol: String
@@ -44,11 +64,24 @@ public struct SymbolRowV1: Codable, Hashable, Sendable {
   public let verdict: Verdict?
   public let setup: String?
   public let at: WireTime?
+  // Added after v1 shipped: absent from older documents (nil or empty then).
+  /// The price in the latest screener row that listed it.
+  public let price: DecimalString?
+  /// Each stage up to `furthest`, in pipeline order, with when it was first reached.
+  public let reached: [SymbolReachV1]
+  /// The time of the active strategy's latest decision on it.
+  public let decidedAt: WireTime?
+  /// That decision's strategy, `name@version`.
+  public let strategy: String?
+  /// That decision's checks, in the strategy's order.
+  public let checks: [CheckV1]
 
   enum CodingKeys: String, CodingKey {
     case symbol, sources, furthest, stage, state, cause, check, detail, verdict, setup, at
+    case price, reached, strategy, checks
     case changePct = "change_pct"
     case firstSeen = "first_seen"
+    case decidedAt = "decided_at"
   }
 
   public init(from decoder: Decoder) throws {
@@ -66,6 +99,11 @@ public struct SymbolRowV1: Codable, Hashable, Sendable {
     verdict = try c.decodeNullable(Verdict.self, forKey: .verdict)
     setup = try c.decodeNullable(String.self, forKey: .setup)
     at = try c.decodeNullable(WireTime.self, forKey: .at)
+    price = try c.decodeIfPresent(DecimalString.self, forKey: .price)
+    reached = try c.decodeIfPresent([SymbolReachV1].self, forKey: .reached) ?? []
+    decidedAt = try c.decodeIfPresent(WireTime.self, forKey: .decidedAt)
+    strategy = try c.decodeIfPresent(String.self, forKey: .strategy)
+    checks = try c.decodeIfPresent([CheckV1].self, forKey: .checks) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -83,6 +121,11 @@ public struct SymbolRowV1: Codable, Hashable, Sendable {
     try c.encodeNullable(verdict, forKey: .verdict)
     try c.encodeNullable(setup, forKey: .setup)
     try c.encodeNullable(at, forKey: .at)
+    try c.encodeNullable(price, forKey: .price)
+    try c.encode(reached, forKey: .reached)
+    try c.encodeNullable(decidedAt, forKey: .decidedAt)
+    try c.encodeNullable(strategy, forKey: .strategy)
+    try c.encode(checks, forKey: .checks)
   }
 }
 
