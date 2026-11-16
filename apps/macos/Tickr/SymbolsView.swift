@@ -357,18 +357,6 @@ private struct MoverColumns: View {
   }
 }
 
-/// The signals named in `FastMoverV1.fired` (protocol constants of the API).
-enum FastMoverSignal: String {
-  case volume = "volume_ratio"
-  case move = "move_atr"
-  case dollars = "dollar_volume_ratio"
-}
-
-extension FastMoverV1 {
-  /// Whether `signal` reached its threshold on the mover's bar.
-  func fired(_ signal: FastMoverSignal) -> Bool { fired.contains(signal.rawValue) }
-}
-
 /// A column's title above the rows.
 private struct ColumnTitle: View {
   let title: LocalizedStringResource

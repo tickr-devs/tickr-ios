@@ -61,6 +61,14 @@ final class AppModel {
   private(set) var flowError: String?
   /// Today's skipped signals (GET /skipped), read with the flow: where a refused symbol stopped.
   private(set) var skipped: SkippedV1?
+  /// Today's symbols by the stage they got to (GET /symbols), read with the flow.
+  private(set) var symbols: SymbolsV1?
+  /// Why the symbols could not be read, if they could not.
+  private(set) var symbolsError: String?
+  /// Today's fast movers (GET /movers), read with the flow.
+  private(set) var movers: MoversV1?
+  /// Why the fast movers could not be read, if they could not.
+  private(set) var moversError: String?
   /// The day the last /flow answer (or failure) was for; until it is today the flow is pending.
   private(set) var flowAnsweredDay: WireDate?
   private(set) var sending = false
@@ -177,6 +185,10 @@ final class AppModel {
     flow = nil
     flowError = nil
     skipped = nil
+    symbols = nil
+    symbolsError = nil
+    movers = nil
+    moversError = nil
     flowAnsweredDay = nil
     start()
   }
@@ -314,6 +326,36 @@ final class AppModel {
     let refusals = try? await client.skipped(day: day)
     guard connection.url == url, day == today else { return }
     skipped = refusals
+    await refreshSymbols(client, url: url, day: day)
+  }
+
+  /// Reads today's symbols and fast movers (the funnel's Quote and Bars, the Symbols screen and
+  /// the Fast movers card); an answer is dropped when the address or the day changed meanwhile.
+  private func refreshSymbols(_ client: APIClient, url: URL, day: WireDate) async {
+    do {
+      let read = try await client.symbols(day: day)
+      guard connection.url == url, day == today else { return }
+      symbols = read
+      symbolsError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      guard connection.url == url, day == today else { return }
+      symbols = nil
+      symbolsError = Self.describe(error) ?? symbolsError
+    }
+    do {
+      let read = try await client.movers(day: day)
+      guard connection.url == url, day == today else { return }
+      movers = read
+      moversError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      guard connection.url == url, day == today else { return }
+      movers = nil
+      moversError = Self.describe(error) ?? moversError
+    }
   }
 
   /// The first /flow answer for today has not come yet (a new address, a new day).
