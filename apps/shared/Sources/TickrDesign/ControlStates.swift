@@ -66,10 +66,13 @@ public struct StatusPill: View {
   }
 }
 
-/// A fact in a small tag: an exit reason, a verdict, a version, the trading gate, a day's
-/// clean-day verdict; the environment is the `EnvironmentBadge`, drawn by this. Square corners set
-/// it apart from a `StatusPill`; `planned` draws it dashed (BACKLOG, NEEDS API). An optional symbol
-/// stands before the words (the Trades header's clean day).
+/// A fact in a small tag: an exit reason, a verdict, a version's role, the trading gate, a day's
+/// clean-day verdict; the environment is the `EnvironmentBadge`, drawn by this. The apps' one badge
+/// (`.u-badge` of the boards' shared spec):
+/// `badge` type (10.5 pt bold mono, uppercase, `badgeTracking`), `Radius.small` (6 pt) corners,
+/// `Space.xs` × `Space.s` padding, its colour at `Opacity.badgeFill` inside and `Opacity.border` around,
+/// the words in the colour's text role. Words only, never a symbol. `planned` draws it dashed
+/// (BACKLOG); `dashed` gives the usual wash a dashed edge (the demo day).
 public struct Badge: View {
   let text: Text
   let fill: Color
@@ -79,8 +82,6 @@ public struct Badge: View {
   let dashed: Bool
   /// Badges are capitals; a value whose case means something (a version, "v1") keeps its own.
   var textCase: Text.Case? = .uppercase
-  /// An SF Symbol before the words, in the badge's colour.
-  var systemImage: String?
 
   public init(_ title: LocalizedStringResource, tone: Tone, planned: Bool = false) {
     self.init(Text(title), fill: tone.fill, color: tone.text, planned: planned)
@@ -97,11 +98,9 @@ public struct Badge: View {
     self.init(Text(verbatim: text), fill: tone.fill, color: tone.text, planned: planned)
   }
 
-  /// A badge in a text colour role (`Palette.warningText`), washed and outlined in the same colour,
-  /// with an optional symbol before the words.
-  public init(_ title: LocalizedStringResource, color: Color, systemImage: String? = nil) {
+  /// A badge in a text colour role (`Palette.warningText`), washed and outlined in the same colour.
+  public init(_ title: LocalizedStringResource, color: Color) {
     self.init(Text(title), fill: color, color: color, planned: false)
-    self.systemImage = systemImage
   }
 
   /// Data in a text colour role; `keepingCase` keeps a version's own case ("v3", never "V3").
@@ -120,22 +119,17 @@ public struct Badge: View {
 
   public var body: some View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
-    HStack(spacing: Tokens.Space.xs) {
-      if let systemImage {
-        Image(systemName: systemImage).accessibilityHidden(true)
-      }
-      text
-        .textCase(textCase)
-        .tracking(Tokens.Typography.badgeTracking)
-    }
-    .font(Tokens.Typography.badge)
-    .padding(.horizontal, Tokens.Space.s)
-    .padding(.vertical, Tokens.Space.xs)
-    .foregroundStyle(color)
-    .background(planned ? Color.clear : fill.opacity(Tokens.Opacity.wash), in: shape)
-    .overlay(shape.strokeBorder(fill.opacity(planned ? 1 : Tokens.Opacity.border),
-      style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: planned || dashed ? Tokens.Stroke.dashFine : [])))
-    .fixedSize()
+    text
+      .textCase(textCase)
+      .tracking(Tokens.Typography.badgeTracking)
+      .font(Tokens.Typography.badge)
+      .padding(.horizontal, Tokens.Space.s)
+      .padding(.vertical, Tokens.Space.xs)
+      .foregroundStyle(color)
+      .background(planned ? Color.clear : fill.opacity(Tokens.Opacity.badgeFill), in: shape)
+      .overlay(shape.strokeBorder(fill.opacity(planned ? 1 : Tokens.Opacity.border),
+        style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: planned || dashed ? Tokens.Stroke.dashFine : [])))
+      .fixedSize()
   }
 }
 

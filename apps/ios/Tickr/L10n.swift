@@ -323,8 +323,13 @@ enum L10n {
     static var statusUnknown: LocalizedStringResource {
       LocalizedStringResource("home.statusUnknown", defaultValue: "Entry status unknown", bundle: L10n.bundle)
     }
-    static var cleanDay: LocalizedStringResource {
-      LocalizedStringResource("home.cleanDay", defaultValue: "Clean day: records agree with the broker", bundle: L10n.bundle)
+    /// Clean-day badge: the journal, the broker and the bot's records agreed (as the Mac's).
+    static var cleanBadge: LocalizedStringResource {
+      LocalizedStringResource("home.cleanBadge", defaultValue: "Clean day · broker and records agree", bundle: L10n.bundle)
+    }
+    /// Clean-day badge: the day was not clean (as the Mac's).
+    static var needsLookBadge: LocalizedStringResource {
+      LocalizedStringResource("home.needsLookBadge", defaultValue: "Needs a look", bundle: L10n.bundle)
     }
     static func notClean(_ first: String, _ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("home.notClean", defaultValue: "Not a clean day (reasons: \(count)): \(first)", bundle: L10n.bundle)
@@ -2034,6 +2039,8 @@ enum ChartText {
   /// The candles / line switch.
   static let candles = LocalizedStringResource("chart.style.candles", defaultValue: "Candles")
   static let lineStyle = LocalizedStringResource("chart.style.line", defaultValue: "Line")
+  /// VoiceOver name of the candles / line switch.
+  static let chartType = LocalizedStringResource("chart.style.type", defaultValue: "Chart type")
   /// Legend names of the Bollinger lines.
   static let bollingerUpper = LocalizedStringResource("chart.indicator.bollUpper", defaultValue: "UB")
   static let bollingerMiddle = LocalizedStringResource("chart.indicator.bollMiddle", defaultValue: "MB")

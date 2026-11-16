@@ -175,10 +175,68 @@ private struct IconButtonBody: View {
   }
 }
 
-/// A selectable chip: one of a few choices shown side by side (a position's tab, a day, a range).
-/// The design's chip: mono `label` text in `textTertiary` on `chipFill` with a `separatorStrong`
-/// hairline; the selected one in `textPrimary` on `selection`, outlined in its tone. On iOS a chip
-/// answers taps over `Size.touchTarget` (`touchTarget()`).
+/// The apps' one chip, as the boards' shared spec draws it (`.u-chip`): `chipTitle` (13 pt bold
+/// mono) in `textSecondary` on `surfaceSunken` with a `separatorStrong` hairline, `Radius.chip`
+/// (6 pt) corners, `Space.xs` × `Space.s` padding; the chosen one in `textPrimary`, outlined in its
+/// tone and washed with it (`Opacity.wash`). `small` is `.u-chip.sm` (a symbol's sources):
+/// `chipSmallTitle` (11 pt), `Space.xxs` × `ChipFace.smallSide` padding. Every chip of both apps
+/// draws this face: a choice button (`.buttonStyle(.chip(selected:))`), an on/off chip
+/// (`.toggleStyle(.chip)`), a menu's label (`.chipFace(selected:)`) and a chip showing data
+/// (`.chipFace(selected: false, small: true)`). On iOS a regular chip is at least `minHeight`
+/// (32 pt) tall and answers taps over `Size.touchTarget` (`touchTarget()`).
+public struct ChipFace: ViewModifier {
+  let selected: Bool
+  let tone: Tone
+  let hovered: Bool
+  let small: Bool
+
+  /// Side padding of a small chip, in points (`.u-chip.sm`).
+  public static let smallSide: CGFloat = 6
+  #if os(iOS)
+  /// Least drawn height of a regular chip on iOS, in points (`.u-chip.ios`).
+  public static let minHeight: CGFloat = 32
+  #else
+  /// Least drawn height of a regular chip on the Mac: its content's.
+  public static let minHeight: CGFloat = 0
+  #endif
+
+  public init(selected: Bool, tone: Tone = .info, hovered: Bool = false, small: Bool = false) {
+    self.selected = selected
+    self.tone = tone
+    self.hovered = hovered
+    self.small = small
+  }
+
+  @ViewBuilder public func body(content: Content) -> some View {
+    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.chip, style: .continuous)
+    let face = content
+      .labelStyle(ControlLabelStyle())
+      .font(small ? Tokens.Typography.chipSmallTitle : Tokens.Typography.chipTitle)
+      .foregroundStyle(selected || hovered ? Palette.textPrimary : Palette.textSecondary)
+      .padding(.horizontal, small ? Self.smallSide : Tokens.Space.s)
+      .padding(.vertical, small ? Tokens.Space.xxs : Tokens.Space.xs)
+      .frame(minHeight: small ? nil : Self.minHeight)
+      .background(selected ? tone.fill.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
+      .overlay(shape.strokeBorder(selected ? tone.fill : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+      .animation(Tokens.Motion.quick, value: selected)
+    if small {
+      face
+    } else {
+      face.touchTarget()
+    }
+  }
+}
+
+public extension View {
+  /// The chip's face on a label that is not a chip button itself (a `Menu`'s label), or on data
+  /// shown as a chip (`small`: a symbol's sources).
+  func chipFace(selected: Bool, tone: Tone = .info, small: Bool = false) -> some View {
+    modifier(ChipFace(selected: selected, tone: tone, small: small))
+  }
+}
+
+/// A selectable chip: one of a few choices shown side by side (a position's tab, a range, an
+/// interval). The `ChipFace`, pressed and hovered.
 public struct ChipButtonStyle: ButtonStyle {
   @Environment(\.isEnabled) private var enabled
   @State private var hovered = false
@@ -191,29 +249,19 @@ public struct ChipButtonStyle: ButtonStyle {
   }
 
   public func makeBody(configuration: Configuration) -> some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.chip, style: .continuous)
     configuration.label
-      .labelStyle(ControlLabelStyle())
-      .font(Tokens.Typography.label)
-      .foregroundStyle(selected || hovered ? Palette.textPrimary : Palette.textTertiary)
-      .padding(.horizontal, Tokens.Space.s)
-      .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
-      .background(selected ? Palette.selection : Palette.chipFill, in: shape)
-      .overlay(shape.strokeBorder(selected ? tone.fill : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-      .touchTarget()
+      .modifier(ChipFace(selected: selected, tone: tone, hovered: hovered))
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
-      .animation(Tokens.Motion.quick, value: selected)
       .animation(Tokens.Motion.quick, value: hovered)
       .onHover { hovered = $0 }
       .accessibilityAddTraits(selected ? .isSelected : [])
   }
 }
 
-/// An on/off chip (a chart study, the trade marks), uppercase as the design's chips: on is
-/// `textPrimary` on `selection` with the chip's hairline, off is the plain chip at `Opacity.muted`.
-/// On iOS it answers taps over `Size.touchTarget`, as every chip does.
+/// An on/off chip (a chart study, the trade marks), uppercase: on is the chosen `ChipFace`, off
+/// the plain one, so an on/off chip looks like every other chip.
 public struct ChipToggleStyle: ToggleStyle {
   public init() {}
 
@@ -223,31 +271,7 @@ public struct ChipToggleStyle: ToggleStyle {
     } label: {
       configuration.label.textCase(.uppercase)
     }
-    .buttonStyle(ChipToggleButton(isOn: configuration.isOn))
-    .accessibilityAddTraits(configuration.isOn ? .isSelected : [])
-  }
-}
-
-/// The button inside a `ChipToggleStyle`.
-private struct ChipToggleButton: ButtonStyle {
-  @Environment(\.isEnabled) private var enabled
-  let isOn: Bool
-
-  func makeBody(configuration: Configuration) -> some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.chip, style: .continuous)
-    configuration.label
-      .labelStyle(ControlLabelStyle())
-      .font(Tokens.Typography.label)
-      .foregroundStyle(isOn ? Palette.textPrimary : Palette.textTertiary)
-      .padding(.horizontal, Tokens.Space.s)
-      .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
-      .background(isOn ? Palette.selection : Palette.chipFill, in: shape)
-      .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-      .touchTarget()
-      .opacity(!enabled ? Tokens.Opacity.faint : isOn ? 1 : Tokens.Opacity.muted)
-      .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
-      .animation(Tokens.Motion.quick, value: configuration.isPressed)
-      .animation(Tokens.Motion.quick, value: isOn)
+    .buttonStyle(ChipButtonStyle(selected: configuration.isOn))
   }
 }
 

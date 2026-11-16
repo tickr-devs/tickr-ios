@@ -401,7 +401,7 @@ private struct SymbolChips: View {
             // As on the design, one dot after the symbol: teal for an open position (pulsing only
             // while the status saying so is current), the chip's ink for a symbol the bot traded.
             HStack(spacing: Tokens.Space.xs) {
-              Text(symbol).bold()
+              Text(symbol)
               if open {
                 // One pulse when the position changes at the broker: filled, stop placed or
                 // verified, quantity changed; still in between.
@@ -415,10 +415,8 @@ private struct SymbolChips: View {
                   .accessibilityLabel(Text(ChartText.traded))
               }
             }
-            .chip(on: selected)
           }
-          .buttonStyle(.plain)
-          .accessibilityAddTraits(selected ? .isSelected : [])
+          .buttonStyle(.chip(selected: selected))
         }
       }
     }
@@ -444,17 +442,15 @@ private struct ChartControls: View {
       ViewThatFits(in: .horizontal) {
         HStack(spacing: Tokens.Space.s) {
           timeframes
-          styleControl
           following
         }
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          HStack(spacing: Tokens.Space.s) {
-            timeframes
-            styleControl
-          }
+          timeframes
           following
         }
       }
+      // Candles or a line on a row of its own, as on the design.
+      styleSwitch
       // The design's four common lines as chips; the rest in the "ƒx" menu.
       ChipFlow(spacing: Tokens.Space.s) {
         toggle(ChartText.vwap, isOn: $lines.vwap)
@@ -482,7 +478,7 @@ private struct ChartControls: View {
             Image(systemName: Self.indicatorsSymbol)
             Image(systemName: Self.menuSymbol).imageScale(.small)
           }
-          .chip(on: false)
+          .chipFace(selected: false)
           .accessibilityLabel(Text(ChartText.indicators))
         }
         .menuActionDismissBehavior(.disabled)
@@ -498,10 +494,9 @@ private struct ChartControls: View {
       ForEach(chart.range.intervals) { timeframe in
         let selected = timeframe == chart.timeframe
         Button { chart.timeframe = timeframe } label: {
-          Text(ChartFormat.title(timeframe)).chip(on: selected)
+          Text(ChartFormat.title(timeframe))
         }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
+        .buttonStyle(.chip(selected: selected))
       }
     }
     .fixedSize()
@@ -526,11 +521,10 @@ private struct ChartControls: View {
         Button {
           withAnimation(Tokens.Motion.quick) { viewport.followEnd(series) }
         } label: {
-          Text(ChartText.live).textCase(.uppercase).chip(on: following, tint: Palette.accent, text: Palette.accentText)
+          Text(ChartText.live).textCase(.uppercase)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.chip(selected: following, tone: .accent))
         .accessibilityHint(Text(ChartText.liveHint))
-        .accessibilityAddTraits(following ? .isSelected : [])
       }
     }
     .fixedSize()
@@ -540,65 +534,24 @@ private struct ChartControls: View {
   static let indicatorsSymbol = "function"
   static let menuSymbol = "chevron.down"
 
-  /// Candles or a line: one chip with the design's glyph of the way the chart draws now; a tap
-  /// switches to the other. VoiceOver reads the way it draws now ("Candles" or "Line").
-  private var styleControl: some View {
-    let candles = lines.style == .candles
-    return Button {
-      lines.style = candles ? .line : .candles
-    } label: {
-      DesignGlyphView(candles ? .candles : .line, side: Tokens.Size.chipGlyph)
-        .frame(minHeight: Tokens.Size.iconButtonCompact)
-        .padding(.horizontal, Tokens.Space.s)
-        .background(Palette.info.opacity(TickrTabBar.selectedWash), in: Capsule())
-        .overlay(Capsule().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-        .touchTarget()
-    }
-    .buttonStyle(.plain)
-    .fixedSize()
-    .accessibilityLabel(Text(candles ? ChartText.candles : ChartText.lineStyle))
+  /// Candles or a line: the apps' segmented switch with the design's glyphs, as on the Mac.
+  private var styleSwitch: some View {
+    SegmentSwitch(options: [
+      SegmentSwitch<CandleChart.Style>.Option(.candles, title: Text(ChartText.candles), glyph: .candles),
+      SegmentSwitch<CandleChart.Style>.Option(.line, title: Text(ChartText.lineStyle), glyph: .line),
+    ], selection: $lines.style)
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(Text(ChartText.chartType))
   }
 
-  /// A line's chip: washed and outlined in `info` while the chart draws it.
+  /// A line's chip: the apps' on/off chip (`.toggleStyle(.chip)`), chosen while the chart draws it.
   private func toggle(_ title: LocalizedStringResource, isOn: Binding<Bool>) -> some View {
-    Button { isOn.wrappedValue.toggle() } label: {
-      Text(title).bold().chip(on: isOn.wrappedValue)
-    }
-    .buttonStyle(.plain)
-    .accessibilityAddTraits(isOn.wrappedValue ? .isSelected : [])
+    Toggle(isOn: isOn) { Text(title) }
+      .toggleStyle(.chip)
   }
 
   private func zoom(by factor: Double) {
     withAnimation(Tokens.Motion.quick) { viewport.zoom(by: factor, series) }
-  }
-}
-
-/// The design's capsule chip: monospaced, with a coloured border and wash while it is on (the iOS
-/// Chart board draws its chips as capsules, the Mac boards as `.chip` rectangles). Like every chip
-/// on the phone it answers taps over `Size.touchTarget` (`touchTarget()`).
-private struct ChipLook: ViewModifier {
-  let on: Bool
-  let tint: Color
-  let text: Color
-
-  func body(content: Content) -> some View {
-    content
-      .font(Tokens.Typography.captionMono)
-      .fixedSize()
-      .foregroundStyle(on ? text : Palette.textSecondary)
-      .padding(.horizontal, Tokens.Space.m)
-      .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
-      .background(on ? tint.opacity(Tokens.Opacity.wash) : Palette.surface, in: Capsule())
-      .overlay {
-        Capsule().strokeBorder(on ? tint : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin)
-      }
-      .touchTarget()
-  }
-}
-
-private extension View {
-  func chip(on: Bool, tint: Color = Palette.info, text: Color = Palette.infoText) -> some View {
-    modifier(ChipLook(on: on, tint: tint, text: text))
   }
 }
 

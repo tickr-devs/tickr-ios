@@ -234,11 +234,6 @@ public enum Board {
     }
   }
 
-  /// The SF Symbol of an exit reason, for its pill; a reason this app does not know gets a question mark.
-  public static func exitReasonSymbol(_ raw: String) -> String {
-    ExitReason(rawValue: raw)?.symbol ?? ExitReason.unknownSymbol
-  }
-
   public static func commandTitle(_ kind: CommandKind) -> String {
     switch kind {
     case .entryStopOn: return String(localized: L10n.commandPauseEntries)
@@ -270,36 +265,6 @@ enum ExitReason: String {
   case entryNotFilledInTime = "entry-not-filled-in-time"
   case holdElapsed = "hold-elapsed"
   case closed
-
-  /// SF Symbols of the reasons: a reason this app does not know, a stop hit, the strategy's own
-  /// exit, the operator, an interruption, the session's end, a lost stream, a protection failure,
-  /// an entry that never filled, a hold that ran out, and a plain close.
-  static let unknownSymbol = "questionmark.circle"
-  static let stoppedOutSymbol = "xmark.shield"
-  static let strategySymbol = "arrow.right.to.line"
-  static let operatorSymbol = "hand.raised"
-  static let interruptSymbol = "bolt.horizontal"
-  static let sessionEndSymbol = "clock.badge.xmark"
-  static let streamSymbol = "waveform.path.ecg"
-  static let protectionSymbol = "exclamationmark.shield"
-  static let notFilledSymbol = "hourglass"
-  static let holdSymbol = "timer"
-  static let closedSymbol = "checkmark.circle"
-
-  var symbol: String {
-    switch self {
-    case .stoppedOut: return Self.stoppedOutSymbol
-    case .strategyExit: return Self.strategySymbol
-    case .operatorExit, .operatorFlatten: return Self.operatorSymbol
-    case .operatorInterrupt: return Self.interruptSymbol
-    case .sessionFlatten: return Self.sessionEndSymbol
-    case .streamLost: return Self.streamSymbol
-    case .stopRejected, .unprotectedTooLong: return Self.protectionSymbol
-    case .entryNotFilled, .entryNotFilledInTime: return Self.notFilledSymbol
-    case .holdElapsed: return Self.holdSymbol
-    case .closed: return Self.closedSymbol
-    }
-  }
 
   var title: LocalizedStringResource {
     switch self {

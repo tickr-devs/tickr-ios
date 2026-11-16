@@ -32,8 +32,8 @@ public struct MoverFigure: View {
   }
 }
 
-/// A symbol's screeners as small chips ("Gainers #3 +18.2%"): each chip's words, then an optional
-/// change in its own colour.
+/// A symbol's screeners as the apps' small chips (`chipFace(selected:small:)`, the boards'
+/// `.u-chip.sm`, "Gainers #3 +18.2%"): each chip's words, then an optional change in its own colour.
 public struct SourceChips: View {
   /// One chip: the screener and rank, and the symbol's change with its colour (on one chip only).
   public struct Item: Hashable {
@@ -55,7 +55,6 @@ public struct SourceChips: View {
   }
 
   public var body: some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small)
     ChipFlow(spacing: Tokens.Space.xs) {
       ForEach(Array(items.enumerated()), id: \.offset) { _, item in
         HStack(spacing: Tokens.Space.xs) {
@@ -64,12 +63,7 @@ public struct SourceChips: View {
             Text(verbatim: change).foregroundStyle(item.changeColor)
           }
         }
-        .font(Tokens.Typography.annotationBold)
-        .foregroundStyle(Palette.textSecondary)
-        .padding(.horizontal, Tokens.Space.xs)
-        .padding(.vertical, Tokens.Space.xxs)
-        .background(Palette.chipFill, in: shape)
-        .overlay { shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin) }
+        .chipFace(selected: false, small: true)
       }
     }
   }

@@ -3422,6 +3422,23 @@
         }
       }
     },
+    "chart.style.type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart type"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип графика"
+          }
+        }
+      }
+    },
     "chart.symbol.open" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5054,19 +5071,19 @@
         }
       }
     },
-    "home.cleanDay" : {
+    "home.cleanBadge" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clean day: records agree with the broker"
+            "value" : "Clean day · broker and records agree"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Чистый день: записи совпадают с брокером"
+            "value" : "Чистый день · брокер и записи сходятся"
           }
         }
       }
@@ -5288,6 +5305,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Торговля запрещена: %@."
+          }
+        }
+      }
+    },
+    "home.needsLookBadge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs a look"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужна проверка"
           }
         }
       }

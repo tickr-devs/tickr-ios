@@ -1102,27 +1102,32 @@ private struct FlowDot: View {
   }
 }
 
-/// A recorded day's clean-day verdict from the bot's journal and reconciliation: clean, not clean
-/// with its first reason, or unknown with why.
+/// A recorded day's clean-day verdict from the bot's journal and reconciliation, as on the Mac: the
+/// clean-day `Badge` (clean, or needs a look with its first reason under it), or a line saying
+/// why the verdict is unknown.
 private struct CleanLine: View {
   let clean: CleanDay
 
   var body: some View {
-    Group {
-      switch clean.verdict {
-      case .clean:
-        Text(L10n.Home.cleanDay)
-          .foregroundStyle(Palette.profitText)
-      case .notClean:
-        Text(L10n.Home.notClean(clean.causes.first.map { ApiText.prose($0.textCodes, text: $0.text) } ?? Format.missing,
-          clean.causes.count))
-          .foregroundStyle(Palette.warningText)
-      case .unknown:
-        Text(L10n.Home.cleanUnknown(ApiText.prose(clean.causeCodes, text: clean.cause) ?? Format.missing))
-          .foregroundStyle(Palette.textQuaternary)
+    switch clean.verdict {
+    case .clean:
+      Badge(L10n.Home.cleanBadge, color: Palette.profitText)
+    case .notClean:
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        Badge(L10n.Home.needsLookBadge, color: Palette.warningText)
+        caption(Text(L10n.Home.notClean(
+          clean.causes.first.map { ApiText.prose($0.textCodes, text: $0.text) } ?? Format.missing, clean.causes.count)))
       }
+      .accessibilityElement(children: .combine)
+    case .unknown:
+      caption(Text(L10n.Home.cleanUnknown(ApiText.prose(clean.causeCodes, text: clean.cause) ?? Format.missing)))
     }
-    .font(Tokens.Typography.annotation)
-    .fixedSize(horizontal: false, vertical: true)
+  }
+
+  private func caption(_ text: Text) -> some View {
+    text
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.textQuaternary)
+      .fixedSize(horizontal: false, vertical: true)
   }
 }

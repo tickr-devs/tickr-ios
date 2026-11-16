@@ -7,18 +7,13 @@ import TickrKit
 struct CleanMark: View {
   let clean: CleanDay
 
-  /// SF Symbol of a clean day.
-  static let cleanSymbol = "checkmark.seal.fill"
-  /// SF Symbol of a day that was not clean.
-  static let notCleanSymbol = "exclamationmark.triangle.fill"
-
   var body: some View {
     Group {
       switch clean.verdict {
       case .clean:
-        Image(systemName: Self.cleanSymbol).foregroundStyle(Palette.profitText)
+        Image(systemName: Symbols.cleanDay).foregroundStyle(Palette.profitText)
       case .notClean:
-        Image(systemName: Self.notCleanSymbol).foregroundStyle(Palette.warningText)
+        Image(systemName: Symbols.notCleanDay).foregroundStyle(Palette.warningText)
       case .unknown:
         EmptyView()
       }
@@ -42,28 +37,25 @@ struct CleanMark: View {
   }
 }
 
-/// The shown day's verdict in its header: a clean day, or one that needs a look, with what made
-/// it so in the tooltip; nothing while the verdict is unknown.
+/// The shown day's verdict in its header (Trades and Overview): the apps' clean-day `Badge`, a clean
+/// day or one that needs a look, with what made it so in the tooltip; nothing while the verdict is
+/// unknown.
 struct CleanBadge: View {
   let clean: CleanDay
-  /// The verdict's symbol before the badge; the Overview header draws the badge alone.
-  var showsSymbol = true
 
   /// Accessibility id of the badge, for the UI tests.
   static let id = "trades-clean-badge"
 
   var body: some View {
     switch clean.verdict {
-    case .clean: badge(L10n.Trades.cleanBadge, symbol: CleanMark.cleanSymbol, color: Palette.profitText)
-    case .notClean: badge(L10n.Trades.needsLookBadge, symbol: CleanMark.notCleanSymbol, color: Palette.warningText)
+    case .clean: badge(L10n.Trades.cleanBadge, color: Palette.profitText)
+    case .notClean: badge(L10n.Trades.needsLookBadge, color: Palette.warningText)
     case .unknown: EmptyView()
     }
   }
 
-  /// The design's day badge: the shared `Badge` in the verdict's colour, with the verdict's symbol
-  /// before the words (Trades) or without it (the Overview header).
-  private func badge(_ title: LocalizedStringResource, symbol: String, color: Color) -> some View {
-    Badge(title, color: color, systemImage: showsSymbol ? symbol : nil)
+  private func badge(_ title: LocalizedStringResource, color: Color) -> some View {
+    Badge(title, color: color)
       .help(Text(verbatim: CleanMark.text(clean)))
       .accessibilityElement(children: .combine)
       .accessibilityIdentifier(Self.id)

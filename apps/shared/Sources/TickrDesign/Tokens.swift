@@ -29,8 +29,9 @@ public enum Tokens {
   public enum Radius {
     /// Badges, tags, small chips.
     public static let small: CGFloat = 6
-    /// Chips and tabs (ranges, intervals, studies, position tabs).
-    public static let chip: CGFloat = 8
+    /// Chips (`ChipButtonStyle`, `ChipToggleStyle`, `chipFace`): the Controls board's `.chip`,
+    /// 6 px corners.
+    public static let chip: CGFloat = 6
     /// Banners, inset panels, menus.
     public static let medium: CGFloat = 10
     /// Small cards (sidebar, menu-bar panel).
@@ -129,7 +130,7 @@ public enum Tokens {
     #endif
     /// Buttons drawn by the apps' own button style (bot controls).
     public static let button = Font.system(.body, weight: .semibold)
-    /// Tabs and chips that name a symbol or a value (position tabs).
+    /// Tabs and figures that name a symbol or a value (position tabs, flow chips).
     public static let chip = Font.system(.callout, design: .monospaced, weight: .bold)
     /// Compact buttons inline in a row or a card header.
     public static let buttonCompact = Font.system(.callout, weight: .semibold)
@@ -188,7 +189,7 @@ public enum Tokens {
     public static let faint = 0.35
     /// Borders tinted with an accent, secondary marks.
     public static let border = 0.45
-    /// An off chip among on ones (the Chart's studies).
+    /// A faded mark: the loader's beam tail, the live brand mark's fade.
     public static let muted = 0.55
     /// Visible but not dominant: inactive elements, pulse rings at start.
     public static let medium = 0.7
@@ -235,8 +236,7 @@ public enum Tokens {
     public static let tabGlyph: CGFloat = 24
     /// iOS header glyphs (power, settings, calendar): a bar-button glyph's size, in a `touchTarget`.
     public static let headerGlyph: CGFloat = 22
-    /// A glyph inside a chip-height button (the chart-type buttons), as on the iOS Chart board.
-    public static let chipGlyph: CGFloat = 14
+    /// Height of a progress bar.
     public static let bar: CGFloat = 8
     /// Height of a thin progress bar inside a row (Watching closely).
     public static let barThin: CGFloat = 4

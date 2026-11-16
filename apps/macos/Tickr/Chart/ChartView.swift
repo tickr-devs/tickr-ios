@@ -110,8 +110,6 @@ struct ChartView: View {
   static let zoomInSymbol = "plus"
   static let fitSymbol = "arrow.up.left.and.arrow.down.right"
   static let railSymbol = "sidebar.trailing"
-  static let candlesSymbol = "chart.bar.fill"
-  static let lineSymbol = "chart.xyaxis.line"
   static let menuSymbol = "chevron.down"
 
   /// What a read depends on: a change starts a new read and forgets the old bars.
@@ -347,16 +345,12 @@ struct ChartView: View {
       .padding(.horizontal, Tokens.Space.xs)
   }
 
+  /// The range as the apps' segmented switch (`.u-seg.mac.fit` on the Chart board).
   private var rangeChips: some View {
-    HStack(spacing: Tokens.Space.xs) {
-      ForEach(ChartRange.allCases, id: \.self) { item in
-        Button { range = item } label: { Text(Self.title(item)) }
-          .buttonStyle(.chip(selected: range == item))
-      }
-    }
-    .help(Text(L10n.Chart.rangeHelp))
-    .accessibilityElement(children: .contain)
-    .accessibilityLabel(Text(L10n.Chart.rangeLabel))
+    SegmentSwitch(options: ChartRange.allCases.map { ($0, Text(Self.title($0))) }, selection: $range, fit: true)
+      .help(Text(L10n.Chart.rangeHelp))
+      .accessibilityElement(children: .contain)
+      .accessibilityLabel(Text(L10n.Chart.rangeLabel))
   }
 
   /// "Day", "5D", "1M": the range as charting apps name it.
@@ -394,17 +388,12 @@ struct ChartView: View {
     }
   }
 
+  /// Candles or a line, as the apps' segmented switch with the design's glyphs (both apps).
   private var styleChips: some View {
-    HStack(spacing: Tokens.Space.xs) {
-      Button { style = .candles } label: {
-        Label { Text(L10n.Chart.candles) } icon: { Image(systemName: Self.candlesSymbol) }
-      }
-      .buttonStyle(.chip(selected: style == .candles))
-      Button { style = .line } label: {
-        Label { Text(L10n.Chart.lineStyle) } icon: { Image(systemName: Self.lineSymbol) }
-      }
-      .buttonStyle(.chip(selected: style == .line))
-    }
+    SegmentSwitch(options: [
+      SegmentSwitch<ChartStyle>.Option(.candles, title: Text(L10n.Chart.candles), glyph: .candles),
+      SegmentSwitch<ChartStyle>.Option(.line, title: Text(L10n.Chart.lineStyle), glyph: .line),
+    ], selection: $style, fit: true)
     .help(Text(L10n.Chart.styleHelp))
   }
 

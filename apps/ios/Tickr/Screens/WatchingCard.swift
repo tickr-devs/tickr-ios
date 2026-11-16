@@ -59,9 +59,8 @@ struct WatchingRow: View {
           .font(Tokens.Typography.calloutMono.bold())
           .foregroundStyle(Palette.textPrimary)
           .fixedSize()
-        Text(row.verdict.title)
-          .font(Tokens.Typography.annotationBold)
-          .foregroundStyle(row.verdict.color)
+        // The verdict as every verdict tag on both apps: a `Badge` (WATCH in blue).
+        Badge(row.verdict.title, color: row.verdict.color)
         Spacer(minLength: 0)
         Text(verbatim: Format.time(row.at.date))
           .font(Tokens.Typography.annotation)

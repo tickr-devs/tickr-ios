@@ -170,7 +170,7 @@ private struct Header: View {
           }
           // The shown day's clean-day verdict from the bot's journal, as in the design.
           if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
-            CleanBadge(clean: clean, showsSymbol: false)
+            CleanBadge(clean: clean)
           }
         }
         banner

@@ -210,14 +210,14 @@ private struct PositionCard: View {
     }
   }
 
+  /// The stop's price, then its state as a `Badge` (as on the iOS position chain) in the state's
+  /// tone (`StopState.tone`): green VERIFIED, amber pending, red missing or unknown.
   @ViewBuilder private var stop: some View {
     if let price = row.stop {
-      // A verified stop's level is red like the chart's stop line; an unverified one in its
-      // state's tone (`StopState.tone`: pending amber, missing red), its words saying which.
-      if row.position.stop.state.isProtected {
-        Text(L10n.Chart.positionStopVerified(Format.price(price))).foregroundStyle(Palette.lossText)
-      } else {
-        Text(L10n.Chart.positionStopUnverified(Format.price(price))).foregroundStyle(row.position.stop.state.tone.text)
+      let state = row.position.stop.state
+      HStack(spacing: Tokens.Space.xs) {
+        Text(verbatim: Format.price(price)).foregroundStyle(Palette.lossText)
+        Badge(verbatim: Board.stopStateTitle(state), color: state.tone.text)
       }
     } else {
       Text(L10n.Chart.positionNoStop).foregroundStyle(Palette.lossText)

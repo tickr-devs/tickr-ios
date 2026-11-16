@@ -350,15 +350,7 @@ struct VerdictTag: View {
   let verdict: Verdict
 
   var body: some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
-    Text(verdict.title)
-      .textCase(.uppercase)
-      .font(Tokens.Typography.badge)
-      .padding(.horizontal, Tokens.Space.xs)
-      .padding(.vertical, Tokens.Space.xxs)
-      .foregroundStyle(verdict.color)
-      .overlay(shape.strokeBorder(verdict.color, lineWidth: Tokens.Stroke.thin))
-      .fixedSize()
+    Badge(verdict.title, color: verdict.color)
   }
 }
 

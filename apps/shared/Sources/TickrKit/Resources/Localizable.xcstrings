@@ -9986,6 +9986,23 @@
         }
       }
     },
+    "kit.symbols.at" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этап: %@"
+          }
+        }
+      }
+    },
     "kit.symbols.atStage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10264,13 +10281,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@: %2$@"
+            "value" : "Dropped · %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@: %2$@"
+            "value" : "Отсеян · %@"
           }
         }
       }
@@ -10502,13 +10519,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ not reached: %2$@"
+            "value" : "Not reached · %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ не достигнут: %2$@"
+            "value" : "Не достигнут · %@"
           }
         }
       }
@@ -10587,13 +10604,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Passed · stop verified"
+            "value" : "Passed"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Прошёл · стоп подтверждён"
+            "value" : "Прошёл"
+          }
+        }
+      }
+    },
+    "kit.symbols.passedDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop verified"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп подтверждён"
           }
         }
       }
@@ -11080,13 +11114,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: waiting"
+            "value" : "waiting"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: ожидает"
+            "value" : "ожидает"
           }
         }
       }
@@ -11097,13 +11131,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: watching for its setup"
+            "value" : "watching for its setup"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: ждём сетап"
+            "value" : "ждём сетап"
           }
         }
       }

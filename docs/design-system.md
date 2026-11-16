@@ -62,7 +62,7 @@ emergency command tiers from the palette's values (`Swatch`) and fails below 4.5
 | `warning` / `warningText` | Paused, blocked, stale, closed gate, the Sandbox `EnvironmentBadge` | `#F59E0B` / `#B45309` | `#FBBF24` / `#FCD34D` |
 | `info` / `infoText` | Entries, orders, commands in flight | `#3B82F6` / `#1D4ED8` | `#60A5FA` / `#93C5FD` |
 | `highlight` / `highlightText` | Recorded day, BACKLOG, observers | `#8B5CF6` / `#6D28D9` | `#A78BFA` / `#C4B5FD` |
-| `chipFill` | Unselected chip (ranges, intervals, studies); a selected chip takes `selection` with an `info` outline | `#F3F6FD` | `#111834` |
+| `chipFill` | The Mac title bar's buttons (`.titleBar`); chips draw on `surfaceSunken` (`ChipFace`) | `#F3F6FD` | `#111834` |
 | `accentFill` / `onAccent` | Primary button fill and its text | `#0B766F` / `#FFFFFF` | `#2DD4BF` / `#04131A` |
 | `sheen` | Light gradient across a filled control (at `Opacity.wash`) | `#FFFFFF` | `#FFFFFF` |
 | `seriesVWAP` | VWAP line | = `warning` | = `warning` |
@@ -134,7 +134,7 @@ person's locale.
 | Token | pt | Use |
 |---|---|---|
 | `small` | 6 | Badges, tags |
-| `chip` | 8 | Chips and tabs (ranges, intervals, studies, position tabs) |
+| `chip` | 6 | Every chip (`ChipFace`: choice, on/off, menu label, small data chip), as the boards' `.u-chip` |
 | `medium` | 10 | Banners, inset panels |
 | `large` | 14 | Small cards (sidebar, menu-bar panel) |
 | `card` | 18 | Standard cards |
@@ -168,7 +168,9 @@ in rows uses the platform text styles so Dynamic Type applies.
 | `symbolCompact` | 13 pt semibold | SF Symbols in compact round icon buttons |
 | `button` | `.body` semibold | Command buttons (bot controls) |
 | `statusLine` | `.body` semibold (iOS `.subheadline` bold) | The status headline (`HeadlineBanner`) |
-| `chip` | `.callout` bold mono | Tabs and chips naming a symbol (position tabs) |
+| `chip` | `.callout` bold mono | Figures naming a symbol (position tabs, flow chips) |
+| `chipTitle` / `chipSmallTitle` | 13 / 11 pt bold mono (iOS footnote / caption2) | A chip's title (`ChipFace`), a small chip's (`.u-chip.sm`) |
+| `segment` | 12.5 pt semibold (iOS footnote) | A `SegmentSwitch` segment's title |
 | `buttonCompact` | `.callout` semibold | Compact buttons |
 | `chipValue` | `.headline` bold mono | Figures of metric chips, icon metrics, large delta tags |
 | `chevron` | `.caption2` bold | Chevrons and direction triangles |
@@ -198,17 +200,18 @@ and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`;
 
 | Token | Value | Use |
 |---|---|---|
-| `wash` | 0.10 | Banner and badge backgrounds |
+| `wash` | 0.10 | Banner backgrounds, a selected chip's wash |
 | `glow` | 0.14 | Light background glows |
 | `faint` | 0.35 | Volume bars, inactive fills |
 | `shadow` | 0.12 | Light card shadow |
 | `border` | 0.45 | Accent-tinted borders |
-| `muted` | 0.55 | An off chip among on ones (the Chart's studies) |
+| `muted` | 0.55 | A faded mark (the loader's beam tail, the live brand mark's fade) |
 | `medium` | 0.70 | Inactive elements, pulse start |
 | `overlay` | 0.85 | Readouts over content |
 | `flash` | 0.22 | A new row's tint as it arrives (`arrivalFlash`) |
 | `rowHover` | 0.06 | A footer link's row under the pointer (`CardFooterLink`) |
 | `tint` | 0.14 | A tinted chip's fill (the footer link's chevron chip) |
+| `badgeFill` | 0.14 | A `Badge`'s fill (`.u-badge`) |
 | `linkHover` / `linkOutline` | 0.20 / 0.22 | A header link's fill under the pointer and its tinted outline (`HeaderLink`) |
 
 ## Text is never cut
@@ -239,6 +242,9 @@ apps/macos and apps/ios on every pull request:
 - rule `system-buttons`: no system button look (`.bordered`, `.borderedProminent`,
   `.borderless`, `.link`, `.buttonBorderShape`). A button whose label is its own face (a
   `HeaderIcon`, a bare glyph in a row, a calendar's arrows) takes `.buttonStyle(.glyph)`;
+- rule `controls`: no system segmented `Picker` (`.pickerStyle(.segmented)`,
+  `SegmentedPickerStyle`), only `SegmentSwitch`; no chip look of an app's own (a `ViewModifier`
+  named …Chip…), only `ChipFace` and the `.chip` styles;
 - rule `symbols`: one SF Symbol per meaning (`Symbols` below); a symbol competing with a shared
   one (`chevron.left` for "previous", the outlined triangle for "failed") fails;
 - rule `components`: no view or style type name declared in both apps. A screen or card of one
@@ -254,7 +260,15 @@ Which component shows which fact, on both apps:
 | Trading gate open / closed | `Badge` (`profitText` open, `warning` closed; the cause in the hint or the caption under it): Mac Overview header, iOS Settings | Main ("GATE OPEN") |
 | A strategy version ("v3") | `Badge(verbatim:color:keepingCase: true)` / `Badge(keepingCase:)`: a version keeps its own case, never "V3" | MacLab, IOSHome |
 | Planned, not built yet | `Badge(_:tone: .highlight, planned: true)` (the Mac's `Badge.backlog` adds the BACKLOG hint) | every board's `.bl` |
-| The shown day's clean-day verdict (Mac) | `Badge(_:color:systemImage:)`: with the verdict's symbol in the Trades header, without it in the Overview header | MacTrades, Main |
+| A day's clean-day verdict | `Badge` (`profitText` "Clean day · broker and records agree", `warningText` "Needs a look"), words only: Mac Trades and Overview headers (`CleanBadge`, the causes in the tooltip), iOS Home's recorded day (the first cause under it) | MacTrades, Main, IOSHome |
+| A segmented switch (Mac Settings theme, Chart range and type, Lab replay span, Activity panes, Watching closely sort) | `SegmentSwitch`; `fit:` sizes segments to their titles (Mac Chart); a `DesignGlyph` may lead a segment (the chart type: candles / line, both apps, a row of its own on iPhone) | Controls, Activity (`.u-seg`) |
+| A chip (Chart symbols, ranges' intervals, studies, LIVE, zoom; Lab version and day pickers; a symbol's screeners) | `ChipFace`: `.buttonStyle(.chip(selected:tone:))`, `.toggleStyle(.chip)`, `.chipFace(selected:tone:)` on a `Menu` label, `.chipFace(selected: false, small: true)` for data | Controls (`.u-chip`, `.u-chip.sm`) |
+| A Lab version's role (active / trades, observer, candidate) | `Badge(_:tone:)`: `accent`, `highlight`, `warning`; no dot, no symbol | MacLab, IOSLab |
+| The configuration as running (Mac Settings › Config) | `Badge(_:tone:)`: "Same as running" `neutral`, "Changed since start" `warning` | MacSystem |
+| A symbol's outcome (Mac Symbols) | `Badge`: Passed `profitText`, "At <stage>" `infoText`, "Dropped · <stage>" `seriesATRText`, "Not reached · <stage>" `warningText`; the detail after it in `textSecondary`; WATCH as a blue `Badge` beside it (`VerdictTag`) | MacSymbols |
+| A verdict tag (WATCH, IGNORE) | `Badge` in the verdict's colour (Mac `VerdictTag`, iOS `WatchingRow`) | Main, IOSPosition, MacSymbols |
+| A trade's reason tag (OPEN, an exit reason, REFUSED, NOT EVALUATED) | `Badge` (Mac Trades table, iOS Activity rows); the tones are `ui-one-meaning`'s exit map | MacTrades, IOSActivity |
+| A stop's state in a position's detail (VERIFIED) | `Badge`: `profitText` verified, otherwise `warningText` (Mac "Position on chart") or `lossText` (iOS position chain) | MacChart, IOSPosition |
 | "Show all N" under a card's rows | `CardFooterLink` with the count and the hint "closest 3 of N" (Mac Overview and iOS Home Watching closely) | Controls, Main |
 | A link in a card's header | `HeaderLink`; one that pushes a screen is a `NavigationLink` with a `HeaderLinkLabel`, styled `.headerLink()` (iOS Home live flow "slots 2 of 3 ›") | Controls, IOSHome (`.hlink`) |
 | The demo day's chip (Mac title bar, Mac Settings, iOS Home day line) | `Badge(_:tone: .highlight)`, the boards' violet demo (IOSHome `envLabel` DEMO); to become the dashed demo `EnvironmentBadge` when that is shared | IOSHome, Controls (`.demo-tag`) |
@@ -264,19 +278,12 @@ Which component shows which fact, on both apps:
 | The Mac title bar's buttons (sidebar, ‹ ›, Today) | `TitleBarButtonStyle` (`.titleBar(square:)`), one size: `width` × `height` 32 × 28 pt (macOS's regular control height), radius 7 | Mac boards (`.tbtn`) |
 | A header's icon button (iOS) | `HeaderIcon` in a `.glyph` button: the 40 pt glass circle in a 44 pt touch target | iOS boards (`.gbtn`) |
 
-Not yet one look, because the boards themselves draw the element more than one way (the owner
-picks; nothing is changed until then):
-
-- segmented switches: the Activity board's switch (raised sunken tile, the iOS `SegmentSwitch`),
-  the Mac Settings theme switch (inverted: card tile on a sunken track, the Mac `SegmentStrip`),
-  the Lab replay span on both Lab boards (joined segments, solid `info` selection: the Mac
-  `daySwitch`; the iPhone's replay span already uses `SegmentSwitch`) and the Symbols boards'
-  system-like switch;
-- chips: the Mac boards' `.chip` (8 px corners, `chipFill`), the iOS Chart board's capsule chip
-  (card fill), the Controls board's 6 px chip; the Lab version pickers (Mac: a chip with a dot,
-  iOS: a pill without one);
-- the Lab version role (Mac: dot and square tag; iOS: a pill with a symbol);
-- the clean day (Mac: a badge; iOS Home: a plain line "clean day · records agree").
+Mockups v98 and v99 settled the boards that drew an element more than one way (segmented
+switches, chips, the Lab version role, the clean day): each is now the one component above.
+`check_swift_rules.py` rule `controls` keeps it so: no system segmented `Picker` and no chip look
+of an app's own in the apps. Still to come, each in its own change: the Chart rail's past-day tags
+(TRADED, WATCHED, SKIPPED) once the API gives a past day's symbols; `EnvironmentBadge` and the demo
+chip (after #499).
 
 On iOS every chip and every link answers taps over `Size.touchTarget` (`touchTarget()`), drawn
 size unchanged.
@@ -398,11 +405,11 @@ profit factor with 2 decimals, win rate and confidence in whole percents.
 | Loader | `TickrLoader` (TickrDesign) | Every wait for data, never the system spinner: three `separatorStrong` rings, an `accent` beam turning and an `accent` dot pinging at the top; `.compact` (`Size.loader`) in cards, `.large` (`loaderLarge`) with a caption over a whole pane ("Loading ABCD · 1m bars" on the Chart); one VoiceOver element named by its label |
 | Section label | `CardLabel` | `Typography.label`, uppercase, `textLabel` |
 | Stat row | label … value | label `callout` `textTertiary`, value `bodyMono` |
-| Badge | `Badge` (TickrDesign) | A fact (exit reason, verdict, version, the trading gate, a day's clean verdict): `Typography.badge`, tone text colour, `Opacity.wash` fill, `Opacity.border` stroke, `Radius.small`; `planned:` draws it dashed; `systemImage:` puts a symbol before the words; a version keeps its own case (`keepingCase`) |
-| Environment badge | `EnvironmentBadge` (TickrDesign) | The environment the bot runs in, the one look on every screen of both apps (Mac window header, Mac menu-bar panel, Mac Settings › Environment, iOS Home header, iOS Settings › Environment); never a hand-built chip, `StatusPill` or plain `Badge`. A `Badge`: the localized name in capitals, `Typography.badge`, `Radius.small`, `Opacity.wash` fill and `Opacity.border` stroke in the tone that `EnvironmentBadge.Kind` picks from the status value: Sandbox `warning`, Production `loss`, the demo day `highlight` with a `dashFine` dashed edge, an unknown value `neutral`. VoiceOver reads "Environment: Sandbox" everywhere (`ApiText.environmentLabel`, a required argument). Mac Settings › Environment shows the gate's open/closed `Badge` beside it, as the Overview header does. No size variants |
+| Badge | `Badge` (TickrDesign) | The apps' one badge (`.u-badge`), for a fact (exit reason, version, role, the trading gate, a day's clean verdict, an outcome): `Typography.badge` uppercase, tone text colour, `Opacity.badgeFill` (14 %) fill, `Opacity.border` (45 %) stroke, `Radius.small`, `Space.xs` × `Space.s` padding; words only, never a symbol; `planned:` draws it dashed; a version keeps its own case (`keepingCase`) |
+| Environment badge | `EnvironmentBadge` (TickrDesign) | The environment the bot runs in, the one look on every screen of both apps (Mac window header, Mac menu-bar panel, Mac Settings › Environment, iOS Home header, iOS Settings › Environment); never a hand-built chip, `StatusPill` or plain `Badge`. A `Badge`: the localized name in capitals, `Typography.badge`, `Radius.small`, `Opacity.badgeFill` fill and `Opacity.border` stroke in the tone that `EnvironmentBadge.Kind` picks from the status value: Sandbox `warning`, Production `loss`, the demo day `highlight` with a `dashFine` dashed edge, an unknown value `neutral`. VoiceOver reads "Environment: Sandbox" everywhere (`ApiText.environmentLabel`, a required argument). Mac Settings › Environment shows the gate's open/closed `Badge` beside it, as the Overview header does. No size variants |
 | Command button | bot controls | `ActionButtonStyle` below |
 | Live-flow chips (Mac) | `Marquee` | The screeners' symbols scroll across the top of the live flow: symbol in `chip`, below it the screener and change % in `annotation`, coloured by screener (gainers `profitText`, top actives `infoText`, losers `seriesATRText`; left out of the universe "skipped" in `textQuaternary`, struck through, the cause on hover); `surfaceSunken` fill, `separator` hairline, `Radius.medium`, at least `Size.flowChip` wide. Still on a recorded day. The latest event sits in the card's header before the clock, cut first when the title needs the room |
-| Watching row (Mac) | `WatchingRow` | `surfaceSunken` box with `separator` hairline, `Radius.medium`: symbol in `chip`, verdict as an outlined tag (`badge` font, `Stroke.thin` outline, no fill; IGNORE in `seriesATRText`), time in `annotation`; the deciding check in `captionMono`; closeness as a `barThin` capsule in the tag's colour, a dashed `dashFine` outline when unknown |
+| Watching row (Mac) | `WatchingRow` | `surfaceSunken` box with `separator` hairline, `Radius.medium`: symbol in `chip`, verdict as a `Badge` (`VerdictTag`; IGNORE in `seriesATRText`), time in `annotation`; the deciding check in `captionMono`; closeness as a `barThin` capsule in the tag's colour, a dashed `dashFine` outline when unknown |
 | Live-flow board (Mac) | `Pipeline` dots | Under each stage's value, today's symbols whose furthest stage it is (`FlowBoard`), as `flowMark` dots in the stage colour, at most 8 then "+N", wrapping within 104 points; amber while the broker stop waits, red if never confirmed. Universe and risk have a dashed tray, "left out" (`textQuaternary`) or "refused" (`seriesATRText`), naming the first two symbols and how many more, each one's reason on hover. A stage with no symbols shows nothing under it. A dot flies to its new stage (`matchedGeometryEffect`, `Motion.standard`) only when a new read moves it; hover names the symbol and the reason |
 | Live-flow stage | pipeline | `Size.stage` circle filled with the stage colour at `Opacity.glow` over the card, `Stroke.bold` ring and a soft glow in the stage colour; name in the stage's text colour |
 | Accent | `.tint` | `info` for links, selection and system controls on both apps, never the system blue |
@@ -434,11 +441,11 @@ still reads it. Every control takes a `Tone`.
 | `.buttonStyle(.command(tier))` | The bot's commands (both apps): `.secondary(tone)` pause, resume, cancel orders; `.destructive` close a position, Close all, stop the bot; `.primary` start the bot | A `Command.glyph` tile (`Command.glyphRadius`) then the title left-aligned, wrapping, never cut; `Command.height` (36 pt Mac, 50 pt iOS; `compact` 32 pt), `Command.radius`, soft shadow. Secondary: `surface`, `separatorStrong` border, glyph in its tone on an `Opacity.glow` tile. Destructive: `loss` wash, `loss` border, `lossText`, solid `lossFill` tile with an `onLoss` glyph. `detail:` puts a few mono words after the title in the command's colour, always whole (the menu bar's Close all: "2 positions", plural forms from the String Catalog). `tag:` puts a violet `CommandTag` ("DEMO") at the end. A trailing "…" in a title means it asks first |
 | `EmergencyButton` | The emergency stop, always last, after a `LastResortDivider` | Full width, solid `lossFill`, `onLoss` bold title with a second line (`Command.detailOpacity`), `loss` `Command.halo` ring. With `hold:` (Mac) it acts only after `Command.holdSeconds` held, a dark `scrim` sweep filling from its glyph; release or moving away cancels; the accessibility action skips the hold; Reduce Motion stills the sweep |
 | `CommandColumns(columns:)` | A row of commands | Equal columns, as many as fit each title on one line, down to one per row; one height per row |
-| `.buttonStyle(.chip(selected:))` | One of a few choices side by side (position tabs, the Chart's ranges and intervals) | `Typography.label` in `textTertiary` on `chipFill`, `separatorStrong` hairline, `Radius.chip`, `Space.s` × 6 pt padding; selected: `textPrimary` on `selection` with a tone outline; on iOS it answers taps over `Size.touchTarget` |
-| `SegmentSwitch` | The one segmented switch of both apps (the iOS Activity panes, the Chart range on iPhone, the Lab replay span, Watching closely sort and filter); never `Picker(.segmented)` | Equal segments on `surface` in a `Radius.large` card with a `separator` hairline, `Space.xs` padding; titles footnote semibold in `textSecondary`, wrapping rather than cut; chosen: `textPrimary` on a `surfaceSunken` `Radius.medium` tile with a hairline; each segment answers taps over the full 44 pt height |
-| `.toggleStyle(.chip)` | An on/off choice among chips (the Chart's studies, trade marks) | The chip above, title uppercase; on: `textPrimary` on `selection` with the `separatorStrong` hairline; off: the plain chip at `Opacity.muted` |
+| `ChipFace` / `.buttonStyle(.chip(selected:))` / `.chipFace(selected:)` | Every chip: one of a few choices side by side (position tabs, the Chart's symbols and intervals, zoom, LIVE), a `Menu`'s label (Lab version and day pickers), a symbol's screeners (`small`) | The boards' `.u-chip`: `chipTitle` in `textSecondary` on `surfaceSunken`, `separatorStrong` hairline, `Radius.chip` (6 pt), `Space.xs` × `Space.s` padding; selected: `textPrimary`, outlined in its tone with an `Opacity.wash` wash; `small`: `chipSmallTitle`, `Space.xxs` × 6 pt; on iOS at least 32 pt tall, answering taps over `Size.touchTarget` |
+| `SegmentSwitch` | The one segmented switch of both apps (the iOS Activity panes, the Chart range and type, the Lab replay span, Watching closely sort, the Mac theme); never `Picker(.segmented)` (rule `controls`) | The boards' `.u-seg`: segments on a `surface` track with a `separator` hairline, 12 pt corners, 3 pt padding, `Space.xs` gaps; titles `segment` in `textTertiary`, wrapping rather than cut, an optional 12 pt `DesignGlyph` before; chosen: `textPrimary` on a 9 pt `surfaceSunken` tile with a `separatorStrong` line under it; at least 32 pt (iOS) / 28 pt (Mac) tall; `fit:` sizes segments to their titles; on iOS each segment answers taps over 44 pt |
+| `.toggleStyle(.chip)` | An on/off choice among chips (the Chart's studies, trade marks, both apps) | The chip above, title uppercase; on: the selected chip; off: the plain chip |
 | `StateGlyph` | A state without a word (paused, stream fresh, gate closed; a stop's protection through `StopGlyph`) | SF Symbol on a `Size.glyph` tile in the tone, `Opacity.glow` fill; `live` pulses the outline (`Motion.glyphPulseScale`) |
-| `StatusPill` | A state that needs its word (bot running, an exit reason) | Capsule, `PulseDot` (one pulse per `event` while live) or a `systemImage` in its place, `Typography.badge` uppercase |
+| `StatusPill` | A state that needs its word (bot running, a stop's state in a row) | Capsule, `PulseDot` (one pulse per `event` while live) or a `systemImage` in its place, `Typography.badge` uppercase |
 | `IconMetric` | A figure named by a symbol (entry, stop, quantity, time) | Symbol in the tone, `Typography.chipValue` figure, sunken `Radius.medium` chip; the name is its hint. `compact`: a `Radius.small` chip that fits its figure (`captionMono`), in rows under a list item |
 | `ChipFlow` | A row of chips under a list item | Layout that wraps chips onto new lines (`Space.xs` apart) instead of clipping on a narrow phone or at large Dynamic Type |
 | `MetricChip` | A figure whose label must stay visible | Uppercase `label`, `chipValue` figure, unit in `captionMono`, tone rail on the leading edge |

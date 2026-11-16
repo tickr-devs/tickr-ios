@@ -182,8 +182,8 @@ private struct GeneralSettings: View {
   }
 }
 
-/// The design's "Appearance · theme": System, Light or Dark as a segmented strip. A choice other
-/// than System holds every window of the app in that appearance (Defaults.appearance).
+/// The design's "Appearance · theme": System, Light or Dark as the apps' `SegmentSwitch`. A
+/// choice other than System holds every window of the app in that appearance (Defaults.appearance).
 private struct ThemeCard: View {
   @AppStorage(Defaults.appearance) private var appearance = ""
 
@@ -192,9 +192,9 @@ private struct ThemeCard: View {
 
   var body: some View {
     SettingsCard(L10n.Settings.appearanceTheme, footnote: Text(note)) {
-      SegmentStrip(selection: Binding(get: { appearance }, set: { choose($0) }), choices: Self.choices) { value in
-        Text(Self.title(value))
-      }
+      SegmentSwitch(options: Self.choices.map { ($0, Text(Self.title($0))) },
+        selection: Binding(get: { appearance }, set: { choose($0) }))
+        .accessibilityLabel(Text(L10n.Settings.appearanceTheme))
     }
   }
 

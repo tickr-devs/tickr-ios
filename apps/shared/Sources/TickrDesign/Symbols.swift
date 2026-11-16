@@ -18,4 +18,8 @@ public enum Symbols {
   public static let passed = "checkmark.circle.fill"
   /// A check that failed: an invalid configuration, a refused command.
   public static let failed = "xmark.circle.fill"
+  /// A clean day: the journal, the broker and the bot's records agree (the clean-day `Badge`).
+  public static let cleanDay = "checkmark.seal.fill"
+  /// A day that was not clean and needs a look (the clean-day `Badge`).
+  public static let notCleanDay = "exclamationmark.triangle.fill"
 }

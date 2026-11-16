@@ -75,36 +75,6 @@ struct LabView: View {
   private var explain: some View { ExplainCard().gridColumn().rise(step: Order.explain.rawValue) }
 }
 
-/// A version's role tag, as the design draws it: a dot and an outlined word in the role's colour.
-private struct RoleTag: View {
-  let title: LocalizedStringResource
-  let color: Color
-  /// What the version did that its dot marks (a role change, a new decision or trade): one pulse
-  /// per change on the live day, still otherwise.
-  let event: AnyHashable?
-
-  var body: some View {
-    HStack(spacing: Tokens.Space.xs) {
-      PulseDot(color, size: Tokens.Size.dotSmall, event: event)
-      Badge(title, color: color)
-    }
-  }
-}
-
-/// What a version's role dot pulses for in the Lab: one pulse per change of it, never a loop.
-enum VersionEvent {
-  /// The active version: which version holds the role, and how many trades it made today.
-  static func active(_ status: StatusV1?) -> AnyHashable? {
-    guard let status else { return nil }
-    return AnyHashable([status.strategy.name, status.strategy.version, String(status.tradesToday.count)])
-  }
-
-  /// An observer: its version, and how many decisions it recorded today.
-  static func observer(_ observer: ObserverV1) -> AnyHashable {
-    AnyHashable([observer.version, String(observer.decisions.count)])
-  }
-}
-
 /// Every strategy version the bot knows: the active one that trades, the observers that decide
 /// live without trading, and candidates the replay can run; each with its role.
 private struct VersionsCard: View {
@@ -121,35 +91,30 @@ private struct VersionsCard: View {
     Card(L10n.Lab.versions) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         VStack(spacing: 0) {
-          // The active version's dot: a new version in the role, or a new trade of it.
           row(name: activeName, version: model.status?.strategy.version,
-            tag: RoleTag(title: L10n.Lab.tagActive, color: Palette.accentText,
-              event: model.isLive ? VersionEvent.active(model.status) : nil)) {
+            tag: Badge(L10n.Lab.tagActive, tone: .accent)) {
             Text(L10n.Lab.activeRole)
           }
           activePanel
         }
         if let observers = model.observers?.observers {
           ForEach(observers) { observer in
-            // An observer's dot: a new version of it, or a new decision it made.
             row(name: observer.name, version: observer.version,
-              tag: RoleTag(title: L10n.Lab.tagObserver, color: Palette.highlightText,
-                event: model.isLive ? VersionEvent.observer(observer) : nil)) {
+              tag: Badge(L10n.Lab.tagObserver, tone: .highlight)) {
               Text(L10n.Lab.observerNote(observer.decisions.count))
             }
           }
         } else if let names = model.settings?.observers {
           ForEach(names, id: \.self) { name in
             row(name: name, version: nil,
-              tag: RoleTag(title: L10n.Lab.tagObserver, color: Palette.highlightText, event: nil)) {
+              tag: Badge(L10n.Lab.tagObserver, tone: .highlight)) {
               Text(L10n.Lab.observerNoteUnread)
             }
           }
         }
         ForEach(candidates, id: \.folder) { item in
           row(name: item.strategy ?? item.folder, version: item.version,
-            tag: RoleTag(title: L10n.Lab.tagCandidate, color: Palette.warningText,
-              event: model.isLive ? item.version : nil)) {
+            tag: Badge(L10n.Lab.tagCandidate, tone: .warning)) {
             Text(L10n.Lab.candidateNote)
           }
         }
@@ -194,9 +159,9 @@ private struct VersionsCard: View {
     }
   }
 
-  /// One version's row, its role's tag at the end.
+  /// One version's row, its role's `Badge` at the end.
   private func row(
-    name: String, version: String?, tag: RoleTag, @ViewBuilder note: () -> some View
+    name: String, version: String?, tag: Badge, @ViewBuilder note: () -> some View
   ) -> some View {
     HStack(spacing: Tokens.Space.s) {
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
@@ -749,7 +714,7 @@ private struct ReplayCard: View {
           }
           .pickerStyle(.inline)
         } label: {
-          chip(first.flatMap(item).map(name) ?? Format.missing, color: Palette.accent, text: Palette.accentText)
+          chip(first.flatMap(item).map(name) ?? Format.missing, tone: .accent)
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
@@ -771,9 +736,9 @@ private struct ReplayCard: View {
           .pickerStyle(.inline)
         } label: {
           if let second, let item = item(second) {
-            chip(name(item), color: Palette.highlight, text: Palette.highlightText)
+            chip(name(item), tone: .highlight)
           } else {
-            chip(String(localized: L10n.Lab.replayCompareNone), color: Palette.separatorStrong, text: Palette.textTertiary)
+            chip(String(localized: L10n.Lab.replayCompareNone), tone: nil)
           }
         }
         .menuStyle(.button)
@@ -785,84 +750,38 @@ private struct ReplayCard: View {
       .onChange(of: first) { _, now in
         if compare == now { compare = nil }
       }
-      daySwitch
-    }
-  }
-
-  /// The design's two-part switch: the last sessions, or one day picked from a menu.
-  private var daySwitch: some View {
-    HStack(spacing: 0) {
-      Button {
-        oneDay = false
-      } label: {
-        segment(Text(L10n.Lab.replayLastSessions(replay?.sessions ?? .zero)), on: !oneDay)
-      }
-      .buttonStyle(.plain)
-      Rectangle().fill(Palette.separatorStrong).frame(width: Tokens.Stroke.thin)
-      Menu {
-        ForEach(replay?.days ?? [], id: \.self) { item in
-          Button {
-            day = item
-            oneDay = true
-          } label: {
-            Text(verbatim: DayText.day(item))
+      SegmentSwitch(options: [(false, Text(L10n.Lab.replayLastSessions(replay?.sessions ?? .zero))),
+        (true, Text(L10n.Lab.replayOneDay))], selection: $oneDay)
+        .accessibilityLabel(Text(L10n.Lab.replayDays))
+      if oneDay, let days = replay?.days, !days.isEmpty {
+        Menu {
+          ForEach(days, id: \.self) { item in
+            Button {
+              day = item
+            } label: {
+              Text(verbatim: DayText.day(item))
+            }
           }
+        } label: {
+          chip(DayText.day(chosenDay ?? days[0]), tone: .accent)
         }
-      } label: {
-        segment(oneDayTitle, on: oneDay, menu: true)
-      }
-      .menuStyle(.button)
-      .buttonStyle(.plain)
-      .menuIndicator(.hidden)
-      .disabled(replay?.days.isEmpty ?? true)
-    }
-    .fixedSize()
-    .clipShape(.rect(cornerRadius: Tokens.Radius.medium))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
-        .strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin)
-    }
-    .accessibilityElement(children: .contain)
-    .accessibilityLabel(Text(L10n.Lab.replayDays))
-  }
-
-  private var oneDayTitle: Text {
-    if let chosenDay { return Text(L10n.Lab.replayOneDayOn(DayText.day(chosenDay))) }
-    return Text(L10n.Lab.replayOneDay)
-  }
-
-  private func segment(_ title: Text, on: Bool, menu: Bool = false) -> some View {
-    HStack(spacing: Tokens.Space.xs) {
-      title
-      if menu {
-        Image(systemName: Self.menuSymbol).font(Tokens.Typography.annotation)
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel(Text(L10n.Lab.replayDay))
       }
     }
-    .font(Tokens.Typography.annotationBold)
-    .foregroundStyle(on ? Palette.onAccent : Palette.textTertiary)
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .background(on ? Palette.info : Color.clear)
-    .contentShape(.rect)
   }
 
-  /// A version chip: a dot in the version's colour, its name and a menu mark.
-  private func chip(_ title: String, color: Color, text: Color) -> some View {
+  /// A picker's current choice as the apps' chip (`chipFace`) with a menu mark: chosen in the
+  /// version's tone, plain while nothing is chosen ("No comparison").
+  private func chip(_ title: String, tone: Tone?) -> some View {
     HStack(spacing: Tokens.Space.xs) {
-      Circle().fill(color).frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
       Text(verbatim: title)
-      Image(systemName: Self.menuSymbol).font(Tokens.Typography.annotation)
+      Image(systemName: Self.menuSymbol)
     }
-    .font(Tokens.Typography.annotationBold)
-    .foregroundStyle(text)
-    .padding(.horizontal, Tokens.Space.s)
-    .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
-    .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.small))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.small)
-        .strokeBorder(color.opacity(Tokens.Opacity.medium), lineWidth: Tokens.Stroke.thin)
-    }
-    .contentShape(.rect)
+    .chipFace(selected: tone != nil, tone: tone ?? .info)
   }
 
   private func item(_ folder: String) -> LabVersionV1? {

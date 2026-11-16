@@ -242,7 +242,7 @@ extension SymbolsBoard {
   public static func why(_ row: SymbolRowV1) -> String? {
     switch row.state {
     case .dropped, .notReached: return reason(row)
-    case .waiting: return row.checks.first { !$0.passed }.map(checkText) ?? outcome(row).text
+    case .waiting: return row.checks.first { !$0.passed }.map(checkText) ?? outcome(row).detail
     case .passed: return nil
     }
   }

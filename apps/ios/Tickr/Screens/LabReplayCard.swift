@@ -167,7 +167,7 @@ struct LabReplayCard: View {
           }
         } label: {
           menuLabel(runnable.first { $0.folder == second }.map(name)
-            ?? String(localized: L10n.Lab.replayCompareNone), tone: second == nil ? .neutral : .highlight)
+            ?? String(localized: L10n.Lab.replayCompareNone), tone: second == nil ? nil : .highlight)
         }
         .accessibilityLabel(Text(L10n.Lab.replayCompare))
       }
@@ -205,21 +205,16 @@ struct LabReplayCard: View {
     }
   }
 
-  /// A picker's current choice as a pill with a menu chevron.
-  private func menuLabel(_ title: String, tone: Tone) -> some View {
+  /// A picker's current choice as the apps' chip (`chipFace`) with a menu mark: chosen in the
+  /// version's tone, plain while nothing is chosen ("No comparison"). It answers taps over the
+  /// whole touch target, as every chip does.
+  private func menuLabel(_ title: String, tone: Tone?) -> some View {
     HStack(spacing: Tokens.Space.xs) {
       Text(verbatim: title)
       Image(systemName: Self.menuSymbol)
         .imageScale(.small)
     }
-    .font(Tokens.Typography.captionMono.weight(.semibold))
-    .foregroundStyle(tone.text)
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .background(tone.fill.opacity(Tokens.Opacity.wash), in: Capsule())
-    .overlay(Capsule().strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
-    // A chip that opens a menu answers taps over the whole touch target, as every chip does.
-    .touchTarget()
+    .chipFace(selected: tone != nil, tone: tone ?? .info)
   }
 
   /// "price-action-v2 v2 · observer": a version as the pickers name it.

@@ -6,8 +6,6 @@ import TickrKit
 /// with the symbols it would have entered, how often the bot agreed and its simulated result.
 /// Approving a version stays on the Mac.
 struct LabView: View {
-  /// Symbol of the version that places orders.
-  static let tradesSymbol = "bolt.fill"
   /// Symbol of a shadow version that only watches.
   static let observerSymbol = "eye.fill"
   /// Symbol in front of a warning that the data is a failed or last read.
@@ -29,11 +27,8 @@ struct LabView: View {
           RowStack {
             CardLabel(L10n.Lab.active)
             Spacer()
-            // One pulse per new trade of the active version (an entry the bot made), still in
-            // between; a new day starts still.
-            StatusPill(Text(L10n.Lab.trades), tone: .accent, live: true, event: Self.entries(status),
-              systemImage: Self.tradesSymbol)
-              .id(WireDate(newYorkDateOf: status.writtenAt.date))
+            // The active version's role, as every version's role on both apps: a `Badge`.
+            Badge(L10n.Lab.trades, tone: .accent)
           }
           // As on the design: the name with its version and the day's trades under it; the day's
           // result with its curve at the right. At large text sizes the result goes under.
@@ -134,21 +129,6 @@ struct LabView: View {
     let results = status.tradesToday.map(\.resultUsd.value)
     return L10n.Lab.daySummary(results.count, results.filter { $0 > 0 }.count, results.filter { $0 < 0 }.count,
       status.positions.count)
-  }
-
-  /// How many trades the active version entered that day: its closed trades (or ones without a
-  /// recorded strategy) and the open positions, each entry once, so a position that closes is
-  /// not counted again. It rises once per new entry.
-  static func entries(_ status: StatusV1) -> Int {
-    let closed = status.tradesToday.filter { $0.strategy == nil || $0.strategy == status.strategy }
-      .map { Entry(symbol: $0.symbol, at: $0.openedAt.date) }
-    return Set(closed + status.positions.map { Entry(symbol: $0.symbol, at: $0.openedAt.date) }).count
-  }
-
-  /// One entry of a trade: its symbol and when it opened.
-  private struct Entry: Hashable {
-    let symbol: String
-    let at: Date
   }
 
   /// The day's realized result after each closed trade, from zero.

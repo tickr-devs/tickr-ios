@@ -45,6 +45,8 @@ public extension Tokens {
     /// A small command in a card's header (the Safety card's Stop bot): least height and glyph
     /// tile side, in points.
     public static let smallHeight: CGFloat = 26
+    /// Corner radius of a small command, in points.
+    public static let smallRadius: CGFloat = 8
     public static let smallGlyph: CGFloat = 20
     /// The glyph tile before a command's title: side and corner radius, in points.
     public static let glyph: CGFloat = 24

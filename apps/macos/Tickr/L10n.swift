@@ -1825,13 +1825,6 @@ enum L10n {
     static var positionStop: LocalizedStringResource {
       LocalizedStringResource("chart.positionStop", defaultValue: "stop", bundle: L10n.bundle)
     }
-    static func positionStopVerified(_ price: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.positionStopVerified", defaultValue: "\(price) · verified", bundle: L10n.bundle)
-    }
-    static func positionStopUnverified(_ price: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.positionStopUnverified", defaultValue: "\(price) · not verified",
-        bundle: L10n.bundle)
-    }
     static var positionNoStop: LocalizedStringResource {
       LocalizedStringResource("chart.positionNoStop", defaultValue: "none", bundle: L10n.bundle)
     }
@@ -3177,9 +3170,9 @@ enum L10n {
     static var replayVersus: LocalizedStringResource {
       LocalizedStringResource("lab.replayVersus", defaultValue: "vs", bundle: L10n.bundle)
     }
-    /// Replay switch: one picked day.
-    static func replayOneDayOn(_ day: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.replayOneDayOn", defaultValue: "One day · \(day)", bundle: L10n.bundle)
+    /// Replay choice: the one day to replay (the day chip's menu).
+    static var replayDay: LocalizedStringResource {
+      LocalizedStringResource("lab.replayDay", defaultValue: "Day", bundle: L10n.bundle)
     }
     /// Card: one symbol decision, check by check.
     static var explain: LocalizedStringResource {

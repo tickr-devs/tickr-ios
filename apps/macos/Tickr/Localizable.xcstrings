@@ -2662,40 +2662,6 @@
         }
       }
     },
-    "chart.positionStopUnverified" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · not verified"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · не подтверждён"
-          }
-        }
-      }
-    },
-    "chart.positionStopVerified" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · verified"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · подтверждён"
-          }
-        }
-      }
-    },
     "chart.rail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5792,6 +5758,23 @@
         }
       }
     },
+    "lab.replayDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "День"
+          }
+        }
+      }
+    },
     "lab.replayDays" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5970,23 +5953,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Только %@: один день ничего не доказывает, это пример."
-          }
-        }
-      }
-    },
-    "lab.replayOneDayOn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "One day · %1$@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Один день · %1$@"
           }
         }
       }

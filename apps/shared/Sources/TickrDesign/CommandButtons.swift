@@ -62,7 +62,7 @@ private struct CommandButtonBody: View {
 
   var body: some View {
     let small = size == .small
-    let shape = RoundedRectangle(cornerRadius: small ? Tokens.Radius.chip : Tokens.Command.radius, style: .continuous)
+    let shape = RoundedRectangle(cornerRadius: small ? Tokens.Command.smallRadius : Tokens.Command.radius, style: .continuous)
     let pressed = configuration.isPressed && enabled
     configuration.label
       .labelStyle(CommandLabelStyle(tier: tier, small: small, detail: detail, tag: tag))

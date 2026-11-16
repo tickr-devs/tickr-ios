@@ -112,10 +112,4 @@ import Testing
     #expect(Board.exitReasonTitle("stopped-out") == "stopped out")
     #expect(Board.exitReasonTitle("something-new") == "something-new")
   }
-
-  @Test func everyKnownExitReasonHasItsOwnSymbolUnknownGetsTheQuestionMark() {
-    #expect(Board.exitReasonSymbol("stopped-out") == ExitReason.stoppedOutSymbol)
-    #expect(Board.exitReasonSymbol("hold-elapsed") == ExitReason.holdSymbol)
-    #expect(Board.exitReasonSymbol("something-new") == ExitReason.unknownSymbol)
-  }
 }

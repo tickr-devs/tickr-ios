@@ -34,6 +34,8 @@ extension Tokens.Opacity {
   public static let rowHover = 0.06
   /// A tinted chip's fill: the footer link's chevron chip.
   public static let tint = 0.14
+  /// A `Badge`'s fill: its colour at 14 % (the boards' `.u-badge`).
+  public static let badgeFill = 0.14
   /// A header link's fill under the pointer (`HeaderLink`).
   public static let linkHover = 0.2
   /// A header link's tinted outline (`HeaderLink`).
