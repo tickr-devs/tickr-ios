@@ -4,16 +4,19 @@ name: layout-sweep
 # jobs fail on a truncated text in any picture (apps/scripts/find_truncated_text.swift; the code
 # rule `truncation` of check_swift_rules.py keeps the cutting modifiers out on every PR). Costly
 # on macOS runners, so it runs only when asked: the `layout-sweep` label on a pull request, a
-# manual run, or weekly on main. The pictures are kept as the run's artifacts.
+# manual run, or weekly on main, at night (Monday 08:47 UTC, before the US working day, so its four
+# macOS jobs do not take the account's five macOS slots from pull requests). A failure on main
+# opens an issue (ci-alert.yml). The pictures are kept as the run's artifacts.
 on:
   pull_request:
     types: [labeled, synchronize, reopened]
   workflow_dispatch:
   schedule:
-    - cron: "0 13 * * 1"
+    - cron: "47 8 * * 1"
+# A new push to a pull request cancels its earlier run; runs on main are never cancelled.
 concurrency:
   group: layout-sweep-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 # The workflow only reads the repository: its token can change nothing.
 permissions:
   contents: read
@@ -22,24 +25,22 @@ jobs:
   # (apps/macos/scripts/layout-sweep.sh). Fails when a resize crashes or hangs the app or a
   # picture shows a truncated text; the pictures are kept as the run's artifact for checking
   # overlaps.
-  macos:
+  macos-layout-sweep:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'layout-sweep')
     # The Xcode 27 image: the app uses its SDK (title bar visibility priorities); macos-latest has Xcode 26.x only.
     runs-on: xcode-27
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - name: Select the newest installed Xcode
-        run: |
-          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
-          sudo xcode-select -s "$newest"
-          xcodebuild -version
+      - uses: actions/checkout@v7
+      - name: Select Xcode
+        run: apps/scripts/select-xcode.sh
       - name: Toolchain id for the build cache
         run: echo "XCODE_ID=$(xcodebuild -version | head -1 | tr ' ' '-')" >> "$GITHUB_ENV"
-      # Key prefix v2: caches from before the repo rename hold absolute .../Aperture paths that break
-      # the module cache under .../Tickr.
-      - name: Cache SwiftPM builds
-        uses: actions/cache@v4
+      # Restore only: main's macos-app runs save the cache (debug builds with the tests). This job
+      # builds less (the app product alone), so saving from here under the same key would replace
+      # the cache pull requests restore with a poorer one.
+      - name: Restore SwiftPM builds
+        uses: actions/cache/restore@v6
         with:
           path: |
             apps/shared/.build
@@ -50,7 +51,7 @@ jobs:
         run: apps/macos/scripts/layout-sweep.sh "$RUNNER_TEMP/layout-sweep"
       - name: Keep the pictures
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-layout-sweep
           path: ${{ runner.temp }}/layout-sweep
@@ -58,9 +59,10 @@ jobs:
   # Every tab, scrolled through, in English and Russian at three Dynamic Type sizes, on the
   # smallest, a standard and the largest iPhone, against `tickr demo`
   # (apps/ios/Tests/TickrUITests/LayoutSweepUITests.swift). The pictures are kept as the run's artifact.
-  ios:
+  ios-layout-sweep:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'layout-sweep')
-    runs-on: macos-latest
+    # The same image and Xcode as every other app job (apps/scripts/select-xcode.sh).
+    runs-on: xcode-27
     timeout-minutes: 45
     # One iPhone per runner: three simulators on one 3-core runner starved its disk and left the
     # test runner waiting to load or launch (spindumps of run 43708324907).
@@ -72,24 +74,23 @@ jobs:
           - { name: standard, pattern: "^iPhone \\d+$" }
           - { name: largest, pattern: "Pro Max" }
     steps:
-      - uses: actions/checkout@v4
-      - name: Select the newest Xcode
-        run: |
-          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -n 1)
-          sudo xcode-select -s "$newest"
-          xcodebuild -version
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - name: Select Xcode
+        run: apps/scripts/select-xcode.sh
+      # uv installs exactly what uv.lock pins. Action pinned by commit: it has no major tag.
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
+          version: "0.11.32"
           python-version: "3.12"
       - name: Install the bot
-        run: python -m pip install -q -e .
+        run: uv sync --frozen
       # A fresh runner has no demo fixture (it is never committed; docs/demo.md): build it here,
       # as its own step, so the start below only copies it and serves within seconds.
       - name: Build the demo fixture
-        run: tickr demo --build-fixture
+        run: uv run --no-sync tickr demo --build-fixture
       - name: Start the demo bot API (port 8776, bot.toml [api] demo_port)
         run: |
-          tickr demo > "$RUNNER_TEMP/demo.log" 2>&1 &
+          uv run --no-sync tickr demo > "$RUNNER_TEMP/demo.log" 2>&1 &
           for _ in $(seq 60); do
             curl -sf http://127.0.0.1:8776/status > /dev/null && exit 0
             sleep 1
@@ -150,7 +151,7 @@ jobs:
           swift apps/scripts/find_truncated_text.swift "$RUNNER_TEMP/ios-sweep-pictures"
       - name: Keep the pictures
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ios-layout-sweep-${{ matrix.iphone.name }}
           path: ${{ runner.temp }}/ios-layout-sweep

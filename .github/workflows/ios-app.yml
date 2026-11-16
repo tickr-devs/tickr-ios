@@ -3,68 +3,78 @@ on:
   pull_request:
     # ready_for_review: a draft skips this job; marking it ready runs it.
     types: [opened, synchronize, reopened, ready_for_review]
+  # The merge queue: the required checks run again on the queued change on top of the newest main
+  # (and of the changes queued ahead of it), so two separately green pull requests cannot break main.
+  merge_group:
   workflow_dispatch:
-  # Weekly build of main, so a conflict between two separately green pull requests shows up.
+  # Nightly build of main (07:23 UTC, outside US market hours, like macos-app; not on the hour, when
+  # GitHub is busiest and may drop scheduled runs), so a conflict between two separately green pull
+  # requests shows up the next morning. A failure on main opens an issue (ci-alert.yml).
   schedule:
-    - cron: "0 12 * * 1"
+    - cron: "23 7 * * *"
 # One run per pull request: a new push cancels the run still going for the previous one. macOS
-# runner minutes cost ten times Linux ones.
+# runner minutes cost ten times Linux ones. Runs on main are never cancelled.
 concurrency:
   group: ios-app-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 # The workflow only reads the repository: its token can change nothing.
 permissions:
   contents: read
 jobs:
-  changes:
+  ios-changes:
     # Says whether this pull request touches the iOS app. A workflow skipped by a `paths`
-    # filter never reports its checks, and `build` is a required check of main, so the filter
+    # filter never reports its checks, and `ios-build-and-test` is a required check of main, so the filter
     # lives here: the job below is skipped (which satisfies the requirement) instead of missing.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       app: ${{ steps.diff.outputs.app }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - id: diff
         env:
+          EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
+          QUEUE_BASE: ${{ github.event.merge_group.base_sha }}
+          QUEUE_HEAD: ${{ github.event.merge_group.head_sha }}
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "app=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          # A pull request: what it changes against its base. The merge queue: what this entry adds
+          # to the one queued ahead of it (or to main), whose own run covers the rest. Nightly and
+          # manual runs always build.
+          case "$EVENT" in
+            pull_request) range="$BASE...$HEAD" ;;
+            merge_group) range="$QUEUE_BASE..$QUEUE_HEAD" ;;
+            *) echo "app=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
           # Its own command, so a failing diff stops the job instead of reading as "no changes".
-          files=$(git diff --name-only --no-renames "$BASE...$HEAD")
+          files=$(git diff --name-only --no-renames "$range")
           hits=$(printf '%s\n' "$files" | grep -E \
-            '^(apps/ios/|apps/shared/|Tickr\.xcworkspace/|\.github/workflows/ios-app\.yml$)' \
+            '^(apps/ios/|apps/shared/|apps/scripts/select-xcode\.sh$|Tickr\.xcworkspace/|\.github/workflows/ios-app\.yml$)' \
             || true)
           if [ -n "$hits" ]; then echo "app=true"; else echo "app=false"; fi >> "$GITHUB_OUTPUT"
-  build:
+  ios-build-and-test:
     # Drafts skip the macOS runner (the bottleneck); run it on a draft through workflow_dispatch.
-    needs: changes
-    # Runs when the app changed, and also when `changes` failed, so a broken diff never skips
+    needs: ios-changes
+    # Runs when the app changed, and also when `ios-changes` failed, so a broken diff never skips
     # the build into a pass. Skipped (reported as passing) for other pull requests.
     if: >-
       ${{ !cancelled() && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
-      && (needs.changes.result != 'success' || needs.changes.outputs.app == 'true') }}
-    runs-on: macos-latest
+      && (needs.ios-changes.result != 'success' || needs.ios-changes.outputs.app == 'true') }}
+    # The same image and Xcode as the macOS app (macos-app.yml, apps/scripts/select-xcode.sh): the
+    # shared package is compiled by one toolchain, the one the owner builds with.
+    runs-on: xcode-27
     timeout-minutes: 25
     defaults:
       run:
         working-directory: apps/ios
     steps:
-      - uses: actions/checkout@v4
-      # Build with the newest stable Xcode on the runner (the owner uses the current release).
-      - name: Select the newest Xcode
-        run: |
-          ls -d /Applications/Xcode*.app
-          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -n 1)
-          sudo xcode-select -s "$newest"
-          xcodebuild -version
+      - uses: actions/checkout@v7
+      # The one Xcode both apps build with; the version is written in the script only.
+      - name: Select Xcode
+        run: ../scripts/select-xcode.sh
       # Pinned: a new XcodeGen release could change the output and fail the check below.
       - name: Install XcodeGen 2.46.0
         run: |
@@ -106,3 +116,17 @@ jobs:
           fi
           grep -E "warning:" test.log | grep -v "/SourcePackages/" || true
           grep -E "✔|passed" test.log | tail -n 5
+  # The old name of `ios-build-and-test`, kept until main's required checks list the new names: it only
+  # repeats that job's result (a skipped job counts as passed, as it does for the requirement).
+  # Remove this job once the ruleset no longer names `build`.
+  build:
+    needs: ios-build-and-test
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULT: ${{ needs.ios-build-and-test.result }}
+        run: |
+          echo "ios-build-and-test: $RESULT"
+          [ "$RESULT" = "success" ] || [ "$RESULT" = "skipped" ]

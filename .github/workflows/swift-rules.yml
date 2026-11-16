@@ -4,20 +4,24 @@ name: swift-rules
 # every pull request, whatever it touches, so it can be a required check.
 on:
   pull_request:
+  # The merge queue: the required checks run again on the queued change on top of the newest main
+  # (and of the changes queued ahead of it), so two separately green pull requests cannot break main.
+  merge_group:
   push:
     branches: [main]
+# A new push to a pull request cancels its earlier run; runs on main are never cancelled.
 concurrency:
-  group: swift-rules-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: swift-rules-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 # The workflow only reads the repository: its token can change nothing.
 permissions:
   contents: read
 jobs:
-  check:
+  swift-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Swift code rules (apps/scripts/check_swift_rules.py)
         run: python3 apps/scripts/check_swift_rules.py
       # SwiftLint's own Linux image, pinned so a new release can't fail an unrelated pull request.
@@ -27,3 +31,16 @@ jobs:
         run: >-
           docker run --rm -v "$PWD:/work" -w /work ghcr.io/realm/swiftlint:0.65.0
           swiftlint lint --strict --quiet
+  # The old name of `swift-lint`, kept until main's required checks list the new names: it only
+  # repeats that job's result. Remove this job once the ruleset no longer names `check`.
+  check:
+    needs: swift-lint
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULT: ${{ needs.swift-lint.result }}
+        run: |
+          echo "swift-lint: $RESULT"
+          [ "$RESULT" = "success" ] || [ "$RESULT" = "skipped" ]

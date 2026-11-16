@@ -3,82 +3,97 @@ on:
   pull_request:
     # ready_for_review: a draft skips this job; marking it ready runs it.
     types: [opened, synchronize, reopened, ready_for_review]
+  # The merge queue: the required checks run again on the queued change on top of the newest main
+  # (and of the changes queued ahead of it), so two separately green pull requests cannot break main.
+  merge_group:
+  # Every merge to main that touches the app: a conflict between two separately green pull requests
+  # shows up at once, and the SwiftPM cache that pull requests restore is saved from the newest main.
+  push:
+    branches: [main]
   workflow_dispatch:
-  # Nightly build of main (07:00 UTC, outside US market hours): a conflict between two separately
-  # green pull requests shows up, the release app bundle is checked, and the SwiftPM cache that
-  # pull requests restore is saved. The UI tests run nightly in ui-tests.yml.
+  # Nightly build of main (07:17 UTC, outside US market hours; not on the hour, when GitHub is
+  # busiest and may drop scheduled runs): the release app bundle is checked too. The UI tests run
+  # nightly in ui-tests.yml. A failure on main opens an issue (ci-alert.yml).
   schedule:
-    - cron: "0 7 * * *"
+    - cron: "17 7 * * *"
 # One run per pull request: a new push cancels the run still going for the previous one. macOS
-# runner minutes cost ten times Linux ones.
+# runner minutes cost ten times Linux ones. Runs on main are never cancelled: they share one group,
+# so one runs at a time and, of those waiting behind it, GitHub keeps only the newest.
 concurrency:
   group: macos-app-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 # The workflow only reads the repository: its token can change nothing.
 permissions:
   contents: read
 jobs:
-  changes:
+  macos-changes:
     # Says whether this pull request touches the macOS app. A workflow skipped by a `paths`
-    # filter never reports its checks, and `build-and-test` is a required check of main, so the filter
+    # filter never reports its checks, and `macos-build-and-test` is a required check of main, so the filter
     # lives here: the job below is skipped (which satisfies the requirement) instead of missing.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       app: ${{ steps.diff.outputs.app }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - id: diff
         env:
+          EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          QUEUE_BASE: ${{ github.event.merge_group.base_sha }}
+          QUEUE_HEAD: ${{ github.event.merge_group.head_sha }}
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "app=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          # A pull request: what it changes against its base. A push to main: what that push
+          # changed. The merge queue: what this entry adds to the one queued ahead of it (or to
+          # main), whose own run covers the rest. Nightly and manual runs always build.
+          case "$EVENT" in
+            pull_request) range="$BASE...$HEAD" ;;
+            push) range="$BEFORE..$AFTER" ;;
+            merge_group) range="$QUEUE_BASE..$QUEUE_HEAD" ;;
+            *) echo "app=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
           # Its own command, so a failing diff stops the job instead of reading as "no changes".
-          files=$(git diff --name-only --no-renames "$BASE...$HEAD")
+          files=$(git diff --name-only --no-renames "$range")
           hits=$(printf '%s\n' "$files" | grep -E \
-            '^(apps/macos/|apps/shared/|tests/api/fixtures/|src/tickr/api/schema/|Tickr\.xcworkspace/|\.github/workflows/macos-app\.yml$)' \
+            '^(apps/macos/|apps/shared/|tests/api/fixtures/|src/tickr/api/schema/|apps/scripts/select-xcode\.sh$|Tickr\.xcworkspace/|\.github/workflows/macos-app\.yml$)' \
             || true)
           if [ -n "$hits" ]; then echo "app=true"; else echo "app=false"; fi >> "$GITHUB_OUTPUT"
-  build-and-test:
+  macos-build-and-test:
     # Drafts skip the macOS runner (the bottleneck); run it on a draft through workflow_dispatch.
-    needs: changes
-    # Runs when the app changed, and also when `changes` failed, so a broken diff never skips
+    needs: macos-changes
+    # Runs when the app changed, and also when `macos-changes` failed, so a broken diff never skips
     # the build into a pass. Skipped (reported as passing) for other pull requests.
     if: >-
       ${{ !cancelled() && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
-      && (needs.changes.result != 'success' || needs.changes.outputs.app == 'true') }}
+      && (needs.macos-changes.result != 'success' || needs.macos-changes.outputs.app == 'true') }}
     # The Xcode 27 image: the owner builds with Xcode 27, and the app uses its SDK (the title bar's
-    # toolbar visibility priorities); macos-latest (macOS 26) has Xcode 26.x only.
+    # toolbar visibility priorities); macos-latest (macOS 26) has Xcode 26.x only. The iOS app builds
+    # on the same image with the same Xcode (apps/scripts/select-xcode.sh).
     runs-on: xcode-27
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      # The owner builds with the newest Xcode; use the newest release (not beta or RC) this runner has.
-      - name: Select the newest installed Xcode
-        run: |
-          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
-          sudo xcode-select -s "$newest"
-          xcodebuild -version
-      # SwiftLint runs in the swift-rules workflow (Linux), on every pull request.
-      - name: Design-system checks (docs/design-system.md)
-        run: python3 apps/scripts/check_swift_rules.py
+      - uses: actions/checkout@v7
+      # The one Xcode both apps build with; the version is written in the script only.
+      - name: Select Xcode
+        run: apps/scripts/select-xcode.sh
+      # The Swift code rules and SwiftLint run in the swift-rules workflow (Linux), on every pull request.
       - run: swift --version
       - name: Toolchain id for the build cache
         run: echo "XCODE_ID=$(xcodebuild -version | head -1 | tr ' ' '-')" >> "$GITHUB_ENV"
       # SwiftPM build folders (with the fetched Factory checkout), so unchanged modules are not
-      # compiled again. Saved only from main (the nightly run, below); pull requests restore it and
-      # never save, because a pull request's cache is visible to that pull request alone and ~300 MB
-      # per branch evicts main's from the 10 GB repository limit.
+      # compiled again. Saved only from main (every merge that touches the app and the nightly run,
+      # below); pull requests restore the newest one and never save, because a pull request's cache
+      # is visible to that pull request alone and ~300 MB per branch evicts main's from the 10 GB
+      # repository limit.
       # Key prefix v2: caches from before the repo rename hold absolute .../Aperture paths that break
       # the module cache under .../Tickr.
       - name: Restore SwiftPM builds
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             apps/shared/.build
@@ -96,16 +111,17 @@ jobs:
           scripts/check-deployment-target.sh
       # Before the release build below, so the cache holds the debug builds pull requests reuse.
       - name: Save SwiftPM builds
-        if: github.event_name != 'pull_request'
-        uses: actions/cache/save@v4
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v6
         with:
           path: |
             apps/shared/.build
             apps/macos/.build
           key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
-      # The release bundle (scripts/make-app.sh, ~2 min) is checked nightly on main, not on every push.
+      # The release bundle (scripts/make-app.sh, ~2 min) is checked nightly on main and on manual
+      # runs, not on every push.
       - name: Release app bundle carries its icon
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         working-directory: apps/macos
         run: |
           scripts/make-app.sh
@@ -118,3 +134,17 @@ jobs:
           xcodebuild -workspace Tickr.xcworkspace -scheme "Tickr macOS" \
             -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
             CODE_SIGN_IDENTITY=- build-for-testing
+  # The old name of `macos-build-and-test`, kept until main's required checks list the new names: it only
+  # repeats that job's result (a skipped job counts as passed, as it does for the requirement).
+  # Remove this job once the ruleset no longer names `build-and-test`.
+  build-and-test:
+    needs: macos-build-and-test
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULT: ${{ needs.macos-build-and-test.result }}
+        run: |
+          echo "macos-build-and-test: $RESULT"
+          [ "$RESULT" = "success" ] || [ "$RESULT" = "skipped" ]
