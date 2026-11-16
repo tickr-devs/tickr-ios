@@ -419,8 +419,7 @@ private struct FastMoverRow: View {
       }
       ChipFlow(spacing: Tokens.Space.s) {
         MoverFigure(text: SymbolsBoard.volume(mover), fired: mover.fired(.volume))
-        MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move),
-          color: mover.moveAtr.isNegative ? Palette.lossText : Palette.profitText)
+        MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move))
         MoverFigure(text: SymbolsBoard.dollars(mover), fired: mover.fired(.dollars))
       }
     }

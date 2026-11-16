@@ -185,6 +185,8 @@ struct SymbolsView: View {
               .padding(Tokens.Space.m)
           }
         }
+        // One list per tab: rows of one tab never stay on screen under another tab's columns.
+        .id(tab)
       }
       .scrollBounceBehavior(.basedOnSize)
       Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
@@ -255,7 +257,7 @@ private struct SymbolColumns: View {
 
   /// Widths of the fixed columns, in points (the design's grid).
   static let symbolWidth: CGFloat = 72
-  static let trackWidth: CGFloat = 120
+  static let trackWidth: CGFloat = 160
   static let seenWidth: CGFloat = 62
 
   static var header: some View {
@@ -307,7 +309,7 @@ private struct MoverColumns: View {
   static let volumeWidth: CGFloat = 84
   static let moveWidth: CGFloat = 84
   static let dollarsWidth: CGFloat = 104
-  static let trackWidth: CGFloat = 120
+  static let trackWidth: CGFloat = 160
   static let timeWidth: CGFloat = 62
 
   static var header: some View {
@@ -330,8 +332,7 @@ private struct MoverColumns: View {
         .frame(width: Self.symbolWidth, alignment: .leading)
       MoverFigure(text: SymbolsBoard.volume(mover), fired: mover.fired(.volume))
         .frame(width: Self.volumeWidth, alignment: .leading)
-      MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move),
-        color: mover.moveAtr.isNegative ? Palette.lossText : Palette.profitText)
+      MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move))
         .frame(width: Self.moveWidth, alignment: .leading)
       MoverFigure(text: SymbolsBoard.dollars(mover), fired: mover.fired(.dollars))
         .frame(width: Self.dollarsWidth, alignment: .leading)

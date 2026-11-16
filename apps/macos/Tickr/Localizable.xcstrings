@@ -12741,13 +12741,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "$ volume"
+            "value" : "$vol ×"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "$ объём"
+            "value" : "$объём ×"
           }
         }
       }
@@ -12775,13 +12775,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Move"
+            "value" : "ATR"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Движение"
+            "value" : "ATR"
           }
         }
       }
@@ -12894,13 +12894,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last bar vol"
+            "value" : "Vol ×"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Объём бара"
+            "value" : "Объём ×"
           }
         }
       }

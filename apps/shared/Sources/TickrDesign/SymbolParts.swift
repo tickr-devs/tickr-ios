@@ -4,25 +4,31 @@ import SwiftUI
 // the same on both apps: a fast mover's figure, the screener chips and the stage track. They take
 // plain texts and colours; each app maps the API's rows onto them.
 
-/// One figure of a fast mover ("vol 6.4×", "+2.1 ATR", "$1.9M/min"): bold in `color` when its
-/// signal fired, quiet when it did not. Wraps rather than being cut.
+/// One figure of a fast mover ("vol 6.4×", "+2.1 ATR", "$vol 4.1×"). The criterion the row met
+/// is amber, bold and lightly tinted with a thin amber border; an unmet one is quiet (mockup
+/// v101). Wraps rather than being cut.
 public struct MoverFigure: View {
   let text: String
   let fired: Bool
-  let color: Color
 
-  public init(text: String, fired: Bool, color: Color = Palette.textPrimary) {
+  public init(text: String, fired: Bool) {
     self.text = text
     self.fired = fired
-    self.color = color
   }
 
   public var body: some View {
     Text(verbatim: text)
       .font(Tokens.Typography.captionMono)
       .fontWeight(fired ? .bold : .regular)
-      .foregroundStyle(fired ? color : Palette.textQuaternary)
+      .foregroundStyle(fired ? Palette.warningText : Palette.textQuaternary)
       .fixedSize(horizontal: false, vertical: true)
+      .padding(.horizontal, Tokens.Space.xs)
+      .background(fired ? Palette.warning.opacity(Tokens.Opacity.wash) : .clear, in: Capsule())
+      .overlay {
+        if fired {
+          Capsule().strokeBorder(Palette.warning.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin)
+        }
+      }
   }
 }
 
@@ -82,7 +88,7 @@ public struct StageTrack: View {
   }
 
   public var body: some View {
-    ChipFlow(spacing: Tokens.Space.s) {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       HStack(spacing: Tokens.Space.xxs) {
         ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
           Circle()

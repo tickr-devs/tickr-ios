@@ -3562,15 +3562,15 @@ enum L10n {
     }
     /// Column title: the bar's volume against the average.
     static var columnVolume: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnVolume", defaultValue: "Last bar vol", bundle: L10n.bundle)
+      LocalizedStringResource("symbols.columnVolume", defaultValue: "Vol ×", bundle: L10n.bundle)
     }
     /// Column title: the bar's move in ATR.
     static var columnMove: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnMove", defaultValue: "Move", bundle: L10n.bundle)
+      LocalizedStringResource("symbols.columnMove", defaultValue: "ATR", bundle: L10n.bundle)
     }
-    /// Column title: the bar's dollar volume.
+    /// Column title: the bar's dollar volume against the average.
     static var columnDollars: LocalizedStringResource {
-      LocalizedStringResource("symbols.columnDollars", defaultValue: "$ volume", bundle: L10n.bundle)
+      LocalizedStringResource("symbols.columnDollars", defaultValue: "$vol ×", bundle: L10n.bundle)
     }
     /// Column title.
     static var columnScreeners: LocalizedStringResource {

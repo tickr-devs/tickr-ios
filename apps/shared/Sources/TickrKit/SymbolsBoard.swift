@@ -272,14 +272,12 @@ public enum SymbolsBoard {
     String(localized: L10n.moverMove(signed(mover.moveAtr.value, digits: ratioDigits)))
   }
 
-  /// "$1.9M/min": the bar's dollar volume.
+  /// "$vol 4.1×": the bar's dollar volume against the average of the bars before it.
   public static func dollars(_ mover: FastMoverV1) -> String {
-    let compact = mover.barDollarVolume.value.formatted(
-      .currency(code: dollarCode).notation(.compactName).precision(.fractionLength(0...ratioDigits)))
-    return String(localized: L10n.moverDollars(compact))
+    String(localized: L10n.moverDollars(fixed(mover.dollarVolumeRatio.value, digits: ratioDigits)))
   }
 
-  /// "vol ≥ 5× · move ≥ 2 ATR · $ vol ≥ 5× · bar ≥ $250K, last 10 bars": the thresholds.
+  /// "bar ≥ $250K, then any of: vol ≥ 5× · |move| ≥ 2 ATR · $ vol ≥ 5× · vs last 10 bars": the thresholds.
   public static func rules(_ rules: FastMoverRulesV1) -> String {
     let floor = rules.minBarDollarVolumeUsd.value.formatted(
       .currency(code: dollarCode).notation(.compactName).precision(.fractionLength(0...ratioDigits)))

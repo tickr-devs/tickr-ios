@@ -3968,13 +3968,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@/min"
+            "value" : "$vol %@×"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@/мин"
+            "value" : "$объём %@×"
           }
         }
       }
@@ -4002,13 +4002,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "vol ≥ %1$@× · move ≥ %2$@ ATR · $ vol ≥ %3$@× · bar ≥ %4$@ · vs last %5$lld bars"
+            "value" : "bar ≥ %1$@, then any of: vol ≥ %2$@× · |move| ≥ %3$@ ATR · $ vol ≥ %4$@× · vs last %5$lld bars"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "объём ≥ %1$@× · движение ≥ %2$@ ATR · $ объём ≥ %3$@× · бар ≥ %4$@ · к %5$lld прошлым барам"
+            "value" : "бар ≥ %1$@, затем любое из: объём ≥ %2$@× · |движение| ≥ %3$@ ATR · $ объём ≥ %4$@× · к %5$lld прошлым барам"
           }
         }
       }
