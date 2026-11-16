@@ -31,22 +31,26 @@ enum FlowStages {
 
 /// The symbols the screeners returned today, scrolling across the top of the live flow as in the
 /// design: each a chip with the symbol over its screener and change, coloured by screener; one
-/// the universe left out is greyed and says it was skipped, with the cause on hover. Still on a
+/// the universe left out is greyed and says it was skipped, with the cause on hover. Every other
+/// chip opens the Chart on its symbol, and the row stands still under the pointer. Still on a
 /// recorded day or with Reduce Motion (then it scrolls by hand).
 struct FlowChips: View {
+  @Environment(AppModel.self) private var model
+  @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   let chips: [FlowChipV1]
   let moving: Bool
 
   var body: some View {
-    Marquee(moving: moving, content: chips) {
-      HStack(spacing: Tokens.Space.s) {
-        // No links here: the marquee draws its row as an image, outside the screen's environment.
-        ForEach(chips, id: \.symbol) { chip in
-          FlowChip(chip: chip)
-        }
-      }
-      .padding(.trailing, Tokens.Space.s)
-    }
+    ChipsMarquee(
+      items: chips, moving: moving, hint: { L10n.Common.openOnChart($0.symbol) },
+      help: { Text(verbatim: FlowChip.help($0)) },
+      // A symbol the universe left out has no chart to open.
+      opens: { $0.excludedCause == nil },
+      open: { chip in
+        chartSymbol = chip.symbol
+        model.section = .chart
+      },
+      chip: { FlowChip(chip: $0) })
   }
 }
 
@@ -71,8 +75,12 @@ private struct FlowChip: View {
     .overlay {
       RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
     }
-    .help(Text(verbatim: [chip.excludedCause, chip.changeCause].compactMap { $0 }.joined(separator: Format.lineSeparator)))
     .accessibilityElement(children: .combine)
+  }
+
+  /// The chip's hover help: why it was skipped and why its change is missing, if so.
+  static func help(_ chip: FlowChipV1) -> String {
+    [chip.excludedCause, chip.changeCause].compactMap { $0 }.joined(separator: Format.lineSeparator)
   }
 
   /// "gainers +21.3%"; "skipped" for a symbol the universe left out.
