@@ -5,8 +5,8 @@ import TickrKit
 /// (Dependencies.swift there). Views read the model from the SwiftUI environment; the model gets
 /// its services from the container.
 extension Container {
-  /// The one model behind every window and the menu bar, pointed at the saved API address, or the
-  /// demo day behind it when its switch was left on.
+  /// The one model behind every window and the menu bar, pointed at the saved API address, or at
+  /// the demo day the app carries when its switch was left on.
   @MainActor
   var appModel: Factory<AppModel> {
     self { AppModel(baseURL: TickrMacApp.baseURL(), demoDay: UserDefaults.standard.bool(forKey: Defaults.demoDay)) }

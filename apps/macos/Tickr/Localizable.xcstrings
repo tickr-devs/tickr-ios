@@ -245,13 +245,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@\n\nSent to: the DEMO day, not the bot."
+            "value" : "%@\n\nDEMO day: nothing is sent, the app only plays its recording."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@\n\nКуда: ДЕМО-день, не бот."
+            "value" : "%@\n\nДЕМО-день: ничего не отправляется, приложение только проигрывает запись."
           }
         }
       }
@@ -6541,13 +6541,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Demo day: commands go to the demo, not the bot"
+            "value" : "Demo day: commands are not sent to the bot"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Демо-день: команды уходят в демо, не боту"
+            "value" : "Демо-день: команды не уходят боту"
           }
         }
       }
@@ -10820,13 +10820,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shows the made-up demo day from this Mac, and only that day; the bot's address stays as it is."
+            "value" : "Shows the made-up demo day this app carries, and only that day; the bot's address stays as it is."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показывает придуманный демо-день с этого Mac, и только его; адрес бота остаётся прежним."
+            "value" : "Показывает придуманный демо-день, который приложение носит с собой, и только его; адрес бота остаётся прежним."
           }
         }
       }

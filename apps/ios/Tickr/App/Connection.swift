@@ -4,9 +4,9 @@ import TickrKit
 /// Where the phone finds the bot's local API, and the paired token for a remote (HTTPS) address.
 /// The address is in UserDefaults, the token in the Keychain; both stay on this phone. The token
 /// belongs to the address it was paired with (`pairedAddress`) and is sent nowhere else.
-/// The "Demo day" switch (`demo`) never changes the address or the token: requests go under
-/// `/demo` of the same address (TickrKit `DemoDay`), where the bot's API forwards them to the demo
-/// day on the Mac and keeps the token to itself.
+/// The "Demo day" switch (`demo`) never changes the address or the token: on, the app talks to the
+/// demo day it carries (TickrKit `DemoDay.address`, answered from its recording, never the
+/// network), so it works without an address, away from the Mac; off, it is back on the address.
 struct Connection: Equatable {
   /// UserDefaults key of the saved address.
   static let defaultsKey = "apiBaseURL"
@@ -25,7 +25,7 @@ struct Connection: Equatable {
   var token: String?
   /// The exact address from the pairing link the token came with.
   var pairedAddress: String?
-  /// The "Demo day" switch: the demo day behind `address`, and only that day.
+  /// The "Demo day" switch: the demo day the app carries, and only that day.
   var demo: Bool
 
   init(address: String, token: String? = nil, pairedAddress: String? = nil, demo: Bool = false) {
@@ -43,13 +43,14 @@ struct Connection: Equatable {
 
   var isRemote: Bool { url?.scheme?.lowercased() == Self.remoteScheme }
 
-  /// The address the app talks to: the bot's address, or the demo day behind it; nil when the
-  /// address is empty or not an http(s) URL.
+  /// The address the app talks to: the demo day while the switch is on (whatever the address),
+  /// else the bot's address; nil when that is empty or not an http(s) URL.
   var url: URL? {
+    if demo { return DemoDay.address }
     let trimmed = address.trimmingCharacters(in: .whitespacesAndNewlines)
     guard let url = URL(string: trimmed), let scheme = url.scheme?.lowercased(),
       Self.schemes.contains(scheme), url.host != nil else { return nil }
-    return DemoDay.address(url, demo: demo)
+    return url
   }
 
   /// The same connection with the demo day on or off; the address and token are kept as they are.

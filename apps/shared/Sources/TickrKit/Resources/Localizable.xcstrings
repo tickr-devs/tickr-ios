@@ -1834,6 +1834,57 @@
         }
       }
     },
+    "kit.demo.format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the demo day's recording has layout %lld, which this app does not read"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "у записи демо-дня формат %lld, который это приложение не читает"
+          }
+        }
+      }
+    },
+    "kit.demo.missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the demo day's recording is missing from the app"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "запись демо-дня отсутствует в приложении"
+          }
+        }
+      }
+    },
+    "kit.demo.notRecorded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the demo day has no recording of %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "в записи демо-дня нет %@"
+          }
+        }
+      }
+    },
     "kit.environment.demo" : {
       "extractionState" : "manual",
       "localizations" : {

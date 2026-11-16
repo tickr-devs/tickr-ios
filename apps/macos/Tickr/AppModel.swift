@@ -112,10 +112,10 @@ public final class AppModel {
   /// The bot's own API address (Settings › General). The demo day never replaces it: switched
   /// off, the app is back on this very address.
   public private(set) var address: URL
-  /// The "Demo day" switch (Settings › General): the app shows the demo day the bot's API
-  /// forwards to under /demo (TickrKit `DemoDay`), and no other day.
+  /// The "Demo day" switch (Settings › General): the app shows the demo day it carries (TickrKit
+  /// `DemoDay`, played from its recording, never the network), and no other day.
   public private(set) var demoDay: Bool
-  /// The address the app talks to: `address`, or the demo day behind it.
+  /// The address the app talks to: `address`, or the demo day's (`DemoDay.address`).
   public var baseURL: URL { DemoDay.address(address, demo: demoDay) }
   @ObservationIgnored private var client: APIClient
   /// The current moment (Container.now; tests pin it).

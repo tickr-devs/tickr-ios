@@ -12,9 +12,26 @@ extension Container {
     self { .shared }
   }
 
-  /// Client of the bot's local API at an address; a remote address adds its bearer token.
+  /// Client of the bot's local API at an address; a remote address adds its bearer token. The
+  /// demo day's address (`DemoDay.address`) is answered by the recording the apps carry
+  /// (`demoSource`), never by the network.
   public var apiClient: ParameterFactory<APIClient.Endpoint, APIClient> {
-    self { endpoint in APIClient(baseURL: endpoint.baseURL, token: endpoint.token, session: self.urlSession()) }
+    self { endpoint in
+      DemoDay.isDemo(endpoint.baseURL)
+        ? APIClient(baseURL: endpoint.baseURL, transport: self.demoSource())
+        : APIClient(baseURL: endpoint.baseURL, token: endpoint.token, transport: self.urlSession())
+    }
+  }
+
+  /// The demo day the apps carry (`DemoDay.jsonl`, `tickr demo --record`), playing in a loop
+  /// from the moment it is first asked for. One per app run, so every screen sees the same frame.
+  public var demoSource: Factory<DemoSource> {
+    self {
+      let now = self.now()
+      let recording = Result { try DemoRecording.bundled() }
+        .mapError { $0 as? APIError ?? .contract(Wire.detail($0)) }
+      return DemoSource(recording: recording, started: now(), now: now)
+    }.cached
   }
 
   /// The current moment. Tests pin it.

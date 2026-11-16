@@ -159,14 +159,14 @@ public struct APIClient: Sendable {
   static let json = "application/json"
 
   public let baseURL: URL
-  private let session: URLSession
+  private let transport: any APITransport
   /// Bearer token for a remote address (an HTTPS proxy in front of the API); nil on the Mac.
   private let token: String?
 
-  public init(baseURL: URL = APIClient.defaultBaseURL, token: String? = nil, session: URLSession = .shared) {
+  public init(baseURL: URL = APIClient.defaultBaseURL, token: String? = nil, transport: any APITransport = URLSession.shared) {
     self.baseURL = baseURL
     self.token = token
-    self.session = session
+    self.transport = transport
   }
 
   public func status() async throws -> StatusResponseV1 {
@@ -366,7 +366,7 @@ public struct APIClient: Sendable {
     let data: Data
     let response: URLResponse
     do {
-      (data, response) = try await session.data(for: request)
+      (data, response) = try await transport.response(to: request)
     } catch {
       // A cancelled request stays a cancellation, so callers can tell it from a failure.
       if error is CancellationError || (error as? URLError)?.code == .cancelled { throw CancellationError() }

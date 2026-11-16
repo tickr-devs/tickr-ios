@@ -4,21 +4,16 @@ import Testing
 
 @Suite("Demo day address and day")
 struct DemoDayTests {
-  @Test("On, every request goes under /demo of the very same address; off, the address is untouched",
-    arguments: [
-      ("http://127.0.0.1:8766", "http://127.0.0.1:8766/demo", "http://127.0.0.1:8766/demo/status"),
-      ("http://127.0.0.1:8766/", "http://127.0.0.1:8766/demo", "http://127.0.0.1:8766/demo/status"),
-      ("https://mac.tailnet.ts.net", "https://mac.tailnet.ts.net/demo", "https://mac.tailnet.ts.net/demo/status"),
-    ])
-  func address(real: String, demo: String, status: String) throws {
+  @Test("On, every request goes to the demo day the app carries; off, the address is untouched",
+    arguments: ["http://127.0.0.1:8766", "https://mac.tailnet.ts.net"])
+  func address(real: String) throws {
     let url = try #require(URL(string: real))
     #expect(DemoDay.address(url, demo: false) == url)
-    let shown = DemoDay.address(url, demo: true)
-    #expect(shown.absoluteString == demo)
-    // The API client puts each route after the base path, as it does for every request.
-    #expect(shown.appendingPathComponent("status").absoluteString == status)
-    // Same scheme, host and port: the phone's token may only go where it already went.
-    #expect(shown.scheme == url.scheme && shown.host() == url.host() && shown.port == url.port)
+    #expect(DemoDay.address(url, demo: true) == DemoDay.address)
+    #expect(DemoDay.isDemo(DemoDay.address(url, demo: true)))
+    #expect(!DemoDay.isDemo(url))
+    // No host of any network: the token of a pairing can never go there.
+    #expect(DemoDay.address.scheme != "http" && DemoDay.address.scheme != "https")
   }
 
   @Test("On, only the demo day (the API's today) can be shown")

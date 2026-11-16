@@ -23,13 +23,13 @@ private final class NoNetwork: URLProtocol {
 @Suite("Demo day switch (macOS)", .container)
 struct DemoDayTests {
   let bot = URL(string: "http://127.0.0.1:8766")!
-  let demo = URL(string: "http://127.0.0.1:8766/demo")!
+  let demo = DemoDay.address
 
   init() {
     Container.shared.urlSession.register { NoNetwork.session() }
   }
 
-  @Test("On, the app talks to the demo behind the bot's address; off, to that address again")
+  @Test("On, the app talks to the demo day it carries; off, to the bot's address again")
   func addressSwap() {
     let model = AppModel(baseURL: bot)
     #expect(model.baseURL == bot)
@@ -41,14 +41,14 @@ struct DemoDayTests {
     #expect(model.address == bot)
   }
 
-  @Test("A new bot address while the demo is on is remembered and gets its own demo")
+  @Test("A new bot address while the demo is on is remembered for when it is off")
   func newAddressWhileOn() throws {
     let model = AppModel(baseURL: bot, demoDay: true)
     #expect(model.baseURL == demo)
     let other = try #require(URL(string: "http://127.0.0.1:9000"))
     model.connect(to: other)
     #expect(model.address == other)
-    #expect(model.baseURL.absoluteString == "http://127.0.0.1:9000/demo")
+    #expect(model.baseURL == demo)
     model.setDemoDay(false)
     #expect(model.baseURL == other)
   }

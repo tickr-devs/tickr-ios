@@ -206,7 +206,7 @@ enum L10n {
     /// A command confirmation's message with where the command goes: the demo day.
     static func confirmToDemo(_ explanation: String) -> LocalizedStringResource {
       LocalizedStringResource("bot.confirmToDemo",
-        defaultValue: "\(explanation)\n\nSent to: the DEMO day, not the bot.", bundle: L10n.bundle)
+        defaultValue: "\(explanation)\n\nDEMO day: nothing is sent, the app only plays its recording.", bundle: L10n.bundle)
     }
     /// A command confirmation's message with where the command goes: the real bot.
     static func confirmToBot(_ explanation: String) -> LocalizedStringResource {
@@ -994,7 +994,7 @@ enum L10n {
     }
     static var demoDayExplanation: LocalizedStringResource {
       LocalizedStringResource("settings.demoDayExplanation",
-        defaultValue: "Shows the made-up demo day from this Mac, and only that day; the bot's address stays as it is.",
+        defaultValue: "Shows the made-up demo day this app carries, and only that day; the bot's address stays as it is.",
         bundle: L10n.bundle)
     }
     static var showInMenuBar: LocalizedStringResource {
@@ -3258,7 +3258,7 @@ enum L10n {
   }
   enum MenuBar {
     static var demoTitle: LocalizedStringResource {
-      LocalizedStringResource("menuBar.demoTitle", defaultValue: "Demo day: commands go to the demo, not the bot",
+      LocalizedStringResource("menuBar.demoTitle", defaultValue: "Demo day: commands are not sent to the bot",
         bundle: L10n.bundle)
     }
     static var demoDetail: LocalizedStringResource {

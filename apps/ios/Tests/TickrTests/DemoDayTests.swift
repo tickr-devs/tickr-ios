@@ -4,7 +4,7 @@ import Testing
 import TickrKit
 
 /// The "Demo day" switch on the phone: the address and the paired token never change, requests go
-/// under /demo of the same address, and the token still goes only to the paired host.
+/// to the demo day the app carries (never the network, no token), and off is the paired address.
 @Suite struct DemoDayTests {
   private static let mac = "https://mac.tailnet.ts.net"
 
@@ -12,13 +12,20 @@ import TickrKit
     Connection(paired: try #require(URL(string: Self.mac)), token: "token")
   }
 
-  @Test func onTalksToTheDemoBehindThePairedAddress() throws {
+  @Test func onTalksToTheDemoTheAppCarries() throws {
     let connection = try paired().demo(true)
-    #expect(connection.url?.absoluteString == Self.mac + "/demo")
+    #expect(connection.url == DemoDay.address)
     #expect(connection.address == Self.mac)
     #expect(connection.pairedAddress == Self.mac)
-    // The token goes to the paired host (the bot's API keeps it; the demo never sees it).
-    #expect(connection.bearer == "token")
+    #expect(connection.token == "token")
+    // The token never goes to the demo day: it is no host of the pairing.
+    #expect(connection.bearer == nil)
+  }
+
+  @Test func onWorksWithoutAnyAddress() {
+    // Away from the Mac, never paired: the demo day still has its address.
+    #expect(Connection(address: "").url == nil)
+    #expect(Connection(address: "").demo(true).url == DemoDay.address)
   }
 
   @Test func offIsTheRememberedAddressWithItsToken() throws {
@@ -33,8 +40,7 @@ import TickrKit
     let elsewhere = try #require(URL(string: "https://elsewhere.example/demo/status"))
     #expect(connection.bearer(for: elsewhere) == nil)
     // Over plain HTTP (the Simulator's loopback address) no token is ever sent.
-    let local = Connection(address: Connection.simulatorAddress).demo(true)
-    #expect(local.url?.absoluteString == Connection.simulatorAddress + "/demo")
+    let local = Connection(address: Connection.simulatorAddress)
     #expect(local.bearer == nil)
   }
 
@@ -42,7 +48,8 @@ import TickrKit
     let moved = try paired().demo(true).moved(to: "http://127.0.0.1:9000")
     #expect(moved.demo)
     #expect(moved.token == nil)
-    #expect(moved.url?.absoluteString == "http://127.0.0.1:9000/demo")
+    #expect(moved.url == DemoDay.address)
+    #expect(moved.demo(false).url?.absoluteString == "http://127.0.0.1:9000")
   }
 
   @Test func savedAndLoadedWithTheAddress() throws {
