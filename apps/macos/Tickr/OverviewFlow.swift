@@ -42,7 +42,7 @@ struct FlowChips: View {
 
   var body: some View {
     ChipsMarquee(
-      items: chips, moving: moving, hint: { L10n.Common.openOnChart($0.symbol) },
+      items: chips, moving: moving, leastChipWidth: Tokens.Size.flowChip, hint: { L10n.Common.openOnChart($0.symbol) },
       help: { Text(verbatim: FlowChip.help($0)) },
       // A symbol the universe left out has no chart to open.
       opens: { $0.excludedCause == nil },
