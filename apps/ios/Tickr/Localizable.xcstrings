@@ -9925,6 +9925,23 @@
         }
       }
     },
+    "watching.closestOf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closest %1$lld of %2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ближайшие %1$lld из %2$lld"
+          }
+        }
+      }
+    },
     "watching.failed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9982,13 +9999,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show all %lld"
+            "value" : "Show all"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показать все %lld"
+            "value" : "Показать все"
           }
         }
       }

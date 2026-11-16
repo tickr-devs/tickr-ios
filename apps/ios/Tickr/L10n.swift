@@ -1168,9 +1168,13 @@ enum L10n {
       LocalizedStringResource("watching.closeness", defaultValue: "How close the deciding check is to passing",
         bundle: L10n.bundle)
     }
-    /// Link on the card: opens the sheet with all `count` rows the bot sent.
-    static func showAll(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.showAll", defaultValue: "Show all \(count)", bundle: L10n.bundle)
+    /// The card's footer link (`CardFooterLink`): opens every row the bot sent; the count stands beside it.
+    static var showAll: LocalizedStringResource {
+      LocalizedStringResource("watching.showAll", defaultValue: "Show all", bundle: L10n.bundle)
+    }
+    /// Hint in the footer link: the card shows the closest `shown` of `total` watched symbols.
+    static func closestOf(_ shown: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.closestOf", defaultValue: "closest \(shown) of \(total)", bundle: L10n.bundle)
     }
     /// The sheet's caption: how many symbols it holds.
     static func symbols(_ count: Int) -> LocalizedStringResource {

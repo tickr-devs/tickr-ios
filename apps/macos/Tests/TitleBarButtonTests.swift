@@ -1,5 +1,6 @@
 import SwiftUI
 import Testing
+import TickrDesign
 @testable import TickrMac
 
 /// The title bar's icon buttons (sidebar, previous and next day) keep at least macOS's regular
@@ -17,7 +18,7 @@ struct TitleBarButtonTests {
 
   @Test("The day arrows are at least a regular control")
   func dayArrows() {
-    for symbol in [DayStepper.previousSymbol, DayStepper.nextSymbol] {
+    for symbol in [Symbols.previous, Symbols.next] {
       let drawn = size(Button {} label: { Image(systemName: symbol) }.buttonStyle(TitleBarButtonStyle(square: true)))
       #expect(drawn.width >= Self.regularControl)
       #expect(drawn.height >= Self.regularControl)

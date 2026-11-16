@@ -149,7 +149,7 @@ struct ActivityView: View {
       switch activity.phase {
       case .failed(let cause):
         ContentUnavailableView {
-          Label { Text(L10n.Activity.dayFailed) } icon: { Image(systemName: "exclamationmark.triangle") }
+          Label { Text(L10n.Activity.dayFailed) } icon: { Image(systemName: Symbols.failure) }
         } description: {
           Text(verbatim: cause)
         } actions: {
@@ -159,7 +159,7 @@ struct ActivityView: View {
           } label: {
             Text(L10n.Activity.retry)
           }
-          .buttonStyle(.borderedProminent)
+          .buttonStyle(.action(.secondary, size: .compact))
         }
         .rise()
       default:
@@ -297,7 +297,7 @@ private struct DayPicker: View {
         Button {
           if let month = activity.previousMonth { activity.month = month }
         } label: {
-          HeaderIcon(symbol: "chevron.backward", glass: false)
+          monthArrow(Symbols.previous)
         }
         .disabled(activity.previousMonth == nil)
         .accessibilityLabel(Text(L10n.Activity.previousMonth))
@@ -320,20 +320,22 @@ private struct DayPicker: View {
         Button {
           if let month = activity.nextMonth { activity.month = month }
         } label: {
-          HeaderIcon(symbol: "chevron.forward", glass: false)
+          monthArrow(Symbols.next)
         }
         .disabled(activity.nextMonth == nil)
         .accessibilityLabel(Text(L10n.Activity.nextMonth))
       }
     }
-    .buttonStyle(.borderless)
+    .buttonStyle(.glyph)
+  }
+
+  /// A month arrow: the bare glyph in the link colour, dimmed while it leads nowhere.
+  private func monthArrow(_ symbol: String) -> some View {
+    HeaderIcon(symbol: symbol, glass: false).foregroundStyle(Palette.infoText).dimmedWhenDisabled()
   }
 
   private var backToToday: some View {
-    Button { activity.showToday() } label: { Text(L10n.Activity.backToToday) }
-      .buttonStyle(.bordered)
-      .buttonBorderShape(.capsule)
-      .font(Tokens.Typography.captionMono)
+    TodayButton(L10n.Activity.backToToday) { activity.showToday() }
       .transition(.scale.combined(with: .opacity))
   }
 
@@ -725,7 +727,7 @@ private struct TradesList: View {
       Image(systemName: Self.anotherSymbol)
         .foregroundStyle(Tone.highlight.text)
     }
-    .buttonStyle(.borderless)
+    .buttonStyle(.glyph)
     // The row is one VoiceOver element and offers this as its named action instead.
     .accessibilityHidden(true)
   }

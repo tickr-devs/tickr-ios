@@ -386,7 +386,7 @@ struct SidebarButton: View {
         ShellIcon(kind: .sidebar, size: Self.glyphSize)
       }
     }
-    .buttonStyle(TitleBarButtonStyle(square: true))
+    .buttonStyle(.titleBar(square: true))
     .help(Text(hidden ? L10n.Toolbar.showSidebar : L10n.Toolbar.hideSidebar))
     .accessibilityIdentifier(Self.id)
   }
@@ -458,9 +458,6 @@ private struct WindowLine: View {
 struct DayStepper: View {
   @Environment(AppModel.self) private var model
 
-  /// Symbols of the previous and next day buttons (the design's "‹ ›").
-  static let previousSymbol = "chevron.left"
-  static let nextSymbol = "chevron.right"
   /// Gap between the connection status and the stepper, in points (added to the items' gap).
   static let connectionGap: CGFloat = 10
   /// Least width of the day label, in points, so the arrows keep their place from day to day:
@@ -468,16 +465,17 @@ struct DayStepper: View {
   /// "Сб, 28 февр. · сегодня" (157 points; "сент." and "февр." are the longest month
   /// abbreviations), as well as the English "Wed Jan 28 · today" (128).
   static let dayMinWidth: CGFloat = 158
-  /// Accessibility id of the DEMO chip, for the UI tests, and its symbol.
+  /// Accessibility id of the DEMO chip, for the UI tests.
   static let demoChipID = "toolbar-demo"
-  static let demoSymbol = "theatermasks.fill"
 
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
       ConnectionStatus()
         .padding(.trailing, Self.connectionGap)
       if model.dayLocked {
-        StatusPill(L10n.Toolbar.demoChip, systemImage: Self.demoSymbol, tone: .warning)
+        // The one demo chip of both apps (Settings, the iPhone's day line): violet, as the boards
+        // draw the demo; it becomes the dashed demo `EnvironmentBadge` once that is shared (#499).
+        Badge(L10n.Toolbar.demoChip, tone: .highlight)
           .help(Text(L10n.Toolbar.demoHelp))
           .accessibilityIdentifier(Self.demoChipID)
       }
@@ -511,9 +509,9 @@ struct DayStepper: View {
   @ViewBuilder private var stepper: some View {
     HStack(spacing: Tokens.Space.s) {
       Button { model.showPreviousDay() } label: {
-        Label { Text(L10n.Toolbar.previousDay) } icon: { Image(systemName: Self.previousSymbol) }
+        Label { Text(L10n.Toolbar.previousDay) } icon: { Image(systemName: Symbols.previous) }
       }
-      .buttonStyle(TitleBarButtonStyle(square: true))
+      .buttonStyle(.titleBar(square: true))
       .disabled(!arrows.canGoBack)
       .help(Text(L10n.Toolbar.previousDayHelp))
       Menu {
@@ -545,14 +543,13 @@ struct DayStepper: View {
       .fixedSize()
       .help(Text(L10n.Toolbar.pickDayHelp))
       Button { model.showNextDay() } label: {
-        Label { Text(L10n.Toolbar.nextDay) } icon: { Image(systemName: Self.nextSymbol) }
+        Label { Text(L10n.Toolbar.nextDay) } icon: { Image(systemName: Symbols.next) }
       }
-      .buttonStyle(TitleBarButtonStyle(square: true))
+      .buttonStyle(.titleBar(square: true))
       .disabled(!arrows.canGoForward)
       .help(Text(L10n.Toolbar.nextDayHelp))
       // Today is where the day already is while it is live: dimmed then, as ⌘T in the menu.
-      Button(String(localized: L10n.Common.today)) { model.showToday() }
-        .buttonStyle(TitleBarButtonStyle(square: false))
+      TodayButton(L10n.Common.today) { model.showToday() }
         .disabled(model.isLive)
         .help(Text(L10n.Toolbar.todayHelp))
     }
@@ -568,38 +565,6 @@ struct DayStepper: View {
     }
     return String(localized: L10n.Toolbar.day(part(Date.FormatStyle().weekday(.abbreviated)),
       part(Date.FormatStyle().month(.abbreviated)), part(Date.FormatStyle().day())))
-  }
-}
-
-/// The title bar's small bordered buttons (sidebar, ‹ › and Today): the chip fill, a strong
-/// hairline and the label in the muted text colour.
-struct TitleBarButtonStyle: ButtonStyle {
-  /// An icon-only button of the design's fixed size; otherwise the title with side padding.
-  let square: Bool
-
-  @Environment(\.isEnabled) private var isEnabled
-
-  /// Size of an icon-only button, in points: at least macOS's regular control height, 28 points
-  /// (Apple HIG), so the title bar's buttons are as easy to hit as the system's toolbar items.
-  static let width: CGFloat = 32
-  static let height: CGFloat = 28
-  /// Corner radius of the button, in points.
-  static let radius: CGFloat = 7
-
-  func makeBody(configuration: Configuration) -> some View {
-    let shape = RoundedRectangle(cornerRadius: Self.radius, style: .continuous)
-    configuration.label
-      .labelStyle(.iconOnly)
-      // An icon-only button's symbol at a toolbar symbol's size; a title in the compact button font.
-      .font(square ? Tokens.Typography.headerSymbol : Tokens.Typography.buttonCompact)
-      .foregroundStyle(Palette.textTertiary)
-      .padding(.horizontal, square ? 0 : Tokens.Space.s)
-      .frame(minWidth: Self.width, minHeight: Self.height)
-      .background(shape.fill(Palette.chipFill))
-      .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-      .contentShape(shape)
-      .opacity(isEnabled ? 1 : Tokens.Opacity.faint)
-      .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
   }
 }
 
@@ -725,16 +690,14 @@ struct CommandToast: View {
     return command.outcome == nil ? String(localized: L10n.Toast.resultLater) : nil
   }
 
-  /// SF Symbols of a queued, done and refused command.
+  /// SF Symbol of a queued command (a done one draws `Symbols.passed`, a refused one `Symbols.failed`).
   static let queuedSymbol = "clock.arrow.circlepath"
-  static let doneSymbol = "checkmark.circle.fill"
-  static let refusedSymbol = "xmark.octagon.fill"
 
   private var symbol: String {
     switch command.outcome {
     case nil: return Self.queuedSymbol
-    case .done: return Self.doneSymbol
-    case .refused: return Self.refusedSymbol
+    case .done: return Symbols.passed
+    case .refused: return Symbols.failed
     }
   }
 

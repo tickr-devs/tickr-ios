@@ -123,7 +123,8 @@ private struct ActionButtonBody: View {
 }
 
 /// A round button holding one SF Symbol: refresh, settings, close, an alarm action. Give it an
-/// accessibility label (a `Label` whose title is read by VoiceOver and hidden on screen).
+/// accessibility label (a `Label` whose title is read by VoiceOver and hidden on screen). On iOS
+/// it answers taps over `Size.touchTarget` around the circle.
 public struct IconButtonStyle: ButtonStyle {
   let tone: Tone
   let compact: Bool
@@ -159,7 +160,13 @@ private struct IconButtonBody: View {
         : tone.fill.opacity(active ? Tokens.Opacity.glow : Tokens.Opacity.wash)))
       .overlay(Circle().strokeBorder(neutral && !active ? Palette.separatorStrong
         : (neutral ? Palette.accent : tone.fill).opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
+      #if os(iOS)
+      // The circle stays its size; the touch target around it is the HIG's 44 points.
+      .frame(minWidth: Tokens.Size.touchTarget, minHeight: Tokens.Size.touchTarget)
+      .contentShape(Rectangle())
+      #else
       .contentShape(Circle())
+      #endif
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
@@ -170,7 +177,8 @@ private struct IconButtonBody: View {
 
 /// A selectable chip: one of a few choices shown side by side (a position's tab, a day, a range).
 /// The design's chip: mono `label` text in `textTertiary` on `chipFill` with a `separatorStrong`
-/// hairline; the selected one in `textPrimary` on `selection`, outlined in its tone.
+/// hairline; the selected one in `textPrimary` on `selection`, outlined in its tone. On iOS a chip
+/// answers taps over `Size.touchTarget` (`touchTarget()`).
 public struct ChipButtonStyle: ButtonStyle {
   @Environment(\.isEnabled) private var enabled
   @State private var hovered = false
@@ -192,7 +200,7 @@ public struct ChipButtonStyle: ButtonStyle {
       .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
       .background(selected ? Palette.selection : Palette.chipFill, in: shape)
       .overlay(shape.strokeBorder(selected ? tone.fill : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-      .contentShape(shape)
+      .touchTarget()
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
@@ -205,6 +213,7 @@ public struct ChipButtonStyle: ButtonStyle {
 
 /// An on/off chip (a chart study, the trade marks), uppercase as the design's chips: on is
 /// `textPrimary` on `selection` with the chip's hairline, off is the plain chip at `Opacity.muted`.
+/// On iOS it answers taps over `Size.touchTarget`, as every chip does.
 public struct ChipToggleStyle: ToggleStyle {
   public init() {}
 
@@ -234,7 +243,7 @@ private struct ChipToggleButton: ButtonStyle {
       .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
       .background(isOn ? Palette.selection : Palette.chipFill, in: shape)
       .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-      .contentShape(shape)
+      .touchTarget()
       .opacity(!enabled ? Tokens.Opacity.faint : isOn ? 1 : Tokens.Opacity.muted)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
@@ -283,13 +292,10 @@ public struct ControlLabelStyle: LabelStyle {
 
 /// A trailing chevron after a ghost button's title: "Open chart ›".
 public struct Chevron: View {
-  /// SF Symbol of the chevron.
-  static let symbol = "chevron.right"
-
   public init() {}
 
   public var body: some View {
-    Image(systemName: Self.symbol)
+    Image(systemName: Symbols.next)
       .font(Tokens.Typography.chevron)
       .accessibilityHidden(true)
   }

@@ -94,18 +94,17 @@ struct MonthCalendar: View {
       // colour kept it looking active).
       if previous != nil || next != nil {
         HStack(spacing: Tokens.Space.xxs) {
-          Button { month = previous } label: { Image(systemName: "chevron.backward").dimmedWhenDisabled() }
+          Button { month = previous } label: { arrow(Symbols.previous) }
             .disabled(previous == nil)
             .help(Text(L10n.Trades.previousMonth))
             .accessibilityLabel(Text(L10n.Trades.previousMonth))
-          Button { month = next } label: { Image(systemName: "chevron.forward").dimmedWhenDisabled() }
+          Button { month = next } label: { arrow(Symbols.next) }
             .disabled(next == nil)
             .help(Text(L10n.Trades.nextMonth))
             .accessibilityLabel(Text(L10n.Trades.nextMonth))
         }
         .font(Tokens.Typography.chevron)
-        .foregroundStyle(Palette.textQuaternary)
-        .buttonStyle(.borderless)
+        .buttonStyle(.glyph)
       }
       Spacer(minLength: Tokens.Space.s)
       if let total {
@@ -118,6 +117,11 @@ struct MonthCalendar: View {
   }
 
   /// Sum of the month's recorded day results; nil when the month has none.
+  /// A month arrow: the chevron in `textQuaternary`, dimmed while it leads nowhere.
+  private func arrow(_ symbol: String) -> some View {
+    Image(systemName: symbol).foregroundStyle(Palette.textQuaternary).dimmedWhenDisabled()
+  }
+
   private func monthTotal(_ shown: DayCalendar.Month) -> Decimal? {
     let results = model.days.filter { DayCalendar.Month($0.day) == shown }.map(\.resultGrossUsd.value)
     return results.isEmpty ? nil : results.reduce(0, +)

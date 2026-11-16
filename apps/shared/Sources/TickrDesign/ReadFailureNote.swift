@@ -28,8 +28,7 @@ public extension EnvironmentValues {
 /// "waiting for the connection" (the banner above says why); while it is up, a short plain
 /// message, with the technical cause (the API client's words) only behind "Details".
 public struct ReadFailureNote: View {
-  /// Symbols: a failed read, and a card waiting for the connection.
-  public static let failedSymbol = "exclamationmark.triangle.fill"
+  /// Symbol of a card waiting for the connection (a failed read draws `Symbols.failure`).
   static let waitingSymbol = "clock"
 
   let message: LocalizedStringResource
@@ -56,13 +55,13 @@ public struct ReadFailureNote: View {
       InfoCaption(context.waiting, systemImage: Self.waitingSymbol)
     } else {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        InfoCaption(message, systemImage: Self.failedSymbol, tone: tone)
+        InfoCaption(message, systemImage: Symbols.failure, tone: tone)
         if let detail, let label = context?.detailsLabel {
           Button {
             withAnimation(Tokens.Motion.quick) { showsDetails.toggle() }
           } label: {
             HStack(spacing: Tokens.Space.xs) {
-              Image(systemName: ConnectionNoticeLook.chevronSymbol)
+              Image(systemName: Symbols.next)
                 .font(Tokens.Typography.chevron)
                 .rotationEffect(showsDetails ? .degrees(ConnectionNoticeLook.openDegrees) : .zero)
               Text(label)

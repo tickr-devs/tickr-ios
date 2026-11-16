@@ -496,7 +496,7 @@ private struct PlannedLine: View {
 
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
-      PlannedTag(.backlog)
+      Badge.backlog
       Text(text)
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textTertiary)
@@ -525,7 +525,7 @@ struct ObserverRow: View {
           PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: live, event: observer.decisions.count)
         }
         Text(verbatim: observer.name).font(Tokens.Typography.calloutMono)
-        Badge(verbatim: observer.version, color: Palette.accentText)
+        Badge(verbatim: observer.version, color: Palette.accentText, keepingCase: true)
         Spacer()
         if let result = observer.resultGrossUSD {
           MoneyText(value: result.value, usd: true, font: Tokens.Typography.calloutMono)

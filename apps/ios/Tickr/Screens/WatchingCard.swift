@@ -3,8 +3,9 @@ import TickrDesign
 import TickrKit
 
 /// "Watching closely": the symbols the strategy is nearest to entering, each with its verdict, the
-/// check that decided it and how close that check is to passing. The closest few here; "Show all
-/// N ›" opens every row the bot sent in a sheet (`WatchingSheet`).
+/// check that decided it and how close that check is to passing. The closest few here; the card's
+/// footer link "Show all N ›" (`CardFooterLink`, as on the Mac) opens every row the bot sent in a
+/// sheet (`WatchingSheet`).
 struct WatchingCard: View {
   let watching: WatchingV1?
   let failure: String?
@@ -12,24 +13,7 @@ struct WatchingCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      // The label, then the link; the link goes under it at large text sizes.
-      RowStack {
-        CardLabel(L10n.Watching.title)
-        Spacer()
-        if let watching, WatchingList.hasMore(watching.rows) {
-          Button { showsAll = true } label: {
-            HStack(spacing: Tokens.Space.xxs) {
-              Text(L10n.Watching.showAll(watching.rows.count))
-              Chevron()
-            }
-            .font(Tokens.Typography.callout.weight(.semibold))
-            .foregroundStyle(Palette.infoText)
-            .frame(minHeight: Tokens.Size.touchTarget)
-            .contentShape(Rectangle())
-          }
-          .buttonStyle(.plain)
-        }
-      }
+      CardLabel(L10n.Watching.title)
       if let failure {
         ReadFailureNote(watching == nil ? L10n.Watching.failed : L10n.Watching.stale, detail: failure)
       }
@@ -39,8 +23,15 @@ struct WatchingCard: View {
             .font(Tokens.Typography.callout)
             .foregroundStyle(Palette.textTertiary)
         }
-        ForEach(WatchingList.top(watching.rows), id: \.symbol) { row in
+        let rows = WatchingList.top(watching.rows)
+        ForEach(rows, id: \.symbol) { row in
           WatchingRow(row: row, current: failure == nil)
+        }
+        if WatchingList.hasMore(watching.rows) {
+          CardFooterLink(L10n.Watching.showAll, count: watching.rows.count,
+            hint: watching.total > rows.count ? L10n.Watching.closestOf(rows.count, watching.total) : nil) {
+            showsAll = true
+          }
         }
       } else if failure == nil {
         TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)

@@ -7011,40 +7011,6 @@
         }
       }
     },
-    "planned.needsAPI" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NEEDS API"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "НУЖЕН API"
-          }
-        }
-      }
-    },
-    "planned.needsAPIHelp" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Needs a new local-API read or command."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нужно новое чтение или новая команда локального API."
-          }
-        }
-      }
-    },
     "position.chartLabel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -15118,13 +15084,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show all %lld"
+            "value" : "Show all"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показать все %lld"
+            "value" : "Показать все"
           }
         }
       }

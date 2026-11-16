@@ -31,7 +31,7 @@ import TickrKit
 
   @Test func ownersPauseIsPaused() throws {
     let glyph = EntriesGlyph.make(try status(block: BlockCode.entryStop.rawValue, entryStop: true))
-    #expect(glyph.symbol == EntriesGlyph.entriesPausedSymbol)
+    #expect(glyph.symbol == Symbols.pause)
     #expect(glyph.tone == .warning)
   }
 

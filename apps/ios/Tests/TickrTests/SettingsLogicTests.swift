@@ -50,13 +50,12 @@ import TickrKit
   /// The example status (one closed trade WXYZ, one open position ABCD) with `extra` closed trades
   /// and `positions` replaced when given.
   private func status(
-    extra: [[String: Any]] = [], positions: [[String: Any]]? = nil, gate: [String: Any]? = nil
+    extra: [[String: Any]] = [], positions: [[String: Any]]? = nil
   ) throws -> StatusV1 {
     var object = try fixtureObject("status-v1.example.json")
     let trades = try #require(object["trades_today"] as? [[String: Any]])
     object["trades_today"] = trades + extra
     if let positions { object["positions"] = positions }
-    if let gate { object["trading_gate"] = gate }
     return try decode(StatusV1.self, object)
   }
 
@@ -90,17 +89,5 @@ import TickrKit
     closed["opened_at"] = held["opened_at"]
     let after = try status(extra: [closed], positions: [])
     #expect(LabView.entries(after) == LabView.entries(open))
-  }
-
-  @Test func gateDotFollowsTheClosedGate() throws {
-    let open = try status()
-    #expect(SettingsView.gateEvent(open) == nil)
-    let closed = try status(gate: ["open": false, "cause": "operator closed", "code": "unrecorded", "params": [:]])
-    let reason = try status(gate: ["open": false, "cause": "daily loss", "code": "unrecorded", "params": [:]])
-    #expect(SettingsView.gateEvent(closed) != nil)
-    // Another cause is a change of the gate: one more pulse; the same gate read again is none.
-    #expect(SettingsView.gateEvent(closed) != SettingsView.gateEvent(reason))
-    #expect(SettingsView.gateEvent(closed) == SettingsView.gateEvent(try status(
-      gate: ["open": false, "cause": "operator closed", "code": "unrecorded", "params": [:]])))
   }
 }

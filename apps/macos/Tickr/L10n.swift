@@ -187,17 +187,9 @@ enum L10n {
     static var backlog: LocalizedStringResource {
       LocalizedStringResource("planned.backlog", defaultValue: "BACKLOG", bundle: L10n.bundle)
     }
-    static var needsAPI: LocalizedStringResource {
-      LocalizedStringResource("planned.needsAPI", defaultValue: "NEEDS API", bundle: L10n.bundle)
-    }
     static var backlogHelp: LocalizedStringResource {
       LocalizedStringResource("planned.backlogHelp",
         defaultValue: "Planned, not built yet (docs/backlog.md).",
-        bundle: L10n.bundle)
-    }
-    static var needsAPIHelp: LocalizedStringResource {
-      LocalizedStringResource("planned.needsAPIHelp",
-        defaultValue: "Needs a new local-API read or command.",
         bundle: L10n.bundle)
     }
   }
@@ -3329,9 +3321,9 @@ enum L10n {
     static var title: LocalizedStringResource {
       LocalizedStringResource("watching.title", defaultValue: "Watching Closely", bundle: L10n.bundle)
     }
-    /// Link under the card's rows: opens the full list (`WatchingAllPanel`) of `count` symbols.
-    static func showAll(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("watching.showAll", defaultValue: "Show all \(count)", bundle: L10n.bundle)
+    /// The card's footer link (`CardFooterLink`): opens every row the bot sent; the count stands beside it.
+    static var showAll: LocalizedStringResource {
+      LocalizedStringResource("watching.showAll", defaultValue: "Show all", bundle: L10n.bundle)
     }
     /// Caption beside "Show all": the card shows the closest `shown` of `total` watched symbols.
     static func closestOf(_ shown: Int, _ total: Int) -> LocalizedStringResource {

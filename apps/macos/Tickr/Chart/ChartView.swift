@@ -538,7 +538,7 @@ struct ChartView: View {
     } else if let error = chart.error {
       // Plain words, the cause behind Details; while the link is down the card waits calmly.
       ContentUnavailableView {
-        Label { Text(L10n.Chart.barsUnavailable) } icon: { Image(systemName: "wifi.exclamationmark") }
+        Label { Text(L10n.Chart.barsUnavailable) } icon: { Image(systemName: Symbols.failure) }
       } description: {
         ReadFailureNote(showsDay ? L10n.Chart.barsUnavailableDetail : L10n.Chart.candlesUnavailableDetail,
           detail: error)

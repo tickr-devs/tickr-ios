@@ -63,7 +63,7 @@ struct BotControl: ViewModifier {
                 run(.entryStop(on: false))
               }
             } else {
-              action(L10n.Control.pause, symbol: Self.pauseSymbol, tier: .secondary(.warning)) {
+              action(L10n.Control.pause, symbol: Symbols.pause, tier: .secondary(.warning)) {
                 run(.entryStop(on: true))
               }
             }
@@ -115,9 +115,8 @@ struct BotControl: ViewModifier {
   /// Corner radius of the sheet, in points (the design's bottom sheet).
   static let sheetRadius: CGFloat = 28
 
-  /// Symbols of the actions and of the bot's state.
+  /// Symbols of the actions and of the bot's state (Pause draws `Symbols.pause`).
   static let resumeSymbol = "play.fill"
-  static let pauseSymbol = "pause.fill"
   static let cancelSymbol = "xmark.circle"
   static let flattenSymbol = "rectangle.portrait.and.arrow.right"
   static let stopSymbol = "stop.circle"
@@ -127,7 +126,7 @@ struct BotControl: ViewModifier {
 
   private var stateSymbol: String {
     guard let status = model.status else { return Self.unknownSymbol }
-    if status.entryStop { return Self.pauseSymbol }
+    if status.entryStop { return Symbols.pause }
     return status.botState == .running ? Self.resumeSymbol : Self.stoppedSymbol
   }
 

@@ -7,45 +7,62 @@ import SwiftUI
 
 /// A card header's link: a capsule in its tone (`info`; `highlight` in the advisor's box) holding an
 /// optional leading symbol, the title and the chevron. `Size.headerLink` tall; on iOS its touch
-/// target is at least `Size.touchTarget`. The title wraps rather than being cut.
+/// target is at least `Size.touchTarget`. The title wraps rather than being cut. A link that
+/// pushes a screen is a `NavigationLink` with a `HeaderLinkLabel`, styled `.headerLink()`.
 public struct HeaderLink: View {
-  let title: Text
-  let systemImage: String?
+  let label: HeaderLinkLabel
   let tone: Tone
   let action: () -> Void
 
   public init(
     _ title: LocalizedStringResource, systemImage: String? = nil, tone: Tone = .info, action: @escaping () -> Void
   ) {
-    self.title = Text(title)
-    self.systemImage = systemImage
+    self.label = HeaderLinkLabel(title, systemImage: systemImage)
     self.tone = tone
     self.action = action
   }
 
   public var body: some View {
-    Button(action: action) {
-      HStack(spacing: Tokens.Space.xs) {
-        if let systemImage {
-          Image(systemName: systemImage).accessibilityHidden(true)
-        }
-        title
-          .multilineTextAlignment(.leading)
-          .fixedSize(horizontal: false, vertical: true)
-        Chevron()
-      }
-      .font(Tokens.Typography.link)
-    }
-    .buttonStyle(HeaderLinkStyle(tone: tone))
+    Button(action: action) { label }
+      .buttonStyle(.headerLink(tone))
   }
 }
 
-/// The look of `HeaderLink`: the tinted capsule, darker under the pointer, pressed in while held.
-struct HeaderLinkStyle: ButtonStyle {
+/// What a header link says: the optional symbol, the title (wrapping, never cut) and the chevron,
+/// in `Typography.link`. The face of a `HeaderLink`, or of a `NavigationLink` styled `.headerLink()`.
+public struct HeaderLinkLabel: View {
+  let title: Text
+  let systemImage: String?
+
+  public init(_ title: LocalizedStringResource, systemImage: String? = nil) {
+    self.title = Text(title)
+    self.systemImage = systemImage
+  }
+
+  public var body: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      if let systemImage {
+        Image(systemName: systemImage).accessibilityHidden(true)
+      }
+      title
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
+      Chevron()
+    }
+    .font(Tokens.Typography.link)
+  }
+}
+
+/// The look of a header link: the tinted capsule, darker under the pointer, pressed in while held.
+public struct HeaderLinkStyle: ButtonStyle {
   let tone: Tone
   @State private var hovered = false
 
-  func makeBody(configuration: Configuration) -> some View {
+  public init(_ tone: Tone = .info) {
+    self.tone = tone
+  }
+
+  public func makeBody(configuration: Configuration) -> some View {
     let shape = Capsule()
     configuration.label
       .foregroundStyle(tone.text)
@@ -55,14 +72,18 @@ struct HeaderLinkStyle: ButtonStyle {
       .frame(minHeight: Tokens.Size.headerLink)
       .background(tone.fill.opacity(hovered ? Tokens.Opacity.linkHover : Tokens.Opacity.wash), in: shape)
       .overlay(shape.strokeBorder(tone.fill.opacity(Tokens.Opacity.linkOutline), lineWidth: Tokens.Stroke.thin))
-      #if os(iOS)
-      .frame(minHeight: Tokens.Size.touchTarget)
-      #endif
-      .contentShape(Rectangle())
+      .touchTarget()
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .onHover { hovered = $0 }
       .animation(Tokens.Motion.quick, value: hovered)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
+  }
+}
+
+public extension ButtonStyle where Self == HeaderLinkStyle {
+  /// `.buttonStyle(.headerLink())`: a header link's capsule (`HeaderLink`), for a `NavigationLink`.
+  static func headerLink(_ tone: Tone = .info) -> HeaderLinkStyle {
+    HeaderLinkStyle(tone)
   }
 }
 

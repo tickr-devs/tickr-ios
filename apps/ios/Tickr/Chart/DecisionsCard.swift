@@ -38,8 +38,8 @@ struct DecisionsCard: View {
           } label: {
             Text(showsAll ? ChartText.keyDecisions : ChartText.allDecisions(list.total))
           }
-          .buttonStyle(.borderless)
-          .font(Tokens.Typography.captionMono)
+          // A quiet in-card action, the apps' ghost button (never the system's borderless look).
+          .buttonStyle(.action(.ghost, size: .compact))
         }
       } else if let failure {
         ReadFailureNote(ChartText.decisionsFailed, detail: failure)
@@ -136,9 +136,9 @@ private struct CheckLine: View {
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       if check.passed {
-        Image(systemName: "checkmark.circle.fill").foregroundStyle(Palette.profit)
+        Image(systemName: Symbols.passed).foregroundStyle(Palette.profit)
       } else {
-        Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.loss)
+        Image(systemName: Symbols.failed).foregroundStyle(Palette.loss)
       }
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
         Text(verbatim: ApiText.rule(check.rule))

@@ -187,6 +187,8 @@ struct LabReplayCard: View {
     .padding(.vertical, Tokens.Space.s)
     .background(tone.fill.opacity(Tokens.Opacity.wash), in: Capsule())
     .overlay(Capsule().strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
+    // A chip that opens a menu answers taps over the whole touch target, as every chip does.
+    .touchTarget()
   }
 
   /// "price-action-v2 v2 · observer": a version as the pickers name it.

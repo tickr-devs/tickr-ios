@@ -79,7 +79,7 @@ private struct PlannedCard: View {
 
   var body: some View {
     Card(title, tone: .highlight, trailing: {
-      PlannedTag(.backlog)
+      Badge.backlog
     }, content: {
       (Text(L10n.Risk.notServed) + Text(verbatim: Format.itemSeparator) + Text(note))
         .font(Tokens.Typography.caption)
@@ -176,7 +176,7 @@ private struct PlannedLine: View {
 
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
-      PlannedTag(.backlog)
+      Badge.backlog
       Text(text)
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textTertiary)
@@ -673,7 +673,7 @@ private struct LimitsCard: View {
             value: String(localized: L10n.Risk.seconds(Format.secondsNumber(risk.maxQuoteAgeSeconds.value))),
             symbol: Self.quoteSymbol)
         }
-        SectionHeader(Text(L10n.Risk.sizingTitle)) { PlannedTag(.backlog) }
+        SectionHeader(Text(L10n.Risk.sizingTitle)) { Badge.backlog }
       } else {
         Footnote(model.settingsError == nil ? L10n.Common.unavailable : L10n.Risk.settingsUnavailable)
       }

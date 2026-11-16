@@ -17,9 +17,6 @@ struct ChartExplainCard: View {
 
   /// Accessibility id of the card's content, for the UI tests.
   static let contentID = "chart-decisions-list"
-  /// SF Symbols of a passed and a failed check.
-  static let passedSymbol = "checkmark.circle.fill"
-  static let failedSymbol = "xmark.circle.fill"
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
@@ -127,7 +124,7 @@ private struct CheckRow: View {
 
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-      Image(systemName: check.passed ? ChartExplainCard.passedSymbol : ChartExplainCard.failedSymbol)
+      Image(systemName: check.passed ? Symbols.passed : Symbols.failed)
         .foregroundStyle(check.passed ? Palette.profit : Palette.textQuaternary)
         .accessibilityLabel(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
       // The rule in words (ApiText), wrapped over a few lines rather than cut mid-word.

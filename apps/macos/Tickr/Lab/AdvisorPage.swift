@@ -15,8 +15,6 @@ enum AdvisorLook {
   static let rejectedSymbol = "xmark"
   static let observerSymbol = "eye"
   static let activeSymbol = "lock"
-  /// Back from the page to the Lab's cards.
-  static let backSymbol = "chevron.left"
   /// The fitting period: results there are no evidence.
   static let fittingSymbol = "eye.slash"
   /// Arrows between a changed value's old and new value.
@@ -243,10 +241,11 @@ struct AdvisorPage: View {
 
   private var header: some View {
     HStack(spacing: Tokens.Space.s) {
+      // The way back to the Lab's cards: the shared back capsule, as on the iPhone's pushed screens.
       Button { advisor.pageOpen = false } label: {
-        Label { Text(AdvisorWords.back) } icon: { Image(systemName: AdvisorLook.backSymbol) }
+        BackCapsule(AdvisorWords.back)
       }
-      .buttonStyle(.action(.ghost, size: .compact))
+      .buttonStyle(.backCapsule)
       Image(systemName: AdvisorLook.symbol).foregroundStyle(Palette.highlightText)
       Text(AdvisorWords.page).font(Tokens.Typography.button)
       Spacer()

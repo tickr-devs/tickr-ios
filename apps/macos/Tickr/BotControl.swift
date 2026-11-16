@@ -55,8 +55,7 @@ enum BotAction: Identifiable, Equatable {
 
   var title: String { String(localized: label) }
 
-  /// SF Symbols of the actions.
-  static let pauseSymbol = "pause.fill"
+  /// SF Symbols of the actions (Pause draws `Symbols.pause`).
   static let resumeSymbol = "play.fill"
   static let cancelSymbol = "xmark.circle"
   static let flattenSymbol = "rectangle.portrait.and.arrow.right"
@@ -66,7 +65,7 @@ enum BotAction: Identifiable, Equatable {
 
   var symbol: String {
     switch self {
-    case .pauseEntries: return Self.pauseSymbol
+    case .pauseEntries: return Symbols.pause
     case .resumeEntries: return Self.resumeSymbol
     case .cancelOrders: return Self.cancelSymbol
     case .flatten: return Self.flattenSymbol

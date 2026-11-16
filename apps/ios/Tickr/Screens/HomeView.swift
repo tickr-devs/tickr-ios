@@ -153,10 +153,6 @@ extension HomeView {
 /// when it is today's New York date on the bot's clock, else the last session (a weekend, a day off),
 /// which is never shown as live. On a recorded day the way back to today sits under it.
 private struct DayLine: View {
-  /// Symbols of the arrows to the previous and next day.
-  static let previousSymbol = "chevron.left"
-  static let nextSymbol = "chevron.right"
-
   @Environment(AppModel.self) private var model
   let days: HomeDayModel
 
@@ -177,11 +173,11 @@ private struct DayLine: View {
             .accessibilityIdentifier(Self.demoChipID)
         } else if arrows.visible {
           // The arrow that leads nowhere is dimmed and refuses taps ("dimmed" to VoiceOver).
-          Button { days.back() } label: { arrow(Self.previousSymbol) }
+          Button { days.back() } label: { arrow(Symbols.previous) }
             .disabled(!arrows.canGoBack)
             .accessibilityLabel(Text(L10n.Home.previousDay))
           dayText
-          Button { days.forward() } label: { arrow(Self.nextSymbol) }
+          Button { days.forward() } label: { arrow(Symbols.next) }
             .disabled(!arrows.canGoForward)
             .accessibilityLabel(Text(L10n.Home.nextDay))
         } else {
@@ -190,13 +186,12 @@ private struct DayLine: View {
         }
       }
       if days.shown != nil {
-        Button { days.showToday() } label: { Text(L10n.Home.backToToday) }
-          .foregroundStyle(Palette.infoText)
+        TodayButton(L10n.Home.backToToday) { days.showToday() }
       }
     }
     .font(Tokens.Typography.captionMono)
     .foregroundStyle(Palette.textPrimary)
-    .buttonStyle(.borderless)
+    .buttonStyle(.glyph)
     .animation(Tokens.Motion.standard, value: days.shown)
   }
 
@@ -216,7 +211,7 @@ private struct DayLine: View {
   }
 
   private var demoChip: some View {
-    Badge(L10n.Home.demoChip, tone: .warning)
+    Badge(L10n.Home.demoChip, tone: .highlight)
   }
 
   /// The shown day: a recorded one, today or the last session.
@@ -267,9 +262,9 @@ enum ConnectionFreshness {
 
 /// The Home glyph for whether new entries can open.
 enum EntriesGlyph {
-  /// Symbols of the entries glyph: allowed, paused by the owner, calm "not now", blocked.
+  /// Symbols of the entries glyph: allowed, calm "not now", blocked (paused by the owner draws
+  /// `Symbols.pause`).
   static let entriesAllowedSymbol = "lock.open.fill"
-  static let entriesPausedSymbol = "pause.fill"
   static let entriesNotNowSymbol = "moon.fill"
   static let entriesBlockedSymbol = "hand.raised.fill"
 
@@ -278,7 +273,7 @@ enum EntriesGlyph {
   /// bot's own entry block decides, in its precedence: a stopped bot outranks the owner's pause.
   static func make(_ status: StatusV1) -> (symbol: String, tone: Tone, label: LocalizedStringResource) {
     guard let block = status.entryBlock else { return (entriesAllowedSymbol, .profit, L10n.Home.entriesAllowed) }
-    if BlockCode(rawValue: block.cause) == .entryStop { return (entriesPausedSymbol, .warning, L10n.Home.entriesPaused) }
+    if BlockCode(rawValue: block.cause) == .entryStop { return (Symbols.pause, .warning, L10n.Home.entriesPaused) }
     if status.entriesCalm { return (entriesNotNowSymbol, .neutral, L10n.Home.entriesNotNow(ApiText.entryBlock(block))) }
     return (entriesBlockedSymbol, .warning, L10n.Home.entriesBlocked(ApiText.entryBlock(block)))
   }
@@ -508,7 +503,7 @@ private struct PositionRow: View {
         .layoutPriority(1)
         if !typeSize.stacksRows {
           // The row opens the position.
-          Image(systemName: DayLine.nextSymbol)
+          Image(systemName: Symbols.next)
             .font(Tokens.Typography.annotationBold)
             .foregroundStyle(Palette.textQuaternary)
             .accessibilityHidden(true)
@@ -660,48 +655,43 @@ private struct LiveFlowCard: View {
   }
 
   var body: some View {
-    // Only the header opens Risk: a whole-card link would swallow the stages' taps and host their
-    // popovers inside its label.
+    // Only the header's link opens Risk: a whole-card link would swallow the stages' taps and host
+    // their popovers inside its label.
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      NavigationLink {
-        RiskView()
-      } label: {
-        // As on the design: the label, then the bot's inputs (the quote stream and how long ago
-        // the broker was read); the whole row is the link to Risk. At large text sizes the inputs
-        // take the line under the label.
-        RowStack {
-          HStack(spacing: Tokens.Space.s) {
-            CardLabel(L10n.Flow.title)
-            // The slots in use, the visible end of the link to Risk, as on the design.
+      // As on the design: the label and the link to Risk ("slots 2 of 3 ›", the shared header link;
+      // "risk ›" while the slots are not known), then the bot's inputs (the quote stream and how
+      // long ago the broker was read). At large text sizes the inputs take the line under the label.
+      RowStack {
+        HStack(spacing: Tokens.Space.s) {
+          CardLabel(L10n.Flow.title)
+          NavigationLink {
+            RiskView()
+          } label: {
             if current, let slotLimit {
-              HStack(spacing: Tokens.Space.xxs) {
-                Text(L10n.Flow.slots(status.positions.count, slotLimit))
-                Image(systemName: DayLine.nextSymbol)
-              }
-              .font(Tokens.Typography.annotationBold)
-              .foregroundStyle(Palette.infoText)
-              .fixedSize()
+              HeaderLinkLabel(L10n.Flow.slots(status.positions.count, slotLimit))
+            } else {
+              HeaderLinkLabel(L10n.Flow.risk)
             }
           }
-          Spacer(minLength: 0)
-          HStack(alignment: .center, spacing: Tokens.Space.s) {
-            if !current {
-              Text(L10n.Flow.notCurrent)
-                .font(Tokens.Typography.annotation)
-                .foregroundStyle(Palette.warningText)
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            StateGlyph(Self.streamSymbol, tone: streamTone,
-              label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
-              live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
-            BrokerReadAge(readAt: status.freshness.lastBrokerReadAt, alarm: current)
-          }
+          .buttonStyle(.headerLink())
+          .fixedSize()
+          .accessibilityIdentifier(AccessibilityID.risk)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
+        Spacer(minLength: 0)
+        HStack(alignment: .center, spacing: Tokens.Space.s) {
+          if !current {
+            Text(L10n.Flow.notCurrent)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.warningText)
+              .fixedSize(horizontal: false, vertical: true)
+          }
+          StateGlyph(Self.streamSymbol, tone: streamTone,
+            label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
+            live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
+          BrokerReadAge(readAt: status.freshness.lastBrokerReadAt, alarm: current)
+        }
       }
-      .buttonStyle(.plain)
-      .accessibilityIdentifier(AccessibilityID.risk)
+      .frame(maxWidth: .infinity, alignment: .leading)
       // Six equal columns, as in the design (a long value never widens its stage); at large text
       // sizes one row per stage, so the names stay whole.
       Group {
@@ -783,7 +773,7 @@ private struct LiveFlowCard: View {
     } label: {
       label().contentShape(Rectangle())
     }
-    .buttonStyle(StagePressStyle(color: stage.color))
+    .buttonStyle(.washPress(stage.color))
     .accessibilityElement(children: .combine)
     .accessibilityHint(Text(L10n.Flow.stageDetailsHint))
     // Above the stage (the card sits low on Home): the popover then has the screen's width and

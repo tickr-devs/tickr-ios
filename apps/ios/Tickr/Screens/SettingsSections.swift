@@ -185,12 +185,12 @@ struct PreflightSection: View {
   private func icon(_ outcome: Preflight.Outcome) -> some View {
     switch outcome {
     case .passed:
-      Image(systemName: "checkmark.circle.fill")
+      Image(systemName: Symbols.passed)
         .foregroundStyle(Palette.profit)
         .symbolEffect(.bounce, value: outcome)
         .accessibilityLabel(Text(L10n.Access.passed))
     case .failed:
-      Image(systemName: "xmark.octagon.fill").foregroundStyle(Palette.loss)
+      Image(systemName: Symbols.failed).foregroundStyle(Palette.loss)
         .accessibilityLabel(Text(L10n.Access.failed))
     case .unknown:
       Image(systemName: "circle.dashed").foregroundStyle(Palette.textQuaternary)

@@ -60,30 +60,12 @@ struct CleanBadge: View {
     }
   }
 
-  /// The design's day badge: the symbol and the words in one outlined, washed chip (Trades);
-  /// the plain badge without the symbol (the Overview header).
-  @ViewBuilder private func badge(_ title: LocalizedStringResource, symbol: String, color: Color) -> some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
-    Group {
-      if showsSymbol {
-        HStack(spacing: Tokens.Space.xs) {
-          Image(systemName: symbol)
-          Text(title)
-            .textCase(.uppercase)
-            .tracking(Tokens.Typography.badgeTracking)
-        }
-        .font(Tokens.Typography.badge)
-        .foregroundStyle(color)
-        .padding(.horizontal, Tokens.Space.s)
-        .padding(.vertical, Tokens.Space.xs)
-        .background(color.opacity(Tokens.Opacity.wash), in: shape)
-        .overlay(shape.strokeBorder(color.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
-      } else {
-        Badge(title, color: color)
-      }
-    }
-    .help(Text(verbatim: CleanMark.text(clean)))
-    .accessibilityElement(children: .combine)
-    .accessibilityIdentifier(Self.id)
+  /// The design's day badge: the shared `Badge` in the verdict's colour, with the verdict's symbol
+  /// before the words (Trades) or without it (the Overview header).
+  private func badge(_ title: LocalizedStringResource, symbol: String, color: Color) -> some View {
+    Badge(title, color: color, systemImage: showsSymbol ? symbol : nil)
+      .help(Text(verbatim: CleanMark.text(clean)))
+      .accessibilityElement(children: .combine)
+      .accessibilityIdentifier(Self.id)
   }
 }
