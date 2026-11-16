@@ -7,7 +7,7 @@ import TickrDesign
 /// weights; the design's own outlines keep the sidebar as drawn.
 struct ShellGlyph: Shape {
   enum Kind {
-    case overview, chart, trades, risk, lab, settings
+    case overview, chart, trades, risk, lab
     /// The title bar's button that hides and shows the sidebar.
     case sidebar
   }
@@ -61,12 +61,6 @@ struct ShellGlyph: Shape {
     starTop, starInnerTopRight, starRight, starInnerRight, starBottomRight, starInnerBottom, starBottomLeft,
     starInnerLeft, starLeft, starInnerTopLeft,
   ]
-  /// Settings: a ring with four ticks around it (centre, ring radius, ticks' inner and outer
-  /// distance from the centre).
-  static let settingsCentre: CGFloat = 12
-  static let settingsRing: CGFloat = 4
-  static let settingsTickInner: CGFloat = 7
-  static let settingsTickOuter: CGFloat = 10
   /// Sidebar button: a window outline with the sidebar's edge in it.
   static let windowOutline = CGRect(x: 1.5, y: 2.5, width: 13, height: 11)
   static let windowCorner: CGFloat = 2
@@ -102,8 +96,6 @@ struct ShellGlyph: Shape {
     case .lab:
       path.addLines(Self.star)
       path.closeSubpath()
-    case .settings:
-      settings(&path)
     case .sidebar:
       path.addRoundedRect(in: Self.windowOutline, cornerSize: CGSize(width: Self.windowCorner, height: Self.windowCorner))
       path.move(to: CGPoint(x: Self.sidebarEdge, y: Self.windowOutline.minY))
@@ -112,16 +104,6 @@ struct ShellGlyph: Shape {
     let offset = CGPoint(x: rect.midX - grid * scale / 2, y: rect.midY - grid * scale / 2)
     return path.applying(CGAffineTransform(scaleX: scale, y: scale).concatenating(
       CGAffineTransform(translationX: offset.x, y: offset.y)))
-  }
-
-  private func settings(_ path: inout Path) {
-    let centre = Self.settingsCentre
-    path.addEllipse(in: CGRect(x: centre, y: centre, width: 0, height: 0)
-      .insetBy(dx: -Self.settingsRing, dy: -Self.settingsRing))
-    for (dx, dy) in [(0, -1), (0, 1), (-1, 0), (1, 0)] as [(CGFloat, CGFloat)] {
-      path.move(to: CGPoint(x: centre + dx * Self.settingsTickInner, y: centre + dy * Self.settingsTickInner))
-      path.addLine(to: CGPoint(x: centre + dx * Self.settingsTickOuter, y: centre + dy * Self.settingsTickOuter))
-    }
   }
 }
 

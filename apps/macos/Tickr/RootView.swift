@@ -148,8 +148,8 @@ struct RootView: View {
   }
 }
 
-/// The sidebar as the design draws it: the "OPERATOR" label, the sections, the Settings row and
-/// the bot's state at the bottom, on the sidebar's own fill.
+/// The sidebar as the design draws it: the "OPERATOR" label, the sections and the bot's state at
+/// the bottom, on the sidebar's own fill. Settings opens the standard way (⌘, and the app menu).
 private struct Sidebar: View {
   @Environment(AppModel.self) private var model
   @Binding var selection: AppSection
@@ -184,10 +184,6 @@ private struct Sidebar: View {
       .focused($rowsFocused)
       .focusEffectDisabled()
       .onMoveCommand(perform: move)
-      SettingsLink {
-        SidebarRow(title: L10n.Root.settingsRow, glyph: .settings, badge: nil, selected: false)
-      }
-      .buttonStyle(.plain)
       Spacer(minLength: 0)
       BotStateCard()
     }

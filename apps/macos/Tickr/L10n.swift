@@ -354,10 +354,6 @@ enum L10n {
     static func run(_ id: String) -> LocalizedStringResource {
       LocalizedStringResource("root.run", defaultValue: "run \(id)", bundle: L10n.bundle)
     }
-    /// The sidebar's last row, which opens the Settings window.
-    static var settingsRow: LocalizedStringResource {
-      LocalizedStringResource("root.settingsRow", defaultValue: "Settings  ⌘,", bundle: L10n.bundle)
-    }
   }
 
   enum Toolbar {

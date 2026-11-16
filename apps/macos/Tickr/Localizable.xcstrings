@@ -8823,23 +8823,6 @@
         }
       }
     },
-    "root.settingsRow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Settings  ⌘,"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Настройки  ⌘,"
-          }
-        }
-      }
-    },
     "root.stale" : {
       "extractionState" : "manual",
       "localizations" : {
