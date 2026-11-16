@@ -148,15 +148,11 @@ public struct StatusV1: Codable, Hashable, Sendable {
   public let positions: [Position]
   /// The code version the running bot's run records; nil when not recorded. See `CodeVersion`.
   public let codeVersion: String?
-  /// The broker's fees on today's fills; nil until every fill and its fees are read.
+  /// Today's broker fees, the result after them, and the broker's own realized result (docs/api.md); nil while unknown.
   public let feesTodayUsd: DecimalString?
-  /// Today's result after those fees (what the broker's day P&L counts); nil while unknown.
   public let resultTodayNetUsd: DecimalString?
+  public let resultTodayBrokerUsd: DecimalString?
   public let schemaVersion: Int
-
-  /// Today's result as shown: after the broker's fees once read, else before them (`resultBeforeFees`).
-  public var resultTodayUsd: DecimalString { resultTodayNetUsd ?? resultTodayGrossUsd }
-  public var resultBeforeFees: Bool { resultTodayNetUsd == nil && !tradesToday.isEmpty }
 
   enum CodingKeys: String, CodingKey {
     case environment, strategy, fences, position, freshness, positions
@@ -175,6 +171,7 @@ public struct StatusV1: Codable, Hashable, Sendable {
     case dailyRoomUsd = "daily_room_usd"
     case feesTodayUsd = "fees_today_usd"
     case resultTodayNetUsd = "result_today_net_usd"
+    case resultTodayBrokerUsd = "result_today_broker_usd"
     case schemaVersion = "schema_version"
   }
 
@@ -203,6 +200,7 @@ public struct StatusV1: Codable, Hashable, Sendable {
     codeVersion = try c.decodeIfPresent(String.self, forKey: .codeVersion)
     feesTodayUsd = try c.decodeIfPresent(DecimalString.self, forKey: .feesTodayUsd)
     resultTodayNetUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultTodayNetUsd)
+    resultTodayBrokerUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultTodayBrokerUsd)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -229,6 +227,7 @@ public struct StatusV1: Codable, Hashable, Sendable {
     try c.encodeNullable(codeVersion, forKey: .codeVersion)
     try c.encodeNullable(feesTodayUsd, forKey: .feesTodayUsd)
     try c.encodeNullable(resultTodayNetUsd, forKey: .resultTodayNetUsd)
+    try c.encodeNullable(resultTodayBrokerUsd, forKey: .resultTodayBrokerUsd)
   }
 }
 
