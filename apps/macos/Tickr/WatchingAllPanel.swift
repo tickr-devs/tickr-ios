@@ -149,28 +149,20 @@ struct WatchingAllPanel: View {
   /// SF Symbol of the close button.
   static let closeSymbol = "xmark"
 
-  /// The sort chips, wrapping when they do not fit on one line.
+  /// The sort switch (the apps' one segmented switch).
   private var controls: some View {
-    ChipFlow(spacing: Tokens.Space.xs) {
-      Text(L10n.Watching.sortLabel)
-        .textCase(.uppercase)
-        .font(Tokens.Typography.label)
-        .tracking(Tokens.Typography.labelTracking)
-        .foregroundStyle(Palette.textQuaternary)
-        .padding(.trailing, Tokens.Space.xs)
-      ForEach(Self.sorts, id: \.self) { item in
-        Button { sort = item } label: { Text(item.title) }
-          .buttonStyle(.chip(selected: sort == item))
-      }
-    }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.horizontal, Tokens.Space.l)
-    .padding(.bottom, Tokens.Space.m)
+    SegmentSwitch(options: Self.sorts.map { ($0, Text($0.title)) }, selection: $sort)
+      .accessibilityElement(children: .contain)
+      .accessibilityLabel(Text(L10n.Watching.sortLabel))
+      .fixedSize()
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.horizontal, Tokens.Space.l)
+      .padding(.bottom, Tokens.Space.m)
   }
 }
 
 extension WatchingSort {
-  /// The chip's name.
+  /// The segment's name.
   var title: LocalizedStringResource {
     switch self {
     case .closest: L10n.Watching.sortClosest

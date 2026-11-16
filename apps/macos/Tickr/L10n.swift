@@ -3349,23 +3349,23 @@ enum L10n {
     static var live: LocalizedStringResource {
       LocalizedStringResource("watching.live", defaultValue: "live", bundle: L10n.bundle)
     }
-    /// Label before the sort chips.
+    /// VoiceOver name of the sort switch.
     static var sortLabel: LocalizedStringResource {
       LocalizedStringResource("watching.sortLabel", defaultValue: "Sort", bundle: L10n.bundle)
     }
-    /// Sort chip: closest to entering first.
+    /// Sort segment: closest to entering first.
     static var sortClosest: LocalizedStringResource {
       LocalizedStringResource("watching.sortClosest", defaultValue: "Closest", bundle: L10n.bundle)
     }
-    /// Sort chip: by symbol, A to Z.
+    /// Sort segment: by symbol, A to Z.
     static var sortSymbol: LocalizedStringResource {
       LocalizedStringResource("watching.sortSymbol", defaultValue: "Symbol", bundle: L10n.bundle)
     }
-    /// Sort chip: oldest quote first.
+    /// Sort segment: oldest quote first.
     static var sortQuoteAge: LocalizedStringResource {
       LocalizedStringResource("watching.sortQuoteAge", defaultValue: "Quote age", bundle: L10n.bundle)
     }
-    /// Sort chip: latest decision first.
+    /// Sort segment: latest decision first.
     static var sortLatest: LocalizedStringResource {
       LocalizedStringResource("watching.sortLatest", defaultValue: "Latest", bundle: L10n.bundle)
     }

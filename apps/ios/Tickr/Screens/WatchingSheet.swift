@@ -77,27 +77,11 @@ struct WatchingSheet: View {
     }
   }
 
-  /// A segmented control while the three names fit across; wrapping chips when they do not (large
-  /// text sizes, longer words), so no name is cut.
+  /// The apps' segmented switch (as on Activity); a name too long for its segment wraps.
   private var sortPicker: some View {
-    ViewThatFits(in: .horizontal) {
-      Picker(selection: $sort) {
-        ForEach(Self.sorts, id: \.self) { item in
-          Text(item.title).tag(item)
-        }
-      } label: {
-        Text(L10n.Watching.sortLabel)
-      }
-      .pickerStyle(.segmented)
-      .frame(maxWidth: .infinity)
-      ChipFlow {
-        ForEach(Self.sorts, id: \.self) { item in
-          Button { sort = item } label: { Text(item.title) }
-            .buttonStyle(.chip(selected: sort == item))
-        }
-      }
-    }
-    .animation(Tokens.Motion.quick, value: sort)
+    SegmentSwitch(options: Self.sorts.map { ($0, Text($0.title)) }, selection: $sort)
+      .accessibilityElement(children: .contain)
+      .accessibilityLabel(Text(L10n.Watching.sortLabel))
   }
 }
 

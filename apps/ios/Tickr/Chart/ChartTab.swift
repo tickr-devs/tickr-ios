@@ -669,7 +669,7 @@ private struct RangePicker: View {
   let chart: ChartModel
 
   var body: some View {
-    SegmentChips(options: ChartRange.allCases.map { ($0, Text(Self.title($0))) },
+    SegmentSwitch(options: ChartRange.allCases.map { ($0, Text(Self.title($0))) },
       selection: Binding(get: { chart.range }, set: { chart.choose(range: $0) }))
       .accessibilityElement(children: .contain)
       .accessibilityLabel(Text(ChartText.range))

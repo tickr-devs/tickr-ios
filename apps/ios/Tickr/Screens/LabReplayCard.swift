@@ -142,8 +142,8 @@ struct LabReplayCard: View {
       }
       // Segments while both labels fit; at large text sizes a menu, which wraps nothing away.
       ViewThatFits(in: .horizontal) {
-        SegmentChips(options: [(false, Text(L10n.Lab.replayLastSessions(replay?.sessions ?? .zero))),
-          (true, Text(L10n.Lab.replayOneDay))], selection: $oneDay, style: .filled)
+        SegmentSwitch(options: [(false, Text(L10n.Lab.replayLastSessions(replay?.sessions ?? .zero))),
+          (true, Text(L10n.Lab.replayOneDay))], selection: $oneDay)
           .fixedSize(horizontal: false, vertical: true)
         daysPicker.pickerStyle(.menu)
       }

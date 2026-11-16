@@ -220,7 +220,7 @@ extension ActivityView {
       .pickerStyle(.menu)
       .frame(maxWidth: .infinity, alignment: .leading)
     } else {
-      SegmentChips(options: Pane.allCases.map { ($0, Text($0.title)) }, selection: $section, style: .raised,
+      SegmentSwitch(options: Pane.allCases.map { ($0, Text($0.title)) }, selection: $section,
         identifier: AccessibilityID.activitySection)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text(L10n.Activity.show))
