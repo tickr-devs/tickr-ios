@@ -198,8 +198,9 @@ private struct LossRoomCard: View {
   @Environment(AppModel.self) private var model
 
   private var limit: Decimal? { model.settings?.risk.maxDailyLossUsd.value }
-  /// Today's net result; nil while the bot's status is unknown. The limit counts the live day only.
-  private var result: Decimal? { model.status?.resultTodayGrossUsd.value }
+  /// Today's net result after the broker's fees once read (before them until then); nil while
+  /// the bot's status is unknown. The limit counts the live day only.
+  private var result: Decimal? { model.status?.resultTodayUsd.value }
   /// The bot's own number; the app never computes a room the bot did not report.
   private var room: Decimal? { model.dailyRoom }
 
@@ -210,6 +211,7 @@ private struct LossRoomCard: View {
 
   /// Symbols of the loss-room figures.
   static let resultSymbol = "chart.line.uptrend.xyaxis"
+  static let feesSymbol = "building.columns"
   static let realizedSymbol = "arrow.down.right"
   static let reservationsSymbol = "lock"
   static let plannedSymbol = "shield"
@@ -264,6 +266,9 @@ private struct LossRoomCard: View {
           FigureRow(L10n.Risk.resultToday, value: result.map { Money.signed($0) } ?? Format.missing,
             symbol: Self.resultSymbol, symbolColor: result.map(Palette.result) ?? Palette.textQuaternary,
             color: result.map(Self.resultText) ?? Palette.textQuaternary)
+          FigureRow(L10n.Risk.feesToday,
+            value: model.status?.feesTodayUsd.map { Money.plain($0.value) } ?? Format.missing,
+            symbol: Self.feesSymbol, symbolColor: Palette.warning, color: Palette.textSecondary)
           FigureRow(L10n.Risk.realizedLoss, value: loss(model.status?.realizedLossTodayUsd),
             symbol: Self.realizedSymbol, symbolColor: Palette.loss, color: Palette.lossText)
           FigureRow(L10n.Risk.reservations, value: amount(model.status?.openReservationsUsd),

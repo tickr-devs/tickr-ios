@@ -4850,6 +4850,23 @@
         }
       }
     },
+    "home.beforeFees" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day result before broker fees"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Результат дня до комиссий брокера"
+          }
+        }
+      }
+    },
     "home.cleanDay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7932,6 +7949,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "комиссии %@"
+          }
+        }
+      }
+    },
+    "risk.feesToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker fees today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Комиссии брокера за день"
           }
         }
       }

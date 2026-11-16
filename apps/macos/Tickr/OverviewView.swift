@@ -263,6 +263,14 @@ private struct DayResult: View {
         .lineLimit(1)
         .minimumScaleFactor(Tokens.Shrink.standard)
       Text(verbatim: subtitle).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
+      if model.shownResultBeforeFees {
+        // Wraps rather than cuts, in either language.
+        Text(L10n.Overview.beforeFees)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.warningText)
+          .multilineTextAlignment(.trailing)
+          .fixedSize(horizontal: false, vertical: true)
+      }
       DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
         .frame(width: Self.sparklineWidth, height: Self.sparklineHeight)
     }

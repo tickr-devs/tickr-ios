@@ -429,7 +429,7 @@ private struct DayFigures: Equatable {
   /// Today, live from the status.
   init(_ status: StatusV1) {
     let stats = Board.dayStats(status)
-    result = stats.resultGrossUsd
+    result = stats.resultUsd
     counts = L10n.Activity.counts(stats.trades, stats.wins, stats.losses, status.positions.count)
     tally = Tally(closed: stats.trades, wins: stats.wins, losses: stats.losses, open: status.positions.count)
     curve = Self.curve(status.tradesToday.map { ($0.closedAt.date, $0.resultGrossUsd.value) })

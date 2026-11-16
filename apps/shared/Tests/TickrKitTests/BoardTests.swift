@@ -12,7 +12,7 @@ import Testing
     #expect(stats.trades == 1)
     #expect(stats.wins == 0)
     #expect(stats.losses == 1)
-    #expect(stats.resultGrossUsd == Decimal(string: "-1.60"))
+    #expect(stats.resultUsd == Decimal(string: "-1.67"))  // after the fixture's 0.07 in fees
     #expect(stats.winShare == 0)
   }
 

@@ -92,7 +92,7 @@ private struct TodayResult: View {
         CardLabel(L10n.MenuBar.dayResult)
         if let status = model.status {
           // Counts up from zero each time the panel opens, then on to each new result.
-          let result = status.resultTodayGrossUsd.value
+          let result = status.resultTodayUsd.value
           CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signedUSD(Decimal($0)) }
             .font(Tokens.Typography.panelFigure)
             .foregroundStyle(Palette.result(result))
@@ -110,7 +110,7 @@ private struct TodayResult: View {
       }
       Spacer(minLength: 0)
       if let status = model.status {
-        DrawnSparkline(values: curve(status), color: Tone.result(status.resultTodayGrossUsd.value).fill)
+        DrawnSparkline(values: curve(status), color: Tone.result(status.resultTodayUsd.value).fill)
           .frame(width: Self.curveWidth, height: Self.curveHeight)
       }
     }

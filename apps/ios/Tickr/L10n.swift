@@ -287,6 +287,10 @@ enum L10n {
   }
 
   enum Home {
+    /// Beside the day's result while it does not count the broker's fees yet.
+    static var beforeFees: LocalizedStringResource {
+      LocalizedStringResource("home.beforeFees", defaultValue: "Day result before broker fees", bundle: L10n.bundle)
+    }
     /// The latest event's New York time on Home: "14:06:09 ET".
     static func clockET(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("home.clockET", defaultValue: "\(time) ET", bundle: L10n.bundle)
@@ -687,6 +691,10 @@ enum L10n {
     }
     static var resultToday: LocalizedStringResource {
       LocalizedStringResource("risk.resultToday", defaultValue: "Net result today", bundle: L10n.bundle)
+    }
+    /// The broker's fees on today's fills; a dash until every fill is read.
+    static var feesToday: LocalizedStringResource {
+      LocalizedStringResource("risk.feesToday", defaultValue: "Broker fees today", bundle: L10n.bundle)
     }
     static func roomNote(_ amount: String) -> LocalizedStringResource {
       LocalizedStringResource("risk.roomNote",

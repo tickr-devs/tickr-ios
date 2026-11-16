@@ -473,6 +473,10 @@ enum L10n {
   }
 
   enum Overview {
+    /// Under the day's result while it does not count the broker's fees yet.
+    static var beforeFees: LocalizedStringResource {
+      LocalizedStringResource("overview.beforeFees", defaultValue: "before broker fees", bundle: L10n.bundle)
+    }
     static var fixtures: LocalizedStringResource {
       LocalizedStringResource("overview.fixtures", defaultValue: "Fixtures", bundle: L10n.bundle)
     }
@@ -2468,6 +2472,10 @@ enum L10n {
     /// Today's net result.
     static var resultToday: LocalizedStringResource {
       LocalizedStringResource("risk.resultToday", defaultValue: "net day result", bundle: L10n.bundle)
+    }
+    /// The broker's fees on today's fills; a dash until every fill is read.
+    static var feesToday: LocalizedStringResource {
+      LocalizedStringResource("risk.feesToday", defaultValue: "broker fees today", bundle: L10n.bundle)
     }
     /// How the daily limit works.
     static var lossRoomNote: LocalizedStringResource {

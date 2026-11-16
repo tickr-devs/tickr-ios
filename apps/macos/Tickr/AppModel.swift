@@ -326,8 +326,15 @@ public final class AppModel {
   }
 
   public var shownResult: Decimal {
-    if isLive { return status?.resultTodayGrossUsd.value ?? 0 }
+    if isLive { return status?.resultTodayUsd.value ?? 0 }
     return dayDocument?.resultGrossUsd.value ?? 0
+  }
+
+  /// The shown result does not count the broker's fees yet: today before the bot has read every
+  /// fill's fees, or a recorded day (its document is gross).
+  public var shownResultBeforeFees: Bool {
+    if isLive { return status?.resultBeforeFees ?? false }
+    return !(dayDocument?.trades.isEmpty ?? true)
   }
 
   /// Running sum of trade results through the day, starting at 0, for the sparkline.
