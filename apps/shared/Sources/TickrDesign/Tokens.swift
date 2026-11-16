@@ -196,18 +196,6 @@ public enum Tokens {
     public static let flash = 0.22
   }
 
-  /// How far a line of text may shrink to fit before it truncates, as a share of its size (`minimumScaleFactor`).
-  public enum Shrink {
-    /// Button titles and tile text: barely.
-    public static let slight = 0.8
-    /// Figures, values and day labels in cards, chips and charts.
-    public static let standard = 0.7
-    /// Results in tight cells: calendar day cells, the day ring, the day's figures (Trades).
-    public static let tight = 0.6
-    /// A large amount inside a ring.
-    public static let most = 0.5
-  }
-
   /// Fixed element sizes, in points.
   public enum Size {
     /// Status dots.

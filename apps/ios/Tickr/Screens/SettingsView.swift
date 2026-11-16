@@ -239,9 +239,6 @@ struct SettingsView: View {
 
 /// Paste the pairing link the Mac left in its pairing file. Opening the link on the phone works too.
 private struct PairingSheet: View {
-  /// Lines the pasted link may take before the field scrolls.
-  static let linkLines = 3...6
-
   @Environment(AppModel.self) private var model
   @Environment(\.dismiss) private var dismiss
   @State private var text = ""
@@ -257,7 +254,6 @@ private struct PairingSheet: View {
           .textInputAutocapitalization(.never)
           .autocorrectionDisabled()
           .font(.footnote.monospaced())
-          .lineLimit(Self.linkLines)
           PasteButton(payloadType: String.self) { strings in
             if let first = strings.first { text = first }
           }

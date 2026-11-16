@@ -31,7 +31,7 @@ public struct ChipFlow: Layout {
   }
 
   /// What a chip is offered: its own width, but never more than the whole line, so a chip wider
-  /// than the line shrinks or wraps (by its own line limit and scale) instead of running past it.
+  /// than the line wraps instead of running past it.
   private static func proposal(width: CGFloat) -> ProposedViewSize {
     ProposedViewSize(width: width.isFinite ? width : nil, height: nil)
   }

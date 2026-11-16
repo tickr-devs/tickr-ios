@@ -32,6 +32,10 @@ catalog  Every key of an `L10n.swift` has a Russian translation in the target's 
          app Info.plist lists in `CFBundleLocalizations` each language the app's and the shared
          package's String Catalogs translate (the app follows the system language; without the
          list the SwiftPM-built Mac app opens in English).
+truncation  No text is ever cut (owner rule 2026-11-16, docs/design-system.md "Text is never
+         cut"): no `.lineLimit`, `.truncationMode`, `.minimumScaleFactor` or
+         `.allowsTightening`. A text that does not fit wraps or its layout adapts; one that must
+         stay on one line takes its whole width with `.fixedSize()`.
 
 Usage: check_swift_rules.py
 """
@@ -416,6 +420,20 @@ def legacy_violations(path: Path) -> list[tuple[int, str]]:
     return found
 
 
+# Modifiers that cut a text (an ellipsis) or shrink it below its font's token.
+TRUNCATION = re.compile(r"\.(?:lineLimit|truncationMode|minimumScaleFactor|allowsTightening)\s*\(")
+
+
+def truncation_violations(path: Path) -> list[tuple[int, str]]:
+    """A modifier that may cut or shrink a text, in code (comments ignored)."""
+    found, in_block = [], False
+    for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        code, in_block = check_swift_literals.strip(raw, in_block)
+        if TRUNCATION.search(code):
+            found.append((number, code.strip()))
+    return found
+
+
 # Project settings of the current stack: Swift 6 language mode and the latest OS releases.
 SWIFT_MODE = 6
 LATEST_OS = 26
@@ -492,6 +510,8 @@ RULES = {
     "catalog": (catalog_violations,
       "text without a Russian translation, or a language missing from an Info.plist"),
     "legacy": (legacy_violations, "outdated API: use the current Apple stack (CLAUDE.md)"),
+    "truncation": (truncation_violations,
+      "text may be cut or shrunk; let it wrap or give it room (docs/design-system.md)"),
     "loop": (loop_violations,
       "motion on its own clock; move only on a real data change, "
       "or mark it `// decorative: <why>`"),

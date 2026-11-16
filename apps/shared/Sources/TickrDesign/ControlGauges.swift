@@ -36,7 +36,6 @@ public struct MeterBar: View {
             Text(verbatim: marks[index].text)
               .font(Tokens.Typography.annotationBold)
               .foregroundStyle(marks[index].tone?.text ?? Palette.textQuaternary)
-              .lineLimit(1)
           }
         }
       }
@@ -61,6 +60,8 @@ public struct MeterMark: Hashable, Sendable {
 public struct MiniRing: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var drawn = false
+  /// The ring's side: `Tokens.Size.miniRing`, scaled with Dynamic Type.
+  @ScaledMetric(relativeTo: .caption) private var side = Tokens.Size.miniRing
   let fraction: Double
   let tone: Tone
   let text: String
@@ -82,12 +83,12 @@ public struct MiniRing: View {
       Text(verbatim: text)
         .font(Tokens.Typography.annotationBold)
         .foregroundStyle(Palette.textPrimary)
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
+        .fixedSize()
         .padding(Tokens.Stroke.gauge)
     }
     .padding(Tokens.Stroke.gauge / 2)
-    .frame(width: Tokens.Size.miniRing, height: Tokens.Size.miniRing)
+    // The ring grows with the text size, and never cuts its figure.
+    .frame(minWidth: side, minHeight: side)
     .animation(reduceMotion ? nil : Tokens.Motion.fill, value: fraction)
     .onAppear { withAnimation(reduceMotion ? nil : Tokens.Motion.fill) { drawn = true } }
   }

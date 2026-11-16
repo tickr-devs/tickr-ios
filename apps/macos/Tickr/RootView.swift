@@ -246,7 +246,6 @@ private struct SidebarRow: View {
     HStack(spacing: Self.iconGap) {
       ShellIcon(kind: glyph, size: Tokens.Size.rowSymbol)
       Text(title)
-        .lineLimit(1)
         .frame(maxWidth: .infinity, alignment: .leading)
       if let badge {
         Text(verbatim: badge.formatted())
@@ -422,7 +421,6 @@ private struct WindowLine: View {
     }
     .font(Tokens.Typography.calloutMono)
     .foregroundStyle(Palette.textQuaternary)
-    .lineLimit(1)
   }
 
   private func line(now: Date?) -> LocalizedStringResource {
@@ -630,8 +628,8 @@ struct ConnectionStatus: View {
         Text(verbatim: text(now: model.botTime(context.date)))
           .font(Tokens.Typography.subheadlineMono)
           .foregroundStyle(Palette.textQuaternary)
-          .lineLimit(1)
-          .truncationMode(.middle)
+          .multilineTextAlignment(.trailing)
+          .fixedSize(horizontal: false, vertical: true)
       }
       .frame(width: Self.width, alignment: .trailing)
     }

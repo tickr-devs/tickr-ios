@@ -93,7 +93,6 @@ public struct SectionHeader<Trailing: View>: View {
         .font(Tokens.Typography.label)
         .tracking(Tokens.Typography.labelTracking)
         .foregroundStyle(Palette.textLabel)
-        .lineLimit(1)
         .shine(moving: shines, color: tone.text)
         .accessibilityAddTraits(.isHeader)
       if let count {

@@ -1,6 +1,8 @@
 name: layout-sweep
 # Every screen of both apps at several sizes, in English and Russian (macOS: window sizes and a
-# resize drag that fails on a layout loop; iOS: three iPhones and three Dynamic Type sizes). Costly
+# resize drag that fails on a layout loop; iOS: three iPhones and three Dynamic Type sizes). Both
+# jobs fail on a truncated text in any picture (apps/scripts/find_truncated_text.swift; the code
+# rule `truncation` of check_swift_rules.py keeps the cutting modifiers out on every PR). Costly
 # on macOS runners, so it runs only when asked: the `layout-sweep` label on a pull request, a
 # manual run, or weekly on main. The pictures are kept as the run's artifacts.
 on:
@@ -17,11 +19,13 @@ permissions:
   contents: read
 jobs:
   # Every screen at several window sizes, Chart inspector closed and open, in English and Russian
-  # (apps/macos/scripts/layout-sweep.sh). Fails when a resize crashes or hangs the app; the
-  # pictures are kept as the run's artifact for checking overlaps and clipped text.
+  # (apps/macos/scripts/layout-sweep.sh). Fails when a resize crashes or hangs the app or a
+  # picture shows a truncated text; the pictures are kept as the run's artifact for checking
+  # overlaps.
   macos:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'layout-sweep')
-    runs-on: macos-latest
+    # The Xcode 27 image: the app uses its SDK (title bar visibility priorities); macos-latest has Xcode 26.x only.
+    runs-on: xcode-27
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -77,9 +81,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install the bot
+        run: python -m pip install -q -e .
+      # A fresh runner has no demo fixture (it is never committed; docs/demo.md): build it here,
+      # as its own step, so the start below only copies it and serves within seconds.
+      - name: Build the demo fixture
+        run: tickr demo --build-fixture
       - name: Start the demo bot API (port 8776, bot.toml [api] demo_port)
         run: |
-          python -m pip install -q -e .
           tickr demo > "$RUNNER_TEMP/demo.log" 2>&1 &
           for _ in $(seq 60); do
             curl -sf http://127.0.0.1:8776/status > /dev/null && exit 0
@@ -123,6 +132,22 @@ jobs:
           [ -d "$RUNNER_TEMP/sweep.xcresult" ] || exit 0
           xcrun xcresulttool export attachments --path "$RUNNER_TEMP/sweep.xcresult" \
             --output-path "$RUNNER_TEMP/ios-layout-sweep"
+      # No text may be cut (owner rule 2026-11-16): the sweep's own pictures (named
+      # <language>-<text size>-tab<n>[-scroll<k>]), read for an ellipsis.
+      - name: Find truncated text
+        run: |
+          python3 - "$RUNNER_TEMP/ios-layout-sweep" "$RUNNER_TEMP/ios-sweep-pictures" <<'PY'
+          import json, os, shutil, sys
+          exported, pictures = sys.argv[1], sys.argv[2]
+          os.makedirs(pictures, exist_ok=True)
+          for test in json.load(open(os.path.join(exported, "manifest.json"))):
+              for attachment in test.get("attachments", []):
+                  name = attachment.get("suggestedHumanReadableName", "")
+                  if name.startswith(("en-", "ru-")):
+                      shutil.copy(os.path.join(exported, attachment["exportedFileName"]),
+                                  os.path.join(pictures, name.split("_0_")[0] + ".png"))
+          PY
+          swift apps/scripts/find_truncated_text.swift "$RUNNER_TEMP/ios-sweep-pictures"
       - name: Keep the pictures
         if: always()
         uses: actions/upload-artifact@v4

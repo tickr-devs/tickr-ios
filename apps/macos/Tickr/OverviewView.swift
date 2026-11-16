@@ -148,7 +148,6 @@ private struct Header: View {
             Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textPrimary)
           }
           // The product name never wraps ("Tickr Operat / or" in a narrow window): badges give way first.
-          .lineLimit(1)
           .fixedSize()
           #if DEBUG
           // Fixture data looks live; say so on the screen it would be mistaken on.
@@ -182,7 +181,6 @@ private struct Header: View {
     return HStack(spacing: Tokens.Space.m) {
       PulseDot(content.color, pulsing: model.isLive, event: content.pulse)
       Text(verbatim: content.title).font(Tokens.Typography.button).foregroundStyle(content.color)
-        .lineLimit(1)
         .fixedSize()
       if let detail = content.detail {
         // Wraps to as many lines as it needs: a narrow window cut the cause of a block mid-sentence.
@@ -260,8 +258,6 @@ private struct DayResult: View {
     VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
       CardLabel(L10n.Overview.dayResult)
       MoneyText(value: counted, usd: true, font: Tokens.Typography.display)
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
       Text(verbatim: subtitle).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
       if model.shownResultBeforeFees {
         // Wraps rather than cuts, in either language.
@@ -563,12 +559,10 @@ private struct Pipeline: View {
         .font(Tokens.Typography.annotationBold)
         .tracking(Tokens.Typography.labelTracking)
         .foregroundStyle(reported ? stage.text : Palette.textQuaternary)
-        .lineLimit(1)
       if let value = stage.value {
         Text(verbatim: value)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textTertiary)
-          .lineLimit(1)
           .contentTransition(.numericText())
       } else {
         Text(verbatim: Format.missing)
@@ -623,7 +617,6 @@ private struct Pipeline: View {
       Text(verbatim: text).foregroundStyle(Palette.textTertiary)
     }
     .font(Tokens.Typography.annotation)
-    .lineLimit(1)
     .padding(.horizontal, Tokens.Space.s)
     .padding(.vertical, Tokens.Space.xxs)
     .overlay {
@@ -825,9 +818,7 @@ private struct PositionDetail: View {
         }
         figures
       }
-      // A long figure ("Once · acknowledged") shrinks to the column the design gives it.
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.tight)
+      // A long figure ("Once · acknowledged") wraps inside the column the design gives it.
       .frame(width: Self.figuresWidth)
     }
   }
@@ -1070,7 +1061,8 @@ private struct EmptyPositions: View {
       }
       Spacer()
     }
-    .frame(minHeight: Self.minHeight)
+    // Fills the card the row stretches, centred in it, never a band of blank under the words.
+    .frame(maxWidth: .infinity, minHeight: Self.minHeight, maxHeight: .infinity)
   }
 }
 
@@ -1275,6 +1267,7 @@ private struct SafetyTile: View {
           .foregroundStyle(tone.text)
           .contentTransition(.numericText())
       }
+      // As tall as its words need: a long name wraps, never cut.
       .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: 0)
     }
@@ -1412,8 +1405,6 @@ private struct LatestSizeLine: View {
     Text(L10n.RiskRoom.latestSize(size.symbol, Format.quantity(size.quantity.value), binding))
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.warningText)
-      .lineLimit(1)
-      .truncationMode(.middle)
       .help(Text(verbatim: [String(localized: L10n.Watching.decidedAt(Format.marketMinute(size.at.date))),
         size.bindingCause].compactMap { $0 }.joined(separator: Format.lineSeparator)))
   }
@@ -1457,23 +1448,19 @@ private struct AdvisorRow: View {
   @Environment(AdvisorModel.self) private var advisor
 
   var body: some View {
-    HStack(spacing: Tokens.Space.s) {
-      Image(systemName: AdvisorLook.symbol).foregroundStyle(Palette.highlightText)
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        Text(L10n.Observers.advisor).font(Tokens.Typography.callout)
-        if let lead = advisor.runs?.lead {
-          Text(verbatim: lead.title)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textQuaternary)
-            .lineLimit(1)
-            .truncationMode(.middle)
-        }
+    // On one line while everything fits whole; in a narrow column the pill and the link go on
+    // a line of their own, so no word is broken or cut.
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: Tokens.Space.s) {
+        words.fixedSize()
+        Spacer(minLength: Tokens.Space.s)
+        actions
       }
-      Spacer(minLength: Tokens.Space.s)
-      if let count = advisor.runs?.awaitingReview, count > 0 {
-        StatusPill(AdvisorWords.awaiting(count), tone: .highlight)
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        words
+        actions
       }
-      HeaderLink(advisor.runs?.lead == nil ? L10n.Observers.lab : AdvisorWords.review, tone: .highlight, action: open)
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
     // The design's violet strip at the foot of the card; all of it opens the Lab.
     .padding(.horizontal, Tokens.Space.m)
@@ -1484,6 +1471,30 @@ private struct AdvisorRow: View {
     .overlay {
       RoundedRectangle(cornerRadius: Tokens.Radius.medium)
         .strokeBorder(Palette.highlight.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin)
+    }
+  }
+
+  private var words: some View {
+    HStack(spacing: Tokens.Space.s) {
+      Image(systemName: AdvisorLook.symbol).foregroundStyle(Palette.highlightText)
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        Text(L10n.Observers.advisor).font(Tokens.Typography.callout)
+        if let lead = advisor.runs?.lead {
+          Text(verbatim: lead.title)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textQuaternary)
+        }
+      }
+    }
+  }
+
+  private var actions: some View {
+    HStack(spacing: Tokens.Space.s) {
+      if let count = advisor.runs?.awaitingReview, count > 0 {
+        StatusPill(AdvisorWords.awaiting(count), tone: .highlight).fixedSize()
+      }
+      HeaderLink(advisor.runs?.lead == nil ? L10n.Observers.lab : AdvisorWords.review, tone: .highlight, action: open)
+        .fixedSize()
     }
   }
 
@@ -1507,8 +1518,6 @@ private struct OverviewObserverRow: View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
         Text(verbatim: "\(observer.name)\(Format.itemSeparator)\(observer.version)")
-          .lineLimit(1)
-          .truncationMode(.middle)
         Spacer(minLength: Tokens.Space.s)
         if let result {
           Text(verbatim: Money.signed(result)).foregroundStyle(Palette.result(result))
@@ -1567,12 +1576,11 @@ private struct JournalCard: View {
                 .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
               Text(verbatim: event.tag).fontWeight(.bold).foregroundStyle(event.tone.color)
                 .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
-              Text(verbatim: event.text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
+              Text(verbatim: event.text).foregroundStyle(Palette.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
             }
             .font(Tokens.Typography.captionMono)
-            .lineLimit(1)
             .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
           }
         }

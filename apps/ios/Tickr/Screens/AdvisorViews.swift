@@ -159,7 +159,6 @@ struct AdvisorRunRow: View {
         Text(verbatim: run.title)
           .font(Tokens.Typography.calloutMono.weight(.semibold))
           .foregroundStyle(Palette.textPrimary)
-          .lineLimit(1)
         Text(verbatim: Format.day(run.at.date) + Format.separator + Format.time(run.at.date))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textQuaternary)
@@ -195,8 +194,6 @@ struct ChangeLine: View {
   private var key: some View {
     Text(verbatim: change.path)
       .font(Tokens.Typography.captionMono.weight(.semibold))
-      .lineLimit(1)
-      .truncationMode(.middle)
   }
 
   private var values: some View {

@@ -221,7 +221,6 @@ public struct CommandTag: View {
       .textCase(.uppercase)
       .font(Tokens.Typography.badge)
       .tracking(Tokens.Typography.badgeTracking)
-      .lineLimit(1)
       .fixedSize()
       .foregroundStyle(onFill ? Palette.onLoss : Palette.highlightText)
       .padding(.horizontal, Tokens.Space.xs + Tokens.Space.xxs)

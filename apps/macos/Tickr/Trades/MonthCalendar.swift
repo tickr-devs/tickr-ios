@@ -88,7 +88,6 @@ struct MonthCalendar: View {
     return HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       if let first = shown.firstDay {
         CardLabel(L10n.Trades.monthLabel(first.formatted(.dateTime.month(.wide).year())))
-          .lineLimit(1)
           .contentTransition(.opacity)
       }
       // Only with another month to step to; the arrow that leads nowhere is dimmed (its own
@@ -113,7 +112,6 @@ struct MonthCalendar: View {
         Text(L10n.Trades.monthTotal(Money.signed(total)))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.result(total))
-          .lineLimit(1)
           .fixedSize()
       }
     }
@@ -159,7 +157,7 @@ struct CleanDot: View {
 /// One weekday tile: its number and clean dot on top, then, when the bot recorded it, its gross
 /// result to the cent and its trade count.
 private struct CalendarDay: View {
-  /// Height of a day's tile, in points.
+  /// Least height of a day's tile, in points: a tile grows when its text needs more.
   static let height: CGFloat = 62
 
   let cell: DayCalendar.Cell
@@ -200,10 +198,8 @@ private struct CalendarDay: View {
             .foregroundStyle(Palette.textQuaternary)
         }
       }
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.tight)
       .padding(Tokens.Space.xs + Tokens.Space.xxs)
-      .frame(maxWidth: .infinity, minHeight: Self.height, maxHeight: Self.height, alignment: .topLeading)
+      .frame(maxWidth: .infinity, minHeight: Self.height, alignment: .topLeading)
       .background {
         if let result {
           shape.fill(Palette.result(result).opacity(Tokens.Opacity.wash))

@@ -75,7 +75,6 @@ public struct StepPath: View {
             .font(Tokens.Typography.annotation)
             .foregroundStyle(step.state == .pending ? Palette.textQuaternary : Palette.textPrimary)
             .multilineTextAlignment(.center)
-            .lineLimit(1)
             .fixedSize()
             // A gap between neighbouring titles, so the row gives way to the list before they touch.
             .padding(.horizontal, Tokens.Space.xs)

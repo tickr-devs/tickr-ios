@@ -43,8 +43,6 @@ struct LabView: View {
                 Text(verbatim: status.strategy.name)
                   .font(.title3.monospaced().bold())
                   .foregroundStyle(Palette.textPrimary)
-                  .lineLimit(1)
-                  .minimumScaleFactor(Tokens.Shrink.standard)
                 Text(verbatim: L10n.Lab.versionTag(status.strategy.version))
                   .font(Tokens.Typography.annotation)
                   .foregroundStyle(Palette.textQuaternary)
@@ -62,7 +60,6 @@ struct LabView: View {
                 .font(Tokens.Typography.metric)
                 .foregroundStyle(Palette.result(status.resultTodayUsd.value))
                 .contentTransition(.numericText())
-                .lineLimit(1)
                 .fixedSize()
               let curve = Self.curve(status)
               if curve.count > 1 {

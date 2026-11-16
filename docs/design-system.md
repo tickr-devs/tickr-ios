@@ -168,17 +168,21 @@ and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`;
 | `tint` | 0.14 | A tinted chip's fill (the footer link's chevron chip) |
 | `linkHover` / `linkOutline` | 0.20 / 0.22 | A header link's fill under the pointer and its tinted outline (`HeaderLink`) |
 
-## Text shrink (`Tokens.Shrink`)
+## Text is never cut
 
-How far a line of text may shrink to fit (`minimumScaleFactor`) before it truncates. A screen picks
-a step; it does not define its own factor.
+Owner rule (2026-11-16): no truncated or clipped text anywhere in the apps, in English and Russian.
+A text that does not fit wraps, or its layout adapts (a row stacks, a column widens, a card grows
+or its pane scrolls); a font never shrinks below its token, and nothing is hidden to make room.
+A text that must stay on one line (a chip, a badge, a figure) takes its whole width with
+`.fixedSize()`, and the layout around it makes the room. So the apps use no `.lineLimit`,
+`.truncationMode`, `.minimumScaleFactor` or `.allowsTightening`: rule `truncation` of
+`apps/scripts/check_swift_rules.py` rejects them on every pull request, and the layout sweep
+(`.github/workflows/layout-sweep.yml`) reads every picture with `apps/scripts/find_truncated_text.swift`
+and fails on any text that ends in an ellipsis the String Catalogs do not have.
 
-| Token | Value | Use |
-|---|---|---|
-| `slight` | 0.8 | Button titles, tile text |
-| `standard` | 0.7 | Figures, values and day labels in cards, chips and charts |
-| `tight` | 0.6 | Results in tight cells: calendar day cells, the day ring, the day's figures (Trades) |
-| `most` | 0.5 | A large amount inside a ring |
+A card link ("Open chart", "Details") ends only with the disclosure chevron (`HeaderLink`,
+`CardFooterLink` in TickrDesign); its title carries no arrow. "→" stays only inside data
+("7.15 → 7.48").
 
 ## Sizes (`Tokens.Size`)
 

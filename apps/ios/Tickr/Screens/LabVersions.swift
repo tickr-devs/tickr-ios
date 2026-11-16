@@ -16,7 +16,6 @@ struct VersionsCard: View {
   /// Observers' colours, in their order; the trading strategy is always the accent.
   static let observerColors: [Color] = [Palette.highlight, Palette.warning, Palette.info, Palette.seriesATR]
 
-  @Environment(\.dynamicTypeSize) private var typeSize
   let curves: [VersionCurve]
   /// Why some observers have no line (their trades could not be listed), one per observer.
   let missing: [String]
@@ -90,9 +89,7 @@ struct VersionsCard: View {
             Text(L10n.Common.strategyVersion(curve.name, curve.version))
               .font(Tokens.Typography.calloutMono)
               .foregroundStyle(Palette.textPrimary)
-              .lineLimit(typeSize.stacksRows ? nil : 1)
-              .minimumScaleFactor(Tokens.Shrink.standard)
-              .fixedSize(horizontal: false, vertical: typeSize.stacksRows)
+              .fixedSize(horizontal: false, vertical: true)
           }
           .layoutPriority(1)
           StatusPill(curve.observer ? L10n.Lab.observerRole : L10n.Lab.trades,
@@ -103,7 +100,6 @@ struct VersionsCard: View {
             Text(verbatim: Money.signed(total))
               .font(Tokens.Typography.calloutMono.bold())
               .foregroundStyle(Palette.result(total))
-              .lineLimit(1)
               .fixedSize()
           } else {
             Text(L10n.Lab.partial)

@@ -125,8 +125,6 @@ private struct PositionChips: View {
                 .contentTransition(.numericText())
             }
           }
-          .lineLimit(1)
-          .minimumScaleFactor(Tokens.Shrink.standard)
           .frame(maxWidth: .infinity, minHeight: Self.chipHeight)
           .foregroundStyle(Palette.textPrimary)
           .background(
@@ -145,8 +143,6 @@ private struct PositionChips: View {
           Text(L10n.Positions.freeSlot).font(.footnote.monospaced().bold())
           Text(L10n.Positions.slotNumber(positions.count + index + 1)).font(Tokens.Typography.annotationBold)
         }
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
         .frame(maxWidth: .infinity, minHeight: Self.chipHeight)
         .foregroundStyle(Palette.textQuaternary)
         .overlay(
@@ -198,15 +194,12 @@ private struct PositionDetail: View {
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
           Text(verbatim: position.symbol)
             .font(.title.monospaced().bold())
-            .lineLimit(1)
             .fixedSize()
           Text(L10n.Positions.shares(position.quantity.text, Money.price(position.entryPrice.value),
             Format.clock(position.openedAt.date)))
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textTertiary)
-            // One line beside the result, as on the design; wrapped only when the result goes under.
-            .lineLimit(typeSize.stacksRows ? nil : 1)
-            .minimumScaleFactor(typeSize.stacksRows ? 1 : Tokens.Shrink.slight)
+            // Wraps beside the result rather than being cut.
             .fixedSize(horizontal: false, vertical: true)
         }
         .layoutPriority(1)

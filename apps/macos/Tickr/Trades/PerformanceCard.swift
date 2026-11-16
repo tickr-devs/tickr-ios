@@ -21,7 +21,6 @@ struct PerformanceCard: View {
       Text(L10n.Trades.oneRNote)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-        .lineLimit(1)
     }, content: {
       if let performance = model.performance {
         if performance.trades == 0 && performance.exclusions.isEmpty {
@@ -99,7 +98,6 @@ private struct Figure: View {
         CountingText(NSDecimalNumber(decimal: value).doubleValue) { format(Decimal($0)) }
           .font(Tokens.Typography.figure)
           .foregroundStyle(loss && value != 0 ? Palette.lossText : color ? Palette.result(value) : Palette.textPrimary)
-          .minimumScaleFactor(Tokens.Shrink.tight)
       } else {
         Text(verbatim: Format.missing)
           .font(Tokens.Typography.figure)
@@ -109,9 +107,7 @@ private struct Figure: View {
       Text(title)
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textQuaternary)
-        .minimumScaleFactor(Tokens.Shrink.slight)
     }
-    .lineLimit(1)
     .frame(maxWidth: .infinity, alignment: .leading)
     .accessibilityElement(children: .combine)
   }

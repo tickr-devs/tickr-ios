@@ -113,11 +113,9 @@ private struct RoomCard: View {
             .font(Tokens.Typography.metric)
             .foregroundStyle(Palette.textPrimary)
             .contentTransition(.numericText())
-            .lineLimit(1)
-            .minimumScaleFactor(Tokens.Shrink.tight)
+            // One line at its full size; the ring is wide enough for it.
+            .fixedSize()
           CardLabel(L10n.Risk.left)
-            .lineLimit(1)
-            .minimumScaleFactor(Tokens.Shrink.tight)
         }
         .padding(Tokens.Space.l)
       }
@@ -163,8 +161,6 @@ private struct AccountCard: View {
           .font(Tokens.Typography.metric)
           .foregroundStyle(Palette.textPrimary)
           .contentTransition(.numericText())
-          .lineLimit(1)
-          .minimumScaleFactor(Tokens.Shrink.tight)
           .accessibilityLabel(Text(L10n.Risk.equity))
           .accessibilityValue(Text(verbatim: RiskFormat.amount(b.equityUsd.value)))
         RiskLine(label: L10n.Risk.cash, value: RiskFormat.amount(b.cashUsd.value))

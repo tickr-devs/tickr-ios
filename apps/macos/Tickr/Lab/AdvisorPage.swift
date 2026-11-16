@@ -119,7 +119,6 @@ struct AdvisorCard: View {
           HStack(spacing: Tokens.Space.s) {
             Text(verbatim: lead.title)
               .font(Tokens.Typography.calloutMono.weight(.bold))
-              .lineLimit(1)
             StatusPill(lead.stateWords, tone: AdvisorLook.tone(lead))
             Spacer(minLength: Tokens.Space.s)
           }
@@ -168,8 +167,6 @@ struct ChangeLine: View {
   private var key: some View {
     Text(verbatim: change.path)
       .font(Tokens.Typography.captionMono.weight(.semibold))
-      .lineLimit(1)
-      .truncationMode(.middle)
   }
 
   private var values: some View {
@@ -297,8 +294,6 @@ struct AdvisorPage: View {
         } content: {
           Text(verbatim: run.proposed.map { run.base + Format.itemSeparator + $0 } ?? run.title)
             .font(Tokens.Typography.subtitle)
-            .lineLimit(1)
-            .truncationMode(.middle)
           StepPath(AdvisorLook.steps(run, settings: model.settings))
         }
         .rise(step: Rows.path.rawValue)
@@ -372,8 +367,6 @@ private struct RunRow: View {
           .foregroundStyle(AdvisorLook.tone(run).text)
         Text(verbatim: run.title)
           .font(Tokens.Typography.captionMono.weight(.bold))
-          .lineLimit(1)
-          .truncationMode(.middle)
       }
       HStack(spacing: Tokens.Space.s) {
         StatusPill(run.stateWords, tone: AdvisorLook.tone(run))

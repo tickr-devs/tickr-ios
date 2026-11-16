@@ -103,16 +103,13 @@ private struct DecisionRow: View {
             Text(decision.action.title)
               .font(.footnote.weight(.semibold))
               .foregroundStyle(Palette.textPrimary)
-              .lineLimit(1)
             Text(ChartText.strategy(decision.strategy.name, decision.strategy.version))
               .font(.footnote)
               .foregroundStyle(Palette.textSecondary)
-              .lineLimit(1)
             if decision.observer {
               Text(ChartText.observer)
                 .font(Tokens.Typography.annotation)
                 .foregroundStyle(Palette.highlightText)
-                .lineLimit(1)
             }
           }
           if run.count > 1 {
@@ -125,7 +122,6 @@ private struct DecisionRow: View {
         Text(decision.at.date, format: ChartFormat.time)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .lineLimit(1)
           .fixedSize()
       }
     }

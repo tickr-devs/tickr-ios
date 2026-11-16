@@ -247,7 +247,6 @@ public struct Ticker: View {
           Text(item.text).foregroundStyle(Palette.textTertiary)
         }
         .font(Tokens.Typography.annotation)
-        .lineLimit(1)
         .fixedSize()
         .padding(.leading, Tokens.Space.xxs)
         .padding(.trailing, Tokens.Space.s)

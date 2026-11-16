@@ -1027,7 +1027,9 @@ struct ChartReadout: View {
     let pointed = pointer.index.flatMap { series.candles.indices.contains($0) ? $0 : nil }
     if let index = pointed ?? series.candles.indices.last {
       let candle = series.candles[index]
-      HStack(spacing: Tokens.Space.m) {
+      // As many values as fit on a line, the rest on the next: none is cut in a narrow window.
+      // (The screen's least size is fixed, so a readout that changes height moves no window.)
+      ChipFlow(spacing: Tokens.Space.m) {
         Text(verbatim: plot.timeText(index))
           .foregroundStyle(Palette.textSecondary)
         value(L10n.Chart.open, CandleChart.price(candle.open))
@@ -1043,13 +1045,7 @@ struct ChartReadout: View {
       .font(Tokens.Typography.annotation)
       .monospacedDigit()
       .contentTransition(.numericText())
-      .lineLimit(1)
-      .fixedSize()
-      // One line, cut at the edge when the window is narrow: values that wrapped made the
-      // readout's height (and with it the window's least size) change on every pointed candle,
-      // and AppKit re-laid the window inside its own layout pass until it threw.
       .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
-      .clipped()
     }
   }
 
@@ -1084,7 +1080,8 @@ private struct ChartLegend: View {
     if let index = pointed ?? series.candles.indices.last {
       let items = entries(index)
       if !items.isEmpty {
-        HStack(spacing: Tokens.Space.m) {
+        // As many lines' values as fit across, the rest on the next row: none is cut.
+        ChipFlow(spacing: Tokens.Space.m) {
           ForEach(Array(items.enumerated()), id: \.offset) { _, item in
             HStack(spacing: Tokens.Space.xs) {
               Text(item.name)
@@ -1095,12 +1092,9 @@ private struct ChartLegend: View {
         }
         .font(Tokens.Typography.annotation)
         .monospacedDigit()
-        .lineLimit(1)
-        .fixedSize()
         .padding(.horizontal, Tokens.Space.xs)
         .background(Palette.surfaceSunken.opacity(Tokens.Opacity.overlay), in: .rect(cornerRadius: Tokens.Radius.small))
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-        .clipped()
         .allowsHitTesting(false)
       }
     }

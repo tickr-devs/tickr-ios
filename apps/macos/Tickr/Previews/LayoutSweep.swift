@@ -31,10 +31,12 @@ enum LayoutSweep {
   /// Name part of the window filling the display's visible area (as Zoom makes it).
   static let zoomedName = "zoomed"
 
-  /// Window sizes pictured, in points: the smallest the app allows, then the common laptop and
-  /// desktop widths. The display's whole visible area (`zoomedName`) is added at run time.
+  /// Window sizes pictured, in points: the smallest the app allows, the size it first opens at,
+  /// then the common laptop and desktop widths. The display's whole visible area (`zoomedName`)
+  /// is added at run time.
   static let sizes: [CGSize] = [
     CGSize(width: TickrMacApp.minWidth, height: TickrMacApp.minHeight),
+    CGSize(width: TickrMacApp.defaultWidth, height: TickrMacApp.defaultHeight),
     small, laptop, desktop, large,
   ]
   /// A 1024 × 768 display, a 13-inch laptop, a 15-inch laptop and a 16-inch laptop, in points.

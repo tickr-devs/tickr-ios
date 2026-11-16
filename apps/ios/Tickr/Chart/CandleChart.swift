@@ -153,8 +153,6 @@ struct CandleChart: View {
       readout
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(selected == nil ? Palette.textQuaternary : Palette.textSecondary)
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
       legend(priceLegend)
       VStack(spacing: 0) {
         priceChart
@@ -600,8 +598,6 @@ struct CandleChart: View {
       }
       .font(Tokens.Typography.annotation)
       .monospacedDigit()
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.standard)
       .padding(.top, Tokens.Space.xxs)
     }
   }
@@ -822,8 +818,6 @@ struct CandleChart: View {
     Text(tag.price, format: ChartFormat.price)
       .font(Tokens.Typography.annotationBold)
       .foregroundStyle(Palette.surface)
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.standard)
       .padding(.horizontal, Tokens.Space.xxs)
       .frame(width: axisWidth, alignment: .leading)
       .background(tag.fill, in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
@@ -892,8 +886,6 @@ struct CandleChart: View {
     Text(value.as(Double.self).map { format.format($0) } ?? String())
       .font(Tokens.Typography.annotation)
       .foregroundStyle(colour)
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.standard)
       .frame(width: axisWidth, alignment: .leading)
   }
 
@@ -1107,8 +1099,6 @@ private struct PaneAxes: ViewModifier {
       Text(value.as(Double.self).map { ChartFormat.price.format($0) } ?? String())
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
         .frame(width: axisWidth, alignment: .leading)
     }
   }

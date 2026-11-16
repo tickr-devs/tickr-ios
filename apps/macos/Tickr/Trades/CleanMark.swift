@@ -71,7 +71,6 @@ struct CleanBadge: View {
           Text(title)
             .textCase(.uppercase)
             .tracking(Tokens.Typography.badgeTracking)
-            .lineLimit(1)
         }
         .font(Tokens.Typography.badge)
         .foregroundStyle(color)

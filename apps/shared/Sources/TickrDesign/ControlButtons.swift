@@ -187,7 +187,6 @@ public struct ChipButtonStyle: ButtonStyle {
     configuration.label
       .labelStyle(ControlLabelStyle())
       .font(Tokens.Typography.label)
-      .lineLimit(1)
       .foregroundStyle(selected || hovered ? Palette.textPrimary : Palette.textTertiary)
       .padding(.horizontal, Tokens.Space.s)
       .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
@@ -230,7 +229,6 @@ private struct ChipToggleButton: ButtonStyle {
     configuration.label
       .labelStyle(ControlLabelStyle())
       .font(Tokens.Typography.label)
-      .lineLimit(1)
       .foregroundStyle(isOn ? Palette.textPrimary : Palette.textTertiary)
       .padding(.horizontal, Tokens.Space.s)
       .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)

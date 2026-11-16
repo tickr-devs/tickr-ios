@@ -1,5 +1,5 @@
 name: ui-tests
-# The macOS app's UI tests (apps/macos/TickrUITests) against the contract fixtures. About eight
+# The macOS app's UI tests (apps/macos/TickrUITests) and the no-truncated-text check. About eight
 # minutes of a macOS runner, and the account runs at most five macOS jobs at once, so they do not
 # run on every push: only with the `ui-tests` label on a pull request, a manual run, or nightly on
 # main. Every pull request still builds the app and this test runner (macos-app.yml).
@@ -40,3 +40,52 @@ jobs:
           xcodebuild -workspace Tickr.xcworkspace -scheme "Tickr macOS" \
             -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
             CODE_SIGN_IDENTITY=- test
+  # No text is ever cut (owner rule 2026-11-16): every screen, Settings pane and the menu-bar panel
+  # drawn offscreen at the window's least and first sizes on the fixtures, in English and Russian
+  # (Tests/ScreenPicturesTests.swift), then read for a text ending in an ellipsis the String
+  # Catalogs do not have (apps/scripts/find_truncated_text.swift). The pictures are kept.
+  no-truncated-text:
+    # Like the UI tests: only with the `ui-tests` label, a manual run, or nightly on main
+    # (owner 2026-11-16: no third macOS job on every push).
+    if: >-
+      ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft
+      && contains(github.event.pull_request.labels.*.name, 'ui-tests')) }}
+    # The Xcode 27 image: the app uses its SDK (title bar visibility priorities); macos-latest has Xcode 26.x only.
+    runs-on: xcode-27
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select the newest installed Xcode
+        run: |
+          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
+      - name: Toolchain id for the build cache
+        run: echo "XCODE_ID=$(xcodebuild -version | head -1 | tr ' ' '-')" >> "$GITHUB_ENV"
+      # Restore only: this job never saves the cache (main's builds save it), so it adds no
+      # per-branch copy that could evict main's.
+      - name: Restore SwiftPM builds
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            apps/shared/.build
+            apps/macos/.build
+          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
+          restore-keys: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-
+      - name: Draw every screen in English and Russian
+        working-directory: apps/macos
+        run: |
+          swift build --build-tests
+          for language in en ru; do
+            TICKR_FIXTURES=1 TICKR_SCREEN_PICTURES="$RUNNER_TEMP/screens" TICKR_SCREEN_PICTURES_LANGUAGE="$language" \
+              swift test --skip-build --filter ScreenPicturesTests
+          done
+      - name: Find truncated text
+        run: swift apps/scripts/find_truncated_text.swift "$RUNNER_TEMP/screens"
+      - name: Keep the pictures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-screens
+          path: ${{ runner.temp }}/screens
+          if-no-files-found: ignore

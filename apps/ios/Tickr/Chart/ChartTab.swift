@@ -233,7 +233,6 @@ private struct DayBar: View {
             Text(symbol)
               .font(Tokens.Typography.metric)
               .foregroundStyle(Palette.textPrimary)
-              .lineLimit(1)
               .fixedSize()
           }
           quote
@@ -290,7 +289,6 @@ private struct DayBar: View {
         }
       }
       .font(Tokens.Typography.annotation)
-      .lineLimit(1)
       .fixedSize()
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(Text(ChartText.dayStats(rows[0].1, rows[1].1, rows[2].1)))
@@ -312,8 +310,6 @@ private struct DayBar: View {
           .font(Tokens.Typography.captionMono)
       }
       .foregroundStyle(tone)
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.standard)
       .accessibilityElement(children: .combine)
     }
   }
@@ -328,7 +324,6 @@ private struct DayBar: View {
         Text(ChartText.todayLive)
       }
     }
-    .lineLimit(1)
     .fixedSize()
   }
 
@@ -357,8 +352,6 @@ private struct DayBar: View {
           dayLabel(live: false)
         }
       }
-      .lineLimit(1)
-      .minimumScaleFactor(Tokens.Shrink.standard)
       .font(Tokens.Typography.annotation)
       .foregroundStyle(Palette.textTertiary)
     }
@@ -594,7 +587,6 @@ private struct ChipLook: ViewModifier {
   func body(content: Content) -> some View {
     content
       .font(Tokens.Typography.captionMono)
-      .lineLimit(1)
       .fixedSize()
       .foregroundStyle(on ? text : Palette.textSecondary)
       .padding(.horizontal, Tokens.Space.m)

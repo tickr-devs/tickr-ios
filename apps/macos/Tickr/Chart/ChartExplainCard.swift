@@ -15,8 +15,6 @@ struct ChartExplainCard: View {
   /// The chart shows one day: decisions are recorded per day, so a longer range has none to read.
   let showsDay: Bool
 
-  /// Lines a check's name may take: the rail is narrow, and a name cut short no longer read.
-  static let ruleLines = 3
   /// Accessibility id of the card's content, for the UI tests.
   static let contentID = "chart-decisions-list"
   /// SF Symbols of a passed and a failed check.
@@ -38,8 +36,6 @@ struct ChartExplainCard: View {
     if let decision = shown {
       HStack(spacing: Tokens.Space.s) {
         CardLabel(label(decision))
-          .lineLimit(1)
-          .minimumScaleFactor(Tokens.Shrink.standard)
         Spacer(minLength: 0)
         if decision.observer {
           Badge(L10n.Chart.observerTag, color: Palette.highlightText)
@@ -138,7 +134,6 @@ private struct CheckRow: View {
       Text(verbatim: ApiText.rule(check.rule))
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textSecondary)
-        .lineLimit(ChartExplainCard.ruleLines)
         .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: Tokens.Space.xs)
       Text(verbatim: check.measured?.text ?? Format.missing)

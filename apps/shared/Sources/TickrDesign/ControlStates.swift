@@ -51,10 +51,8 @@ public struct StatusPill: View {
         .textCase(.uppercase)
         .font(Tokens.Typography.badge)
         .tracking(Tokens.Typography.badgeTracking)
-        .lineLimit(1)
-        // At the largest text sizes a long state ("НЕ ЗАПУСКАЛСЯ") shrinks inside the card
-        // instead of widening it past the screen.
-        .minimumScaleFactor(Tokens.Shrink.standard)
+        // At the largest text sizes a long state ("НЕ ЗАПУСКАЛСЯ") wraps inside the pill
+        // instead of widening it past the screen; it is never cut or shrunk.
     }
     .foregroundStyle(tone.text)
     .padding(.horizontal, Tokens.Space.s)
@@ -115,7 +113,6 @@ public struct Badge: View {
       .textCase(textCase)
       .font(Tokens.Typography.badge)
       .tracking(Tokens.Typography.badgeTracking)
-      .lineLimit(1)
       .padding(.horizontal, Tokens.Space.s)
       .padding(.vertical, Tokens.Space.xs)
       .foregroundStyle(color)

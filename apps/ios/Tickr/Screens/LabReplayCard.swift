@@ -178,7 +178,6 @@ struct LabReplayCard: View {
   private func menuLabel(_ title: String, tone: Tone) -> some View {
     HStack(spacing: Tokens.Space.xs) {
       Text(verbatim: title)
-        .lineLimit(1)
       Image(systemName: Self.menuSymbol)
         .imageScale(.small)
     }

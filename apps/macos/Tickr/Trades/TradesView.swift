@@ -191,7 +191,6 @@ private struct DayListCard: View {
         Text(L10n.Trades.allDaysHint)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .lineLimit(1)
       }, content: {
         // The screen's scroll view scrolls the list too; a nested one would collapse to nothing.
         LazyVStack(spacing: Tokens.Space.xxs) {
@@ -285,8 +284,6 @@ private struct DayStatsRow: View {
         GridRow { average; bestWorst }
       }
     }
-    .lineLimit(1)
-    .minimumScaleFactor(Tokens.Shrink.tight)
   }
 
   private var result: some View {
@@ -356,11 +353,12 @@ private struct TradesTable: View {
   /// Least and preferred widths of the table's columns, in points. Each least width holds the
   /// column's widest content and its heading whole, in English and Russian (measured in the
   /// table's fonts: values in 12-point mono, headings and badges in 10-point mono; a heading cell
-  /// keeps a few points of inset, a value cell none); the preferred widths share out a wide table.
+  /// keeps a few points of inset, a value cell none); the preferred widths are the board's
+  /// (MacTrades: 76 · 56 · 34 · 56 · 72 · 68 · reason · 66 · 72), never under the least.
   private enum Column {
     /// "10:07:00" (59.3).
     static let timeMin: CGFloat = 60
-    static let time: CGFloat = 64
+    static let time: CGFloat = 76
     /// A five-letter symbol such as "BRK.B" and the heading "SYMBOL" (37.1 each).
     static let symbolMin: CGFloat = 40
     static let symbol: CGFloat = 56
@@ -368,16 +366,18 @@ private struct TradesTable: View {
     /// "КОЛ-…"); a four-digit quantity takes 29.7.
     static let quantityMin: CGFloat = 46
     static let quantity: CGFloat = 48
-    /// A four-digit price "1234.56" (51.9).
+    /// A four-digit price "1234.56" (51.9); the board gives entry, exit and stop their own widths.
     static let priceMin: CGFloat = 52
-    static let price: CGFloat = 58
+    static let entry: CGFloat = 56
+    static let exit: CGFloat = 72
+    static let stop: CGFloat = 68
     /// The reason badge with the widest exit reason, the Russian "ВРЕМЯ УДЕРЖАНИЯ ВЫШЛО" (129.8
     /// and the badge's padding, 146).
     static let reasonMin: CGFloat = 148
     static let reason: CGFloat = 152
     /// "−10.0 R" (51.9).
     static let figureMin: CGFloat = 52
-    static let figure: CGFloat = 56
+    static let figure: CGFloat = 66
     /// "−$1,234.56" (74.2).
     static let moneyMin: CGFloat = 76
     static let money: CGFloat = 80
@@ -422,7 +422,6 @@ private struct TradesTable: View {
       Text(L10n.Trades.tradesHint)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-        .lineLimit(1)
     }, content: {
       if rows.isEmpty {
         ContentUnavailableView {
@@ -472,21 +471,21 @@ private struct TradesTable: View {
           Text(verbatim: Format.price(row.entry)).font(Tokens.Typography.calloutMono)
         }
       }
-      .width(min: Column.priceMin, ideal: Column.price)
+      .width(min: Column.priceMin, ideal: Column.entry)
       TableColumn(Self.header(L10n.Trades.exit)) { row in
         cell(row, step: steps[row.id]) {
           Text(verbatim: Format.price(row.exit)).font(Tokens.Typography.calloutMono)
             .foregroundStyle(row.exit == nil ? Palette.textQuaternary : Palette.textPrimary)
         }
       }
-      .width(min: Column.priceMin, ideal: Column.price)
+      .width(min: Column.priceMin, ideal: Column.exit)
       TableColumn(Self.header(L10n.Trades.stop)) { row in
         cell(row, step: steps[row.id]) {
           Text(verbatim: Format.price(row.stop)).font(Tokens.Typography.calloutMono)
             .foregroundStyle(row.stopUnverified ? Palette.lossText : Palette.textPrimary)
         }
       }
-      .width(min: Column.priceMin, ideal: Column.price)
+      .width(min: Column.priceMin, ideal: Column.stop)
       TableColumn(Self.header(L10n.Trades.reason)) { row in
         cell(row, step: steps[row.id]) {
           switch row {
@@ -985,7 +984,6 @@ private struct NotTakenCard: View {
       Text(L10n.Trades.notTakenHint)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-        .lineLimit(1)
     }, content: {
       if let signals = model.skipped?.signals, !signals.isEmpty {
         let groups = SkippedGroup.make(signals)

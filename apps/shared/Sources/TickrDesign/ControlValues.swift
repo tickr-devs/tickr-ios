@@ -23,12 +23,9 @@ public struct MetricChip<Value: View>: View {
         .font(Tokens.Typography.label)
         .tracking(Tokens.Typography.labelTracking)
         .foregroundStyle(Palette.textLabel)
-        .lineLimit(1)
       value
         .font(Tokens.Typography.chipValue)
         .foregroundStyle(Palette.textPrimary)
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
         .contentTransition(.numericText())
     }
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -73,8 +70,9 @@ public struct MetricValue: View {
   }
 }
 
-/// "◷ Label ........ value" on one line: an optional SF Symbol, the label, then the value at the
-/// trailing edge in mono. The value may be any view (a pill, a money figure).
+/// "◷ Label ........ value": an optional SF Symbol, the label, then the value at the trailing edge
+/// in mono, on one line where they fit, else the value under the label. The value may be any view
+/// (a pill, a money figure).
 public struct ValueRow<Value: View>: View {
   let label: Text
   let systemImage: String?
@@ -91,24 +89,53 @@ public struct ValueRow<Value: View>: View {
   }
 
   public var body: some View {
-    HStack(spacing: Tokens.Space.s) {
-      if let systemImage {
-        Image(systemName: systemImage)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textQuaternary)
-          .frame(width: Tokens.Size.rowSymbol)
-          .accessibilityHidden(true)
+    // On one line while the label and the value fit whole; in a narrower column the value goes
+    // under the label, at the trailing edge, and the label wraps at its words. Neither is ever
+    // broken mid-word ("acknowledg / ed") or cut.
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: Tokens.Space.s) {
+        symbol
+        labelText.fixedSize()
+        Spacer(minLength: Tokens.Space.m)
+        valueText.fixedSize()
       }
-      label
-        .font(Tokens.Typography.callout)
-        .foregroundStyle(Palette.textTertiary)
-      Spacer(minLength: Tokens.Space.m)
-      value
-        .font(Tokens.Typography.bodyMono)
-        .foregroundStyle(Palette.textPrimary)
-        .contentTransition(.numericText())
+      VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+          symbol
+          labelText.fixedSize(horizontal: false, vertical: true)
+          Spacer(minLength: 0)
+        }
+        valueText
+          .multilineTextAlignment(.trailing)
+          .fixedSize(horizontal: false, vertical: true)
+      }
     }
     .accessibilityElement(children: .combine)
+  }
+}
+
+private extension ValueRow {
+  @ViewBuilder var symbol: some View {
+    if let systemImage {
+      Image(systemName: systemImage)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textQuaternary)
+        .frame(width: Tokens.Size.rowSymbol)
+        .accessibilityHidden(true)
+    }
+  }
+
+  var labelText: some View {
+    label
+      .font(Tokens.Typography.callout)
+      .foregroundStyle(Palette.textTertiary)
+  }
+
+  var valueText: some View {
+    value
+      .font(Tokens.Typography.bodyMono)
+      .foregroundStyle(Palette.textPrimary)
+      .contentTransition(.numericText())
   }
 }
 
@@ -152,8 +179,6 @@ public struct IconMetric: View {
       Text(verbatim: value)
         .font(compact ? Tokens.Typography.captionMono : Tokens.Typography.chipValue)
         .foregroundStyle(color)
-        .lineLimit(1)
-        .minimumScaleFactor(Tokens.Shrink.standard)
         .contentTransition(.numericText())
     }
     .frame(maxWidth: compact ? nil : .infinity, alignment: .leading)

@@ -2,7 +2,9 @@
 # Layout sweep of the macOS app (Tickr/Previews/LayoutSweep.swift): every screen at several
 # window sizes, Chart inspector closed and open, in English and Russian, on the fixture data.
 # Fails when the app crashes or hangs (for example AppKit's "Update Constraints in Window" loop
-# while the window is resized). Needs a logged-in macOS session; no Screen Recording permission.
+# while the window is resized), and when a picture shows a truncated text (a text ending in an
+# ellipsis the String Catalogs do not have: apps/scripts/find_truncated_text.swift).
+# Needs a logged-in macOS session; no Screen Recording permission.
 # Usage: apps/macos/scripts/layout-sweep.sh [output folder, default build/layout-sweep]
 #   -> <folder>/<language>/<width>x<height>-<section>[-inspector].png
 set -eu
@@ -71,4 +73,9 @@ for lang in en ru; do
     status=1
   fi
 done
+# No text may be cut (owner rule 2026-11-16): read every picture for an ellipsis.
+if ! swift ../scripts/find_truncated_text.swift "$OUT"; then
+  echo "::error::layout sweep: truncated text (listed above)"
+  status=1
+fi
 exit "$status"

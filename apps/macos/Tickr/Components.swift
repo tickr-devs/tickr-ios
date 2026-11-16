@@ -186,7 +186,6 @@ struct Card<Trailing: View, Content: View>: View {
             .font(Tokens.Typography.label)
             .tracking(Tokens.Typography.labelTracking)
             .foregroundStyle(Palette.textQuaternary)
-            .lineLimit(1)
             .accessibilityAddTraits(.isHeader)
           Spacer(minLength: Tokens.Space.s)
           trailing

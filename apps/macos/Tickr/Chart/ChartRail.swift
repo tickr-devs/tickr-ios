@@ -109,8 +109,6 @@ private struct SymbolList: View {
 
   /// Width of the symbol column, in points.
   static let symbolWidth: CGFloat = 46
-  /// Lines a row's note may take ("gainers" over "+18.3%").
-  static let noteLines = 2
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
@@ -155,7 +153,6 @@ private struct SymbolList: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textTertiary)
           .multilineTextAlignment(.trailing)
-          .lineLimit(Self.noteLines)
           .fixedSize(horizontal: false, vertical: true)
       }
     }
