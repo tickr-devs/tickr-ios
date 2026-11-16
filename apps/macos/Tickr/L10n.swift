@@ -66,6 +66,10 @@ enum L10n {
     static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
       LocalizedStringResource("common.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
     }
+    /// The running strategy and the bot code version (short commit) it runs on.
+    static func strategyCode(_ name: String, _ version: String, _ code: String) -> LocalizedStringResource {
+      LocalizedStringResource("common.strategyCode", defaultValue: "\(name) v\(version) · code \(code)", bundle: L10n.bundle)
+    }
     static var operatorTitle: LocalizedStringResource {
       LocalizedStringResource("common.operatorTitle", defaultValue: "Operator", bundle: L10n.bundle)
     }
@@ -2041,6 +2045,16 @@ enum L10n {
     /// Detail value the bot did not record.
     static var notRecorded: LocalizedStringResource {
       LocalizedStringResource("trades.notRecorded", defaultValue: "Not recorded", bundle: L10n.bundle)
+    }
+    /// Detail: the bot code version (short git commit) the trade was opened by.
+    static var codeVersion: LocalizedStringResource {
+      LocalizedStringResource("trades.codeVersion", defaultValue: "Bot code version", bundle: L10n.bundle)
+    }
+    /// Tooltip of the code version: what it is, and the full commit.
+    static func codeVersionHelp(_ full: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.codeVersionHelp",
+        defaultValue: "The git commit the bot ran on when it opened this trade (-dirty: files had changed since it): \(full)",
+        bundle: L10n.bundle)
     }
     /// Card title: gross performance over the days that end on the shown day.
     static func performance(_ days: Int) -> LocalizedStringResource {

@@ -380,7 +380,8 @@ private struct Summary: View {
               let entries = EntriesGlyph.make(status)
               StateGlyph(entries.symbol, tone: entries.tone, label: entries.label, style: .compact)
             }
-            Badge(keepingCase: L10n.Common.version(status.strategy.version), tone: .highlight)
+            Badge(keepingCase: status.codeVersion.map { L10n.Home.versionCode(status.strategy.version, CodeVersion.short($0)) }
+              ?? L10n.Common.version(status.strategy.version), tone: .highlight)
           }
           .accessibilityElement(children: .ignore)
           .accessibilityLabel(Text(verbatim: subline(status)))
@@ -399,6 +400,9 @@ private struct Summary: View {
         : L10n.Home.stopIs(position.symbol, Board.stopStateTitle(position.stop.state)))
     }
     parts.append(L10n.Home.strategy(status.strategy.name, status.strategy.version))
+    if let code = status.codeVersion {
+      parts.append(L10n.Home.codeVersion(CodeVersion.short(code)))
+    }
     parts.append(status.tradingGate.open
       ? EntriesGlyph.make(status).label : L10n.Home.gateClosed(ApiText.gate(status.tradingGate)))
     return parts.map { String(localized: $0) }.joined(separator: " ")

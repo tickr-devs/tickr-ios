@@ -466,6 +466,14 @@ enum Format {
     String(localized: L10n.Common.strategyVersion(strategy.name, strategy.version))
   }
 
+  /// "Momentum v3 · code 6c4eec8b": the running bot's strategy and code version (short commit);
+  /// the strategy alone when the run did not record a code version.
+  static func strategy(_ status: StatusV1) -> String {
+    guard let code = status.codeVersion else { return strategy(status.strategy) }
+    return String(localized: L10n.Common.strategyCode(status.strategy.name, status.strategy.version,
+      CodeVersion.short(code)))
+  }
+
   /// The same for a strategy named in a decision record.
   static func strategy(_ strategy: StrategyRefV1) -> String {
     String(localized: L10n.Common.strategyVersion(strategy.name, strategy.version))

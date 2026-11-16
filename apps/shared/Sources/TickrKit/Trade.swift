@@ -25,9 +25,13 @@ public struct Trade: Codable, Hashable, Sendable {
   public let entryCauseCodes: [ReasonV1]
   /// The strategy and version that opened the trade; nil when the bot did not record it.
   public let strategy: StrategyId?
+  /// The bot code version (git commit, `-dirty` with changed tracked files) of the run that
+  /// opened the trade; nil for a run recorded before the bot recorded it. See `CodeVersion`.
+  public let codeVersion: String?
 
   enum CodingKeys: String, CodingKey {
     case symbol, quantity, strategy
+    case codeVersion = "code_version"
     case entryPrice = "entry_price"
     case exitPrice = "exit_price"
     case openedAt = "opened_at"
@@ -58,6 +62,8 @@ public struct Trade: Codable, Hashable, Sendable {
     entryCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .entryCauseCodes) ?? []
     // Added after version 1 shipped: an older status has no such key.
     strategy = try c.decodeIfPresent(StrategyId.self, forKey: .strategy)
+    // Added after version 1 shipped as well.
+    codeVersion = try c.decodeIfPresent(String.self, forKey: .codeVersion)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -76,5 +82,6 @@ public struct Trade: Codable, Hashable, Sendable {
     try c.encodeNullable(entryCause, forKey: .entryCause)
     try c.encode(entryCauseCodes, forKey: .entryCauseCodes)
     try c.encodeNullable(strategy, forKey: .strategy)
+    try c.encodeNullable(codeVersion, forKey: .codeVersion)
   }
 }

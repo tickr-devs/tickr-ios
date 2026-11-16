@@ -125,11 +125,14 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   public let overshootCauseCodes: [ReasonV1]
   /// The strategy and version that opened the trade; nil when the bot did not record it.
   public let strategy: StrategyId?
+  /// The bot code version of the run that opened the trade; nil when not recorded. See `CodeVersion`.
+  public let codeVersion: String?
 
   public var id: String { tradeId }
 
   enum CodingKeys: String, CodingKey {
     case symbol, quantity, strategy
+    case codeVersion = "code_version"
     case tradeId = "trade_id"
     case entryPrice = "entry_price"
     case exitPrice = "exit_price"
@@ -181,6 +184,8 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     pricesAfterCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .pricesAfterCauseCodes) ?? []
     overshootCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .overshootCauseCodes) ?? []
     strategy = try c.decodeNullable(StrategyId.self, forKey: .strategy)
+    // Added after version 1 shipped: an older day document has no such key.
+    codeVersion = try c.decodeIfPresent(String.self, forKey: .codeVersion)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -210,6 +215,7 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     try c.encode(pricesAfterCauseCodes, forKey: .pricesAfterCauseCodes)
     try c.encode(overshootCauseCodes, forKey: .overshootCauseCodes)
     try c.encodeNullable(strategy, forKey: .strategy)
+    try c.encodeNullable(codeVersion, forKey: .codeVersion)
   }
 
   /// Result in R (result / planned loss), nil when the planned loss is zero.

@@ -583,6 +583,8 @@ private struct TradeLine: Identifiable {
   let mfe: Decimal?
   /// Prices at set minutes after the exit, when the bot computed them.
   let pricesAfter: [PriceAfterV1]
+  /// The bot code version (short git commit) of the run that opened the trade, when recorded.
+  let codeVersion: String?
 
   /// A trade of today's status. MAE and MFE come from the session's record when it holds the same
   /// trade (symbol, opening and closing time); the status does not carry them.
@@ -604,6 +606,7 @@ private struct TradeLine: Identifiable {
     mae = same?.maeUsd?.value
     mfe = same?.mfeUsd?.value
     pricesAfter = same?.pricesAfter ?? []
+    codeVersion = trade.codeVersion.map(CodeVersion.short)
   }
 
   init(_ trade: DayTrade) {
@@ -620,6 +623,7 @@ private struct TradeLine: Identifiable {
     mae = trade.maeUsd?.value
     mfe = trade.mfeUsd?.value
     pricesAfter = trade.pricesAfter
+    codeVersion = trade.codeVersion.map(CodeVersion.short)
   }
 
   /// One trade per symbol and opening time.
@@ -636,6 +640,9 @@ private struct TradeLine: Identifiable {
     }
     if let mae, let mfe {
       parts.append(String(localized: L10n.Activity.excursion(Money.signed(mae), Money.signed(mfe))))
+    }
+    if let codeVersion {
+      parts.append(String(localized: L10n.Activity.codeVersion(codeVersion)))
     }
     return parts.isEmpty ? nil : parts.joined(separator: Format.separator)
   }
@@ -654,6 +661,7 @@ private struct TradesList: View {
   static let stopSymbol = "checkmark.shield"
   static let maeSymbol = "arrow.down"
   static let mfeSymbol = "arrow.up"
+  static let codeSymbol = "chevron.left.forwardslash.chevron.right"
   static let openSymbol = "circle"
   /// Symbol of a closed trade's "Another strategy" button.
   static let anotherSymbol = "arrow.triangle.branch"
@@ -772,7 +780,7 @@ private struct TradesList: View {
     return list
   }
 
-  /// Seconds to the confirmed stop, MAE and MFE, when recorded.
+  /// Seconds to the confirmed stop, MAE and MFE, and the code version, when recorded.
   private func metrics(_ trade: TradeLine) -> [Figure] {
     var list: [Figure] = []
     if let after = trade.stopAfter {
@@ -782,6 +790,9 @@ private struct TradesList: View {
     if let mae = trade.mae, let mfe = trade.mfe {
       list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signed(mae), tone: .loss))
       list.append(Figure(symbol: Self.mfeSymbol, label: L10n.Activity.hintMfe, value: Money.signed(mfe), tone: .profit))
+    }
+    if let code = trade.codeVersion {
+      list.append(Figure(symbol: Self.codeSymbol, label: L10n.Activity.hintCodeVersion, value: code))
     }
     return list
   }

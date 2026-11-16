@@ -428,7 +428,7 @@ private struct WindowLine: View {
   private func line(now: Date?) -> LocalizedStringResource {
     guard let status = model.status else { return L10n.Toolbar.windowLineEmpty }
     let environment = ApiText.environment(status.environment).localizedLowercase
-    let strategy = Format.strategy(status.strategy)
+    let strategy = Format.strategy(status)
     let section = String(localized: model.section.title).localizedLowercase
     switch model.section {
     case .overview:

@@ -743,6 +743,17 @@ private struct TradeDetailCard: View {
               excursion(L10n.Trades.maeAtLeast, trade.maeUsd)
               excursion(L10n.Trades.mfeAtLeast, trade.mfeUsd)
               GridRow {
+                Text(L10n.Trades.codeVersion).foregroundStyle(Palette.textSecondary)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .fixedSize(horizontal: false, vertical: true)
+                if let code = trade.codeVersion {
+                  Text(verbatim: CodeVersion.short(code)).font(Tokens.Typography.calloutMono)
+                    .help(Text(L10n.Trades.codeVersionHelp(code)))
+                } else {
+                  notRecorded
+                }
+              }
+              GridRow {
                 Text(L10n.Trades.overshoot).foregroundStyle(Palette.textSecondary)
                   .frame(maxWidth: .infinity, alignment: .leading)
                   .fixedSize(horizontal: false, vertical: true)

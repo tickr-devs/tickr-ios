@@ -324,6 +324,23 @@
         }
       }
     },
+    "activity.codeVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bot code %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "код бота %@"
+          }
+        }
+      }
+    },
     "activity.counts" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -405,6 +422,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Закрытые сделки"
+          }
+        }
+      }
+    },
+    "activity.hintCodeVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot code version that opened the trade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия кода бота, открывшая сделку"
           }
         }
       }
@@ -4816,6 +4850,23 @@
         }
       }
     },
+    "home.codeVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot code %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Код бота %@."
+          }
+        }
+      }
+    },
     "home.day" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5288,6 +5339,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Стратегия %@ v%@."
+          }
+        }
+      }
+    },
+    "home.versionCode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v%@ · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v%@ · %@"
           }
         }
       }

@@ -347,6 +347,14 @@ enum L10n {
     static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
       LocalizedStringResource("home.strategy", defaultValue: "Strategy \(name) v\(version).", bundle: L10n.bundle)
     }
+    /// VoiceOver: the bot code version (short git commit) the running bot is on.
+    static func codeVersion(_ code: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.codeVersion", defaultValue: "Bot code \(code).", bundle: L10n.bundle)
+    }
+    /// The strategy version badge with the bot code version (short git commit).
+    static func versionCode(_ version: String, _ code: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.versionCode", defaultValue: "v\(version) · \(code)", bundle: L10n.bundle)
+    }
     static var entriesAllowed: LocalizedStringResource {
       LocalizedStringResource("home.entriesAllowed", defaultValue: "Entries allowed.", bundle: L10n.bundle)
     }
@@ -749,6 +757,10 @@ enum L10n {
     static var hintStopAfter: LocalizedStringResource {
       LocalizedStringResource("activity.hintStopAfter", defaultValue: "Stop confirmed after the fill", bundle: L10n.bundle)
     }
+    static var hintCodeVersion: LocalizedStringResource {
+      LocalizedStringResource("activity.hintCodeVersion", defaultValue: "Bot code version that opened the trade",
+        bundle: L10n.bundle)
+    }
     static var hintMae: LocalizedStringResource {
       LocalizedStringResource("activity.hintMae", defaultValue: "MAE: worst move against, at least", bundle: L10n.bundle)
     }
@@ -924,6 +936,10 @@ enum L10n {
     }
     static func stopAfter(_ seconds: String) -> LocalizedStringResource {
       LocalizedStringResource("activity.stopAfter", defaultValue: "stop confirmed in \(seconds) s", bundle: L10n.bundle)
+    }
+    /// VoiceOver: the bot code version (short git commit) that opened the trade.
+    static func codeVersion(_ code: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.codeVersion", defaultValue: "bot code \(code)", bundle: L10n.bundle)
     }
     static func excursion(_ mae: String, _ mfe: String) -> LocalizedStringResource {
       LocalizedStringResource("activity.excursion", defaultValue: "MAE \(mae) · MFE \(mfe) (at least)",

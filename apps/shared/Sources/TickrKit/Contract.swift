@@ -146,10 +146,13 @@ public struct StatusV1: Codable, Hashable, Sendable {
   public let dailyRoomUsd: DecimalString?
   /// Every open position; `position` is the first of them, kept for older readers.
   public let positions: [Position]
+  /// The code version the running bot's run records; nil when not recorded. See `CodeVersion`.
+  public let codeVersion: String?
   public let schemaVersion: Int
 
   enum CodingKeys: String, CodingKey {
     case environment, strategy, fences, position, freshness, positions
+    case codeVersion = "code_version"
     case writtenAt = "written_at"
     case botState = "bot_state"
     case runId = "run_id"
@@ -186,6 +189,8 @@ public struct StatusV1: Codable, Hashable, Sendable {
     openReservationsUsd = try c.decodeNullable(DecimalString.self, forKey: .openReservationsUsd)
     dailyRoomUsd = try c.decodeNullable(DecimalString.self, forKey: .dailyRoomUsd)
     positions = try c.decode([Position].self, forKey: .positions)
+    // Added after version 1 shipped: an older bot's status has no such key.
+    codeVersion = try c.decodeIfPresent(String.self, forKey: .codeVersion)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -209,6 +214,7 @@ public struct StatusV1: Codable, Hashable, Sendable {
     try c.encodeNullable(openReservationsUsd, forKey: .openReservationsUsd)
     try c.encodeNullable(dailyRoomUsd, forKey: .dailyRoomUsd)
     try c.encode(positions, forKey: .positions)
+    try c.encodeNullable(codeVersion, forKey: .codeVersion)
   }
 }
 

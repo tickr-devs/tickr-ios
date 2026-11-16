@@ -3658,6 +3658,23 @@
         }
       }
     },
+    "common.strategyCode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@ · code %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ v%@ · код %@"
+          }
+        }
+      }
+    },
     "common.strategyVersion" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13207,6 +13224,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld · %2$lld П · %3$lld У"
+          }
+        }
+      }
+    },
+    "trades.codeVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot code version"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия кода бота"
+          }
+        }
+      }
+    },
+    "trades.codeVersionHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The git commit the bot ran on when it opened this trade (-dirty: files had changed since it): %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коммит git, на котором работал бот, когда открыл эту сделку (-dirty: файлы с тех пор менялись): %@"
           }
         }
       }
