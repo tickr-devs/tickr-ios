@@ -1476,7 +1476,8 @@ private struct AdvisorRow: View {
   }
 }
 
-/// An observer on the Overview as the design draws it: its name and version, its result, and a
+/// An observer on the Overview as the design draws it: its version and what sets it apart from
+/// the active strategy ("v3 · rel vol 1.5×", ObserverLabel), its result, and a
 /// bar of the result's size against the largest observer's, violet for a gain, amber for a loss.
 private struct OverviewObserverRow: View {
   let observer: ObserverV1
@@ -1488,7 +1489,7 @@ private struct OverviewObserverRow: View {
     let share = result.map { largest > 0 ? NSDecimalNumber(decimal: abs($0) / largest).doubleValue : 0 } ?? 0
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
-        Text(verbatim: "\(observer.name)\(Format.itemSeparator)\(observer.version)")
+        Text(verbatim: ObserverLabel.observer(observer))
         Spacer(minLength: Tokens.Space.s)
         if let result {
           Text(verbatim: Money.signed(result)).foregroundStyle(Palette.result(result))

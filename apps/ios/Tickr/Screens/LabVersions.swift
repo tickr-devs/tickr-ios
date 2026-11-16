@@ -46,8 +46,8 @@ struct VersionsCard: View {
             .foregroundStyle(Palette.separatorStrong)
             .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
           ForEach(curves) { curve in
-            let points = [VersionCurve.Point(at: start, total: 0)] + curve.points
-              + [VersionCurve.Point(at: max(end, curve.points.last?.at ?? start), total: curve.points.last?.total ?? 0)]
+            // An observer added at a restart starts its line when it started watching.
+            let points = curve.line(start: start, end: end)
             ForEach(Array(points.enumerated()), id: \.offset) { _, point in
               LineMark(x: .value(String(localized: L10n.Lab.time), point.at),
                 y: .value(String(localized: L10n.Lab.result), NSDecimalNumber(decimal: point.total).doubleValue),
@@ -81,30 +81,42 @@ struct VersionsCard: View {
           .foregroundStyle(Palette.textTertiary)
       }
       ForEach(curves) { curve in
-        // The name, its role as a pill and the total in one row; at large text sizes each takes
-        // its own line, so the name wraps whole instead of breaking letter by letter.
-        RowStack(spacing: Tokens.Space.s) {
-          HStack(spacing: Tokens.Space.s) {
-            Capsule().fill(color(curve)).frame(width: Self.swatchWidth, height: Self.swatchHeight)
-            Text(L10n.Common.strategyVersion(curve.name, curve.version))
-              .font(Tokens.Typography.calloutMono)
-              .foregroundStyle(Palette.textPrimary)
-              .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          // The version and what sets it apart ("v3 · rel vol 1.5×"), its role as a pill and the
+          // total in one row; at large text sizes each takes its own line, so the name wraps
+          // whole instead of breaking letter by letter.
+          RowStack(spacing: Tokens.Space.s) {
+            HStack(spacing: Tokens.Space.s) {
+              Capsule().fill(color(curve)).frame(width: Self.swatchWidth, height: Self.swatchHeight)
+              Text(verbatim: curve.label)
+                .font(Tokens.Typography.calloutMono)
+                .foregroundStyle(Palette.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            .layoutPriority(1)
+            StatusPill(curve.observer ? L10n.Lab.observerRole : L10n.Lab.trades,
+              systemImage: curve.observer ? LabView.observerSymbol : LabView.tradesSymbol,
+              tone: curve.observer ? .highlight : .accent)
+            Spacer(minLength: 0)
+            if let total = curve.total {
+              Text(verbatim: Money.signed(total))
+                .font(Tokens.Typography.calloutMono.bold())
+                .foregroundStyle(Palette.result(total))
+                .fixedSize()
+            } else {
+              Text(L10n.Lab.partial)
+                .font(Tokens.Typography.annotation)
+                .foregroundStyle(Palette.textQuaternary)
+            }
           }
-          .layoutPriority(1)
-          StatusPill(curve.observer ? L10n.Lab.observerRole : L10n.Lab.trades,
-            systemImage: curve.observer ? LabView.observerSymbol : LabView.tradesSymbol,
-            tone: curve.observer ? .highlight : .accent)
-          Spacer(minLength: 0)
-          if let total = curve.total {
-            Text(verbatim: Money.signed(total))
-              .font(Tokens.Typography.calloutMono.bold())
-              .foregroundStyle(Palette.result(total))
-              .fixedSize()
-          } else {
-            Text(L10n.Lab.partial)
+          // Since when it watched and the symbols the trading strategy skipped, each on its own
+          // full-width line under the swatch.
+          ForEach(curve.notes, id: \.self) { note in
+            Text(verbatim: note)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.textQuaternary)
+              .padding(.leading, Self.swatchWidth + Tokens.Space.s)
+              .fixedSize(horizontal: false, vertical: true)
           }
         }
         .accessibilityElement(children: .combine)

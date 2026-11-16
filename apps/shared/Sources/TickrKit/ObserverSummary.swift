@@ -9,6 +9,8 @@ public struct ObserverSummary: Hashable, Sendable, Identifiable {
   public let entered: [String]
   /// Those of `entered` the bot traded or holds that day.
   public let shared: [String]
+  /// The rest of `entered`: symbols the observer would have entered that the bot did not trade.
+  public let notTraded: [String]
   /// EXIT decisions.
   public let exits: Int
   /// The observer's simulated day result, and why it is missing when it is.
@@ -32,6 +34,7 @@ public struct ObserverSummary: Hashable, Sendable, Identifiable {
     }
     self.entered = entered
     shared = entered.filter(traded.contains)
+    notTraded = entered.filter { !traded.contains($0) }
     exits = observer.decisions.filter { $0.action == .exit }.count
     result = observer.resultGrossUSD?.value
     resultCause = ApiText.prose(observer.resultCauseCodes, text: observer.resultCause)

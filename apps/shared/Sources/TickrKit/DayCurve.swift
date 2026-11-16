@@ -16,9 +16,11 @@ public struct DayCurve: Equatable, Sendable {
   public let end: Decimal
   /// False when the trade list is incomplete (the server cut it short); the line is then dashed.
   public let complete: Bool
+  /// When the version started watching that day (an observer added at a restart); nil: all day.
+  public let since: Date?
 
   /// From closes and results, in any order.
-  public init(closes: [(at: Date, result: Decimal)], reported: Decimal?, complete: Bool) {
+  public init(closes: [(at: Date, result: Decimal)], reported: Decimal?, complete: Bool, since: Date? = nil) {
     var total: Decimal = 0
     steps = closes.sorted { $0.at < $1.at }.map { close in
       total += close.result
@@ -26,6 +28,20 @@ public struct DayCurve: Equatable, Sendable {
     }
     end = reported ?? total
     self.complete = complete
+    self.since = since
+  }
+
+  /// The step line's corners from `start` to `end`: flat at zero from the start (or from when
+  /// the version started watching, when later), a step at each close, flat to the end, and a
+  /// last step to the reported result when it differs from the running sum.
+  public func line(start: Date, end lineEnd: Date) -> [(at: Date, total: Decimal)] {
+    let from = min(max(start, since ?? start), lineEnd)
+    var corners: [(at: Date, total: Decimal)] = [(from, 0)]
+    corners += steps.map { ($0.at, $0.total) }
+    let last = steps.last?.total ?? 0
+    corners.append((lineEnd, last))
+    if end != last { corners.append((lineEnd, end)) }
+    return corners
   }
 
   /// An observer's simulated trades; nil when the bot could not simulate them (`tradesCause`).
@@ -36,7 +52,8 @@ public struct DayCurve: Equatable, Sendable {
       guard let at = trade.closedAt?.date, let result = trade.resultGrossUsd?.value else { return nil }
       return (at, result)
     }
-    return DayCurve(closes: closes, reported: observer.resultGrossUSD?.value, complete: !observer.tradesTruncated)
+    return DayCurve(closes: closes, reported: observer.resultGrossUSD?.value, complete: !observer.tradesTruncated,
+      since: observer.watchingSince?.date)
   }
 
   /// The active strategy's closed trades of the day.

@@ -26,22 +26,43 @@ public struct VersionCurve: Hashable, Sendable, Identifiable {
   public let complete: Bool
   /// The day's total as the bot reports it, when it reports one apart from the trades.
   public let reported: Decimal?
+  /// When the version started watching that day (an observer added at a restart); nil: all day.
+  public var since: Date?
+  /// The row's name: "v3 · active", "v3 · rel vol 1.5×" (ObserverLabel).
+  public var label: String = ""
+  /// Under the row: since when it watched ("watching since 15:08 · no entries yet") and the
+  /// symbols the trading strategy skipped; empty for none.
+  public var notes: [String] = []
 
   public var id: String { "\(observer) \(name) \(version)" }
   /// The day's total so far; nil when the line is incomplete.
   public var total: Decimal? { complete ? reported ?? points.last?.total ?? 0 : nil }
+
+  /// The line's corners from `start` to `end`: zero from the start (or from when the version
+  /// started watching, when later), each close, then flat to the end (or the last close, when
+  /// later).
+  public func line(start: Date, end: Date) -> [Point] {
+    let from = since.map { max(start, $0) } ?? start
+    let last = points.last
+    return [Point(at: min(from, last?.at ?? from), total: 0)] + points
+      + [Point(at: max(end, last?.at ?? from), total: last?.total ?? 0)]
+  }
 
   /// The trading strategy's line from its closed trades of the day; its total is the bot's own
   /// day result (`total`, the status's `result_today_gross_usd`), never re-summed here.
   public static func active(name: String, version: String, trades: [Trade], total: Decimal) -> VersionCurve {
     let closes = trades.map { (at: $0.closedAt.date, result: Optional($0.resultUsd.value)) }
     let curve = make(name: name, version: version, observer: false, closes: closes, truncated: false)
-    return VersionCurve(name: name, version: version, observer: false, points: curve.points,
+    var line = VersionCurve(name: name, version: version, observer: false, points: curve.points,
       complete: curve.complete, reported: total)
+    line.label = ObserverLabel.active(name)
+    return line
   }
 
   /// An observer's line from its simulated trades; nil when the bot could not list them.
-  public static func simulated(_ observer: ObserverV1) -> VersionCurve? {
+  /// `traded`: the symbols the trading strategy traded or holds that day, for the note on the
+  /// symbols it skipped; nil leaves that note out.
+  public static func simulated(_ observer: ObserverV1, traded: Set<String>? = nil) -> VersionCurve? {
     guard let trades = observer.trades else { return nil }
     // An ENTER that never became a simulated trade (inside an earlier one, no bars) has no close.
     let closes = trades.compactMap { trade in
@@ -51,8 +72,13 @@ public struct VersionCurve: Hashable, Sendable, Identifiable {
       truncated: observer.tradesTruncated)
     // The day's total is the bot's own simulated result, which may differ from the sum of the
     // listed trades by rounding; nil (unknown) when the bot has none.
-    return VersionCurve(name: curve.name, version: curve.version, observer: true, points: curve.points,
+    var line = VersionCurve(name: curve.name, version: curve.version, observer: true, points: curve.points,
       complete: curve.complete && observer.resultGrossUSD != nil, reported: observer.resultGrossUSD?.value)
+    line.since = observer.watchingSince?.date
+    line.label = ObserverLabel.observer(observer)
+    line.notes = [ObserverLabel.since(observer),
+      traded.flatMap { ObserverLabel.skipped(ObserverSummary(observer, traded: $0)) }].compactMap { $0 }
+    return line
   }
 
   static func make(

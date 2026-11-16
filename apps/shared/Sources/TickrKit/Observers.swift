@@ -12,6 +12,39 @@ public struct ObserverDecisionV1: Codable, Hashable, Sendable {
   public let reasons: [String]
 }
 
+/// One setting where an observer's strategy file differs from the active strategy's: the dotted
+/// key and each file's value as written; nil when that file has no such key. Display only.
+public struct SettingDifferenceV1: Codable, Hashable, Sendable {
+  public let key: String
+  public let value: String?
+  public let activeValue: String?
+
+  public init(key: String, value: String?, activeValue: String?) {
+    self.key = key
+    self.value = value
+    self.activeValue = activeValue
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case key, value
+    case activeValue = "active_value"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    key = try c.decode(String.self, forKey: .key)
+    value = try c.decodeNullable(String.self, forKey: .value)
+    activeValue = try c.decodeNullable(String.self, forKey: .activeValue)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(key, forKey: .key)
+    try c.encodeNullable(value, forKey: .value)
+    try c.encodeNullable(activeValue, forKey: .activeValue)
+  }
+}
+
 /// One observer (a shadow strategy version that never trades) and its day.
 public struct ObserverV1: Codable, Hashable, Sendable {
   public let name: String
@@ -31,6 +64,12 @@ public struct ObserverV1: Codable, Hashable, Sendable {
   public let resultCauseCodes: [ReasonV1]
   /// `trades_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
   public let tradesCauseCodes: [ReasonV1]
+  /// When it started watching that day: its first recorded decision; nil without decisions (or
+  /// from a bot that does not report it).
+  public let watchingSince: WireTime?
+  /// The settings where its strategy file differs from the active strategy's (empty: none); nil
+  /// when it is another strategy, its file changed since, or the bot does not report it.
+  public let settingsDifferences: [SettingDifferenceV1]?
 
   enum CodingKeys: String, CodingKey {
     case name, version, decisions, trades
@@ -40,6 +79,8 @@ public struct ObserverV1: Codable, Hashable, Sendable {
     case tradesTruncated = "trades_truncated"
     case resultCauseCodes = "result_cause_codes"
     case tradesCauseCodes = "trades_cause_codes"
+    case watchingSince = "watching_since"
+    case settingsDifferences = "settings_differences"
   }
 
   public init(from decoder: Decoder) throws {
@@ -54,6 +95,9 @@ public struct ObserverV1: Codable, Hashable, Sendable {
     tradesTruncated = try c.decode(Bool.self, forKey: .tradesTruncated)
     resultCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .resultCauseCodes) ?? []
     tradesCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .tradesCauseCodes) ?? []
+    // Added after version 1 shipped: absent from an older bot's answer.
+    watchingSince = try c.decodeIfPresent(WireTime.self, forKey: .watchingSince)
+    settingsDifferences = try c.decodeIfPresent([SettingDifferenceV1].self, forKey: .settingsDifferences)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -68,6 +112,8 @@ public struct ObserverV1: Codable, Hashable, Sendable {
     try c.encode(tradesTruncated, forKey: .tradesTruncated)
     try c.encode(resultCauseCodes, forKey: .resultCauseCodes)
     try c.encode(tradesCauseCodes, forKey: .tradesCauseCodes)
+    try c.encodeNullable(watchingSince, forKey: .watchingSince)
+    try c.encodeNullable(settingsDifferences, forKey: .settingsDifferences)
   }
 }
 

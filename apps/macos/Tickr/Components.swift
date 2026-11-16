@@ -104,6 +104,12 @@ extension View {
     environment(\.cardFills, true)
   }
 
+  /// Cards in this view hug their content even inside a filling grid: a card whose content is
+  /// short stays short instead of growing to its row's height with an empty lower half.
+  func hugsContent() -> some View {
+    environment(\.cardFills, false)
+  }
+
   /// Cards in this view label themselves plainly, without the tone tick.
   func plainCardLabels() -> some View {
     environment(\.cardTicks, false)

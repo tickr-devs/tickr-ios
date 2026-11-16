@@ -120,15 +120,12 @@ struct DayCurvesChart: View {
     .accessibilityIdentifier(Self.id)
   }
 
-  /// The step line: flat at zero from the start, a step at each close, flat to the end, and a
-  /// last step to the reported result when it differs from the running sum.
+  /// The step line (`DayCurve.line`): from the start, or from when an observer added at a
+  /// restart started watching, to the end.
   private func points(_ name: String, _ curve: DayCurve) -> [Point] {
-    var values: [(Date, Decimal)] = [(start, 0)]
-    values += curve.steps.map { ($0.at, $0.total) }
-    let last = curve.steps.last?.total ?? 0
-    values.append((end, last))
-    if curve.end != last { values.append((end, curve.end)) }
-    return values.enumerated().map { Point(name: name, index: $0.offset, at: $0.element.0, value: double($0.element.1)) }
+    curve.line(start: start, end: end).enumerated().map {
+      Point(name: name, index: $0.offset, at: $0.element.at, value: double($0.element.total))
+    }
   }
 
   /// What the lines show: each version's steps and end. A change redraws them.

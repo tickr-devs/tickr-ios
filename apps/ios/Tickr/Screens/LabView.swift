@@ -83,7 +83,7 @@ struct LabView: View {
           .rise(step: Order.replay.rawValue)
         AdvisorCard(advisor: advisor, url: model.connection.url)
           .rise(step: Order.advisor.rawValue)
-        ObserversCard(lab: lab, traded: Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol)))
+        ObserversCard(lab: lab, traded: Self.traded(status))
           .rise(step: Order.observers.rawValue)
         RefusalsCard(counts: lab.refusals, failure: lab.refusalsFailure)
           .rise(step: Order.refusals.rawValue)
@@ -109,7 +109,12 @@ struct LabView: View {
   private func curves(_ status: StatusV1) -> [VersionCurve] {
     [VersionCurve.active(name: status.strategy.name, version: status.strategy.version, trades: status.tradesToday,
       total: status.resultTodayUsd.value)]
-      + (lab.observers?.observers.compactMap(VersionCurve.simulated) ?? [])
+      + (lab.observers?.observers.compactMap { VersionCurve.simulated($0, traded: Self.traded(status)) } ?? [])
+  }
+
+  /// The symbols the trading strategy traded or holds on the status's day.
+  static func traded(_ status: StatusV1) -> Set<String> {
+    Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol))
   }
 
   /// Why an observer has no line: the bot could not list its simulated trades.

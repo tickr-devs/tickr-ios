@@ -67,7 +67,8 @@ struct LabView: View {
   @Environment(AppModel.self) private var model
 
   private var versions: some View { VersionsCard().gridColumn().rise(step: Order.versions.rawValue) }
-  private var curves: some View { CurvesCard().gridColumn().rise(step: Order.curves.rawValue) }
+  /// Sized to its content: a few rows under the chart, never an empty lower half.
+  private var curves: some View { CurvesCard().hugsContent().gridColumn().rise(step: Order.curves.rawValue) }
   private var replay: some View { ReplayCard().gridColumn().rise(step: Order.replay.rawValue) }
   private var advisorCard: some View { AdvisorCard().gridColumn().rise(step: Order.advisor.rawValue) }
   private var refusals: some View { RefusalsCard().gridColumn().rise(step: Order.refusals.rawValue) }
@@ -230,8 +231,7 @@ private struct VersionsCard: View {
 private struct CurvesCard: View {
   @Environment(AppModel.self) private var model
 
-  /// Widths of the legend's columns, in points: the swatch, the figures and the result.
-  static let figuresWidth: CGFloat = 84
+  /// Least width of the legend's result column, in points, so the results line up.
   static let resultWidth: CGFloat = 68
 
   var body: some View {
@@ -251,7 +251,6 @@ private struct CurvesCard: View {
         } else {
           TickrLoader(L10n.Common.loading)
         }
-        Spacer(minLength: 0)
         Text(L10n.Lab.curvesNote)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
@@ -276,36 +275,35 @@ private struct CurvesCard: View {
     }
   }
 
-  /// The design's legend: swatch, name, figures, result; a reason line under a row without one.
+  /// The design's legend: swatch, the version and what sets it apart ("v3 · rel vol 1.5×"), the
+  /// result; under it, on full-width lines of their own (never squeezed into a narrow column),
+  /// the figures or since when it watched, the symbols the active strategy skipped, and a reason.
   private func legend(_ lines: [DayCurveLine], _ observers: [ObserverV1]) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       if let active = lines.first(where: \.active) {
-        legendRow(color: active.color, curve: active.curve, name: Text(L10n.Lab.activeLine(active.name)),
-          figures: Text(L10n.Lab.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses)),
+        legendRow(color: active.color, curve: active.curve, name: ObserverLabel.active(active.name),
+          notes: [String(localized: L10n.Lab.closedWinsLosses(model.shownTradeCount, model.shownWins,
+            model.shownLosses))],
           result: model.shownResult)
       }
       ForEach(Array(observers.enumerated()), id: \.element.id) { index, observer in
         legendRow(color: DayCurveLine.color(observerIndex: index), curve: DayCurve.observer(observer),
-          name: Text(verbatim: observer.name), figures: figures(observer), result: observer.resultGrossUSD?.value,
-          cause: cause(observer))
+          name: ObserverLabel.observer(observer), notes: notes(observer), result: observer.resultGrossUSD?.value)
           .help(help(observer))
           .transition(.opacity)
       }
     }
   }
 
-  private func legendRow(
-    color: Color, curve: DayCurve?, name: Text, figures: Text, result: Decimal?, cause: String? = nil
-  ) -> some View {
+  private func legendRow(color: Color, curve: DayCurve?, name: String, notes: [String], result: Decimal?) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
       HStack(spacing: Tokens.Space.s) {
         CurveSwatch(color: color, curve: curve)
-        name
+        Text(verbatim: name)
           .foregroundStyle(Palette.textPrimary)
+          .fixedSize(horizontal: false, vertical: true)
+          .layoutPriority(1)
         Spacer(minLength: Tokens.Space.xs)
-        figures
-          .foregroundStyle(Palette.textQuaternary)
-          .frame(width: Self.figuresWidth, alignment: .leading)
         Group {
           if let result {
             MoneyText(value: result, usd: true, font: Tokens.Typography.calloutMono)
@@ -313,26 +311,36 @@ private struct CurvesCard: View {
             Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
           }
         }
-        .frame(width: Self.resultWidth, alignment: .trailing)
+        .fixedSize()
+        .frame(minWidth: Self.resultWidth, alignment: .trailing)
       }
       .font(Tokens.Typography.calloutMono)
-      if let cause {
-        Text(verbatim: cause)
+      ForEach(notes, id: \.self) { note in
+        Text(verbatim: note)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textQuaternary)
           .padding(.leading, CurveSwatch.width + Tokens.Space.s)
           .fixedSize(horizontal: false, vertical: true)
       }
     }
+    .accessibilityElement(children: .combine)
   }
 
-  /// "6/6 also traded": how many symbols the observer would have entered the bot also traded;
-  /// "no entries" when it would have entered none.
-  private func figures(_ observer: ObserverV1) -> Text {
-    guard let traded else { return Text(L10n.Lab.decisionCount(observer.decisions.count)) }
-    let summary = ObserverSummary(observer, traded: traded)
-    guard summary.agreement != nil else { return Text(L10n.Lab.noEntries) }
-    return Text(L10n.Lab.alsoTraded(summary.shared.count, summary.entered.count))
+  /// The lines under an observer: since when it watched ("watching since 15:08 · no entries
+  /// yet") or, from an older bot, its figures; then the symbols it would have entered that the
+  /// active strategy skipped, once there are any; then why it has no result or line.
+  private func notes(_ observer: ObserverV1) -> [String] {
+    let summary = traded.map { ObserverSummary(observer, traded: $0) }
+    var figures: [String] = []
+    if let since = ObserverLabel.since(observer) { figures.append(since) }
+    if let summary, summary.agreement != nil {
+      figures.append(String(localized: L10n.Lab.alsoTraded(summary.shared.count, summary.entered.count)))
+    } else if figures.isEmpty {
+      figures.append(String(localized: summary == nil ? L10n.Lab.decisionCount(observer.decisions.count)
+        : L10n.Lab.noEntries))
+    }
+    let first = figures.joined(separator: Format.itemSeparator)
+    return [first, summary.flatMap(ObserverLabel.skipped), cause(observer)].compactMap { $0 }
   }
 
   /// Why the row has no result, no line, or a dashed one.
@@ -372,8 +380,8 @@ private struct CurvesCard: View {
     let active = DayCurveLine(name: name, color: Palette.accent,
       curve: DayCurve.trades(model.shownTrades, reported: model.shownResult), active: true)
     return [active] + observers.enumerated().map { index, observer in
-      DayCurveLine(name: observer.name + Format.itemSeparator + observer.version,
-        color: DayCurveLine.color(observerIndex: index), curve: DayCurve.observer(observer), active: false)
+      DayCurveLine(name: observer.id, color: DayCurveLine.color(observerIndex: index),
+        curve: DayCurve.observer(observer), active: false)
     }
   }
 
