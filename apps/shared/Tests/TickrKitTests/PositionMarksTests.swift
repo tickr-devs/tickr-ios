@@ -34,7 +34,8 @@ struct PositionMarksTests {
     #expect(marks.favorable == Decimal(string: "0.60"))
     #expect(marks.adverseR == Decimal(string: "-0.6"))
     #expect(marks.favorableR == Decimal(string: "1.2"))
-    #expect(marks.closes.count == 2)
+    // The line starts at the entry fill, then one close per bar since the open.
+    #expect(marks.closes == [10, Decimal(string: "10.10")!, Decimal(string: "10.40")!])
   }
 
   @Test("Marks are current only while the newest bar closed within the stale limit")
@@ -52,6 +53,8 @@ struct PositionMarksTests {
     let marks = try #require(PositionMarks(bars: bars, entry: 10, stop: nil, quantity: 1, openedAt: try time(0)))
     #expect(marks.resultR == nil)
     #expect(marks.adverse == 0)
+    // One bar after the fill already draws a line: from the entry to its close.
+    #expect(marks.closes == [10, Decimal(string: "10.80")!])
     #expect(PositionMarks(bars: bars, entry: 10, stop: 9, quantity: 1, openedAt: try time(5)) == nil)
   }
 }

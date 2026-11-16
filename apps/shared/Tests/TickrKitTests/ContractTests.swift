@@ -304,10 +304,11 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     try Wire.decoder().decode(StatusResponseV1.self, from: fixture(name))
   }
 
-  @Test func ordinaryBlockIsCalm() throws {
+  @Test("An open, protected position is calm, and the headline says what the bot holds, not the refusal")
+  func ordinaryBlockIsCalm() throws {
     let headline = Headline.make(response: try response("status-response-v1.json"), fetchError: nil)
     #expect(headline.severity == .ok)
-    #expect(headline.text == "The bot already has a trade open.")
+    #expect(headline.text == "Holding 1 position · protected by a broker stop")
   }
 
   @Test func blockNeedingTheOperatorIsAttention() throws {
@@ -334,6 +335,12 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       fetchError: "Local API not reachable: refused")
     #expect(headline.severity == .alarm)
     #expect(headline.text.hasPrefix("Local API not reachable"))
+  }
+
+  @Test("A failure that ends its own sentence is not followed by a second full stop")
+  func fetchErrorKeepsOneFullStop() {
+    let headline = Headline.make(response: nil, fetchError: "Could not connect to the server.")
+    #expect(headline.text == "Could not connect to the server. Entry status unknown.")
   }
 
   /// A stale status read again is older but no new state: its pulse key stays, though its text

@@ -302,7 +302,10 @@ private struct Summary: View {
     let result = stats?.resultGrossUsd ?? 0
     let headline = model.headline
     // A recorded day says so, in the highlight colour and without a pulse; the live headline is about today.
-    let text = past == nil ? headline.text : String(localized: L10n.Home.recordedDay)
+    // Without any status the connection card above shows the failure; the headline does not repeat it.
+    let unreachable = model.status == nil && model.fetchError != nil
+    let text = past != nil ? String(localized: L10n.Home.recordedDay)
+      : unreachable ? String(localized: L10n.Home.statusUnknown) : headline.text
     let tint = past == nil ? headline.severity.tint : Palette.highlightText
     // A stale status's text counts its age; read again it is no new event.
     let pulse: Headline.Pulse = past == nil ? headline.pulse : .text(text)

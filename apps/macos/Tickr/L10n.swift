@@ -755,7 +755,7 @@ enum L10n {
 
   enum Observers {
     static var title: LocalizedStringResource {
-      LocalizedStringResource("observers.title", defaultValue: "Observers · shadow", bundle: L10n.bundle)
+      LocalizedStringResource("observers.title", defaultValue: "Observers", bundle: L10n.bundle)
     }
     static var none: LocalizedStringResource {
       LocalizedStringResource("observers.none", defaultValue: "No observer strategies configured.", bundle: L10n.bundle)
@@ -2140,7 +2140,7 @@ enum L10n {
     }
     /// Card title: the day's trade table.
     static var tradesOfDay: LocalizedStringResource {
-      LocalizedStringResource("trades.tradesOfDay", defaultValue: "Closed trades", bundle: L10n.bundle)
+      LocalizedStringResource("trades.tradesOfDay", defaultValue: "Trades of the day", bundle: L10n.bundle)
     }
     /// Trade table empty on the live day.
     static var noTradesToday: LocalizedStringResource {

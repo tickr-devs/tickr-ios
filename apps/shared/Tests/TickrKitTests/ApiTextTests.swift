@@ -118,6 +118,7 @@ struct ApiTextTests {
     let stale = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.stale.json"))
     #expect(Headline.make(response: stale, fetchError: nil).text == String(localized: L10n.headlineStale(42)))
     let calm = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json"))
-    #expect(Headline.make(response: calm, fetchError: nil).text == String(localized: L10n.blockOwnTradeOpen))
+    // One open position with a verified stop: the headline says what the bot holds.
+    #expect(Headline.make(response: calm, fetchError: nil).text == String(localized: L10n.headlineHoldingOne))
   }
 }

@@ -31,10 +31,15 @@ public struct Headline: Equatable, Sendable {
     self.pulse = pulse ?? .text(text)
   }
 
+  /// The full stop that ends a sentence.
+  static let fullStop = "."
+
   /// `fetchError` is the last failure to read /status; it wins over an older good response.
   public static func make(response: StatusResponseV1?, fetchError: String?) -> Headline {
     if let fetchError {
-      return Headline(text: String(localized: L10n.headlineFetchFailed(fetchError)), severity: .alarm)
+      // The failure is often a sentence of its own ("…to the server."): one full stop, not two.
+      let cause = fetchError.hasSuffix(Self.fullStop) ? String(fetchError.dropLast()) : fetchError
+      return Headline(text: String(localized: L10n.headlineFetchFailed(cause)), severity: .alarm)
     }
     guard let response else {
       return Headline(text: String(localized: L10n.headlineConnecting), severity: .attention)
@@ -49,8 +54,15 @@ public struct Headline: Equatable, Sendable {
           + summary(response),
         severity: .alarm)
     }
-    // An ordinary refusal (a trade is open, outside the entry window) is calm; only a block that
-    // needs the operator is attention.
+    // Open positions, all protected and nothing for the operator to do: the headline says what
+    // the bot holds, as on the design, not why a further entry would be refused.
+    if status.entryBlock?.attention != true, !status.positions.isEmpty {
+      let count = status.positions.count
+      let text = count == 1 ? L10n.headlineHoldingOne : L10n.headlineHolding(count)
+      return Headline(text: String(localized: text), severity: .ok)
+    }
+    // An ordinary refusal (outside the entry window) is calm; only a block that needs the operator
+    // is attention.
     return Headline(text: summary(response), severity: status.entryBlock?.attention == true ? .attention : .ok)
   }
 

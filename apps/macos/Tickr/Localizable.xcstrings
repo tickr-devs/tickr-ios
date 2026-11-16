@@ -6539,13 +6539,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Observers · shadow"
+            "value" : "Observers"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Наблюдатели · теневой режим"
+            "value" : "Наблюдатели"
           }
         }
       }
@@ -13756,13 +13756,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Closed trades"
+            "value" : "Trades of the day"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закрытые сделки"
+            "value" : "Сделки дня"
           }
         }
       }

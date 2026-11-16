@@ -3365,6 +3365,64 @@
         }
       }
     },
+    "kit.headline.holding" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holding %lld positions · all protected by broker stops"
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Держим %lld позиции · все защищены стопами у брокера"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Держим %lld позиций · все защищены стопами у брокера"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Держим %lld позицию · она защищена стопом у брокера"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Держим %lld позиции · все защищены стопами у брокера"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "kit.headline.holdingOne" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holding 1 position · protected by a broker stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Держим 1 позицию · она защищена стопом у брокера"
+          }
+        }
+      }
+    },
     "kit.headline.noVerifiedStop" : {
       "extractionState" : "manual",
       "localizations" : {

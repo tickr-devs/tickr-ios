@@ -43,7 +43,8 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
   /// Close of the latest captured M1 bar, with its start time; nil until bars arrive.
   public let lastBarClose: Decimal?
   public let lastBarAt: Date?
-  /// Closes since the entry, for the small chart.
+  /// The entry price, then the closes since the entry, for the small chart: it starts at the fill,
+  /// so the first bar after the entry already draws a line.
   public let closes: [Decimal]
   /// Close of the newest captured bar however old it is; shown as history when it is not fresh.
   public var latestClose: Decimal?
@@ -214,7 +215,7 @@ public final class AppModel {
       let last = barsBySymbol[position.symbol]?.bars.last
       let fresh = last.map { barIsFresh(start: $0.start.date, now: botNow) } ?? false
       return PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
-        closes: bars.map(\.close.value), latestClose: last?.close.value)
+        closes: [position.entryPrice.value] + bars.map(\.close.value), latestClose: last?.close.value)
     }
   }
 
@@ -664,7 +665,9 @@ public final class AppModel {
     let symbols = status?.positions.map(\.symbol) ?? []
     for symbol in symbols {
       do {
-        barsBySymbol[symbol] = try await client.bars(symbol: symbol, day: today)
+        let fresh = try await client.bars(symbol: symbol, day: today)
+        // The Chart may have noted newer bars meanwhile: an older read never replaces them.
+        if !Self.isOlder(fresh, than: barsBySymbol[symbol]) { barsBySymbol[symbol] = fresh }
       } catch {
         // The position still shows its entry and stop; only "last" stays empty.
         barsBySymbol[symbol] = nil
@@ -672,6 +675,26 @@ public final class AppModel {
     }
     // Bars of closed positions are not kept.
     barsBySymbol = barsBySymbol.filter { symbols.contains($0.key) }
+  }
+
+  /// Today's bars of an open position's symbol as another screen (the Chart) read them: kept
+  /// unless older than the overview's own read, so the Overview and the Chart show one price for
+  /// one moment.
+  public func noteBars(_ bars: BarsV1) {
+    guard isLive, bars.day == today, status?.positions.contains(where: { $0.symbol == bars.symbol }) == true,
+      !Self.isOlder(bars, than: barsBySymbol[bars.symbol]) else { return }
+    if barsBySymbol[bars.symbol] != bars { barsBySymbol[bars.symbol] = bars }
+  }
+
+  /// Today's bars of an open position's symbol as the Overview last read or was told them; nil
+  /// for any other symbol.
+  public func positionBars(_ symbol: String) -> BarsV1? { barsBySymbol[symbol] }
+
+  /// Whether `bars` end before `other` does (by their newest bar's start).
+  static func isOlder(_ bars: BarsV1, than other: BarsV1?) -> Bool {
+    guard let other, let theirs = other.bars.last?.start.date else { return false }
+    guard let ours = bars.bars.last?.start.date else { return true }
+    return ours < theirs
   }
 
   // MARK: day navigation

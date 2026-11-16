@@ -364,9 +364,11 @@ private struct TradesTable: View {
     return min(Self.height, Self.headerHeight + count * Self.rowHeight)
   }
 
-  /// On the live day the positions still open first, then the day's closed trades.
+  /// The day's closed trades in the order they closed, then on the live day the positions still
+  /// open: a new trade is added under the others and a closing one stays in its place, so no row
+  /// moves under the pointer.
   private var rows: [TradeRow] {
-    (model.isLive ? model.positions.map { TradeRow.open($0) } : []) + model.shownTrades.map { TradeRow.closed($0) }
+    model.shownTrades.map { TradeRow.closed($0) } + (model.isLive ? model.positions.map { TradeRow.open($0) } : [])
   }
 
   var body: some View {

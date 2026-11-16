@@ -124,6 +124,15 @@ final class ChartModel {
     }
   }
 
+  /// Takes bars the Overview read for the same symbol and day when they end later than the
+  /// shown ones, so both screens show one price for one moment.
+  func adopt(_ newer: BarsV1) {
+    guard let bars, bars.symbol == newer.symbol, bars.day == newer.day, newer != bars,
+      let theirs = newer.bars.last?.start.date, theirs > (bars.bars.last?.start.date ?? .distantPast) else { return }
+    self.bars = newer
+    revision += 1
+  }
+
   /// Forgets the shown bars, candles and decisions when the symbol, day or range changes.
   func clear() {
     bars = nil

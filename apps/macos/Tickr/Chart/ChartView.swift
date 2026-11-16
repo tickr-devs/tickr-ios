@@ -130,6 +130,10 @@ struct ChartView: View {
     ) {
       await keepLoading()
     }
+    // The Overview read newer bars of this position: the chart shows them too.
+    .onChange(of: symbol.flatMap { model.isLive && showsDay ? model.positionBars($0) : nil }) { _, newer in
+      if let newer { chart.adopt(newer) }
+    }
   }
 
   // MARK: Data
@@ -179,6 +183,8 @@ struct ChartView: View {
     }
     repeat {
       await chart.load(baseURL: baseURL, symbol: symbol, day: day)
+      // One price for one moment on every screen: the Overview's position card takes these bars.
+      if live, let bars = chart.bars { model.noteBars(bars) }
       await chart.loadDecisions(baseURL: baseURL, symbol: symbol, day: day)
       guard live else { return }
       try? await Task.sleep(for: .seconds(Pace.barsSeconds))
@@ -195,7 +201,9 @@ struct ChartView: View {
       if let last = plot?.candles.last {
         Text(verbatim: CandleChart.price(last.close))
           .font(Tokens.Typography.quote)
-          .foregroundStyle(last.isUp ? Palette.profitText : Palette.lossText)
+          // Coloured as the day's change beside it when the screeners reported one, so the two
+          // never disagree; else by the last candle.
+          .foregroundStyle(dayChange.map { Palette.result($0) } ?? (last.isUp ? Palette.profitText : Palette.lossText))
           .contentTransition(.numericText(value: last.close))
           .animation(Tokens.Motion.quick, value: last.close)
       }

@@ -22,7 +22,8 @@ public struct PositionMarks: Hashable, Sendable {
   /// The same two in R, when R is defined.
   public let adverseR: Decimal?
   public let favorableR: Decimal?
-  /// Closes since the open, oldest first, for the price line.
+  /// The price line since the fill, oldest first: the entry price, then the close of every bar
+  /// since the open. It starts at the fill, so one bar already draws a line.
   public let closes: [Decimal]
   /// Lowest low and highest high since the open.
   public let low: Decimal
@@ -55,7 +56,7 @@ public struct PositionMarks: Hashable, Sendable {
     resultR = risk.map { (last - entry) / $0 }
     adverseR = risk.map { adverse / $0 }
     favorableR = risk.map { favorable / $0 }
-    closes = since.map(\.close.value)
+    closes = [entry] + since.map(\.close.value)
     self.low = low
     self.high = high
   }
