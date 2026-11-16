@@ -86,22 +86,10 @@ jobs:
             exit 1
           fi
           test -f "Tickr.xcodeproj/xcshareddata/xcschemes/Tickr iOS.xcscheme"
-      # Built through the root workspace, which is what the owner opens in Xcode.
-      - name: Build for the iOS Simulator (unsigned)
-        run: |
-          if ! xcodebuild build \
-              -workspace ../../Tickr.xcworkspace \
-              -scheme 'Tickr iOS' \
-              -destination 'generic/platform=iOS Simulator' \
-              -configuration Debug \
-              CODE_SIGNING_ALLOWED=NO > build.log 2>&1; then
-            grep -E "error:" build.log || tail -n 80 build.log
-            exit 1
-          fi
-          grep -E "warning:" build.log | grep -v "/SourcePackages/" || true
-          tail -n 3 build.log
-      # The screens' logic (Tests/TickrTests) on an iPhone of the newest iOS runtime.
-      - name: Unit tests on the iOS Simulator
+      # One xcodebuild: the unit tests (Tests/TickrTests) are hosted in the app, so `test` builds
+      # the app too. Built through the root workspace, which is what the owner opens in Xcode, for an
+      # iPhone of the newest iOS runtime. A separate generic-simulator build compiled everything twice.
+      - name: Build and unit-test on the iOS Simulator (unsigned)
         run: |
           device=$(python3 - <<'PY'
           import json, re, subprocess
@@ -111,9 +99,10 @@ jobs:
           print(next(d["udid"] for d in data["devices"][newest] if d["name"].startswith("iPhone")))
           PY
           )
-          if ! xcodebuild test -project Tickr.xcodeproj -scheme 'Tickr iOS Tests' \
-              -destination "id=$device" CODE_SIGNING_ALLOWED=NO > test.log 2>&1; then
+          if ! xcodebuild test -workspace ../../Tickr.xcworkspace -scheme 'Tickr iOS Tests' \
+              -destination "id=$device" -configuration Debug CODE_SIGNING_ALLOWED=NO > test.log 2>&1; then
             grep -E "error:|failed|✘" test.log | tail -n 60 || tail -n 80 test.log
             exit 1
           fi
+          grep -E "warning:" test.log | grep -v "/SourcePackages/" || true
           grep -E "✔|passed" test.log | tail -n 5

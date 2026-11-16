@@ -1,0 +1,42 @@
+name: ui-tests
+# The macOS app's UI tests (apps/macos/TickrUITests) against the contract fixtures. About eight
+# minutes of a macOS runner, and the account runs at most five macOS jobs at once, so they do not
+# run on every push: only with the `ui-tests` label on a pull request, a manual run, or nightly on
+# main. Every pull request still builds the app and this test runner (macos-app.yml).
+on:
+  pull_request:
+    types: [labeled, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+  # Nightly on main, 07:30 UTC (outside US market hours).
+  schedule:
+    - cron: "30 7 * * *"
+concurrency:
+  group: ui-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+# The workflow only reads the repository: its token can change nothing.
+permissions:
+  contents: read
+jobs:
+  macos-ui-tests:
+    if: >-
+      ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft
+      && contains(github.event.pull_request.labels.*.name, 'ui-tests')) }}
+    # The Xcode 27 image: the owner builds with Xcode 27, and the app uses its SDK (the title bar's
+    # toolbar visibility priorities); macos-latest (macOS 26) has Xcode 26.x only.
+    runs-on: xcode-27
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      # The owner builds with the newest Xcode; use the newest release (not beta or RC) this runner has.
+      - name: Select the newest installed Xcode
+        run: |
+          newest=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc" | sort -V | tail -1)
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
+      # Builds the app as the owner does in Xcode and runs its UI tests against the contract
+      # fixtures; ad-hoc signed, because a UI test runner must be signed.
+      - name: Xcode workspace builds the macOS app and runs its UI tests
+        run: |
+          xcodebuild -workspace Tickr.xcworkspace -scheme "Tickr macOS" \
+            -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
+            CODE_SIGN_IDENTITY=- test
