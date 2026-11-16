@@ -1,7 +1,8 @@
 name: swift-rules
 # The apps' Swift code rules (CLAUDE.md, "Swift code rules"): no words in code outside L10n.swift,
-# no magic numbers, 2-space indentation, Russian translation for every key, and SwiftLint. Runs on
-# every pull request, whatever it touches, so it can be a required check.
+# no magic numbers, 2-space indentation, Russian translation for every key, and SwiftLint. Also the
+# check for git conflict markers in any tracked file. Runs on every pull request, whatever it
+# touches, so it can be a required check.
 on:
   pull_request:
   # The merge queue: the required checks run again on the queued change on top of the newest main
@@ -22,6 +23,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+      # Here, not in the Python tests: this job runs on every pull request, docs-only ones too.
+      - name: No git conflict markers in tracked files
+        run: python3 .github/scripts/check_conflict_markers.py
       - name: Swift code rules (apps/scripts/check_swift_rules.py)
         run: python3 apps/scripts/check_swift_rules.py
       # SwiftLint's own Linux image, pinned so a new release can't fail an unrelated pull request.
