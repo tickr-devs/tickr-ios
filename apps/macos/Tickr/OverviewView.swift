@@ -1116,11 +1116,23 @@ private struct SafetyCard: View {
   static let tileColumns = 2
 
   var body: some View {
-    // One card as in the design: "Safety · bot" with the bot's state, the safety facts as tiles
-    // in two columns, then the commands. The tiles scroll when the card is short; the commands
-    // never do, so they are always in reach.
+    // One card as in the design: "Safety · bot" with the bot's state and Stop bot, the safety
+    // facts as tiles in two columns, then the commands. The tiles scroll when the card is short;
+    // the commands never do, so they are always in reach.
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      SectionHeader(L10n.Safety.titleWithBot) { BotPill() }
+      // Stop bot beside the bot's state; under the header when the card is too narrow for both.
+      ViewThatFits(in: .horizontal) {
+        SectionHeader(L10n.Safety.titleWithBot) {
+          HStack(spacing: Tokens.Space.s) {
+            BotPill()
+            BotStopButton()
+          }
+        }
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
+          SectionHeader(L10n.Safety.titleWithBot) { BotPill() }
+          BotStopButton()
+        }
+      }
       ScrollsWhenTall {
         TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
           let list = rows(now: model.botTime(context.date))
@@ -1152,7 +1164,7 @@ private struct SafetyCard: View {
     .accessibilityIdentifier(Self.id)
   }
 
-  private enum RowID: Hashable { case status, stops, entries, reconcile, stream, read, foreign, foreignOrders, pause }
+  private enum RowID: Hashable { case status, stops, entries, reconcile, stream, read, foreign }
 
   private struct Row: Identifiable {
     let id: RowID
@@ -1168,8 +1180,6 @@ private struct SafetyCard: View {
     static let streamSymbol = "waveform.path.ecg"
     static let readSymbol = "building.columns"
     static let foreignSymbol = "person.crop.circle.badge.questionmark"
-    static let foreignOrdersSymbol = "doc.badge.ellipsis"
-    static let pauseSymbol = "pause.circle"
 
     var symbol: String {
       switch id {
@@ -1180,8 +1190,6 @@ private struct SafetyCard: View {
       case .stream: return Self.streamSymbol
       case .read: return Self.readSymbol
       case .foreign: return Self.foreignSymbol
-      case .foreignOrders: return Self.foreignOrdersSymbol
-      case .pause: return Self.pauseSymbol
       }
     }
   }
@@ -1194,13 +1202,14 @@ private struct SafetyCard: View {
     let positions = Board.positions(status)
     let verified = positions.filter { $0.stop.state == .verified }.count
     let fenceNames = Set(status.fences.map { String($0.kind.prefix { $0 != Self.fenceKeySeparator }) })
-    let foreign = fenceNames.contains(Self.foreignPositionFence)
-    let foreignOrders = fenceNames.contains(Self.foreignOrderFence)
+    // Positions or orders the bot did not place, in one tile.
+    let foreign = fenceNames.contains(Self.foreignPositionFence) || fenceNames.contains(Self.foreignOrderFence)
     let stream = status.freshness.stream
     let entries = positions.map { (symbol: $0.symbol, entry: $0.entry) }
       + status.tradesToday.map { (symbol: $0.symbol, entry: $0.entry) }
     let sent = EntrySent.summary(entries)
-    // The design's order; the rows it does not draw sit beside their kin.
+    // The design's six tiles, in its order. The entry pause has no tile: Pause or Resume below
+    // shows it.
     return [
       Row(id: .reconcile, label: L10n.Safety.reconciliation,
         value: status.fences.isEmpty
@@ -1218,15 +1227,9 @@ private struct SafetyCard: View {
         value: Format.age(since: status.freshness.lastBrokerReadAt?.date, now: now),
         tone: BrokerReadAge.tone(since: status.freshness.lastBrokerReadAt?.date, now: now,
           limits: BrokerReadAge.Limits(model.settings))),
-      Row(id: .foreign, label: L10n.Safety.foreignPositions,
+      Row(id: .foreign, label: L10n.Safety.foreignAtBroker,
         value: String(localized: foreign ? L10n.Safety.present : L10n.Common.none),
         tone: foreign ? .loss : .profit),
-      Row(id: .foreignOrders, label: L10n.Safety.foreignOrders,
-        value: String(localized: foreignOrders ? L10n.Safety.present : L10n.Common.none),
-        tone: foreignOrders ? .loss : .profit),
-      Row(id: .pause, label: L10n.Safety.entryPause,
-        value: String(localized: status.entryStop ? L10n.Common.on : L10n.Common.off),
-        tone: status.entryStop ? .warning : .neutral),
     ]
   }
 }
@@ -1256,6 +1259,7 @@ private struct SafetyTile: View {
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
       StateGlyph(symbol, tone: tone, label: label, style: .compact)
+      // The name above its value, each wrapping rather than cut.
       VStack(alignment: .leading, spacing: 0) {
         Text(label).font(Tokens.Typography.caption).foregroundStyle(Palette.textSecondary)
         Text(verbatim: value)
@@ -1263,8 +1267,7 @@ private struct SafetyTile: View {
           .foregroundStyle(tone.text)
           .contentTransition(.numericText())
       }
-      .lineLimit(1)
-      .truncationMode(.tail)
+      .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: 0)
     }
     .padding(Tokens.Space.xs)
@@ -1283,7 +1286,7 @@ private struct BotSection: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      BotControls(small: true)
+      BotControls()
       if !model.isLive {
         Footnote(L10n.Safety.offWhileRecorded)
       } else if model.response?.stale == true || model.fetchError != nil {

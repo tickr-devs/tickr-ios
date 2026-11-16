@@ -4040,13 +4040,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancel Own Orders"
+            "value" : "Cancel orders"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отменить свои ордера"
+            "value" : "Отменить ордера"
+          }
+        }
+      }
+    },
+    "control.demoTag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Демо"
           }
         }
       }
@@ -4057,13 +4074,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Emergency: Pause, Cancel, Flatten"
+            "value" : "Emergency stop"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Аварийно: пауза, отмена, закрыть всё"
+            "value" : "Аварийная остановка"
+          }
+        }
+      }
+    },
+    "control.emergencyDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pauses entries · cancels entry orders · sells all"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пауза входов · отмена ордеров на вход · продажа всего"
           }
         }
       }
@@ -4108,13 +4142,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Flatten All Positions"
+            "value" : "Close all"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закрыть все позиции"
+            "value" : "Закрыть все"
+          }
+        }
+      }
+    },
+    "control.lastResort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last resort"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Крайняя мера"
           }
         }
       }
@@ -4125,7 +4176,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pause Entries"
+            "value" : "Pause entries"
           }
         },
         "ru" : {
@@ -4159,7 +4210,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resume Entries"
+            "value" : "Resume entries"
           }
         },
         "ru" : {
@@ -4176,7 +4227,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pausing and cancelling never touch broker stops; flattening cancels each stop only right before its sale. Each command is sent once."
+            "value" : "Pausing and cancelling never touch broker stops; closing a position cancels its stop only right before its sale. Each command is sent once."
           }
         },
         "ru" : {
@@ -4193,7 +4244,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start the Bot"
+            "value" : "Start bot"
           }
         },
         "ru" : {
@@ -4244,13 +4295,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot is %@"
+            "value" : "Bot · %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бот: %@"
+            "value" : "Бот · %@"
           }
         }
       }
@@ -4261,13 +4312,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot is %@ · entries paused"
+            "value" : "Bot · %@ · entries paused"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бот: %@ · входы на паузе"
+            "value" : "Бот · %@ · входы на паузе"
           }
         }
       }
@@ -4278,7 +4329,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop the Bot"
+            "value" : "Stop bot"
           }
         },
         "ru" : {
@@ -7101,6 +7152,23 @@
         }
       }
     },
+    "positions.closePosition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close position"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть позицию"
+          }
+        }
+      }
+    },
     "positions.entryConfirmedLater" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7245,30 +7313,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Flatten %@"
+            "value" : "Close %@ position"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закрыть %@"
-          }
-        }
-      }
-    },
-    "positions.flattenEllipsis" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flatten %@…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Закрыть %@…"
+            "value" : "Закрыть позицию %@"
           }
         }
       }
@@ -7874,13 +7925,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Close everything"
+            "value" : "Close all"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закрыть всё"
+            "value" : "Закрыть все"
           }
         }
       }
@@ -9568,23 +9619,6 @@
         }
       }
     },
-    "settings.start" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запустить"
-          }
-        }
-      }
-    },
     "settings.state" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9615,23 +9649,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Статус"
-          }
-        }
-      }
-    },
-    "settings.stop" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Стоп"
           }
         }
       }

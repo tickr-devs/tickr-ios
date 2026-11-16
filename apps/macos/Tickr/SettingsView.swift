@@ -569,14 +569,15 @@ private struct BotServiceCard: View {
         Button { question = .start } label: {
           Label { Text(L10n.Settings.startBotAction) } icon: { Image(systemName: Self.startSymbol) }
         }
-        .buttonStyle(.action(.secondary, size: .compact))
-        .foregroundStyle(Palette.profitText)
+        // Start is the card's main action; Stop is a destructive bot command, as on Overview.
+        .buttonStyle(.action(.primary, size: .compact))
         .disabled(!model.canStartBot)
         .hint(L10n.Settings.startBotHint)
         Button(role: .destructive) { question = .stop } label: {
           Label { Text(L10n.Settings.stopBotAction) } icon: { Image(systemName: BotAction.stopSymbol) }
         }
-        .buttonStyle(.action(.destructive, size: .compact))
+        .buttonStyle(.command(.destructive, tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
+        .fixedSize()
         .disabled(!model.canStopBot)
         .hint(verbatim: BotAction.stopBot.explanation)
       }

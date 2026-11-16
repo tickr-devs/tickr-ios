@@ -158,7 +158,7 @@ extension L10n {
   /// A cause the API writes itself (`<field>_codes`). no_day_end
   static var proseReasonNoDayEnd: LocalizedStringResource {
     LocalizedStringResource("kit.prose.no_day_end",
-      defaultValue: "No day-end record that day (the bot was not running after the flatten time)", bundle: bundle)
+      defaultValue: "No day-end record that day (the bot was not running after the close-positions time)", bundle: bundle)
   }
   /// A cause the API writes itself (`<field>_codes`). day_end_unknown
   static var proseReasonDayEndUnknown: LocalizedStringResource {

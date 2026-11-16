@@ -1568,13 +1568,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Flatten"
+            "value" : "Close all"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закрыть всё"
+            "value" : "Закрыть все"
           }
         }
       }
@@ -2146,13 +2146,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "flattened"
+            "value" : "closed"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "закрыто оператором"
+            "value" : "закрыта"
           }
         }
       }
@@ -2163,13 +2163,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "session end"
+            "value" : "end-of-day close"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "конец сессии"
+            "value" : "закрытие в конце дня"
           }
         }
       }
@@ -4384,7 +4384,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No day-end record that day (the bot was not running after the flatten time)"
+            "value" : "No day-end record that day (the bot was not running after the close-positions time)"
           }
         },
         "ru" : {

@@ -32,6 +32,7 @@ struct BotControl: ViewModifier {
         sheet
           .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium, .large])
           .presentationDragIndicator(.visible)
+          .presentationCornerRadius(Self.sheetRadius)
       })
   }
 
@@ -54,18 +55,31 @@ struct BotControl: ViewModifier {
           .foregroundStyle(Palette.textTertiary)
           .fixedSize(horizontal: false, vertical: true)
         if let status = model.status, model.canCommand {
+          // The design's three tiers: pausing (or resuming) and cancelling, then the commands that
+          // close positions or stop the bot, then the emergency stop alone behind its divider.
           VStack(spacing: Tokens.Space.s) {
             if status.entryStop {
-              action(L10n.Control.resume, symbol: Self.resumeSymbol, kind: .primary) { run(.entryStop(on: false)) }
+              action(L10n.Control.resume, symbol: Self.resumeSymbol, tier: .secondary(.accent)) {
+                run(.entryStop(on: false))
+              }
             } else {
-              action(L10n.Control.pause, symbol: Self.pauseSymbol, kind: .secondary) { run(.entryStop(on: true)) }
+              action(L10n.Control.pause, symbol: Self.pauseSymbol, tier: .secondary(.warning)) {
+                run(.entryStop(on: true))
+              }
             }
-            action(L10n.Control.cancelOrders, symbol: Self.cancelSymbol, kind: .secondary) { run(.cancelOwnOrders) }
-            action(L10n.Control.flattenAll, symbol: Self.flattenSymbol, kind: .destructive) { run(.flatten) }
+            action(L10n.Control.cancelOrders, symbol: Self.cancelSymbol, tier: .secondary(.neutral)) {
+              run(.cancelOwnOrders)
+            }
+            action(L10n.Control.flattenAll, symbol: Self.flattenSymbol, tier: .destructive) { run(.flatten) }
             if status.botState == .running {
-              action(L10n.Control.stopBot, symbol: Self.stopSymbol, kind: .destructive) { severe = .stopBot }
+              action(L10n.Control.stopBot, symbol: Self.stopSymbol, tier: .destructive) { severe = .stopBot }
             }
-            action(L10n.Control.emergency, symbol: Self.emergencySymbol, kind: .destructive) { severe = .emergency }
+            LastResortDivider(Text(L10n.Control.lastResort))
+            EmergencyButton(Text(L10n.Control.emergency), detail: Text(L10n.Control.emergencyDetail),
+              symbol: Self.emergencySymbol, tag: tag) {
+              chosen = { severe = .emergency }
+              isPresented = false
+            }
           }
         }
         Button(role: .cancel) { isPresented = false } label: {
@@ -80,33 +94,41 @@ struct BotControl: ViewModifier {
     .background(Palette.background)
   }
 
-  /// One action across the sheet; it runs once the sheet has closed.
+  /// One action across the sheet, in its tier; it runs once the sheet has closed.
   private func action(
-    _ title: LocalizedStringResource, symbol: String, kind: ActionButtonStyle.Kind, _ perform: @escaping () -> Void
+    _ title: LocalizedStringResource, symbol: String, tier: CommandButtonStyle.Tier, _ perform: @escaping () -> Void
   ) -> some View {
-    Button(role: kind == .destructive ? .destructive : nil) {
+    Button(role: tier == .destructive ? .destructive : nil) {
       chosen = perform
       isPresented = false
     } label: {
       Label { Text(title) } icon: { Image(systemName: symbol) }
-        .frame(maxWidth: .infinity)
     }
-    .buttonStyle(.action(kind, size: .large))
+    .buttonStyle(.command(tier, tag: tag))
+    // One row: as tall as its title needs (it wraps at large text sizes, never cut).
+    .fixedSize(horizontal: false, vertical: true)
   }
+
+  /// The "DEMO" pill on every command while commands go to the demo day.
+  private var tag: Text? { model.connection.demo ? Text(L10n.Control.demoTag) : nil }
+
+  /// Corner radius of the sheet, in points (the design's bottom sheet).
+  static let sheetRadius: CGFloat = 28
 
   /// Symbols of the actions and of the bot's state.
   static let resumeSymbol = "play.fill"
   static let pauseSymbol = "pause.fill"
   static let cancelSymbol = "xmark.circle"
-  static let flattenSymbol = "rectangle.portrait.and.arrow.right.fill"
-  static let stopSymbol = "stop.fill"
+  static let flattenSymbol = "rectangle.portrait.and.arrow.right"
+  static let stopSymbol = "stop.circle"
   static let emergencySymbol = "exclamationmark.octagon.fill"
   static let unknownSymbol = "questionmark"
+  static let stoppedSymbol = "stop.fill"
 
   private var stateSymbol: String {
     guard let status = model.status else { return Self.unknownSymbol }
     if status.entryStop { return Self.pauseSymbol }
-    return status.botState == .running ? Self.resumeSymbol : Self.stopSymbol
+    return status.botState == .running ? Self.resumeSymbol : Self.stoppedSymbol
   }
 
   private var stateTone: Tone {

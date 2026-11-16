@@ -3,9 +3,10 @@ import XCTest
 /// The bot's commands on Overview in the narrowest window the app allows. The Safety · bot card
 /// sits in a row at least OverviewView.middleRowHeight tall, so every command must still
 /// lie inside the card, be hittable, and (except pausing, which acts at once and is never
-/// pressed here) open its confirmation. Run in English and in Russian, whose labels are the
-/// longest; the macOS app has one text size (no Dynamic Type on the Mac, Tokens.Typography).
-/// The app reads the contract fixtures; every confirmation is cancelled.
+/// pressed here) open its confirmation; the emergency stop only after a held press. Run in
+/// English and in Russian, whose labels are the longest; the macOS app has one text size (no
+/// Dynamic Type on the Mac, Tokens.Typography). The app reads the contract fixtures; every
+/// confirmation is cancelled.
 final class OverviewCommandsUITests: XCTestCase {
   /// Environment variable of the fixture API (PreviewAPI.fixturesKey in the app), and the value
   /// that turns it, `smallestKey` and `safetyFirstKey` on.
@@ -23,6 +24,12 @@ final class OverviewCommandsUITests: XCTestCase {
   /// (status-response-v1.json). Pausing acts at once; the others ask first.
   static let pause = "pause"
   static let confirmed = ["cancel", "flatten-ABCD", "flatten-all", "stop", "emergency"]
+  /// The emergency stop (BotAction.emergency) asks only after a press held this long
+  /// (Tokens.Command.holdSeconds, 1.5 s, plus a margin), in seconds; a plain click asks nothing.
+  static let emergency = "emergency"
+  static let hold: TimeInterval = 2
+  /// How long a plain click on the emergency stop is watched for a question that must not come.
+  static let noQuestion: TimeInterval = 2
   /// The narrowest window, in points: TickrMacApp.minWidth (the sidebar's widest, 260, beside
   /// TradesView.leastScreenWidth, 826), which this test target cannot read from the app.
   static let minWidth: CGFloat = 1086
@@ -83,7 +90,15 @@ final class OverviewCommandsUITests: XCTestCase {
       waitUntilStill(button, id, in: app)
       assertInside(button, card, id)
       XCTAssertTrue(button.isEnabled, "\(id) is off")
-      button.click()
+      if id == Self.emergency {
+        // A click alone never starts the emergency stop: only a held press opens its question.
+        button.click()
+        XCTAssertFalse(app.sheets.firstMatch.waitForExistence(timeout: Self.noQuestion),
+          "a plain click on the emergency stop asks")
+        button.click(forDuration: Self.hold, thenDragTo: button)
+      } else {
+        button.click()
+      }
       let sheet = app.sheets.firstMatch
       XCTAssertTrue(sheet.waitForExistence(timeout: Self.timeout), "\(id) asks for confirmation")
       // Escape is the confirmation's cancel in every language.

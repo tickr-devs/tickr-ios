@@ -8,7 +8,7 @@ import Testing
 /// only read the English default values.
 @Suite struct L10nTests {
   @Test func entriesResolve() {
-    #expect(String(localized: L10n.commandFlatten) == "Flatten")
+    #expect(String(localized: L10n.commandFlatten) == "Close all")
     #expect(String(localized: L10n.tagEnter) == "ENTER")
   }
 

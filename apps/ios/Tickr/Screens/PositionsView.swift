@@ -167,8 +167,6 @@ private struct PositionDetail: View {
   /// Order in which the blocks rise in (`rise(step:)`).
   enum Order: Int { case chips = 1, title, levels, chain, stats, flatten, watching }
 
-  /// Height of the Flatten button, in points.
-  static let buttonHeight: CGFloat = 50
   /// Multiplies a fraction into percent.
   static let percent: Decimal = 100
   /// Digits after the point of the distance to the stop, in percent.
@@ -264,18 +262,12 @@ private struct PositionDetail: View {
       Button(role: .destructive) {
         confirmFlatten = true
       } label: {
-        Text(L10n.Positions.flattenEllipsis(position.symbol))
-          .font(.subheadline.weight(.semibold))
-          .frame(maxWidth: .infinity, minHeight: Self.buttonHeight)
-          .foregroundStyle(Palette.lossText)
-          .background(Palette.loss.opacity(Tokens.Opacity.wash),
-            in: RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous))
-          .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-            .strokeBorder(Palette.loss.opacity(Tokens.Opacity.border)))
+        Label { Text(L10n.Positions.closePosition) } icon: { Image(systemName: BotControl.flattenSymbol) }
       }
-      .buttonStyle(.plain)
+      .buttonStyle(.command(.destructive, tag: model.connection.demo ? Text(L10n.Control.demoTag) : nil))
+      // As tall as its title needs: it wraps at large text sizes, never cut.
+      .fixedSize(horizontal: false, vertical: true)
       .disabled(!model.canCommand)
-      .opacity(model.canCommand ? 1 : Tokens.Opacity.border)
       .rise(step: Order.flatten.rawValue)
       .confirmationDialog(Text(L10n.Positions.closeNow(position.symbol)), isPresented: $confirmFlatten,
         titleVisibility: .visible) {

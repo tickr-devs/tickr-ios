@@ -62,6 +62,8 @@ public enum Palette {
   /// Money lost, a missing stop, an alarm, destructive actions.
   public static let loss = Color(light: 0xEF4444, dark: 0xF87171)
   public static let lossText = Color(light: 0xB91C1C, dark: 0xFCA5A5)
+  /// Text and symbols on a solid `loss` fill (the emergency stop, a destructive command's glyph).
+  public static let onLoss = Color(light: 0xFFFFFF, dark: 0xFFFFFF)
   /// Attention: paused, blocked, stale, a closed gate.
   public static let warning = Color(light: 0xF59E0B, dark: 0xFBBF24)
   public static let warningText = Color(light: 0xB45309, dark: 0xFCD34D)

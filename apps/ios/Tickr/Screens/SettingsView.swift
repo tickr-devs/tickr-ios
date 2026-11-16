@@ -12,6 +12,7 @@ struct SettingsView: View {
   static let pairSymbol = "qrcode"
   static let forgetSymbol = "minus.circle"
   static let stateSymbol = "power"
+  static let startSymbol = "play.fill"
   static let gateClosedSymbol = "lock.fill"
   static let configSymbol = "doc.plaintext.fill"
   static let lockScreenSymbol = "bell.badge.fill"
@@ -134,33 +135,27 @@ struct SettingsView: View {
       // The state as a row's title, in sentence case ("Running").
       SettingsRow(Text(verbatim: String(localized: status.botState.title).localizedCapitalized),
         systemImage: Self.stateSymbol, tone: running ? .profit : .neutral) {
-        if running && model.canCommand {
-          Button { showControl = true } label: {
-            Text(L10n.Settings.stop)
-              .font(Tokens.Typography.buttonCompact)
-              .foregroundStyle(Palette.lossText)
-              .padding(.horizontal, Tokens.Space.m)
-              .padding(.vertical, Tokens.Space.xs)
-              .background(Palette.loss.opacity(Tokens.Opacity.wash), in: Capsule())
-          }
-          .buttonStyle(.borderless)
-        } else if model.canStartBot && (status.botState == .stopped || model.response?.stale == true) {
-          // Start as the design's green pill: the Mac's launchd starts the bot job, preflight first.
-          Button { confirmStart = true } label: {
-            Text(L10n.Settings.start)
-              .font(Tokens.Typography.buttonCompact)
-              .foregroundStyle(Palette.onAccent)
-              .padding(.horizontal, Tokens.Space.m)
-              .padding(.vertical, Tokens.Space.xs)
-              .background(Palette.profit, in: Capsule())
-          }
-          .buttonStyle(.borderless)
-        } else {
-          StatusPill(status.botState.title, tone: running ? .accent : .neutral,
-            live: running && model.response?.stale == false, event: status.botState)
-        }
+        StatusPill(status.botState.title, tone: running ? .accent : .neutral,
+          live: running && model.response?.stale == false, event: status.botState)
       } subtitle: {
         Text(status.positions.isEmpty ? L10n.Settings.holdsNothing : L10n.Settings.holds(status.positions.count))
+      }
+      // The design's command under the state: Stop bot (destructive; bot control confirms it) while
+      // it runs, Start bot (primary; the Mac's launchd starts the bot job, preflight first) when
+      // stopped.
+      let tag = model.connection.demo ? Text(L10n.Control.demoTag) : nil
+      if running && model.canCommand {
+        Button { showControl = true } label: {
+          Label { Text(L10n.Control.stopBot) } icon: { Image(systemName: BotControl.stopSymbol) }
+        }
+        .buttonStyle(.command(.destructive, tag: tag))
+        .fixedSize(horizontal: false, vertical: true)
+      } else if model.canStartBot && (status.botState == .stopped || model.response?.stale == true) {
+        Button { confirmStart = true } label: {
+          Label { Text(L10n.Control.startBot) } icon: { Image(systemName: Self.startSymbol) }
+        }
+        .buttonStyle(.command(.primary, tag: tag))
+        .fixedSize(horizontal: false, vertical: true)
       }
       NavigationLink {
         ConfigView()

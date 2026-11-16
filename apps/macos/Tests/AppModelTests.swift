@@ -2,6 +2,7 @@ import FactoryTesting
 import Foundation
 import Synchronization
 import Testing
+import TickrDesign
 import TickrKit
 @testable import TickrMac
 
@@ -251,8 +252,8 @@ struct AppModelTests {
     RouteProtocol.routes.withLock { $0.bodies["/commands/flatten"] = accepted }
     let model = AppModel(baseURL: APIClient.defaultBaseURL)
     await model.refreshStatus()
-    await model.send(.flattenSymbol("ABCD"), title: "Flatten ABCD")
-    await model.send(.flattenSymbol("ABCD"), title: "Flatten ABCD")
+    await model.send(.flattenSymbol("ABCD"), title: "Close ABCD position")
+    await model.send(.flattenSymbol("ABCD"), title: "Close ABCD position")
     let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
     #expect(keys.count == 2 && Set(keys).count == 2)
   }
@@ -432,6 +433,25 @@ struct AppModelTests {
     #expect(BotAction.flattenAll.command == .flatten)
     #expect(BotAction.stopBot.command == .stopBot)
     #expect(BotAction.emergency.command == .emergency)
+  }
+
+  @Test("Only the emergency stop is held before it asks; every other command is a click")
+  func onlyTheEmergencyStopHolds() {
+    let actions: [BotAction] = [.pauseEntries, .resumeEntries, .cancelOrders, .flatten(symbol: "ABCD"), .flattenAll,
+      .stopBot, .emergency]
+    #expect(actions.filter(\.holdsFirst) == [.emergency])
+    // The hold comes before the question; it never replaces it.
+    #expect(BotAction.emergency.needsConfirmation)
+  }
+
+  @Test("Commands are sorted into the design's tiers")
+  func actionsHaveTheirTiers() {
+    #expect(BotAction.pauseEntries.tier == .secondary(.warning))
+    #expect(BotAction.resumeEntries.tier == .secondary(.accent))
+    #expect(BotAction.cancelOrders.tier == .secondary(.neutral))
+    for action in [BotAction.flatten(symbol: "ABCD"), .flattenAll, .stopBot] {
+      #expect(action.tier == .destructive)
+    }
   }
 
   @Test("The chart builds its plot once per new bars or timeframe; an unchanged read reuses it")

@@ -90,13 +90,13 @@ enum L10n {
     LocalizedStringResource("kit.exit.operator", defaultValue: "operator exit", bundle: bundle)
   }
   static var exitOperatorFlatten: LocalizedStringResource {
-    LocalizedStringResource("kit.exit.operatorFlatten", defaultValue: "flattened", bundle: bundle)
+    LocalizedStringResource("kit.exit.operatorFlatten", defaultValue: "closed", bundle: bundle)
   }
   static var exitInterrupted: LocalizedStringResource {
     LocalizedStringResource("kit.exit.interrupted", defaultValue: "interrupted", bundle: bundle)
   }
   static var exitSessionEnd: LocalizedStringResource {
-    LocalizedStringResource("kit.exit.sessionEnd", defaultValue: "session end", bundle: bundle)
+    LocalizedStringResource("kit.exit.sessionEnd", defaultValue: "end-of-day close", bundle: bundle)
   }
   static var exitStreamLost: LocalizedStringResource {
     LocalizedStringResource("kit.exit.streamLost", defaultValue: "quotes lost", bundle: bundle)
@@ -133,7 +133,7 @@ enum L10n {
   }
   /// Operator command: close every position the bot holds.
   static var commandFlatten: LocalizedStringResource {
-    LocalizedStringResource("kit.command.flatten", defaultValue: "Flatten", bundle: bundle)
+    LocalizedStringResource("kit.command.flatten", defaultValue: "Close all", bundle: bundle)
   }
   /// Operator command: stop the bot gracefully; it stays stopped until started again.
   static var commandStopBot: LocalizedStringResource {

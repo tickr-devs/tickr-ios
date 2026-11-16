@@ -32,7 +32,8 @@ struct MenuBarPanel: View {
       TodayResult().rise(step: Order.result.rawValue)
       MenuPositions().rise(step: Order.positions.rawValue)
       FlowDots().rise(step: Order.flow.rawValue)
-      // The commands as one pill, centred under the flow.
+      // The commands in the design's tiers, compact: pause and cancel, Close all, then the
+      // emergency stop behind its divider.
       BotControls(compact: true, place: .menuBar)
         .frame(maxWidth: .infinity)
         .rise(step: Order.controls.rawValue)

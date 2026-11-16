@@ -197,7 +197,7 @@ enum L10n {
       LocalizedStringResource("control.startTitle", defaultValue: "Start the bot?", bundle: L10n.bundle)
     }
     static var startBot: LocalizedStringResource {
-      LocalizedStringResource("control.startBot", defaultValue: "Start the Bot", bundle: L10n.bundle)
+      LocalizedStringResource("control.startBot", defaultValue: "Start bot", bundle: L10n.bundle)
     }
     static var stopTitle: LocalizedStringResource {
       LocalizedStringResource("control.stopTitle",
@@ -222,22 +222,35 @@ enum L10n {
         bundle: L10n.bundle)
     }
     static var resume: LocalizedStringResource {
-      LocalizedStringResource("control.resume", defaultValue: "Resume Entries", bundle: L10n.bundle)
+      LocalizedStringResource("control.resume", defaultValue: "Resume entries", bundle: L10n.bundle)
     }
     static var pause: LocalizedStringResource {
-      LocalizedStringResource("control.pause", defaultValue: "Pause Entries", bundle: L10n.bundle)
+      LocalizedStringResource("control.pause", defaultValue: "Pause entries", bundle: L10n.bundle)
     }
     static var cancelOrders: LocalizedStringResource {
-      LocalizedStringResource("control.cancelOrders", defaultValue: "Cancel Own Orders", bundle: L10n.bundle)
+      LocalizedStringResource("control.cancelOrders", defaultValue: "Cancel orders", bundle: L10n.bundle)
     }
     static var flattenAll: LocalizedStringResource {
-      LocalizedStringResource("control.flattenAll", defaultValue: "Flatten All Positions", bundle: L10n.bundle)
+      LocalizedStringResource("control.flattenAll", defaultValue: "Close all", bundle: L10n.bundle)
     }
     static var stopBot: LocalizedStringResource {
-      LocalizedStringResource("control.stopBot", defaultValue: "Stop the Bot", bundle: L10n.bundle)
+      LocalizedStringResource("control.stopBot", defaultValue: "Stop bot", bundle: L10n.bundle)
     }
     static var emergency: LocalizedStringResource {
-      LocalizedStringResource("control.emergency", defaultValue: "Emergency: Pause, Cancel, Flatten", bundle: L10n.bundle)
+      LocalizedStringResource("control.emergency", defaultValue: "Emergency stop", bundle: L10n.bundle)
+    }
+    /// Caption of the divider above the emergency stop, which sets it apart from the commands.
+    static var lastResort: LocalizedStringResource {
+      LocalizedStringResource("control.lastResort", defaultValue: "Last resort", bundle: L10n.bundle)
+    }
+    /// The emergency stop's second line: what it does, in order.
+    static var emergencyDetail: LocalizedStringResource {
+      LocalizedStringResource("control.emergencyDetail",
+        defaultValue: "pauses entries · cancels entry orders · sells all", bundle: L10n.bundle)
+    }
+    /// The pill on every command while commands go to the demo day.
+    static var demoTag: LocalizedStringResource {
+      LocalizedStringResource("control.demoTag", defaultValue: "Demo", bundle: L10n.bundle)
     }
     /// A command confirmation's message with where the command goes: the demo day.
     static func toDemo(_ message: String) -> LocalizedStringResource {
@@ -251,18 +264,18 @@ enum L10n {
     static var short: LocalizedStringResource {
       LocalizedStringResource("control.short",
         // swiftlint:disable:next line_length
-        defaultValue: "Pausing and cancelling never touch broker stops; flattening cancels each stop only right before its sale. Each command is sent once.",
+        defaultValue: "Pausing and cancelling never touch broker stops; closing a position cancels its stop only right before its sale. Each command is sent once.",
         bundle: L10n.bundle)
     }
     static var unknown: LocalizedStringResource {
       LocalizedStringResource("control.unknown", defaultValue: "Bot status unknown", bundle: L10n.bundle)
     }
     static func state(_ state: String) -> LocalizedStringResource {
-      LocalizedStringResource("control.state", defaultValue: "Bot is \(state)", bundle: L10n.bundle)
+      LocalizedStringResource("control.state", defaultValue: "Bot · \(state)", bundle: L10n.bundle)
     }
     static func statePaused(_ state: String) -> LocalizedStringResource {
       LocalizedStringResource("control.statePaused",
-        defaultValue: "Bot is \(state) · entries paused",
+        defaultValue: "Bot · \(state) · entries paused",
         bundle: L10n.bundle)
     }
     static func reason(_ command: String) -> LocalizedStringResource {
@@ -510,14 +523,15 @@ enum L10n {
     static var toStop: LocalizedStringResource {
       LocalizedStringResource("positions.toStop", defaultValue: "to stop", bundle: L10n.bundle)
     }
-    static func flattenEllipsis(_ symbol: String) -> LocalizedStringResource {
-      LocalizedStringResource("positions.flattenEllipsis", defaultValue: "Flatten \(symbol)…", bundle: L10n.bundle)
+    /// The close button under a position: closes this one position, after a confirmation.
+    static var closePosition: LocalizedStringResource {
+      LocalizedStringResource("positions.closePosition", defaultValue: "Close position", bundle: L10n.bundle)
     }
     static func closeNow(_ symbol: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.closeNow", defaultValue: "Close \(symbol) now?", bundle: L10n.bundle)
     }
     static func flatten(_ symbol: String) -> LocalizedStringResource {
-      LocalizedStringResource("positions.flatten", defaultValue: "Flatten \(symbol)", bundle: L10n.bundle)
+      LocalizedStringResource("positions.flatten", defaultValue: "Close \(symbol) position", bundle: L10n.bundle)
     }
     static var flattenMessage: LocalizedStringResource {
       LocalizedStringResource("positions.flattenMessage",
@@ -734,7 +748,7 @@ enum L10n {
       LocalizedStringResource("risk.lastEntry", defaultValue: "Last entry", bundle: L10n.bundle)
     }
     static var flatten: LocalizedStringResource {
-      LocalizedStringResource("risk.flatten", defaultValue: "Close everything", bundle: L10n.bundle)
+      LocalizedStringResource("risk.flatten", defaultValue: "Close all", bundle: L10n.bundle)
     }
     static var halfDays: LocalizedStringResource {
       LocalizedStringResource("risk.halfDays", defaultValue: "Half days", bundle: L10n.bundle)
@@ -1502,9 +1516,6 @@ enum L10n {
   }
 
   enum Settings {
-    static var start: LocalizedStringResource {
-      LocalizedStringResource("settings.start", defaultValue: "Start", bundle: L10n.bundle)
-    }
     static var demoDay: LocalizedStringResource {
       LocalizedStringResource("settings.demoDay", defaultValue: "Demo day", bundle: L10n.bundle)
     }
@@ -1709,10 +1720,7 @@ enum L10n {
     static var connected: LocalizedStringResource {
       LocalizedStringResource("settings.connected", defaultValue: "Connected", bundle: L10n.bundle)
     }
-    /// The bot row's Stop (opens bot control) and what the bot holds under its state.
-    static var stop: LocalizedStringResource {
-      LocalizedStringResource("settings.stop", defaultValue: "Stop", bundle: L10n.bundle)
-    }
+    /// What the bot holds, under its state in the bot row.
     static var holdsNothing: LocalizedStringResource {
       LocalizedStringResource("settings.holdsNothing", defaultValue: "flat", bundle: L10n.bundle)
     }
