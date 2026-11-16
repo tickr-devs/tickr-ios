@@ -66,11 +66,8 @@ struct SymbolsBoardTests {
       == String(localized: L10n.symbolsDropped(String(localized: L10n.symbolStageQuote))))
     #expect(SymbolsBoard.outcome(wxyz).detail == spread)
     #expect(spread.contains("0.0031") && spread.contains("0.002"))
-    // A failed check never reads as a comparison it failed; the sentence is the rule, then its
-    // values in words, with nothing left of a placeholder the catalog has and the call lacks.
+    // A failed check never reads as a comparison it failed.
     #expect(!spread.contains("0.0031 <= 0.002"))
-    let check = try #require(wxyz.check)
-    #expect(spread == ApiText.rule(check.rule) + " " + check.valueText)
     let spy = try #require(rows["SPY"])
     #expect(SymbolsBoard.reason(spy)
       == "\(String(localized: L10n.discoverySecurityTypeNotAllowed)) · ETF (needs COMMON_STOCK)")

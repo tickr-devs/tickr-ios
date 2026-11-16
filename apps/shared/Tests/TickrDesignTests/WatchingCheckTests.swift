@@ -6,7 +6,8 @@ import TickrDesign
 /// The apps' price rule, as both apps pass it.
 private let prices = PriceText.money
 
-/// A watching-v1 row as the API sends it, with its deciding check and the decision's levels.
+/// A watching-v1 row as the API sends it, with its deciding check (flagged by the bot when its rule
+/// is a price against the trigger) and the decision's levels.
 private func row(
   measured: String?, op: String = ">", threshold: String?, passed: Bool = false, rule: String = "ask_above_trigger",
   closeness: String? = nil, cause: String? = nil, trigger: String? = nil, invalidation: String? = nil,
@@ -15,14 +16,14 @@ private func row(
   func quoted(_ text: String?) -> String { text.map { "\"\($0)\"" } ?? "null" }
   let check = decisive ? """
     {"rule": "\(rule)", "measured": \(quoted(measured)), "operator": "\(op)",
-     "threshold": \(quoted(threshold)), "passed": \(passed), "note": ""}
+     "threshold": \(quoted(threshold)), "passed": \(passed), "note": "", "against_trigger": \(againstTrigger)}
     """ : "null"
   let json = """
   {"symbol": "ABCD", "at": "2026-11-16T15:00:00.000Z", "strategy": {"name": "price-action-v3", "version": "1"},
    "verdict": "WATCH", "decisive_check": \(check),
    "closeness": \(quoted(closeness)), "closeness_cause": \(quoted(cause)),
    "quote_age_seconds": null, "quote_age_cause": "not recorded",
-   "trigger": \(quoted(trigger)), "invalidation": \(quoted(invalidation)), "against_trigger": \(againstTrigger)}
+   "trigger": \(quoted(trigger)), "invalidation": \(quoted(invalidation))}
   """
   return try Wire.decoder().decode(WatchingRowV1.self, from: Data(json.utf8))
 }
@@ -87,9 +88,10 @@ private func row(
     #expect(WatchingCheck.state(flag, prices: prices) == "not met")
     #expect(WatchingCheck.progress(flag) == nil)
     #expect(WatchingCheck.unmeasured(flag) != nil)
-    // A count, not a price: what it needs, as recorded, with no price rounding and no scale.
+    // A count, not a price, even with its threshold equal to the trigger's number: the bot did
+    // not flag it, so it reads as recorded, with no price rounding and no scale.
     let count = try row(measured: "1", op: ">=", threshold: "2", rule: "trigger_confirmation", closeness: "0.5",
-      trigger: "57.11", invalidation: "56.80", againstTrigger: false)
+      trigger: "2", invalidation: "0.5", againstTrigger: false)
     #expect(WatchingCheck.state(count, prices: prices) == "1 · needs >= 2")
     #expect(WatchingCheck.scale(count, prices: prices) == nil)
     #expect(abs((WatchingCheck.progress(count) ?? 0) - 0.5) < Self.tolerance)
@@ -108,6 +110,18 @@ private func row(
     #expect(flag.valueText == "met")
   }
 
+  @Test("Only the bot's flag makes a check a price against the trigger, never equal numbers")
+  func flagNotEquality() throws {
+    // The same numbers, flagged and not: only the flagged one is a price with a distance.
+    let flagged = try row(measured: "1", op: ">=", threshold: "2", closeness: "0.3333", trigger: "2", invalidation: "0.5")
+    #expect(WatchingCheck.state(flagged, prices: prices) == "1.00 · trigger 2.00 · 1.00 to go")
+    #expect(WatchingCheck.scale(flagged, prices: prices) == "Empty at the invalidation 0.5000, full at the trigger 2.00")
+    let count = try row(measured: "1", op: ">=", threshold: "2", rule: "trigger_confirmation", closeness: "0.5",
+      trigger: "2", invalidation: "0.5", againstTrigger: false)
+    #expect(WatchingCheck.state(count, prices: prices) == "1 · needs >= 2")
+    #expect(WatchingCheck.scale(count, prices: prices) == nil)
+  }
+
   @Test("An older bot's row decodes without the levels")
   func olderRow() throws {
     let json = """
@@ -116,6 +130,11 @@ private func row(
      "quote_age_seconds": null, "quote_age_cause": "not recorded"}
     """
     let r = try Wire.decoder().decode(WatchingRowV1.self, from: Data(json.utf8))
-    #expect(r.trigger == nil && r.invalidation == nil && !r.againstTrigger)
+    #expect(r.trigger == nil && r.invalidation == nil && r.decisiveCheck == nil)
+    // An older bot's check has no flag: never treated as a price against the trigger.
+    let check = try Wire.decoder().decode(CheckV1.self, from: Data("""
+      {"rule": "ask_above_trigger", "measured": "1", "operator": ">", "threshold": "2", "passed": false, "note": ""}
+      """.utf8))
+    #expect(!check.againstTrigger)
   }
 }

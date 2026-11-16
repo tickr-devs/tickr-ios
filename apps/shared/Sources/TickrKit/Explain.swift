@@ -27,8 +27,15 @@ public struct CheckV1: Codable, Hashable, Sendable {
   public let threshold: DecimalString?
   public let passed: Bool
   public let note: String
+  /// The rule is one the strategies record as a price against their setup's trigger (the
+  /// threshold is the trigger): set by the bot from the rule, never from the values. False from
+  /// an older bot.
+  public let againstTrigger: Bool
 
-  enum CodingKeys: String, CodingKey { case rule, measured, `operator`, threshold, passed, note }
+  enum CodingKeys: String, CodingKey {
+    case rule, measured, `operator`, threshold, passed, note
+    case againstTrigger = "against_trigger"
+  }
 
   public init(from decoder: Decoder) throws {
     let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -38,6 +45,8 @@ public struct CheckV1: Codable, Hashable, Sendable {
     threshold = try c.decodeNullable(DecimalString.self, forKey: .threshold)
     passed = try c.decode(Bool.self, forKey: .passed)
     note = try c.decode(String.self, forKey: .note)
+    // Added after version 1 shipped: absent from an older bot's documents.
+    againstTrigger = try c.decodeIfPresent(Bool.self, forKey: .againstTrigger) ?? false
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -48,6 +57,7 @@ public struct CheckV1: Codable, Hashable, Sendable {
     try c.encodeNullable(threshold, forKey: .threshold)
     try c.encode(passed, forKey: .passed)
     try c.encode(note, forKey: .note)
+    try c.encode(againstTrigger, forKey: .againstTrigger)
   }
 }
 

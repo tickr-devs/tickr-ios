@@ -56,7 +56,7 @@ public enum WatchingCheck {
   /// The side comes from the recorded operator, never assumed.
   public static func state(_ row: WatchingRowV1, prices: PriceText) -> String {
     guard let check = row.decisiveCheck else { return nothingFailed(row, prices: prices) }
-    guard row.againstTrigger, let measured = check.measured?.value, let trigger = check.threshold?.value,
+    guard check.againstTrigger, let measured = check.measured?.value, let trigger = check.threshold?.value,
       let side = CheckSide(operator: check.operator)
     else { return check.valueText }
     let m = prices.price(measured)
@@ -102,7 +102,7 @@ public enum WatchingCheck {
   /// What the bar's ends mean: "Empty at the invalidation 56.80, full at the trigger 57.11" for a
   /// check against the trigger; nil for a check measured from zero.
   public static func scale(_ row: WatchingRowV1, prices: PriceText) -> String? {
-    guard row.againstTrigger, row.closeness != nil, let trigger = row.trigger?.value,
+    guard row.decisiveCheck?.againstTrigger == true, row.closeness != nil, let trigger = row.trigger?.value,
       let invalidation = row.invalidation?.value
     else { return nil }
     return String(localized: L10n.watchingScale(prices.price(invalidation), prices.price(trigger)))

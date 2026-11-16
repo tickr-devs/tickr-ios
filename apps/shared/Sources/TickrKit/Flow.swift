@@ -220,9 +220,6 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
   public let trigger: DecimalString?
   /// The decision's recorded invalidation price; nil when it recorded none (or an older bot).
   public let invalidation: DecimalString?
-  /// The decisive check's threshold is the recorded trigger: its values are prices, and
-  /// `closeness` runs from the invalidation (0) to the trigger (1). False from an older bot.
-  public let againstTrigger: Bool
 
   enum CodingKeys: String, CodingKey {
     case symbol, at, strategy, verdict, closeness
@@ -233,7 +230,6 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
     case closenessCauseCodes = "closeness_cause_codes"
     case quoteAgeCauseCodes = "quote_age_cause_codes"
     case trigger, invalidation
-    case againstTrigger = "against_trigger"
   }
 
   public init(from decoder: Decoder) throws {
@@ -252,7 +248,6 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
     // Added after version 1 shipped: absent from an older bot's documents (the recorded demo day).
     trigger = try c.decodeIfPresent(DecimalString.self, forKey: .trigger)
     invalidation = try c.decodeIfPresent(DecimalString.self, forKey: .invalidation)
-    againstTrigger = try c.decodeIfPresent(Bool.self, forKey: .againstTrigger) ?? false
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -270,7 +265,6 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
     try c.encode(quoteAgeCauseCodes, forKey: .quoteAgeCauseCodes)
     try c.encodeNullable(trigger, forKey: .trigger)
     try c.encodeNullable(invalidation, forKey: .invalidation)
-    try c.encode(againstTrigger, forKey: .againstTrigger)
   }
 
   /// Why closeness is unknown, in the person's language (the bot's words for an unknown code).
