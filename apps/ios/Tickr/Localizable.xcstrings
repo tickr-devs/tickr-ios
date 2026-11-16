@@ -9183,13 +9183,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "US exchange hours: extended 04:00–20:00, regular 09:30–16:00. Half days are not drawn."
+            "value" : "Today's hours from the bot's exchange calendar. Extended hours are shown, not traded."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Часы бирж США: расширенные 04:00–20:00, основные 09:30–16:00. Сокращённые дни не показаны."
+            "value" : "Часы сегодняшнего дня из биржевого календаря бота. Расширенные часы показаны, но не торгуются."
           }
         }
       }

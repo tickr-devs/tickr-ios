@@ -1460,7 +1460,7 @@ enum L10n {
     }
     static var sessionFooter: LocalizedStringResource {
       LocalizedStringResource("settings.sessionFooter",
-        defaultValue: "US exchange hours: extended 04:00–20:00, regular 09:30–16:00. Half days are not drawn.",
+        defaultValue: "Today's hours from the bot's exchange calendar. Extended hours are shown, not traded.",
         bundle: L10n.bundle)
     }
     static var regularHours: LocalizedStringResource {

@@ -19,8 +19,10 @@ struct EnvironmentSection: View {
   }
 }
 
-/// The trading day in New York time as a bar, extended hours either side of the regular session,
-/// with a cursor at now; then the bot's last entry and close-everything times.
+/// Today's trading day in New York time as a bar from the bot's `/jobs` session (its exchange
+/// calendar: extended hours either side of the regular session, half days included), with a
+/// cursor at now; or why there is no session today. Then the bot's last entry and close-everything
+/// times.
 struct SessionSection: View {
   /// Whether the extended hours' planned stripes drift: an ornament that reads as "the bot is at
   /// work", so only while it is (`OrnamentGate`: running, the live day with a fresh status,
@@ -35,13 +37,22 @@ struct SessionSection: View {
   static let flattenSymbol = "rectangle.portrait.and.arrow.right"
 
   let session: SessionSettings?
+  /// Today's session from `/jobs`, or why there is none (a weekend, a closure).
+  let times: SessionTimesV1?
+  let cause: String?
   /// Whether the planned stripes drift (`stripesMove`).
   let moving: Bool
 
   var body: some View {
     SettingsCard(L10n.Settings.session, note: L10n.Settings.sessionFooter) {
-      SessionBar(moving: moving)
-        .padding(.vertical, Tokens.Space.s)
+      if let times {
+        SessionBar(span: SessionSpan(times), moving: moving)
+          .padding(.vertical, Tokens.Space.s)
+      } else if let cause {
+        Text(verbatim: cause)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textTertiary)
+      }
       if let session {
         SettingsRow(L10n.Risk.lastEntry, systemImage: Self.lastEntrySymbol, tone: .info) {
           Text(L10n.Risk.beforeClose(session.lastEntryMinutesBeforeClose))
@@ -54,26 +65,18 @@ struct SessionSection: View {
   }
 }
 
-/// Extended hours (04:00 to 20:00 New York), striped as planned, with the regular session (09:30 to
-/// 16:00) filled and a cursor at now. US exchange hours; half days are not drawn.
+/// The day's extended hours, striped as planned, with the regular session filled and a cursor at
+/// now on the bot's clock; every time from `span`.
 ///
 /// Its motion, as the design's: the cursor glides to each new minute at an even pace
 /// (`Motion.nowGlide`), once per real change of the time; the planned stripes drift while `moving`
 /// (ornament). Under Reduce Motion both stand still.
 private struct SessionBar: View {
+  let span: SessionSpan
   let moving: Bool
   @Environment(AppModel.self) private var model
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-  /// Minutes after New York midnight where the bar starts and ends (extended hours), and the
-  /// regular session.
-  static let extendedOpen = 240
-  static let regularOpen = 570
-  static let regularClose = 960
-  static let extendedClose = 1200
-  /// Minutes in an hour, and seconds in a minute.
-  static let minutesPerHour = 60
-  static let secondsPerMinute = 60.0
   /// Height of the bar, in points.
   static let height: CGFloat = 18
 
@@ -81,6 +84,7 @@ private struct SessionBar: View {
     TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
       // The bot's clock, as the Mac's strip: the phone's own may be off.
       let now = model.botTime(context.date)
+      let minute = SessionSpan.minute(now)
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         HStack {
           Text(verbatim: Format.clock(now))
@@ -88,28 +92,29 @@ private struct SessionBar: View {
             .monospacedDigit()
             .contentTransition(.numericText())
           Spacer()
-          Text(phase(at: now))
+          Text(Self.partName(span.part(at: now)))
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textTertiary)
         }
         GeometryReader { proxy in
           let width = proxy.size.width
+          let x = { (date: Date) -> CGFloat in CGFloat(span.share(date)) * width }
           ZStack(alignment: .leading) {
             Capsule().fill(Palette.separator)
             Hatch(Palette.highlight, moving: moving)
-              .frame(width: width * share(Self.regularOpen))
+              .frame(width: x(span.regularOpen))
             Hatch(Palette.highlight, moving: moving)
-              .frame(width: width - width * share(Self.regularClose))
-              .offset(x: width * share(Self.regularClose))
+              .frame(width: width - x(span.regularClose))
+              .offset(x: x(span.regularClose))
             Rectangle()
               .fill(Palette.accent.opacity(Tokens.Opacity.border))
-              .frame(width: width * share(Self.regularClose) - width * share(Self.regularOpen))
-              .offset(x: width * share(Self.regularOpen))
-            if let minute = minutes(of: now), (Self.extendedOpen...Self.extendedClose).contains(minute) {
+              .frame(width: x(span.regularClose) - x(span.regularOpen))
+              .offset(x: x(span.regularOpen))
+            if span.contains(minute) {
               Rectangle()
                 .fill(Palette.textPrimary)
                 .frame(width: Tokens.Stroke.bold)
-                .offset(x: width * share(minute))
+                .offset(x: x(minute))
                 .animation(reduceMotion ? nil : Tokens.Motion.nowGlide, value: minute)
             }
           }
@@ -117,9 +122,9 @@ private struct SessionBar: View {
         }
         .frame(height: Self.height)
         HStack {
-          ForEach([Self.extendedOpen, Self.regularOpen, Self.regularClose, Self.extendedClose], id: \.self) { mark in
-            if mark != Self.extendedOpen { Spacer() }
-            Text(verbatim: Format.time(label(mark, on: now)))
+          ForEach([span.start, span.regularOpen, span.regularClose, span.end], id: \.self) { mark in
+            if mark != span.start { Spacer() }
+            Text(verbatim: Format.time(mark))
           }
         }
         .font(Tokens.Typography.annotation)
@@ -130,31 +135,13 @@ private struct SessionBar: View {
     .accessibilityElement(children: .combine)
   }
 
-  /// Where `minute` falls on the bar, from 0 at its start to 1 at its end.
-  private func share(_ minute: Int) -> CGFloat {
-    CGFloat(minute - Self.extendedOpen) / CGFloat(Self.extendedClose - Self.extendedOpen)
-  }
-
-  /// Minutes after New York midnight of `date`.
-  private func minutes(of date: Date) -> Int? {
-    let parts = WireDate.newYork.dateComponents([.hour, .minute], from: date)
-    guard let hour = parts.hour, let minute = parts.minute else { return nil }
-    return hour * Self.minutesPerHour + minute
-  }
-
-  /// Today at `minute` after New York midnight, for its label.
-  private func label(_ minute: Int, on day: Date) -> Date {
-    let midnight = WireDate.newYork.startOfDay(for: day)
-    return midnight.addingTimeInterval(Double(minute) * Self.secondsPerMinute)
-  }
-
-  private func phase(at date: Date) -> LocalizedStringResource {
-    guard let now = minutes(of: date) else { return L10n.Settings.closed }
-    switch now {
-    case Self.regularOpen..<Self.regularClose: return L10n.Settings.regularHours
-    case Self.extendedOpen..<Self.regularOpen: return L10n.Settings.preMarket
-    case Self.regularClose..<Self.extendedClose: return L10n.Settings.afterHours
-    default: return L10n.Settings.closed
+  /// What the part of the day is called beside the clock.
+  static func partName(_ part: SessionSpan.Part) -> LocalizedStringResource {
+    switch part {
+    case .regular: L10n.Settings.regularHours
+    case .preMarket: L10n.Settings.preMarket
+    case .afterHours: L10n.Settings.afterHours
+    case .closed: L10n.Settings.closed
     }
   }
 }

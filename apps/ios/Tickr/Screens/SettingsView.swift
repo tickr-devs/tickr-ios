@@ -68,8 +68,8 @@ struct SettingsView: View {
         EnvironmentSection(status: status).cardRise(step: Order.environment.rawValue)
       }
       if model.isConfigured {
-        SessionSection(session: model.settings?.session,
-          moving: SessionSection.stripesMove(reduceMotion: reduceMotion, model: model))
+        SessionSection(session: model.settings?.session, times: model.jobs?.session,
+          cause: model.jobs?.sessionCause, moving: SessionSection.stripesMove(reduceMotion: reduceMotion, model: model))
           .cardRise(step: Order.session.rawValue)
         PreflightSection().cardRise(step: Order.preflight.rawValue)
         JobsSection().cardRise(step: Order.jobs.rawValue)
