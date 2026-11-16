@@ -944,8 +944,13 @@ private struct AccountCard: View {
           Text(verbatim: position.quantity.text)
           Text(verbatim: position.avgPrice?.text ?? Format.missing)
             .foregroundStyle(Palette.textTertiary)
+          Text(verbatim: position.lastPrice?.text ?? Format.missing)
+          Text(verbatim: position.unrealizedPlUsd.map { Money.signed($0.value) } ?? Format.missing)
+            .foregroundStyle(position.unrealizedPlUsd.map { Palette.result($0.value) } ?? Palette.textQuaternary)
         }
         .font(Tokens.Typography.calloutMono)
+        .lineLimit(1)
+        .minimumScaleFactor(Tokens.Shrink.standard)
       }
       SectionHeader(Text(L10n.Risk.brokerOrders)) { note(L10n.Risk.ordersOpen) }
         .padding(.top, Tokens.Space.xs)
@@ -971,8 +976,31 @@ private struct AccountCard: View {
         .lineLimit(1)
         .minimumScaleFactor(Tokens.Shrink.standard)
       }
-      PlannedLine(text: L10n.Risk.accountPlanned)
+      SectionHeader(Text(L10n.Risk.fillsToday)) { note(L10n.Risk.fillsColumns) }
         .padding(.top, Tokens.Space.xs)
+      if account.fills.isEmpty {
+        empty
+      }
+      ForEach(account.fills, id: \.self) { fill in
+        HStack(spacing: Tokens.Space.s) {
+          Text(verbatim: Format.marketTime(fill.filledAt?.date))
+            .foregroundStyle(Palette.textTertiary)
+          Text(verbatim: fill.symbol).fontWeight(.bold)
+          Text(verbatim: ApiText.orderSide(fill.side))
+          Text(verbatim: ApiText.orderType(fill.type))
+          Text(verbatim: fill.quantity.text)
+          Spacer()
+          Text(verbatim: fill.price?.text ?? Format.missing)
+          Text(verbatim: fill.feesUsd?.text ?? Format.missing)
+            .foregroundStyle(Palette.warningText)
+          if !fill.ours {
+            Badge(L10n.Risk.notOurs, color: Palette.warningText)
+          }
+        }
+        .font(Tokens.Typography.calloutMono)
+        .lineLimit(1)
+        .minimumScaleFactor(Tokens.Shrink.standard)
+      }
       Spacer(minLength: 0)
       Text(L10n.Risk.readAt(Format.marketTime(account.readAt.date), Format.wholeSeconds(response.ageSeconds.value)))
         .font(Tokens.Typography.annotation)

@@ -7817,6 +7817,23 @@
         }
       }
     },
+    "risk.brokerPositions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker positions"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиции у брокера"
+          }
+        }
+      }
+    },
     "risk.buyingPower" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7902,6 +7919,23 @@
         }
       }
     },
+    "risk.fees" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fees %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "комиссии %@"
+          }
+        }
+      }
+    },
     "risk.fences" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7915,6 +7949,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ограждения"
+          }
+        }
+      }
+    },
+    "risk.fillsToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fills today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Исполнения за сегодня"
           }
         }
       }
@@ -8136,6 +8187,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "без ограничений"
+          }
+        }
+      }
+    },
+    "risk.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "none"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нет"
           }
         }
       }

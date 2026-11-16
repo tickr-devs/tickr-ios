@@ -2630,10 +2630,13 @@ enum L10n {
         defaultValue: "The account kind as the broker names it. The account id is never shown or stored.",
         bundle: L10n.bundle)
     }
-    /// Account card: what the broker could show that the bot does not read yet.
-    static var accountPlanned: LocalizedStringResource {
-      LocalizedStringResource("risk.accountPlanned", defaultValue: "per-position P&L · order history and fees",
-        bundle: L10n.bundle)
+    /// Today's fills the broker lists.
+    static var fillsToday: LocalizedStringResource {
+      LocalizedStringResource("risk.fillsToday", defaultValue: "Fills today", bundle: L10n.bundle)
+    }
+    /// Columns of a fill row after the order: price and fees.
+    static var fillsColumns: LocalizedStringResource {
+      LocalizedStringResource("risk.fillsColumns", defaultValue: "price · fees", bundle: L10n.bundle)
     }
     /// Badge: the broker's view matches the bot's records.
     static var matches: LocalizedStringResource {
@@ -2836,7 +2839,7 @@ enum L10n {
     }
     /// Broker positions: the columns.
     static var positionsColumns: LocalizedStringResource {
-      LocalizedStringResource("risk.positionsColumns", defaultValue: "qty · avg", bundle: L10n.bundle)
+      LocalizedStringResource("risk.positionsColumns", defaultValue: "qty · avg · last · P&L", bundle: L10n.bundle)
     }
     /// Broker orders: which ones are listed.
     static var ordersOpen: LocalizedStringResource {

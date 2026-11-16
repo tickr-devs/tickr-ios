@@ -7531,23 +7531,6 @@
         }
       }
     },
-    "risk.accountPlanned" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "per-position P&L · order history and fees"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "P&L по позициям · история ордеров и комиссии"
-          }
-        }
-      }
-    },
     "risk.accountReading" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8054,6 +8037,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "с %@"
+          }
+        }
+      }
+    },
+    "risk.fillsColumns" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "price · fees"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "цена · комиссии"
+          }
+        }
+      }
+    },
+    "risk.fillsToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fills today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Исполнения за сегодня"
           }
         }
       }
@@ -8574,13 +8591,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "qty · avg"
+            "value" : "qty · avg · last · P&L"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "кол-во · средняя"
+            "value" : "кол-во · средняя · последняя · P&L"
           }
         }
       }

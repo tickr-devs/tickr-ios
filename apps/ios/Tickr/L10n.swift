@@ -652,6 +652,22 @@ enum L10n {
       LocalizedStringResource("risk.balanceNote",
         defaultValue: "The bot has not read the balance from the broker yet.", bundle: L10n.bundle)
     }
+    /// Positions the broker reports.
+    static var brokerPositions: LocalizedStringResource {
+      LocalizedStringResource("risk.brokerPositions", defaultValue: "Broker positions", bundle: L10n.bundle)
+    }
+    /// Today's fills the broker lists.
+    static var fillsToday: LocalizedStringResource {
+      LocalizedStringResource("risk.fillsToday", defaultValue: "Fills today", bundle: L10n.bundle)
+    }
+    /// An empty list of broker positions or fills.
+    static var none: LocalizedStringResource {
+      LocalizedStringResource("risk.none", defaultValue: "none", bundle: L10n.bundle)
+    }
+    /// A fill's fees.
+    static func fees(_ amount: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.fees", defaultValue: "fees \(amount)", bundle: L10n.bundle)
+    }
     /// The account file could not be read.
     static var accountUnavailable: LocalizedStringResource {
       LocalizedStringResource("risk.accountUnavailable",

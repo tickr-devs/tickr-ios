@@ -4,16 +4,25 @@ import Foundation
 // src/tickr/api/contract.py: the broker's own view of the account at its last read, and
 // whether it matches the bot's records.
 
-/// A position as the broker reports it.
+/// A position as the broker reports it. The figures after `avgPrice` are the broker's own,
+/// display only; nil when not shown (or from a bot older than them).
 public struct AccountPositionV1: Codable, Hashable, Sendable {
   public let symbol: String
   public let quantity: DecimalString
   /// Average price; nil when the broker did not report it.
   public let avgPrice: DecimalString?
+  public let lastPrice: DecimalString?
+  public let marketValueUsd: DecimalString?
+  public let unrealizedPlUsd: DecimalString?
+  public let dayPlUsd: DecimalString?
 
   enum CodingKeys: String, CodingKey {
     case symbol, quantity
     case avgPrice = "avg_price"
+    case lastPrice = "last_price"
+    case marketValueUsd = "market_value_usd"
+    case unrealizedPlUsd = "unrealized_pl_usd"
+    case dayPlUsd = "day_pl_usd"
   }
 
   public init(from decoder: Decoder) throws {
@@ -21,6 +30,11 @@ public struct AccountPositionV1: Codable, Hashable, Sendable {
     symbol = try c.decode(String.self, forKey: .symbol)
     quantity = try c.decode(DecimalString.self, forKey: .quantity)
     avgPrice = try c.decodeNullable(DecimalString.self, forKey: .avgPrice)
+    // Added after version 1 shipped.
+    lastPrice = try c.decodeIfPresent(DecimalString.self, forKey: .lastPrice)
+    marketValueUsd = try c.decodeIfPresent(DecimalString.self, forKey: .marketValueUsd)
+    unrealizedPlUsd = try c.decodeIfPresent(DecimalString.self, forKey: .unrealizedPlUsd)
+    dayPlUsd = try c.decodeIfPresent(DecimalString.self, forKey: .dayPlUsd)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -28,6 +42,61 @@ public struct AccountPositionV1: Codable, Hashable, Sendable {
     try c.encode(symbol, forKey: .symbol)
     try c.encode(quantity, forKey: .quantity)
     try c.encodeNullable(avgPrice, forKey: .avgPrice)
+    try c.encodeNullable(lastPrice, forKey: .lastPrice)
+    try c.encodeNullable(marketValueUsd, forKey: .marketValueUsd)
+    try c.encodeNullable(unrealizedPlUsd, forKey: .unrealizedPlUsd)
+    try c.encodeNullable(dayPlUsd, forKey: .dayPlUsd)
+  }
+}
+
+/// One of today's orders with a fill, as the broker's order history lists it. Side and type are
+/// the broker's words.
+public struct AccountFillV1: Codable, Hashable, Sendable {
+  public let clientOrderId: String?
+  public let symbol: String
+  public let side: String
+  public let type: String
+  /// Filled quantity.
+  public let quantity: DecimalString
+  /// Average fill price; nil when not shown.
+  public let price: DecimalString?
+  public let filledAt: WireTime?
+  /// The broker's actual fees summed; nil when one was unreadable.
+  public let feesUsd: DecimalString?
+  /// True when the order is in the bot's records.
+  public let ours: Bool
+
+  enum CodingKeys: String, CodingKey {
+    case symbol, side, type, quantity, price, ours
+    case clientOrderId = "client_order_id"
+    case filledAt = "filled_at"
+    case feesUsd = "fees_usd"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    clientOrderId = try c.decodeNullable(String.self, forKey: .clientOrderId)
+    symbol = try c.decode(String.self, forKey: .symbol)
+    side = try c.decode(String.self, forKey: .side)
+    type = try c.decode(String.self, forKey: .type)
+    quantity = try c.decode(DecimalString.self, forKey: .quantity)
+    price = try c.decodeNullable(DecimalString.self, forKey: .price)
+    filledAt = try c.decodeNullable(WireTime.self, forKey: .filledAt)
+    feesUsd = try c.decodeNullable(DecimalString.self, forKey: .feesUsd)
+    ours = try c.decode(Bool.self, forKey: .ours)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encodeNullable(clientOrderId, forKey: .clientOrderId)
+    try c.encode(symbol, forKey: .symbol)
+    try c.encode(side, forKey: .side)
+    try c.encode(type, forKey: .type)
+    try c.encode(quantity, forKey: .quantity)
+    try c.encodeNullable(price, forKey: .price)
+    try c.encodeNullable(filledAt, forKey: .filledAt)
+    try c.encodeNullable(feesUsd, forKey: .feesUsd)
+    try c.encode(ours, forKey: .ours)
   }
 }
 
@@ -121,6 +190,10 @@ public struct AccountV1: Codable, Hashable, Sendable {
   public let dayTradesLeft: Int?
   /// The broker's name for the account kind ("Individual Margin"); never an id or number.
   public let accountLabel: String?
+  /// When today's fills were read; nil until a read succeeds.
+  public let fillsReadAt: WireTime?
+  /// Today's orders with a fill, oldest first; empty until read.
+  public let fills: [AccountFillV1]
   public let schemaVersion: Int
 
   enum CodingKeys: String, CodingKey {
@@ -139,6 +212,8 @@ public struct AccountV1: Codable, Hashable, Sendable {
     case marginCalls = "margin_calls"
     case dayTradesLeft = "day_trades_left"
     case accountLabel = "account_label"
+    case fillsReadAt = "fills_read_at"
+    case fills
     case schemaVersion = "schema_version"
   }
 
@@ -163,6 +238,8 @@ public struct AccountV1: Codable, Hashable, Sendable {
     marginCalls = try c.decodeIfPresent(Int.self, forKey: .marginCalls)
     dayTradesLeft = try c.decodeIfPresent(Int.self, forKey: .dayTradesLeft)
     accountLabel = try c.decodeIfPresent(String.self, forKey: .accountLabel)
+    fillsReadAt = try c.decodeIfPresent(WireTime.self, forKey: .fillsReadAt)
+    fills = try c.decodeIfPresent([AccountFillV1].self, forKey: .fills) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -184,6 +261,8 @@ public struct AccountV1: Codable, Hashable, Sendable {
     try c.encodeNullable(marginCalls, forKey: .marginCalls)
     try c.encodeNullable(dayTradesLeft, forKey: .dayTradesLeft)
     try c.encodeNullable(accountLabel, forKey: .accountLabel)
+    try c.encodeNullable(fillsReadAt, forKey: .fillsReadAt)
+    try c.encode(fills, forKey: .fills)
     try c.encode(schemaVersion, forKey: .schemaVersion)
   }
 
@@ -239,6 +318,7 @@ public struct AccountResponseV1: Codable, Hashable, Sendable {
 public struct AccountState: Hashable, Sendable {
   public let balances: AccountBalances?
   public let accountLabel: String?
+  public let fills: [AccountFillV1]
   public let positions: [AccountPositionV1]
   public let orders: [AccountOrderV1]
   public let matchesRecords: Bool
@@ -250,7 +330,8 @@ extension AccountResponseV1 {
   /// The account as it stands, without the read's times (`readAt`, `servedAt`, `ageSeconds`).
   public var state: AccountState {
     AccountState(
-      balances: account.balances, accountLabel: account.accountLabel, positions: account.positions,
+      balances: account.balances, accountLabel: account.accountLabel, fills: account.fills,
+      positions: account.positions,
       orders: account.orders, matchesRecords: account.matchesRecords, mismatch: account.mismatch, stale: stale)
   }
 }

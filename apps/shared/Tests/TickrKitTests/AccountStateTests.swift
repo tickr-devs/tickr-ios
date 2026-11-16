@@ -44,6 +44,9 @@ import Testing
     #expect(balances.marginCalls == 0)
     #expect(balances.dayTradesLeft == nil)
     #expect(fresh.account.accountLabel == "Individual Margin")
+    #expect(fresh.account.positions.first?.unrealizedPlUsd?.text == "0.60")
+    #expect(fresh.account.fills.map(\.symbol) == ["WXYZ", "ABCD"])
+    #expect(fresh.account.fills.first?.feesUsd?.text == "0.07")
     #expect(fresh.account.orders.first?.stopPrice?.text == "11.90")
     let stale = try Wire.decoder().decode(AccountResponseV1.self, from: fixture("account-response-v1.stale.json"))
     #expect(stale.stale)
@@ -62,12 +65,19 @@ import Testing
     for key in [
       "balance_read_at", "cash_usd", "positions_value_usd", "unrealized_pl_usd", "day_pl_usd",
       "overnight_buying_power_usd", "maintenance_margin_usd", "margin_calls", "day_trades_left", "account_label",
+      "fills_read_at", "fills",
     ] {
       account.removeValue(forKey: key)
+    }
+    let positions = try #require(account["positions"] as? [[String: Any]])
+    account["positions"] = positions.map { position in
+      position.filter { !["last_price", "market_value_usd", "unrealized_pl_usd", "day_pl_usd"].contains($0.key) }
     }
     object["account"] = account
     let decoded = try Wire.decoder().decode(AccountResponseV1.self, from: JSONSerialization.data(withJSONObject: object))
     #expect(decoded.account.balances == nil)
     #expect(decoded.account.accountLabel == nil)
+    #expect(decoded.account.fills.isEmpty)
+    #expect(decoded.account.positions.first?.lastPrice == nil)
   }
 }
