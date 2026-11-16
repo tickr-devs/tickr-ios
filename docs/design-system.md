@@ -63,7 +63,6 @@ contrast on `surface` in both appearances.
 | `seriesUniverse` | Universe stage of the live flow | = `seriesATR` | = `seriesATR` |
 | `glowIndigo`, `glowTeal` | Light background corner glows (at `Opacity.glow`, reach 420 pt; teal centred on the right edge, a fifth down) | `#6366F1`, `#14B8A6` | not drawn |
 | `shadow` | Light card shadow (at `Opacity.shadow`) | `#283C96` | not drawn |
-| `shine` | Highlight running along the brand mark's line while live (at `Opacity.medium`) | `#FFFFFF` | `#FFFFFF` |
 
 A money result uses `profitText` above zero, `lossText` below and `textTertiary` at zero.
 
@@ -153,6 +152,7 @@ and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`;
 | `muted` | 0.55 | An off chip among on ones (the Chart's studies) |
 | `medium` | 0.70 | Inactive elements, pulse start |
 | `overlay` | 0.85 | Readouts over content |
+| `flash` | 0.22 | A new row's tint as it arrives (`arrivalFlash`) |
 
 ## Text shrink (`Tokens.Shrink`)
 
@@ -207,7 +207,13 @@ a step; it does not define its own factor.
 | `stagger` | 0.05 s | Delay between cards of a screen |
 | `pulseSeconds` / `pulseScale` | 2.4 s / ×2.2 | One pulse ring per real event (never a loop) |
 | `breatheSeconds` / `breatheScale` | 2.4 s / ×1.08 | One swell of a glow when its value changes (never a loop) |
-| `rotationSeconds` | 4 s per turn | Radar sweep |
+| `rotationSeconds` | 3 s per turn | Radar sweep; it and the blips move only while the bot runs with live, fresh status (`RadarGate`), still otherwise |
+| `blipScale` / `blipLagSeconds` | ×1.9 / 0.8 s | The radar's two blips: each one's ring (every `pulseSeconds`, ornament) and the second one's lag |
+| `openingSparkDelaySeconds` / `openingSpark` | 0.45 s / ease-out 0.25 s | macOS opening: the spark pops in as the line nearly ends |
+| `cellStagger` | 0.025 s | Delay between the tiles of a grid filling in (Trades calendar, on appear and month change) |
+| `hoverLift` / `cellLift` | 1 pt / 2 pt | Rise of a button, and of a calendar tile, under the pointer (`quick`) |
+| `flash` / `flashSeconds` | ease-out 1.6 s | A genuinely new row's tint fading out (journal, not-taken signals), once per row |
+| `themeFadeSeconds` | 0.4 s, ease-in-out | Cross-fade when the appearance is switched in Settings (`ThemeFade`: a picture of each window in the old appearance fades out; the sidebar's glass and the title bar switch at once) |
 | `tickerSpeed` | 22 pt/s | Event ticker (edges fade over 6% of its width) |
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
 | `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event |
@@ -279,6 +285,10 @@ still reads it. Every control takes a `Tone`.
 | `DeltaTag` | A money change | Triangle up or down, signed figure, `Tone.result` wash |
 | `MeterBar` | A share of a whole, a price between two levels | `Size.bar` capsule track, glowing gradient fill that grows on appear (`Motion.fill`), optional `MeterMark` figures under it |
 | `MiniRing` | A share in a small space | `Size.miniRing`, `Stroke.gauge` track and fill, figure inside |
+| `.grows(with:step:)` | A bar showing a value (observer results, refusal counts, advisor intervals) | Grows in from its leading edge on appear (`Motion.fill`, `stagger` apart), then moves to its new length only when its value changes |
+| `.drawsIn(on:)` | A line or chart (sparklines, Trades' R curve, the Lab's day curves) | Draws in from the left on appear and once per change of its data (`Motion.draw`) |
+| `CountingText` | A figure (Trades' performance figures, Risk's balances) | Counts up from zero on appear and on to each new value (`Motion.fill`) |
+| `.arrivalFlash` / `.onArrival` | A row the bot just added (journal line, not-taken signal) | One `Opacity.flash` tint fading out (`Motion.flash`); none for the first rows shown or a whole new list |
 | `ValueRow` | "◷ label … value" rows | Symbol in a `Size.rowSymbol` column, `callout` label in `textTertiary`, `bodyMono` value |
 | `SectionHeader` | A section's heading with a count and an accessory | Glowing tone tick (`labelSize` tall), uppercase `label`, count capsule |
 | `InfoCaption` | Where a value comes from, why something is off | `caption` with a leading symbol |
@@ -297,16 +307,18 @@ breaks upward, with a spark at its end.
   (`LaunchBackground` = `background`, `LaunchMark`). Change the script and run it; never edit the
   generated files. `tests/test_brand_assets.py` fails when they differ.
 - In the apps the same line is `BrandMark` (TickrDesign): it draws itself on appear and its
-  spark then pulses (a shine runs up the line, a ring leaves the spark) while the bot's data is
-  current (macOS Overview header, iOS Home bar); still otherwise and with Reduce Motion.
+  spark then sends out a halo ring (from the spark's size to `pulseScale`, fading from
+  `Opacity.muted`, every `pulseSeconds`; ornament) while the bot's data is current (macOS
+  Overview header, iOS Home bar); still otherwise and with Reduce Motion.
 - iOS opening (`LaunchHandoff`): the app starts exactly as the launch screen, flashes the spark
   once, then flies the mark into Home's bar mark while the background fades (`launchHoldSeconds`,
   `launchFly`). Reduce Motion: a cross-fade (`launchFadeSeconds`).
 - macOS opening (`BrandOpening`, macOS has no launch screen): the first window of a launch opens
   on the background with the mark (`openingMark`) in its centre, the line draws itself
-  (`openingDrawSeconds`, once the window is on screen and key or active), then the mark flies
-  into Overview's header mark (`openingFly`) while the background fades and the screen shows
-  through. The header's own mark stays hidden until the flying one lands on it, so two marks are
+  (`openingDrawSeconds`, once the window is on screen and key or active) and its spark pops in
+  as the line nearly ends (`openingSpark`), then the mark flies into Overview's header mark
+  (`openingFly`) while the background fades and the screen shows through, its cards rising one
+  after another (`risesHeld` holds them until the flight starts). The header's own mark stays hidden until the flying one lands on it, so two marks are
   never seen. About 1 s in all. Once per launch (`AppModel.openingPlayed`), not on reopening the window.
   Reduce Motion: the same cross-fade.
 - Empty screens (nothing yet, no trades, bot unreachable) use `BrandMark.empty()` as the

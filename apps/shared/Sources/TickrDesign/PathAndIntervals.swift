@@ -147,6 +147,7 @@ public struct IntervalRow: Identifiable {
 /// Intervals on one axis with its zero in the middle, such as base and candidate mean R on a
 /// hold-out. `axis` names the middle ("0 R").
 public struct IntervalBars: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   let rows: [IntervalRow]
   let axis: String
 
@@ -160,7 +161,7 @@ public struct IntervalBars: View {
 
   public var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      ForEach(rows) { row in
+      ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
         VStack(alignment: .leading, spacing: Tokens.Space.xs) {
           HStack {
             Text(verbatim: row.name)
@@ -171,7 +172,7 @@ public struct IntervalBars: View {
               .font(Tokens.Typography.captionMono)
               .foregroundStyle(Palette.textQuaternary)
           }
-          track(row)
+          track(row, step: index)
             .frame(height: Tokens.Size.glyphCompact)
         }
         .accessibilityElement(children: .combine)
@@ -184,7 +185,9 @@ public struct IntervalBars: View {
     }
   }
 
-  private func track(_ row: IntervalRow) -> some View {
+  /// The bars grow in one after another as they appear, as the design's do; a bar and its mean
+  /// move only when the run's interval changes.
+  private func track(_ row: IntervalRow, step: Int) -> some View {
     GeometryReader { geometry in
       let width = geometry.size.width
       let middle = geometry.size.height * Self.middle
@@ -197,6 +200,7 @@ public struct IntervalBars: View {
           Capsule()
             .fill(row.color.opacity(Tokens.Opacity.border))
             .frame(width: max(width * CGFloat(high - low), Tokens.Size.dotSmall), height: Tokens.Size.dotSmall)
+            .grows(with: [low, high], step: step)
             .position(x: width * CGFloat(low + high) * Self.middle, y: middle)
         }
         if let mean = row.mean {
@@ -207,6 +211,7 @@ public struct IntervalBars: View {
             .position(x: width * CGFloat(mean), y: middle)
         }
       }
+      .animation(reduceMotion ? nil : Tokens.Motion.fill, value: [row.low, row.mean, row.high])
     }
   }
 }

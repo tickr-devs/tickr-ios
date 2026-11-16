@@ -962,9 +962,16 @@ private struct AccountCard: View {
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)
       Spacer()
-      Text(verbatim: value.map { Format.usd($0.value) } ?? Format.missing)
-        .font(font)
-        .foregroundStyle(value == nil ? Palette.textQuaternary : color)
+      Group {
+        if let value {
+          // Counts up as it appears and on to each new balance the broker reports.
+          CountingText(NSDecimalNumber(decimal: value.value).doubleValue) { Format.usd(Decimal($0)) }
+        } else {
+          Text(verbatim: Format.missing)
+        }
+      }
+      .font(font)
+      .foregroundStyle(value == nil ? Palette.textQuaternary : color)
     }
     .padding(.vertical, Tokens.Space.xxs)
     .overlay(alignment: .bottom) {

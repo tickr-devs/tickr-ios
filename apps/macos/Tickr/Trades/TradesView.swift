@@ -863,7 +863,13 @@ private struct AnotherStrategyView: View {
 /// levels. Repeats on one symbol for one reason are one row, as on iOS.
 private struct NotTakenCard: View {
   @Environment(AppModel.self) private var model
+  /// Runs of signals the bot added in the latest read: each flashes once.
+  @State private var arrived: Set<SkippedGroup.ID> = []
   let showOnChart: (String) -> Void
+
+  /// A new row's flash reaches a little past it, as the design's row background does.
+  static let rowOutset = EdgeInsets(
+    top: Tokens.Space.xxs, leading: Tokens.Space.xs, bottom: Tokens.Space.xxs, trailing: Tokens.Space.xs)
 
   var body: some View {
     Card(L10n.Trades.notTaken, trailing: {
@@ -873,12 +879,15 @@ private struct NotTakenCard: View {
         .lineLimit(1)
     }, content: {
       if let signals = model.skipped?.signals, !signals.isEmpty {
+        let groups = SkippedGroup.make(signals)
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          ForEach(Array(SkippedGroup.make(signals).enumerated()), id: \.element.id) { index, group in
+          ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
             if index > 0 { Divider() }
             SkippedRow(group: group, showOnChart: showOnChart)
+              .arrivalFlash(arrived.contains(group.id), color: Palette.info, outset: Self.rowOutset)
           }
         }
+        .onArrival(of: groups.map(\.id)) { arrived = $0 }
       } else if let error = model.skippedError {
         Footnote(L10n.Trades.notTakenUnavailable(error))
       } else if model.skipped != nil {

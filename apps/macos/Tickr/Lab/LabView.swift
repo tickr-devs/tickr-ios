@@ -422,7 +422,7 @@ private struct RefusalsCard: View {
           }
           let most = Double(counts.first?.count ?? 1)
           ForEach(Array(counts.enumerated()), id: \.element.id) { index, count in
-            row(count, share: Double(count.count) / most, color: Self.colors[index % Self.colors.count])
+            row(count, share: Double(count.count) / most, color: Self.colors[index % Self.colors.count], step: index)
           }
         } else if let error = model.skippedError {
           Footnote(L10n.Trades.notTakenUnavailable(error), color: Palette.warningText)
@@ -436,7 +436,7 @@ private struct RefusalsCard: View {
     }
   }
 
-  private func row(_ count: RefusalCount, share: Double, color: Color) -> some View {
+  private func row(_ count: RefusalCount, share: Double, color: Color, step: Int) -> some View {
     HStack(spacing: Tokens.Space.s) {
       title(count.cause)
         .font(Tokens.Typography.callout)
@@ -448,7 +448,8 @@ private struct RefusalsCard: View {
         .fill(Palette.surfaceSunken)
         .overlay(alignment: .leading) {
           GeometryReader { proxy in
-            Capsule().fill(color).frame(width: proxy.size.width * share)
+            // The bars grow in one after another, then move only when a count changes.
+            Capsule().fill(color).frame(width: proxy.size.width * share).grows(with: share, step: step)
           }
         }
         .frame(height: Tokens.Size.bar)
@@ -510,7 +511,8 @@ struct ObserverRow: View {
         if let color {
           CurveSwatch(color: color, curve: DayCurve.observer(observer))
         } else {
-          PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: live)
+          // One pulse per decision the observer adds while the day is live.
+          PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: live, event: observer.decisions.count)
         }
         Text(verbatim: observer.name).font(Tokens.Typography.calloutMono)
         Badge(verbatim: observer.version, color: Palette.accentText)

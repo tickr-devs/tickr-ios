@@ -26,13 +26,15 @@ struct MonthCalendar: View {
               .frame(maxWidth: .infinity)
           }
         }
-        ForEach(Array(DayCalendar.weeks(of: shown, days: model.days).enumerated()), id: \.offset) { _, week in
+        ForEach(Array(DayCalendar.weeks(of: shown, days: model.days).enumerated()), id: \.offset) { row, week in
           GridRow {
-            ForEach(Array(week.enumerated()), id: \.offset) { _, cell in
+            ForEach(Array(week.enumerated()), id: \.offset) { column, cell in
               if let cell {
                 CalendarDay(cell: cell, isToday: cell.day == model.today, selected: cell.day == model.shownDay) {
                   select(cell.day)
                 }
+                // The tiles fade up one after another, as the design fills a month in.
+                .rise(Double(row * week.count + column) * Tokens.Motion.cellStagger)
               } else {
                 Color.clear.frame(height: CalendarDay.height)
               }
@@ -40,6 +42,8 @@ struct MonthCalendar: View {
           }
         }
       }
+      // A new identity per month: another month's tiles fill in afresh.
+      .id(shown)
       legend
     }
     .animation(Tokens.Motion.standard, value: shown)
@@ -157,6 +161,11 @@ private struct CalendarDay: View {
   let isToday: Bool
   let selected: Bool
   let action: () -> Void
+  @State private var hovered = false
+
+  /// Whether a click opens the day: it has records, or it is today.
+  private var opens: Bool { cell.summary != nil || isToday }
+  private var lifted: Bool { hovered && opens }
 
   var body: some View {
     let summary = cell.summary
@@ -197,6 +206,8 @@ private struct CalendarDay: View {
       .overlay {
         if selected {
           shape.strokeBorder(Palette.info, lineWidth: Tokens.Stroke.bold)
+        } else if lifted {
+          shape.strokeBorder(Palette.info, lineWidth: Tokens.Stroke.thin)
         } else if isToday {
           shape.strokeBorder(Palette.accent, lineWidth: Tokens.Stroke.thin)
         } else {
@@ -205,9 +216,13 @@ private struct CalendarDay: View {
       }
       .shadow(color: selected ? Palette.info.opacity(Tokens.Opacity.border) : .clear, radius: Tokens.Space.xs)
       .contentShape(shape)
+      // Under the pointer a day it can open lifts a little and outlines, as the design's tiles.
+      .offset(y: lifted ? -Tokens.Motion.cellLift : 0)
+      .animation(Tokens.Motion.quick, value: lifted)
     }
     .buttonStyle(.plain)
-    .disabled(result == nil && !isToday)
+    .onHover { hovered = $0 }
+    .disabled(!opens)
     .help(Text(verbatim: summary.map { Format.dayLabel(cell.day) + Format.lineSeparator + CleanMark.text($0.clean) }
       ?? Format.dayLabel(cell.day)))
     .accessibilityLabel(Text(verbatim: Format.dayLabel(cell.day)))

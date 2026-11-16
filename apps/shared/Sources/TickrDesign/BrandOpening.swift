@@ -25,16 +25,21 @@ public struct BrandOpening: View {
   let target: CGPoint?
   /// The size the mark lands at.
   let targetSize: CGFloat
+  /// Called as the mark leaves for the header (or the fade starts under Reduce Motion): the screen
+  /// under it shows from then on, so its cards can rise.
+  let flying: () -> Void
   /// Called when the opening is over and the overlay can go.
   let finished: () -> Void
 
   public init(
     target: CGPoint?,
     targetSize: CGFloat = Tokens.Size.logo,
+    flying: @escaping () -> Void = {},
     finished: @escaping () -> Void
   ) {
     self.target = target
     self.targetSize = targetSize
+    self.flying = flying
     self.finished = finished
   }
 
@@ -44,8 +49,10 @@ public struct BrandOpening: View {
       let landing = target.map { CGPoint(x: $0.x - origin.x, y: $0.y - origin.y) }
       ZStack {
         if started {
+          // The spark pops in as the line nearly ends, as the design times it.
           BrandMark(size: Tokens.Size.openingMark, live: false, tone: .brand,
-            drawing: .easeOut(duration: Tokens.Motion.openingDrawSeconds).delay(Tokens.Motion.openingDelaySeconds))
+            drawing: .easeOut(duration: Tokens.Motion.openingDrawSeconds).delay(Tokens.Motion.openingDelaySeconds),
+            sparkPop: Tokens.Motion.openingSpark.delay(Tokens.Motion.openingSparkDelaySeconds))
             .scaleEffect(flown ? targetSize / Tokens.Size.openingMark : 1)
             .position(flown ? landing ?? centre : centre)
             // The header settles while its data arrives: glide after it rather than jump.
@@ -89,15 +96,18 @@ public struct BrandOpening: View {
 
   private func play() async {
     if reduceMotion {
+      flying()
       withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
       return
     }
     // A cut-short wait must not rush the rest through in one frame: the opening then just goes.
     do {
       try await Task.sleep(for: .seconds(Tokens.Motion.openingDelaySeconds + Tokens.Motion.openingDrawSeconds))
+      flying()
       withAnimation(Tokens.Motion.openingFly) { flown = true }
       try await Task.sleep(for: .seconds(Tokens.Motion.openingFlySeconds))
     } catch {
+      flying()
       finished()
       return
     }

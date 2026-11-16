@@ -56,9 +56,11 @@ extension View {
 }
 
 /// Fades a view in while it rises a few points, after `delay`; staggered delays make a screen
-/// assemble itself on appear.
+/// assemble itself on appear. While `risesHeld` is set (an opening animation covers the screen)
+/// the view waits, hidden, and rises once it is cleared.
 public struct Rise: ViewModifier {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.risesHeld) private var held
   @State private var shown = false
   let delay: Double
 
@@ -74,10 +76,20 @@ public struct Rise: ViewModifier {
           .opacity(isShown ? 1 : 0)
           .offset(y: isShown || still ? 0 : Tokens.Size.riseOffset)
       }
-      .onAppear {
-        withAnimation(Tokens.Motion.entrance.delay(delay)) { shown = true }
-      }
+      .onAppear { if !held { show() } }
+      .onChange(of: held) { _, now in if !now { show() } }
   }
+
+  private func show() {
+    guard !shown else { return }
+    withAnimation(Tokens.Motion.entrance.delay(delay)) { shown = true }
+  }
+}
+
+public extension EnvironmentValues {
+  /// Holds every `rise` below it until cleared: the macOS opening sets it while its mark covers
+  /// the screen, so the cards rise as the mark flies off, as the design times them.
+  @Entry var risesHeld = false
 }
 
 public extension View {

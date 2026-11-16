@@ -196,6 +196,8 @@ public enum Tokens {
     public static let shadow = 0.12
     /// Overlays that must stay readable over content (crosshair readout).
     public static let overlay = 0.85
+    /// A new row's tint at the start of its one flash (`arrivalFlash`).
+    public static let flash = 0.22
   }
 
   /// How far a line of text may shrink to fit before it truncates, as a share of its size
@@ -333,7 +335,28 @@ public enum Tokens {
     /// The cross-fade that replaces the opening animation under Reduce Motion.
     public static let launchFadeSeconds = 0.35
     /// Seconds for one turn of the radar sweep.
-    public static let rotationSeconds = 4.0
+    public static let rotationSeconds = 3.0
+    /// The radar's blips: how far each one's ring grows (a multiple of the dot), and how long the
+    /// second blip trails the first, in seconds.
+    public static let blipScale: CGFloat = 1.9
+    public static let blipLagSeconds = 0.8
+    /// macOS opening: when the mark's spark pops in, in seconds from the start (after the line
+    /// has nearly drawn), and how long it takes.
+    public static let openingSparkDelaySeconds = 0.45
+    public static let openingSparkSeconds = 0.25
+    /// The opening's spark pop: a timing curve that ends at its seconds, like the line's draw.
+    public static let openingSpark = Animation.easeOut(duration: openingSparkSeconds)
+    /// Delay between the tiles of a grid (the Trades calendar) as it fills in, in seconds.
+    public static let cellStagger = 0.025
+    /// How far a button rises under the pointer, and a calendar tile, in points.
+    public static let hoverLift: CGFloat = 1
+    public static let cellLift: CGFloat = 2
+    /// Seconds a new row's tint takes to fade out (`arrivalFlash`).
+    public static let flashSeconds = 1.6
+    /// The fade of a new row's tint.
+    public static let flash = Animation.easeOut(duration: flashSeconds)
+    /// Seconds of the cross-fade when the app's appearance (light, dark) is switched.
+    public static let themeFadeSeconds = 0.4
     /// Points per second of the event ticker.
     public static let tickerSpeed = 22.0
     /// Seconds between redraws of a clock or an age ("3 s ago"), and of the session bar's cursor.

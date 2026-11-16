@@ -3,8 +3,9 @@ import SwiftUI
 /// The Tickr mark: a price line drawn as a tick that breaks upward, with a spark at its end. The
 /// app icon and the iOS launch screen draw the same line (apps/scripts/make_brand_assets.py).
 ///
-/// On appear the line draws itself and the area under it fades in. While `live` (the bot's data is
-/// current) the spark then keeps pulsing; otherwise, and with Reduce Motion, the mark stands still.
+/// On appear the line draws itself, the area under it fades in and the spark pops in. While `live`
+/// (the bot's data is current) the spark then keeps sending out a halo ring; otherwise, and with
+/// Reduce Motion, the mark stands still.
 ///
 /// Empty screens show it as their illustration (`BrandMark.empty`): in brand colours when there is
 /// simply nothing yet, muted when the bot cannot be reached.
@@ -21,12 +22,15 @@ public struct BrandMark: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
   @State private var drawn: CGFloat = 0
+  @State private var popped: CGFloat = 0
   @State private var settled = false
   let size: CGFloat
   let live: Bool
   let tone: Tone
   /// How the line draws itself on appear; nil shows it drawn at once.
   let drawing: Animation?
+  /// How the spark pops in; nil pops it with the line's draw.
+  let sparkPop: Animation?
 
   /// Points of the line as shares of the mark's side, left to right (POINTS in make_brand_assets.py).
   static let start = CGPoint(x: 0.205, y: 0.51)
@@ -39,15 +43,10 @@ public struct BrandMark: View {
   static let lineWidth = 0.084
   public static let sparkDiameter = 0.09
   static let areaBottom = 0.86
-  /// The live ring: its diameter as a multiple of the spark's at the start, and how far it grows.
-  static let ringStart: CGFloat = 1.6
-  static let ringGrowth: CGFloat = 2.4
   /// Radius of the soft glow behind the line, as a share of the side (the canvas header's glow).
   static let glowRadius = 0.18
   /// Seconds before the line starts drawing, so a window is on screen before it moves.
   static let drawDelay = 0.35
-  /// Length of the live shine running along the line, as a share of the line.
-  static let shineLength: CGFloat = 0.28
   /// The area's side fade, from the line's start to its end: fully in at `areaIn`, fading out
   /// again from `areaOut` (shares of that run), so neither side has an edge.
   static let areaIn = 0.45
@@ -58,11 +57,12 @@ public struct BrandMark: View {
     self.init(size: size, live: live, tone: tone, drawing: drawsIn ? Tokens.Motion.draw.delay(Self.drawDelay) : nil)
   }
 
-  init(size: CGFloat, live: Bool, tone: Tone, drawing: Animation?) {
+  init(size: CGFloat, live: Bool, tone: Tone, drawing: Animation?, sparkPop: Animation? = nil) {
     self.size = size
     self.live = live
     self.tone = tone
     self.drawing = drawing
+    self.sparkPop = sparkPop
   }
 
   /// The illustration of an empty screen: large and still.
@@ -100,19 +100,15 @@ public struct BrandMark: View {
           LinearGradient(colors: [lineColor, lineEnd], startPoint: .topTrailing, endPoint: .bottomLeading),
           style: StrokeStyle(lineWidth: size * Self.lineWidth, lineCap: .round, lineJoin: .round))
       if live && settled && !reduceMotion {
-        // While live a highlight runs up the line to the spark, and the spark sends out a ring
-        // (Core Animation runs both; see BrandMarkLive).
-        BrandMarkLive(
-          size: size, lineColor: lineColor.opacity(Tokens.Opacity.medium),
-          shineColor: Palette.shine.opacity(Tokens.Opacity.medium), active: scenePhase == .active)
+        // While live the spark sends out a halo ring (Core Animation runs it; see BrandMarkLive).
+        BrandMarkLive(size: size, lineColor: lineColor, active: scenePhase == .active)
           .frame(width: size, height: size)
           .allowsHitTesting(false)
-          .blendMode(.plusLighter)
       }
       Circle()
         .fill(lineColor)
         .frame(width: diameter, height: diameter)
-        .scaleEffect(drawn)
+        .scaleEffect(sparkPop == nil ? drawn : popped)
         .position(x: spark.x * size, y: spark.y * size)
     }
     .frame(width: size, height: size)
@@ -124,6 +120,7 @@ public struct BrandMark: View {
   private func appear() {
     guard !reduceMotion, let drawing else {
       drawn = 1
+      popped = 1
       settled = true
       return
     }
@@ -132,6 +129,7 @@ public struct BrandMark: View {
     } completion: {
       settled = true
     }
+    if let sparkPop { withAnimation(sparkPop) { popped = 1 } }
   }
 
 }

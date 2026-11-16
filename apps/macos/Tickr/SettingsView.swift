@@ -200,7 +200,7 @@ private struct ThemeCard: View {
 
   private func choose(_ value: String) {
     appearance = value
-    NSApplication.shared.appearance = TickrMacApp.appearance(value)
+    ThemeFade.apply(TickrMacApp.appearance(value))
   }
 }
 

@@ -58,6 +58,8 @@ struct PerformanceCard: View {
       if performance.days.count > 1 {
         Curve(days: performance.days)
           .frame(height: Self.curveHeight)
+          // Draws itself in on appear and again when a new day's result changes the curve.
+          .drawsIn(on: performance.days.map(\.cumulativeGrossR))
       }
       Text(L10n.Trades.performanceLine(performance.trades, performance.wins, performance.losses,
         performance.scratches))
@@ -93,7 +95,8 @@ private struct Figure: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
       if let value = figure.value?.value {
-        Text(verbatim: format(value))
+        // Counts up as it appears and on to each new value, as the design's figures do.
+        CountingText(NSDecimalNumber(decimal: value).doubleValue) { format(Decimal($0)) }
           .font(Tokens.Typography.figure)
           .foregroundStyle(loss && value != 0 ? Palette.lossText : color ? Palette.result(value) : Palette.textPrimary)
           .minimumScaleFactor(Tokens.Shrink.tight)

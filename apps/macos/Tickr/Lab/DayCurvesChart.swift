@@ -86,6 +86,9 @@ struct DayCurvesChart: View {
       }
     }
     .chartXScale(domain: axis)
+    // The lines draw themselves in on appear and again when a version's result changes; the
+    // live "now" moving on does not redraw them.
+    .chartPlotStyle { plot in plot.drawsIn(on: drawKey) }
     .chartXAxis {
       AxisMarks(values: timeLabels) { value in
         // The first and last labels are the axis's ends: drawn inside the plot, not cut at its
@@ -126,6 +129,17 @@ struct DayCurvesChart: View {
     values.append((end, last))
     if curve.end != last { values.append((end, curve.end)) }
     return values.enumerated().map { Point(name: name, index: $0.offset, at: $0.element.0, value: double($0.element.1)) }
+  }
+
+  /// What the lines show: each version's steps and end. A change redraws them.
+  private struct DrawKey: Hashable {
+    let name: String
+    let totals: [Decimal]
+    let end: Decimal?
+  }
+
+  private var drawKey: [DrawKey] {
+    lines.map { DrawKey(name: $0.name, totals: $0.curve?.steps.map(\.total) ?? [], end: $0.curve?.end) }
   }
 
   private func double(_ value: Decimal) -> Double { NSDecimalNumber(decimal: value).doubleValue }

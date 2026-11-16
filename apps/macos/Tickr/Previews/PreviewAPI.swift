@@ -30,6 +30,8 @@ enum PreviewAPI {
   static func model() -> AppModel {
     Container.shared.urlSession.register { FixtureProtocol.session() }
     let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    // A preview has no launch opening; its cards rise at once.
+    model.openingPlayed = true
     model.start()
     return model
   }

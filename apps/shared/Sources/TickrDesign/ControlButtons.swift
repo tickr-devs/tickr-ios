@@ -59,12 +59,15 @@ private struct ActionButtonBody: View {
       .contentShape(shape)
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
+      // Under the pointer an enabled button lifts a point, as the design's buttons do.
+      .offset(y: lifted ? -Tokens.Motion.hoverLift : 0)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
       .animation(Tokens.Motion.quick, value: hovered)
       .onHover { hovered = $0 }
   }
 
   private var active: Bool { enabled && (hovered || configuration.isPressed) }
+  private var lifted: Bool { enabled && hovered && !configuration.isPressed }
 
   @ViewBuilder private func fill(_ shape: RoundedRectangle) -> some View {
     switch kind {

@@ -69,6 +69,8 @@ struct OverviewView: View {
       }
       .onChange(of: aboveBottomHeight) { showSafetyFirstIfAsked(proxy) }
     }
+    // The cards wait under the launch's opening and rise as its mark flies to the header.
+    .environment(\.risesHeld, !model.openingPlayed && !model.openingFlying)
     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewportHeight = $0 }
     .onGeometryChange(for: Bool.self) { [threshold = Self.headerBesideResultMinWidth] in $0.size.width >= threshold } action: {
       headerBesideResult = $0
@@ -1065,8 +1067,9 @@ private struct EmptyPositions: View {
   }
 }
 
-/// A slow radar sweep while the bot scans for setups.
+/// A radar sweep with two blips while the bot scans for setups (ornament, as on the design).
 private struct Radar: View {
+  @Environment(AppModel.self) private var model
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.scenePhase) private var scenePhase
 
@@ -1082,7 +1085,9 @@ private struct Radar: View {
       }
       // Core Animation turns the sweep (see RadarSweep).
       RadarSweep(
-        color: Palette.accent.opacity(Tokens.Opacity.border), width: Self.sweep, turning: !reduceMotion,
+        color: Palette.accent.opacity(Tokens.Opacity.border), width: Self.sweep,
+        blips: [Palette.highlight, Palette.accent],
+        turning: RadarGate.turns(reduceMotion: reduceMotion, current: model.isCurrent, botState: model.status?.botState),
         active: scenePhase == .active)
         .allowsHitTesting(false)
     }
@@ -1499,6 +1504,8 @@ private struct OverviewObserverRow: View {
           .overlay(alignment: .leading) {
             Capsule().fill((result ?? 0) >= 0 ? Palette.highlight : Palette.warning)
               .frame(width: proxy.size.width * share)
+              // Grows in, then moves only when the observer's result changes.
+              .grows(with: share)
           }
       }
       .frame(height: Tokens.Size.barThin)
@@ -1511,9 +1518,14 @@ private struct OverviewObserverRow: View {
 
 private struct JournalCard: View {
   @Environment(AppModel.self) private var model
+  /// Events the bot added in the latest read: each flashes once as it slides in.
+  @State private var arrived: Set<Board.Event.ID> = []
 
   /// Most recent events shown here; the full journal is in Trades & days.
   static let shown = 10
+  /// A new line's flash reaches half the gaps between the cells, so the line flashes as one.
+  static let cellOutset = EdgeInsets(
+    top: Tokens.Space.xs / 2, leading: Tokens.Space.s / 2, bottom: Tokens.Space.xs / 2, trailing: Tokens.Space.s / 2)
 
   var body: some View {
     // A console on the sunken surface, as in the design.
@@ -1532,10 +1544,14 @@ private struct JournalCard: View {
         Grid(alignment: .leading, horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.xs) {
           ForEach(events.prefix(Self.shown)) { event in
             GridRow {
+              let new = arrived.contains(event.id)
               Text(verbatim: Format.marketTime(event.time)).foregroundStyle(Palette.textQuaternary)
+                .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
               Text(verbatim: event.tag).fontWeight(.bold).foregroundStyle(event.tone.color)
+                .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
               Text(verbatim: event.text).foregroundStyle(Palette.textSecondary).truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
             }
             .font(Tokens.Typography.captionMono)
             .lineLimit(1)
@@ -1543,6 +1559,7 @@ private struct JournalCard: View {
           }
         }
         .animation(Tokens.Motion.standard, value: events.map(\.id))
+        .onArrival(of: events.prefix(Self.shown).map(\.id)) { arrived = $0 }
         .textSelection(.enabled)
       }
     }

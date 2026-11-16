@@ -182,7 +182,9 @@ private struct OpeningOverlay: View {
 
   var body: some View {
     if !model.openingPlayed {
-      BrandOpening(target: model.overviewMarkCentre, finished: { model.openingPlayed = true })
+      BrandOpening(
+        target: model.overviewMarkCentre, flying: { model.openingFlying = true },
+        finished: { model.openingPlayed = true })
     }
   }
 }

@@ -133,6 +133,9 @@ public final class AppModel {
   /// Whether this launch's opening animation (BrandOpening) has played: once per launch, not on
   /// reopening the window.
   var openingPlayed = false
+  /// Whether the opening's mark has left for the header: the screen shows under it from then on,
+  /// so Overview's cards rise as it flies, as the design times them.
+  var openingFlying = false
   /// Centre of Overview's header mark on screen (global coordinates), where the opening lands.
   /// Observed, so the opening follows the mark while the header settles; only the opening reads it.
   var overviewMarkCentre: CGPoint?

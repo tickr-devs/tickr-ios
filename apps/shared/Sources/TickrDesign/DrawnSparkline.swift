@@ -12,8 +12,6 @@ public struct DrawnSparkline: View {
 
   let values: [Double]
   let color: Color
-  @State private var progress: CGFloat = 0
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   public init(values: [Double], color: Color) {
     self.values = values
@@ -32,19 +30,33 @@ public struct DrawnSparkline: View {
     .chartLegend(.hidden)
     .chartXScale(domain: 0...(shown.count - 1))
     .chartYScale(domain: .automatic(includesZero: false))
-    .reveal(progress)
-    .onAppear { draw() }
-    .onChange(of: values) { draw() }
+    .drawsIn(on: values)
     .accessibilityHidden(true)
   }
+}
 
-  private func draw() {
-    progress = reduceMotion ? 1 : 0
-    withAnimation(Tokens.Motion.draw) { progress = 1 }
+/// Draws its view in from the left once as it appears (`Motion.draw`); shows it whole at once with
+/// Reduce Motion.
+struct DrawIn: ViewModifier {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var progress: CGFloat = 0
+
+  func body(content: Content) -> some View {
+    content
+      .reveal(reduceMotion ? 1 : progress)
+      .onAppear { withAnimation(Tokens.Motion.draw) { progress = 1 } }
   }
 }
 
 public extension View {
+  /// Draws the view (a line, a chart) in from the left as it appears and again each time `trigger`
+  /// changes: one draw per change of its data, still in between.
+  func drawsIn(on trigger: some Hashable) -> some View {
+    // A new identity per change starts the draw from nothing: setting the progress back to 0 and
+    // animating it to 1 in one update would show no motion at all.
+    modifier(DrawIn()).id(trigger)
+  }
+
   /// Shows the leading `progress` (0...1) of the view's width: how charts draw themselves in.
   func reveal(_ progress: CGFloat) -> some View {
     mask(alignment: .leading) {
