@@ -35,9 +35,9 @@ struct ScreenPicturesTests {
   static let offscreen = CGPoint(x: -20000, y: -20000)
 
   @Test func pictures() async throws {
-    let environment = ProcessInfo.processInfo.environment
-    guard let path = environment[Self.folderKey] else { return }
-    let language = environment[Self.languageKey] ?? Self.defaultLanguage
+    // Named reads only: the whole environment is never bound, printed or passed on.
+    guard let path = ProcessInfo.processInfo.environment[Self.folderKey] else { return }
+    let language = ProcessInfo.processInfo.environment[Self.languageKey] ?? Self.defaultLanguage
     // Before any text is looked up: the process's language, in memory only.
     UserDefaults.standard.setVolatileDomain(["AppleLanguages": [language]], forName: UserDefaults.argumentDomain)
     let folder = URL(fileURLWithPath: path, isDirectory: true).appending(path: language)

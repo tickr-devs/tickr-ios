@@ -57,19 +57,24 @@ final class ScreenTourUITests: XCTestCase {
   private let app = XCUIApplication()
   private var captureDir: URL?
 
+  /// One named variable of the test process's environment. Only named reads: the whole
+  /// environment is never bound, printed or passed on (CLAUDE.md, hard rule 10).
+  private static func variable(_ name: String) -> String? {
+    ProcessInfo.processInfo.environment[name]
+  }
+
   override func setUp() async throws {
     continueAfterFailure = true
-    let environment = ProcessInfo.processInfo.environment
-    guard let api = environment["TOUR_API"] else {
+    guard let api = Self.variable("TOUR_API") else {
       throw XCTSkip("TOUR_API is not set: the screen tour needs a running bot API")
     }
     guard try await Self.environment(of: api) == Self.demoEnvironment else {
       throw XCTSkip("TOUR_API \(api) is not `tickr demo`: the tour runs only on the demo")
     }
-    captureDir = environment["TOUR_CAPTURE"].map {
+    captureDir = Self.variable("TOUR_CAPTURE").map {
       FileManager.default.temporaryDirectory.appending(path: $0, directoryHint: .isDirectory)
     }
-    let appearance = environment["TOUR_APPEARANCE"] ?? Self.defaultAppearance
+    let appearance = Self.variable("TOUR_APPEARANCE") ?? Self.defaultAppearance
     // Defaults.appearance of the app: `-AppleInterfaceStyle Light` is not a value macOS knows,
     // so on a Mac in dark mode it would still be dark.
     app.launchArguments = [

@@ -37,11 +37,16 @@ final class ScreenTourUITests: XCTestCase {
 
   private var app = XCUIApplication()
 
+  /// One named variable of the test process's environment. Only named reads: the whole
+  /// environment is never bound, printed or passed on (CLAUDE.md, hard rule 10).
+  private static func variable(_ name: String) -> String? {
+    ProcessInfo.processInfo.environment[name]
+  }
+
   override func setUp() async throws {
     continueAfterFailure = true
-    let environment = ProcessInfo.processInfo.environment
-    let api = environment["TOUR_API"] ?? Self.defaultAPI
-    let language = environment["TOUR_LANGUAGE"] ?? Self.defaultLanguage
+    let api = Self.variable("TOUR_API") ?? Self.defaultAPI
+    let language = Self.variable("TOUR_LANGUAGE") ?? Self.defaultLanguage
     app.launchArguments = ["-apiBaseURL", api, "-AppleLanguages", "(\(language))"]
     app.launch()
     sleep(Self.settle)
