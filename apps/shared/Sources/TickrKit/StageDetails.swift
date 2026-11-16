@@ -353,6 +353,8 @@ extension StageDetail {
     }
   }
 
+  /// Verified green, pending amber, never verified, missing or unknown red, as `StopState.tone`
+  /// in TickrDesign (mockup v100).
   static func tone(_ state: FlowStopState) -> Tone {
     switch state {
     case .verified: .green

@@ -3,7 +3,11 @@ import Testing
 @testable import TickrDesign
 
 @Suite struct ControlsTests {
-  @Test(arguments: [("12.5", Tone.profit), ("-0.01", Tone.loss), ("0", Tone.neutral)])
+  // Money losses are the series pink (mockup v100); the tone follows the value as shown in cents.
+  @Test(arguments: [
+    ("12.5", Tone.profit), ("-0.01", Tone.series), ("0", Tone.neutral), ("-0.004", Tone.neutral),
+    ("0.004", Tone.neutral), ("-0.005", Tone.series), ("0.005", Tone.profit),
+  ])
   func resultTone(value: String, tone: Tone) {
     #expect(Tone.result(d(value)) == tone)
   }

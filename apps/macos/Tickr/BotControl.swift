@@ -191,10 +191,13 @@ struct BotControls: View {
     demo ? L10n.Bot.confirmToDemo(explanation) : L10n.Bot.confirmToBot(explanation)
   }
 
-  /// The hold's length as the hints say it, in the person's number format ("1.5", "1,5").
+  /// The hold's length as the hints say it ("1.5"), as every number of the apps (`Money`).
   static var holdSeconds: String {
-    Tokens.Command.holdSeconds.formatted(.number.precision(.fractionLength(1)))
+    Money.number(Tokens.Command.holdSeconds, fractionDigits: holdDigits)
   }
+
+  /// Decimals of the hold's length.
+  static let holdDigits = 1
 
   private func button(_ action: BotAction) -> some View {
     BotCommandButton(action: action, place: place, size: compact ? .compact : .regular,

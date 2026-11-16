@@ -51,8 +51,8 @@ final class TickrUITests: XCTestCase {
   static let watchingCard = "overview-watching"
   /// The month calendar of Trades & days (MonthCalendar.id).
   static let calendar = "trades-calendar"
-  /// The fixtures' live day (2026-11-16) as the calendar names it (Format.dayLabel).
-  static let fixtureDayLabel = "Mon, Nov 16"
+  /// The fixtures' live day (2026-11-16) as the calendar names it (DayText.day, no comma).
+  static let fixtureDayLabel = "Mon Nov 16"
   /// The Chart's decisions toggle (ChartView.decisionsToggleID) and a rule from decisions-v1.json
   /// (ask_above_trigger), as the English app shows it (ApiText.rule).
   static let decisionsToggle = "chart-decisions"

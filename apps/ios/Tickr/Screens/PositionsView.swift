@@ -109,12 +109,9 @@ private struct PositionChips: View {
         } label: {
           VStack(spacing: Tokens.Space.xxs) {
             HStack(spacing: Tokens.Space.xs) {
-              // Only a stop that is not verified shows here; a protected position needs no word.
-              if !position.stop.state.isProtected {
-                Image(systemName: StopGlyph.stateSymbol(position.stop.state))
-                  .foregroundStyle(Palette.lossText)
-                  .accessibilityLabel(Text(verbatim: Board.stopStateTitle(position.stop.state)))
-              }
+              // Every tab carries its stop's dot, as on the Mac and the Main board: green verified,
+              // amber pending, red missing (`StopState.tone`); the words are the tab's accessibility value.
+              StopDot(position.stop.state)
               Text(verbatim: position.symbol)
             }
             .font(.footnote.monospaced().bold())
@@ -136,6 +133,7 @@ private struct PositionChips: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityValue(Text(verbatim: Board.stopStateTitle(position.stop.state)))
         .transition(.scale.combined(with: .opacity))
       }
       ForEach(0..<freeSlots, id: \.self) { index in
@@ -163,8 +161,6 @@ private struct PositionDetail: View {
   /// Order in which the blocks rise in (`rise(step:)`).
   enum Order: Int { case chips = 1, title, levels, chain, stats, flatten, watching }
 
-  /// Multiplies a fraction into percent.
-  static let percent: Decimal = 100
   /// Digits after the point of the distance to the stop, in percent.
   static let percentDigits = 1
 
@@ -213,8 +209,8 @@ private struct PositionDetail: View {
               .font(Tokens.Typography.metric)
               .foregroundStyle(current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
               .contentTransition(.numericText())
-            Text(marks.resultR.map { L10n.Positions.lastAndR(Money.plain(marks.last), Risk.text($0)) }
-              ?? L10n.Positions.last(Money.plain(marks.last)))
+            Text(marks.resultR.map { L10n.Positions.lastAndR(Money.price(marks.last), Risk.text($0)) }
+              ?? L10n.Positions.last(Money.price(marks.last)))
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.textTertiary)
             if !current {
@@ -244,7 +240,7 @@ private struct PositionDetail: View {
             ?? Format.missing)
         StatTile(label: L10n.Positions.toStop,
           value: stop.map {
-            Money.signed(($0 - entry) / entry * Self.percent, fractionDigits: Self.percentDigits) + Format.percentSign
+            Percent.signed(fraction: ($0 - entry) / entry, fractionDigits: Self.percentDigits)
           } ?? Format.missing)
         StatTile(label: L10n.Positions.excursion, value: excursion)
       }
@@ -355,11 +351,11 @@ private struct LevelsCard: View {
           if let marks {
             price(marks, width: width, height: height)
           }
-          line(L10n.Positions.entryLevel(Money.plain(entry)), color: Palette.textQuaternary,
+          line(L10n.Positions.entryLevel(Money.price(entry)), color: Palette.textQuaternary,
             textColor: Palette.textTertiary, y: height * level(of: entry), width: width)
           if let stop {
             // The lower level's label hangs under its line, so the two labels never meet.
-            line(L10n.Positions.stopLevel(Money.plain(stop)), color: Palette.loss, textColor: Palette.lossText,
+            line(L10n.Positions.stopLevel(Money.price(stop)), color: Palette.loss, textColor: Palette.lossText,
               y: height * level(of: stop), width: width, below: stop < entry)
           }
         }
@@ -367,8 +363,8 @@ private struct LevelsCard: View {
       .frame(height: Self.height)
       .dynamicTypeSize(...Self.largestLabelSize)
       .accessibilityElement(children: .ignore)
-      .accessibilityLabel(Text(L10n.Positions.levels(Money.plain(entry),
-        stop.map { Money.plain($0) } ?? String(localized: L10n.Common.unknown))))
+      .accessibilityLabel(Text(L10n.Positions.levels(Money.price(entry),
+        stop.map { Money.price($0) } ?? String(localized: L10n.Common.unknown))))
     }
     .padding(Tokens.Space.m)
     .tickrCard()

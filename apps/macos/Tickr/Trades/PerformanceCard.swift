@@ -13,8 +13,6 @@ struct PerformanceCard: View {
   static let id = "trades-performance"
   /// Height of the cumulative R curve, in points.
   static let curveHeight: CGFloat = 90
-  /// A win rate of 1 is 100 percent.
-  static let percentFactor: Decimal = 100
 
   var body: some View {
     Card(L10n.Trades.performance(AppModel.performanceDays), trailing: {
@@ -45,7 +43,7 @@ struct PerformanceCard: View {
       HStack(alignment: .top, spacing: Tokens.Space.s) {
         Figure(L10n.Trades.expectancy, performance.expectancyGrossR, color: true) { Risk.text($0) }
         Figure(L10n.Trades.winRate, performance.winRate) {
-          String(localized: L10n.Trades.percent(Money.plain($0 * Self.percentFactor, fractionDigits: StatDigits.percent)))
+          Percent.plain(fraction: $0)
         }
         Figure(L10n.Trades.profitFactor, performance.profitFactorGross) {
           Money.plain($0, fractionDigits: StatDigits.factor)
@@ -97,7 +95,7 @@ private struct Figure: View {
         // Counts up as it appears and on to each new value, as the design's figures do.
         CountingText(NSDecimalNumber(decimal: value).doubleValue) { format(Decimal($0)) }
           .font(Tokens.Typography.figure)
-          .foregroundStyle(loss && value != 0 ? Palette.lossText : color ? Palette.result(value) : Palette.textPrimary)
+          .foregroundStyle(loss && value != 0 ? Tone.series.text : color ? Palette.result(value) : Palette.textPrimary)
       } else {
         Text(verbatim: Format.missing)
           .font(Tokens.Typography.figure)

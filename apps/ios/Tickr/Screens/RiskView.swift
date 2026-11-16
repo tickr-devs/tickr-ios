@@ -28,14 +28,12 @@ struct RiskView: View {
   }
 }
 
-/// Currency of every amount on this screen.
+/// Every amount on this screen.
 enum RiskFormat {
-  /// ISO code of the account currency.
-  static let currency = "USD"
-
-  /// "$123.40" (no sign: room and limits are amounts, not results), or a dash when unknown.
+  /// "$123.40" (no plus: room and limits are amounts, not results; `Money.usd`, as on the Mac),
+  /// or a dash when unknown.
   static func amount(_ value: Decimal?) -> String {
-    value.map { $0.formatted(.currency(code: currency)) } ?? Format.missing
+    value.map(Money.usd) ?? Format.missing
   }
 }
 
@@ -125,8 +123,10 @@ private struct RoomCard: View {
       .padding(.vertical, Tokens.Space.s)
       .accessibilityElement(children: .combine)
       RiskLine(label: L10n.Risk.limit, value: RiskFormat.amount(limit))
-      RiskLine(label: L10n.Risk.realizedLoss, value: RiskFormat.amount(status.realizedLossTodayUsd?.value),
-        color: Palette.lossText)
+      // A loss with its minus ("−$1.60"), as on the Mac.
+      RiskLine(label: L10n.Risk.realizedLoss,
+        value: status.realizedLossTodayUsd.map { Money.signedUSD(-$0.value) } ?? Format.missing,
+        color: Tone.series.text)
       RiskLine(label: L10n.Risk.reservations, value: RiskFormat.amount(status.openReservationsUsd?.value),
         color: Palette.warningText)
       RiskLine(label: L10n.Risk.resultToday, value: Money.signedUSD(status.resultTodayUsd.value),
@@ -337,7 +337,7 @@ private struct LimitsCard: View {
         RiskLine(label: L10n.Risk.notionalCap, value: RiskFormat.amount(risk.positionNotionalCapUsd.value))
         RiskLine(label: L10n.Risk.limit, value: RiskFormat.amount(risk.maxDailyLossUsd.value))
         RiskLine(label: L10n.Risk.minRoom, value: RiskFormat.amount(risk.minDailyRoomUsd.value))
-        RiskLine(label: L10n.Risk.openPositions, value: risk.maxOpenPositions.formatted())
+        RiskLine(label: L10n.Risk.openPositions, value: String(risk.maxOpenPositions))
         RiskLine(label: L10n.Risk.quoteAge,
           value: String(localized: L10n.Risk.seconds(Money.plain(risk.maxQuoteAgeSeconds.value, fractionDigits: 0))))
       } else if let failure {

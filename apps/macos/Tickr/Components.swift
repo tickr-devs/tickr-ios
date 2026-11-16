@@ -6,25 +6,6 @@ import TickrKit
 // (docs/design-system.md); screens compose these and do not restyle them.
 
 extension Severity {
-  /// Text colour of a headline with this severity.
-  var color: Color {
-    switch self {
-    case .ok: return Palette.profitText
-    case .attention: return Palette.warningText
-    case .alarm: return Palette.lossText
-    }
-  }
-
-  /// Tone of the menu-bar panel's banner: the design draws a calm headline in the accent (live),
-  /// not in profit green.
-  var bannerTone: Tone {
-    switch self {
-    case .ok: return .accent
-    case .attention: return .warning
-    case .alarm: return .loss
-    }
-  }
-
   /// SF Symbols of the menu-bar extra for each severity.
   static let okSymbol = "chart.line.uptrend.xyaxis"
   static let attentionSymbol = "pause.circle"
@@ -73,7 +54,7 @@ struct MoneyText: View {
     switch (signed, usd) {
     case (true, true): Money.signedUSD(value)
     case (true, false): Money.signed(value)
-    case (false, true): Format.usd(value)
+    case (false, true): Money.usd(value)
     case (false, false): Money.plain(value)
     }
   }
@@ -381,13 +362,6 @@ enum Format {
     return date.formatted(chartStyle(january ? Date.FormatStyle().year() : Date.FormatStyle().month(.abbreviated)))
   }
 
-  /// "Fri Nov 13" in the person's language.
-  static func dayLabel(_ day: WireDate) -> String {
-    var style = Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day()
-    style.timeZone = newYork
-    return day.noonInNewYork.formatted(style)
-  }
-
   /// "3 s ago", "2 min ago".
   static func age(since date: Date?, now: Date) -> String {
     guard let date else { return String(localized: L10n.Format.never) }
@@ -396,9 +370,10 @@ enum Format {
     return String(localized: L10n.Format.minutesAgo(seconds / secondsPerMinute))
   }
 
+  /// A price at its tick (`Money.price`: four decimals below a dollar), or the missing mark.
   static func price(_ value: Decimal?) -> String {
     guard let value else { return missing }
-    return Money.plain(value)
+    return Money.price(value)
   }
 
   /// "5 s": a duration from the bot's settings.
@@ -415,11 +390,6 @@ enum Format {
   /// "4 s": an age or duration in whole seconds, rounded.
   static func wholeSeconds(_ value: Decimal) -> String {
     Money.plain(value, fractionDigits: 0)
-  }
-
-  /// "250.00 USD": an amount from the bot's settings.
-  static func usd(_ value: Decimal) -> String {
-    String(localized: L10n.Format.usd(Money.plain(value)))
   }
 
   /// "Momentum v3": a strategy and its version.
@@ -486,7 +456,7 @@ extension AppModel {
       return shownTrades.map {
         TickerItem(id: $0.tradeId, tag: Board.exitReasonTitle($0.exitReason).uppercased(),
           text: "\($0.symbol) \(Money.signed($0.resultGrossUsd.value))",
-          tone: $0.resultGrossUsd.value >= 0 ? .green : .red)
+          tone: Board.exitTone($0.exitReason, result: $0.resultGrossUsd.value).tickerTone)
       }
     }
     let events = Board.events(status)

@@ -2,16 +2,6 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-extension Severity {
-  var tint: Color {
-    switch self {
-    case .ok: return Palette.accentText
-    case .attention: return Palette.warningText
-    case .alarm: return Palette.lossText
-    }
-  }
-}
-
 extension Board.Event.Tone {
   var ticker: TickerItem.Tone {
     switch self {
@@ -25,34 +15,11 @@ extension Board.Event.Tone {
     }
   }
 
-  var color: Color {
-    switch self {
-    case .teal: return Palette.accent
-    case .green: return Palette.profit
-    case .blue: return Palette.info
-    case .amber: return Palette.warning
-    case .violet: return Palette.highlight
-    case .red: return Palette.loss
-    case .muted: return Palette.textQuaternary
-    }
-  }
+  /// The tone's fill (dots, bars), from the shared map (`Tone(_:)` in TickrDesign).
+  var color: Color { TickrDesign.Tone(self).fill }
 
   /// The tone as a text colour, readable on `surface` (docs/design-system.md, colour roles).
-  var textColor: Color {
-    switch self {
-    case .teal: return Palette.accentText
-    case .green: return Palette.profitText
-    case .blue: return Palette.infoText
-    case .amber: return Palette.warningText
-    case .violet: return Palette.highlightText
-    case .red: return Palette.lossText
-    case .muted: return Palette.textTertiary
-    }
-  }
-}
-
-extension StopState {
-  var isProtected: Bool { self == .verified }
+  var textColor: Color { TickrDesign.Tone(self).text }
 }
 
 extension BotState {
@@ -100,8 +67,6 @@ extension DecimalString {
 enum Format {
   /// Shown where a value is missing.
   static let missing = ApiText.missing
-  /// Percent sign after a number.
-  static let percentSign = "%"
   /// Between the two times of a trade.
   static let timeRange = "–"
   /// Between a trade's entry and its exit price.
@@ -125,20 +90,6 @@ enum Format {
       format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
       timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork))
   }
-
-  /// "Fri Nov 13" in the person's language, as the design writes a day (weekday, then the date,
-  /// no comma): the New York day, as the bot keeps its sessions, whatever the phone's time zone
-  /// (noon in New York is already the next day from UTC+7 eastward).
-  static func day(_ date: Date) -> String {
-    var weekday = Date.FormatStyle.dateTime.weekday(.abbreviated)
-    var monthDay = Date.FormatStyle.dateTime.month(.abbreviated).day()
-    weekday.timeZone = WireDate.newYork.timeZone
-    monthDay.timeZone = WireDate.newYork.timeZone
-    return date.formatted(weekday) + daySpace + date.formatted(monthDay)
-  }
-
-  /// Between a day's weekday and its date.
-  static let daySpace = " "
 
   static func timeOrDash(_ time: WireTime?) -> String {
     time.map { clock($0.date) } ?? missing
@@ -669,51 +620,6 @@ struct NoticeOverlay: ViewModifier {
     case .info: return Palette.infoText
     case .success: return Palette.profitText
     case .failure: return Palette.lossText
-    }
-  }
-}
-
-/// A position's protection as a compact shield glyph: green when the broker stop is verified, red
-/// otherwise, pulsing once each time its state or price changes while unprotected. Its hint names the
-/// symbol and the state.
-struct StopGlyph: View {
-  let state: StopState
-  let symbol: String
-  /// The stop's price: a moved stop is a change too.
-  var price: DecimalString?
-
-  /// Symbols of the stop states, and of a stop level next to a price.
-  static let verifiedSymbol = "shield.fill"
-  static let pendingSymbol = "hourglass"
-  static let missingSymbol = "xmark.shield.fill"
-  static let unknownSymbol = "exclamationmark.shield.fill"
-  static let levelSymbol = "shield"
-
-  var body: some View {
-    StateGlyph(glyph, tone: tone, label: Text(verbatim: symbol + Format.separator + Board.stopStateTitle(state)),
-      live: !state.isProtected, event: [AnyHashable(state), AnyHashable(price)], style: .compact)
-  }
-
-  private var glyph: String { Self.stateSymbol(state) }
-
-  private var tone: Tone { Self.stateTone(state) }
-
-  /// The symbol of a stop state: a checked shield, an hourglass, a crossed or an exclaimed shield.
-  static func stateSymbol(_ state: StopState) -> String {
-    switch state {
-    case .verified: return Self.verifiedSymbol
-    case .pending: return Self.pendingSymbol
-    case .missing: return Self.missingSymbol
-    case .unknown: return Self.unknownSymbol
-    }
-  }
-
-  /// The tone of a stop state: green verified, amber pending, red missing or unknown.
-  static func stateTone(_ state: StopState) -> Tone {
-    switch state {
-    case .verified: return .profit
-    case .pending: return .warning
-    case .missing, .unknown: return .loss
     }
   }
 }

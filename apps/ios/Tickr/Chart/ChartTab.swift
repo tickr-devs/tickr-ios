@@ -274,8 +274,8 @@ private struct DayBar: View {
       let high = candles.map(\.high).max() ?? 0
       let low = candles.map(\.low).min() ?? 0
       let volume = candles.map(\.volume).reduce(0, +)
-      let rows: [(LocalizedStringResource, String)] = [(ChartText.highShort, high.formatted(ChartFormat.price)),
-        (ChartText.lowShort, low.formatted(ChartFormat.price)), (ChartText.volumeShort, volume.formatted(ChartFormat.volume))]
+      let rows: [(LocalizedStringResource, String)] = [(ChartText.highShort, Money.price(high)),
+        (ChartText.lowShort, Money.price(low)), (ChartText.volumeShort, Volume.compact(volume))]
       Grid(alignment: .trailing, horizontalSpacing: Tokens.Space.xs, verticalSpacing: 0) {
         ForEach(rows.indices, id: \.self) { index in
           GridRow {
@@ -297,15 +297,14 @@ private struct DayBar: View {
     if let candles = chart.series?.candles, let first = candles.first, let last = candles.last {
       let amount = last.close - first.open
       let change = first.open == 0 ? 0 : amount / first.open
-      let tone = amount >= 0 ? Palette.profitText : Palette.lossText
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(last.close, format: ChartFormat.price)
+        Text(verbatim: Money.price(last.close))
           .font(.headline.monospaced().bold())
           .contentTransition(.numericText(value: last.close))
-        Text(change, format: ChartFormat.change)
+        Text(verbatim: Percent.signed(fraction: change))
           .font(Tokens.Typography.captionMono)
       }
-      .foregroundStyle(tone)
+      .foregroundStyle(Palette.result(Money.decimal(amount)))
       .accessibilityElement(children: .combine)
     }
   }
@@ -313,7 +312,7 @@ private struct DayBar: View {
   private func dayLabel(live: Bool) -> some View {
     HStack(spacing: Tokens.Space.xs) {
       if let day = chart.selectedDay {
-        Text(verbatim: Format.day(day.noonInNewYork))
+        Text(verbatim: DayText.day(day.noonInNewYork))
       }
       if live {
         Text(verbatim: Format.separator.trimmingCharacters(in: .whitespaces))
@@ -331,7 +330,7 @@ private struct DayBar: View {
         set: { day in if let day { Task { await chart.show(day, from: url) } } }
       )) {
         ForEach(chart.days) { summary in
-          Text(verbatim: Format.day(summary.day.noonInNewYork)).tag(Optional(summary.day))
+          Text(verbatim: DayText.day(summary.day.noonInNewYork)).tag(Optional(summary.day))
         }
       } label: {
         Text(ChartText.day)

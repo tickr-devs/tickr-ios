@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import TickrDesign
 @testable import TickrKit
 @testable import TickrMac
 
@@ -112,7 +113,7 @@ struct ChartMarkersTests {
     let tags = CandleChart.extremeTags(candles, in: candles.indices)
     #expect(tags.map(\.value) == [12.80, 11.90])
     #expect(tags.filter { !$0.plain }.isEmpty)
-    #expect(tags[0].text == String(localized: L10n.Chart.highTag(CandleChart.price(12.80))))
+    #expect(tags[0].text == String(localized: L10n.Chart.highTag(Money.price(12.80 as Double))))
     // Only the candles on screen count.
     #expect(CandleChart.extremeTags(candles, in: 0..<1).map(\.value) == [12.40, 12.10])
     let flat = [Candle(start: start, end: start.addingTimeInterval(60), open: 5, high: 5, low: 5, close: 5, volume: 1)]

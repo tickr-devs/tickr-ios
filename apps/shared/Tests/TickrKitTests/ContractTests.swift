@@ -298,6 +298,8 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     let headline = Headline.make(response: try response("status-response-v1.json"), readFailed: false)
     #expect(headline.severity == .ok)
     #expect(headline.text == "Holding 1 position · protected by a broker stop")
+    // The boards draw this calm headline in the accent, not in profit (`Headline.tone`).
+    #expect(headline.holding)
   }
 
   @Test func blockNeedingTheOperatorIsAttention() throws {
@@ -312,6 +314,7 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
   @Test func allowedIsOK() throws {
     let headline = Headline.make(response: try response("status-response-v1.minimal.json"), readFailed: false)
     #expect(headline == Headline(text: "Entries allowed.", severity: .ok))
+    #expect(!headline.holding)
   }
 
   @Test(arguments: ["status-response-v1.stale.json", "status-response-v1.unavailable.json"])

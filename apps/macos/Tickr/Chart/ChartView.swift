@@ -199,16 +199,16 @@ struct ChartView: View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
       symbolMenu
       if let last = plot?.candles.last {
-        Text(verbatim: CandleChart.price(last.close))
+        Text(verbatim: Money.price(last.close))
           .font(Tokens.Typography.quote)
           // Coloured as the day's change beside it when the screeners reported one, so the two
           // never disagree; else by the last candle.
-          .foregroundStyle(dayChange.map { Palette.result($0) } ?? (last.isUp ? Palette.profitText : Palette.lossText))
+          .foregroundStyle(Palette.result(dayChange ?? Money.decimal(last.close - last.open)))
           .contentTransition(.numericText(value: last.close))
           .animation(Tokens.Motion.quick, value: last.close)
       }
       if let change = dayChange {
-        Text(verbatim: change.formatted(.percent.precision(.fractionLength(Money.centsDigits)).sign(strategy: .always())))
+        Text(verbatim: Percent.signed(fraction: change))
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.result(change))
           .help(Text(L10n.Chart.dayChangeHelp))

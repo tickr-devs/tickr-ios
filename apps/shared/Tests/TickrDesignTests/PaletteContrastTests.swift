@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 @testable import TickrDesign
+import TickrKit
 
 /// Every text and its fill in the destructive and emergency command tiers keeps WCAG AA (4.5:1
 /// for normal text) in both appearances, computed from the palette's own values. A text drawn at
@@ -85,6 +86,23 @@ import Testing
       let ratio = Self.ratio(text, fill)
       #expect(ratio >= Self.minimum, "\(appearance.rawValue) \(name): \(ratio)")
     }
+  }
+
+  /// Every tone's text colour and every verdict's colour is a text role: 4.5:1 on `surface`.
+  @Test(arguments: Appearance.allCases)
+  func meaningTextsPassAA(_ appearance: Appearance) {
+    let surface = RGB(Swatch.surface, appearance)
+    let texts: [(String, Swatch)] = Tone.allCases.map { ("tone \($0)", $0.textSwatch) }
+      + [Verdict.enter, .hold, .watch, .ignore, .exit].map { ("verdict \($0.rawValue)", $0.textSwatch) }
+    for (name, swatch) in texts {
+      let ratio = Self.ratio(RGB(swatch, appearance), surface)
+      #expect(ratio >= Self.minimum, "\(appearance.rawValue) \(name): \(ratio)")
+    }
+  }
+
+  /// Why a fill is never text: `info` itself is below 4.5:1 on `surface` in light mode.
+  @Test func infoFillIsNotText() {
+    #expect(Self.ratio(RGB(Swatch.info, .light), RGB(Swatch.surface, .light)) < Self.minimum)
   }
 
   /// The ratio itself: white on black is 21:1, and the old dark fill (#F87171) failed.

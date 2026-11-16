@@ -27,10 +27,6 @@ extension L10n.Toolbar {
   static func ageMinutes(_ minutes: Int) -> LocalizedStringResource {
     LocalizedStringResource("toolbar.ageMinutes", defaultValue: "\(minutes) min", bundle: L10n.bundle)
   }
-  /// The day stepper's day ("Mon Nov 16"): weekday, month and day of the month.
-  static func day(_ weekday: String, _ month: String, _ dayOfMonth: String) -> LocalizedStringResource {
-    LocalizedStringResource("toolbar.day", defaultValue: "\(weekday) \(month) \(dayOfMonth)", bundle: L10n.bundle)
-  }
   /// The title bar's sidebar button.
   static var hideSidebar: LocalizedStringResource {
     LocalizedStringResource("toolbar.hideSidebar", defaultValue: "Hide Sidebar", bundle: L10n.bundle)

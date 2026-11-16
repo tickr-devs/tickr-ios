@@ -159,7 +159,7 @@ struct AdvisorRunRow: View {
         Text(verbatim: run.title)
           .font(Tokens.Typography.calloutMono.weight(.semibold))
           .foregroundStyle(Palette.textPrimary)
-        Text(verbatim: Format.day(run.at.date) + Format.separator + Format.time(run.at.date))
+        Text(verbatim: DayText.day(run.at.date) + Format.separator + Format.time(run.at.date))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textQuaternary)
       }
@@ -273,7 +273,7 @@ struct AdvisorProposalView: View {
       ChipFlow {
         StatusPill(run.stateWords, tone: AdvisorLook.tone(run))
         StatusPill(run.modeWords, tone: .info)
-        Text(verbatim: Format.day(run.at.date) + Format.separator + Format.time(run.at.date))
+        Text(verbatim: DayText.day(run.at.date) + Format.separator + Format.time(run.at.date))
           .font(Tokens.Typography.captionMono)
           .foregroundStyle(Palette.textQuaternary)
       }
@@ -332,7 +332,7 @@ struct AdvisorProposalView: View {
           StatusPill(AdvisorWords.simulated, tone: .warning)
           Spacer()
           if let judge = run.judge {
-            Text(AdvisorWords.holdoutFrom(Format.day(judge.holdoutStarts.noonInNewYork)))
+            Text(AdvisorWords.holdoutFrom(DayText.day(judge.holdoutStarts.noonInNewYork)))
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.textQuaternary)
           }
@@ -419,7 +419,7 @@ struct JudgeFigures: View {
       alignment: .leading, spacing: Tokens.Space.s) {
       MetricChip(AdvisorWords.totalR, value: pair(\.totalR) { AdvisorLook.r($0) })
       MetricChip(AdvisorWords.winRate, value: pair(\.winRatePercent) {
-        Money.plain($0, fractionDigits: AdvisorLook.percentDigits) + Format.percentSign
+        Percent.plain(points: $0, fractionDigits: AdvisorLook.percentDigits)
       })
       MetricChip(AdvisorWords.profitFactor, value: pair(\.profitFactor) {
         Money.plain($0, fractionDigits: AdvisorLook.factorDigits)

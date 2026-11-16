@@ -104,7 +104,7 @@ struct JobsSection: View {
       if failed, let at = job.lastFailedAt {
         StatusPill(L10n.Settings.backupFailed(Format.time(at.date)), tone: .loss)
       } else if let at = job.lastAt {
-        Text(verbatim: Format.day(at.date) + Format.separator + Format.time(at.date))
+        Text(verbatim: DayText.day(at.date) + Format.separator + Format.time(at.date))
           .font(.body.monospaced())
       } else {
         Text(verbatim: Format.missing)

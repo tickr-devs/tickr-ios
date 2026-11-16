@@ -148,16 +148,3 @@ private struct CheckRow: View {
     return ([comparison] + (check.note.isEmpty ? [] : [check.note])).joined(separator: Format.lineSeparator)
   }
 }
-
-extension Verdict {
-  /// The role colour of the decision's badge.
-  var color: Color {
-    switch self {
-    case .enter: Palette.accentText
-    case .exit: Palette.warningText
-    case .watch: Palette.infoText
-    case .hold: Palette.highlightText
-    case .ignore: Palette.textTertiary
-    }
-  }
-}

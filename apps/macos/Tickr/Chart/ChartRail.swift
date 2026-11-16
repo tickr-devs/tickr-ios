@@ -50,7 +50,7 @@ struct ChartRail: View {
     var seen = Set<String>()
     var rows: [SymbolList.Row] = []
     for row in model.positions where seen.insert(row.id).inserted {
-      let verified = row.position.stop.state == .verified
+      let verified = row.position.stop.state.isProtected
       let note = row.stop.map {
         verified ? L10n.Chart.railStop(Format.price($0)) : L10n.Chart.railStopUnverified(Format.price($0))
       }
@@ -85,7 +85,7 @@ struct ChartRail: View {
     case .topActives: String(localized: L10n.Chart.sourceActives)
     }
     let change = chip.changePct.map {
-      ($0.value / ChartView.percentFactor).formatted(.percent.precision(.fractionLength(1)).sign(strategy: .always()))
+      Percent.signed(points: $0.value, fractionDigits: Percent.moverDigits)
     }
     return L10n.Chart.railScreener(name, change ?? Format.missing)
   }
@@ -212,10 +212,12 @@ private struct PositionCard: View {
 
   @ViewBuilder private var stop: some View {
     if let price = row.stop {
-      if row.position.stop.state == .verified {
+      // A verified stop's level is red like the chart's stop line; an unverified one in its
+      // state's tone (`StopState.tone`: pending amber, missing red), its words saying which.
+      if row.position.stop.state.isProtected {
         Text(L10n.Chart.positionStopVerified(Format.price(price))).foregroundStyle(Palette.lossText)
       } else {
-        Text(L10n.Chart.positionStopUnverified(Format.price(price))).foregroundStyle(Palette.warningText)
+        Text(L10n.Chart.positionStopUnverified(Format.price(price))).foregroundStyle(row.position.stop.state.tone.text)
       }
     } else {
       Text(L10n.Chart.positionNoStop).foregroundStyle(Palette.lossText)

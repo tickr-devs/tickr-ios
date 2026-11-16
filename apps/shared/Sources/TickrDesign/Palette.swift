@@ -39,7 +39,7 @@ public enum Palette {
   /// Body text in rows and lists.
   public static let textSecondary = Color(light: 0x262F52, dark: 0xC9CFE6)
   /// Labels next to values, explanations.
-  public static let textTertiary = Color(light: 0x475174, dark: 0xA9B2D3)
+  public static let textTertiary = Color(Swatch.textTertiary)
   /// Section labels, captions, placeholders ("—").
   public static let textQuaternary = Color(light: 0x5F6A8C, dark: 0x8F99BC)
   /// Uppercase section labels (card and sidebar headers, metric names): the boards' `.lbl`, a
@@ -50,7 +50,7 @@ public enum Palette {
 
   /// Live and brand: running bot, live flow, the logo, focus.
   public static let accent = Color(light: 0x0EA5A0, dark: 0x2DD4BF)
-  public static let accentText = Color(light: 0x0B766F, dark: 0x5EEAD4)
+  public static let accentText = Color(Swatch.accentText)
   /// Fill of a primary button, and the text drawn on it (4.5:1 in both appearances).
   public static let accentFill = Color(light: 0x0B766F, dark: 0x2DD4BF)
   public static let onAccent = Color(light: 0xFFFFFF, dark: 0x04131A)
@@ -58,7 +58,7 @@ public enum Palette {
   public static let sheen = Color(light: 0xFFFFFF, dark: 0xFFFFFF)
   /// Money gained, a verified stop, healthy state.
   public static let profit = Color(light: 0x10B981, dark: 0x34D399)
-  public static let profitText = Color(light: 0x047857, dark: 0x6EE7B7)
+  public static let profitText = Color(Swatch.profitText)
   /// Money lost, a missing stop, an alarm, destructive actions.
   public static let loss = Color(Swatch.loss)
   public static let lossText = Color(Swatch.lossText)
@@ -70,13 +70,13 @@ public enum Palette {
   public static let onLoss = Color(Swatch.onLoss)
   /// Attention: paused, blocked, stale, a closed gate.
   public static let warning = Color(light: 0xF59E0B, dark: 0xFBBF24)
-  public static let warningText = Color(light: 0xB45309, dark: 0xFCD34D)
+  public static let warningText = Color(Swatch.warningText)
   /// Information and orders: entries, commands in flight, reconciliation.
-  public static let info = Color(light: 0x3B82F6, dark: 0x60A5FA)
-  public static let infoText = Color(light: 0x1D4ED8, dark: 0x93C5FD)
+  public static let info = Color(Swatch.info)
+  public static let infoText = Color(Swatch.infoText)
   /// Context that is not live: environment, recorded days, planned (BACKLOG) features, observers.
   public static let highlight = Color(light: 0x8B5CF6, dark: 0xA78BFA)
-  public static let highlightText = Color(light: 0x6D28D9, dark: 0xC4B5FD)
+  public static let highlightText = Color(Swatch.highlightText)
 
   /// An unselected chip's fill (ranges, intervals, studies; selected chips take `selection`).
   public static let chipFill = Color(light: 0xF3F6FD, dark: 0x111834)
@@ -91,7 +91,7 @@ public enum Palette {
   public static let seriesSlowEMA = highlight
   /// ATR line and its label.
   public static let seriesATR = Color(light: 0xEC4899, dark: 0xF472B6)
-  public static let seriesATRText = Color(light: 0xBE185D, dark: 0xF9A8D4)
+  public static let seriesATRText = Color(Swatch.seriesATRText)
   /// Universe filter stage in the live flow.
   public static let seriesUniverse = seriesATR
 
@@ -105,9 +105,10 @@ public enum Palette {
   /// Deep navy behind an overlay panel (the Mac "Watching closely" list), at `Opacity.faint`, and its shadow.
   public static let scrim = Color(Swatch.scrim)
 
-  /// Text colour for a money result: gains profit, losses loss, zero tertiary.
+  /// Text colour for a money result: gains profit, losses the series pink, zero tertiary, by the
+  /// value as shown (`Tone.result`, the one place the sign of a result picks its colour).
   public static func result(_ value: Decimal) -> Color {
-    value > 0 ? profitText : value < 0 ? lossText : textTertiary
+    Tone.result(value).text
   }
 
   // MARK: hue names (iOS app until it moves to roles)
@@ -151,6 +152,16 @@ public struct Swatch: Sendable, Hashable {
   public static let textPrimary = Swatch(light: 0x0E1430, dark: 0xE7EAF6)
   public static let loss = Swatch(light: 0xEF4444, dark: 0xF87171)
   public static let lossText = Swatch(light: 0xB91C1C, dark: 0xFCA5A5)
+  /// The text roles a tone, a verdict or a headline may draw text in (each 4.5:1 on `surface`).
+  public static let textTertiary = Swatch(light: 0x475174, dark: 0xA9B2D3)
+  public static let accentText = Swatch(light: 0x0B766F, dark: 0x5EEAD4)
+  public static let profitText = Swatch(light: 0x047857, dark: 0x6EE7B7)
+  public static let warningText = Swatch(light: 0xB45309, dark: 0xFCD34D)
+  public static let infoText = Swatch(light: 0x1D4ED8, dark: 0x93C5FD)
+  public static let highlightText = Swatch(light: 0x6D28D9, dark: 0xC4B5FD)
+  public static let seriesATRText = Swatch(light: 0xBE185D, dark: 0xF9A8D4)
+  /// `info` itself, a fill: below 4.5:1 on `surface` in light mode, so never text (a test proves it).
+  public static let info = Swatch(light: 0x3B82F6, dark: 0x60A5FA)
   public static let lossFill = Swatch(light: 0xB91C1C, dark: 0x991B1B)
   public static let onLoss = Swatch(light: 0xFFFFFF, dark: 0xFFFFFF)
   public static let scrim = Swatch(light: 0x080C1E, dark: 0x080C1E)

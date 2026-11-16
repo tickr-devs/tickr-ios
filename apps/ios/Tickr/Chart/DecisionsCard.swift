@@ -171,15 +171,6 @@ extension Verdict {
     }
   }
 
-  /// Entries in the accent, exits in the info colour, the rest muted.
-  var color: Color {
-    switch self {
-    case .enter: return Palette.accentText
-    case .exit: return Palette.info
-    case .ignore, .watch, .hold: return Palette.textTertiary
-    }
-  }
-
   /// The decision's dot, as on the design's chart: entries green, watching amber, exits in the
   /// info colour, the rest muted.
   var dotColor: Color {

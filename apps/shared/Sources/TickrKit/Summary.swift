@@ -15,6 +15,9 @@ public struct Headline: Equatable, Sendable {
   /// state. Not `text`: a stale status's text counts its age, which grows with every read of the
   /// same stale status.
   public let pulse: Pulse
+  /// The calm headline says what the bot holds: open positions, every one protected. The boards
+  /// draw it in the accent, a calm headline with nothing held in profit (`Headline.tone`).
+  public let holding: Bool
 
   /// The event key of `Headline.pulse`.
   public enum Pulse: Hashable, Sendable {
@@ -25,10 +28,11 @@ public struct Headline: Equatable, Sendable {
   }
 
   /// `pulse` defaults to the text.
-  public init(text: String, severity: Severity, pulse: Pulse? = nil) {
+  public init(text: String, severity: Severity, pulse: Pulse? = nil, holding: Bool = false) {
     self.text = text
     self.severity = severity
     self.pulse = pulse ?? .text(text)
+    self.holding = holding
   }
 
   /// `readFailed`: the last read of /status failed; it wins over an older good response. The
@@ -45,7 +49,7 @@ public struct Headline: Equatable, Sendable {
       let text = summary(response)
       return Headline(text: text, severity: .alarm, pulse: response.stale ? .stale : .text(text))
     }
-    if let position = status.positions.first(where: { $0.stop.state != .verified }) {
+    if let position = status.positions.first(where: { !$0.stop.state.isProtected }) {
       return Headline(
         text: String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
           + summary(response),
@@ -56,7 +60,7 @@ public struct Headline: Equatable, Sendable {
     if status.entryBlock?.attention != true, !status.positions.isEmpty {
       let count = status.positions.count
       let text = count == 1 ? L10n.headlineHoldingOne : L10n.headlineHolding(count)
-      return Headline(text: String(localized: text), severity: .ok)
+      return Headline(text: String(localized: text), severity: .ok, holding: true)
     }
     // An ordinary refusal (outside the entry window) is calm; only a block that needs the operator
     // is attention.

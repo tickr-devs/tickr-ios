@@ -182,29 +182,16 @@ private struct Header: View {
 
   private var banner: some View {
     let content = content
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-    return HStack(spacing: Tokens.Space.m) {
-      PulseDot(content.color, pulsing: model.isLive, event: content.pulse)
-      Text(verbatim: content.title).font(Tokens.Typography.button).foregroundStyle(content.color)
-        .fixedSize()
-      if let detail = content.detail {
-        // Wraps to as many lines as it needs: a narrow window cut the cause of a block mid-sentence.
-        Text(verbatim: detail).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-          .fixedSize(horizontal: false, vertical: true)
-      }
-    }
-    .padding(Tokens.Space.m)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(content.color.opacity(Tokens.Opacity.wash), in: shape)
-    .overlay(shape.strokeBorder(content.color.opacity(Tokens.Opacity.border)))
-    .modifier(AlarmPulse(active: content.alarm))
-    .textSelection(.enabled)
+    return HeadlineBanner(content.title, detail: content.detail, tone: content.tone,
+      pulse: model.isLive ? AnyHashable(content.pulse) : nil)
+      .modifier(AlarmPulse(active: content.alarm))
+      .textSelection(.enabled)
   }
 
   private struct Content {
     let title: String
     let detail: String?
-    let color: Color
+    let tone: Tone
     let alarm: Bool
     /// What the dot pulses on: the title, but a stale status's age is no new event.
     let pulse: Headline.Pulse
@@ -212,10 +199,10 @@ private struct Header: View {
 
   private var content: Content {
     if !model.isLive {
-      let title = String(localized: L10n.Common.recordedDay(Format.dayLabel(model.shownDay)))
+      let title = String(localized: L10n.Common.recordedDay(DayText.day(model.shownDay)))
       return Content(
         title: title, detail: String(localized: L10n.Overview.recordedDetail),
-        color: Palette.highlightText, alarm: false, pulse: .text(title))
+        tone: .highlight, alarm: false, pulse: .text(title))
     }
     let headline = model.headline
     var detail: String?
@@ -224,11 +211,11 @@ private struct Header: View {
       if positions.isEmpty {
         detail = String(localized: L10n.Overview.noOpenPosition)
       } else {
-        let protected = positions.filter { $0.stop.state == .verified }.count
+        let protected = positions.filter { $0.stop.state.isProtected }.count
         detail = String(localized: L10n.Overview.protectedPositions(positions.count, protected))
       }
     }
-    return Content(title: headline.text, detail: detail, color: headline.severity.color,
+    return Content(title: headline.text, detail: detail, tone: headline.tone,
       alarm: headline.severity == .alarm, pulse: headline.pulse)
   }
 }
@@ -337,13 +324,10 @@ private struct LiveFlowCard: View {
     let status = model.isLive ? model.status : nil
     let positions = status.map(Board.positions) ?? []
     // An open position whose stop is not verified outranks the day's count of verified stops.
-    let unprotected = positions.first { $0.stop.state != .verified }
-    // Green only while every open position's stop is verified at the broker.
-    // and no trade of the day ended without one (or with one the bot cannot account for).
-    let stopVerified = positions.allSatisfy { $0.stop.state == .verified }
-      && !(model.flow?.stops ?? []).contains { $0.state == .neverVerified || $0.state == .unknown }
-    let stopColor = stopVerified ? Palette.profit : Palette.loss
-    let stopText = stopVerified ? Palette.profitText : Palette.lossText
+    let unprotected = positions.first { !$0.stop.state.isProtected }
+    // The one stage rule of both apps (`StopState.stageTone`): neutral with no position, else the
+    // worst of the open and the day's stops.
+    let stopTone = StopState.stageTone(open: positions.map(\.stop.state), day: (model.flow?.stops ?? []).map(\.state))
     return [
       .init(id: .screeners, name: L10n.Flow.screeners, value: count(.screeners, L10n.Flow.seen),
         glyph: .screeners, color: Palette.accent, text: Palette.accentText),
@@ -372,7 +356,7 @@ private struct LiveFlowCard: View {
         value: unprotected.map { $0.stop.state.title } ?? count(.stop, L10n.Flow.verified)
           ?? positions.first.map { $0.stop.state.title }
           ?? status.map { _ in String(localized: L10n.Common.noPosition) },
-        glyph: .brokerStop, color: stopColor, text: stopText),
+        glyph: .brokerStop, color: stopTone.fill, text: stopTone.text),
       .init(id: .reconcile, name: L10n.Flow.reconcile, value: reconcile.value, note: reconcile.note,
         glyph: .reconcile, color: Palette.infoText, text: Palette.infoText),
     ]
@@ -410,17 +394,8 @@ extension Board.Event.Tone {
     }
   }
 
-  var color: Color {
-    switch self {
-    case .teal: return Palette.accentText
-    case .green: return Palette.profitText
-    case .blue: return Palette.infoText
-    case .amber: return Palette.warningText
-    case .violet: return Palette.highlightText
-    case .red: return Palette.lossText
-    case .muted: return Palette.textTertiary
-    }
-  }
+  /// The tone as a text colour, from the shared map (`Tone(_:)` in TickrDesign).
+  var color: Color { TickrDesign.Tone(self).text }
 }
 
 /// The stages a setup passes through, on one line, with today's symbols as dots under the stage
@@ -781,9 +756,7 @@ private struct PositionTab: View {
   var body: some View {
     Button(action: action) {
       HStack(spacing: Tokens.Space.xs) {
-        Circle()
-          .fill(row.position.stop.state == .verified ? Palette.profit : Palette.loss)
-          .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+        StopDot(row.position.stop.state)
         Text(verbatim: row.position.symbol).foregroundStyle(Palette.textPrimary)
         if let value = row.unrealized {
           Text(verbatim: Money.signed(value)).foregroundStyle(Palette.result(value))
@@ -791,6 +764,8 @@ private struct PositionTab: View {
       }
     }
     .buttonStyle(.chip(selected: selected))
+    // The dot's state in words, as the iPhone's position tab says it.
+    .accessibilityValue(Text(verbatim: Board.stopStateTitle(row.position.stop.state)))
   }
 }
 
@@ -812,7 +787,8 @@ private struct PositionDetail: View {
       }
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         HStack(spacing: Tokens.Space.s) {
-          StopBadge(state: row.position.stop.state, price: row.position.stop.price)
+          StopGlyph(state: row.position.stop.state, symbol: row.position.symbol, price: row.position.stop.price,
+            style: .tile)
           Text(verbatim: row.position.symbol).font(Tokens.Typography.metric)
           Spacer()
           if let value = row.unrealized {
@@ -825,8 +801,8 @@ private struct PositionDetail: View {
         Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
           GridRow {
             IconMetric(Self.entrySymbol, label: L10n.Position.entry, value: Format.price(row.entry), tone: .info)
-            IconMetric(Self.stopSymbol, label: L10n.Position.stop, value: Format.price(row.stop),
-              tone: row.position.stop.state == .verified ? .profit : .loss)
+            IconMetric(StopState.levelSymbol, label: L10n.Position.stop, value: Format.price(row.stop),
+              tone: row.position.stop.state.tone)
           }
           GridRow {
             IconMetric(Self.quantitySymbol, label: L10n.Position.quantity, value: Format.quantity(row.quantity))
@@ -850,7 +826,6 @@ private struct PositionDetail: View {
 
   /// Symbols of the position's figures.
   static let entrySymbol = "arrow.right.to.line"
-  static let stopSymbol = "shield.lefthalf.filled"
   static let quantitySymbol = "number"
   static let openedSymbol = "clock"
   static let lastBarSymbol = "chart.bar.xaxis"
@@ -918,36 +893,6 @@ private struct PositionDetail: View {
   }
 }
 
-/// A position's protection as a shield glyph: green when the broker stop is verified, red otherwise,
-/// pulsing once each time its state or price changes while unprotected; the state's words are its hint.
-struct StopBadge: View {
-  let state: StopState
-  var compact = false
-  /// The stop's price: a moved stop is a change too.
-  var price: DecimalString?
-
-  /// Symbols of the stop states.
-  static let verifiedSymbol = "checkmark.shield.fill"
-  static let pendingSymbol = "hourglass"
-  static let missingSymbol = "xmark.shield.fill"
-  static let unknownSymbol = "exclamationmark.shield.fill"
-
-  var body: some View {
-    StateGlyph(symbol, tone: state == .verified ? .profit : state == .pending ? .warning : .loss,
-      label: Text(verbatim: state.title), live: state != .verified, event: [AnyHashable(state), AnyHashable(price)],
-      style: compact ? .compact : .tile)
-  }
-
-  private var symbol: String {
-    switch state {
-    case .verified: return Self.verifiedSymbol
-    case .pending: return Self.pendingSymbol
-    case .missing: return Self.missingSymbol
-    case .unknown: return Self.unknownSymbol
-    }
-  }
-}
-
 extension StopState {
   /// "Stop ✓", "No stop": the protection of a position, in the person's language.
   var title: String {
@@ -985,9 +930,9 @@ private struct MiniChart: View {
         let bars = 0...(values.count - 1)
         ZStack {
           Chart {
-            level(entry, color: Palette.info, label: Text(L10n.Position.entryLevel(Money.plain(entry))))
+            level(entry, color: Palette.info, label: Text(L10n.Position.entryLevel(Money.price(entry))))
             if let stop {
-              level(stop, color: Palette.loss, label: Text(L10n.Position.stopLevel(Money.plain(stop))))
+              level(stop, color: Palette.loss, label: Text(L10n.Position.stopLevel(Money.price(stop))))
             }
           }
           .plain(bars: bars, prices: domain)
@@ -1196,10 +1141,11 @@ private struct SafetyCard: View {
     let label: LocalizedStringResource
     let value: String
     let tone: Tone
+    /// The open positions' stops, for the stops row's symbol (the worst one's, never a fixed check).
+    var stops: [StopState] = []
 
     /// Symbols of the rows.
     static let statusSymbol = "questionmark.circle"
-    static let stopsSymbol = "checkmark.shield"
     static let entriesSymbol = "paperplane"
     static let reconcileSymbol = "arrow.triangle.2.circlepath"
     static let streamSymbol = "waveform.path.ecg"
@@ -1209,7 +1155,7 @@ private struct SafetyCard: View {
     var symbol: String {
       switch id {
       case .status: return Self.statusSymbol
-      case .stops: return Self.stopsSymbol
+      case .stops: return StopState.combinedSymbol(stops)
       case .entries: return Self.entriesSymbol
       case .reconcile: return Self.reconcileSymbol
       case .stream: return Self.streamSymbol
@@ -1225,7 +1171,7 @@ private struct SafetyCard: View {
       return [Row(id: .status, label: L10n.Safety.status, value: value, tone: .neutral)]
     }
     let positions = Board.positions(status)
-    let verified = positions.filter { $0.stop.state == .verified }.count
+    let verified = positions.filter { $0.stop.state.isProtected }.count
     let fenceNames = Set(status.fences.map { String($0.kind.prefix { $0 != Self.fenceKeySeparator }) })
     // Positions or orders the bot did not place, in one tile.
     let foreign = fenceNames.contains(Self.foreignPositionFence) || fenceNames.contains(Self.foreignOrderFence)
@@ -1243,7 +1189,7 @@ private struct SafetyCard: View {
       Row(id: .stops, label: L10n.Safety.brokerStops,
         value: positions.isEmpty
           ? String(localized: L10n.Common.noPosition) : String(localized: L10n.Safety.verified(verified, positions.count)),
-        tone: verified == positions.count ? .profit : .loss),
+        tone: StopState.combinedTone(positions.map(\.stop.state)), stops: positions.map(\.stop.state)),
       Row(id: .entries, label: L10n.EntrySent.safetyRow,
         value: sent?.text ?? String(localized: L10n.Common.none), tone: sent?.tone ?? .neutral),
       Row(id: .stream, label: L10n.Safety.quoteStream, value: stream.title,

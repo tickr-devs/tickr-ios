@@ -184,7 +184,7 @@ private struct CalendarDay: View {
     Button(action: action) {
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
         HStack(spacing: 0) {
-          Text(cell.day.day, format: .number)
+          Text(verbatim: String(cell.day.day))
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textTertiary)
           Spacer(minLength: 0)
@@ -233,9 +233,9 @@ private struct CalendarDay: View {
     .buttonStyle(.plain)
     .onHover { hovered = $0 }
     .disabled(!opens)
-    .help(Text(verbatim: summary.map { Format.dayLabel(cell.day) + Format.lineSeparator + CleanMark.text($0.clean) }
-      ?? Format.dayLabel(cell.day)))
-    .accessibilityLabel(Text(verbatim: Format.dayLabel(cell.day)))
+    .help(Text(verbatim: summary.map { DayText.day(cell.day) + Format.lineSeparator + CleanMark.text($0.clean) }
+      ?? DayText.day(cell.day)))
+    .accessibilityLabel(Text(verbatim: DayText.day(cell.day)))
     .accessibilityValue(result.map { Text(verbatim: Money.signedUSD($0)) } ?? Text(L10n.Trades.noRecords))
     .accessibilityAddTraits(selected ? .isSelected : [])
   }

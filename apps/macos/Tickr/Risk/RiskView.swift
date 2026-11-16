@@ -207,7 +207,7 @@ private struct LossRoomCard: View {
   static let feesSymbol = "building.columns"
   static let realizedSymbol = "arrow.down.right"
   static let reservationsSymbol = "lock"
-  static let plannedSymbol = "shield"
+  static let plannedSymbol = StopState.levelSymbol
   static let limitSymbol = "gauge.with.dots.needle.67percent"
 
   /// Fill colour of the gauge: the accent while the room is calm, amber, then red near the limit.
@@ -241,7 +241,7 @@ private struct LossRoomCard: View {
         VStack(spacing: Tokens.Space.xxs) {
           LossGauge(fraction: fraction, color: color)
             .frame(width: LossGauge.width, height: LossGauge.height)
-          Text(verbatim: room.map { Money.plain($0) } ?? Format.missing)
+          Text(verbatim: room.map(Money.usd) ?? Format.missing)
             .font(Tokens.Typography.metric)
             .foregroundStyle(textColor)
             .monospacedDigit()
@@ -256,14 +256,14 @@ private struct LossRoomCard: View {
         .modifier(AlarmPulse(active: room != nil && fraction < Tokens.Room.alarm))
         VStack(spacing: Tokens.Space.xs) {
           FigureRow(L10n.Risk.limit, value: amount(model.settings?.risk.maxDailyLossUsd), symbol: Self.limitSymbol)
-          FigureRow(L10n.Risk.resultToday, value: result.map { Money.signed($0) } ?? Format.missing,
-            symbol: Self.resultSymbol, symbolColor: result.map(Palette.result) ?? Palette.textQuaternary,
-            color: result.map(Self.resultText) ?? Palette.textQuaternary)
+          FigureRow(L10n.Risk.resultToday, value: result.map(Money.signedUSD) ?? Format.missing,
+            symbol: Self.resultSymbol, symbolColor: result.map { Tone.result($0).fill } ?? Palette.textQuaternary,
+            color: result.map(Palette.result) ?? Palette.textQuaternary)
           FigureRow(L10n.Risk.feesToday,
-            value: model.status?.feesTodayUsd.map { Money.plain($0.value) } ?? Format.missing,
+            value: model.status?.feesTodayUsd.map { Money.usd($0.value) } ?? Format.missing,
             symbol: Self.feesSymbol, symbolColor: Palette.warning, color: Palette.textSecondary)
           FigureRow(L10n.Risk.realizedLoss, value: loss(model.status?.realizedLossTodayUsd),
-            symbol: Self.realizedSymbol, symbolColor: Palette.loss, color: Palette.lossText)
+            symbol: Self.realizedSymbol, symbolColor: Tone.series.fill, color: Tone.series.text)
           FigureRow(L10n.Risk.reservations, value: amount(model.status?.openReservationsUsd),
             symbol: Self.reservationsSymbol, symbolColor: Palette.warning, color: Palette.warningText)
           FigureRow(L10n.Risk.nextPlannedLoss, value: amount(model.settings?.risk.plannedLossUsd),
@@ -285,19 +285,14 @@ private struct LossRoomCard: View {
     return status.entryBlock.map(ApiText.entryBlock) ?? String(localized: L10n.Risk.entriesOpen)
   }
 
-  /// A result's text colour: green for a gain, red for a loss.
-  private static func resultText(_ value: Decimal) -> Color {
-    value < 0 ? Palette.lossText : Palette.profitText
-  }
-
-  /// A loss the bot reported, with its minus ("−1.60"), or the missing mark.
+  /// A loss the bot reported, with its minus ("−$1.60"), or the missing mark.
   private func loss(_ value: DecimalString?) -> String {
-    value.map { Money.signed(-$0.value) } ?? Format.missing
+    value.map { Money.signedUSD(-$0.value) } ?? Format.missing
   }
 
-  /// An amount the bot reported, or the missing mark when it did not.
+  /// An amount the bot reported ("$250.00"), or the missing mark when it did not.
   private func amount(_ value: DecimalString?) -> String {
-    value.map { Money.plain($0.value) } ?? Format.missing
+    value.map { Money.usd($0.value) } ?? Format.missing
   }
 }
 
@@ -540,7 +535,7 @@ private struct ReconciliationCard: View {
       check(nil, Text(model.accountError == nil ? L10n.Risk.accountReading : L10n.Risk.accountUnavailable))
     }
     if let status = model.status, !status.positions.isEmpty {
-      let covered = status.positions.filter { $0.stop.state == .verified }.count
+      let covered = status.positions.filter { $0.stop.state.isProtected }.count
       check(covered == status.positions.count, Text(L10n.Risk.stopsCover(covered, status.positions.count)))
     }
     HStack(spacing: Tokens.Space.s) {
@@ -641,7 +636,7 @@ private struct LimitsCard: View {
   @Environment(AppModel.self) private var model
 
   /// Symbols of the limits, as the design draws them.
-  static let plannedSymbol = "shield"
+  static let plannedSymbol = StopState.levelSymbol
   static let capSymbol = "rectangle.on.rectangle"
   static let dailySymbol = "chart.line.downtrend.xyaxis"
   static let minRoomSymbol = "plus"
@@ -664,10 +659,10 @@ private struct LimitsCard: View {
             .foregroundStyle(Palette.textQuaternary)
         }
         VStack(spacing: Tokens.Space.xs) {
-          FigureRow(L10n.Risk.plannedLoss, value: Format.usd(risk.plannedLossUsd.value), symbol: Self.plannedSymbol)
-          FigureRow(L10n.Risk.notionalCap, value: Format.usd(risk.positionNotionalCapUsd.value), symbol: Self.capSymbol)
-          FigureRow(L10n.Risk.dailyLoss, value: Format.usd(risk.maxDailyLossUsd.value), symbol: Self.dailySymbol)
-          FigureRow(L10n.Risk.minRoom, value: Format.usd(risk.minDailyRoomUsd.value), symbol: Self.minRoomSymbol)
+          FigureRow(L10n.Risk.plannedLoss, value: Money.usd(risk.plannedLossUsd.value), symbol: Self.plannedSymbol)
+          FigureRow(L10n.Risk.notionalCap, value: Money.usd(risk.positionNotionalCapUsd.value), symbol: Self.capSymbol)
+          FigureRow(L10n.Risk.dailyLoss, value: Money.usd(risk.maxDailyLossUsd.value), symbol: Self.dailySymbol)
+          FigureRow(L10n.Risk.minRoom, value: Money.usd(risk.minDailyRoomUsd.value), symbol: Self.minRoomSymbol)
           FigureRow(L10n.Risk.openPositions, value: String(risk.maxOpenPositions), symbol: Self.positionsSymbol)
           FigureRow(L10n.Risk.quoteAge,
             value: String(localized: L10n.Risk.seconds(Format.secondsNumber(risk.maxQuoteAgeSeconds.value))),
@@ -713,14 +708,9 @@ private struct PositionSlots: View {
     .accessibilityLabel(Text(L10n.Risk.slots))
   }
 
-  /// Colours of a stop state: confirmed in the accent with green text, pending amber, missing or
-  /// unknown red.
+  /// Colours of a stop state: its tone (`StopState.tone`): green verified, amber pending, red missing.
   private func colors(_ state: StopState) -> (frame: Color, text: Color) {
-    switch state {
-    case .verified: return (Palette.accent, Palette.profitText)
-    case .pending: return (Palette.warning, Palette.warningText)
-    case .missing, .unknown: return (Palette.loss, Palette.lossText)
-    }
+    (state.tone.fill, state.tone.text)
   }
 
   private func taken(_ row: PositionRow) -> some View {
@@ -736,7 +726,7 @@ private struct PositionSlots: View {
       // Without a stop price the line says the state ("No stop"), never a bare dash.
       HStack(spacing: Tokens.Space.xxs) {
         if let stop = row.stop { Text(L10n.Risk.slotStop(Format.price(stop))) } else { Text(verbatim: state.title) }
-        if state == .verified {
+        if state.isProtected {
           Image(systemName: Self.confirmedSymbol).accessibilityHidden(true)
         }
       }
@@ -1016,7 +1006,7 @@ private struct AccountCard: View {
     balance(L10n.Risk.dayResult, b.dayPlUsd, font: Self.figureFont, signed: true)
     Text(L10n.Risk.marginLine(
       b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit),
-      String(b.marginCalls), Format.usd(b.maintenanceMarginUsd.value),
+      String(b.marginCalls), Money.usd(b.maintenanceMarginUsd.value),
       Format.marketTime(readAt?.date)))
       .font(Tokens.Typography.annotation)
       .foregroundStyle(b.marginCalls > 0 ? Palette.warningText : Palette.textQuaternary)
@@ -1037,7 +1027,7 @@ private struct AccountCard: View {
         if let value {
           // Counts up as it appears and on to each new balance the broker reports.
           CountingText(NSDecimalNumber(decimal: value.value).doubleValue) {
-            signed ? String(localized: L10n.Format.usd(Money.signed(Decimal($0)))) : Format.usd(Decimal($0))
+            signed ? Money.signedUSD(Decimal($0)) : Money.usd(Decimal($0))
           }
         } else {
           Text(verbatim: Format.missing)

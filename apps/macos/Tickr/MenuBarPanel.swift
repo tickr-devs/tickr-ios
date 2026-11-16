@@ -49,28 +49,13 @@ struct MenuBarPanel: View {
   }
 }
 
-/// The headline in its severity's tone on a washed, outlined strip, with a dot that pulses once
-/// per new headline.
+/// The headline as on Overview (`HeadlineBanner`, framed), with a dot that pulses once per new
+/// headline.
 private struct StatusBanner: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    let tone = model.headline.severity.bannerTone
-    HStack(spacing: Tokens.Space.s + Tokens.Space.xxs) {
-      PulseDot(tone.fill, event: model.headline.pulse)
-      Text(verbatim: model.headline.text)
-        .font(Tokens.Typography.body.weight(.semibold))
-        .foregroundStyle(tone.text)
-        .fixedSize(horizontal: false, vertical: true)
-      Spacer(minLength: 0)
-    }
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s + Tokens.Space.xxs)
-    .background(tone.fill.opacity(Tokens.Opacity.wash), in: .rect(cornerRadius: Tokens.Radius.medium))
-    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.medium)
-      .strokeBorder(tone.fill.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
-    // The colour follows the severity, so a severity change animates even under the same words.
-    .animation(Tokens.Motion.standard, value: [AnyHashable(model.headline.pulse), AnyHashable(model.headline.severity)])
+    HeadlineBanner(model.headline.text, tone: model.headline.tone, pulse: AnyHashable(model.headline.pulse))
   }
 }
 
@@ -220,7 +205,7 @@ struct MenuPosition: View {
       // As designed: shield and stop | entry mark and entry | last; the words are the hints.
       HStack {
         HStack(spacing: Tokens.Space.xs + Tokens.Space.xxs) {
-          StopBadge(state: position.stop.state, compact: true, price: position.stop.price)
+          StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
           if let stop = position.stop.price?.value {
             Text(verbatim: Format.price(stop))
               .hint(L10n.Position.stopLevel(Format.price(stop)))
@@ -297,12 +282,8 @@ private struct FlowDots: View {
 
   private var stages: [Stage] {
     let stops = model.status.map(Board.positions)?.map(\.stop.state) ?? []
-    let stopColor: Color
-    if stops.isEmpty {
-      stopColor = Palette.textQuaternary
-    } else {
-      stopColor = stops.allSatisfy { $0 == .verified } ? Palette.profit : Palette.loss
-    }
+    // The one stage rule of both apps, as on Overview (`StopState.stageTone`).
+    let stopColor = StopState.stageTone(open: stops, day: (model.flow?.stops ?? []).map(\.state)).fill
     let items: [(LocalizedStringResource, Color)] = [
       (L10n.MenuBar.flowScreen, Palette.accent),
       (L10n.MenuBar.flowStrategy, Palette.highlight),

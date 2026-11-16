@@ -282,9 +282,9 @@ private struct TradingSettings: View {
           }
         }
         SettingsCard(L10n.Common.risk) {
-          SettingsRow(L10n.Settings.plannedLoss, value: Format.usd(settings.risk.plannedLossUsd.value))
-          SettingsRow(L10n.Settings.notionalCap, value: Format.usd(settings.risk.positionNotionalCapUsd.value))
-          SettingsRow(L10n.Settings.dailyLossLimit, value: Format.usd(settings.risk.maxDailyLossUsd.value))
+          SettingsRow(L10n.Settings.plannedLoss, value: Money.usd(settings.risk.plannedLossUsd.value))
+          SettingsRow(L10n.Settings.notionalCap, value: Money.usd(settings.risk.positionNotionalCapUsd.value))
+          SettingsRow(L10n.Settings.dailyLossLimit, value: Money.usd(settings.risk.maxDailyLossUsd.value))
           SettingsRow(L10n.Settings.maxOpenPositions, value: "\(settings.risk.maxOpenPositions)")
           SettingsRow(L10n.Settings.maxQuoteAge, value: Format.seconds(settings.risk.maxQuoteAgeSeconds.value))
         }
@@ -502,7 +502,7 @@ private struct StorageSettings: View {
       footnoteColor: model.historyError == nil ? Palette.textQuaternary : Palette.lossText) {
       HStack(spacing: Tokens.Space.s) {
         StatTile(value: "\(model.days.count)", label: L10n.Settings.recordedDays)
-        StatTile(value: model.days.last.map { Format.dayLabel($0.day) } ?? Format.missing,
+        StatTile(value: model.days.last.map { DayText.day($0.day) } ?? Format.missing,
           label: L10n.Settings.firstRecordedDay)
         StatTile(value: "\(model.days.filter(\.hasBars).count)", label: L10n.Settings.daysWithBars)
       }
@@ -820,7 +820,7 @@ struct JobsSection: View {
 
   private var sessionTitle: LocalizedStringResource {
     guard let day = model.jobs?.session?.day else { return L10n.Settings.session }
-    return L10n.Settings.sessionTitle(Format.dayLabel(day))
+    return L10n.Settings.sessionTitle(DayText.day(day))
   }
 
   /// One job: dot (its tone, and whether it pulses), name, when, state, times.
@@ -1134,6 +1134,6 @@ private struct BackupSection: View {
 
   /// "Fri Nov 13 16:20" in New York time.
   static func when(_ date: Date) -> String {
-    Format.dayLabel(WireDate(newYorkDateOf: date)) + dayTimeSeparator + Format.marketMinute(date)
+    DayText.day(WireDate(newYorkDateOf: date)) + dayTimeSeparator + Format.marketMinute(date)
   }
 }

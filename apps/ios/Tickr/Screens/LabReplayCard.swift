@@ -151,13 +151,13 @@ struct LabReplayCard: View {
         Menu {
           Picker(selection: Binding(get: { chosenDay ?? days[0] }, set: { day = $0 })) {
             ForEach(days, id: \.self) { item in
-              Text(verbatim: Format.day(item.noonInNewYork)).tag(item)
+              Text(verbatim: DayText.day(item.noonInNewYork)).tag(item)
             }
           } label: {
             Text(L10n.Lab.replayDay)
           }
         } label: {
-          menuLabel(Format.day((chosenDay ?? days[0]).noonInNewYork), tone: .accent)
+          menuLabel(DayText.day((chosenDay ?? days[0]).noonInNewYork), tone: .accent)
         }
         .accessibilityLabel(Text(L10n.Lab.replayDay))
       }
@@ -241,7 +241,7 @@ struct LabReplayCard: View {
           InfoCaption(verbatim: cause)
         }
         if let day = replay.day {
-          InfoCaption(L10n.Lab.replayOneDayNote(Format.day(day.noonInNewYork)))
+          InfoCaption(L10n.Lab.replayOneDayNote(DayText.day(day.noonInNewYork)))
         }
       case .failed:
         InfoCaption(verbatim: replay.cause ?? Format.missing, systemImage: LabView.warningSymbol, tone: .loss)
@@ -273,8 +273,8 @@ struct LabReplayCard: View {
           r(low), r(high)))
       }
       InfoCaption(L10n.Lab.replayBotTrades(summary.botTrades))
-      InfoCaption(L10n.Lab.replayData(Format.day(summary.firstDay.noonInNewYork),
-        Format.day(summary.lastDay.noonInNewYork), summary.sessions))
+      InfoCaption(L10n.Lab.replayData(DayText.day(summary.firstDay.noonInNewYork),
+        DayText.day(summary.lastDay.noonInNewYork), summary.sessions))
     }
   }
 
@@ -310,8 +310,8 @@ struct LabReplayCard: View {
             MetricChip(L10n.Lab.replayDifference, value: Format.missing)
           }
         }
-        InfoCaption(L10n.Lab.replayData(Format.day(summary.firstDay.noonInNewYork),
-          Format.day(summary.lastDay.noonInNewYork), summary.sessions))
+        InfoCaption(L10n.Lab.replayData(DayText.day(summary.firstDay.noonInNewYork),
+          DayText.day(summary.lastDay.noonInNewYork), summary.sessions))
       }
     } else {
       result(summary)
@@ -348,7 +348,7 @@ struct LabReplayCard: View {
   }
 
   private func percent(_ value: DecimalString?) -> String {
-    value.map { Money.plain($0.value, fractionDigits: StatDigits.percent) + Format.percentSign } ?? Format.missing
+    value.map { Percent.plain(points: $0.value) } ?? Format.missing
   }
 
   private func factor(_ value: DecimalString?) -> String {
@@ -359,9 +359,9 @@ struct LabReplayCard: View {
     value.flatMap { tone($0.value) }
   }
 
-  /// The rail of a result: green above zero, red below, plain at zero.
+  /// The rail of a result: green above zero, red below (`Tone.result`), none at zero.
   private func tone(_ value: Decimal) -> Tone? {
-    value > 0 ? .profit : value < 0 ? .loss : nil
+    value == 0 ? nil : Tone.result(value)
   }
 
   private func color(_ value: DecimalString?) -> Color? {

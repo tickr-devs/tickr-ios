@@ -52,7 +52,7 @@ struct ActivityView: View {
         // "Today" only when the status is of today's New York session; over a weekend or after a
         // day off it is the last session, and nothing about it is live.
         let isToday = activity.sessionDay(of: status) == activity.today
-        let day = Format.day(status.writtenAt.date)
+        let day = DayText.day(status.writtenAt.date)
         DayCard(label: String(localized: isToday ? L10n.Common.today(day) : L10n.Activity.lastSession(day)),
           live: isToday && model.response?.stale == false, figures: DayFigures(status))
           .rise(step: Order.day.rawValue)
@@ -134,7 +134,7 @@ struct ActivityView: View {
 
   @ViewBuilder
   private func pastDay(_ selected: WireDate) -> some View {
-    let label = String(localized: L10n.Activity.pastDay(Format.day(selected.noonInNewYork)))
+    let label = String(localized: L10n.Activity.pastDay(DayText.day(selected.noonInNewYork)))
     if let day = activity.day {
       DayCard(label: label, live: false, figures: DayFigures(day))
         .id(selected)
@@ -363,7 +363,7 @@ private struct DayCell: View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small)
     Button(action: action) {
       VStack(spacing: Tokens.Space.xxs) {
-        Text(cell.day.day, format: .number)
+        Text(verbatim: String(cell.day.day))
           .font(Tokens.Typography.calloutMono.bold())
           // Inset from the cell's edges, so neighbouring day numbers never touch.
           .padding(.horizontal, Tokens.Space.xxs)
@@ -389,7 +389,7 @@ private struct DayCell: View {
     }
     .buttonStyle(.plain)
     .disabled(result == nil && !isToday)
-    .accessibilityLabel(Text(verbatim: Format.day(cell.day.noonInNewYork)))
+    .accessibilityLabel(Text(verbatim: DayText.day(cell.day.noonInNewYork)))
     .accessibilityValue(result.map { Text(verbatim: Money.signedUSD($0)) } ?? Text(L10n.Activity.noRecords))
     .accessibilityAddTraits(selected ? .isSelected : [])
   }
@@ -503,8 +503,8 @@ private struct DayCard: View {
             value: String(localized: L10n.Activity.chipWins(figures.tally.wins)), tone: .profit,
             color: Tone.profit.text, compact: true)
           IconMetric(Self.lossesSymbol, label: L10n.Activity.hintLosses,
-            value: String(localized: L10n.Activity.chipLosses(figures.tally.losses)), tone: .loss,
-            color: Tone.loss.text, compact: true)
+            value: String(localized: L10n.Activity.chipLosses(figures.tally.losses)), tone: .series,
+            color: Tone.series.text, compact: true)
           if let open = figures.tally.open, open > 0 {
             IconMetric(Self.openSymbol, label: L10n.Activity.hintOpen,
               value: String(localized: L10n.Activity.chipOpen(open)), tone: .accent, color: Tone.accent.text,
@@ -517,7 +517,8 @@ private struct DayCard: View {
       Spacer(minLength: 0)
       // A day without closed trades has no curve; one point would draw as a lone ring.
       if figures.curve.count > 1 {
-        DrawnSparkline(values: figures.curve, color: figures.result < 0 ? Palette.loss : Palette.accent)
+        // The day's result colour, as its figure (IOSActivity: green, red, muted at zero).
+        DrawnSparkline(values: figures.curve, color: Palette.result(figures.result))
           .frame(width: Self.curveSize.width, height: Self.curveSize.height)
       }
     }
@@ -548,7 +549,7 @@ extension DayFigures {
 }
 
 #Preview {
-  DayCard(label: String(localized: L10n.Activity.pastDay(Format.day(.now))), live: false, figures: .sample)
+  DayCard(label: String(localized: L10n.Activity.pastDay(DayText.day(.now))), live: false, figures: .sample)
     .padding()
     .background(TickrBackground())
 }
@@ -649,7 +650,8 @@ private struct TradesList: View {
   static let lastSymbol = "chart.bar"
   static let sendsSymbol = "paperplane"
   static let timeSymbol = "clock"
-  static let stopSymbol = "checkmark.shield"
+  /// A stop the broker confirmed (its time to confirmation).
+  static let stopSymbol = StopState.verifiedSymbol
   static let maeSymbol = "arrow.down"
   static let mfeSymbol = "arrow.up"
   static let codeSymbol = "chevron.left.forwardslash.chevron.right"
@@ -687,7 +689,7 @@ private struct TradesList: View {
         // stop said in the tag.
         row(symbol: position.symbol, time: nil,
           tag: String(localized: state == .verified ? L10n.Activity.openVerifiedTag : L10n.Activity.openTag),
-          tagSymbol: Self.openSymbol, tone: .accent,
+          tagSymbol: Self.openSymbol, tone: Tone.openPosition,
           result: String(localized: L10n.Common.quantityAt(position.quantity.text, Money.price(position.entryPrice.value))),
           figures: openFigures(position), stopState: state.isProtected ? nil : state, open: true)
           .rise(step: ActivityView.Order.list.rawValue)
@@ -697,6 +699,9 @@ private struct TradesList: View {
           time: Format.time(trade.openedAt) + Format.timeRange + Format.time(trade.closedAt),
           tag: Board.exitReasonTitle(trade.exitReason).uppercased(),
           tagSymbol: Board.exitReasonSymbol(trade.exitReason),
+          // The reason's own tone (v99: strategy exit teal, stopped out pink, other closes grey),
+          // as the Mac's Trades; the result keeps its sign's.
+          tagTone: Tone.exit(trade.exitReason),
           tone: Tone.result(trade.result),
           result: Money.signed(trade.result),
           figures: figures(trade), metrics: metrics(trade), metricsText: trade.metrics, after: trade.pricesAfter,
@@ -748,8 +753,8 @@ private struct TradesList: View {
       list.append(Figure(symbol: Self.sendsSymbol, label: L10n.Activity.hintSends,
         value: String(localized: L10n.Activity.sends(sends)), tone: sends == 1 ? nil : .loss))
     }
-    list.append(Figure(symbol: StopGlyph.stateSymbol(state), label: L10n.Activity.hintStop,
-      value: position.stop.price.map { Money.price($0.value) } ?? Format.missing, tone: StopGlyph.stateTone(state)))
+    list.append(Figure(symbol: StopState.levelSymbol, label: L10n.Activity.hintStop,
+      value: position.stop.price.map { Money.price($0.value) } ?? Format.missing, tone: state.tone))
     list.append(Figure(symbol: Self.timeSymbol, label: L10n.Activity.hintOpened,
       value: Format.time((position.entry.filledAt ?? position.openedAt).date)))
     list.append(Figure(symbol: Self.quantitySymbol, label: L10n.Activity.hintQuantity, value: position.quantity.text))
@@ -779,7 +784,7 @@ private struct TradesList: View {
         value: String(localized: L10n.Risk.seconds(Money.plain(after, fractionDigits: 1))), tone: .profit))
     }
     if let mae = trade.mae, let mfe = trade.mfe {
-      list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signed(mae), tone: .loss))
+      list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signed(mae), tone: .series))
       list.append(Figure(symbol: Self.mfeSymbol, label: L10n.Activity.hintMfe, value: Money.signed(mfe), tone: .profit))
     }
     if let code = trade.codeVersion {
@@ -806,7 +811,7 @@ private struct TradesList: View {
   }
 
   private func row(
-    symbol: String, time: String?, tag: String, tagSymbol: String, tone: Tone, result: String,
+    symbol: String, time: String?, tag: String, tagSymbol: String, tagTone: Tone? = nil, tone: Tone, result: String,
     figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil,
     open: Bool = false, after: [PriceAfterV1] = [], another: TradeLine? = nil
   ) -> some View {
@@ -818,7 +823,7 @@ private struct TradesList: View {
           headerText(symbol)
           if let time { timeText(time) }
           Spacer(minLength: Tokens.Space.s)
-          StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
+          StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tagTone ?? tone)
           resultText(result, tone: tone)
           if let another { anotherButton(another) }
         }
@@ -831,7 +836,7 @@ private struct TradesList: View {
           }
           ChipFlow {
             if let time { timeText(time) }
-            StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
+            StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tagTone ?? tone)
           }
         }
         // The largest sizes: the result ("53 @ 24.69") gets a line of its own too.
@@ -844,7 +849,7 @@ private struct TradesList: View {
           resultText(result, tone: tone)
           ChipFlow {
             if let time { timeText(time) }
-            StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tone)
+            StatusPill(verbatim: tag, systemImage: tagSymbol, tone: tagTone ?? tone)
           }
         }
       }
@@ -852,8 +857,7 @@ private struct TradesList: View {
         chipViews(figures)
         // An open position's stop state in words, so pending, missing and unknown never look alike.
         if let stopState {
-          StatusPill(verbatim: Board.stopStateTitle(stopState), systemImage: StopGlyph.stateSymbol(stopState),
-            tone: StopGlyph.stateTone(stopState))
+          StatusPill(verbatim: Board.stopStateTitle(stopState), systemImage: stopState.symbol, tone: stopState.tone)
             .hint(L10n.Activity.hintStop)
         }
       }
@@ -968,7 +972,7 @@ private struct SkippedRow: View {
 
   private var tagPill: some View {
     StatusPill(refused ? L10n.Activity.refusedTag : L10n.Activity.tooLateTag,
-      systemImage: refused ? Self.refusedSymbol : Self.tooLateSymbol, tone: refused ? .warning : .neutral)
+      systemImage: refused ? Self.refusedSymbol : Self.tooLateSymbol, tone: refused ? Tone.refused : Tone.notEvaluated)
   }
 
   private var whenLabel: some View {
@@ -1005,7 +1009,7 @@ private struct SkippedRow: View {
         Badge(L10n.Activity.whatIfTag, tone: .highlight)
         IconMetric(TradesList.entrySymbol, label: L10n.Activity.hintWhatIfEntry,
           value: signal.entryPrice.map { Money.price($0.value) } ?? Format.missing, compact: true)
-        IconMetric(TradesList.stopSymbol, label: L10n.Activity.hintWhatIfStop,
+        IconMetric(StopState.levelSymbol, label: L10n.Activity.hintWhatIfStop,
           value: signal.stopPrice.map { Money.price($0.value) } ?? Format.missing, compact: true)
       }
       .accessibilityElement(children: .ignore)

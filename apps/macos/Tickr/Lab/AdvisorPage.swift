@@ -473,7 +473,7 @@ private struct HoldoutCard: View {
       HStack(spacing: Tokens.Space.s) {
         StatusPill(AdvisorWords.simulated, tone: .warning)
         if let judge = run.judge {
-          Text(AdvisorWords.holdoutFrom(Format.dayLabel(judge.holdoutStarts)))
+          Text(AdvisorWords.holdoutFrom(DayText.day(judge.holdoutStarts)))
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
         }
@@ -485,7 +485,7 @@ private struct HoldoutCard: View {
           alignment: .topLeading)], alignment: .leading, spacing: Tokens.Space.s) {
           MetricChip(AdvisorWords.totalR, value: pair(judge, \.totalR) { AdvisorLook.r($0) })
           MetricChip(AdvisorWords.winRate, value: pair(judge, \.winRatePercent) {
-            String(localized: L10n.Trades.percent(Money.plain($0, fractionDigits: AdvisorLook.percentDigits)))
+            Percent.plain(points: $0, fractionDigits: AdvisorLook.percentDigits)
           })
           MetricChip(AdvisorWords.profitFactor, value: pair(judge, \.profitFactor) {
             Money.plain($0, fractionDigits: AdvisorLook.factorDigits)

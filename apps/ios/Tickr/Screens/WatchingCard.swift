@@ -57,16 +57,6 @@ struct WatchingRow: View {
     row.closeness.map { NSDecimalNumber(decimal: $0.value).doubleValue }
   }
 
-  /// A verdict's colour here, as on the design: watching in blue, ignored in the stocks stage's
-  /// pink, the rest as everywhere else.
-  static func color(_ verdict: Verdict) -> Color {
-    switch verdict {
-    case .watch: return Palette.infoText
-    case .ignore: return Palette.seriesATRText
-    case .enter, .exit, .hold: return verdict.color
-    }
-  }
-
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
@@ -76,7 +66,7 @@ struct WatchingRow: View {
           .fixedSize()
         Text(row.verdict.title)
           .font(Tokens.Typography.annotationBold)
-          .foregroundStyle(Self.color(row.verdict))
+          .foregroundStyle(row.verdict.color)
         Spacer(minLength: 0)
         Text(verbatim: Format.time(row.at.date))
           .font(Tokens.Typography.annotation)
@@ -97,7 +87,7 @@ struct WatchingRow: View {
           ZStack(alignment: .leading) {
             Capsule().fill(Palette.separator)
             Capsule()
-              .fill(current ? Self.color(row.verdict) : Palette.textQuaternary)
+              .fill(current ? row.verdict.color : Palette.textQuaternary)
               .frame(width: proxy.size.width * share)
               .grows(with: share)
           }

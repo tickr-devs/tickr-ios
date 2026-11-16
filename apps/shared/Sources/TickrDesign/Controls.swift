@@ -25,6 +25,8 @@ public enum Tone: Sendable, Hashable, CaseIterable {
   case info
   /// Recorded days, observers, planned work.
   case highlight
+  /// The series pink: a money loss (mockup v100), a stop-out's tag (mockup v99), the ATR line.
+  case series
 
   /// Strokes, dots, rails and washes.
   public var fill: Color {
@@ -36,10 +38,11 @@ public enum Tone: Sendable, Hashable, CaseIterable {
     case .warning: return Palette.warning
     case .info: return Palette.info
     case .highlight: return Palette.highlight
+    case .series: return Palette.seriesATR
     }
   }
 
-  /// Text and symbols drawn in this tone.
+  /// Text and symbols drawn in this tone (the role whose values are `textSwatch`).
   public var text: Color {
     switch self {
     case .neutral: return Palette.textTertiary
@@ -49,12 +52,31 @@ public enum Tone: Sendable, Hashable, CaseIterable {
     case .warning: return Palette.warningText
     case .info: return Palette.infoText
     case .highlight: return Palette.highlightText
+    case .series: return Palette.seriesATRText
     }
   }
 
-  /// The tone of a money result: profit above zero, loss below, neutral at zero.
-  public static func result(_ value: Decimal) -> Tone {
-    value > 0 ? .profit : value < 0 ? .loss : .neutral
+  /// The light and dark values of `text`: always a text role (4.5:1 on `surface`), never a fill
+  /// (`PaletteContrastTests` checks every case).
+  public var textSwatch: Swatch {
+    switch self {
+    case .neutral: return .textTertiary
+    case .accent: return .accentText
+    case .profit: return .profitText
+    case .loss: return .lossText
+    case .warning: return .warningText
+    case .info: return .infoText
+    case .highlight: return .highlightText
+    case .series: return .seriesATRText
+    }
+  }
+
+  /// The tone of a money result, by the value as shown (rounded to `fractionDigits`, cents by
+  /// default): profit above zero, the series pink below (mockup v100: money losses are pink, red
+  /// is kept for danger), neutral at zero, so "−0.004" shown as "$0.00" is never coloured.
+  public static func result(_ value: Decimal, fractionDigits: Int = Money.centsDigits) -> Tone {
+    let shown = Money.rounded(value, fractionDigits)
+    return shown > 0 ? .profit : shown < 0 ? .series : .neutral
   }
 }
 

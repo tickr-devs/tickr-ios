@@ -2,7 +2,8 @@
 // Code shared by the Tickr operator apps (macOS in apps/macos, iOS in apps/ios).
 // TickrKit: contract models (mirror of src/tickr/api/contract.py), API client, headline logic
 // and the dependency container (Factory). TickrDesign: palette, tokens, formatting and small
-// animated SwiftUI pieces. Swift 6 language mode (strict concurrency), the latest OS releases only.
+// animated SwiftUI pieces, including the one look of each shared meaning of a TickrKit model (a
+// stop's state, a headline's severity, a verdict, an exit), so it builds on TickrKit. Swift 6 language mode (strict concurrency), the latest OS releases only.
 import PackageDescription
 
 let package = Package(
@@ -26,13 +27,13 @@ let package = Package(
       name: "TickrKit",
       dependencies: [.product(name: "FactoryKit", package: "Factory")],
       resources: [.process("Resources")]),
-    .target(name: "TickrDesign"),
+    .target(name: "TickrDesign", dependencies: ["TickrKit"]),
     // Tests take FactoryTesting (the .container trait), never FactoryKit itself: a second copy of
     // FactoryKit in the test target would give two sets of factories.
     .testTarget(
       name: "TickrKitTests",
       dependencies: ["TickrKit", .product(name: "FactoryTesting", package: "Factory")]),
-    .testTarget(name: "TickrDesignTests", dependencies: ["TickrDesign"]),
+    .testTarget(name: "TickrDesignTests", dependencies: ["TickrDesign", "TickrKit"]),
   ],
   swiftLanguageModes: [.v6]
 )

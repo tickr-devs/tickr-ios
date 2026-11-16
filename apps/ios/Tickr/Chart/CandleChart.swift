@@ -274,7 +274,7 @@ struct CandleChart: View {
           .foregroundStyle(Palette.separator)
         AxisValueLabel {
           if let price = value.as(Double.self), !tags.contains(where: { abs($0.shownAt - price) < clearance }) {
-            axisLabel(value, ChartFormat.price, Palette.textQuaternary)
+            axisLabel(value, Palette.textQuaternary)
           }
         }
       }
@@ -423,11 +423,11 @@ struct CandleChart: View {
       .frame(width: Self.extremeLeader, height: Tokens.Stroke.hairline)
     return HStack(spacing: Tokens.Space.xxs) {
       if left {
-        Text(price, format: ChartFormat.price)
+        Text(verbatim: Money.price(price))
         leader
       } else {
         leader
-        Text(price, format: ChartFormat.price)
+        Text(verbatim: Money.price(price))
       }
     }
     .font(Tokens.Typography.annotation)
@@ -461,7 +461,7 @@ struct CandleChart: View {
               xStart: .value(Plot.time, bodyStart(candle)),
               xEnd: .value(Plot.time, bodyEnd(candle)),
               y: .value(Plot.value, point.histogram))
-              .foregroundStyle((point.histogram >= 0 ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.medium))
+              .foregroundStyle(Tone.result(Money.decimal(point.histogram)).fill.opacity(Tokens.Opacity.medium))
           }
         }
         lineMarks(.macd, studies.macd.map { $0?.macd }, Palette.info)
@@ -608,7 +608,7 @@ struct CandleChart: View {
           // A clear gap between a name ending in a number and its value ("EMA9  28.84").
           HStack(spacing: Tokens.Space.xs) {
             Text(item.name)
-            Text(item.value.map { ChartFormat.price.format($0) } ?? ChartFormat.missing)
+            Text(verbatim: item.value.map(Money.value) ?? ChartFormat.missing)
           }
           .foregroundStyle(item.colour)
         }
@@ -832,7 +832,7 @@ struct CandleChart: View {
   }
 
   private func priceTag(_ tag: PriceTag) -> some View {
-    Text(tag.price, format: ChartFormat.price)
+    Text(verbatim: Money.price(tag.price))
       .font(Tokens.Typography.annotationBold)
       .foregroundStyle(Palette.surface)
       .padding(.horizontal, Tokens.Space.xxs)
@@ -898,9 +898,8 @@ struct CandleChart: View {
   }
 
   /// A scale label of fixed width (see `axisLabelWidth`).
-  private func axisLabel<Style: FormatStyle>(_ value: AxisValue, _ format: Style, _ colour: Color) -> some View
-    where Style.FormatInput == Double, Style.FormatOutput == String {
-    Text(value.as(Double.self).map { format.format($0) } ?? String())
+  private func axisLabel(_ value: AxisValue, _ colour: Color) -> some View {
+    Text(value.as(Double.self).map { Money.price($0) } ?? String())
       .font(Tokens.Typography.annotation)
       .foregroundStyle(colour)
       .frame(width: axisWidth, alignment: .leading)
@@ -913,12 +912,11 @@ struct CandleChart: View {
     if let candle = selectedCandle {
       HStack(spacing: Tokens.Space.s) {
         Text(ChartText.readout(
-          candle.open.formatted(ChartFormat.price), candle.high.formatted(ChartFormat.price),
-          candle.low.formatted(ChartFormat.price), candle.close.formatted(ChartFormat.price),
-          candle.volume.formatted(ChartFormat.volume)))
+          Money.price(candle.open), Money.price(candle.high), Money.price(candle.low), Money.price(candle.close),
+          Volume.compact(candle.volume)))
         if let index = legendIndex, let change = series.candles.change(at: index) {
-          Text(change.fraction, format: ChartFormat.change)
-            .foregroundStyle(change.amount >= 0 ? Palette.profitText : Palette.lossText)
+          Text(verbatim: Percent.signed(fraction: change.fraction))
+            .foregroundStyle(Palette.result(Money.decimal(change.amount)))
         }
       }
     } else {
@@ -1119,7 +1117,7 @@ private struct PaneAxes: ViewModifier {
     AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
       .foregroundStyle(Palette.separator)
     AxisValueLabel {
-      Text(value.as(Double.self).map { ChartFormat.price.format($0) } ?? String())
+      Text(value.as(Double.self).map(Money.value) ?? String())
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
         .frame(width: axisWidth, alignment: .leading)
@@ -1225,13 +1223,6 @@ enum ChartFormat {
   static let missing = Format.missing
   /// Between the parts of a check: measured, operator, threshold.
   static let space = " "
-  static let price = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(Money.centsDigits))
-  static let volume = FloatingPointFormatStyle<Double>.number.notation(.compactName)
-  /// A signed price change ("+0.82", "−0.15").
-  static let signedPrice = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(Money.centsDigits))
-    .sign(strategy: .always())
-  static let change = FloatingPointFormatStyle<Double>.Percent.percent
-    .precision(.fractionLength(1)).sign(strategy: .always())
   /// 24-hour New York time of a bar ("14:05"): `.twoDigits(amPM: .omitted)` would drop the AM/PM
   /// of a 12-hour locale and show 02:05.
   static let time = Date.VerbatimFormatStyle(

@@ -32,6 +32,18 @@ catalog  Every key of an `L10n.swift` has a Russian translation in the target's 
          app Info.plist lists in `CFBundleLocalizations` each language the app's and the shared
          package's String Catalogs translate (the app follows the system language; without the
          list the SwiftPM-built Mac app opens in English).
+result   (apps/macos, apps/ios) A money result's colour comes only from the shared map
+         (`Palette.result` / `Tone.result`, zero neutral): no hand-written
+         `>= 0 ? … profit : … loss`.
+format   (apps/macos, apps/ios) Numbers are formatted only by TickrDesign (`Money`, `Percent`,
+         `Volume`, Formatting.swift), the same in both apps and every language: no
+         `.formatted(.number|.percent|.currency…)`, `format: .number|.percent|.currency`,
+         `FloatingPointFormatStyle`, `NumberFormatter`, `String(format:` or `.currency(code:`.
+         A line that sets an `accessibilityValue` may let VoiceOver read a number in the
+         person's locale.
+stopsymbol  (apps/macos, apps/ios) A stop's symbols (every SF Symbol with "shield") come only
+         from TickrDesign's `StopState` constants, one symbol per meaning. A shield that means
+         something else is marked `// symbol: <meaning>` on its line or the line above.
 truncation  No text is ever cut (owner rule 2026-11-16, docs/design-system.md "Text is never
          cut"): no `.lineLimit`, `.truncationMode`, `.minimumScaleFactor` or
          `.allowsTightening`. A text that does not fit wraps or its layout adapts; one that must
@@ -505,6 +517,61 @@ def loop_violations(path: Path) -> list[tuple[int, str]]:
     return found
 
 
+# MARK: - one meaning, one look (apps/macos and apps/ios only)
+
+# The rules below check the apps only (`is_app_file`, `APP_RULES`), never the shared package
+# that holds the one map each rule points to.
+# A result's sign picking profit or loss by hand: `x >= 0 ? Palette.profitText : Palette.lossText`,
+# `value < 0 ? .loss : .profit`.
+RESULT_SIGN = re.compile(r"(?:>=?|<=?)\s*0\s*\?\s*(?:Palette\.|Tone\.|\.)?(?:profit|loss)\w*")
+# A number formatted outside TickrDesign.
+NUMBER_FORMAT = re.compile(
+    r"\.formatted\(\s*\.(?:number|percent|currency)\b|\bformat:\s*\.(?:number|percent|currency)\b"
+    r"|\bFloatingPointFormatStyle\b|\bIntegerFormatStyle\b|\bNumberFormatter\b|\bString\(format:"
+    r"|\.currency\(code:")
+# VoiceOver may read a number in the person's locale.
+ACCESSIBILITY_VALUE = "accessibilityValue"
+# An SF Symbol name with a shield (a string literal's whole text).
+SHIELD_SYMBOL = re.compile(r"(?:[a-z]+\.)*shield(?:\.[a-z]+)*")
+SYMBOL_MARKER = "// symbol:"
+
+
+def _code_lines(path: Path) -> list[tuple[int, str, str]]:
+    """(line, code without comments, the raw line) for each line."""
+    lines, in_block = [], False
+    for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        code, in_block = check_swift_literals.strip(raw, in_block)
+        lines.append((number, code, raw))
+    return lines
+
+
+def result_violations(path: Path) -> list[tuple[int, str]]:
+    """A result's colour picked by its sign by hand instead of `Palette.result` / `Tone.result`."""
+    return [(number, code.strip()) for number, code, _ in _code_lines(path)
+            if RESULT_SIGN.search(code)]
+
+
+def format_violations(path: Path) -> list[tuple[int, str]]:
+    """A number formatted outside TickrDesign (a line setting an accessibilityValue excepted)."""
+    return [(number, code.strip()) for number, code, raw in _code_lines(path)
+            if NUMBER_FORMAT.search(code) and ACCESSIBILITY_VALUE not in raw]
+
+
+def stop_symbol_violations(path: Path) -> list[tuple[int, str]]:
+    """A shield symbol written in an app instead of taken from `StopState`, unless marked."""
+    source = path.read_text(encoding="utf-8")
+    lines = source.splitlines()
+    found = []
+    for number, literal, _ in string_literals(source):
+        if not SHIELD_SYMBOL.fullmatch(literal):
+            continue
+        nearby = (lines[index] for index in (number - 2, number - 1) if index >= 0)
+        marked = any(SYMBOL_MARKER in line for line in nearby)
+        if not marked:
+            found.append((number, literal))
+    return found
+
+
 def number_violations(path: Path) -> list[tuple[int, str]]:
     if path.name in check_swift_literals.SKIPPED_FILES:
         return []
@@ -644,9 +711,16 @@ RULES = {
   "symbols": (symbol_violations, "a symbol competing with a shared one; use TickrDesign's Symbols"),
   "components": (lambda path: [],
       "a component written in both apps; move it into TickrDesign (or name each app's own)"),
+  "result": (result_violations,
+      "result colour by hand; use Palette.result or Tone.result (zero is neutral)"),
+  "format": (format_violations,
+      "number formatted outside TickrDesign; use Money, Percent or Volume (Formatting.swift)"),
+  "stopsymbol": (stop_symbol_violations,
+      "stop symbol written by hand; use StopState's symbols, or mark another meaning `// symbol:`"),
 }
-# Rules of the apps only: TickrDesign is where the shared looks are defined.
-APP_RULES = {"styles", "system-buttons", "symbols"}
+# Rules of the apps only: TickrDesign is where the shared looks and the one map of each meaning
+# are defined.
+APP_RULES = {"styles", "system-buttons", "symbols", "result", "format", "stopsymbol"}
 
 
 def swift_files() -> list[Path]:

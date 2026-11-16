@@ -88,7 +88,7 @@ public enum Board {
         id: "\(positionID)\(position.symbol)\(stopID)", time: position.openedAt.date,
         tag: stopTag(position.stop.state),
         text: "\(position.symbol) \(position.stop.price?.text ?? String(localized: L10n.noPrice))",
-        tone: position.stop.state == .verified ? .green : .red))
+        tone: position.stop.state.isProtected ? .green : .red))
     }
     for fence in status.fences {
       events.append(Event(
@@ -200,6 +200,26 @@ public enum Board {
     case .streamLost, .sessionFlatten, .operatorFlatten, .operatorInterrupt: return .forced
     case .stoppedOut, .strategyExit, .operatorExit, .entryNotFilled, .entryNotFilledInTime, .holdElapsed, .closed:
       return .ordinary
+    }
+  }
+
+  /// How a closed trade's reason tag reads (mockup v99, MacTrades and IOSActivity): the
+  /// strategy's own exit, a stop hit, a failure to keep the position protected, or any other close
+  /// (end of day, a plain close, the operator, a lost stream, an entry that never filled, a hold
+  /// that ran out, a reason this app does not know). TickrDesign maps it to the tag's tone.
+  public enum ExitLook: Sendable, Equatable, CaseIterable {
+    case strategy
+    case stoppedOut
+    case protectionFailure
+    case other
+  }
+
+  public static func exitLook(_ raw: String) -> ExitLook {
+    switch ExitReason(rawValue: raw) {
+    case .strategyExit: .strategy
+    case .stoppedOut: .stoppedOut
+    case .stopRejected, .unprotectedTooLong: .protectionFailure
+    default: .other
     }
   }
 

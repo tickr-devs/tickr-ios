@@ -234,9 +234,9 @@ struct CandleChart: View {
   /// The last close, tagged on the price axis in the colour of its candle, the position's
   /// levels, and the highest high and lowest low on screen ("H 13.32", plain, as in the design).
   private var priceTags: [AxisTag] {
-    var tags = levels.map { AxisTag(value: $0.price, text: Self.price($0.price), color: $0.color) }
+    var tags = levels.map { AxisTag(value: $0.price, text: Money.price($0.price), color: $0.color) }
     if let last = candles.last {
-      tags.append(AxisTag(value: last.close, text: Self.price(last.close), color: color(last)))
+      tags.append(AxisTag(value: last.close, text: Money.price(last.close), color: color(last)))
     }
     // A high or low next to a plate (the last price at the day's high) would sit under it.
     let span = priceScale
@@ -254,9 +254,9 @@ struct CandleChart: View {
     let high = candles[found.high].high
     let low = candles[found.low].low
     let tags = [
-      AxisTag(value: high, text: String(localized: L10n.Chart.highTag(price(high))), color: Palette.textTertiary,
+      AxisTag(value: high, text: String(localized: L10n.Chart.highTag(Money.price(high))), color: Palette.textTertiary,
         plain: true),
-      AxisTag(value: low, text: String(localized: L10n.Chart.lowTag(price(low))), color: Palette.textTertiary,
+      AxisTag(value: low, text: String(localized: L10n.Chart.lowTag(Money.price(low))), color: Palette.textTertiary,
         plain: true),
     ]
     // A flat stretch has one price: one tag.
@@ -293,7 +293,7 @@ struct CandleChart: View {
               xStart: .value(Plot.time, bodyStart(candles[index])),
               xEnd: .value(Plot.time, bodyEnd(candles[index])),
               y: .value(Plot.price, value))
-              .foregroundStyle((value >= 0 ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.medium))
+              .foregroundStyle(Tone.result(Money.decimal(value)).fill.opacity(Tokens.Opacity.medium))
           }
         }
         line(plot.macd, name: Plot.macd, color: Palette.info)
@@ -374,7 +374,7 @@ struct CandleChart: View {
       case .atr:
         if let value = plot.atr.last(where: { $0 != nil }) ?? nil {
           Text(L10n.Chart.atr(Indicators.atrPeriod)) + Text(verbatim: Format.itemSeparator)
-            + Text(verbatim: value.formatted(Self.atrFormat)).foregroundStyle(Palette.seriesATRText)
+            + Text(verbatim: Money.value(value)).foregroundStyle(Palette.seriesATRText)
         } else {
           Text(L10n.Chart.atr(Indicators.atrPeriod))
         }
@@ -394,7 +394,7 @@ struct CandleChart: View {
       let volume = Self.volumeText(candles[last].volume)
       if let average = plot.volumeAverage[last], average > 0 {
         Text(L10n.Chart.volumePane(
-          volume, ChartPlot.volumeAveragePeriod, (candles[last].volume / average).formatted(Self.ratioFormat)))
+          volume, ChartPlot.volumeAveragePeriod, Money.number(candles[last].volume / average, fractionDigits: Self.ratioDigits)))
       } else {
         Text(L10n.Chart.volumePaneShort(volume))
       }
@@ -413,7 +413,7 @@ struct CandleChart: View {
   /// The newest defined value of a line, tagged on its pane's value axis.
   private func lastTag(_ values: [Double?], color: Color) -> [AxisTag] {
     guard let value = values.last(where: { $0 != nil }) ?? nil else { return [] }
-    return [AxisTag(value: value, text: value.formatted(Self.valueFormat), color: color)]
+    return [AxisTag(value: value, text: Money.value(value), color: color)]
   }
 
   /// A pane's value scale on the right, its labels all `axisLabelWidth` wide: scales of different
@@ -428,7 +428,7 @@ struct CandleChart: View {
       AxisTick()
       AxisValueLabel {
         if let number = value.as(Double.self), shown.contains(number) {
-          Text(verbatim: number.formatted(Self.valueFormat))
+          Text(verbatim: Money.value(number))
             .frame(width: Self.axisLabelWidth, alignment: .leading)
         } else {
           Color.clear.frame(width: Self.axisLabelWidth)
@@ -459,7 +459,7 @@ struct CandleChart: View {
       AxisValueLabel {
         if let price = value.as(Double.self), price >= lowest,
           !tagged.contains(where: { abs($0 - price) < clearance }) {
-          Text(verbatim: price.formatted(Self.valueFormat))
+          Text(verbatim: Money.price(price))
             .frame(width: Self.axisLabelWidth, alignment: .leading)
         } else {
           Color.clear.frame(width: Self.axisLabelWidth)
@@ -561,7 +561,7 @@ struct CandleChart: View {
     AxisGridLine()
     AxisTick()
     AxisValueLabel {
-      Text(verbatim: value.as(Double.self)?.formatted(Self.valueFormat) ?? Format.missing)
+      Text(verbatim: value.as(Double.self).map(Money.value) ?? Format.missing)
         .frame(width: Self.axisLabelWidth, alignment: .leading)
     }
   }
@@ -730,24 +730,14 @@ struct CandleChart: View {
       .onEnded { _ in pinchStart = nil }
   }
 
-  /// Axis labels and study values: two decimals.
-  static let valueFormat = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(Money.centsDigits))
-  /// The ATR pane's newest value: three decimals, as ATRs of cheap stocks are a few cents.
-  static let atrFormat = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(atrDigits))
-  static let atrDigits = 3
   /// Relative volume: one decimal ("2.6").
-  static let ratioFormat = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(1))
+  static let ratioDigits = 1
   /// Share of the largest volume on screen left free above it, for the pane's name.
   static let volumeHeadroom = 0.35
 
-  /// "23.4K": a volume in the person's language.
+  /// "23.4K": a volume, as on the iPhone (`Volume.compact`).
   static func volumeText(_ value: Double) -> String {
-    value.formatted(.number.notation(.compactName).precision(.fractionLength(0...1)))
-  }
-
-  /// A price as the readout and tags show it: cents, or four decimals under a dollar.
-  static func price(_ value: Double) -> String {
-    Money.price(Decimal(value))
+    Volume.compact(value)
   }
 }
 
@@ -997,10 +987,10 @@ private struct Crosshair: View {
 
   private func text(_ value: Double) -> String {
     switch pane {
-    case .price: CandleChart.price(value)
+    case .price: Money.price(value)
     // Volume as on its scale ("240K"), never "240,525.83".
     case .volume: CandleChart.volumeText(value)
-    default: value.formatted(CandleChart.valueFormat)
+    default: Money.value(value)
     }
   }
 }
@@ -1042,13 +1032,13 @@ struct ChartReadout: View {
       ChipFlow(spacing: Tokens.Space.m) {
         Text(verbatim: plot.timeText(index))
           .foregroundStyle(Palette.textSecondary)
-        value(L10n.Chart.open, CandleChart.price(candle.open))
-        value(L10n.Chart.high, CandleChart.price(candle.high))
-        value(L10n.Chart.low, CandleChart.price(candle.low))
-        value(L10n.Chart.close, CandleChart.price(candle.close))
+        value(L10n.Chart.open, Money.price(candle.open))
+        value(L10n.Chart.high, Money.price(candle.high))
+        value(L10n.Chart.low, Money.price(candle.low))
+        value(L10n.Chart.close, Money.price(candle.close))
         if let change = series.candles.change(at: index) {
           Text(verbatim: Self.changeText(change))
-            .foregroundStyle(change.amount >= 0 ? Palette.profitText : Palette.lossText)
+            .foregroundStyle(Palette.result(Money.decimal(change.amount)))
         }
         value(L10n.Chart.volumeShort, CandleChart.volumeText(candle.volume))
       }
@@ -1059,13 +1049,9 @@ struct ChartReadout: View {
     }
   }
 
-  /// "+0.21 (+6.21%)": the change in price and as a percentage, always signed.
+  /// "+0.21 (+6.21%)": the change in price and as a percentage, signed (zero unsigned).
   static func changeText(_ change: CandleChange) -> String {
-    let amount = change.amount.formatted(
-      .number.precision(.fractionLength(Money.centsDigits)).sign(strategy: .always()))
-    let percent = change.fraction.formatted(
-      .percent.precision(.fractionLength(Money.centsDigits)).sign(strategy: .always()))
-    return String(localized: L10n.Chart.change(amount, percent))
+    String(localized: L10n.Chart.change(Money.signed(change.amount), Percent.signed(fraction: change.fraction)))
   }
 
   private func value(_ name: LocalizedStringResource, _ text: String) -> some View {
@@ -1095,7 +1081,7 @@ private struct ChartLegend: View {
           ForEach(Array(items.enumerated()), id: \.offset) { _, item in
             HStack(spacing: Tokens.Space.xs) {
               Text(item.name)
-              Text(verbatim: CandleChart.price(item.value))
+              Text(verbatim: Money.price(item.value))
             }
             .foregroundStyle(item.color)
           }

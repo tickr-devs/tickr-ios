@@ -101,6 +101,8 @@ public enum Tokens {
     public static let symbolCompact = Font.system(.footnote, weight: .semibold)
     /// Tab names under the tab glyphs in the iPhone tab bar.
     public static let tabLabel = Font.system(.caption2, weight: .medium)
+    /// The status headline (`HeadlineBanner`): IOSHome's 15 pt bold.
+    public static let statusLine = Font.system(.subheadline, weight: .bold)
     #else
     public static let label = Font.system(size: labelSize, weight: .semibold, design: .monospaced)
     public static let badge = Font.system(size: badgeSize, weight: .bold, design: .monospaced)
@@ -122,6 +124,8 @@ public enum Tokens {
     public static let symbolCompact = Font.system(size: symbolCompactSize, weight: .semibold)
     /// Tab names under the tab glyphs in the iPhone tab bar.
     public static let tabLabel = Font.system(size: tabLabelSize, weight: .medium)
+    /// The status headline (`HeadlineBanner`): the Mac boards' 13–14 pt semibold.
+    public static let statusLine = Font.system(.body, weight: .semibold)
     #endif
     /// Buttons drawn by the apps' own button style (bot controls).
     public static let button = Font.system(.body, weight: .semibold)

@@ -30,7 +30,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
   /// Symbol of the Notifications tab.
   static let notificationsSymbol = "bell"
   /// Symbol of the Environment tab.
-  static let environmentSymbol = "shield"
+  static let environmentSymbol = "shield" // symbol: the environment (Sandbox, Production), not a stop
   /// Symbol of the Storage tab.
   static let storageSymbol = "cylinder"
   /// Symbol of the Advanced tab.

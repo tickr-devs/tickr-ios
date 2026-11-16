@@ -28,7 +28,7 @@ struct ChartMark: Identifiable {
     switch kind {
     case .entry: Palette.info
     case .exitWin: Palette.profit
-    case .exitLoss: Palette.loss
+    case .exitLoss: Tone.series.fill
     }
   }
 
@@ -36,7 +36,7 @@ struct ChartMark: Identifiable {
     switch kind {
     case .entry: Palette.infoText
     case .exitWin: Palette.profitText
-    case .exitLoss: Palette.lossText
+    case .exitLoss: Tone.series.text
     }
   }
 }
@@ -127,7 +127,7 @@ enum ChartMarkers {
         label: L10n.Chart.entryLevel(Format.price(row.entry)))
     ]
     if let stop = row.stop {
-      let verified = row.position.stop.state == .verified
+      let verified = row.position.stop.state.isProtected
       levels.append(
         ChartLevel(
           kind: verified ? .stop : .stopUnverified, price: double(stop), since: since,
