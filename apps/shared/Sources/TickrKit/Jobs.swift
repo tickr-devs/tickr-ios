@@ -108,13 +108,17 @@ public struct LaunchdJobV1: Codable, Hashable, Sendable {
   }
 }
 
-/// Today's regular session in New York, from the exchange calendar.
+/// Today's regular session in New York, from the exchange calendar, with its extended hours.
 public struct SessionTimesV1: Codable, Hashable, Sendable {
   public let day: WireDate
   public let regularOpen: WireTime
   public let lastEntryAt: WireTime
   public let flattenAt: WireTime
   public let regularClose: WireTime
+  /// The calendar's pre-market open and extended close (shown, not traded). Added after version 1
+  /// shipped: nil from an older bot, whose extended hours are then unknown (docs/api.md).
+  public let premarketOpen: WireTime?
+  public let extendedClose: WireTime?
 
   enum CodingKeys: String, CodingKey {
     case day
@@ -122,6 +126,8 @@ public struct SessionTimesV1: Codable, Hashable, Sendable {
     case lastEntryAt = "last_entry_at"
     case flattenAt = "flatten_at"
     case regularClose = "regular_close"
+    case premarketOpen = "premarket_open"
+    case extendedClose = "extended_close"
   }
 }
 

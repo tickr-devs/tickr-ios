@@ -760,6 +760,7 @@ struct JobDot: Hashable {
 /// runs), its name, when it runs, its state and its last or next time. Read while Settings is open.
 struct JobsSection: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   /// Widths of the name and "when" columns, in points (the design's 86 and 130, the name widened
   /// for the Russian names).
@@ -775,7 +776,11 @@ struct JobsSection: View {
   var body: some View {
     SettingsCard(sessionTitle) {
       if let session = model.jobs?.session {
-        SessionStrip(session: session, now: model.botNow)
+        // The now line follows the bot's clock; it moves once a minute (`SessionStrip.minute`).
+        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
+          SessionStrip(session: session, now: model.botTime(context.date),
+            moving: Self.stripesMove(reduceMotion: reduceMotion, model: model))
+        }
       } else if let cause = model.jobs?.sessionCause {
         Text(verbatim: cause).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
       }
@@ -803,6 +808,12 @@ struct JobsSection: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
     }
+  }
+
+  /// Whether the session strip's planned stripes drift: an ornament that reads as "the bot is at
+  /// work", so only while it is (`OrnamentGate`: running, live and fresh status, motion allowed).
+  static func stripesMove(reduceMotion: Bool, model: AppModel) -> Bool {
+    model.ornamentsMove(reduceMotion: reduceMotion)
   }
 
   private var sessionTitle: LocalizedStringResource {
@@ -936,33 +947,81 @@ struct JobsSection: View {
   }
 }
 
-/// Today's session as the design's strip: pre-market and post-market dashed and marked planned
-/// (the bot trades the regular session only), the regular session in the accent with the minutes
-/// after the flatten time in amber, the open, last entry, flatten and close times above and below,
-/// and a line at now.
-private struct SessionStrip: View {
+/// Today's session as the design's strip: pre-market and post-market striped, dashed and marked
+/// planned (the bot trades the regular session only), the regular session in the accent with the
+/// minutes after the flatten time in amber, the open, last entry, flatten and close times above
+/// and below, and a line at now with a dot on top.
+///
+/// Its motion, as the design's: the now line glides to each new minute (`Motion.nowGlide`), and
+/// its dot sends out one ring each time now passes a mark of the session (open, last entry,
+/// flatten, close): one move per real change of the time, still in between. The planned stripes
+/// drift while `moving` (ornament). Under Reduce Motion everything stands at its final place.
+struct SessionStrip: View {
   let session: SessionTimesV1
   let now: Date
+  /// Whether the planned stripes drift: `OrnamentGate`, as `JobsSection.stripesMove` decides.
+  let moving: Bool
+
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   /// How long the extended sessions run around the regular one on a full day, in hours:
-  /// pre-market from 04:00, post-market to 20:00 New York time (shown, not traded).
+  /// pre-market from 04:00, post-market to 20:00 New York time (shown, not traded). Only for a
+  /// session from an older bot, without the calendar's own extended hours.
   static let preMarketHours: Double = 5.5
   static let postMarketHours: Double = 4
-  /// Seconds in an hour.
+  /// Seconds in an hour, and in a minute.
   static let secondsPerHour: Double = 3600
+  static let secondsPerMinute: Double = 60
   /// Height of the bar, and of the whole strip with a row of labels above and below, in points.
   static let barHeight: CGFloat = 22
   static let height: CGFloat = 62
+  /// Side of the dot on the now line, and how far the line starts above the bar, in points (the
+  /// design's 10 px and 10 px).
+  static let nowDot: CGFloat = 10
+  static let lineAbove: CGFloat = 10
+
+  /// Where the strip starts and ends: pre-market's start and post-market's end, from the calendar
+  /// (`premarket_open`, `extended_close`).
+  static func bounds(_ session: SessionTimesV1) -> (start: Date, end: Date) {
+    let start = session.premarketOpen?.date
+      ?? session.regularOpen.date.addingTimeInterval(-preMarketHours * secondsPerHour)
+    let end = session.extendedClose?.date
+      ?? session.regularClose.date.addingTimeInterval(postMarketHours * secondsPerHour)
+    return (start, end)
+  }
+
+  /// The pre-market label: with the calendar's pre-market open, as the design's "PRE 04:00 ·
+  /// BACKLOG"; without the time when the bot does not say it.
+  static func preLabel(_ session: SessionTimesV1) -> LocalizedStringResource {
+    guard let open = session.premarketOpen else { return L10n.Settings.preBacklog }
+    return L10n.Settings.preBacklogFrom(Format.marketMinute(open.date))
+  }
+
+  /// How many of the session's marks (pre-market start, open, last entry, flatten, close,
+  /// post-market end) `now` has reached: it changes only when now passes one, which plays the
+  /// now dot's ring.
+  static func phase(at now: Date, of session: SessionTimesV1) -> Int {
+    let (start, end) = bounds(session)
+    let marks = [start, session.regularOpen.date, session.lastEntryAt.date, session.flattenAt.date,
+      session.regularClose.date, end]
+    return marks.filter { now >= $0 }.count
+  }
+
+  /// `now` to its whole minute: the now line moves once a minute.
+  static func minute(_ now: Date) -> Date {
+    Date(timeIntervalSinceReferenceDate:
+      (now.timeIntervalSinceReferenceDate / secondsPerMinute).rounded(.down) * secondsPerMinute)
+  }
 
   var body: some View {
     let open = session.regularOpen.date
     let close = session.regularClose.date
     let flatten = session.flattenAt.date
-    let start = open.addingTimeInterval(-Self.preMarketHours * Self.secondsPerHour)
-    let end = close.addingTimeInterval(Self.postMarketHours * Self.secondsPerHour)
+    let (start, end) = Self.bounds(session)
     let span = end.timeIntervalSince(start)
     let barTop = (Self.height - Self.barHeight) / 2
     let below = Self.height - Tokens.Typography.annotationSize - Tokens.Space.xs
+    let minute = Self.minute(now)
     GeometryReader { proxy in
       let width = proxy.size.width
       let x = { (date: Date) -> CGFloat in CGFloat(date.timeIntervalSince(start) / span) * width }
@@ -974,25 +1033,42 @@ private struct SessionStrip: View {
         Rectangle().fill(Palette.warning.opacity(Tokens.Opacity.faint))
           .frame(width: x(close) - x(flatten), height: Self.barHeight).offset(x: x(flatten), y: barTop)
         planned.frame(width: width - x(close), height: Self.barHeight).offset(x: x(close), y: barTop)
-        if now > start && now < end {
+        if minute > start && minute < end {
           Rectangle().fill(Palette.textPrimary)
-            .frame(width: Tokens.Stroke.bold, height: Self.height)
-            .offset(x: x(now))
+            .frame(width: Tokens.Stroke.bold, height: Self.height - barTop + Self.lineAbove)
+            .offset(x: x(minute), y: barTop - Self.lineAbove)
+            .animation(reduceMotion ? nil : Tokens.Motion.nowGlide, value: minute)
         }
         mark(L10n.Settings.markOpen(Format.marketMinute(open)), color: Palette.accentText, x: x(open))
         mark(L10n.Settings.markLastEntry(Format.marketMinute(session.lastEntryAt.date)), color: Palette.warningText,
           x: x(session.lastEntryAt.date), trailing: true)
         mark(L10n.Settings.markClose(Format.marketMinute(close)), color: Palette.accentText,
           x: x(close) + Tokens.Space.xs)
-        mark(L10n.Settings.preBacklog, color: Palette.highlightText, x: Tokens.Space.s, y: below)
+        mark(Self.preLabel(session), color: Palette.highlightText, x: Tokens.Space.s, y: below)
         mark(L10n.Settings.markFlatten(Format.marketMinute(flatten)), color: Palette.warningText,
           x: x(flatten), y: below, trailing: true)
         mark(L10n.Settings.postBacklog, color: Palette.highlightText, x: width - Tokens.Space.s, y: below,
           trailing: true)
+        // The dot over the labels, as the design's: the line passes behind them.
+        if minute > start && minute < end {
+          nowDot
+            .offset(x: x(minute) + (Tokens.Stroke.bold - Self.nowDot) / 2,
+              y: barTop - Self.lineAbove - Self.nowDot / 2)
+            .animation(reduceMotion ? nil : Tokens.Motion.nowGlide, value: minute)
+        }
       }
     }
     .frame(height: Self.height)
     .accessibilityElement(children: .combine)
+  }
+
+  /// The now line's dot, centred on the line's top end; its ring plays once per change of
+  /// `phase`.
+  private var nowDot: some View {
+    Circle().fill(Palette.textPrimary)
+      .frame(width: Self.nowDot, height: Self.nowDot)
+      .eventPulse(Circle(), color: Palette.textPrimary, scale: Tokens.Motion.blipScale,
+        event: Self.phase(at: now, of: session))
   }
 
   /// A label at `x` (its leading edge, or its trailing edge when `trailing`), `y` from the top.
@@ -1011,9 +1087,9 @@ private struct SessionStrip: View {
       .offset(x: trailing ? 0 : x, y: y)
   }
 
-  /// A planned stretch: the highlight's dashed outline over a light wash.
+  /// A planned stretch: the highlight's stripes inside its dashed outline, as the design's.
   private var planned: some View {
-    Rectangle().fill(Palette.highlight.opacity(Tokens.Opacity.wash))
+    Hatch(Palette.highlight, moving: moving)
       .overlay(Rectangle().strokeBorder(Palette.highlight,
         style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine)))
   }

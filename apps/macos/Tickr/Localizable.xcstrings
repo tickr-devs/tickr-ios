@@ -11390,6 +11390,23 @@
         }
       }
     },
+    "settings.preBacklogFrom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PRE %@ · BACKLOG"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ПРЕ %@ · В ПЛАНАХ"
+          }
+        }
+      }
+    },
     "settings.readingSettings" : {
       "extractionState" : "manual",
       "localizations" : {

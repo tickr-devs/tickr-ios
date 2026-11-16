@@ -1309,6 +1309,9 @@ enum L10n {
     static var preBacklog: LocalizedStringResource {
       LocalizedStringResource("settings.preBacklog", defaultValue: "PRE · BACKLOG", bundle: L10n.bundle)
     }
+    static func preBacklogFrom(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.preBacklogFrom", defaultValue: "PRE \(time) · BACKLOG", bundle: L10n.bundle)
+    }
     static var postBacklog: LocalizedStringResource {
       LocalizedStringResource("settings.postBacklog", defaultValue: "POST · BACKLOG", bundle: L10n.bundle)
     }

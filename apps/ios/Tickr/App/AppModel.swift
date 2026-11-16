@@ -88,7 +88,9 @@ final class AppModel {
 
   var status: StatusV1? { response?.status }
   /// This moment on the bot's clock.
-  var botNow: Date { now().addingTimeInterval(botClockOffset) }
+  var botNow: Date { botTime(now()) }
+  /// A moment of this phone's clock (a TimelineView's tick) on the bot's clock.
+  func botTime(_ local: Date) -> Date { local.addingTimeInterval(botClockOffset) }
   /// Whether `marks` are current on the bot's clock, within the status stale limit of its
   /// settings; unknown settings prove nothing, so the marks are then not current.
   func isCurrent(_ marks: PositionMarks) -> Bool {
@@ -109,6 +111,15 @@ final class AppModel {
 
   /// The last read succeeded and the bot's status is current.
   var isFresh: Bool { status != nil && response?.stale == false && fetchError == nil }
+
+  /// The status is fresh and written today on the bot's clock: the app shows the live day.
+  var showsLiveStatus: Bool { Self.showsLiveDay(status, fresh: isFresh, today: today) }
+
+  /// Whether `status`, read `fresh`, is of `today`.
+  nonisolated static func showsLiveDay(_ status: StatusV1?, fresh: Bool, today: WireDate) -> Bool {
+    guard let status else { return false }
+    return fresh && WireDate(newYorkDateOf: status.writtenAt.date) == today
+  }
 
   /// Commands are offered, and sent, only while the status is fresh and no command is in flight.
   var canCommand: Bool { isFresh && !sending }

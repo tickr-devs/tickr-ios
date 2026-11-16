@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Tickr
 import TickrKit
@@ -15,4 +16,18 @@ import TickrKit
     }
     #expect(!OrnamentGate.moves(reduceMotion: false, current: true, botState: nil))
   }
+
+  @Test("The live day: a fresh status written today on the bot's clock")
+  func liveDay() throws {
+    let status = try #require(try fixture(StatusResponseV1.self, "status-response-v1.json").status)
+    let today = WireDate(newYorkDateOf: status.writtenAt.date)
+    #expect(AppModel.showsLiveDay(status, fresh: true, today: today))
+    #expect(!AppModel.showsLiveDay(status, fresh: false, today: today))
+    #expect(!AppModel.showsLiveDay(nil, fresh: true, today: today))
+    let tomorrow = WireDate(newYorkDateOf: status.writtenAt.date.addingTimeInterval(Self.day))
+    #expect(!AppModel.showsLiveDay(status, fresh: true, today: tomorrow))
+  }
+
+  /// Seconds in a day.
+  static let day: TimeInterval = 86_400
 }

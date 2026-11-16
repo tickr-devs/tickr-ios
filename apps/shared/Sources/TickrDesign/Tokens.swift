@@ -345,8 +345,7 @@ public enum Tokens {
     public static let launchFadeSeconds = 0.35
     /// Seconds for one turn of the radar sweep.
     public static let rotationSeconds = 3.0
-    /// The radar's blips: how far each one's ring grows (a multiple of the dot), and how long the
-    /// second blip trails the first, in seconds.
+    /// The radar's blips (and the session now dot's ring): how far a ring grows, a multiple of the dot; the second blip's lag, s.
     public static let blipScale: CGFloat = 1.9
     public static let blipLagSeconds = 0.8
     /// macOS opening: when the mark's spark pops in, in seconds from the start (after the line
@@ -368,8 +367,9 @@ public enum Tokens {
     public static let themeFadeSeconds = 0.4
     /// Points per second of the event ticker.
     public static let tickerSpeed = 22.0
-    /// Seconds between redraws of a clock or an age ("3 s ago"), and of the session bar's cursor.
+    /// Seconds between redraws of a clock, an age ("3 s ago") and the session now line, which `nowGlide` moves evenly over one tick.
     public static let clockTickSeconds: TimeInterval = 1
+    public static let nowGlide = Animation.linear(duration: clockTickSeconds)
     /// Seconds the iOS Home ticker takes to scroll its whole row once (the board's 45 s marquee).
     public static let tickerLoopSeconds = 45.0
     /// A dot or step popping in (`popIn`): a quick spring that overshoots a little, as the boards'

@@ -137,6 +137,23 @@ struct AppModelTests {
     #expect(model.isLive)
   }
 
+  @Test("The session strip's stripes drift only while the bot runs with live, fresh status")
+  func sessionStripesGate() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    // No status yet: still.
+    #expect(!JobsSection.stripesMove(reduceMotion: false, model: model))
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Self.status(botState: "running") }
+    await model.refreshStatus()
+    #expect(JobsSection.stripesMove(reduceMotion: false, model: model))
+    #expect(!JobsSection.stripesMove(reduceMotion: true, model: model))
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Self.status(botState: "running", stale: true) }
+    await model.refreshStatus()
+    #expect(!JobsSection.stripesMove(reduceMotion: false, model: model))
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Self.status(botState: "stopped") }
+    await model.refreshStatus()
+    #expect(!JobsSection.stripesMove(reduceMotion: false, model: model))
+  }
+
   @Test("The shown day's flow and watched symbols are read; a failed read clears each")
   func flowAndWatching() async throws {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)

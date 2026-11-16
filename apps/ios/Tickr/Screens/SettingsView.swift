@@ -28,6 +28,7 @@ struct SettingsView: View {
 
   @Environment(AppModel.self) private var model
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var draft = ""
   @FocusState private var editing: Bool
   @State private var showPairing = false
@@ -67,7 +68,9 @@ struct SettingsView: View {
         EnvironmentSection(status: status).cardRise(step: Order.environment.rawValue)
       }
       if model.isConfigured {
-        SessionSection(session: model.settings?.session).cardRise(step: Order.session.rawValue)
+        SessionSection(session: model.settings?.session,
+          moving: SessionSection.stripesMove(reduceMotion: reduceMotion, model: model))
+          .cardRise(step: Order.session.rawValue)
         PreflightSection().cardRise(step: Order.preflight.rawValue)
         JobsSection().cardRise(step: Order.jobs.rawValue)
       }

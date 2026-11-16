@@ -23,10 +23,9 @@ struct HomeView: View {
   /// Whether Home's looping ornaments (the brand mark's halo, the ticker's scroll) move: they read
   /// as "the bot is at work", so only on the live day with a fresh status while the bot runs.
   private var ornamentMoves: Bool {
-    guard let status = model.status, dayModel.shown == nil else { return false }
-    return OrnamentGate.moves(reduceMotion: reduceMotion,
-      current: model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today,
-      botState: status.botState)
+    guard dayModel.shown == nil else { return false }
+    return OrnamentGate.moves(reduceMotion: reduceMotion, current: model.showsLiveStatus,
+      botState: model.status?.botState)
   }
 
   var body: some View {
