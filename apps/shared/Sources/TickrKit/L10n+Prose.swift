@@ -265,4 +265,124 @@ extension L10n {
     LocalizedStringResource("kit.prose.no_losses",
       defaultValue: "No losing trades in the range", bundle: bundle)
   }
+  /// A cause the API writes itself (`<field>_codes`). outside_session_only (values: until)
+  static var proseReasonOutsideSessionOnly: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.outside_session_only",
+      defaultValue: "Available after {until} ET: runs only outside the regular session", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). replay_running
+  static var proseReasonReplayRunning: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_running",
+      defaultValue: "A replay is already running", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). api_without_config
+  static var proseReasonApiWithoutConfig: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.api_without_config",
+      defaultValue: "The API was started without its configuration file, so it cannot replay", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_backtest_data
+  static var proseReasonNoBacktestData: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_backtest_data",
+      defaultValue: "No market data fetched for the replay yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). not_a_data_day (values: day)
+  static var proseReasonNotADataDay: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.not_a_data_day",
+      defaultValue: "{day} is not a day of the fetched data", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). compare_same_version
+  static var proseReasonCompareSameVersion: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.compare_same_version",
+      defaultValue: "Both pickers name the same version", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_strategy_folder (values: folder)
+  static var proseReasonNoStrategyFolder: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_strategy_folder",
+      defaultValue: "No strategy folder {folder}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). strategy_unreadable (values: folder)
+  static var proseReasonStrategyUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.strategy_unreadable",
+      defaultValue: "{folder}: cannot be read", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). strategy_file_unreadable (values: folder, detail)
+  static var proseReasonStrategyFileUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.strategy_file_unreadable",
+      defaultValue: "{folder}: its strategy.toml cannot be read: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). strategy_without_name (values: folder)
+  static var proseReasonStrategyWithoutName: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.strategy_without_name",
+      defaultValue: "{folder}: strategy.toml names no strategy", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). strategy_without_version (values: folder)
+  static var proseReasonStrategyWithoutVersion: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.strategy_without_version",
+      defaultValue: "{folder}: strategy.toml gives no version", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). modules_malformed
+  static var proseReasonModulesMalformed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.modules_malformed",
+      defaultValue: "The strategy module list in the settings is malformed", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). module_entry_malformed (values: detail)
+  static var proseReasonModuleEntryMalformed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.module_entry_malformed",
+      defaultValue: "A strategy module entry is not name=module: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). module_listed_twice (values: strategy)
+  static var proseReasonModuleListedTwice: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.module_listed_twice",
+      defaultValue: "The strategy module list names {strategy} twice", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_module (values: strategy)
+  static var proseReasonNoModule: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_module",
+      defaultValue: "No module builds strategy {strategy}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). backtest_refused (values: detail)
+  static var proseReasonBacktestRefused: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.backtest_refused",
+      defaultValue: "The replay refused: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). run_without_report
+  static var proseReasonRunWithoutReport: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.run_without_report",
+      defaultValue: "The run ended without a report", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). version_never_started
+  static var proseReasonVersionNeverStarted: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.version_never_started",
+      defaultValue: "The API stopped before this version started", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). run_file_unreadable (values: file, error)
+  static var proseReasonRunFileUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.run_file_unreadable",
+      defaultValue: "The replay's {file}.json cannot be read ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_account_file
+  static var proseReasonNoAccountFile: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_account_file",
+      defaultValue: "The bot has not written an account file yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_start_command
+  static var proseReasonNoStartCommand: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_start_command",
+      defaultValue: "No start command is set on this machine: start the bot where it runs", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). bot_not_stopped (values: state)
+  static var proseReasonBotNotStopped: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.bot_not_stopped",
+      defaultValue: "The bot is {state}: nothing to start", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). lock_unreadable (values: error)
+  static var proseReasonLockUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.lock_unreadable",
+      defaultValue: "The bot's lock file cannot be read ({error}): nothing was started", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). lock_held (values: pid)
+  static var proseReasonLockHeld: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.lock_held",
+      defaultValue: "A bot process (pid {pid}) still holds the lock: wait for it to end, then start again", bundle: bundle)
+  }
 }

@@ -4315,6 +4315,42 @@
         }
       }
     },
+    "kit.prose.api_without_config" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). api_without_config",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The API was started without its configuration file, so it cannot replay"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API запущен без файла конфигурации, поэтому прогон невозможен"
+          }
+        }
+      }
+    },
+    "kit.prose.backtest_refused" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). backtest_refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The replay refused: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогон отклонён: {detail}"
+          }
+        }
+      }
+    },
     "kit.prose.bars_end" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). bars_end",
       "extractionState" : "manual",
@@ -4351,6 +4387,78 @@
         }
       }
     },
+    "kit.prose.bot_not_stopped" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). bot_not_stopped",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot is {state}: nothing to start"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот в состоянии {state}: запускать нечего"
+          }
+        }
+      }
+    },
+    "kit.prose.cached_history_empty" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). cached_history_empty",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cached prior sessions hold no bar of {symbol}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В сохранённых прошлых сессиях нет баров по {symbol}"
+          }
+        }
+      }
+    },
+    "kit.prose.cached_history_overlaps" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). cached_history_overlaps",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cached prior sessions overlap the day's bars"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённые прошлые сессии перекрывают бары дня"
+          }
+        }
+      }
+    },
+    "kit.prose.cached_history_refused" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). cached_history_refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cached prior sessions were refused: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённые прошлые сессии отклонены: {detail}"
+          }
+        }
+      }
+    },
     "kit.prose.calendar_error" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). calendar_error",
       "extractionState" : "manual",
@@ -4365,6 +4473,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Календарь: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.calendar_file_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). calendar_file_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The trading calendar cannot be read: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торговый календарь не читается: {detail}"
           }
         }
       }
@@ -4437,6 +4563,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "{rule}: записана как не пройденная, но измерение проходит порог"
+          }
+        }
+      }
+    },
+    "kit.prose.compare_same_version" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). compare_same_version",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both pickers name the same version"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В обоих выборах одна и та же версия"
           }
         }
       }
@@ -4567,6 +4711,78 @@
         }
       }
     },
+    "kit.prose.history_sessions_differ" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). history_sessions_differ",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The replay settings use {replay} prior sessions, the bot caches {bot}: the version would not see the bot's history"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки повтора берут прошлых сессий: {replay}, бот хранит: {bot}; версия не увидит историю бота"
+          }
+        }
+      }
+    },
+    "kit.prose.history_too_short" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). history_too_short",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: needs {need} prior sessions, the bot keeps {bot}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: нужно прошлых сессий: {need}, бот хранит: {bot}"
+          }
+        }
+      }
+    },
+    "kit.prose.host_not_allowed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). host_not_allowed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's API does not accept the address {host}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API бота не принимает адрес {host}"
+          }
+        }
+      }
+    },
+    "kit.prose.identity_differs" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). identity_differs",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: the strategy's name or version differs from its file"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: имя или версия стратегии расходятся с её файлом"
+          }
+        }
+      }
+    },
     "kit.prose.journal_unreadable" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). journal_unreadable",
       "extractionState" : "manual",
@@ -4581,6 +4797,132 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Журнал не читается: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.lock_held" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). lock_held",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A bot process (pid {pid}) still holds the lock: wait for it to end, then start again"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Процесс бота (pid {pid}) ещё держит блокировку: дождитесь его завершения и запустите снова"
+          }
+        }
+      }
+    },
+    "kit.prose.lock_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). lock_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's lock file cannot be read ({error}): nothing was started"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл блокировки бота не читается ({error}): ничего не запущено"
+          }
+        }
+      }
+    },
+    "kit.prose.module_entry_malformed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). module_entry_malformed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A strategy module entry is not name=module: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запись модуля стратегии не в виде имя=модуль: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.module_listed_twice" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). module_listed_twice",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The strategy module list names {strategy} twice"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В списке модулей стратегий {strategy} указана дважды"
+          }
+        }
+      }
+    },
+    "kit.prose.module_not_importable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). module_not_importable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: module {module} cannot be loaded: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: модуль {module} не загружается: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.module_without_create" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). module_without_create",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: module {module} cannot build the strategy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: модуль {module} не умеет строить стратегию"
+          }
+        }
+      }
+    },
+    "kit.prose.modules_malformed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). modules_malformed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The strategy module list in the settings is malformed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Список модулей стратегий в настройках составлен неверно"
           }
         }
       }
@@ -4639,6 +4981,42 @@
         }
       }
     },
+    "kit.prose.no_account_file" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_account_file",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot has not written an account file yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот ещё не записал файл счёта"
+          }
+        }
+      }
+    },
+    "kit.prose.no_backtest_data" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_backtest_data",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No market data fetched for the replay yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные рынка для прогона ещё не загружены"
+          }
+        }
+      }
+    },
     "kit.prose.no_bar_after_exit" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). no_bar_after_exit",
       "extractionState" : "manual",
@@ -4689,6 +5067,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "За этот день нет баров по {symbol}"
+          }
+        }
+      }
+    },
+    "kit.prose.no_bars_for_symbol_on" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_bars_for_symbol_on",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No captured bars for {symbol} on {day}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет записанных баров по {symbol} за {day}"
+          }
+        }
+      }
+    },
+    "kit.prose.no_cached_history" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_cached_history",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No cached prior sessions for {symbol} on {day}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет сохранённых прошлых сессий по {symbol} за {day}"
           }
         }
       }
@@ -4801,6 +5215,24 @@
         }
       }
     },
+    "kit.prose.no_history_need" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_history_need",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: the strategy does not say how much history it needs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: стратегия не указывает, сколько истории ей нужно"
+          }
+        }
+      }
+    },
     "kit.prose.no_intent_row" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). no_intent_row",
       "extractionState" : "manual",
@@ -4855,6 +5287,60 @@
         }
       }
     },
+    "kit.prose.no_module" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_module",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No module builds strategy {strategy}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет модуля, который строит стратегию {strategy}"
+          }
+        }
+      }
+    },
+    "kit.prose.no_pairing_waiting" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_pairing_waiting",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pairing is waiting: start one on the Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Привязка не ожидается: начните её на Mac"
+          }
+        }
+      }
+    },
+    "kit.prose.no_phone_paired" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_phone_paired",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No phone is paired: pair it from the Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Телефон не привязан: привяжите его на Mac"
+          }
+        }
+      }
+    },
     "kit.prose.no_reference_price" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). no_reference_price",
       "extractionState" : "manual",
@@ -4869,6 +5355,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Бар решения не записан: нет опорной цены"
+          }
+        }
+      }
+    },
+    "kit.prose.no_start_command" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_start_command",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No start command is set on this machine: start the bot where it runs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На этой машине не задана команда запуска: запустите бота там, где он работает"
+          }
+        }
+      }
+    },
+    "kit.prose.no_strategy_folder" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_strategy_folder",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No strategy folder {folder}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет папки стратегии {folder}"
           }
         }
       }
@@ -4909,6 +5431,24 @@
         }
       }
     },
+    "kit.prose.not_a_data_day" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). not_a_data_day",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{day} is not a day of the fetched data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{day} нет среди дней загруженных данных"
+          }
+        }
+      }
+    },
     "kit.prose.not_computed" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). not_computed",
       "extractionState" : "manual",
@@ -4941,6 +5481,78 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "На этом пути не читается"
+          }
+        }
+      }
+    },
+    "kit.prose.origin_not_allowed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). origin_not_allowed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's API does not accept requests from {origin}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API бота не принимает запросы от {origin}"
+          }
+        }
+      }
+    },
+    "kit.prose.outside_session_only" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). outside_session_only",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available after {until} ET: runs only outside the regular session"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступно после {until} ET: запускается только вне основной сессии"
+          }
+        }
+      }
+    },
+    "kit.prose.pairing_code_wrong" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). pairing_code_wrong",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The pairing code is not the one the Mac is waiting for"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Код привязки не тот, что ждёт Mac"
+          }
+        }
+      }
+    },
+    "kit.prose.pairing_expired" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). pairing_expired",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The pairing code has expired: start a new one on the Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Код привязки истёк: начните новую привязку на Mac"
           }
         }
       }
@@ -5053,6 +5665,24 @@
         }
       }
     },
+    "kit.prose.replay_running" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_running",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A replay is already running"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогон уже идёт"
+          }
+        }
+      }
+    },
     "kit.prose.replay_settings_unreadable" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). replay_settings_unreadable",
       "extractionState" : "manual",
@@ -5089,6 +5719,42 @@
         }
       }
     },
+    "kit.prose.run_file_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). run_file_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The replay's {file}.json cannot be read ({error})"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл прогона {file}.json не читается ({error})"
+          }
+        }
+      }
+    },
+    "kit.prose.run_without_report" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). run_without_report",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The run ended without a report"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогон завершился без отчёта"
+          }
+        }
+      }
+    },
     "kit.prose.safety_exit" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). safety_exit",
       "extractionState" : "manual",
@@ -5121,6 +5787,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сессия закончилась в {time}"
+          }
+        }
+      }
+    },
+    "kit.prose.simulation_failed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). simulation_failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The simulation failed: {error}: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Симуляция не удалась: {error}: {detail}"
           }
         }
       }
@@ -5179,6 +5863,258 @@
         }
       }
     },
+    "kit.prose.start_exited" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). start_exited",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The start command ended with code {code}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Команда запуска завершилась с кодом {code}"
+          }
+        }
+      }
+    },
+    "kit.prose.start_exited_cleared" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). start_exited_cleared",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The start command ended with code {code} (the operator stop was cleared, so the next scheduled start runs)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Команда запуска завершилась с кодом {code} (операторская остановка снята, следующий плановый запуск сработает)"
+          }
+        }
+      }
+    },
+    "kit.prose.start_failed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). start_failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The start command could not run ({error})"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Команда запуска не выполнилась ({error})"
+          }
+        }
+      }
+    },
+    "kit.prose.start_failed_cleared" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). start_failed_cleared",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The start command could not run ({error}) (the operator stop was cleared, so the next scheduled start runs)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Команда запуска не выполнилась ({error}) (операторская остановка снята, следующий плановый запуск сработает)"
+          }
+        }
+      }
+    },
+    "kit.prose.start_timeout" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). start_timeout",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The start command did not answer within {seconds} s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Команда запуска не ответила за {seconds} с"
+          }
+        }
+      }
+    },
+    "kit.prose.start_timeout_cleared" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). start_timeout_cleared",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The start command did not answer within {seconds} s (the operator stop was cleared, so the next scheduled start runs)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Команда запуска не ответила за {seconds} с (операторская остановка снята, следующий плановый запуск сработает)"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_not_cleared" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_not_cleared",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The operator stop could not be cleared ({error}): nothing was started"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Операторскую остановку не удалось снять ({error}): ничего не запущено"
+          }
+        }
+      }
+    },
+    "kit.prose.strategy_file_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). strategy_file_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: its strategy.toml cannot be read: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: его strategy.toml не читается: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.strategy_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). strategy_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: cannot be read"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: не читается"
+          }
+        }
+      }
+    },
+    "kit.prose.strategy_without_module" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). strategy_without_module",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: no module builds strategy {strategy}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: нет модуля, который строит стратегию {strategy}"
+          }
+        }
+      }
+    },
+    "kit.prose.strategy_without_name" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). strategy_without_name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: strategy.toml names no strategy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: в strategy.toml не указано имя стратегии"
+          }
+        }
+      }
+    },
+    "kit.prose.strategy_without_version" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). strategy_without_version",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: strategy.toml gives no version"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: в strategy.toml не указана версия"
+          }
+        }
+      }
+    },
+    "kit.prose.token_not_paired" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). token_not_paired",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This phone's pairing is no longer valid: pair it again"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Привязка этого телефона больше не действует: привяжите заново"
+          }
+        }
+      }
+    },
+    "kit.prose.token_required" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). token_required",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This phone is not paired yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот телефон ещё не привязан"
+          }
+        }
+      }
+    },
     "kit.prose.trades_without_quantity" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). trades_without_quantity",
       "extractionState" : "manual",
@@ -5211,6 +6147,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тревога: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.values_refused" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). values_refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: module {module} refused the values: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{folder}: модуль {module} отклонил значения: {detail}"
+          }
+        }
+      }
+    },
+    "kit.prose.version_never_started" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). version_never_started",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The API stopped before this version started"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API остановился до запуска этой версии"
           }
         }
       }

@@ -378,22 +378,3 @@ public struct PendingCommandsV1: Codable, Hashable, Sendable {
     commands = try c.decode([CommandV1].self, forKey: .commands)
   }
 }
-
-/// Every non-2xx answer.
-public struct ErrorV1: Codable, Hashable, Sendable {
-  public let error: String
-  public let cause: String
-  public let apiVersion: Int
-
-  enum CodingKeys: String, CodingKey {
-    case error, cause
-    case apiVersion = "api_version"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
-    error = try c.decode(String.self, forKey: .error)
-    cause = try c.decode(String.self, forKey: .cause)
-  }
-}

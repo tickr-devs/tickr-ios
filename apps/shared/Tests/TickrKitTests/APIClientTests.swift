@@ -268,6 +268,35 @@ final class StubProtocol: URLProtocol {
     #expect(code == "forbidden_host")
   }
 
+  /// A refusal whose code the app knows reads in the person's words, never the bot's raw cause
+  /// with its config key; an older bot's refusal without codes keeps the bot's words.
+  @Test func knownRefusalReadsAsHumanText() async throws {
+    let cause = "refused during the regular session until 2026-11-16T21:00:00.000Z "
+      + "([api] lab_replay_outside_session_only)"
+    let coded = """
+      {"error": "conflict", "cause": "\(cause)", "api_version": 1,
+       "cause_codes": [{"code": "outside_session_only", "params": {"until": "16:00"}}]}
+      """
+    StubProtocol.answer = (409, Data(coded.utf8))
+    let error = await #expect(throws: APIError.self) { try await client.startLabReplay() }
+    guard case .refused(_, _, let text) = error else {
+      Issue.record("expected a refusal, got \(String(describing: error))")
+      return
+    }
+    #expect(text.contains("16:00"))
+    #expect(!text.contains("[api]"))
+    let uncoded = """
+      {"error": "conflict", "cause": "\(cause)", "api_version": 1}
+      """
+    StubProtocol.answer = (409, Data(uncoded.utf8))
+    let old = await #expect(throws: APIError.self) { try await client.startLabReplay() }
+    guard case .refused(_, _, let raw) = old else {
+      Issue.record("expected a refusal, got \(String(describing: old))")
+      return
+    }
+    #expect(raw == cause)
+  }
+
   @Test(arguments: [(200, "{\"api_version\": 2}"), (500, "oops")])
   func nonContractAnswerIsAContractError(status: Int, body: String) async throws {
     StubProtocol.answer = (status, Data(body.utf8))

@@ -104,9 +104,12 @@ public struct LabVersionV1: Codable, Hashable, Sendable {
   public let version: String?
   public let role: LabVersionRole
   public let cause: String?
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case folder, strategy, version, role, cause
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -116,6 +119,7 @@ public struct LabVersionV1: Codable, Hashable, Sendable {
     version = try c.decodeNullable(String.self, forKey: .version)
     role = try c.decode(LabVersionRole.self, forKey: .role)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -125,7 +129,11 @@ public struct LabVersionV1: Codable, Hashable, Sendable {
     try c.encodeNullable(version, forKey: .version)
     try c.encode(role, forKey: .role)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
+
+  /// Why it cannot be replayed, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }
 
 /// The second version of a comparison, replayed after the first over the same window.
@@ -136,9 +144,12 @@ public struct LabReplayLegV1: Codable, Hashable, Sendable {
   public let state: LabReplayState
   public let cause: String?
   public let summary: LabReplaySummaryV1?
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case folder, strategy, version, state, cause, summary
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -149,6 +160,7 @@ public struct LabReplayLegV1: Codable, Hashable, Sendable {
     state = try c.decode(LabReplayState.self, forKey: .state)
     cause = try c.decodeNullable(String.self, forKey: .cause)
     summary = try c.decodeNullable(LabReplaySummaryV1.self, forKey: .summary)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -159,7 +171,11 @@ public struct LabReplayLegV1: Codable, Hashable, Sendable {
     try c.encode(state, forKey: .state)
     try c.encodeNullable(cause, forKey: .cause)
     try c.encodeNullable(summary, forKey: .summary)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
+
+  /// Why this version failed, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }
 
 /// GET /lab/replay, and the answer to POST /lab/replay (202).
@@ -186,11 +202,18 @@ public struct LabReplayV1: Codable, Hashable, Sendable {
   public let versions: [LabVersionV1]
   /// Days "replay one day" offers, newest first.
   public let days: [WireDate]
+  /// While the bot refuses a start in the regular session (`[api] lab_replay_outside_session_only`):
+  /// the regular close, when a start is allowed again; nil when the session allows one now.
+  public let availableAt: WireTime?
   public let apiVersion: Int
+  /// The codes of `cause`.
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case state, strategy, version, sessions, cause, summary, folder, day, compare, versions, days
     case runId = "run_id"
+    case availableAt = "available_at"
+    case causeCodes = "cause_codes"
     case startedAt = "started_at"
     case finishedAt = "finished_at"
     case apiVersion = "api_version"
@@ -214,6 +237,8 @@ public struct LabReplayV1: Codable, Hashable, Sendable {
     compare = try c.decodeIfPresent(LabReplayLegV1.self, forKey: .compare)
     versions = try c.decodeIfPresent([LabVersionV1].self, forKey: .versions) ?? []
     days = try c.decodeIfPresent([WireDate].self, forKey: .days) ?? []
+    availableAt = try c.decodeIfPresent(WireTime.self, forKey: .availableAt)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -232,6 +257,16 @@ public struct LabReplayV1: Codable, Hashable, Sendable {
     try c.encodeNullable(compare, forKey: .compare)
     try c.encode(versions, forKey: .versions)
     try c.encode(days, forKey: .days)
+    try c.encodeNullable(availableAt, forKey: .availableAt)
     try c.encode(apiVersion, forKey: .apiVersion)
+    try c.encode(causeCodes, forKey: .causeCodes)
+  }
+
+  /// Why the replay failed, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
+
+  /// When a start is allowed again, if the session still refuses one at `now` (the bot's clock).
+  public func waitsUntil(now: Date) -> Date? {
+    availableAt.map(\.date).flatMap { $0 > now ? $0 : nil }
   }
 }

@@ -8,10 +8,12 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case age
   case ask
   case bid
+  case bot
   case calendarDay = "calendar_day"
   case cap
   case ceiling
   case close
+  case code
   case count
   case covered
   case day
@@ -25,22 +27,29 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case fields
   case file
   case filled
+  case folder
   case held
+  case host
   case keys
   case limit
   case maxGap = "max_gap"
   case maximum
   case minRoom = "min_room"
+  case module
+  case need
   case new
   case notional
   case open
   case `operator`
   case order
   case orders
+  case origin
+  case pid
   case plannedLoss = "planned_loss"
   case quantity
   case quoteSymbol = "quote_symbol"
   case realized
+  case replay
   case reserved
   case room
   case rule

@@ -92,7 +92,7 @@ struct AnotherStrategySheet: View {
       case .failure(let failure):
         ReadFailureNote(L10n.ReadFailed.whatIf, detail: failure.cause)
       case .success(let found):
-        if let cause = found.cause {
+        if let cause = found.causeText {
           InfoCaption(verbatim: cause)
         } else {
           ForEach(Array(found.trades.enumerated()), id: \.offset) { _, item in

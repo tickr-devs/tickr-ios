@@ -87,9 +87,12 @@ public struct TradeWhatIfV1: Codable, Hashable, Sendable {
   public let resultGrossUsd: DecimalString?
   public let cause: String?
   public let apiVersion: Int
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case day, symbol, folder, strategy, version, signals, trades, cause
+    case causeCodes = "cause_codes"
     case resultR = "result_r"
     case resultGrossUsd = "result_gross_usd"
     case apiVersion = "api_version"
@@ -108,6 +111,7 @@ public struct TradeWhatIfV1: Codable, Hashable, Sendable {
     resultR = try c.decodeNullable(DecimalString.self, forKey: .resultR)
     resultGrossUsd = try c.decodeNullable(DecimalString.self, forKey: .resultGrossUsd)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -123,5 +127,9 @@ public struct TradeWhatIfV1: Codable, Hashable, Sendable {
     try c.encodeNullable(resultGrossUsd, forKey: .resultGrossUsd)
     try c.encodeNullable(cause, forKey: .cause)
     try c.encode(apiVersion, forKey: .apiVersion)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
+
+  /// Why it could not be computed, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }

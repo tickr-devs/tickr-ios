@@ -3,7 +3,8 @@ Russian: the trading gate's cause, each fence's cause, a refused entry's detail 
 API writes itself (`<field>_codes`).
 
 `python3 apps/scripts/kit_reason_strings.py` writes ReasonCodes.swift and L10n+Reasons.swift,
-ProseCodes.swift and L10n+Prose.swift (parts of the kit's L10n), and the kit's catalog entries;
+ProseCodes.swift and L10n+Prose.swift (parts of the kit's L10n; a part too long for one file
+goes on in L10n+Prose2.swift and on), and the kit's catalog entries;
 run apps/scripts/format_xcstrings.py after it.
 `--check` writes nothing and fails when the committed files differ from this list
 (tests/test_api_codes.py runs it, and also checks this list against api/reasons.py).
@@ -589,6 +590,266 @@ GROUPS = [
             ("no_trades", "No counted trades in the range", "В диапазоне нет учтённых сделок"),
             ("no_wins", "No winning trades in the range", "В диапазоне нет прибыльных сделок"),
             ("no_losses", "No losing trades in the range", "В диапазоне нет убыточных сделок"),
+            (
+                "outside_session_only",
+                "Available after {until} ET: runs only outside the regular session",
+                "Доступно после {until} ET: запускается только вне основной сессии",
+            ),
+            ("replay_running", "A replay is already running", "Прогон уже идёт"),
+            (
+                "api_without_config",
+                "The API was started without its configuration file, so it cannot replay",
+                "API запущен без файла конфигурации, поэтому прогон невозможен",
+            ),
+            (
+                "no_backtest_data",
+                "No market data fetched for the replay yet",
+                "Данные рынка для прогона ещё не загружены",
+            ),
+            (
+                "not_a_data_day",
+                "{day} is not a day of the fetched data",
+                "{day} нет среди дней загруженных данных",
+            ),
+            (
+                "compare_same_version",
+                "Both pickers name the same version",
+                "В обоих выборах одна и та же версия",
+            ),
+            ("no_strategy_folder", "No strategy folder {folder}", "Нет папки стратегии {folder}"),
+            ("strategy_unreadable", "{folder}: cannot be read", "{folder}: не читается"),
+            (
+                "strategy_file_unreadable",
+                "{folder}: its strategy.toml cannot be read: {detail}",
+                "{folder}: его strategy.toml не читается: {detail}",
+            ),
+            (
+                "strategy_without_name",
+                "{folder}: strategy.toml names no strategy",
+                "{folder}: в strategy.toml не указано имя стратегии",
+            ),
+            (
+                "strategy_without_version",
+                "{folder}: strategy.toml gives no version",
+                "{folder}: в strategy.toml не указана версия",
+            ),
+            (
+                "modules_malformed",
+                "The strategy module list in the settings is malformed",
+                "Список модулей стратегий в настройках составлен неверно",
+            ),
+            (
+                "module_entry_malformed",
+                "A strategy module entry is not name=module: {detail}",
+                "Запись модуля стратегии не в виде имя=модуль: {detail}",
+            ),
+            (
+                "module_listed_twice",
+                "The strategy module list names {strategy} twice",
+                "В списке модулей стратегий {strategy} указана дважды",
+            ),
+            (
+                "no_module",
+                "No module builds strategy {strategy}",
+                "Нет модуля, который строит стратегию {strategy}",
+            ),
+            ("backtest_refused", "The replay refused: {detail}", "Прогон отклонён: {detail}"),
+            (
+                "run_without_report",
+                "The run ended without a report",
+                "Прогон завершился без отчёта",
+            ),
+            (
+                "version_never_started",
+                "The API stopped before this version started",
+                "API остановился до запуска этой версии",
+            ),
+            (
+                "run_file_unreadable",
+                "The replay's {file}.json cannot be read ({error})",
+                "Файл прогона {file}.json не читается ({error})",
+            ),
+            (
+                "no_account_file",
+                "The bot has not written an account file yet",
+                "Бот ещё не записал файл счёта",
+            ),
+            (
+                "no_start_command",
+                "No start command is set on this machine: start the bot where it runs",
+                "На этой машине не задана команда запуска: запустите бота там, где он работает",
+            ),
+            (
+                "bot_not_stopped",
+                "The bot is {state}: nothing to start",
+                "Бот в состоянии {state}: запускать нечего",
+            ),
+            (
+                "lock_unreadable",
+                "The bot's lock file cannot be read ({error}): nothing was started",
+                "Файл блокировки бота не читается ({error}): ничего не запущено",
+            ),
+            (
+                "lock_held",
+                "A bot process (pid {pid}) still holds the lock: wait for it to end, then start "
+                "again",
+                "Процесс бота (pid {pid}) ещё держит блокировку: дождитесь его завершения и "
+                "запустите снова",
+            ),
+            (
+                "stop_not_cleared",
+                "The operator stop could not be cleared ({error}): nothing was started",
+                "Операторскую остановку не удалось снять ({error}): ничего не запущено",
+            ),
+            (
+                "start_timeout_cleared",
+                "The start command did not answer within {seconds} s (the operator stop was "
+                "cleared, so the next scheduled start runs)",
+                "Команда запуска не ответила за {seconds} с (операторская остановка снята, "
+                "следующий плановый запуск сработает)",
+            ),
+            (
+                "start_timeout",
+                "The start command did not answer within {seconds} s",
+                "Команда запуска не ответила за {seconds} с",
+            ),
+            (
+                "start_failed_cleared",
+                "The start command could not run ({error}) (the operator stop was cleared, so "
+                "the next scheduled start runs)",
+                "Команда запуска не выполнилась ({error}) (операторская остановка снята, "
+                "следующий плановый запуск сработает)",
+            ),
+            (
+                "start_failed",
+                "The start command could not run ({error})",
+                "Команда запуска не выполнилась ({error})",
+            ),
+            (
+                "start_exited_cleared",
+                "The start command ended with code {code} (the operator stop was cleared, so the "
+                "next scheduled start runs)",
+                "Команда запуска завершилась с кодом {code} (операторская остановка снята, "
+                "следующий плановый запуск сработает)",
+            ),
+            (
+                "start_exited",
+                "The start command ended with code {code}",
+                "Команда запуска завершилась с кодом {code}",
+            ),
+            (
+                "host_not_allowed",
+                "The bot's API does not accept the address {host}",
+                "API бота не принимает адрес {host}",
+            ),
+            (
+                "origin_not_allowed",
+                "The bot's API does not accept requests from {origin}",
+                "API бота не принимает запросы от {origin}",
+            ),
+            (
+                "no_phone_paired",
+                "No phone is paired: pair it from the Mac",
+                "Телефон не привязан: привяжите его на Mac",
+            ),
+            ("token_required", "This phone is not paired yet", "Этот телефон ещё не привязан"),
+            (
+                "token_not_paired",
+                "This phone's pairing is no longer valid: pair it again",
+                "Привязка этого телефона больше не действует: привяжите заново",
+            ),
+            (
+                "no_pairing_waiting",
+                "No pairing is waiting: start one on the Mac",
+                "Привязка не ожидается: начните её на Mac",
+            ),
+            (
+                "pairing_expired",
+                "The pairing code has expired: start a new one on the Mac",
+                "Код привязки истёк: начните новую привязку на Mac",
+            ),
+            (
+                "pairing_code_wrong",
+                "The pairing code is not the one the Mac is waiting for",
+                "Код привязки не тот, что ждёт Mac",
+            ),
+            (
+                "calendar_file_unreadable",
+                "The trading calendar cannot be read: {detail}",
+                "Торговый календарь не читается: {detail}",
+            ),
+            (
+                "no_bars_for_symbol_on",
+                "No captured bars for {symbol} on {day}",
+                "Нет записанных баров по {symbol} за {day}",
+            ),
+            (
+                "no_cached_history",
+                "No cached prior sessions for {symbol} on {day}",
+                "Нет сохранённых прошлых сессий по {symbol} за {day}",
+            ),
+            (
+                "cached_history_refused",
+                "The cached prior sessions were refused: {detail}",
+                "Сохранённые прошлые сессии отклонены: {detail}",
+            ),
+            (
+                "cached_history_empty",
+                "The cached prior sessions hold no bar of {symbol}",
+                "В сохранённых прошлых сессиях нет баров по {symbol}",
+            ),
+            (
+                "cached_history_overlaps",
+                "The cached prior sessions overlap the day's bars",
+                "Сохранённые прошлые сессии перекрывают бары дня",
+            ),
+            (
+                "history_sessions_differ",
+                "The replay settings use {replay} prior sessions, the bot caches {bot}: the "
+                "version would not see the bot's history",
+                "Настройки повтора берут прошлых сессий: {replay}, бот хранит: {bot}; версия не "
+                "увидит историю бота",
+            ),
+            (
+                "simulation_failed",
+                "The simulation failed: {error}: {detail}",
+                "Симуляция не удалась: {error}: {detail}",
+            ),
+            (
+                "strategy_without_module",
+                "{folder}: no module builds strategy {strategy}",
+                "{folder}: нет модуля, который строит стратегию {strategy}",
+            ),
+            (
+                "module_not_importable",
+                "{folder}: module {module} cannot be loaded: {detail}",
+                "{folder}: модуль {module} не загружается: {detail}",
+            ),
+            (
+                "module_without_create",
+                "{folder}: module {module} cannot build the strategy",
+                "{folder}: модуль {module} не умеет строить стратегию",
+            ),
+            (
+                "values_refused",
+                "{folder}: module {module} refused the values: {detail}",
+                "{folder}: модуль {module} отклонил значения: {detail}",
+            ),
+            (
+                "identity_differs",
+                "{folder}: the strategy's name or version differs from its file",
+                "{folder}: имя или версия стратегии расходятся с её файлом",
+            ),
+            (
+                "no_history_need",
+                "{folder}: the strategy does not say how much history it needs",
+                "{folder}: стратегия не указывает, сколько истории ей нужно",
+            ),
+            (
+                "history_too_short",
+                "{folder}: needs {need} prior sessions, the bot keeps {bot}",
+                "{folder}: нужно прошлых сессий: {need}, бот хранит: {bot}",
+            ),
         ],
         "Prose",
     ),
@@ -656,20 +917,33 @@ def in_part(enum, part):
     return any(e == enum and p == part for e, _x, _d, _i, p in GROUPS)
 
 
-def l10n_swift(part):
-    out = [HEADER, "", "import Foundation", "", "extension L10n {"]
+# Most lines of one generated file: SwiftLint's file_length limit (400) with room to spare.
+FILE_LINES = 390
+
+
+def l10n_files(part):
+    """(file name, text) of a part's L10n entries: `L10n+<Part>.swift`, then `L10n+<Part>2.swift`
+    and on when one file would pass SwiftLint's length limit."""
+    head = [HEADER, "", "import Foundation", "", "extension L10n {"]
+    files, out = [], list(head)
     for enum, key, code, variant, names, en, _ru, doc in entries():
         if not in_part(enum, part):
             continue
-        out += [
+        entry = [
             f"  /// {doc}" + (f" (values: {', '.join(names)})" if names else ""),
             f"  static var {l10n_name(enum, code, variant)}: LocalizedStringResource {{",
             f'    LocalizedStringResource("{key}",',
             *line_length_exemption(f'      defaultValue: "{en}", bundle: bundle)'),
             "  }",
         ]
-    out.append("}")
-    return "\n".join(out) + "\n"
+        if len(out) + len(entry) + 1 > FILE_LINES:
+            files.append(out + ["}"])
+            out = list(head)
+        out += entry
+    files.append(out + ["}"])
+    stem = PARTS[part][1].removesuffix(".swift")
+    return [(stem + (str(n + 1) if n else "") + ".swift", "\n".join(lines) + "\n")
+            for n, lines in enumerate(files)]
 
 
 def reason_swift(part):
@@ -754,10 +1028,16 @@ def check():
     """Differences between the committed files and this list; empty when they agree."""
     problems = []
     for part, (codes_file, l10n_file) in PARTS.items():
-        for name, text in ((codes_file, reason_swift(part)), (l10n_file, l10n_swift(part))):
+        for name, text in [(codes_file, reason_swift(part)), *l10n_files(part)]:
             path = KIT / name
             if not path.exists() or path.read_text() != text:
                 problems.append(f"{name} differs from the generator")
+        stem = l10n_file.removesuffix(".swift")
+        made = {name for name, _ in l10n_files(part)}
+        for path in KIT.glob(stem + "*.swift"):
+            number = path.name.removeprefix(stem).removesuffix(".swift")
+            if path.name not in made and number.isdigit():
+                problems.append(f"{path.name} is no longer generated")
     strings = json.loads((KIT / "Resources/Localizable.xcstrings").read_text())["strings"]
     for _enum, key, _code, _variant, names, en, ru, doc in entries():
         if strings.get(key) != catalog_entry(en, ru, names, doc):
@@ -768,7 +1048,12 @@ def check():
 def write():
     for part, (codes_file, l10n_file) in PARTS.items():
         (KIT / codes_file).write_text(reason_swift(part))
-        (KIT / l10n_file).write_text(l10n_swift(part))
+        stem = l10n_file.removesuffix(".swift")
+        for path in KIT.glob(stem + "*.swift"):
+            if path.name.removeprefix(stem).removesuffix(".swift").isdigit():
+                path.unlink()
+        for name, text in l10n_files(part):
+            (KIT / name).write_text(text)
     path = KIT / "Resources/Localizable.xcstrings"
     catalog = json.loads(path.read_text())
     for _enum, key, _code, _variant, names, en, ru, doc in entries():

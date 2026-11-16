@@ -5685,6 +5685,40 @@
         }
       }
     },
+    "lab.replayAvailableAfter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available after %@ ET"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступно после %@ ET"
+          }
+        }
+      }
+    },
+    "lab.replayAvailableIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "через"
+          }
+        }
+      }
+    },
     "lab.replayCompare" : {
       "extractionState" : "manual",
       "localizations" : {

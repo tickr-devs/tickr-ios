@@ -2999,6 +2999,14 @@ enum L10n {
     static var replayMaxDrawdown: LocalizedStringResource {
       LocalizedStringResource("lab.replayMaxDrawdown", defaultValue: "max drawdown", bundle: L10n.bundle)
     }
+    /// Why the replay button rests: the regular session is open until this New York time.
+    static func replayAvailableAfter(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("lab.replayAvailableAfter", defaultValue: "Available after \(time) ET", bundle: L10n.bundle)
+    }
+    /// Before the countdown to the time the replay is available again.
+    static var replayAvailableIn: LocalizedStringResource {
+      LocalizedStringResource("lab.replayAvailableIn", defaultValue: "in", bundle: L10n.bundle)
+    }
     /// Replay running, with its start time.
     static func replayRunningSince(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("lab.replayRunningSince", defaultValue: "Running since \(time)", bundle: L10n.bundle)

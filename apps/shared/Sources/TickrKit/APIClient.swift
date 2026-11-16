@@ -60,7 +60,8 @@ public enum OperatorCommand: Hashable, Sendable {
 }
 
 public enum APIError: Error, LocalizedError, Equatable {
-  /// The API answered with a typed refusal (error-v1).
+  /// The API answered with a typed refusal (error-v1); `cause` in the person's language when the
+  /// bot sent a code this app knows (`ErrorV1.causeText`), else the bot's own words.
   case refused(status: Int, error: String, cause: String)
   /// The answer does not match contract v1.
   case contract(String)
@@ -380,7 +381,8 @@ public struct APIClient: Sendable {
       guard let refusal = try? decoder.decode(ErrorV1.self, from: data) else {
         throw APIError.contract(String(localized: L10n.apiNoErrorBody(http.statusCode)))
       }
-      throw APIError.refused(status: http.statusCode, error: refusal.error, cause: refusal.cause)
+      // The cause in the person's language, so no screen shows the bot's raw words for a known code.
+      throw APIError.refused(status: http.statusCode, error: refusal.error, cause: refusal.causeText)
     }
     do {
       return try decoder.decode(T.self, from: data)

@@ -1509,7 +1509,8 @@ private struct OverviewObserverRow: View {
       .frame(height: Tokens.Size.barThin)
     }
     .help(Text(verbatim: [String(localized: L10n.Lab.decisionCount(observer.decisions.count)),
-      observer.resultCause].compactMap { $0 }.joined(separator: Format.lineSeparator)))
+      ApiText.prose(observer.resultCauseCodes, text: observer.resultCause)].compactMap { $0 }
+      .joined(separator: Format.lineSeparator)))
     .accessibilityElement(children: .combine)
   }
 }

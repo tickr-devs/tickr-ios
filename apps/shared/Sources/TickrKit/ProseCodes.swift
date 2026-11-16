@@ -56,6 +56,60 @@ public enum ProseReason: String, CaseIterable, Sendable {
   case noTrades = "no_trades"
   case noWins = "no_wins"
   case noLosses = "no_losses"
+  case outsideSessionOnly = "outside_session_only"
+  case replayRunning = "replay_running"
+  case apiWithoutConfig = "api_without_config"
+  case noBacktestData = "no_backtest_data"
+  case notADataDay = "not_a_data_day"
+  case compareSameVersion = "compare_same_version"
+  case noStrategyFolder = "no_strategy_folder"
+  case strategyUnreadable = "strategy_unreadable"
+  case strategyFileUnreadable = "strategy_file_unreadable"
+  case strategyWithoutName = "strategy_without_name"
+  case strategyWithoutVersion = "strategy_without_version"
+  case modulesMalformed = "modules_malformed"
+  case moduleEntryMalformed = "module_entry_malformed"
+  case moduleListedTwice = "module_listed_twice"
+  case noModule = "no_module"
+  case backtestRefused = "backtest_refused"
+  case runWithoutReport = "run_without_report"
+  case versionNeverStarted = "version_never_started"
+  case runFileUnreadable = "run_file_unreadable"
+  case noAccountFile = "no_account_file"
+  case noStartCommand = "no_start_command"
+  case botNotStopped = "bot_not_stopped"
+  case lockUnreadable = "lock_unreadable"
+  case lockHeld = "lock_held"
+  case stopNotCleared = "stop_not_cleared"
+  case startTimeoutCleared = "start_timeout_cleared"
+  case startTimeout = "start_timeout"
+  case startFailedCleared = "start_failed_cleared"
+  case startFailed = "start_failed"
+  case startExitedCleared = "start_exited_cleared"
+  case startExited = "start_exited"
+  case hostNotAllowed = "host_not_allowed"
+  case originNotAllowed = "origin_not_allowed"
+  case noPhonePaired = "no_phone_paired"
+  case tokenRequired = "token_required"
+  case tokenNotPaired = "token_not_paired"
+  case noPairingWaiting = "no_pairing_waiting"
+  case pairingExpired = "pairing_expired"
+  case pairingCodeWrong = "pairing_code_wrong"
+  case calendarFileUnreadable = "calendar_file_unreadable"
+  case noBarsForSymbolOn = "no_bars_for_symbol_on"
+  case noCachedHistory = "no_cached_history"
+  case cachedHistoryRefused = "cached_history_refused"
+  case cachedHistoryEmpty = "cached_history_empty"
+  case cachedHistoryOverlaps = "cached_history_overlaps"
+  case historySessionsDiffer = "history_sessions_differ"
+  case simulationFailed = "simulation_failed"
+  case strategyWithoutModule = "strategy_without_module"
+  case moduleNotImportable = "module_not_importable"
+  case moduleWithoutCreate = "module_without_create"
+  case valuesRefused = "values_refused"
+  case identityDiffers = "identity_differs"
+  case noHistoryNeed = "no_history_need"
+  case historyTooShort = "history_too_short"
 
   /// The code's sentences (one per shape the bot writes it in), each with the
   /// values it names.
@@ -113,6 +167,60 @@ public enum ProseReason: String, CaseIterable, Sendable {
     case .noTrades: [ReasonSentence(L10n.proseReasonNoTrades, [])]
     case .noWins: [ReasonSentence(L10n.proseReasonNoWins, [])]
     case .noLosses: [ReasonSentence(L10n.proseReasonNoLosses, [])]
+    case .outsideSessionOnly: [ReasonSentence(L10n.proseReasonOutsideSessionOnly, [.until])]
+    case .replayRunning: [ReasonSentence(L10n.proseReasonReplayRunning, [])]
+    case .apiWithoutConfig: [ReasonSentence(L10n.proseReasonApiWithoutConfig, [])]
+    case .noBacktestData: [ReasonSentence(L10n.proseReasonNoBacktestData, [])]
+    case .notADataDay: [ReasonSentence(L10n.proseReasonNotADataDay, [.day])]
+    case .compareSameVersion: [ReasonSentence(L10n.proseReasonCompareSameVersion, [])]
+    case .noStrategyFolder: [ReasonSentence(L10n.proseReasonNoStrategyFolder, [.folder])]
+    case .strategyUnreadable: [ReasonSentence(L10n.proseReasonStrategyUnreadable, [.folder])]
+    case .strategyFileUnreadable: [ReasonSentence(L10n.proseReasonStrategyFileUnreadable, [.folder, .detail])]
+    case .strategyWithoutName: [ReasonSentence(L10n.proseReasonStrategyWithoutName, [.folder])]
+    case .strategyWithoutVersion: [ReasonSentence(L10n.proseReasonStrategyWithoutVersion, [.folder])]
+    case .modulesMalformed: [ReasonSentence(L10n.proseReasonModulesMalformed, [])]
+    case .moduleEntryMalformed: [ReasonSentence(L10n.proseReasonModuleEntryMalformed, [.detail])]
+    case .moduleListedTwice: [ReasonSentence(L10n.proseReasonModuleListedTwice, [.strategy])]
+    case .noModule: [ReasonSentence(L10n.proseReasonNoModule, [.strategy])]
+    case .backtestRefused: [ReasonSentence(L10n.proseReasonBacktestRefused, [.detail])]
+    case .runWithoutReport: [ReasonSentence(L10n.proseReasonRunWithoutReport, [])]
+    case .versionNeverStarted: [ReasonSentence(L10n.proseReasonVersionNeverStarted, [])]
+    case .runFileUnreadable: [ReasonSentence(L10n.proseReasonRunFileUnreadable, [.file, .error])]
+    case .noAccountFile: [ReasonSentence(L10n.proseReasonNoAccountFile, [])]
+    case .noStartCommand: [ReasonSentence(L10n.proseReasonNoStartCommand, [])]
+    case .botNotStopped: [ReasonSentence(L10n.proseReasonBotNotStopped, [.state])]
+    case .lockUnreadable: [ReasonSentence(L10n.proseReasonLockUnreadable, [.error])]
+    case .lockHeld: [ReasonSentence(L10n.proseReasonLockHeld, [.pid])]
+    case .stopNotCleared: [ReasonSentence(L10n.proseReasonStopNotCleared, [.error])]
+    case .startTimeoutCleared: [ReasonSentence(L10n.proseReasonStartTimeoutCleared, [.seconds])]
+    case .startTimeout: [ReasonSentence(L10n.proseReasonStartTimeout, [.seconds])]
+    case .startFailedCleared: [ReasonSentence(L10n.proseReasonStartFailedCleared, [.error])]
+    case .startFailed: [ReasonSentence(L10n.proseReasonStartFailed, [.error])]
+    case .startExitedCleared: [ReasonSentence(L10n.proseReasonStartExitedCleared, [.code])]
+    case .startExited: [ReasonSentence(L10n.proseReasonStartExited, [.code])]
+    case .hostNotAllowed: [ReasonSentence(L10n.proseReasonHostNotAllowed, [.host])]
+    case .originNotAllowed: [ReasonSentence(L10n.proseReasonOriginNotAllowed, [.origin])]
+    case .noPhonePaired: [ReasonSentence(L10n.proseReasonNoPhonePaired, [])]
+    case .tokenRequired: [ReasonSentence(L10n.proseReasonTokenRequired, [])]
+    case .tokenNotPaired: [ReasonSentence(L10n.proseReasonTokenNotPaired, [])]
+    case .noPairingWaiting: [ReasonSentence(L10n.proseReasonNoPairingWaiting, [])]
+    case .pairingExpired: [ReasonSentence(L10n.proseReasonPairingExpired, [])]
+    case .pairingCodeWrong: [ReasonSentence(L10n.proseReasonPairingCodeWrong, [])]
+    case .calendarFileUnreadable: [ReasonSentence(L10n.proseReasonCalendarFileUnreadable, [.detail])]
+    case .noBarsForSymbolOn: [ReasonSentence(L10n.proseReasonNoBarsForSymbolOn, [.symbol, .day])]
+    case .noCachedHistory: [ReasonSentence(L10n.proseReasonNoCachedHistory, [.symbol, .day])]
+    case .cachedHistoryRefused: [ReasonSentence(L10n.proseReasonCachedHistoryRefused, [.detail])]
+    case .cachedHistoryEmpty: [ReasonSentence(L10n.proseReasonCachedHistoryEmpty, [.symbol])]
+    case .cachedHistoryOverlaps: [ReasonSentence(L10n.proseReasonCachedHistoryOverlaps, [])]
+    case .historySessionsDiffer: [ReasonSentence(L10n.proseReasonHistorySessionsDiffer, [.replay, .bot])]
+    case .simulationFailed: [ReasonSentence(L10n.proseReasonSimulationFailed, [.error, .detail])]
+    case .strategyWithoutModule: [ReasonSentence(L10n.proseReasonStrategyWithoutModule, [.folder, .strategy])]
+    case .moduleNotImportable: [ReasonSentence(L10n.proseReasonModuleNotImportable, [.folder, .module, .detail])]
+    case .moduleWithoutCreate: [ReasonSentence(L10n.proseReasonModuleWithoutCreate, [.folder, .module])]
+    case .valuesRefused: [ReasonSentence(L10n.proseReasonValuesRefused, [.folder, .module, .detail])]
+    case .identityDiffers: [ReasonSentence(L10n.proseReasonIdentityDiffers, [.folder])]
+    case .noHistoryNeed: [ReasonSentence(L10n.proseReasonNoHistoryNeed, [.folder])]
+    case .historyTooShort: [ReasonSentence(L10n.proseReasonHistoryTooShort, [.folder, .need, .bot])]
     }
   }
 

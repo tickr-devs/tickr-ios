@@ -900,7 +900,7 @@ private struct AnotherStrategyView: View {
           .gridCellColumns(Self.columns)
       }
     case .found(let found):
-      if let cause = found.cause {
+      if let cause = found.causeText {
         GridRow {
           Text(verbatim: cause)
             .font(Tokens.Typography.caption)

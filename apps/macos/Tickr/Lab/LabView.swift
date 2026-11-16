@@ -533,7 +533,8 @@ struct ObserverRow: View {
           // The bot says why it has no result (no captured bars, no decisions...).
           Text(verbatim: Format.missing)
             .foregroundStyle(Palette.textQuaternary)
-            .help(observer.resultCause.map { Text(verbatim: $0) } ?? Text(L10n.Lab.resultPending))
+            .help(ApiText.prose(observer.resultCauseCodes, text: observer.resultCause).map { Text(verbatim: $0) }
+              ?? Text(L10n.Lab.resultPending))
         }
       }
       HStack(spacing: Tokens.Space.s) {
@@ -606,8 +607,9 @@ extension Verdict {
 /// The Lab's replay, as the design's compare card: a strategy version SIMULATED over the last
 /// sessions of data fetched on the Mac, or over one of its days, optionally against a second
 /// version over the same days (GET/POST /lab/replay), started here and read while the Lab is
-/// open. The result is a table with a column per version and their difference. A refusal (the
-/// session is open, a run is going, no data) reads as a calm reason.
+/// open. The result is a table with a column per version and their difference. While the regular
+/// session refuses a start (`LabReplayV1.availableAt`), the button rests with the time it opens
+/// and a countdown; any other refusal (a run going, no data) reads as a calm reason in words.
 private struct ReplayCard: View {
   @Environment(AppModel.self) private var model
   /// The chosen folders and day; nil means the API's default (the active version, no comparison,
@@ -619,6 +621,8 @@ private struct ReplayCard: View {
 
   /// Symbol of a refusal.
   static let refusalSymbol = "info.circle"
+  /// Symbol of the wait for the session to close.
+  static let waitSymbol = "clock"
   /// Width of the header's note, which wraps so the title keeps its line, in points.
   static let noteWidth: CGFloat = 96
   /// Symbol of a chip's menu.
@@ -666,12 +670,14 @@ private struct ReplayCard: View {
         }
         .buttonStyle(.action(.secondary))
         .disabled(running || model.labReplayStarting || replay == nil || (first == nil && !listsNone)
-          || (oneDay && chosenDay == nil))
+          || (oneDay && chosenDay == nil) || waitsUntil != nil)
+        if let waitsUntil, !running {
+          availability(waitsUntil)
+        }
         if running || model.labReplayStarting {
           TickrLoader(L10n.Common.loading)
         }
         status
-        Spacer(minLength: 0)
         Text(L10n.Lab.replayPriority)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textTertiary)
@@ -679,6 +685,31 @@ private struct ReplayCard: View {
       }
     })
     .task(id: model.baseURL) { await model.followLabReplay() }
+  }
+
+  /// When a start is allowed again while the regular session refuses one, from the bot's own
+  /// document (never found out by a refused start).
+  private var waitsUntil: Date? { replay?.waitsUntil(now: model.botNow) }
+
+  /// Why the button rests: "Available after 16:00 ET · in 1:12:03", counting down; the parts
+  /// wrap whole in a narrow card.
+  private func availability(_ until: Date) -> some View {
+    Label {
+      ChipFlow {
+        Text(L10n.Lab.replayAvailableAfter(Format.marketMinute(until)))
+        HStack(spacing: Tokens.Space.xs) {
+          Text(verbatim: Format.itemSeparator)
+          Text(L10n.Lab.replayAvailableIn)
+          Text(timerInterval: Date.now...Date.now.addingTimeInterval(until.timeIntervalSince(model.botNow)))
+            .monospacedDigit()
+        }
+      }
+    } icon: {
+      Image(systemName: Self.waitSymbol)
+    }
+    .font(Tokens.Typography.caption)
+    .foregroundStyle(Palette.textSecondary)
+    .accessibilityElement(children: .combine)
   }
 
   /// "Run again" once a replay has a result, else what the next run does.
@@ -690,14 +721,16 @@ private struct ReplayCard: View {
   /// Which version, which second version and which days the next run replays, as the design's
   /// chips and two-part switch.
   @ViewBuilder private var choices: some View {
-    if runnable.isEmpty, let cause = replay?.versions.first?.cause {
+    if runnable.isEmpty, let cause = replay?.versions.first?.causeText {
       // Every version the bot lists is refused: say why rather than leave the start dead.
       Text(verbatim: cause)
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.warningText)
     }
     if !runnable.isEmpty {
-      HStack(spacing: Tokens.Space.s) {
+      // As the design's board: the two pickers side by side with "vs" between, on a new row only
+      // when the card is too narrow for both.
+      ChipFlow(spacing: Tokens.Space.s) {
         Menu {
           Picker(selection: Binding(get: { first ?? "" }, set: { version = $0 })) {
             ForEach(runnable, id: \.folder) { item in
@@ -718,29 +751,29 @@ private struct ReplayCard: View {
         Text(L10n.Lab.replayVersus)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-      }
-      Menu {
-        Picker(selection: Binding(get: { second }, set: { compare = $0 })) {
-          Text(L10n.Lab.replayCompareNone).tag(String?.none)
-          ForEach(runnable.filter { $0.folder != first }, id: \.folder) { item in
-            Text(name(item)).tag(String?.some(item.folder))
+        Menu {
+          Picker(selection: Binding(get: { second }, set: { compare = $0 })) {
+            Text(L10n.Lab.replayCompareNone).tag(String?.none)
+            ForEach(runnable.filter { $0.folder != first }, id: \.folder) { item in
+              Text(name(item)).tag(String?.some(item.folder))
+            }
+          } label: {
+            Text(L10n.Lab.replayCompare)
           }
+          .pickerStyle(.inline)
         } label: {
-          Text(L10n.Lab.replayCompare)
+          if let second, let item = item(second) {
+            chip(name(item), color: Palette.highlight, text: Palette.highlightText)
+          } else {
+            chip(String(localized: L10n.Lab.replayCompareNone), color: Palette.separatorStrong, text: Palette.textTertiary)
+          }
         }
-        .pickerStyle(.inline)
-      } label: {
-        if let second, let item = item(second) {
-          chip(name(item), color: Palette.highlight, text: Palette.highlightText)
-        } else {
-          chip(String(localized: L10n.Lab.replayCompareNone), color: Palette.separatorStrong, text: Palette.textTertiary)
-        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel(Text(L10n.Lab.replayCompare))
       }
-      .menuStyle(.button)
-      .buttonStyle(.plain)
-      .menuIndicator(.hidden)
-      .fixedSize()
-      .accessibilityLabel(Text(L10n.Lab.replayCompare))
       .onChange(of: first) { _, now in
         if compare == now { compare = nil }
       }
@@ -865,14 +898,17 @@ private struct ReplayCard: View {
         if let summary = replay.summary {
           table(replay, summary)
         }
-        if let cause = replay.cause { Footnote(verbatim: cause) }
+        if let cause = replay.causeText { Footnote(verbatim: cause) }
         if let day = replay.day { Footnote(L10n.Lab.replayOneDayNote(DayText.day(day))) }
       case .failed:
-        Text(verbatim: replay.cause ?? Format.missing)
+        Text(verbatim: replay.causeText ?? Format.missing)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.warningText)
       case .idle:
-        Footnote(L10n.Lab.replayIdle)
+        // The apps' empty state, sized to its content: no run yet is a calm state, not a gap.
+        ContentUnavailableView {
+          Label { Text(L10n.Lab.replayIdle) } icon: { BrandMark.empty() }
+        }
       }
     } else if let error = model.labReplayError {
       ReadFailureNote(L10n.ReadFailed.replay, detail: error)
@@ -927,7 +963,7 @@ private struct ReplayCard: View {
       }
       if let second = replay.compare, second.summary == nil {
         Text(L10n.Lab.replayCompareFailed(String(localized: L10n.Lab.versionName(second.strategy, second.version)),
-          second.cause ?? Format.missing))
+          second.causeText ?? Format.missing))
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.warningText)
       }

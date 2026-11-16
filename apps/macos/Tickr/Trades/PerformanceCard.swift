@@ -14,6 +14,11 @@ struct PerformanceCard: View {
   /// Height of the cumulative R curve, in points.
   static let curveHeight: CGFloat = 90
 
+  /// A figure with its cause in the person's language (the bot's words for an unknown code).
+  static func worded(_ figure: CausedDecimal, _ codes: [ReasonV1]) -> CausedDecimal {
+    CausedDecimal(value: figure.value, cause: ApiText.prose(codes, text: figure.cause))
+  }
+
   var body: some View {
     Card(L10n.Trades.performance(AppModel.performanceDays), trailing: {
       Text(L10n.Trades.oneRNote)
@@ -41,11 +46,13 @@ struct PerformanceCard: View {
       // One row of four, each a quarter of the card: a figure shrinks to fit rather than cut
       // ("−3.8…").
       HStack(alignment: .top, spacing: Tokens.Space.s) {
-        Figure(L10n.Trades.expectancy, performance.expectancyGrossR, color: true) { Risk.text($0) }
-        Figure(L10n.Trades.winRate, performance.winRate) {
+        Figure(L10n.Trades.expectancy, Self.worded(performance.expectancyGrossR, performance.expectancyGrossRCauseCodes),
+          color: true) { Risk.text($0) }
+        Figure(L10n.Trades.winRate, Self.worded(performance.winRate, performance.winRateCauseCodes)) {
           Percent.plain(fraction: $0)
         }
-        Figure(L10n.Trades.profitFactor, performance.profitFactorGross) {
+        Figure(L10n.Trades.profitFactor, Self.worded(performance.profitFactorGross,
+          performance.profitFactorGrossCauseCodes)) {
           Money.plain($0, fractionDigits: StatDigits.factor)
         }
         Figure(L10n.Trades.maxDrawdown, CausedDecimal(value: performance.maxDrawdownGrossR, cause: nil), loss: true) {
@@ -63,7 +70,8 @@ struct PerformanceCard: View {
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textTertiary)
       ForEach(Array(performance.exclusions.enumerated()), id: \.offset) { _, exclusion in
-        Footnote(L10n.Trades.excluded(exclusion.trades, exclusion.cause), color: Palette.warningText)
+        Footnote(L10n.Trades.excluded(exclusion.trades, ApiText.prose(exclusion.causeCodes, text: exclusion.cause)),
+          color: Palette.warningText)
       }
     }
   }

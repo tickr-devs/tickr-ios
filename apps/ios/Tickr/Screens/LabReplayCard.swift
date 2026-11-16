@@ -4,12 +4,16 @@ import TickrKit
 
 /// The Lab's replay: a strategy version SIMULATED over the last sessions of data fetched on the
 /// Mac, or over one of its days, optionally compared with a second version over the same days
-/// (GET/POST /lab/replay), started here and read while the Lab is open. A refusal (the session is
-/// open, a run is going, no data) reads as a calm reason that clears once the replay moves on or
-/// after `LabModel.replaySeconds`; the bot never reads the replay.
+/// (GET/POST /lab/replay), started here and read while the Lab is open. While the regular session
+/// refuses a start (`LabReplayV1.availableAt`), the button rests with the time it opens and a
+/// countdown; any other refusal (a run going, no data) reads as a calm reason in words that clears
+/// once the replay moves on or after `LabModel.replaySeconds`; the bot never reads the replay.
 struct LabReplayCard: View {
-  /// Symbols of a refusal and a picker's menu.
+  @Environment(AppModel.self) private var model
+
+  /// Symbols of a refusal, of the wait for the session to close and of a picker's menu.
   static let refusalSymbol = "info.circle"
+  static let waitSymbol = "clock"
   static let menuSymbol = "chevron.down"
   /// Narrowest a figure gets before the figures wrap to another row, in points at the default text
   /// size (scaled with Dynamic Type).
@@ -87,7 +91,10 @@ struct LabReplayCard: View {
       }
       .buttonStyle(.plain)
       .disabled(url == nil || replay == nil || (first == nil && !listsNone) || running || lab.replayStarting
-        || (oneDay && chosenDay == nil))
+        || (oneDay && chosenDay == nil) || waitsUntil != nil)
+      if let waitsUntil, !running {
+        availability(waitsUntil)
+      }
       InfoCaption(L10n.Lab.replayNote)
     }
     .padding(Tokens.Space.l)
@@ -102,9 +109,33 @@ struct LabReplayCard: View {
     }
   }
 
+  /// When a start is allowed again while the regular session refuses one, from the bot's own
+  /// document (never found out by a refused start).
+  private var waitsUntil: Date? { replay?.waitsUntil(now: model.botNow) }
+
+  /// Why the button rests: "Available after 16:00 ET · in 1:12:03", counting down; the parts
+  /// wrap whole at large text sizes.
+  private func availability(_ until: Date) -> some View {
+    Label {
+      ChipFlow {
+        Text(L10n.Lab.replayAvailableAfter(Format.time(until)))
+        HStack(spacing: Tokens.Space.xs) {
+          Text(L10n.Lab.replayAvailableIn)
+          Text(timerInterval: Date.now...Date.now.addingTimeInterval(until.timeIntervalSince(model.botNow)))
+            .monospacedDigit()
+        }
+      }
+    } icon: {
+      Image(systemName: Self.waitSymbol)
+    }
+    .font(Tokens.Typography.caption)
+    .foregroundStyle(Palette.textSecondary)
+    .accessibilityElement(children: .combine)
+  }
+
   /// Which version, which second version and which days the next run replays.
   @ViewBuilder private var choices: some View {
-    if runnable.isEmpty, let cause = replay?.versions.first?.cause {
+    if runnable.isEmpty, let cause = replay?.versions.first?.causeText {
       // Every version the bot lists is refused: say why rather than leave the start dead.
       InfoCaption(verbatim: cause, systemImage: LabView.warningSymbol, tone: .warning)
     }
@@ -237,16 +268,19 @@ struct LabReplayCard: View {
         } else if let summary = replay.summary {
           result(summary)
         }
-        if let cause = replay.cause {
+        if let cause = replay.causeText {
           InfoCaption(verbatim: cause)
         }
         if let day = replay.day {
           InfoCaption(L10n.Lab.replayOneDayNote(DayText.day(day.noonInNewYork)))
         }
       case .failed:
-        InfoCaption(verbatim: replay.cause ?? Format.missing, systemImage: LabView.warningSymbol, tone: .loss)
+        InfoCaption(verbatim: replay.causeText ?? Format.missing, systemImage: LabView.warningSymbol, tone: .loss)
       case .idle:
-        InfoCaption(L10n.Lab.replayIdle)
+        // The apps' empty state, sized to its content: no run yet is a calm state, not a gap.
+        ContentUnavailableView {
+          Label { Text(L10n.Lab.replayIdle) } icon: { BrandMark.empty() }
+        }
       }
     } else if let failure = lab.replayFailure {
       ReadFailureNote(L10n.Lab.replayFailed, detail: failure)
@@ -315,7 +349,7 @@ struct LabReplayCard: View {
       }
     } else {
       result(summary)
-      InfoCaption(L10n.Lab.replayCompareFailed(String(localized: secondName), second.cause ?? Format.missing),
+      InfoCaption(L10n.Lab.replayCompareFailed(String(localized: secondName), second.causeText ?? Format.missing),
         systemImage: LabView.warningSymbol, tone: .warning)
     }
   }
