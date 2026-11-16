@@ -18,9 +18,6 @@ struct StageDetailView: View {
   @Environment(\.dismiss) private var dismiss
   @State private var watching = Container.shared.watchingModel()
 
-  /// Width of the popover, in points.
-  static let width: CGFloat = 320
-
   private var detail: StageDetail {
     StageDetail.make(stage, from: StageSources(flow: sources.flow, skipped: sources.skipped,
       watching: watching.watching, status: sources.status, settings: sources.settings))
@@ -33,7 +30,8 @@ struct StageDetailView: View {
       content
       ScrollView { content }
     }
-    .frame(width: Self.width)
+    // Its content's width up to the token, narrower where the screen is: it wraps, never clips.
+    .frame(idealWidth: Tokens.Size.popover, maxWidth: Tokens.Size.popover)
     .lineLimit(nil)
     .minimumScaleFactor(1)
     .unredacted()
@@ -55,19 +53,7 @@ struct StageDetailView: View {
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textTertiary)
       }
-      ForEach(detail.facts) { fact in
-        RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Text(verbatim: fact.label)
-            .font(Tokens.Typography.callout)
-            .foregroundStyle(Palette.textTertiary)
-          Spacer(minLength: Tokens.Space.s)
-          Text(verbatim: fact.value)
-            .font(Tokens.Typography.calloutMono)
-            .foregroundStyle(fact.tone == .muted ? Palette.textPrimary : fact.tone.textColor)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
-      }
+      ForEach(detail.facts) { fact in factRow(fact) }
       ForEach(detail.groups) { group in
         VStack(alignment: .leading, spacing: Tokens.Space.xs) {
           CardLabel(group.title)
@@ -81,9 +67,26 @@ struct StageDetailView: View {
           }
         }
       }
+      ForEach(detail.footer) { fact in factRow(fact) }
     }
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  /// A fact as label and value, the value in its tone.
+  private func factRow(_ fact: StageDetail.Fact) -> some View {
+    RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      Text(verbatim: fact.label)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textTertiary)
+      Spacer(minLength: Tokens.Space.s)
+      Text(verbatim: fact.value)
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(fact.tone == .muted ? Palette.textPrimary : fact.tone.textColor)
+        .multilineTextAlignment(.trailing)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .accessibilityElement(children: .combine)
   }
 
   /// A row about a symbol opens the Chart on it; one about no symbol (a fence) is text only.

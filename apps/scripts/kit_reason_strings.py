@@ -296,6 +296,7 @@ GROUPS = [
                 "Основная сессия {open}–{close} по Нью-Йорку",
             ),
             ("AFTER_LAST_ENTRY", "No new entries after {time}", "Новых входов после {time} нет"),
+            ("ENTRY_STOP_SET", "Entries paused by the operator", "Входы приостановлены оператором"),
             ("OWN_POSITION_OPEN", "Own positions open: {count}", "Открыто своих позиций: {count}"),
             ("OWN_ORDER_WORKING", "Own orders working: {count}", "Активных своих ордеров: {count}"),
             (

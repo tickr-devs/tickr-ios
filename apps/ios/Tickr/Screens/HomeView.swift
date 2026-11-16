@@ -784,7 +784,10 @@ private struct LiveFlowCard: View {
     .buttonStyle(StagePressStyle(color: stage.color))
     .accessibilityElement(children: .combine)
     .accessibilityHint(Text(L10n.Flow.stageDetailsHint))
-    .popover(isPresented: Binding(get: { openStage == stage.id }, set: { if !$0 { openStage = nil } })) {
+    // Above the stage (the card sits low on Home): the popover then has the screen's width and
+    // never clips at the sides.
+    .popover(isPresented: Binding(get: { openStage == stage.id }, set: { if !$0 { openStage = nil } }),
+      attachmentAnchor: .rect(.bounds), arrowEdge: .top) {
       StageDetailView(name: stage.name, color: stage.color, stage: stage.id.pipeline, sources: sources)
         .presentationCompactAdaptation(.popover)
         .presentationBackground(Palette.surface)

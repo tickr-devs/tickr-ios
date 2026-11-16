@@ -99,7 +99,7 @@ extension DecimalString {
 /// Money and time formatting used across screens.
 enum Format {
   /// Shown where a value is missing.
-  static let missing = "—"
+  static let missing = ApiText.missing
   /// Percent sign after a number.
   static let percentSign = "%"
   /// Between the two times of a trade.

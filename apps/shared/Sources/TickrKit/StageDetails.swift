@@ -67,10 +67,13 @@ public struct StageDetail: Hashable, Sendable {
   public let stage: PipelineStage
   public let facts: [Fact]
   public let groups: [Group]
+  /// Facts shown after the groups: standing settings that matter less than what happened (the
+  /// risk limits after the refusals).
+  public let footer: [Fact]
 
   /// The one short line an empty stage shows instead of an empty card; nil when it has content.
   public var empty: String? {
-    facts.isEmpty && groups.isEmpty ? String(localized: L10n.stageNothing) : nil
+    facts.isEmpty && groups.isEmpty && footer.isEmpty ? String(localized: L10n.stageNothing) : nil
   }
 }
 
@@ -84,7 +87,7 @@ extension StageDetail {
   /// Percent in a closeness of 1.
   static let percentPerUnit: Decimal = 100
   /// Placeholder for a value the bot did not record.
-  static let missing = "—"
+  static let missing = ApiText.missing
   /// Between the parts of one row ("11:26 · Refused by risk").
   static let separator = " · "
   /// Between the parts of a check ("Spread 0.0031 <= 0.002").
@@ -101,7 +104,8 @@ extension StageDetail {
     case .stop: stop(sources)
     case .reconcile: reconcile(sources)
     }
-    return StageDetail(stage: stage, facts: facts, groups: groups.filter { !$0.rows.isEmpty })
+    let footer = stage == .risk ? limits(sources) : []
+    return StageDetail(stage: stage, facts: facts, groups: groups.filter { !$0.rows.isEmpty }, footer: footer)
   }
 
   /// How many symbols reached `stage` on the shown day; nil without a flow.
@@ -184,8 +188,9 @@ extension StageDetail {
     return (facts, [group(L10n.stageClosest, Array(closest))])
   }
 
-  /// What risk passed and refused, the entry block now, the limits, the room left and the
-  /// latest size; then each refusal with its New York time and why.
+  /// What risk passed and refused and the entry block now; then the refusals, identical ones in
+  /// a row on one symbol as one row (`SkippedGroup`), newest first, with their New York times, how
+  /// many and why. The limits follow them (`limits`).
   static func risk(_ sources: StageSources) -> ([Fact], [Group]) {
     let signals = sources.skipped?.signals ?? []
     let refused = signals.filter { $0.admission == .refused }
@@ -200,29 +205,49 @@ extension StageDetail {
       facts.append(fact(L10n.stageEntries, block.map(ApiText.entryBlock) ?? String(localized: L10n.stageEntriesAllowed),
         block == nil ? .green : block?.attention == true ? .red : .amber))
     }
-    if let risk = sources.settings?.risk {
-      facts.append(fact(L10n.stagePlannedLoss, String(localized: L10n.stageUSD(risk.plannedLossUsd.text))))
-      facts.append(fact(L10n.stageMaxDailyLoss, String(localized: L10n.stageUSD(risk.maxDailyLossUsd.text))))
-      facts.append(fact(L10n.stageMaxPositions, String(risk.maxOpenPositions)))
+    let rows = SkippedGroup.make(refused).map { group in
+      Row(id: group.id, symbol: group.first.symbol,
+        text: [times(group), FlowBoard.note(group.latest)].compactMap { $0 }.joined(separator: separator),
+        tone: .amber)
     }
-    if let status = sources.status {
-      if let room = status.dailyRoomUsd {
-        facts.append(fact(L10n.stageRoomLeft, String(localized: L10n.stageUSD(room.text)), .teal))
-      }
-      let used = sources.settings.map { String(localized: L10n.stageCountOf(status.positions.count,
-        $0.risk.maxOpenPositions)) } ?? String(status.positions.count)
+    return (facts, [group(L10n.stageRefusedSignals, rows)])
+  }
+
+  /// "11:45" for one signal; "11:45–11:49 · 5×" for a run of them.
+  static func times(_ group: SkippedGroup) -> String {
+    let first = FlowBoard.newYorkMinute(group.first.at.date)
+    guard group.count > 1 else { return first }
+    return String(localized: L10n.stageRun(first, FlowBoard.newYorkMinute(group.latest.at.date), group.count))
+  }
+
+  /// The risk limits and how much of them is in use: the planned loss per trade, the daily room
+  /// left of the daily loss limit and the positions in use of the slots while live (the limit alone
+  /// otherwise), and the latest entry size.
+  static func limits(_ sources: StageSources) -> [Fact] {
+    var facts: [Fact] = []
+    let risk = sources.settings?.risk
+    let status = sources.status
+    if let risk {
+      facts.append(fact(L10n.stagePlannedLoss, String(localized: L10n.stageUSD(risk.plannedLossUsd.text))))
+    }
+    if let room = status?.dailyRoomUsd {
+      let value = risk.map { String(localized: L10n.stageUSDOf(room.text, $0.maxDailyLossUsd.text)) }
+        ?? String(localized: L10n.stageUSD(room.text))
+      facts.append(fact(L10n.stageRoomLeft, value, .teal))
+    } else if let risk {
+      facts.append(fact(L10n.stageMaxDailyLoss, String(localized: L10n.stageUSD(risk.maxDailyLossUsd.text))))
+    }
+    if let status {
+      let used = risk.map { String(localized: L10n.stageCountOf(status.positions.count, $0.maxOpenPositions)) }
+        ?? String(status.positions.count)
       facts.append(fact(L10n.stagePositionsUsed, used))
+    } else if let risk {
+      facts.append(fact(L10n.stageMaxPositions, String(risk.maxOpenPositions)))
     }
     if let size = sources.watching?.latestSize {
       facts.append(fact(L10n.stageLatestSize, String(localized: L10n.stageSize(size.symbol, size.quantity.text)), .amber))
     }
-    let rows = refused.sorted { $0.at.date < $1.at.date }.map { signal in
-      Row(id: "\(signal.symbol) \(signal.at.text)", symbol: signal.symbol,
-        text: [FlowBoard.newYorkMinute(signal.at.date), FlowBoard.note(signal)].compactMap { $0 }
-          .joined(separator: separator),
-        tone: .amber)
-    }
-    return (facts, [group(L10n.stageRefusedSignals, rows)])
+    return facts
   }
 
   /// The day's fills: closed trades with their result, then the open positions.
@@ -249,9 +274,12 @@ extension StageDetail {
   /// the status says; then each open position's stop now.
   static func stop(_ sources: StageSources) -> ([Fact], [Group]) {
     var facts: [Fact] = []
-    if let verified = count(.stop, sources.flow) { facts.append(fact(L10n.stageVerified, String(verified), .green)) }
     let stops = sources.flow?.stops ?? []
-    if sources.flow != nil { facts.append(fact(L10n.stageTrades, String(stops.count))) }
+    if sources.flow != nil {
+      let verified = stops.filter { $0.state == .verified }.count
+      facts.append(fact(L10n.stageVerified, String(localized: L10n.stageCountOf(verified, stops.count)),
+        verified == stops.count ? .green : .red))
+    }
     let trades = sources.status?.tradesToday ?? []
     let rows = stops.map { stop in
       // A trade is matched by its symbol only when the day has one trade and one stop for it:
@@ -259,7 +287,7 @@ extension StageDetail {
       let alone = stops.filter { $0.symbol == stop.symbol }.count == 1
       let match = trades.filter { $0.symbol == stop.symbol }
       let seconds = alone && match.count == 1 ? match[0].stopConfirmedAfterSeconds : nil
-      let after = seconds.map { String(localized: L10n.stageConfirmedAfter($0.text)) }
+      let after = seconds.map { String(localized: L10n.stageConfirmedAfter(DurationText.number($0.value))) }
       return Row(id: stop.tradeId, symbol: stop.symbol,
         text: [title(stop.state), after].compactMap { $0 }.joined(separator: separator), tone: tone(stop.state))
     }
@@ -298,17 +326,19 @@ extension StageDetail {
 
   /// Fences as rows: the symbol a fence is about when the live status ties it to one.
   static func fences(_ fences: [Fence], status: StatusV1?) -> Group {
-    group(L10n.stageFenceList, fences.map { fence in
+    // Two fences may share a kind (one per position): the row's place keeps its id unique.
+    group(L10n.stageFenceList, fences.enumerated().map { index, fence in
       let symbol = status.flatMap { Board.fenceSymbol(fence, status: $0) }
-      return Row(id: fence.kind, symbol: symbol, text: ApiText.fenceWithDetail(fence), tone: .amber)
+      return Row(id: "\(index)\(StageDetail.separator)\(fence.kind)", symbol: symbol,
+        text: ApiText.fenceWithDetail(fence), tone: .amber)
     })
   }
 
-  /// "100" for 99.83: a share in whole percents.
+  /// "99" for 99.83: a share in whole percents, rounded down, so 100 means the check passes.
   static func whole(_ value: Decimal) -> String {
     var input = value
     var output = Decimal()
-    NSDecimalRound(&output, &input, 0, .plain)
+    NSDecimalRound(&output, &input, 0, .down)
     return NSDecimalNumber(decimal: output).stringValue
   }
 
@@ -345,5 +375,13 @@ extension CheckV1 {
   public var valueText: String {
     [measured?.text ?? StageDetail.missing, `operator`, threshold?.text ?? StageDetail.missing]
       .joined(separator: StageDetail.space)
+  }
+}
+
+/// Seconds as the apps write a duration: "5" for 5.00, "0.5" for 0.50, "1.25" for 1.250, without
+/// trailing zeros; the unit comes from the caller's sentence.
+public enum DurationText {
+  public static func number(_ seconds: Decimal) -> String {
+    NSDecimalNumber(decimal: seconds).stringValue
   }
 }

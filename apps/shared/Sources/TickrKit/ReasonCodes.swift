@@ -193,6 +193,7 @@ public enum RefusalReason: String, CaseIterable, Sendable {
   case halfDay = "HALF_DAY"
   case outsideRegularSession = "OUTSIDE_REGULAR_SESSION"
   case afterLastEntry = "AFTER_LAST_ENTRY"
+  case entryStopSet = "ENTRY_STOP_SET"
   case ownPositionOpen = "OWN_POSITION_OPEN"
   case ownOrderWorking = "OWN_ORDER_WORKING"
   case positionLimitReached = "POSITION_LIMIT_REACHED"
@@ -223,6 +224,7 @@ public enum RefusalReason: String, CaseIterable, Sendable {
     case .halfDay: [ReasonSentence(L10n.refusalReasonHalfDay, [.day])]
     case .outsideRegularSession: [ReasonSentence(L10n.refusalReasonOutsideRegularSession, [.open, .close])]
     case .afterLastEntry: [ReasonSentence(L10n.refusalReasonAfterLastEntry, [.time])]
+    case .entryStopSet: [ReasonSentence(L10n.refusalReasonEntryStopSet, [])]
     case .ownPositionOpen: [ReasonSentence(L10n.refusalReasonOwnPositionOpen, [.count])]
     case .ownOrderWorking: [ReasonSentence(L10n.refusalReasonOwnOrderWorking, [.count])]
     case .positionLimitReached: [ReasonSentence(L10n.refusalReasonPositionLimitReached, [.open, .limit])]

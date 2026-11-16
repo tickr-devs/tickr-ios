@@ -150,10 +150,6 @@ extension L10n {
   static var stageVerified: LocalizedStringResource {
     LocalizedStringResource("kit.stage.verified", defaultValue: "Verified", bundle: bundle)
   }
-  /// Trades with a stop record.
-  static var stageTrades: LocalizedStringResource {
-    LocalizedStringResource("kit.stage.trades", defaultValue: "Trades today", bundle: bundle)
-  }
   /// Group: each trade's stop.
   static var stageTradeStops: LocalizedStringResource {
     LocalizedStringResource("kit.stage.tradeStops", defaultValue: "Stops of today's trades", bundle: bundle)
@@ -193,5 +189,13 @@ extension L10n {
   /// Group: the fences.
   static var stageFenceList: LocalizedStringResource {
     LocalizedStringResource("kit.stage.fenceList", defaultValue: "Fences", bundle: bundle)
+  }
+  /// A run of identical refusals; arguments: first and last New York time, how many.
+  static func stageRun(_ first: String, _ last: String, _ count: Int) -> LocalizedStringResource {
+    LocalizedStringResource("kit.stage.run", defaultValue: "\(first)–\(last) · \(count)×", bundle: bundle)
+  }
+  /// An amount of a dollar limit: "255.06 of 300 USD".
+  static func stageUSDOf(_ amount: String, _ total: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.stage.usdOf", defaultValue: "\(amount) of \(total) USD", bundle: bundle)
   }
 }

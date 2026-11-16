@@ -193,6 +193,7 @@ a step; it does not define its own factor.
 | `rowSymbol` | 16 | Symbol column of a `ValueRow` |
 | `miniRing` | 52 | Small gauge ring |
 | `hintMaxWidth` | 260 | Widest hint bubble |
+| `popover` | 340 | Widest a detail popover grows (a live-flow stage's details); it narrows and wraps where the screen is narrower, never clips |
 | `glowRadius` | 8 | Glow under a primary button |
 | `ringHalo` | 60 | Reach of the halo behind a ring |
 

@@ -11,8 +11,6 @@ struct StageDetailView: View {
   let color: Color
   let detail: StageDetail
 
-  /// Width of the popover, in points.
-  static let width: CGFloat = 340
   /// Tallest the popover grows before its content scrolls, in points.
   static let maxHeight: CGFloat = 460
 
@@ -34,30 +32,13 @@ struct StageDetailView: View {
       }
     }
     .padding(Tokens.Space.l)
-    .frame(width: Self.width, alignment: .leading)
+    .frame(idealWidth: Tokens.Size.popover, maxWidth: Tokens.Size.popover, alignment: .leading)
     .background(Palette.surface)
   }
 
   private var content: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      if !detail.facts.isEmpty {
-        VStack(spacing: Tokens.Space.s) {
-          ForEach(detail.facts) { fact in
-            HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
-              Text(verbatim: fact.label)
-                .font(Tokens.Typography.callout)
-                .foregroundStyle(Palette.textTertiary)
-              Spacer(minLength: Tokens.Space.s)
-              Text(verbatim: fact.value)
-                .font(Tokens.Typography.calloutMono)
-                .foregroundStyle(fact.tone == .muted ? Palette.textPrimary : fact.tone.color)
-                .multilineTextAlignment(.trailing)
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .accessibilityElement(children: .combine)
-          }
-        }
-      }
+      facts(detail.facts)
       ForEach(detail.groups) { group in
         VStack(alignment: .leading, spacing: Tokens.Space.xs) {
           CardLabel(group.title)
@@ -69,6 +50,30 @@ struct StageDetailView: View {
               .font(Tokens.Typography.captionMono)
               .foregroundStyle(Palette.textQuaternary)
           }
+        }
+      }
+      facts(detail.footer)
+    }
+  }
+
+  /// Facts as label and value, the value in its tone.
+  @ViewBuilder
+  private func facts(_ facts: [StageDetail.Fact]) -> some View {
+    if !facts.isEmpty {
+      VStack(spacing: Tokens.Space.s) {
+        ForEach(facts) { fact in
+          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+            Text(verbatim: fact.label)
+              .font(Tokens.Typography.callout)
+              .foregroundStyle(Palette.textTertiary)
+            Spacer(minLength: Tokens.Space.s)
+            Text(verbatim: fact.value)
+              .font(Tokens.Typography.calloutMono)
+              .foregroundStyle(fact.tone == .muted ? Palette.textPrimary : fact.tone.color)
+              .multilineTextAlignment(.trailing)
+              .fixedSize(horizontal: false, vertical: true)
+          }
+          .accessibilityElement(children: .combine)
         }
       }
     }

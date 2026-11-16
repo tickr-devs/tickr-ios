@@ -33,7 +33,7 @@ struct StageDetailsTests {
   }
 
   func value(_ detail: StageDetail, _ label: LocalizedStringResource) -> String? {
-    detail.facts.first { $0.label == String(localized: label) }?.value
+    (detail.facts + detail.footer).first { $0.label == String(localized: label) }?.value
   }
 
   func group(_ detail: StageDetail, _ title: LocalizedStringResource) -> StageDetail.Group? {
@@ -72,7 +72,8 @@ struct StageDetailsTests {
     #expect(closest.rows.map(\.symbol) == ["ABCD", "WXYZ", "EFGH"])
     // The deciding check, measured against its threshold, then the closeness in whole percents.
     let abcd = try #require(closest.rows.first?.text)
-    #expect(abcd.hasSuffix(String(localized: L10n.stageCloseness("100"))))
+    // 0.9983 is not there yet: rounded down, never shown as 100.
+    #expect(abcd.hasSuffix(String(localized: L10n.stageCloseness("99"))))
     #expect(abcd.contains("12.33 > 12.35"))
     // A side the bot did not measure is a dash; no closeness, no closeness text.
     #expect(closest.rows.last?.text?.contains("— is —") == true)
@@ -90,18 +91,23 @@ struct StageDetailsTests {
     #expect(value(detail, L10n.stageNotEvaluated) == "1")
     #expect(value(detail, L10n.stageEntries) == ApiText.entryBlock(try #require(fixtures.status.entryBlock)))
     #expect(value(detail, L10n.stagePlannedLoss) == String(localized: L10n.stageUSD("50")))
-    #expect(value(detail, L10n.stageMaxDailyLoss) == String(localized: L10n.stageUSD("300")))
-    #expect(value(detail, L10n.stageMaxPositions) == "1")
-    #expect(value(detail, L10n.stageRoomLeft) == String(localized: L10n.stageUSD("248.40")))
+    // Live: the room of the daily limit and the slots in use stand for the bare limits.
+    #expect(value(detail, L10n.stageMaxDailyLoss) == nil)
+    #expect(value(detail, L10n.stageMaxPositions) == nil)
+    #expect(value(detail, L10n.stageRoomLeft) == String(localized: L10n.stageUSDOf("248.40", "300")))
     #expect(value(detail, L10n.stagePositionsUsed) == String(localized: L10n.stageCountOf(1, 1)))
     #expect(value(detail, L10n.stageLatestSize) == String(localized: L10n.stageSize("QRST", "200")))
+    // The refusals come before the limits: the limits are the footer, newest refusal first.
     let refused = try #require(group(detail, L10n.stageRefusedSignals))
-    #expect(refused.rows.map(\.symbol) == ["ABCD", "ZNTH"])
-    #expect(refused.rows.first?.text?.hasPrefix("10:02") == true)
+    #expect(refused.rows.map(\.symbol) == ["ZNTH", "ABCD"])
+    #expect(refused.rows.last?.text?.hasPrefix("10:02") == true)
+    #expect(detail.footer.first?.label == String(localized: L10n.stagePlannedLoss))
     // A recorded day: the day's counts and refusals, nothing from the live status.
     let recorded = StageDetail.make(.risk, from: fixtures.recorded)
     #expect(value(recorded, L10n.stageEntries) == nil)
     #expect(value(recorded, L10n.stageRoomLeft) == nil)
+    #expect(value(recorded, L10n.stageMaxDailyLoss) == String(localized: L10n.stageUSD("300")))
+    #expect(value(recorded, L10n.stageMaxPositions) == "1")
     #expect(group(recorded, L10n.stageRefusedSignals)?.rows.count == 2)
   }
 
@@ -121,12 +127,14 @@ struct StageDetailsTests {
   @Test("Broker stop: each trade's stop, its confirmation time when known, the open stops now")
   func stop() throws {
     let detail = StageDetail.make(.stop, from: try Fixtures().live)
-    #expect(value(detail, L10n.stageVerified) == "1")
-    #expect(value(detail, L10n.stageTrades) == "3")
+    // Verified of the day's stops, from the stops themselves (not the symbols at the stage).
+    #expect(value(detail, L10n.stageVerified) == String(localized: L10n.stageCountOf(1, 3)))
+    #expect(detail.facts.first?.tone == .red)
     let trades = try #require(group(detail, L10n.stageTradeStops))
     #expect(trades.rows.map(\.symbol) == ["WXYZ", "EFGH", "ABCD"])
     #expect(trades.rows.map(\.tone) == [.green, .red, .amber])
-    #expect(trades.rows[0].text?.contains(String(localized: L10n.stageConfirmedAfter("1.250"))) == true)
+    // Seconds without the wire's trailing zeros.
+    #expect(trades.rows[0].text?.contains(String(localized: L10n.stageConfirmedAfter("1.25"))) == true)
     #expect(trades.rows[1].text == String(localized: L10n.stageNeverVerified))
     let open = try #require(group(detail, L10n.stageOpenPositions)?.rows.first)
     #expect(open.text?.contains("11.90") == true)
@@ -167,5 +175,59 @@ struct StageDetailsTests {
     let group = StageDetail.group(L10n.stageRefusedSignals, rows)
     #expect(group.rows.count == StageDetail.rowCap)
     #expect(group.more == 1)
+  }
+
+  @Test("Two fences of one kind are two rows with their own ids")
+  func fencesOfOneKind() throws {
+    let json = #"{"kind":"foreign_position","since":"2026-11-16T15:00:00.123Z","text":"t","code":"x","params":{}}"#
+    let fence = try Wire.decoder().decode(Fence.self, from: Data(json.utf8))
+    let rows = StageDetail.fences([fence, fence], status: nil).rows
+    #expect(rows.count == 2)
+    #expect(Set(rows.map(\.id)).count == 2)
+  }
+
+  /// `skipped-v1.json` with its first signal (ABCD, refused) repeated at `minutes` past 15:00 UTC.
+  func repeated(_ minutes: [Int]) throws -> SkippedV1 {
+    var raw = try #require(try JSONSerialization.jsonObject(with: fixture("skipped-v1.json")) as? [String: Any])
+    var signals = try #require(raw["signals"] as? [[String: Any]])
+    let first = signals[0]
+    signals = minutes.map { minute in
+      var signal = first
+      signal["at"] = "2026-11-16T15:\(String(format: "%02d", minute)):00.000Z"
+      return signal
+    }
+    raw["signals"] = signals
+    return try Wire.decoder().decode(SkippedV1.self, from: JSONSerialization.data(withJSONObject: raw))
+  }
+
+  @Test("Identical refusals in a row on one symbol are one row with their times and count")
+  func refusalRuns() throws {
+    let fixtures = try Fixtures()
+    let sources = StageSources(flow: fixtures.flow, skipped: try repeated([2, 3, 4, 5, 6]), watching: nil,
+      status: nil, settings: nil)
+    let detail = StageDetail.make(.risk, from: sources)
+    let rows = try #require(group(detail, L10n.stageRefusedSignals)?.rows)
+    #expect(rows.count == 1)
+    #expect(rows[0].text?.hasPrefix(String(localized: L10n.stageRun("10:02", "10:06", 5))) == true)
+    #expect(value(detail, L10n.stageRefused) == "5")
+  }
+
+  @Test("Closeness rounds down: 100 % only when the check is there")
+  func closenessRoundsDown() {
+    #expect(StageDetail.whole(Decimal(string: "99.83") ?? 0) == "99")
+    #expect(StageDetail.whole(100) == "100")
+    #expect(StageDetail.whole(Decimal(string: "0.4") ?? 0) == "0")
+  }
+
+  @Test("Seconds read without trailing zeros")
+  func seconds() {
+    #expect(DurationText.number(Decimal(string: "3.000") ?? 0) == "3")
+    #expect(DurationText.number(Decimal(string: "1.250") ?? 0) == "1.25")
+  }
+
+  @Test("An operator entry stop reads in words, not as the bot's English")
+  func entryStopRefusal() {
+    #expect(ApiText.refusalDetail(code: "ENTRY_STOP_SET", params: [:])
+      == String(localized: L10n.refusalReasonEntryStopSet))
   }
 }

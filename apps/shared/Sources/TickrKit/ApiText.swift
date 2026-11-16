@@ -4,6 +4,8 @@ import Foundation
 /// a known code reads translated, an unknown one falls back to the bot's own English text, so a
 /// newer bot never shows a blank. Both apps use these, so they say the same thing.
 public enum ApiText {
+  /// Shown wherever a value is missing: the one placeholder of both apps and TickrKit.
+  public static let missing = "—"
   /// Joins a fence's kind and its key ("Foreign position · EFGH").
   static let keySeparator = " · "
   /// Between a fence's title and the bot's detail.

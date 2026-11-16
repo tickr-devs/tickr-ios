@@ -5044,6 +5044,24 @@
         }
       }
     },
+    "kit.refusal.ENTRY_STOP_SET" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. ENTRY_STOP_SET",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries paused by the operator"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы приостановлены оператором"
+          }
+        }
+      }
+    },
     "kit.refusal.HALF_DAY" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. HALF_DAY",
       "extractionState" : "manual",
@@ -6442,6 +6460,23 @@
         }
       }
     },
+    "kit.stage.run" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@–%@ · %lld×"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@–%@ · %lld×"
+          }
+        }
+      }
+    },
     "kit.stage.size" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6527,23 +6562,6 @@
         }
       }
     },
-    "kit.stage.trades" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trades today"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сделок сегодня"
-          }
-        }
-      }
-    },
     "kit.stage.tradeStops" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6574,6 +6592,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ USD"
+          }
+        }
+      }
+    },
+    "kit.stage.usdOf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ of %@ USD"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ из %@ USD"
           }
         }
       }

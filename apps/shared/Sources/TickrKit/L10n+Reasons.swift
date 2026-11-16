@@ -260,6 +260,11 @@ extension L10n {
     LocalizedStringResource("kit.refusal.AFTER_LAST_ENTRY",
       defaultValue: "No new entries after {time}", bundle: bundle)
   }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. ENTRY_STOP_SET
+  static var refusalReasonEntryStopSet: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.ENTRY_STOP_SET",
+      defaultValue: "Entries paused by the operator", bundle: bundle)
+  }
   /// A refused entry's detail (`refusal.params`), after the rule's title. OWN_POSITION_OPEN (values: count)
   static var refusalReasonOwnPositionOpen: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.OWN_POSITION_OPEN",
