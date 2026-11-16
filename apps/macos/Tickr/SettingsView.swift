@@ -145,7 +145,7 @@ private struct GeneralSettings: View {
         PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
         Group {
           if let error = model.fetchError {
-            Text(L10n.Settings.notReachable(error))
+            ReadFailureNote(L10n.Settings.notReachable, detail: error, tone: .loss, defersToConnection: false)
           } else {
             Text(L10n.Settings.connectedTo(model.baseURL.absoluteString))
           }
@@ -302,7 +302,11 @@ private struct TradingSettings: View {
     } else {
       SettingsCard(L10n.Common.strategy) {
         Group {
-          if let error = model.settingsError { Text(verbatim: error) } else { Text(L10n.Settings.readingSettings) }
+          if let error = model.settingsError {
+            ReadFailureNote(L10n.ReadFailed.settings, detail: error)
+          } else {
+            Text(L10n.Settings.readingSettings)
+          }
         }
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)
@@ -508,7 +512,9 @@ private struct StorageSettings: View {
   }
 
   private var historyNote: Text {
-    model.historyError.map { Text(verbatim: $0) } ?? Text(L10n.Settings.historySource)
+    // Plain words: the read's technical cause is the connection banner's (Details) or the
+    // Trades screen's.
+    model.historyError.map { _ in Text(L10n.ReadFailed.history) } ?? Text(L10n.Settings.historySource)
   }
 }
 
@@ -701,7 +707,7 @@ private struct ConfigCard: View {
           }
         }
       } else if let error = model.configError {
-        Text(verbatim: error).font(Tokens.Typography.callout).foregroundStyle(Palette.warningText)
+        ReadFailureNote(L10n.ReadFailed.config, detail: error)
       } else {
         ProgressView().controlSize(.small)
       }
@@ -799,7 +805,7 @@ struct JobsSection: View {
         backup(jobs.backup)
         api
       } else if let error = model.jobsError {
-        Text(verbatim: error).font(Tokens.Typography.callout).foregroundStyle(Palette.warningText)
+        ReadFailureNote(L10n.ReadFailed.jobs, detail: error)
       } else {
         ProgressView().controlSize(.small)
       }
@@ -1095,7 +1101,7 @@ private struct BackupSection: View {
           Text(verbatim: cause).font(Tokens.Typography.callout).foregroundStyle(Palette.warningText)
         }
       } else if let error = model.jobsError {
-        Text(verbatim: error).font(Tokens.Typography.callout).foregroundStyle(Palette.warningText)
+        ReadFailureNote(L10n.ReadFailed.jobs, detail: error)
       } else {
         ProgressView().controlSize(.small)
       }

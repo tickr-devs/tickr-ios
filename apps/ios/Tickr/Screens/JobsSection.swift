@@ -32,7 +32,7 @@ struct JobsSection: View {
           }
         }
       } else if let error = model.jobsError {
-        InfoCaption(verbatim: error, tone: .warning)
+        ReadFailureNote(L10n.ReadFailed.jobs, detail: error)
       } else {
         Text(verbatim: Format.missing).foregroundStyle(Palette.textTertiary)
       }

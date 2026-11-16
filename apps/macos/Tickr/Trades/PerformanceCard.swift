@@ -30,7 +30,7 @@ struct PerformanceCard: View {
           content(performance)
         }
       } else if let error = model.performanceError {
-        Footnote(L10n.Trades.performanceUnavailable(error))
+        ReadFailureNote(L10n.Trades.performanceUnavailable, detail: error)
       } else {
         ProgressView().controlSize(.small)
       }

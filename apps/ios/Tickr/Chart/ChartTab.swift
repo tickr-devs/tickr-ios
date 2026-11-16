@@ -74,18 +74,19 @@ struct ChartTab: View {
   @ViewBuilder
   private func loaded(_ url: URL) -> some View {
     switch chart.phase {
-    case .failed where app.connectionState.failure != nil:
-      // The link to the bot is down: the connection notice above says so once, for every screen.
-      EmptyView()
     case .failed(let cause):
-      ContentUnavailableView {
-        Label { Text(ChartText.failedTitle) } icon: { Image(systemName: "exclamationmark.triangle") }
-      } description: {
-        Text(cause)
-      } actions: {
-        Button { Task { await chart.load(url, preferring: chart.symbol) } } label: { Text(ChartText.retry) }
-          .buttonStyle(.borderedProminent)
+      // Plain words, the cause behind Details; while the link is down the card waits calmly and
+      // the connection banner above speaks (and retries) for every screen.
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        ReadFailureNote(ChartText.failedTitle, detail: cause)
+        if app.connectionState.failure == nil {
+          Button { Task { await chart.load(url, preferring: chart.symbol) } } label: { Text(ChartText.retry) }
+            .buttonStyle(.action(.secondary, size: .compact))
+        }
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(Tokens.Space.l)
+      .tickrCard()
       .rise()
     default:
       if chart.days.isEmpty {
@@ -117,12 +118,9 @@ struct ChartTab: View {
           } else if chart.range != .oneDay {
             RangePicker(chart: chart)
             if let failure = chart.rangeFailure {
-              ContentUnavailableView {
-                Label { Text(ChartText.failedTitle) } icon: { Image(systemName: "wifi.exclamationmark") }
-              } description: {
-                Text(ChartText.candlesUnavailable(failure))
-              }
-              .rise()
+              ReadFailureNote(ChartText.candlesUnavailable, detail: failure)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .rise()
             } else if let answer = chart.rangeChart, answer.symbol == chart.symbol, answer.range == chart.range,
               answer.interval == chart.timeframe {
               ContentUnavailableView {

@@ -248,7 +248,7 @@ struct LabReplayCard: View {
         InfoCaption(L10n.Lab.replayIdle)
       }
     } else if let failure = lab.replayFailure {
-      InfoCaption(L10n.Lab.replayFailed(failure), systemImage: LabView.warningSymbol, tone: .warning)
+      ReadFailureNote(L10n.Lab.replayFailed, detail: failure)
     } else if url != nil {
       ProgressView().frame(maxWidth: .infinity)
     }

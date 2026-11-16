@@ -1018,3 +1018,12 @@ extension SettingsRow where Subtitle == EmptyView {
     self.init(label, systemImage: systemImage, tone: tone, value: value) { EmptyView() }
   }
 }
+
+extension View {
+  /// Sets what every `ReadFailureNote` below says: while the link to the bot is down, cards wait
+  /// calmly and leave the failure to the connection banner.
+  func readFailureContext(_ model: AppModel) -> some View {
+    environment(\.readFailureContext, ReadFailureContext(connectionDown: model.connectionState.failure != nil,
+      detailsLabel: ConnectionMessage.detailsLabel, waiting: ConnectionMessage.waiting))
+  }
+}

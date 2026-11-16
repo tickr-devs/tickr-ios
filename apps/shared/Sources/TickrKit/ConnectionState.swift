@@ -118,6 +118,8 @@ public struct ConnectionMessage: Equatable, Sendable {
   public static var retry: LocalizedStringResource { L10n.connectionRetry }
   public static var settings: LocalizedStringResource { L10n.connectionSettings }
   public static var detailsLabel: LocalizedStringResource { L10n.connectionDetails }
+  /// A card's calm placeholder while the link is down.
+  public static var waiting: LocalizedStringResource { L10n.connectionWaiting }
   /// The details' first line: the address the app reads from.
   public static func address(_ address: String) -> LocalizedStringResource { L10n.connectionAddress(address) }
 }

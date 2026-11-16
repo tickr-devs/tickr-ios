@@ -945,8 +945,8 @@ enum L10n {
     static var botConnection: LocalizedStringResource {
       LocalizedStringResource("settings.botConnection", defaultValue: "Bot connection", bundle: L10n.bundle)
     }
-    static func notReachable(_ error: String) -> LocalizedStringResource {
-      LocalizedStringResource("settings.notReachable", defaultValue: "Not reachable: \(error)", bundle: L10n.bundle)
+    static var notReachable: LocalizedStringResource {
+      LocalizedStringResource("settings.notReachable", defaultValue: "Not reachable", bundle: L10n.bundle)
     }
     static func connectedTo(_ address: String) -> LocalizedStringResource {
       LocalizedStringResource("settings.connectedTo", defaultValue: "Connected to \(address).", bundle: L10n.bundle)
@@ -1436,8 +1436,8 @@ enum L10n {
       LocalizedStringResource("chart.range.oneYear", defaultValue: "1Y", bundle: L10n.bundle)
     }
     /// Market data (GET /chart) could not be read for a range beyond one day.
-    static func candlesUnavailableDetail(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.candlesUnavailableDetail", defaultValue: "Market data is not available: \(cause)",
+    static var candlesUnavailableDetail: LocalizedStringResource {
+      LocalizedStringResource("chart.candlesUnavailableDetail", defaultValue: "Market data is not available",
         bundle: L10n.bundle)
     }
     /// Market data answered with no candles for the range.
@@ -1621,8 +1621,8 @@ enum L10n {
       LocalizedStringResource("chart.barsUnavailable", defaultValue: "Bars Unavailable", bundle: L10n.bundle)
     }
     /// Why the bars read failed.
-    static func barsUnavailableDetail(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.barsUnavailableDetail", defaultValue: "The bot's API did not return bars: \(cause)",
+    static var barsUnavailableDetail: LocalizedStringResource {
+      LocalizedStringResource("chart.barsUnavailableDetail", defaultValue: "The bot's API did not return bars",
         bundle: L10n.bundle)
     }
     /// While bars load.
@@ -1888,8 +1888,8 @@ enum L10n {
         bundle: L10n.bundle)
     }
     /// Why the decisions read failed.
-    static func decisionsUnavailable(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.decisionsUnavailable", defaultValue: "The bot's API did not return decisions: \(cause)",
+    static var decisionsUnavailable: LocalizedStringResource {
+      LocalizedStringResource("chart.decisionsUnavailable", defaultValue: "The bot's API did not return decisions",
         bundle: L10n.bundle)
     }
     /// Badge: an observer (shadow strategy, never trades) made the decision.
@@ -1969,9 +1969,9 @@ enum L10n {
         bundle: L10n.bundle)
     }
     /// Skipped read failed.
-    static func notTakenUnavailable(_ cause: String) -> LocalizedStringResource {
+    static var notTakenUnavailable: LocalizedStringResource {
       LocalizedStringResource("trades.notTakenUnavailable",
-        defaultValue: "The bot's API did not return the skipped signals: \(cause)",
+        defaultValue: "The bot's API did not return the skipped signals",
         bundle: L10n.bundle)
     }
     /// Badge: the platform refused the entry (risk, gate or limit).
@@ -2091,8 +2091,8 @@ enum L10n {
       LocalizedStringResource("trades.excluded", defaultValue: "Left out: \(trades) · \(cause)", bundle: L10n.bundle)
     }
     /// Performance read failed.
-    static func performanceUnavailable(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("trades.performanceUnavailable", defaultValue: "The bot's API did not return performance: \(cause)",
+    static var performanceUnavailable: LocalizedStringResource {
+      LocalizedStringResource("trades.performanceUnavailable", defaultValue: "The bot's API did not return performance",
         bundle: L10n.bundle)
     }
     /// Performance card with no trades.
@@ -3458,4 +3458,29 @@ enum L10n {
     }
   }
   // END Screens
+
+  /// A read of one card's data that failed while the link to the bot is up (its cause is behind
+  /// Details).
+  enum ReadFailed {
+    static var settings: LocalizedStringResource {
+      LocalizedStringResource("readFailed.settings", defaultValue: "Couldn't read the bot's settings",
+        bundle: L10n.bundle)
+    }
+    static var replay: LocalizedStringResource {
+      LocalizedStringResource("readFailed.replay", defaultValue: "Couldn't read the replay", bundle: L10n.bundle)
+    }
+    static var explain: LocalizedStringResource {
+      LocalizedStringResource("readFailed.explain", defaultValue: "Couldn't read the explanation", bundle: L10n.bundle)
+    }
+    static var config: LocalizedStringResource {
+      LocalizedStringResource("readFailed.config", defaultValue: "Couldn't read the configuration file",
+        bundle: L10n.bundle)
+    }
+    static var jobs: LocalizedStringResource {
+      LocalizedStringResource("readFailed.jobs", defaultValue: "Couldn't read the jobs", bundle: L10n.bundle)
+    }
+    static var history: LocalizedStringResource {
+      LocalizedStringResource("readFailed.history", defaultValue: "Couldn't read the recorded days", bundle: L10n.bundle)
+    }
+  }
 }

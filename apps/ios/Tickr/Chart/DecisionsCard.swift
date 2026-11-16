@@ -42,7 +42,7 @@ struct DecisionsCard: View {
           .font(Tokens.Typography.captionMono)
         }
       } else if let failure {
-        note(ChartText.decisionsFailed(failure))
+        ReadFailureNote(ChartText.decisionsFailed, detail: failure)
       } else {
         ProgressView().frame(maxWidth: .infinity)
       }

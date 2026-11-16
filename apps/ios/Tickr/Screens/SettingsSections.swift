@@ -176,9 +176,7 @@ struct PreflightSection: View {
           .font(.footnote)
           .foregroundStyle(Palette.lossText)
       } else if let failure = model.accountError {
-        Text(L10n.Settings.accountFailed(failure))
-          .font(.footnote)
-          .foregroundStyle(Palette.warningText)
+        ReadFailureNote(L10n.Settings.accountFailed, detail: failure)
       }
     }
   }

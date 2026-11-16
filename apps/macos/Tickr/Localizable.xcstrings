@@ -1299,13 +1299,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot's API did not return bars: %@"
+            "value" : "The bot's API did not return bars"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "API бота не вернул бары: %@"
+            "value" : "API бота не вернул бары"
           }
         }
       }
@@ -1459,13 +1459,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Market data is not available: %@"
+            "value" : "Market data is not available"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Рыночные данные недоступны: %@"
+            "value" : "Рыночные данные недоступны"
           }
         }
       }
@@ -1629,13 +1629,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot's API did not return decisions: %@"
+            "value" : "The bot's API did not return decisions"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "API бота не вернул решения: %@"
+            "value" : "API бота не вернул решения"
           }
         }
       }
@@ -7276,6 +7276,108 @@
         }
       }
     },
+    "readFailed.config" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the configuration file"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать файл настроек"
+          }
+        }
+      }
+    },
+    "readFailed.explain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the explanation"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать объяснение"
+          }
+        }
+      }
+    },
+    "readFailed.history" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the recorded days"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать записанные дни"
+          }
+        }
+      }
+    },
+    "readFailed.jobs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the jobs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать задания"
+          }
+        }
+      }
+    },
+    "readFailed.replay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the replay"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать повтор"
+          }
+        }
+      }
+    },
+    "readFailed.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the bot's settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать настройки бота"
+          }
+        }
+      }
+    },
     "risk.account" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11413,13 +11515,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Not reachable: %@"
+            "value" : "Not reachable"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Недоступен: %@"
+            "value" : "Недоступен"
           }
         }
       }
@@ -13846,13 +13948,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot's API did not return the skipped signals: %@"
+            "value" : "The bot's API did not return the skipped signals"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "API бота не вернул пропущенные сигналы: %@"
+            "value" : "API бота не вернул пропущенные сигналы"
           }
         }
       }
@@ -14045,13 +14147,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot's API did not return performance: %@"
+            "value" : "The bot's API did not return performance"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "API бота не вернул результаты: %@"
+            "value" : "API бота не вернул результаты"
           }
         }
       }

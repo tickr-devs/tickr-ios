@@ -18,6 +18,7 @@ struct TickrApp: App {
         .overlay {
           if opening { LaunchHandoff { landed = true } finished: { opening = false } }
         }
+        .readFailureContext(model)
         .environment(model)
         .tint(Palette.info)
     }

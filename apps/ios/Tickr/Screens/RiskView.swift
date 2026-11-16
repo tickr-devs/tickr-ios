@@ -290,12 +290,7 @@ private struct LimitsCard: View {
         RiskLine(label: L10n.Risk.quoteAge,
           value: String(localized: L10n.Risk.seconds(Money.plain(risk.maxQuoteAgeSeconds.value, fractionDigits: 0))))
       } else if let failure {
-        Text(L10n.Risk.settingsFailed)
-          .font(Tokens.Typography.callout)
-          .foregroundStyle(Palette.warningText)
-        Text(verbatim: failure)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
+        ReadFailureNote(L10n.Risk.settingsFailed, detail: failure)
       } else {
         ProgressView().frame(maxWidth: .infinity)
       }

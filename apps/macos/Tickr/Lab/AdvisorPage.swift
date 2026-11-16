@@ -137,7 +137,7 @@ struct AdvisorCard: View {
             .help(Text(verbatim: runs.cause ?? String(localized: AdvisorWords.noRuns)))
         }
       } else if let failure = advisor.failure {
-        Footnote(AdvisorWords.failed(failure), color: Palette.warningText)
+        ReadFailureNote(AdvisorWords.failed, detail: failure)
       }
       Footnote(AdvisorWords.note)
     }
@@ -273,7 +273,7 @@ struct AdvisorPage: View {
               .joined(separator: Format.lineSeparator)))
         }
         if let failure = advisor.failure {
-          Footnote(AdvisorWords.failed(failure), color: Palette.warningText)
+          ReadFailureNote(AdvisorWords.failed, detail: failure)
         }
         InfoCaption(AdvisorWords.note)
           .padding(.top, Tokens.Space.m)
@@ -328,7 +328,7 @@ struct AdvisorPage: View {
         if let decision = run.decision {
           Text(decision.verdict == .accepted ? AdvisorWords.acceptedNext : AdvisorWords.rejectedRecorded)
         } else if let failure = advisor.decisionFailures[run.id] {
-          Text(AdvisorWords.decisionFailed(failure)).foregroundStyle(Palette.warningText)
+          ReadFailureNote(AdvisorWords.decisionFailed, detail: failure, defersToConnection: false)
         }
       }
       .font(Tokens.Typography.caption)

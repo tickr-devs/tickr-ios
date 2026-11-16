@@ -1339,7 +1339,7 @@ private struct RiskRoomCard: View {
           LatestSizeLine(size: size)
         }
       } else if let error = model.settingsError {
-        Footnote(verbatim: error)
+        ReadFailureNote(L10n.ReadFailed.settings, detail: error)
       } else {
         Footnote(L10n.RiskRoom.reading)
       }

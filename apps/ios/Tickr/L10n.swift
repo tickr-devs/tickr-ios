@@ -930,8 +930,8 @@ enum L10n {
     static var tooLateTag: LocalizedStringResource {
       LocalizedStringResource("activity.tooLateTag", defaultValue: "TOO LATE", bundle: L10n.bundle)
     }
-    static func notTakenStale(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("activity.notTakenStale", defaultValue: "Last read shown; refresh failed: \(cause)",
+    static var notTakenStale: LocalizedStringResource {
+      LocalizedStringResource("activity.notTakenStale", defaultValue: "Last read shown; refresh failed",
         bundle: L10n.bundle)
     }
     static func stopAfter(_ seconds: String) -> LocalizedStringResource {
@@ -1161,12 +1161,12 @@ enum L10n {
     static var close: LocalizedStringResource {
       LocalizedStringResource("watching.close", defaultValue: "Close", bundle: L10n.bundle)
     }
-    static func failed(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("watching.failed", defaultValue: "Couldn't read the watched symbols: \(cause)",
+    static var failed: LocalizedStringResource {
+      LocalizedStringResource("watching.failed", defaultValue: "Couldn't read the watched symbols",
         bundle: L10n.bundle)
     }
-    static func stale(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("watching.stale", defaultValue: "Last read shown; refresh failed: \(cause)",
+    static var stale: LocalizedStringResource {
+      LocalizedStringResource("watching.stale", defaultValue: "Last read shown; refresh failed",
         bundle: L10n.bundle)
     }
   }
@@ -1224,8 +1224,8 @@ enum L10n {
     static var noRefusals: LocalizedStringResource {
       LocalizedStringResource("lab.noRefusals", defaultValue: "No signal was refused.", bundle: L10n.bundle)
     }
-    static func refusalsFailed(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.refusalsFailed", defaultValue: "Couldn't read the refused signals: \(cause)",
+    static var refusalsFailed: LocalizedStringResource {
+      LocalizedStringResource("lab.refusalsFailed", defaultValue: "Couldn't read the refused signals",
         bundle: L10n.bundle)
     }
     static var title: LocalizedStringResource {
@@ -1284,9 +1284,9 @@ enum L10n {
     static var replayIdle: LocalizedStringResource {
       LocalizedStringResource("lab.replayIdle", defaultValue: "No replay yet.", bundle: L10n.bundle)
     }
-    /// The replay could not be read; the reason follows.
-    static func replayFailed(_ reason: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.replayFailed", defaultValue: "Replay not read: \(reason)", bundle: L10n.bundle)
+    /// The replay could not be read (its cause is behind Details).
+    static var replayFailed: LocalizedStringResource {
+      LocalizedStringResource("lab.replayFailed", defaultValue: "Replay not read", bundle: L10n.bundle)
     }
     /// Replay running, with its New York start time.
     static func replayRunningSince(_ time: String) -> LocalizedStringResource {
@@ -1340,8 +1340,8 @@ enum L10n {
       LocalizedStringResource("lab.agreement",
         defaultValue: "bot also traded \(shared) of \(entered): \(symbols)", bundle: L10n.bundle)
     }
-    static func failed(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.failed", defaultValue: "Couldn't read the observers: \(cause)", bundle: L10n.bundle)
+    static var failed: LocalizedStringResource {
+      LocalizedStringResource("lab.failed", defaultValue: "Couldn't read the observers", bundle: L10n.bundle)
     }
     /// Button that starts a replay of two versions.
     static var replayStartCompare: LocalizedStringResource {
@@ -1613,9 +1613,9 @@ enum L10n {
     static var checkGateOpen: LocalizedStringResource {
       LocalizedStringResource("settings.checkGateOpen", defaultValue: "Trading gate open", bundle: L10n.bundle)
     }
-    static func accountFailed(_ cause: String) -> LocalizedStringResource {
+    static var accountFailed: LocalizedStringResource {
       LocalizedStringResource("settings.accountFailed",
-        defaultValue: "Couldn't read the broker check: \(cause)",
+        defaultValue: "Couldn't read the broker check",
         bundle: L10n.bundle)
     }
     static func failing(_ count: Int) -> LocalizedStringResource {
@@ -1750,6 +1750,26 @@ enum L10n {
       LocalizedStringResource("settings.configEdit", defaultValue: "Edit", bundle: L10n.bundle)
     }
   }
+
+  /// A read of one card's data that failed while the link to the bot is up (its cause is behind
+  /// Details).
+  enum ReadFailed {
+    static var config: LocalizedStringResource {
+      LocalizedStringResource("readFailed.config", defaultValue: "Couldn't read the configuration file",
+        bundle: L10n.bundle)
+    }
+    static var jobs: LocalizedStringResource {
+      LocalizedStringResource("readFailed.jobs", defaultValue: "Couldn't read the jobs", bundle: L10n.bundle)
+    }
+    static var versions: LocalizedStringResource {
+      LocalizedStringResource("readFailed.versions", defaultValue: "Couldn't read the strategy versions",
+        bundle: L10n.bundle)
+    }
+    static var whatIf: LocalizedStringResource {
+      LocalizedStringResource("readFailed.whatIf", defaultValue: "Couldn't read the simulated result",
+        bundle: L10n.bundle)
+    }
+  }
 }
 
 /// Every text of the Chart tab, in Localizable.xcstrings with the rest.
@@ -1782,8 +1802,8 @@ enum ChartText {
   static let rangeThreeMonths = LocalizedStringResource("chart.range.threeMonths", defaultValue: "3M")
   static let rangeOneYear = LocalizedStringResource("chart.range.oneYear", defaultValue: "1Y")
   /// Market data (GET /chart) could not be read for a range beyond one day.
-  static func candlesUnavailable(_ cause: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.candlesUnavailable", defaultValue: "Market data is not available: \(cause)")
+  static var candlesUnavailable: LocalizedStringResource {
+    LocalizedStringResource("chart.candlesUnavailable", defaultValue: "Market data is not available")
   }
   /// Market data answered with no candles for the range.
   static func noCandles(_ cause: String) -> LocalizedStringResource {
@@ -1928,9 +1948,9 @@ enum ChartText {
   static func allDecisions(_ count: Int) -> LocalizedStringResource {
     LocalizedStringResource("chart.decisions.all", defaultValue: "All \(count) decisions")
   }
-  static func decisionsFailed(_ cause: String) -> LocalizedStringResource {
+  static var decisionsFailed: LocalizedStringResource {
     LocalizedStringResource("chart.decisions.failed",
-      defaultValue: "Couldn't read the decisions: \(cause)")
+      defaultValue: "Couldn't read the decisions")
   }
   static func entryStop(_ entry: String, _ stop: String) -> LocalizedStringResource {
     LocalizedStringResource("chart.decisions.entryStop", defaultValue: "entry \(entry) · stop \(stop)")

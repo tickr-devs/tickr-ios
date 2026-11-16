@@ -445,7 +445,7 @@ private struct RefusalsCard: View {
             row(count, share: Double(count.count) / most, color: Self.colors[index % Self.colors.count], step: index)
           }
         } else if let error = model.skippedError {
-          Footnote(L10n.Trades.notTakenUnavailable(error), color: Palette.warningText)
+          ReadFailureNote(L10n.Trades.notTakenUnavailable, detail: error)
         } else {
           ProgressView().controlSize(.small)
         }
@@ -888,9 +888,7 @@ private struct ReplayCard: View {
         Footnote(L10n.Lab.replayIdle)
       }
     } else if let error = model.labReplayError {
-      Text(verbatim: error)
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.warningText)
+      ReadFailureNote(L10n.ReadFailed.replay, detail: error)
     }
   }
 
@@ -1072,7 +1070,7 @@ private struct ExplainCard: View {
 
   @ViewBuilder private var content: some View {
     if let error {
-      Footnote(verbatim: error, color: Palette.warningText)
+      ReadFailureNote(L10n.ReadFailed.explain, detail: error)
     } else if let decision {
       Text(headline(decision))
         .font(Tokens.Typography.calloutMono)

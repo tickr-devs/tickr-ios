@@ -89,6 +89,7 @@ struct TickrMacApp: App {
       WindowFrame(minSize: CGSize(width: Self.minWidth, height: Self.minHeight)) {
         RootView()
           .overlay { OpeningOverlay() }
+          .readFailureContext(model)
           .environment(model)
           .environment(Container.shared.chartModel())
           .environment(Container.shared.advisorModel())
@@ -109,6 +110,7 @@ struct TickrMacApp: App {
     Settings {
       SettingsView()
         .hintHost()
+        .readFailureContext(model)
         .environment(model)
         .tint(Palette.info)
     }
@@ -116,6 +118,7 @@ struct TickrMacApp: App {
     MenuBarExtra(isInserted: $showMenuBarExtra) {
       MenuBarPanel()
         .hintHost()
+        .readFailureContext(model)
         .environment(model)
         .tint(Palette.info)
     } label: {

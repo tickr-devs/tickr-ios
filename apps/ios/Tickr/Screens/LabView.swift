@@ -174,8 +174,7 @@ private struct RefusalsCard: View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       CardLabel(L10n.Lab.refusals)
       if let failure {
-        InfoCaption(counts == nil ? L10n.Lab.refusalsFailed(failure) : L10n.Watching.stale(failure),
-          systemImage: LabView.warningSymbol, tone: .warning)
+        ReadFailureNote(counts == nil ? L10n.Lab.refusalsFailed : L10n.Watching.stale, detail: failure)
       }
       if let counts {
         if counts.isEmpty {
@@ -241,7 +240,7 @@ private struct ObserversCard: View {
       if let observers = lab.observers {
         // A failed refresh after a good read: the rows stay, marked as the last read.
         if let failure = lab.failure {
-          InfoCaption(L10n.Lab.failed(failure), systemImage: LabView.warningSymbol, tone: .warning)
+          ReadFailureNote(L10n.Lab.failed, detail: failure)
         }
         if observers.observers.isEmpty {
           InfoCaption(L10n.Lab.noObservers)
@@ -251,7 +250,7 @@ private struct ObserversCard: View {
             .transition(.opacity.combined(with: .move(edge: .top)))
         }
       } else if let failure = lab.failure {
-        InfoCaption(L10n.Lab.failed(failure), systemImage: LabView.warningSymbol, tone: .warning)
+        ReadFailureNote(L10n.Lab.failed, detail: failure)
       } else {
         ProgressView().frame(maxWidth: .infinity)
       }

@@ -17,9 +17,9 @@ public enum AdvisorWords {
       defaultValue: "No advisor run yet: runs come from python -m tickr.advisor on the Mac.",
       bundle: L10n.bundle)
   }
-  public static func failed(_ cause: String) -> LocalizedStringResource {
+  public static var failed: LocalizedStringResource {
     LocalizedStringResource("kit.advisor.failed",
-      defaultValue: "Couldn't read the advisor's runs: \(cause)",
+      defaultValue: "Couldn't read the advisor's runs",
       bundle: L10n.bundle)
   }
   public static func unreadable(_ count: Int) -> LocalizedStringResource {
@@ -225,9 +225,9 @@ public enum AdvisorWords {
   public static var rejectedRecorded: LocalizedStringResource {
     LocalizedStringResource("kit.advisor.rejectedRecorded", defaultValue: "Rejected · recorded", bundle: L10n.bundle)
   }
-  public static func decisionFailed(_ cause: String) -> LocalizedStringResource {
+  public static var decisionFailed: LocalizedStringResource {
     LocalizedStringResource("kit.advisor.decisionFailed",
-      defaultValue: "Couldn't record the decision: \(cause)",
+      defaultValue: "Couldn't record the decision",
       bundle: L10n.bundle)
   }
   public static var raised: LocalizedStringResource {

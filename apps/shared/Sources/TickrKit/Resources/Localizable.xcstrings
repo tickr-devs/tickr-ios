@@ -160,13 +160,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't record the decision: %@"
+            "value" : "Couldn't record the decision"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось записать решение: %@"
+            "value" : "Не удалось записать решение"
           }
         }
       }
@@ -262,13 +262,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't read the advisor's runs: %@"
+            "value" : "Couldn't read the advisor's runs"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось прочитать запуски советника: %@"
+            "value" : "Не удалось прочитать запуски советника"
           }
         }
       }
@@ -1813,6 +1813,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет связи с ботом"
+          }
+        }
+      }
+    },
+    "kit.connection.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for the connection"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ждём связи с ботом"
           }
         }
       }

@@ -47,6 +47,10 @@ extension L10n {
   static var connectionSettings: LocalizedStringResource {
     LocalizedStringResource("kit.connection.settings", defaultValue: "Settings", bundle: bundle)
   }
+  /// A card's calm placeholder while the link to the bot is down (the banner says why).
+  static var connectionWaiting: LocalizedStringResource {
+    LocalizedStringResource("kit.connection.waiting", defaultValue: "Waiting for the connection", bundle: bundle)
+  }
   /// The disclosure that shows the technical detail.
   static var connectionDetails: LocalizedStringResource {
     LocalizedStringResource("kit.connection.details", defaultValue: "Details", bundle: bundle)

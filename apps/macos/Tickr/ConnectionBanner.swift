@@ -41,3 +41,12 @@ struct ConnectionBanner: View {
     return [String(localized: ConnectionMessage.address(model.baseURL.absoluteString)), detail]
   }
 }
+
+extension View {
+  /// Sets what every `ReadFailureNote` below says: while the link to the bot is down, cards wait
+  /// calmly and leave the failure to the connection banner. Set on each scene's root.
+  func readFailureContext(_ model: AppModel) -> some View {
+    environment(\.readFailureContext, ReadFailureContext(connectionDown: model.connectionState.failure != nil,
+      detailsLabel: ConnectionMessage.detailsLabel, waiting: ConnectionMessage.waiting))
+  }
+}

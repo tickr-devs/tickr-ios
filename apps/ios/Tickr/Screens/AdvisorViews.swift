@@ -140,7 +140,7 @@ struct AdvisorCard: View {
         InfoCaption(AdvisorWords.unreadable(runs.unreadable.count), systemImage: LabView.warningSymbol, tone: .warning)
       }
     } else if let failure = advisor.failure {
-      InfoCaption(AdvisorWords.failed(failure), systemImage: LabView.warningSymbol, tone: .warning)
+      ReadFailureNote(AdvisorWords.failed, detail: failure)
     } else if url != nil {
       ProgressView().frame(maxWidth: .infinity)
     }
@@ -361,7 +361,7 @@ struct AdvisorProposalView: View {
     if run.status == .proposed || run.status == .idea {
       VStack(spacing: Tokens.Space.s) {
         if let failure = ownerFailure ?? advisor.decisionFailures[run.id] {
-          InfoCaption(AdvisorWords.decisionFailed(failure), systemImage: LabView.warningSymbol, tone: .warning)
+          ReadFailureNote(AdvisorWords.decisionFailed, detail: failure, defersToConnection: false)
         }
         if let decision = run.decision {
           StatusPill(decision.verdict == .accepted ? AdvisorWords.acceptedNext : AdvisorWords.rejectedRecorded,

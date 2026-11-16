@@ -60,7 +60,7 @@ struct AnotherStrategySheet: View {
     case nil:
       ProgressView().frame(maxWidth: .infinity)
     case .failure(let failure):
-      InfoCaption(verbatim: failure.cause, systemImage: LabView.warningSymbol, tone: .warning)
+      ReadFailureNote(L10n.ReadFailed.versions, detail: failure.cause)
     case .success(let list) where list.isEmpty:
       InfoCaption(L10n.Activity.anotherNoVersions)
     case .success(let list):
@@ -90,7 +90,7 @@ struct AnotherStrategySheet: View {
       case nil:
         ProgressView().frame(maxWidth: .infinity)
       case .failure(let failure):
-        InfoCaption(verbatim: failure.cause, systemImage: LabView.warningSymbol, tone: .warning)
+        ReadFailureNote(L10n.ReadFailed.whatIf, detail: failure.cause)
       case .success(let found):
         if let cause = found.cause {
           InfoCaption(verbatim: cause)

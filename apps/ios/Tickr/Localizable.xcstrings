@@ -993,13 +993,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last read shown; refresh failed: %@"
+            "value" : "Last read shown; refresh failed"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показано последнее чтение; обновить не удалось: %@"
+            "value" : "Показано последнее чтение; обновить не удалось"
           }
         }
       }
@@ -2219,13 +2219,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Market data is not available: %@"
+            "value" : "Market data is not available"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Рыночные данные недоступны: %@"
+            "value" : "Рыночные данные недоступны"
           }
         }
       }
@@ -2374,13 +2374,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't read the decisions: %@"
+            "value" : "Couldn't read the decisions"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось прочитать решения: %@"
+            "value" : "Не удалось прочитать решения"
           }
         }
       }
@@ -5434,13 +5434,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't read the observers: %@"
+            "value" : "Couldn't read the observers"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось прочитать наблюдателей: %@"
+            "value" : "Не удалось прочитать наблюдателей"
           }
         }
       }
@@ -5672,13 +5672,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't read the refused signals: %@"
+            "value" : "Couldn't read the refused signals"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось прочитать отклонённые сигналы: %@"
+            "value" : "Не удалось прочитать отклонённые сигналы"
           }
         }
       }
@@ -5825,13 +5825,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Replay not read: %@"
+            "value" : "Replay not read"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Повтор не прочитан: %@"
+            "value" : "Повтор не прочитан"
           }
         }
       }
@@ -7596,6 +7596,74 @@
         }
       }
     },
+    "readFailed.config" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the configuration file"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать файл настроек"
+          }
+        }
+      }
+    },
+    "readFailed.jobs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the jobs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать задания"
+          }
+        }
+      }
+    },
+    "readFailed.versions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the strategy versions"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать версии стратегии"
+          }
+        }
+      }
+    },
+    "readFailed.whatIf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the simulated result"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать смоделированный результат"
+          }
+        }
+      }
+    },
     "risk.account" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8401,13 +8469,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't read the broker check: %@"
+            "value" : "Couldn't read the broker check"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось прочитать сверку с брокером: %@"
+            "value" : "Не удалось прочитать сверку с брокером"
           }
         }
       }
@@ -9727,13 +9795,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't read the watched symbols: %@"
+            "value" : "Couldn't read the watched symbols"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось прочитать список наблюдения: %@"
+            "value" : "Не удалось прочитать список наблюдения"
           }
         }
       }
@@ -9880,13 +9948,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last read shown; refresh failed: %@"
+            "value" : "Last read shown; refresh failed"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показано последнее чтение; обновить не удалось: %@"
+            "value" : "Показано последнее чтение; обновить не удалось"
           }
         }
       }

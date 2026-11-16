@@ -76,7 +76,7 @@ struct ConfigView: View {
           }
         }
       } else if let error = model.configError {
-        InfoCaption(verbatim: error, tone: .warning)
+        ReadFailureNote(L10n.ReadFailed.config, detail: error)
       } else {
         ProgressView()
       }
