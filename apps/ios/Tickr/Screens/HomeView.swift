@@ -13,6 +13,8 @@ struct HomeView: View {
   static var actionSide: CGFloat { Tokens.Size.iconButtonCompact }
 
   @Environment(AppModel.self) private var model
+  /// The title row's glyphs grow with the text, as the system's own bar buttons do.
+  @ScaledMetric(relativeTo: .body) private var glyphSide = Tokens.Size.headerGlyph
   @State private var showControl = false
   @State private var prices = Container.shared.positionsModel()
   @State private var dayModel = Container.shared.homeDayModel()
@@ -44,7 +46,7 @@ struct HomeView: View {
       Button {
         showControl = true
       } label: {
-        DesignGlyphView(.power, side: Tokens.Size.headerGlyph)
+        DesignGlyphView(.power, side: glyphSide)
           .foregroundStyle(model.canCommand && dayModel.shown == nil ? Palette.warningText : Palette.textQuaternary)
           .frame(minWidth: Self.actionSide, minHeight: Self.actionSide)
       }
@@ -54,7 +56,7 @@ struct HomeView: View {
       NavigationLink {
         SettingsView()
       } label: {
-        DesignGlyphView(.settings, side: Tokens.Size.headerGlyph)
+        DesignGlyphView(.settings, side: glyphSide)
           .foregroundStyle(Palette.infoText)
           .frame(minWidth: Self.actionSide, minHeight: Self.actionSide)
       }
@@ -285,6 +287,8 @@ private struct Summary: View {
   static let ringLine: CGFloat = 10
   /// Lines the wins and losses may take inside the ring ("1 в плюс · 5 в минусе" wraps in Russian).
   static let winsLossesLines = 2
+  /// Width of the ring's figures as a share of its side: the square inside the circle.
+  static let innerShare: CGFloat = 0.7
   /// Lines the headline takes beside the ring.
   static let headlineLines = 2
   /// Symbol of a closed trading gate.
@@ -333,6 +337,8 @@ private struct Summary: View {
           .lineLimit(Self.winsLossesLines)
           .minimumScaleFactor(Tokens.Shrink.tight)
         }
+        // Inside the ring's opening at every text size ("4 W · 7 L" ran past it).
+        .frame(maxWidth: ringSide * Self.innerShare)
         .padding(Tokens.Space.l)
       }
       // Beside the headline the ring keeps its scaled side; stacked above it at large text sizes,

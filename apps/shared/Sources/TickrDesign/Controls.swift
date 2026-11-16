@@ -159,6 +159,7 @@ public struct WarningBanner: View {
   let title: Text
   let detail: Text
   let tone: Tone
+  @Environment(\.dynamicTypeSize) private var typeSize
 
   public init(_ title: LocalizedStringResource, detail: LocalizedStringResource, systemImage: String, tone: Tone = .warning) {
     self.symbol = systemImage
@@ -177,9 +178,12 @@ public struct WarningBanner: View {
         title
           .font(Tokens.Typography.callout.weight(.semibold))
           .foregroundStyle(tone.text)
-        detail
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textSecondary)
+        // At accessibility text sizes the title alone says it: the detail took half the screen.
+        if !typeSize.isAccessibilitySize {
+          detail
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(Palette.textSecondary)
+        }
       }
       .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: 0)

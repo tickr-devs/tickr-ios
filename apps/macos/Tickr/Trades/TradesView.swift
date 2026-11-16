@@ -342,8 +342,10 @@ private struct TradesTable: View {
     static let quantity: CGFloat = 40
     static let priceMin: CGFloat = 52
     static let price: CGFloat = 58
-    static let reasonMin: CGFloat = 96
-    static let reason: CGFloat = 112
+    /// The reason badge's column holds the widest exit reason whole, the Russian "ЗАКРЫТО
+    /// ОПЕРАТОРОМ" (it ran into the R column at 96).
+    static let reasonMin: CGFloat = 144
+    static let reason: CGFloat = 150
     static let figureMin: CGFloat = 48
     static let figure: CGFloat = 52
     static let moneyMin: CGFloat = 72

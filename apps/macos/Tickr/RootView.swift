@@ -501,6 +501,23 @@ private struct DayStepper: View {
           .help(Text(L10n.Toolbar.demoHelp))
           .accessibilityIdentifier(Self.demoChipID)
       }
+      // On the demo day there is one day: no arrows, no day menu and no Today that would do
+      // nothing (they also pushed the stepper into the toolbar's overflow in a narrow window).
+      if model.dayLocked {
+        Text(L10n.Toolbar.dayDemo(Self.label(model.today)))
+          .font(Tokens.Typography.dayStepper)
+          .foregroundStyle(Palette.textPrimary)
+          .fixedSize()
+          .help(Text(L10n.Toolbar.demoHelp))
+      } else {
+        stepper
+      }
+    }
+  }
+
+  /// ‹ day menu › and Today.
+  @ViewBuilder private var stepper: some View {
+    HStack(spacing: Tokens.Space.s) {
       Button { model.showPreviousDay() } label: {
         Text(verbatim: Self.previousGlyph)
           .accessibilityLabel(Text(L10n.Toolbar.previousDay))
@@ -534,18 +551,16 @@ private struct DayStepper: View {
       .buttonStyle(.plain)
       .menuIndicator(.hidden)
       .fixedSize()
-      .disabled(model.dayLocked)
-      .help(Text(model.dayLocked ? L10n.Toolbar.demoHelp : L10n.Toolbar.pickDayHelp))
+      .help(Text(L10n.Toolbar.pickDayHelp))
       Button { model.showNextDay() } label: {
         Text(verbatim: Self.nextGlyph)
           .accessibilityLabel(Text(L10n.Toolbar.nextDay))
       }
       .buttonStyle(TitleBarButtonStyle(square: true))
-      .disabled(model.isLive || model.dayLocked)
+      .disabled(model.isLive)
       .help(Text(L10n.Toolbar.nextDayHelp))
       Button(String(localized: L10n.Common.today)) { model.showToday() }
         .buttonStyle(TitleBarButtonStyle(square: false))
-        .disabled(model.dayLocked)
         .help(Text(L10n.Toolbar.todayHelp))
     }
   }

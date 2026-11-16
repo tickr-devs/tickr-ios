@@ -784,6 +784,8 @@ private struct SessionCard: View {
 
   /// Width of the clock's side, in points.
   static let clockWidth: CGFloat = 132
+  /// Least width of the times beside the clock, in points: narrower, they go under it.
+  static let figuresMinWidth: CGFloat = 180
   /// Lines a time's label may take beside the clock ("Last / entry", as the design wraps it).
   static let labelLines = 2
 
@@ -794,42 +796,62 @@ private struct SessionCard: View {
 
   var body: some View {
     Card(L10n.Risk.session) {
-      HStack(alignment: .top, spacing: Tokens.Space.m) {
-        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
-          let now = model.botTime(context.date)
-          VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-            HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
-              Text(verbatim: Format.marketTime(now))
-                .font(Tokens.Typography.metric)
-                .monospacedDigit()
-                .foregroundStyle(Palette.textPrimary)
-              Text(L10n.Risk.timeZone)
-                .font(Tokens.Typography.annotation)
-                .foregroundStyle(Palette.textQuaternary)
-            }
-            .fixedSize()
-            hours(now)
+      // The clock beside the times; in a narrow card the times go under the clock rather than
+      // being squeezed into slivers.
+      ViewThatFits(in: .horizontal) {
+        HStack(alignment: .top, spacing: Tokens.Space.m) {
+          clock.frame(width: Self.clockWidth, alignment: .leading)
+          if let settings = model.settings?.session {
+            figures(settings)
+              .frame(minWidth: Self.figuresMinWidth)
+              .padding(.leading, Tokens.Space.m)
+              .overlay(alignment: .leading) {
+                Rectangle().fill(Palette.separator).frame(width: Tokens.Stroke.thin)
+              }
           }
         }
-        .frame(width: Self.clockWidth, alignment: .leading)
-        if let settings = model.settings?.session {
-          VStack(spacing: Tokens.Space.xs) {
-            FigureRow(L10n.Risk.lastEntry,
-              value: String(localized: L10n.Risk.minutesBeforeClose(settings.lastEntryMinutesBeforeClose)),
-              labelLines: Self.labelLines)
-            FigureRow(L10n.Risk.flatten,
-              value: String(localized: L10n.Risk.minutesBeforeClose(settings.flattenMinutesBeforeClose)),
-              labelLines: Self.labelLines)
-            FigureRow(L10n.Risk.halfDays, value: String(localized: settings.halfDaysEnabled ? L10n.Common.on : L10n.Common.off))
-          }
-          .padding(.leading, Tokens.Space.m)
-          .overlay(alignment: .leading) {
-            Rectangle().fill(Palette.separator).frame(width: Tokens.Stroke.thin)
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+          clock
+          if let settings = model.settings?.session {
+            figures(settings)
           }
         }
       }
     }
     .task(id: model.baseURL) { await model.followJobs() }
+  }
+
+  /// The New York time and whether the session is open.
+  private var clock: some View {
+    TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
+      let now = model.botTime(context.date)
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
+          Text(verbatim: Format.marketTime(now))
+            .font(Tokens.Typography.metric)
+            .monospacedDigit()
+            .foregroundStyle(Palette.textPrimary)
+          Text(L10n.Risk.timeZone)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+        }
+        .fixedSize()
+        hours(now)
+      }
+    }
+  }
+
+  /// The last entry, the flatten and half days.
+  private func figures(_ settings: SessionSettings) -> some View {
+    VStack(spacing: Tokens.Space.xs) {
+      FigureRow(L10n.Risk.lastEntry,
+        value: String(localized: L10n.Risk.minutesBeforeClose(settings.lastEntryMinutesBeforeClose)),
+        labelLines: Self.labelLines)
+      FigureRow(L10n.Risk.flatten,
+        value: String(localized: L10n.Risk.minutesBeforeClose(settings.flattenMinutesBeforeClose)),
+        labelLines: Self.labelLines)
+      FigureRow(L10n.Risk.halfDays, value: String(localized: settings.halfDaysEnabled ? L10n.Common.on : L10n.Common.off))
+    }
   }
 
   /// "● open · 09:30–16:00", "● closed · …", or nothing while the session times are unread.

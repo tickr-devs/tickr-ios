@@ -375,6 +375,10 @@ enum L10n {
     static func dayToday(_ day: String) -> LocalizedStringResource {
       LocalizedStringResource("toolbar.dayToday", defaultValue: "\(day) · today", bundle: L10n.bundle)
     }
+    /// The demo day's label in the title bar: made up, so never "today"; argument: its date.
+    static func dayDemo(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("toolbar.dayDemo", defaultValue: "\(day) · demo day", bundle: L10n.bundle)
+    }
     static var previousDay: LocalizedStringResource {
       LocalizedStringResource("toolbar.previousDay", defaultValue: "Previous Day", bundle: L10n.bundle)
     }

@@ -263,20 +263,44 @@ struct ChartView: View {
   /// the study chips under them, wrapping in a narrow window.
   private var controls: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack(spacing: Tokens.Space.xs) {
-        rangeChips
-        separator
-        intervalChips
-        separator
-        styleChips
-        Spacer(minLength: Tokens.Space.s)
-        zoomButtons
-        decisionsToggle
-        if model.isLive && showsDay { livePill }
+      // One row while it fits; in a narrow window the chips wrap onto a second row instead of
+      // being squeezed into empty ovals.
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: Tokens.Space.xs) {
+          rangeChips.fixedSize()
+          separator
+          intervalChips.fixedSize()
+          separator
+          styleChips.fixedSize()
+          Spacer(minLength: Tokens.Space.s)
+          tools
+        }
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
+          HStack(spacing: Tokens.Space.xs) {
+            rangeChips.fixedSize()
+            separator
+            intervalChips.fixedSize()
+          }
+          HStack(spacing: Tokens.Space.xs) {
+            styleChips.fixedSize()
+            Spacer(minLength: Tokens.Space.s)
+            tools
+          }
+        }
       }
       indicatorToggles
     }
     .fixedSize(horizontal: false, vertical: true)
+  }
+
+  /// Zoom, the decisions toggle and the live pill, at the right end of the controls.
+  private var tools: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      zoomButtons
+      decisionsToggle
+      if model.isLive && showsDay { livePill }
+    }
+    .fixedSize()
   }
 
   private var separator: some View {

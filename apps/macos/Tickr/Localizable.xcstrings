@@ -1016,7 +1016,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Позиция по символу уже открыта"
+            "value" : "Символ уже в позиции"
           }
         }
       }
@@ -3891,7 +3891,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Входы отправлены по разу"
+            "value" : "Входы по одному разу"
           }
         }
       }
@@ -4867,7 +4867,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сегодня, если бы торговала каждая версия"
+            "value" : "Сегодня по каждой версии"
           }
         }
       }
@@ -7781,7 +7781,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ждёт ENTER"
+            "value" : "ждёт сигнала на вход"
           }
         }
       }
@@ -8988,7 +8988,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Последнее чтение у брокера"
+            "value" : "Чтение брокера"
           }
         }
       }
@@ -9226,7 +9226,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Лаборатория стратегий"
+            "value" : "Лаборатория"
           }
         }
       }
@@ -11917,6 +11917,23 @@
         }
       }
     },
+    "toolbar.dayDemo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · demo day"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · демо-день"
+          }
+        }
+      }
+    },
     "toolbar.dayRow" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12883,7 +12900,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ · результат дня"
+            "value" : "%@ · итог дня"
           }
         }
       }
