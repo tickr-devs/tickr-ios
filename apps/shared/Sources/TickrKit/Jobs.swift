@@ -38,12 +38,15 @@ public struct NightlyFetchJobV1: Codable, Hashable, Sendable {
   public let lastDay: WireDate?
   public let newSessions: Int?
   public let cause: String?
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case cause
     case finishedAt = "finished_at"
     case lastDay = "last_day"
     case newSessions = "new_sessions"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -52,6 +55,7 @@ public struct NightlyFetchJobV1: Codable, Hashable, Sendable {
     lastDay = try c.decodeNullable(WireDate.self, forKey: .lastDay)
     newSessions = try c.decodeNullable(Int.self, forKey: .newSessions)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -60,7 +64,11 @@ public struct NightlyFetchJobV1: Codable, Hashable, Sendable {
     try c.encodeNullable(lastDay, forKey: .lastDay)
     try c.encodeNullable(newSessions, forKey: .newSessions)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
+
+  /// Why the nightly fetch did not run or stopped, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }
 
 /// The database backup: the last good one, the last failure with its error, or why neither is known.
@@ -69,12 +77,15 @@ public struct BackupJobV1: Codable, Hashable, Sendable {
   public let lastFailedAt: WireTime?
   public let lastFailedError: String?
   public let cause: String?
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case cause
     case lastAt = "last_at"
     case lastFailedAt = "last_failed_at"
     case lastFailedError = "last_failed_error"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -83,6 +94,7 @@ public struct BackupJobV1: Codable, Hashable, Sendable {
     lastFailedAt = try c.decodeNullable(WireTime.self, forKey: .lastFailedAt)
     lastFailedError = try c.decodeNullable(String.self, forKey: .lastFailedError)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -91,7 +103,11 @@ public struct BackupJobV1: Codable, Hashable, Sendable {
     try c.encodeNullable(lastFailedAt, forKey: .lastFailedAt)
     try c.encodeNullable(lastFailedError, forKey: .lastFailedError)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
+
+  /// Why no backup is known, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }
 
 /// A launchd job on the Mac: its name, its start time in the Mac's local time ("HH:MM") and the
@@ -143,6 +159,8 @@ public struct JobsV1: Codable, Hashable, Sendable {
   /// Nil with `sessionCause` on a day with no session (a weekend, a holiday).
   public let session: SessionTimesV1?
   public let sessionCause: String?
+  /// The codes of `sessionCause` (added after version 1 shipped: empty from an older API).
+  public let sessionCauseCodes: [ReasonV1]
   /// The nightly market-data fetch for the Lab's replay.
   public let nightlyFetch: NightlyFetchJobV1
   public let apiVersion: Int
@@ -156,6 +174,7 @@ public struct JobsV1: Codable, Hashable, Sendable {
     case sessionCause = "session_cause"
     case nightlyFetch = "nightly_fetch"
     case apiVersion = "api_version"
+    case sessionCauseCodes = "session_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -170,6 +189,7 @@ public struct JobsV1: Codable, Hashable, Sendable {
     launchd = try c.decode([LaunchdJobV1].self, forKey: .launchd)
     session = try c.decodeNullable(SessionTimesV1.self, forKey: .session)
     sessionCause = try c.decodeNullable(String.self, forKey: .sessionCause)
+    sessionCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .sessionCauseCodes) ?? []
     nightlyFetch = try c.decode(NightlyFetchJobV1.self, forKey: .nightlyFetch)
   }
 
@@ -184,7 +204,11 @@ public struct JobsV1: Codable, Hashable, Sendable {
     try c.encode(launchd, forKey: .launchd)
     try c.encodeNullable(session, forKey: .session)
     try c.encodeNullable(sessionCause, forKey: .sessionCause)
+    try c.encode(sessionCauseCodes, forKey: .sessionCauseCodes)
     try c.encode(nightlyFetch, forKey: .nightlyFetch)
     try c.encode(apiVersion, forKey: .apiVersion)
   }
+
+  /// Why today has no session the bot trades, in the person's language (the bot's words for an unknown code).
+  public var sessionCauseText: String? { ApiText.prose(sessionCauseCodes, text: sessionCause) }
 }

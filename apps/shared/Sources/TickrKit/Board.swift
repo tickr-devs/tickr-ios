@@ -100,7 +100,7 @@ public enum Board {
       events.append(Event(
         id: "\(commandID)\(record.commandId)", time: record.processedAt.date,
         tag: String(localized: record.outcome == .done ? L10n.tagDone : L10n.tagRefused),
-        text: commandTitle(record.kind) + (record.cause.map { ": \($0)" } ?? ""),
+        text: commandTitle(record.kind) + (record.causeText.map { ": \($0)" } ?? ""),
         tone: record.outcome == .done ? .blue : .red))
     }
     return events.sorted { $0.time == $1.time ? $0.id > $1.id : $0.time > $1.time }

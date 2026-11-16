@@ -692,6 +692,40 @@ def twin_violations(files: list[Path]) -> dict[str, list[tuple[int, str]]]:
     return found
 
 
+# MARK: - a cause shown only in the person's language
+
+
+KIT_SOURCES = "apps/shared/Sources/TickrKit"
+# `public let <name>Cause<Codes>: [ReasonV1]`: a cause field that comes with its codes.
+CODED_CAUSE = re.compile(r"public let (\w+Cause)Codes: \[ReasonV1\]")
+
+
+def coded_causes() -> set[str]:
+    """The cause fields (`xxxCause`) of the kit's contract models that carry codes."""
+    return {name for path in sorted((REPO / KIT_SOURCES).glob("*.swift"))
+            for name in CODED_CAUSE.findall(path.read_text(encoding="utf-8"))}
+
+
+def raw_cause_pattern(names: set[str]) -> re.Pattern[str]:
+    """A read of one of `names` that is not a nil test or a coding key: the bot's own words."""
+    alternatives = "|".join(sorted(names)) or "(?!)"
+    return re.compile(r"(?<!forKey: )(?<!cause: )\.(?:" + alternatives + r")\b(?!\s*[!=]=\s*nil)")
+
+
+# Where a coded cause may be read as text: the call that puts it in the person's language.
+PROSE_CALL = "ApiText.prose("
+
+
+RAW_CAUSE = raw_cause_pattern(coded_causes())
+
+
+def cause_violations(path: Path) -> list[tuple[int, str]]:
+    """A coded cause read as the bot's text (comments ignored): show its `…Text` accessor (the
+    person's language) instead; only a nil test may read the raw field."""
+    return [(number, code.strip()) for number, code, _ in _code_lines(path)
+            if RAW_CAUSE.search(code) and PROSE_CALL not in code]
+
+
 RULES = {
     "text": (text_violations, "words in code; define them in L10n.swift, translated to Russian"),
     "numbers": (number_violations, "magic number; use a token or a documented constant"),
@@ -717,6 +751,8 @@ RULES = {
       "number formatted outside TickrDesign; use Money, Percent or Volume (Formatting.swift)"),
   "stopsymbol": (stop_symbol_violations,
       "stop symbol written by hand; use StopState's symbols, or mark another meaning `// symbol:`"),
+  "cause": (cause_violations,
+      "a cause shown in the bot's words; use its `…Text` accessor (the person's language)"),
 }
 # Rules of the apps only: TickrDesign is where the shared looks and the one map of each meaning
 # are defined.

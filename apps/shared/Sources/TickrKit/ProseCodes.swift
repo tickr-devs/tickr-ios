@@ -110,123 +110,87 @@ public enum ProseReason: String, CaseIterable, Sendable {
   case identityDiffers = "identity_differs"
   case noHistoryNeed = "no_history_need"
   case historyTooShort = "history_too_short"
-
-  /// The code's sentences (one per shape the bot writes it in), each with the
-  /// values it names.
-  public var sentences: [ReasonSentence] {
-    switch self {
-    case .entryOrdersCount: [ReasonSentence(L10n.proseReasonEntryOrdersCount, [.count])]
-    case .noIntentRow: [ReasonSentence(L10n.proseReasonNoIntentRow, [])]
-    case .neverAttempted: [ReasonSentence(L10n.proseReasonNeverAttempted, [])]
-    case .noFillRow: [ReasonSentence(L10n.proseReasonNoFillRow, [])]
-    case .journalUnreadable: [ReasonSentence(L10n.proseReasonJournalUnreadable, [.detail])]
-    case .notRead: [ReasonSentence(L10n.proseReasonNotRead, [])]
-    case .notComputed: [ReasonSentence(L10n.proseReasonNotComputed, [])]
-    case .sessionEnded: [ReasonSentence(L10n.proseReasonSessionEnded, [.time])]
-    case .noBarsForSymbol: [ReasonSentence(L10n.proseReasonNoBarsForSymbol, [.symbol])]
-    case .barsEndBefore: [ReasonSentence(L10n.proseReasonBarsEndBefore, [.time, .until])]
-    case .barsEnd: [ReasonSentence(L10n.proseReasonBarsEnd, [.time])]
-    case .noBarForMinute: [ReasonSentence(L10n.proseReasonNoBarForMinute, [.time])]
-    case .noReferencePrice: [ReasonSentence(L10n.proseReasonNoReferencePrice, [])]
-    case .calendarRefuses: [ReasonSentence(L10n.proseReasonCalendarRefuses, [.day, .detail])]
-    case .noMinuteBeforeClose: [ReasonSentence(L10n.proseReasonNoMinuteBeforeClose, [.time])]
-    case .noBarAfterExit: [ReasonSentence(L10n.proseReasonNoBarAfterExit, [.until])]
-    case .plannedLossNotPositive: [ReasonSentence(L10n.proseReasonPlannedLossNotPositive, [.plannedLoss])]
-    case .simulationRefused: [ReasonSentence(L10n.proseReasonSimulationRefused, [.detail])]
-    case .skippedOverlap: [ReasonSentence(L10n.proseReasonSkippedOverlap, [.symbol])]
-    case .skippedSameSignal: [ReasonSentence(L10n.proseReasonSkippedSameSignal, [.setup, .trigger, .symbol])]
-    case .noDecisions: [ReasonSentence(L10n.proseReasonNoDecisions, [])]
-    case .noCapturedBars: [ReasonSentence(L10n.proseReasonNoCapturedBars, [.day])]
-    case .captureRefused: [ReasonSentence(L10n.proseReasonCaptureRefused, [.detail])]
-    case .replaySettingsUnreadable: [ReasonSentence(L10n.proseReasonReplaySettingsUnreadable, [.detail])]
-    case .calendarUnreadable: [ReasonSentence(L10n.proseReasonCalendarUnreadable, [.detail])]
-    case .entersNotSimulated: [ReasonSentence(L10n.proseReasonEntersNotSimulated, [.count])]
-    case .tradesWithoutQuantity: [ReasonSentence(L10n.proseReasonTradesWithoutQuantity, [.count])]
-    case .resultInROnly: [ReasonSentence(L10n.proseReasonResultInROnly, [])]
-    case .dayNotOver: [ReasonSentence(L10n.proseReasonDayNotOver, [])]
-    case .reconcileNotRecorded: [ReasonSentence(L10n.proseReasonReconcileNotRecorded, [])]
-    case .noDayEnd: [ReasonSentence(L10n.proseReasonNoDayEnd, [])]
-    case .dayEndUnknown: [ReasonSentence(L10n.proseReasonDayEndUnknown, [])]
-    case .noCalendar: [ReasonSentence(L10n.proseReasonNoCalendar, [])]
-    case .calendarError: [ReasonSentence(L10n.proseReasonCalendarError, [.detail])]
-    case .reconcileGap: [ReasonSentence(L10n.proseReasonReconcileGap, [.since, .until, .seconds, .maxGap])]
-    case .reconcileMismatch: [ReasonSentence(L10n.proseReasonReconcileMismatch, [.detail])]
-    case .fenceStillSet: [ReasonSentence(L10n.proseReasonFenceStillSet, [.fence])]
-    case .dayEndNotClean: [ReasonSentence(L10n.proseReasonDayEndNotClean, [])]
-    case .unprotectedAlert: [ReasonSentence(L10n.proseReasonUnprotectedAlert, [.detail])]
-    case .safetyExit: [ReasonSentence(L10n.proseReasonSafetyExit, [.trade])]
-    case .emergencyCommand: [ReasonSentence(L10n.proseReasonEmergencyCommand, [])]
-    case .allChecksPassed: [ReasonSentence(L10n.proseReasonAllChecksPassed, [])]
-    case .quoteAgeNotRecorded: [ReasonSentence(L10n.proseReasonQuoteAgeNotRecorded, [])]
-    case .yesNoCheck: [ReasonSentence(L10n.proseReasonYesNoCheck, [.rule])]
-    case .needsPositiveThreshold: [ReasonSentence(L10n.proseReasonNeedsPositiveThreshold, [.rule])]
-    case .needsPositiveMeasured: [ReasonSentence(L10n.proseReasonNeedsPositiveMeasured, [.rule])]
-    case .noDirection: [ReasonSentence(L10n.proseReasonNoDirection, [.rule, .`operator`])]
-    case .checkContradictsRecord: [ReasonSentence(L10n.proseReasonCheckContradictsRecord, [.rule])]
-    case .plannedLossNotPositiveR: [ReasonSentence(L10n.proseReasonPlannedLossNotPositiveR, [])]
-    case .noTrades: [ReasonSentence(L10n.proseReasonNoTrades, [])]
-    case .noWins: [ReasonSentence(L10n.proseReasonNoWins, [])]
-    case .noLosses: [ReasonSentence(L10n.proseReasonNoLosses, [])]
-    case .outsideSessionOnly: [ReasonSentence(L10n.proseReasonOutsideSessionOnly, [.until])]
-    case .replayRunning: [ReasonSentence(L10n.proseReasonReplayRunning, [])]
-    case .apiWithoutConfig: [ReasonSentence(L10n.proseReasonApiWithoutConfig, [])]
-    case .noBacktestData: [ReasonSentence(L10n.proseReasonNoBacktestData, [])]
-    case .notADataDay: [ReasonSentence(L10n.proseReasonNotADataDay, [.day])]
-    case .compareSameVersion: [ReasonSentence(L10n.proseReasonCompareSameVersion, [])]
-    case .noStrategyFolder: [ReasonSentence(L10n.proseReasonNoStrategyFolder, [.folder])]
-    case .strategyUnreadable: [ReasonSentence(L10n.proseReasonStrategyUnreadable, [.folder])]
-    case .strategyFileUnreadable: [ReasonSentence(L10n.proseReasonStrategyFileUnreadable, [.folder, .detail])]
-    case .strategyWithoutName: [ReasonSentence(L10n.proseReasonStrategyWithoutName, [.folder])]
-    case .strategyWithoutVersion: [ReasonSentence(L10n.proseReasonStrategyWithoutVersion, [.folder])]
-    case .modulesMalformed: [ReasonSentence(L10n.proseReasonModulesMalformed, [])]
-    case .moduleEntryMalformed: [ReasonSentence(L10n.proseReasonModuleEntryMalformed, [.detail])]
-    case .moduleListedTwice: [ReasonSentence(L10n.proseReasonModuleListedTwice, [.strategy])]
-    case .noModule: [ReasonSentence(L10n.proseReasonNoModule, [.strategy])]
-    case .backtestRefused: [ReasonSentence(L10n.proseReasonBacktestRefused, [.detail])]
-    case .runWithoutReport: [ReasonSentence(L10n.proseReasonRunWithoutReport, [])]
-    case .versionNeverStarted: [ReasonSentence(L10n.proseReasonVersionNeverStarted, [])]
-    case .runFileUnreadable: [ReasonSentence(L10n.proseReasonRunFileUnreadable, [.file, .error])]
-    case .noAccountFile: [ReasonSentence(L10n.proseReasonNoAccountFile, [])]
-    case .noStartCommand: [ReasonSentence(L10n.proseReasonNoStartCommand, [])]
-    case .botNotStopped: [ReasonSentence(L10n.proseReasonBotNotStopped, [.state])]
-    case .lockUnreadable: [ReasonSentence(L10n.proseReasonLockUnreadable, [.error])]
-    case .lockHeld: [ReasonSentence(L10n.proseReasonLockHeld, [.pid])]
-    case .stopNotCleared: [ReasonSentence(L10n.proseReasonStopNotCleared, [.error])]
-    case .startTimeoutCleared: [ReasonSentence(L10n.proseReasonStartTimeoutCleared, [.seconds])]
-    case .startTimeout: [ReasonSentence(L10n.proseReasonStartTimeout, [.seconds])]
-    case .startFailedCleared: [ReasonSentence(L10n.proseReasonStartFailedCleared, [.error])]
-    case .startFailed: [ReasonSentence(L10n.proseReasonStartFailed, [.error])]
-    case .startExitedCleared: [ReasonSentence(L10n.proseReasonStartExitedCleared, [.code])]
-    case .startExited: [ReasonSentence(L10n.proseReasonStartExited, [.code])]
-    case .hostNotAllowed: [ReasonSentence(L10n.proseReasonHostNotAllowed, [.host])]
-    case .originNotAllowed: [ReasonSentence(L10n.proseReasonOriginNotAllowed, [.origin])]
-    case .noPhonePaired: [ReasonSentence(L10n.proseReasonNoPhonePaired, [])]
-    case .tokenRequired: [ReasonSentence(L10n.proseReasonTokenRequired, [])]
-    case .tokenNotPaired: [ReasonSentence(L10n.proseReasonTokenNotPaired, [])]
-    case .noPairingWaiting: [ReasonSentence(L10n.proseReasonNoPairingWaiting, [])]
-    case .pairingExpired: [ReasonSentence(L10n.proseReasonPairingExpired, [])]
-    case .pairingCodeWrong: [ReasonSentence(L10n.proseReasonPairingCodeWrong, [])]
-    case .calendarFileUnreadable: [ReasonSentence(L10n.proseReasonCalendarFileUnreadable, [.detail])]
-    case .noBarsForSymbolOn: [ReasonSentence(L10n.proseReasonNoBarsForSymbolOn, [.symbol, .day])]
-    case .noCachedHistory: [ReasonSentence(L10n.proseReasonNoCachedHistory, [.symbol, .day])]
-    case .cachedHistoryRefused: [ReasonSentence(L10n.proseReasonCachedHistoryRefused, [.detail])]
-    case .cachedHistoryEmpty: [ReasonSentence(L10n.proseReasonCachedHistoryEmpty, [.symbol])]
-    case .cachedHistoryOverlaps: [ReasonSentence(L10n.proseReasonCachedHistoryOverlaps, [])]
-    case .historySessionsDiffer: [ReasonSentence(L10n.proseReasonHistorySessionsDiffer, [.replay, .bot])]
-    case .simulationFailed: [ReasonSentence(L10n.proseReasonSimulationFailed, [.error, .detail])]
-    case .strategyWithoutModule: [ReasonSentence(L10n.proseReasonStrategyWithoutModule, [.folder, .strategy])]
-    case .moduleNotImportable: [ReasonSentence(L10n.proseReasonModuleNotImportable, [.folder, .module, .detail])]
-    case .moduleWithoutCreate: [ReasonSentence(L10n.proseReasonModuleWithoutCreate, [.folder, .module])]
-    case .valuesRefused: [ReasonSentence(L10n.proseReasonValuesRefused, [.folder, .module, .detail])]
-    case .identityDiffers: [ReasonSentence(L10n.proseReasonIdentityDiffers, [.folder])]
-    case .noHistoryNeed: [ReasonSentence(L10n.proseReasonNoHistoryNeed, [.folder])]
-    case .historyTooShort: [ReasonSentence(L10n.proseReasonHistoryTooShort, [.folder, .need, .bot])]
-    }
-  }
-
-  /// The first sentence whose values the bot all sent, filled in; nil when none
-  /// fits.
-  public func text(_ params: [String: String]) -> String? {
-    sentences.lazy.compactMap { $0.text(params) }.first
-  }
+  case noFastMoverRules = "no_fast_mover_rules"
+  case calendarWeekend = "calendar_weekend"
+  case calendarHoliday = "calendar_holiday"
+  case calendarNotCovered = "calendar_not_covered"
+  case calendarInvalid = "calendar_invalid"
+  case calendarNaiveTime = "calendar_naive_time"
+  case calendarInvalidOffset = "calendar_invalid_offset"
+  case halfDayOff = "half_day_off"
+  case noDatabase = "no_database"
+  case databaseUnreadable = "database_unreadable"
+  case noBackup = "no_backup"
+  case nightlyNeverRan = "nightly_never_ran"
+  case nightlyFileUnreadable = "nightly_file_unreadable"
+  case nightlyInSession = "nightly_in_session"
+  case nightlyLowDisk = "nightly_low_disk"
+  case nightlyNoPool = "nightly_no_pool"
+  case nightlyPoolEmpty = "nightly_pool_empty"
+  case nightlyTooManyMissing = "nightly_too_many_missing"
+  case nightlyNoSessionAhead = "nightly_no_session_ahead"
+  case nightlyStoppedBeforeOpen = "nightly_stopped_before_open"
+  case nightlyRefused = "nightly_refused"
+  case noStatusFile = "no_status_file"
+  case statusFileInvalid = "status_file_invalid"
+  case statusFromFuture = "status_from_future"
+  case accountFileInvalid = "account_file_invalid"
+  case pastDayReconciliation = "past_day_reconciliation"
+  case pastDayStatus = "past_day_status"
+  case brokerReadOtherDay = "broker_read_other_day"
+  case statusOtherDay = "status_other_day"
+  case rowWithoutPrice = "row_without_price"
+  case rowWithoutPreClose = "row_without_pre_close"
+  case priceNotNumber = "price_not_number"
+  case preCloseNotNumber = "pre_close_not_number"
+  case preCloseNotPositive = "pre_close_not_positive"
+  case universeConflictingRows = "universe_conflicting_rows"
+  case universeExchange = "universe_exchange"
+  case universeCurrency = "universe_currency"
+  case universeTypeUnknown = "universe_type_unknown"
+  case universeType = "universe_type"
+  case bindingNotProven = "binding_not_proven"
+  case noChartBars = "no_chart_bars"
+  case noAdvisorRuns = "no_advisor_runs"
+  case proposalsUnreadable = "proposals_unreadable"
+  case runFolderMisnamed = "run_folder_misnamed"
+  case runFolderUnreadable = "run_folder_unreadable"
+  case runFileMissing = "run_file_missing"
+  case runFileInvalid = "run_file_invalid"
+  case runFileWrongSchema = "run_file_wrong_schema"
+  case answerNotJson = "answer_not_json"
+  case answerOffSchema = "answer_off_schema"
+  case changesNotList = "changes_not_list"
+  case tooManyChanges = "too_many_changes"
+  case changeMalformed = "change_malformed"
+  case changeTwice = "change_twice"
+  case changeFixedSection = "change_fixed_section"
+  case changeUnknownKey = "change_unknown_key"
+  case changeNotToml = "change_not_toml"
+  case changeOtherKind = "change_other_kind"
+  case changeSameValue = "change_same_value"
+  case answerEmpty = "answer_empty"
+  case ideaOffSchema = "idea_off_schema"
+  case ideaIncomplete = "idea_incomplete"
+  case ideaNameWrong = "idea_name_wrong"
+  case versionNotWhole = "version_not_whole"
+  case noStrategyNamed = "no_strategy_named"
+  case advisorRefused = "advisor_refused"
+  case commandAfterStop = "command_after_stop"
+  case closeInProgress = "close_in_progress"
+  case tradesStillOpen = "trades_still_open"
+  case noOpenPosition = "no_open_position"
+  case closeRefusedBefore = "close_refused_before"
+  case closeHeldOutsideSession = "close_held_outside_session"
+  case closeNotSentNow = "close_not_sent_now"
+  case nothingOpen = "nothing_open"
+  case entryCancelsRequested = "entry_cancels_requested"
+  case stepDone = "step_done"
+  case stepsDone = "steps_done"
+  case everyStepRan = "every_step_ran"
+  case stepsNotRun = "steps_not_run"
+  case commandFileUnreadable = "command_file_unreadable"
+  case commandFileMisnamed = "command_file_misnamed"
+  case commandFromFuture = "command_from_future"
+  case commandExpired = "command_expired"
 }

@@ -72,7 +72,7 @@ public struct Headline: Equatable, Sendable {
   /// or that entries are allowed.
   static func summary(_ response: StatusResponseV1) -> String {
     guard let status = response.status else {
-      return String(localized: L10n.headlineUnavailable(response.unavailableCause ?? response.summary))
+      return String(localized: L10n.headlineUnavailable(response.unavailableCauseText ?? response.summary))
     }
     if response.stale {
       let seconds = response.ageSeconds.map { NSDecimalNumber(decimal: $0.value).intValue }

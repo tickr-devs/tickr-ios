@@ -945,7 +945,7 @@ public final class AppModel {
     for index in sent.indices where sent[index].outcome == nil {
       if let record = records.first(where: { $0.commandId == sent[index].id }) {
         sent[index].outcome = record.outcome
-        sent[index].cause = record.cause
+        sent[index].cause = record.causeText
         show(sent[index])
       }
     }

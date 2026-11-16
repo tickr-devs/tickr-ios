@@ -174,7 +174,7 @@ struct SymbolsView: View {
     guard let movers = model.movers else {
       return model.moversError.map { String(localized: L10n.Symbols.unavailable($0)) } ?? Format.missing
     }
-    return movers.rules.map(SymbolsBoard.rules) ?? movers.rulesCause ?? Format.missing
+    return movers.rules.map(SymbolsBoard.rules) ?? movers.rulesCauseText ?? Format.missing
   }
 
   // MARK: list
@@ -374,7 +374,7 @@ struct FastMoversCard: View {
       CardLabel(L10n.FastMovers.title)
       if let movers {
         if movers.movers.isEmpty {
-          Text(verbatim: movers.rulesCause ?? String(localized: L10n.FastMovers.none))
+          Text(verbatim: movers.rulesCauseText ?? String(localized: L10n.FastMovers.none))
             .font(Tokens.Typography.callout)
             .foregroundStyle(Palette.textTertiary)
             .fixedSize(horizontal: false, vertical: true)

@@ -492,7 +492,7 @@ final class AppModel {
       switch record.outcome {
       case .done: notice = Notice(L10n.Notice.done(title), tone: .success)
       case .refused:
-        let cause = record.cause ?? String(localized: L10n.Notice.noCause)
+        let cause = record.causeText ?? String(localized: L10n.Notice.noCause)
         notice = Notice(L10n.Notice.refused(title, cause), tone: .failure)
       }
     }

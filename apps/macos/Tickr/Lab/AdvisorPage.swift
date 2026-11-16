@@ -131,7 +131,7 @@ struct AdvisorCard: View {
         } else {
           // The sentence in the person's language; the bot's own cause (English) on hover.
           Footnote(AdvisorWords.noRuns)
-            .help(Text(verbatim: runs.cause ?? String(localized: AdvisorWords.noRuns)))
+            .help(Text(verbatim: runs.causeText ?? String(localized: AdvisorWords.noRuns)))
         }
       } else if let failure = advisor.failure {
         ReadFailureNote(AdvisorWords.failed, detail: failure)
@@ -233,7 +233,7 @@ struct AdvisorPage: View {
     } else {
       // The sentence in the person's language; the bot's own cause (English) on hover.
       Footnote(AdvisorWords.noRuns)
-        .help(Text(verbatim: advisor.runs?.cause ?? String(localized: AdvisorWords.noRuns)))
+        .help(Text(verbatim: advisor.runs?.causeText ?? String(localized: AdvisorWords.noRuns)))
         .padding(Tokens.Space.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -265,7 +265,7 @@ struct AdvisorPage: View {
         }
         if let unreadable = advisor.runs?.unreadable, !unreadable.isEmpty {
           Footnote(AdvisorWords.unreadable(unreadable.count), color: Palette.warningText)
-            .hint(Text(verbatim: unreadable.map { $0.id + Format.itemSeparator + $0.cause }
+            .hint(Text(verbatim: unreadable.map { $0.id + Format.itemSeparator + $0.causeText }
               .joined(separator: Format.lineSeparator)))
         }
         if let failure = advisor.failure {
@@ -418,7 +418,7 @@ private struct TextsCard: View {
     let parts: [(LocalizedStringResource, String)] = [
       (AdvisorWords.summary, run.summary), (AdvisorWords.expectedEffect, run.expectedEffect),
       (AdvisorWords.risks, run.risks.joined(separator: Format.itemSeparator)),
-      (AdvisorWords.whyNoChange, run.noChangeReason), (AdvisorWords.whyRefused, run.cause),
+      (AdvisorWords.whyNoChange, run.noChangeReason), (AdvisorWords.whyRefused, run.refusalText),
     ].filter { !$0.1.isEmpty }
     Card(AdvisorWords.summary) {
       ForEach(Array(parts.enumerated()), id: \.offset) { _, part in

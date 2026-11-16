@@ -30,7 +30,8 @@ struct FlowStagesTests {
     let empty = try latest("flow-v1.empty.json")
     let stage = FlowStages.reconcile(liveFences: [], latest: empty)
     #expect(stage.value == nil)
-    #expect(stage.note == empty.agreementCause)
+    #expect(stage.note == empty.agreementCauseText)
+    #expect(stage.note != empty.agreementCause)
     #expect(stage.agrees == nil)
     #expect(FlowStages.reconcile(liveFences: nil, latest: nil) == .init(value: nil, note: nil))
   }

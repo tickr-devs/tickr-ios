@@ -40,6 +40,63 @@ struct ContractCauseCodesTests {
     #expect(waiting.waitsUntil(now: close) == nil)
   }
 
+  /// Every cause these screens show reads in the person's words, never in the bot's.
+  @Test func jobsMoversStatusAndChart() throws {
+    let jobs = try Wire.decoder().decode(JobsV1.self, from: fixture("jobs-v1.weekend.json"))
+    #expect(jobs.sessionCauseCodes.first?.code == "calendar_weekend")
+    #expect(jobs.sessionCauseText?.contains("WEEKEND") == false)
+    let movers = try Wire.decoder().decode(MoversV1.self, from: fixture("movers-v1.no-rules.json"))
+    #expect(movers.rulesCauseText == ProseReason.noFastMoverRules.text([:]))
+    let status = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.unavailable.json"))
+    #expect(status.unavailableCauseText == ProseReason.noStatusFile.text([:]))
+    let chart = try Wire.decoder().decode(ChartV1.self, from: fixture("chart-v1.empty.json"))
+    #expect(chart.causeCodes.first?.code == "no_chart_bars")
+    #expect(chart.causeText != chart.cause)
+  }
+
+  @Test func flowAndSize() throws {
+    let flow = try Wire.decoder().decode(FlowV1.self, from: fixture("flow-v1.empty.json"))
+    #expect(flow.reconcile.agreementCause == nil || flow.reconcile.agreementCauseText != flow.reconcile.agreementCause)
+    #expect(flow.reconcile.fencesCause == nil || flow.reconcile.fencesCauseText != flow.reconcile.fencesCause)
+    let watching = try Wire.decoder().decode(WatchingV1.self, from: fixture("watching-v1.json"))
+    let size = try #require(watching.latestSize)
+    #expect(size.bindingCauseText == ProseReason.bindingNotProven.text([:]))
+  }
+
+  @Test func advisor() throws {
+    let advisor = try Wire.decoder().decode(AdvisorRunsV1.self, from: fixture("advisor-runs-v1.json"))
+    let refused = try #require(advisor.runs.first { $0.status == .refused })
+    #expect(refused.refusalText == ProseReason.tooManyChanges.text(["count": "4", "max": "3"]))
+    #expect(advisor.runs.filter { $0.status != .refused }.allSatisfy { $0.refusalText.isEmpty })
+    let unreadable = try #require(advisor.unreadable.first)
+    #expect(unreadable.causeCodes.first?.code == "run_file_missing")
+    #expect(unreadable.causeText != unreadable.cause)
+    let empty = try Wire.decoder().decode(AdvisorRunsV1.self, from: fixture("advisor-runs-v1.empty.json"))
+    #expect(empty.causeText == ProseReason.noAdvisorRuns.text([:]))
+  }
+
+  /// An emergency's steps read as the commands' titles with what each did.
+  @Test func emergencySteps() throws {
+    let json = #"""
+      {"command_id": "c1", "kind": "emergency", "requested_at": "2026-11-16T15:00:00.000Z",
+       "processed_at": "2026-11-16T15:00:01.000Z", "outcome": "done",
+       "cause": "entry-stop-on: done; flatten: no open position in ABCD",
+       "cause_codes": [
+         {"code": "command_step", "params": {"step": "entry-stop-on", "step_code": "step_done"}},
+         {"code": "command_step", "params": {"step": "flatten", "step_code": "no_open_position", "symbol": "ABCD"}}]}
+      """#
+    let record = try Wire.decoder().decode(CommandRecord.self, from: Data(json.utf8))
+    let text = try #require(record.causeText)
+    #expect(text.hasPrefix(Board.commandTitle(.entryStopOn)))
+    #expect(text.contains(Board.commandTitle(.flatten)))
+    #expect(text.contains("ABCD"))
+    #expect(!text.contains("entry-stop-on"))
+    let steps = ReasonV1(code: "steps_not_run", params: ["steps": "cancel-own-orders, flatten"])
+    #expect(ApiText.prose([steps], text: "x").contains(Board.commandTitle(.cancelOwnOrders)))
+    let unknown = ReasonV1(code: "steps_not_run", params: ["steps": "reboot"])
+    #expect(ApiText.prose([unknown], text: "x") == "x")
+  }
+
   @Test("A document written before codes reads with none")
   func older() throws {
     let json = #"{"minutes": 1, "at": "2026-11-16T15:01:00.000Z", "price": null, "change_usd": null, "cause": "x"}"#

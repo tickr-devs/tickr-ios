@@ -58,7 +58,7 @@ struct StageDetailsTests {
   func universe() throws {
     let detail = StageDetail.make(.universe, from: try Fixtures().recorded)
     #expect(value(detail, L10n.stageAdmitted) == String(localized: L10n.stageCountOf(3, 4)))
-    #expect(detail.groups.map(\.title) == [String(localized: L10n.universeType("ETF"))])
+    #expect(detail.groups.map(\.title) == [ProseReason.universeType.text(["measured": "ETF"])])
     #expect(detail.groups.first?.rows.map(\.symbol) == ["SPY"])
   }
 

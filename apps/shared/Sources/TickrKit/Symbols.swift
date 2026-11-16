@@ -223,6 +223,8 @@ public struct MoversV1: Codable, Hashable, Sendable {
   /// Nil with `rulesCause` when the active strategy defines no fast movers.
   public let rules: FastMoverRulesV1?
   public let rulesCause: String?
+  /// The codes of `rulesCause` (added after version 1 shipped: empty from an older API).
+  public let rulesCauseCodes: [ReasonV1]
   public let movers: [FastMoverV1]
   public let apiVersion: Int
 
@@ -230,6 +232,7 @@ public struct MoversV1: Codable, Hashable, Sendable {
     case day, rules, movers
     case rulesCause = "rules_cause"
     case apiVersion = "api_version"
+    case rulesCauseCodes = "rules_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -238,6 +241,7 @@ public struct MoversV1: Codable, Hashable, Sendable {
     day = try c.decode(WireDate.self, forKey: .day)
     rules = try c.decodeNullable(FastMoverRulesV1.self, forKey: .rules)
     rulesCause = try c.decodeNullable(String.self, forKey: .rulesCause)
+    rulesCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .rulesCauseCodes) ?? []
     movers = try c.decode([FastMoverV1].self, forKey: .movers)
   }
 
@@ -246,7 +250,11 @@ public struct MoversV1: Codable, Hashable, Sendable {
     try c.encode(day, forKey: .day)
     try c.encodeNullable(rules, forKey: .rules)
     try c.encodeNullable(rulesCause, forKey: .rulesCause)
+    try c.encode(rulesCauseCodes, forKey: .rulesCauseCodes)
     try c.encode(movers, forKey: .movers)
     try c.encode(apiVersion, forKey: .apiVersion)
   }
+
+  /// Why there are no fast-mover rules, in the person's language (the bot's words for an unknown code).
+  public var rulesCauseText: String? { ApiText.prose(rulesCauseCodes, text: rulesCause) }
 }

@@ -157,8 +157,7 @@ extension StageDetail {
     var causes: [String] = []
     var symbols: [String: [String]] = [:]
     for chip in flow.chips {
-      guard let cause = chip.excludedCause else { continue }
-      let text = FlowBoard.exclusion(cause)
+      guard let text = chip.excludedCauseText else { continue }
       if symbols[text] == nil { causes.append(text) }
       symbols[text, default: []].append(chip.symbol)
     }
@@ -312,7 +311,7 @@ extension StageDetail {
     switch latest.agreement {
     case .match?: facts.append(fact(L10n.stageRecords, String(localized: L10n.stageMatch), .green))
     case .mismatch?: facts.append(fact(L10n.stageRecords, String(localized: L10n.stageMismatch), .red))
-    case nil: facts.append(fact(L10n.stageRecords, latest.agreementCause ?? missing))
+    case nil: facts.append(fact(L10n.stageRecords, latest.agreementCauseText ?? missing))
     }
     if let read = latest.readAt { facts.append(fact(L10n.stageReadAt, FlowBoard.newYorkMinute(read.date))) }
     if let mismatch = latest.mismatch { facts.append(fact(L10n.stageMismatchDetail, mismatch, .red)) }
@@ -320,7 +319,7 @@ extension StageDetail {
     if let fences {
       facts.append(fact(L10n.stageFences, String(fences.count), fences.isEmpty ? .green : .amber))
     } else {
-      facts.append(fact(L10n.stageFences, latest.fencesCause ?? missing))
+      facts.append(fact(L10n.stageFences, latest.fencesCauseText ?? missing))
     }
     return (facts, [Self.fences(fences ?? [], status: sources.status)])
   }

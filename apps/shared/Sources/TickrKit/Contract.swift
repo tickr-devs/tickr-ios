@@ -93,12 +93,15 @@ public struct CommandRecord: Codable, Hashable, Sendable {
   public let processedAt: WireTime
   public let outcome: CommandOutcome
   public let cause: String?
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
 
   enum CodingKeys: String, CodingKey {
     case kind, outcome, cause
     case commandId = "command_id"
     case requestedAt = "requested_at"
     case processedAt = "processed_at"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -109,6 +112,7 @@ public struct CommandRecord: Codable, Hashable, Sendable {
     processedAt = try c.decode(WireTime.self, forKey: .processedAt)
     outcome = try c.decode(CommandOutcome.self, forKey: .outcome)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -119,7 +123,11 @@ public struct CommandRecord: Codable, Hashable, Sendable {
     try c.encode(processedAt, forKey: .processedAt)
     try c.encode(outcome, forKey: .outcome)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
+
+  /// What the command did or why it was refused, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }
 
 /// What the bot writes to its status file; served inside StatusResponseV1.
@@ -275,6 +283,8 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
   public let ageSeconds: DecimalString?
   public let stale: Bool
   public let unavailableCause: String?
+  /// The codes of `unavailableCause` (added after version 1 shipped: empty from an older API).
+  public let unavailableCauseCodes: [ReasonV1]
   public let summary: String
   public let pollSeconds: DecimalString
   public let apiVersion: Int
@@ -286,6 +296,7 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
     case unavailableCause = "unavailable_cause"
     case pollSeconds = "poll_seconds"
     case apiVersion = "api_version"
+    case unavailableCauseCodes = "unavailable_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -296,6 +307,7 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
     ageSeconds = try c.decodeNullable(DecimalString.self, forKey: .ageSeconds)
     stale = try c.decode(Bool.self, forKey: .stale)
     unavailableCause = try c.decodeNullable(String.self, forKey: .unavailableCause)
+    unavailableCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .unavailableCauseCodes) ?? []
     summary = try c.decode(String.self, forKey: .summary)
     pollSeconds = try c.decode(DecimalString.self, forKey: .pollSeconds)
   }
@@ -308,9 +320,13 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
     try c.encodeNullable(ageSeconds, forKey: .ageSeconds)
     try c.encode(stale, forKey: .stale)
     try c.encodeNullable(unavailableCause, forKey: .unavailableCause)
+    try c.encode(unavailableCauseCodes, forKey: .unavailableCauseCodes)
     try c.encode(summary, forKey: .summary)
     try c.encode(pollSeconds, forKey: .pollSeconds)
   }
+
+  /// Why the bot's status is unavailable, in the person's language (the bot's words for an unknown code).
+  public var unavailableCauseText: String? { ApiText.prose(unavailableCauseCodes, text: unavailableCause) }
 }
 
 /// POST /pair on the remote port: the bearer token a pairing code bought, answered once.

@@ -1377,7 +1377,7 @@ private struct LatestSizeLine: View {
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.warningText)
       .help(Text(verbatim: [String(localized: L10n.Watching.decidedAt(Format.marketMinute(size.at.date))),
-        size.bindingCause].compactMap { $0 }.joined(separator: Format.lineSeparator)))
+        size.bindingCauseText].compactMap { $0 }.joined(separator: Format.lineSeparator)))
   }
 }
 

@@ -113,7 +113,7 @@ struct JobsSection: View {
     if failed, let error = job.lastFailedError {
       InfoCaption(verbatim: error, tone: .loss)
     }
-    if let cause = job.cause {
+    if let cause = job.causeText {
       InfoCaption(verbatim: cause, tone: .warning)
     }
   }

@@ -850,15 +850,437 @@ GROUPS = [
                 "{folder}: needs {need} prior sessions, the bot keeps {bot}",
                 "{folder}: нужно прошлых сессий: {need}, бот хранит: {bot}",
             ),
+            (
+                "no_fast_mover_rules",
+                "The active strategy defines no fast movers",
+                "Активная стратегия не задаёт быстрых движений",
+            ),
+            (
+                "calendar_weekend",
+                "{day} is a weekend",
+                "{day} — выходной",
+            ),
+            (
+                "calendar_holiday",
+                "{day} is a market holiday",
+                "{day} — биржевой праздник",
+            ),
+            (
+                "calendar_not_covered",
+                "The session calendar does not cover {day}",
+                "Календарь сессий не охватывает {day}",
+            ),
+            (
+                "calendar_invalid",
+                "The session calendar is invalid: {detail}",
+                "Календарь сессий неверен: {detail}",
+            ),
+            (
+                "calendar_naive_time",
+                "A time without a time zone: {detail}",
+                "Время без часового пояса: {detail}",
+            ),
+            (
+                "calendar_invalid_offset",
+                "The session cutoffs do not fit the day: {detail}",
+                "Границы сессии не помещаются в день: {detail}",
+            ),
+            (
+                "half_day_off",
+                "No session on {day}: it is a half day, and half days are off",
+                "Нет сессии {day}: это сокращённый день, а сокращённые дни выключены",
+            ),
+            (
+                "no_database",
+                "The bot has not created its database yet",
+                "Бот ещё не создал свою базу данных",
+            ),
+            (
+                "database_unreadable",
+                "The database cannot be read ({error})",
+                "База данных не читается ({error})",
+            ),
+            (
+                "no_backup",
+                "No backup recorded yet",
+                "Резервных копий пока нет",
+            ),
+            (
+                "nightly_never_ran",
+                "The nightly data refresh has not run yet",
+                "Ночное обновление данных ещё не запускалось",
+            ),
+            (
+                "nightly_file_unreadable",
+                "The nightly refresh's result cannot be read ({error})",
+                "Итог ночного обновления не читается ({error})",
+            ),
+            (
+                "nightly_in_session",
+                "Refused during the regular session",
+                "Отклонено во время основной сессии",
+            ),
+            (
+                "nightly_low_disk",
+                "Only {free_mb} MB free on disk, the refresh needs {min_mb} MB",
+                "На диске свободно только {free_mb} МБ, обновлению нужно {min_mb} МБ",
+            ),
+            (
+                "nightly_no_pool",
+                "No backtest data yet: fetch all of it once first",
+                "Данных для бэктеста ещё нет: сначала загрузите их целиком",
+            ),
+            (
+                "nightly_pool_empty",
+                "The backtest data holds no symbols",
+                "В данных для бэктеста нет ни одного тикера",
+            ),
+            (
+                "nightly_too_many_missing",
+                "{count} sessions are missing after {day}, more than the refresh adds ({max}): "
+                "fetch all data again",
+                "После {day} не хватает сессий: {count}, больше, чем добавляет обновление "
+                "({max}): загрузите данные заново целиком",
+            ),
+            (
+                "nightly_no_session_ahead",
+                "No session within {days} days after {day}",
+                "Нет сессии в течение {days} дн. после {day}",
+            ),
+            (
+                "nightly_stopped_before_open",
+                "Stopped before the next session opens; the data is unchanged",
+                "Остановлено перед открытием следующей сессии; данные не изменились",
+            ),
+            (
+                "nightly_refused",
+                "The nightly data refresh stopped: {detail}",
+                "Ночное обновление данных остановилось: {detail}",
+            ),
+            (
+                "no_status_file",
+                "The bot has not written its status yet",
+                "Бот ещё не записал свой статус",
+            ),
+            (
+                "status_file_invalid",
+                "The bot's status file is invalid: {detail}",
+                "Файл статуса бота неверен: {detail}",
+            ),
+            (
+                "status_from_future",
+                "The bot's status is dated in the future",
+                "Статус бота датирован будущим временем",
+            ),
+            (
+                "account_file_invalid",
+                "The bot's account file is invalid: {detail}",
+                "Файл счёта бота неверен: {detail}",
+            ),
+            (
+                "past_day_reconciliation",
+                "Only the latest reconciliation is kept, not one per day",
+                "Хранится только последняя сверка, а не сверка за каждый день",
+            ),
+            (
+                "past_day_status",
+                "Only the latest status is kept, not one per day",
+                "Хранится только последний статус, а не статус за каждый день",
+            ),
+            (
+                "broker_read_other_day",
+                "The latest broker read was on {day}",
+                "Последнее чтение у брокера было {day}",
+            ),
+            (
+                "status_other_day",
+                "The latest status was written on {day}",
+                "Последний статус записан {day}",
+            ),
+            (
+                "row_without_price",
+                "The captured row has no price",
+                "В записанной строке нет цены",
+            ),
+            (
+                "row_without_pre_close",
+                "The captured row has no previous close",
+                "В записанной строке нет цены предыдущего закрытия",
+            ),
+            (
+                "price_not_number",
+                "The captured price is not a number: {value}",
+                "Записанная цена — не число: {value}",
+            ),
+            (
+                "pre_close_not_number",
+                "The captured previous close is not a number: {value}",
+                "Записанное предыдущее закрытие — не число: {value}",
+            ),
+            (
+                "pre_close_not_positive",
+                "The captured previous close is not positive: {value}",
+                "Записанное предыдущее закрытие не положительное: {value}",
+            ),
+            (
+                "universe_conflicting_rows",
+                "Listed with conflicting data",
+                "В списках с противоречивыми данными",
+            ),
+            (
+                "universe_exchange",
+                "Exchange {measured} is not traded",
+                "Биржа {measured} не торгуется",
+            ),
+            (
+                "universe_currency",
+                "Currency {measured} is not traded",
+                "Валюта {measured} не торгуется",
+            ),
+            (
+                "universe_type_unknown",
+                "Security type unknown",
+                "Тип бумаги неизвестен",
+            ),
+            (
+                "universe_type",
+                "Security type {measured} is not traded",
+                "Тип бумаги {measured} не торгуется",
+            ),
+            (
+                "binding_not_proven",
+                "The record does not show which limit set the size: the planned loss, the "
+                "position cap or the daily room",
+                "Запись не показывает, какой предел задал размер: плановый убыток, предел позиции "
+                "или дневной запас",
+            ),
+            (
+                "no_chart_bars",
+                "No candles for {symbol} in this range",
+                "Нет свечей {symbol} за этот период",
+            ),
+            (
+                "no_advisor_runs",
+                "No advisor run yet",
+                "Запусков советника ещё не было",
+            ),
+            (
+                "proposals_unreadable",
+                "The advisor's folder cannot be read ({error})",
+                "Папка советника не читается ({error})",
+            ),
+            (
+                "run_folder_misnamed",
+                "The run folder's name is not a run's",
+                "Имя папки запуска не похоже на имя запуска",
+            ),
+            (
+                "run_folder_unreadable",
+                "The run folder cannot be read ({error})",
+                "Папка запуска не читается ({error})",
+            ),
+            (
+                "run_file_missing",
+                "No {file}: an older or interrupted run",
+                "Нет {file}: старый или прерванный запуск",
+            ),
+            ("run_file_invalid", "{file} cannot be read ({error})", "{file} не читается ({error})"),
+            (
+                "run_file_wrong_schema",
+                "{file} is not in the run format",
+                "{file} не в формате запуска",
+            ),
+            (
+                "answer_not_json",
+                "The answer is not JSON: {detail}",
+                "Ответ — не JSON: {detail}",
+            ),
+            (
+                "answer_off_schema",
+                "The answer does not match the proposal format",
+                "Ответ не соответствует формату предложения",
+            ),
+            (
+                "changes_not_list",
+                "The answer's changes are not a list",
+                "Изменения в ответе — не список",
+            ),
+            (
+                "too_many_changes",
+                "{count} changes proposed, at most {max} allowed",
+                "Предложено изменений: {count}, допустимо не больше {max}",
+            ),
+            (
+                "change_malformed",
+                "A change is malformed: {detail}",
+                "Изменение составлено неверно: {detail}",
+            ),
+            (
+                "change_twice",
+                "[{section}] {key} is changed twice",
+                "[{section}] {key} изменяется дважды",
+            ),
+            (
+                "change_fixed_section",
+                "[{section}] {key}: the strategy's name and version are not the advisor's to "
+                "change",
+                "[{section}] {key}: имя и версию стратегии советник менять не может",
+            ),
+            (
+                "change_unknown_key",
+                "[{section}] {key}: no such setting in the strategy",
+                "[{section}] {key}: такой настройки в стратегии нет",
+            ),
+            (
+                "change_not_toml",
+                "[{section}] {key}: not a valid value: {value}",
+                "[{section}] {key}: недопустимое значение: {value}",
+            ),
+            (
+                "change_other_kind",
+                "[{section}] {key}: new value {value} has another type than the current one",
+                "[{section}] {key}: новое значение {value} другого типа, чем текущее",
+            ),
+            (
+                "change_same_value",
+                "[{section}] {key}: the new value equals the current one {value}",
+                "[{section}] {key}: новое значение совпадает с текущим {value}",
+            ),
+            (
+                "answer_empty",
+                "The answer has no changes, no idea and no reason for neither",
+                "В ответе нет ни изменений, ни идеи, ни объяснения, почему их нет",
+            ),
+            (
+                "idea_off_schema",
+                "The strategy idea does not match its format",
+                "Идея стратегии не соответствует своему формату",
+            ),
+            (
+                "idea_incomplete",
+                "The strategy idea lacks {fields}",
+                "В идее стратегии не хватает: {fields}",
+            ),
+            (
+                "idea_name_wrong",
+                "The strategy idea's name {name} is not like name-v1",
+                "Имя идеи стратегии {name} не похоже на name-v1",
+            ),
+            (
+                "version_not_whole",
+                "A strategy's version {version} is not a whole number",
+                "Версия стратегии {version} — не целое число",
+            ),
+            (
+                "no_strategy_named",
+                "No strategy folder named {strategy}",
+                "Нет папки стратегии с именем {strategy}",
+            ),
+            (
+                "advisor_refused",
+                "The advisor's answer failed the checks: {detail}",
+                "Ответ советника не прошёл проверки: {detail}",
+            ),
+            (
+                "command_after_stop",
+                "Read after the bot was told to stop: the bot is stopping",
+                "Прочитана после команды остановки: бот останавливается",
+            ),
+            (
+                "close_in_progress",
+                "A close is in progress; stop the bot again after it completes",
+                "Идёт закрытие; остановите бота ещё раз, когда оно завершится",
+            ),
+            (
+                "trades_still_open",
+                "{count} trade(s) open or entering: close them first (or send the emergency "
+                "command), then stop the bot",
+                "Открытых или входящих сделок: {count}. Сначала закройте их (или отправьте "
+                "аварийную команду), затем остановите бота",
+            ),
+            (
+                "no_open_position",
+                "No open position in {symbol}",
+                "Нет открытой позиции по {symbol}",
+            ),
+            (
+                "close_refused_before",
+                "The closing order was refused before: look in the Webull app, then clear the "
+                "block",
+                "Закрывающий ордер уже был отклонён: проверьте приложение Webull, затем снимите "
+                "блокировку",
+            ),
+            (
+                "close_held_outside_session",
+                "A close was due outside the regular session and was not sent; the stop stays. "
+                "Close it in the Webull app, or clear the block in the regular session",
+                "Закрытие пришлось на время вне основной сессии и не отправлено; стоп остаётся. "
+                "Закройте позицию в приложении Webull или снимите блокировку в основной сессии",
+            ),
+            (
+                "close_not_sent_now",
+                "No closing order can be sent now; the stops stay. Close the position in the "
+                "Webull app",
+                "Закрывающий ордер сейчас не отправить; стопы остаются. Закройте позицию в "
+                "приложении Webull",
+            ),
+            (
+                "nothing_open",
+                "Nothing open",
+                "Открытых позиций нет",
+            ),
+            (
+                "entry_cancels_requested",
+                "{count} entry cancel(s) requested",
+                "Запрошено отмен входа: {count}",
+            ),
+            (
+                "step_done",
+                "Done",
+                "Выполнено",
+            ),
+            (
+                "steps_done",
+                "Steps done: {steps}",
+                "Выполненные шаги: {steps}",
+            ),
+            ("every_step_ran", "Every step ran", "Все шаги выполнены"),
+            (
+                "steps_not_run",
+                "Not run: {steps}",
+                "Не выполнены: {steps}",
+            ),
+            (
+                "command_file_unreadable",
+                "The command file cannot be read: {detail}",
+                "Файл команды не читается: {detail}",
+            ),
+            (
+                "command_file_misnamed",
+                "The command file's name does not match the command",
+                "Имя файла команды не совпадает с командой",
+            ),
+            (
+                "command_from_future",
+                "Requested {seconds} s in the future",
+                "Запрошена на {seconds} с в будущем",
+            ),
+            (
+                "command_expired",
+                "Expired: requested {seconds} s ago (limit {limit} s)",
+                "Просрочена: запрошена {seconds} с назад (предел {limit} с)",
+            ),
         ],
         "Prose",
     ),
 ]
 
-# The file parts, in order, with their (codes file, L10n file); the first also holds ReasonParam.
+# The file parts, in order, with their (codes file, sentences file, L10n file); the first also
+# holds ReasonParam. A code's sentences are an extension in their own file, so neither the enum
+# nor either file passes SwiftLint's length limits.
 PARTS = {
-    "Reasons": ("ReasonCodes.swift", "L10n+Reasons.swift"),
-    "Prose": ("ProseCodes.swift", "L10n+Prose.swift"),
+    "Reasons": ("ReasonCodes.swift", "ReasonSentences.swift", "L10n+Reasons.swift"),
+    "Prose": ("ProseCodes.swift", "ProseSentences.swift", "L10n+Prose.swift"),
 }
 PARAM = re.compile(r"\{(\w+)\}")
 # Longest line SwiftLint allows (it warns above this, and CI runs it strict).
@@ -941,13 +1363,15 @@ def l10n_files(part):
             out = list(head)
         out += entry
     files.append(out + ["}"])
-    stem = PARTS[part][1].removesuffix(".swift")
+    stem = PARTS[part][2].removesuffix(".swift")
     return [(stem + (str(n + 1) if n else "") + ".swift", "\n".join(lines) + "\n")
             for n, lines in enumerate(files)]
 
 
 def reason_swift(part):
+    """(codes file text, sentences file text) of a part."""
     out = [HEADER, "", "import Foundation", ""]
+    sentences = [HEADER, "", "import Foundation", ""]
     if part == next(iter(PARTS)):
         names = sorted({n for _e, _k, _c, _v, ns, *_ in entries() for n in ns})
         out += [
@@ -972,8 +1396,9 @@ def reason_swift(part):
         codes = list(dict.fromkeys(code for code, *_ in items))
         for code in codes:
             out.append(f'  case {camel(code)} = "{code}"')
-        out += [
-            "",
+        out += ["}", ""]
+        sentences += [
+            f"extension {enum} {{",
             "  /// The code's sentences (one per shape the bot writes it in), each with the",
             "  /// values it names.",
             "  public var sentences: [ReasonSentence] {",
@@ -988,8 +1413,8 @@ def reason_swift(part):
             line = f"    case .{camel(code)}: [{', '.join(parts)}]"
             if len(line) > LINE:
                 line = f"    case .{camel(code)}: [\n      " + ",\n      ".join(parts) + ",\n    ]"
-            out.append(line)
-        out += [
+            sentences.append(line)
+        sentences += [
             "    }",
             "  }",
             "",
@@ -1001,7 +1426,7 @@ def reason_swift(part):
             "}",
             "",
         ]
-    return "\n".join(out).rstrip() + "\n"
+    return ("\n".join(out).rstrip() + "\n", "\n".join(sentences).rstrip() + "\n")
 
 
 def catalog_entry(en, ru, names, doc):
@@ -1027,8 +1452,10 @@ def codes(enum):
 def check():
     """Differences between the committed files and this list; empty when they agree."""
     problems = []
-    for part, (codes_file, l10n_file) in PARTS.items():
-        for name, text in [(codes_file, reason_swift(part)), *l10n_files(part)]:
+    for part, (codes_file, sentences_file, l10n_file) in PARTS.items():
+        codes_text, sentences_text = reason_swift(part)
+        generated = [(codes_file, codes_text), (sentences_file, sentences_text), *l10n_files(part)]
+        for name, text in generated:
             path = KIT / name
             if not path.exists() or path.read_text() != text:
                 problems.append(f"{name} differs from the generator")
@@ -1046,8 +1473,10 @@ def check():
 
 
 def write():
-    for part, (codes_file, l10n_file) in PARTS.items():
-        (KIT / codes_file).write_text(reason_swift(part))
+    for part, (codes_file, sentences_file, l10n_file) in PARTS.items():
+        codes_text, sentences_text = reason_swift(part)
+        (KIT / codes_file).write_text(codes_text)
+        (KIT / sentences_file).write_text(sentences_text)
         stem = l10n_file.removesuffix(".swift")
         for path in KIT.glob(stem + "*.swift"):
             if path.name.removeprefix(stem).removesuffix(".swift").isdigit():

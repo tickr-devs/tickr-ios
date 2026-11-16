@@ -783,7 +783,7 @@ struct JobsSection: View {
           SessionStrip(span: SessionSpan(session), now: model.botTime(context.date),
             moving: Self.stripesMove(reduceMotion: reduceMotion, model: model))
         }
-      } else if let cause = model.jobs?.sessionCause {
+      } else if let cause = model.jobs?.sessionCauseText {
         Text(verbatim: cause).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
       }
       Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
@@ -1091,7 +1091,7 @@ private struct BackupSection: View {
         } else {
           state(Self.unknownSymbol, tone: .neutral, Text(verbatim: Format.missing))
         }
-        if let cause = job.cause {
+        if let cause = job.causeText {
           Text(verbatim: cause).font(Tokens.Typography.callout).foregroundStyle(Palette.warningText)
         }
       } else if let error = model.jobsError {

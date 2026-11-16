@@ -15,16 +15,16 @@ struct FlowBoardTests {
     #expect(marks.map(\.tone) == [.pending, .alarm, .normal, .normal])
     // SPY was left out by the universe; ABCD's later refusal does not undo its fill.
     #expect(marks.map(\.refused) == [false, false, true, false])
-    #expect(marks[2].note == String(localized: L10n.universeType("ETF")))
+    #expect(marks[2].note == ProseReason.universeType.text(["measured": "ETF"]))
   }
 
-  @Test("A universe exclusion reads in words, never as its code")
-  func exclusions() {
-    #expect(FlowBoard.exclusion("EXCHANGE_NOT_ALLOWED: OTC") == String(localized: L10n.universeExchange("OTC")))
-    #expect(FlowBoard.exclusion("CONFLICTING_ROWS: AAA/X/USD/CS; BBB/X/USD/CS")
-      == String(localized: L10n.universeConflictingRows))
-    #expect(FlowBoard.exclusion("NEW_FILTER: 3") == String(localized: L10n.universeOther))
-    #expect(FlowBoard.exclusion("left out by hand") == "left out by hand")
+  @Test("A universe exclusion reads in words from its code, never as the bot's text")
+  func exclusions() throws {
+    let flow = try Wire.decoder().decode(FlowV1.self, from: fixture("flow-v1.json"))
+    let spy = try #require(flow.chips.first { $0.symbol == "SPY" })
+    #expect(spy.excludedCause == "SECURITY_TYPE_NOT_ALLOWED: ETF")
+    #expect(spy.excludedCauseText == ProseReason.universeType.text(["measured": "ETF"]))
+    #expect(spy.excludedCauseText?.contains("SECURITY_TYPE") == false)
   }
 
   @Test("A refusal recorded as text reads without its code, its times in New York")

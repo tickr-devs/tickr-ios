@@ -24,7 +24,7 @@ enum FlowStages {
     switch latest?.agreement {
     case .mismatch: return Reconcile(value: String(localized: L10n.Screener.mismatch), note: nil, agrees: false)
     case .match: return Reconcile(value: String(localized: L10n.Flow.match), note: nil, agrees: true)
-    case nil: return Reconcile(value: nil, note: latest?.agreementCause)
+    case nil: return Reconcile(value: nil, note: latest?.agreementCauseText)
     }
   }
 }
@@ -79,7 +79,7 @@ private struct FlowChip: View {
 
   /// The chip's hover help: why it was skipped and why its change is missing, if so.
   static func help(_ chip: FlowChipV1) -> String {
-    [chip.excludedCause, chip.changeCause].compactMap { $0 }.joined(separator: Format.lineSeparator)
+    [chip.excludedCauseText, chip.changeCauseText].compactMap { $0 }.joined(separator: Format.lineSeparator)
   }
 
   /// "gainers +21.3%"; "skipped" for a symbol the universe left out.
@@ -282,7 +282,7 @@ struct WatchingRow: View {
           .help(Text(L10n.Watching.quoteAgeHelp(decided)))
       } else {
         Text(verbatim: Format.missing)
-          .help(Text(verbatim: [row.quoteAgeCause, String(localized: L10n.Watching.decidedAt(decided))]
+          .help(Text(verbatim: [row.quoteAgeCauseText, String(localized: L10n.Watching.decidedAt(decided))]
             .compactMap { $0 }.joined(separator: Format.lineSeparator)))
       }
     }
@@ -311,7 +311,7 @@ struct WatchingRow: View {
     }
     .frame(height: Tokens.Size.barThin)
     .animation(reduceMotion ? nil : Tokens.Motion.fill, value: share)
-    .help(share == nil ? row.closenessCause.map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness)
+    .help(share == nil ? row.closenessCauseText.map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness)
       : Text(L10n.Watching.closeness))
     .accessibilityLabel(Text(L10n.Watching.closeness))
     .accessibilityValue(share.map { Text($0, format: .percent) } ?? Text(verbatim: Format.missing))
@@ -367,7 +367,7 @@ struct FastMoversCard: View {
     } content: {
       if let movers = model.movers {
         if movers.movers.isEmpty {
-          Footnote(verbatim: movers.rulesCause ?? String(localized: L10n.FastMovers.none))
+          Footnote(verbatim: movers.rulesCauseText ?? String(localized: L10n.FastMovers.none))
         } else {
           VStack(spacing: Tokens.Space.xs) {
             ForEach(Array(movers.movers.prefix(Self.rowCap).enumerated()), id: \.element.symbol) { index, mover in

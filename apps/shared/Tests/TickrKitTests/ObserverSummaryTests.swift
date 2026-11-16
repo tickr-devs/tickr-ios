@@ -30,7 +30,7 @@ struct ObserverSummaryTests {
     #expect(summary.agreement == 0.5)
     #expect(summary.exits == 1)
     #expect(summary.result == Decimal(string: "-12.50"))
-    #expect(summary.resultCause == nil)
+    #expect(summary.resultCauseText == nil)
     #expect(summary.id == "price-action 2")
   }
 
@@ -39,6 +39,6 @@ struct ObserverSummaryTests {
     let summary = ObserverSummary(try observer([("BXVR", "WATCH")], cause: "no bars for BXVR"), traded: ["MVLD"])
     #expect(summary.agreement == nil)
     #expect(summary.result == nil)
-    #expect(summary.resultCause == "no bars for BXVR")
+    #expect(summary.resultCauseText == "no bars for BXVR")
   }
 }

@@ -57,6 +57,8 @@ public struct ChartV1: Codable, Hashable, Sendable {
   /// When the bot last fetched them; nil when it never did.
   public let cachedAt: WireTime?
   public let cause: String?
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
   public let bars: [ChartBarV1]
   public let apiVersion: Int
 
@@ -64,6 +66,7 @@ public struct ChartV1: Codable, Hashable, Sendable {
     case symbol, interval, range, source, cause, bars
     case cachedAt = "cached_at"
     case apiVersion = "api_version"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -75,6 +78,7 @@ public struct ChartV1: Codable, Hashable, Sendable {
     source = try c.decode(String.self, forKey: .source)
     cachedAt = try c.decodeNullable(WireTime.self, forKey: .cachedAt)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
     bars = try c.decode([ChartBarV1].self, forKey: .bars)
   }
 
@@ -86,7 +90,11 @@ public struct ChartV1: Codable, Hashable, Sendable {
     try c.encode(source, forKey: .source)
     try c.encodeNullable(cachedAt, forKey: .cachedAt)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
     try c.encode(bars, forKey: .bars)
     try c.encode(apiVersion, forKey: .apiVersion)
   }
+
+  /// Why there are no candles, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }

@@ -129,7 +129,7 @@ struct ChartTab: View {
               ContentUnavailableView {
                 Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
               } description: {
-                Text(ChartText.noCandles(answer.cause ?? ChartFormat.missing))
+                Text(ChartText.noCandles(answer.causeText ?? ChartFormat.missing))
               }
               .rise()
             } else {

@@ -63,7 +63,7 @@ final class ChartModel {
   }
 
   /// Why the read for a range beyond one day brought no candles, when the bot said.
-  var rangeCause: String? { rangeChart?.cause }
+  var rangeCause: String? { rangeChart?.causeText }
 
   /// Reads the candles of `symbol` in `interval` over `range` (GET /chart). A cancelled read
   /// changes nothing; a refusal (503 while market data is off) shows its cause.

@@ -179,6 +179,8 @@ public struct AdvisorRunV1: Codable, Hashable, Sendable, Identifiable {
   public let noChangeReason: String
   /// Why the answer was refused; empty otherwise.
   public let cause: String
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
   public let idea: AdvisorIdeaV1?
   public let judges: [AdvisorJudgeV1]
   /// Nil = awaiting the owner's review.
@@ -191,6 +193,7 @@ public struct AdvisorRunV1: Codable, Hashable, Sendable, Identifiable {
     case judgeOn = "judge_on"
     case expectedEffect = "expected_effect"
     case noChangeReason = "no_change_reason"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -211,6 +214,7 @@ public struct AdvisorRunV1: Codable, Hashable, Sendable, Identifiable {
     risks = try c.decode([String].self, forKey: .risks)
     noChangeReason = try c.decode(String.self, forKey: .noChangeReason)
     cause = try c.decode(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
     idea = try c.decodeNullable(AdvisorIdeaV1.self, forKey: .idea)
     judges = try c.decode([AdvisorJudgeV1].self, forKey: .judges)
     decision = try c.decodeNullable(AdvisorDecisionV1.self, forKey: .decision)
@@ -234,6 +238,7 @@ public struct AdvisorRunV1: Codable, Hashable, Sendable, Identifiable {
     try c.encode(risks, forKey: .risks)
     try c.encode(noChangeReason, forKey: .noChangeReason)
     try c.encode(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
     try c.encodeNullable(idea, forKey: .idea)
     try c.encode(judges, forKey: .judges)
     try c.encodeNullable(decision, forKey: .decision)
@@ -243,12 +248,43 @@ public struct AdvisorRunV1: Codable, Hashable, Sendable, Identifiable {
   public var awaitingReview: Bool {
     decision == nil && (status == .proposed || status == .idea)
   }
+
+  /// Why the advisor's answer was refused, in the person's language (the bot's words for an unknown code).
+  public var causeText: String { ApiText.prose(causeCodes, text: cause) }
+
+  /// Why a refused run's answer was refused, in the person's language; empty for a run that was
+  /// not refused (its `cause` then repeats the advisor's own no-change reason).
+  public var refusalText: String { status == .refused ? causeText : String() }
 }
 
 /// A run folder the API could not read, with its one cause.
 public struct AdvisorUnreadableV1: Codable, Hashable, Sendable {
   public let id: String
   public let cause: String
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
+
+  enum CodingKeys: String, CodingKey {
+    case id, cause
+    case causeCodes = "cause_codes"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    id = try c.decode(String.self, forKey: .id)
+    cause = try c.decode(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(id, forKey: .id)
+    try c.encode(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
+  }
+
+  /// Why the run cannot be read, in the person's language (the bot's words for an unknown code).
+  public var causeText: String { ApiText.prose(causeCodes, text: cause) }
 }
 
 /// GET /advisor.
@@ -260,12 +296,15 @@ public struct AdvisorRunsV1: Codable, Hashable, Sendable {
   public let awaitingReview: Int
   /// Why there are no runs (no proposals folder yet).
   public let cause: String?
+  /// The codes of `cause` (added after version 1 shipped: empty from an older API).
+  public let causeCodes: [ReasonV1]
   public let apiVersion: Int
 
   enum CodingKeys: String, CodingKey {
     case runs, unreadable, cause
     case awaitingReview = "awaiting_review"
     case apiVersion = "api_version"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -275,6 +314,7 @@ public struct AdvisorRunsV1: Codable, Hashable, Sendable {
     unreadable = try c.decode([AdvisorUnreadableV1].self, forKey: .unreadable)
     awaitingReview = try c.decode(Int.self, forKey: .awaitingReview)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -283,6 +323,10 @@ public struct AdvisorRunsV1: Codable, Hashable, Sendable {
     try c.encode(unreadable, forKey: .unreadable)
     try c.encode(awaitingReview, forKey: .awaitingReview)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
     try c.encode(apiVersion, forKey: .apiVersion)
   }
+
+  /// Why no run can be listed, in the person's language (the bot's words for an unknown code).
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 }

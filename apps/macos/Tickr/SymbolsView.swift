@@ -102,7 +102,7 @@ struct SymbolsView: View {
     guard let movers = model.movers else {
       return model.moversError.map { String(localized: L10n.Symbols.unavailable($0)) } ?? Format.missing
     }
-    return movers.rules.map(SymbolsBoard.rules) ?? movers.rulesCause ?? Format.missing
+    return movers.rules.map(SymbolsBoard.rules) ?? movers.rulesCauseText ?? Format.missing
   }
 
   private func filterCount(_ filter: SymbolsFilter) -> Int {

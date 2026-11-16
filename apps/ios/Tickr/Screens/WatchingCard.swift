@@ -96,8 +96,8 @@ struct WatchingRow: View {
         .accessibilityElement()
         .accessibilityLabel(Text(L10n.Watching.closeness))
         .accessibilityValue(Text(share, format: .percent.precision(.fractionLength(0))))
-      } else if let cause = row.closenessCause {
-        Text(verbatim: ApiText.prose(row.closenessCauseCodes, text: cause))
+      } else if let cause = row.closenessCauseText {
+        Text(verbatim: cause)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }

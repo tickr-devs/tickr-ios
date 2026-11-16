@@ -49,7 +49,7 @@ public enum ConnectionState: Equatable, Sendable {
     }
     guard let response else { return .connecting }
     guard response.status != nil else {
-      return .noBotStatus(cause: response.unavailableCause ?? response.summary)
+      return .noBotStatus(cause: response.unavailableCauseText ?? response.summary)
     }
     return .connected
   }

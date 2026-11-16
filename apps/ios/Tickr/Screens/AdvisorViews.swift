@@ -134,7 +134,7 @@ struct AdvisorCard: View {
           }
         }
       } else {
-        InfoCaption(verbatim: runs.cause ?? String(localized: AdvisorWords.noRuns))
+        InfoCaption(verbatim: runs.causeText ?? String(localized: AdvisorWords.noRuns))
       }
       if !runs.unreadable.isEmpty {
         InfoCaption(AdvisorWords.unreadable(runs.unreadable.count), systemImage: LabView.warningSymbol, tone: .warning)
@@ -305,7 +305,7 @@ struct AdvisorProposalView: View {
     let parts: [(LocalizedStringResource, String)] = [
       (AdvisorWords.summary, run.summary), (AdvisorWords.expectedEffect, run.expectedEffect),
       (AdvisorWords.risks, run.risks.joined(separator: Format.separator)),
-      (AdvisorWords.whyNoChange, run.noChangeReason), (AdvisorWords.whyRefused, run.cause),
+      (AdvisorWords.whyNoChange, run.noChangeReason), (AdvisorWords.whyRefused, run.refusalText),
     ].filter { !$0.1.isEmpty }
     if !parts.isEmpty {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
