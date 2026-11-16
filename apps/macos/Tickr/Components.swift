@@ -231,6 +231,64 @@ struct ScrollsWhenTall<Content: View>: View {
   }
 }
 
+/// A row, chip or tile that opens another screen: a plain button that outlines under the pointer,
+/// so whatever looks clickable on a board is. `hint` says where it leads, for VoiceOver.
+struct LinkTile<Label: View>: View {
+  let hint: Text
+  var radius: CGFloat = Tokens.Radius.medium
+  let action: () -> Void
+  let label: Label
+  @State private var hovered = false
+
+  init(
+    _ hint: LocalizedStringResource, radius: CGFloat = Tokens.Radius.medium, action: @escaping () -> Void,
+    @ViewBuilder label: () -> Label
+  ) {
+    self.hint = Text(hint)
+    self.radius = radius
+    self.action = action
+    self.label = label()
+  }
+
+  var body: some View {
+    let shape = RoundedRectangle(cornerRadius: radius)
+    Button(action: action) {
+      label.contentShape(shape)
+    }
+    .buttonStyle(.plain)
+    .overlay {
+      shape.strokeBorder(Palette.info, lineWidth: Tokens.Stroke.thin)
+        .opacity(hovered ? 1 : 0)
+        .allowsHitTesting(false)
+    }
+    .onHover { hovered = $0 }
+    .animation(Tokens.Motion.quick, value: hovered)
+    .accessibilityHint(hint)
+  }
+}
+
+/// A row or chip that opens the Chart on its symbol (the shown day stays).
+struct ChartLink<Label: View>: View {
+  @Environment(AppModel.self) private var model
+  @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
+  let symbol: String
+  let label: Label
+
+  init(_ symbol: String, @ViewBuilder label: () -> Label) {
+    self.symbol = symbol
+    self.label = label()
+  }
+
+  var body: some View {
+    LinkTile(L10n.Common.openOnChart(symbol)) {
+      chartSymbol = symbol
+      model.section = .chart
+    } label: {
+      label
+    }
+  }
+}
+
 /// A quiet "Details ›" action in a card header or under a message: the ghost button with a
 /// chevron, optionally led by a symbol.
 struct MoreButton: View {

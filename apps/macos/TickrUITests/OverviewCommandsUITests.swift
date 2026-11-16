@@ -1,7 +1,7 @@
 import XCTest
 
 /// The bot's commands on Overview in the narrowest window the app allows. The Safety · bot card
-/// sits in a row of a fixed height (OverviewView.middleRowHeight), so every command must still
+/// sits in a row at least OverviewView.middleRowHeight tall, so every command must still
 /// lie inside the card, be hittable, and (except pausing, which acts at once and is never
 /// pressed here) open its confirmation. Run in English and in Russian, whose labels are the
 /// longest; the macOS app has one text size (no Dynamic Type on the Mac, Tokens.Typography).

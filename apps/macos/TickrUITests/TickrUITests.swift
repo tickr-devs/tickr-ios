@@ -261,7 +261,8 @@ final class TickrUITests: XCTestCase {
     let event = app.descendants(matching: .any)[Self.latestEvent].firstMatch
     XCTAssertTrue(event.waitForExistence(timeout: Self.timeout), "latest event\n\(app.debugDescription)")
     let watching = app.descendants(matching: .any)[Self.watchingCard].firstMatch
-    let check = watching.staticTexts.matching(NSPredicate(format: "value BEGINSWITH %@", Self.decisionRule))
+    // Each row is a button that opens the Chart, so its texts are read in the button's label.
+    let check = watching.buttons.matching(NSPredicate(format: "label CONTAINS %@", Self.decisionRule))
     XCTAssertTrue(check.firstMatch.waitForExistence(timeout: Self.timeout), "watched symbol\n\(app.debugDescription)")
   }
 

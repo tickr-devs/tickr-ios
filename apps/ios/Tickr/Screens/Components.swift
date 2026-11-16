@@ -364,6 +364,9 @@ extension View {
     toolbarVisibility(.hidden, for: .navigationBar)
       .navigationTitle(Text(tab.title))
       .safeAreaInset(edge: .bottom, spacing: 0) { TickrTabBar() }
+      // The bar sits lower than the space it reserves (it reaches into the home indicator's
+      // strip): a gap more, so the last card ends clear of the bar instead of under its edge.
+      .contentMargins(.bottom, Tokens.Space.l, for: .scrollContent)
   }
 }
 

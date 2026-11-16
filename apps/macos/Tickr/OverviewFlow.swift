@@ -40,6 +40,7 @@ struct FlowChips: View {
   var body: some View {
     Marquee(moving: moving, content: chips) {
       HStack(spacing: Tokens.Space.s) {
+        // No links here: the marquee draws its row as an image, outside the screen's environment.
         ForEach(chips, id: \.symbol) { chip in
           FlowChip(chip: chip)
         }
@@ -161,10 +162,13 @@ struct LatestEvent: View {
 struct WatchingCard: View {
   @Environment(AppModel.self) private var model
 
-  /// Display cap on the rows shown (not an API limit); the card says how many there are in all.
-  static let shown = 6
+  /// Rows shown until the person asks for all (not an API limit), as the design's card holds
+  /// them without a scroll; "N more" shows the rest.
+  static let shown = 3
   /// Accessibility id of the card, for the UI tests.
   static let id = "overview-watching"
+
+  @State private var expanded = false
 
   var body: some View {
     Card(L10n.Watching.title) {
@@ -177,13 +181,24 @@ struct WatchingCard: View {
         if watching.rows.isEmpty {
           Footnote(L10n.Watching.none)
         } else {
+          let rows = expanded ? watching.rows : Array(watching.rows.prefix(Self.shown))
           VStack(spacing: Tokens.Space.s) {
-            ForEach(watching.rows.prefix(Self.shown), id: \.symbol) { row in
-              WatchingRow(row: row)
+            // Each row opens the Chart on its symbol.
+            ForEach(rows, id: \.symbol) { row in
+              ChartLink(row.symbol) { WatchingRow(row: row) }
             }
           }
-          if watching.total > Self.shown {
-            Footnote(L10n.Watching.count(min(watching.rows.count, Self.shown), watching.total))
+          HStack(spacing: Tokens.Space.s) {
+            if watching.rows.count > Self.shown {
+              MoreButton(expanded ? L10n.Watching.fewer : L10n.Watching.more(watching.rows.count - Self.shown)) {
+                withAnimation(Tokens.Motion.standard) { expanded.toggle() }
+              }
+            }
+            Spacer(minLength: 0)
+            // The bot sends the closest rows; it says how many it watches in all.
+            if watching.total > watching.rows.count {
+              Footnote(L10n.Watching.count(watching.rows.count, watching.total))
+            }
           }
         }
       } else if let error = model.watchingError {

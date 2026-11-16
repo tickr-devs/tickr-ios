@@ -352,18 +352,19 @@ private struct TradesTable: View {
     static let money: CGFloat = 80
   }
 
-  /// The table's height, in points: at most about eight rows; a busier day scrolls inside the
-  /// table. Set from the trade count, because the screen scrolls and a table has no height of its
-  /// own; a fixed height left empty striped rows under a day of two trades.
-  static let height: CGFloat = 280
+  /// Height of the "no trades" message in place of the table, in points.
+  static let emptyHeight: CGFloat = 280
   /// Height of the header and of one row, and the fewest rows the table is tall for, in points.
   static let headerHeight: CGFloat = 32
   static let rowHeight: CGFloat = 28
   static let fewestRows = 2
 
+  /// The table's height: every row of the day, so the screen scrolls as one and no row is cut
+  /// inside a box. Set from the trade count, because the screen scrolls and a table has no height
+  /// of its own; a fixed height left empty striped rows under a day of two trades.
   private var tableHeight: CGFloat {
     let count = CGFloat(max(rows.count, Self.fewestRows))
-    return min(Self.height, Self.headerHeight + count * Self.rowHeight)
+    return Self.headerHeight + count * Self.rowHeight
   }
 
   /// The day's closed trades in the order they closed, then on the live day the positions still
@@ -384,7 +385,7 @@ private struct TradesTable: View {
         ContentUnavailableView {
           Label { Text(model.isLive ? L10n.Trades.noTradesToday : L10n.Trades.noTrades) } icon: { BrandMark.empty() }
         }
-        .frame(height: Self.height)
+        .frame(height: Self.emptyHeight)
       } else {
         table
           .frame(height: tableHeight)

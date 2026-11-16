@@ -197,29 +197,6 @@ extension SettingsRow where Value == Text {
   }
 }
 
-/// A switch that only shows a value of the bot's configuration: the design's switch drawn on, in
-/// the accent, or off; it never edits anything.
-struct ConfigSwitch: View {
-  let on: Bool
-
-  /// Size of the switch and its knob, in points (the design's 34 × 20 with a 16-point knob).
-  static let width: CGFloat = 34
-  static let height: CGFloat = 20
-  static let knob: CGFloat = 16
-
-  var body: some View {
-    Capsule()
-      .fill(on ? Palette.accent : Palette.separatorStrong)
-      .frame(width: Self.width, height: Self.height)
-      .overlay(alignment: on ? .trailing : .leading) {
-        Circle().fill(Palette.surface)
-          .frame(width: Self.knob, height: Self.knob)
-          .padding(Tokens.Space.xxs)
-      }
-      .accessibilityHidden(true)
-  }
-}
-
 /// A switch of the app's own preferences with its title, in the design's switch colours.
 struct SwitchRow: View {
   let title: LocalizedStringResource

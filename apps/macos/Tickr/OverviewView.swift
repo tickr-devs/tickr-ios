@@ -24,9 +24,9 @@ struct OverviewView: View {
   static let bottomRowWeights: [CGFloat] = [1, 1, 1.4]
   /// Two equal columns on a narrower screen.
   static let twoColumnWeights: [CGFloat] = [1, 1]
-  /// Height of the design's middle row (Watching closely, Positions, Safety and the bot), in
-  /// points: a card scrolls inside it when its content is taller, except the bot's commands,
-  /// which stay in sight at the foot of the Safety card.
+  /// Least height of the design's middle row (Watching closely, Positions, Safety and the bot),
+  /// in points. The row grows to its tallest card, so every safety fact and watched row is in
+  /// sight without a scroll inside a card.
   static let middleRowHeight: CGFloat = 298
   /// Least height of the bottom row (Risk room, Observers, the journal), in points. It takes
   /// the rest of the window's height as in the design, never less than this.
@@ -105,8 +105,8 @@ struct OverviewView: View {
         }
       }
       LiveFlowCard().rise(step: Order.flow.rawValue)
-      // The design's grid: Watching closely, Positions and Safety with the bot in one row of a
-      // fixed height (1 : 1.4 : 1), then Risk room, Observers and the journal (1 : 1 : 1.4),
+      // The design's grid: Watching closely, Positions and Safety with the bot in one row, as
+      // tall as its tallest card (1 : 1.4 : 1), then Risk room, Observers and the journal (1 : 1 : 1.4),
       // each row's cards one height. A narrower screen keeps two columns: Positions across
       // both, then the cards in pairs.
       if threeColumns {
@@ -115,14 +115,14 @@ struct OverviewView: View {
           positions
           safety
         }
-        .frame(height: Self.middleRowHeight)
+        .frame(minHeight: Self.middleRowHeight)
       } else {
         positions
         WeightedColumns(weights: Self.twoColumnWeights, spacing: Tokens.Space.l) {
           watching
           safety
         }
-        .frame(height: Self.middleRowHeight)
+        .frame(minHeight: Self.middleRowHeight)
       }
     }
     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { aboveBottomHeight = $0 }
@@ -704,6 +704,7 @@ private struct MarkDot: View {
 
 private struct PositionsCard: View {
   @Environment(AppModel.self) private var model
+  @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   @State private var selected: String?
 
   var body: some View {
@@ -717,8 +718,11 @@ private struct PositionsCard: View {
             PositionTab(row: row, selected: row.id == shown?.id) { selected = row.id }
           }
         }
-        MoreButton(L10n.Position.openChart, systemImage: AppSection.chartSymbol) { model.section = .chart }
-          .disabled(rows.isEmpty)
+        MoreButton(L10n.Position.openChart, systemImage: AppSection.chartSymbol) {
+          if let shown { chartSymbol = shown.position.symbol }
+          model.section = .chart
+        }
+        .disabled(rows.isEmpty)
       }
     } content: {
       if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
@@ -777,8 +781,11 @@ private struct PositionDetail: View {
 
   var body: some View {
     HStack(alignment: .top, spacing: Tokens.Space.l) {
-      MiniChart(closes: row.closes, entry: row.entry, stop: row.stop)
-        .frame(minWidth: Self.chartMinWidth, minHeight: Self.chartMinHeight)
+      // The price line opens the Chart on the position, as its "Open chart" does.
+      ChartLink(row.position.symbol) {
+        MiniChart(closes: row.closes, entry: row.entry, stop: row.stop)
+          .frame(minWidth: Self.chartMinWidth, minHeight: Self.chartMinHeight)
+      }
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         HStack(spacing: Tokens.Space.s) {
           StopBadge(state: row.position.stop.state, price: row.position.stop.price)
@@ -1121,8 +1128,13 @@ private struct SafetyCard: View {
           Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.xs) {
             ForEach(lines.indices, id: \.self) { index in
               GridRow {
+                // Each fact opens Risk & account, where its details are.
                 ForEach(lines[index]) { row in
-                  SafetyTile(symbol: row.symbol, label: row.label, value: row.value, tone: row.tone)
+                  LinkTile(L10n.Safety.opensRisk, radius: Tokens.Radius.small) {
+                    model.section = .risk
+                  } label: {
+                    SafetyTile(symbol: row.symbol, label: row.label, value: row.value, tone: row.tone)
+                  }
                 }
               }
             }
@@ -1449,21 +1461,24 @@ private struct AdvisorRow: View {
       if let count = advisor.runs?.awaitingReview, count > 0 {
         StatusPill(AdvisorWords.awaiting(count), tone: .highlight)
       }
-      if let lead = advisor.runs?.lead {
-        MoreButton(AdvisorWords.review) {
-          advisor.open(lead.id)
-          model.section = .lab
-        }
-      }
+      MoreButton(advisor.runs?.lead == nil ? L10n.Observers.lab : AdvisorWords.review, action: open)
     }
-    // The design's violet strip at the foot of the card.
+    // The design's violet strip at the foot of the card; all of it opens the Lab.
     .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.s)
+    .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.medium))
+    .onTapGesture(perform: open)
     .background(Palette.highlight.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
     .overlay {
       RoundedRectangle(cornerRadius: Tokens.Radius.medium)
         .strokeBorder(Palette.highlight.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin)
     }
+  }
+
+  /// Opens the Lab, on the latest proposal when there is one.
+  private func open() {
+    if let lead = advisor.runs?.lead { advisor.open(lead.id) }
+    model.section = .lab
   }
 }
 

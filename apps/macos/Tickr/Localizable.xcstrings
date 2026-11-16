@@ -3573,6 +3573,23 @@
         }
       }
     },
+    "common.openOnChart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens %@ on the chart"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает %@ на графике"
+          }
+        }
+      }
+    },
     "common.operatorTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9044,6 +9061,23 @@
         }
       }
     },
+    "safety.opensRisk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens Risk & account"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает «Риск и счёт»"
+          }
+        }
+      }
+    },
     "safety.present" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14443,6 +14477,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Решение в %@ ET"
+          }
+        }
+      }
+    },
+    "watching.fewer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show fewer"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свернуть"
+          }
+        }
+      }
+    },
+    "watching.more" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld more"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ещё %lld"
           }
         }
       }

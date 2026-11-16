@@ -53,6 +53,10 @@ enum L10n {
   }
 
   enum Common {
+    /// Hint of a row or chip that opens the Chart on its symbol.
+    static func openOnChart(_ symbol: String) -> LocalizedStringResource {
+      LocalizedStringResource("common.openOnChart", defaultValue: "Opens \(symbol) on the chart", bundle: L10n.bundle)
+    }
     static var today: LocalizedStringResource {
       LocalizedStringResource("common.today", defaultValue: "Today", bundle: L10n.bundle)
     }
@@ -669,6 +673,10 @@ enum L10n {
   }
 
   enum Safety {
+    /// Hint of a safety fact on the Overview: it opens Risk & account.
+    static var opensRisk: LocalizedStringResource {
+      LocalizedStringResource("safety.opensRisk", defaultValue: "Opens Risk & account", bundle: L10n.bundle)
+    }
     /// The Overview's card of the safety facts and the bot's commands.
     static var titleWithBot: LocalizedStringResource {
       LocalizedStringResource("safety.titleWithBot", defaultValue: "Safety · bot", bundle: L10n.bundle)
@@ -3226,6 +3234,14 @@ enum L10n {
     /// Card trailing: rows shown of all watched symbols.
     static func count(_ shown: Int, _ total: Int) -> LocalizedStringResource {
       LocalizedStringResource("watching.count", defaultValue: "\(shown) of \(total)", bundle: L10n.bundle)
+    }
+    /// Button under the Watching rows: shows the rows beyond the first few.
+    static func more(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("watching.more", defaultValue: "\(count) more", bundle: L10n.bundle)
+    }
+    /// Button under all the Watching rows: back to the first few.
+    static var fewer: LocalizedStringResource {
+      LocalizedStringResource("watching.fewer", defaultValue: "Show fewer", bundle: L10n.bundle)
     }
     /// Watching card is empty.
     static var none: LocalizedStringResource {

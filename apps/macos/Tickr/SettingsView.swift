@@ -302,8 +302,9 @@ private struct TradingSettings: View {
   private static func beforeClose(_ minutes: Int) -> String { String(localized: L10n.Settings.beforeClose(minutes)) }
 }
 
-/// The design's "Features · from config": switches that show what the configuration turns on.
-/// Half days and live observers are real values; the rest are planned and marked so.
+/// The design's "Features · from config": what the configuration turns on, each a status dot,
+/// never a switch (the app edits none of it). Half days and live observers are real values; the
+/// rest are planned and marked so.
 private struct FeaturesCard: View {
   let settings: SettingsV1
 
@@ -324,7 +325,11 @@ private struct FeaturesCard: View {
 
   private func row(_ title: LocalizedStringResource, on: Bool, @ViewBuilder tag: () -> some View) -> some View {
     HStack(spacing: Tokens.Space.m) {
-      ConfigSwitch(on: on)
+      Circle()
+        .fill(on ? Palette.accent : Palette.separatorStrong)
+        .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
+        .help(Text(on ? L10n.Common.on : L10n.Common.off))
+        .accessibilityLabel(Text(on ? L10n.Common.on : L10n.Common.off))
       Text(title)
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textSecondary)
@@ -439,23 +444,15 @@ private struct EnvironmentSettings: View {
   var body: some View {
     let raw = model.status?.environment ?? model.settings?.environment
     SettingsCard(L10n.Settings.environmentGate, footnote: Text(L10n.Settings.environmentFixed)) {
-      HStack(spacing: Tokens.Space.xs) {
-        ForEach(Self.segments(current: raw), id: \.self) { segment in
-          let active = segment == raw
-          Text(verbatim: label(segment, active: active))
-            .font(Tokens.Typography.annotationBold)
-            .lineLimit(1)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Tokens.Space.s)
-            .foregroundStyle(active ? tone(segment).text : Palette.textQuaternary)
-            .background(active ? tone(segment).fill.opacity(Tokens.Opacity.glow) : .clear,
-              in: RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous))
+      // The environment in use as a status, not a picker: config/bot.toml sets it, the app never does.
+      HStack(spacing: Tokens.Space.s) {
+        if let raw {
+          StatusPill(verbatim: label(raw), tone: tone(raw))
+        } else {
+          Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
         }
+        Spacer(minLength: 0)
       }
-      .padding(Tokens.Space.xs)
-      .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous))
-      .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-        .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
       if let gate = model.status?.tradingGate {
         SettingsRow(L10n.Settings.tradingGate) {
           Text(gate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed)
@@ -469,19 +466,10 @@ private struct EnvironmentSettings: View {
     }
   }
 
-  /// The parts of the strip: Sandbox and Production, with the environment in use in front when it
-  /// is neither (the demo).
-  static func segments(current: String?) -> [String] {
-    let known = [BotEnvironment.sandbox.rawValue, BotEnvironment.production.rawValue]
-    guard let current, !known.contains(current) else { return known }
-    return [current] + known
-  }
-
-  /// "SANDBOX · gate open" for the environment in use; only the name for the others (the app
-  /// knows nothing about an environment it is not connected to) and before the first status.
-  private func label(_ raw: String, active: Bool) -> String {
+  /// "SANDBOX · gate open"; only the name before the first status.
+  private func label(_ raw: String) -> String {
     let name = ApiText.environment(raw).localizedUppercase
-    guard active, let open = model.status?.tradingGate.open else { return name }
+    guard let open = model.status?.tradingGate.open else { return name }
     return name + Format.itemSeparator + String(localized: open ? L10n.Settings.gateOpenShort : L10n.Settings.gateClosedShort)
   }
 

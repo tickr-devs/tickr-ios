@@ -4,8 +4,9 @@ import TickrKit
 
 /// Strategy lab, as the design's board: the strategy versions, what each would have made on the
 /// shown day, the replay that compares versions, the AI advisor, why signals were refused, and
-/// one symbol's decision explained. Three equal columns in two rows that share the window; the
-/// advisor's page takes the screen while it is open.
+/// one symbol's decision explained. Three equal columns in two rows, each row as tall as its
+/// tallest card (never stretched to the window, which left cards half empty); the advisor's page
+/// takes the screen while it is open.
 struct LabView: View {
   @Environment(AdvisorModel.self) private var advisor
 
@@ -13,9 +14,6 @@ struct LabView: View {
   private enum Order: Int {
     case versions = 0, curves, replay, advisor, refusals, explain
   }
-
-  /// Height of the scroll view, so the grid's two rows share the window as the design does.
-  @State private var viewport: CGFloat = 0
 
   var body: some View {
     Group {
@@ -61,9 +59,7 @@ struct LabView: View {
       }
       .filling()
       .padding(Tokens.Space.l)
-      .frame(minHeight: viewport, alignment: .top)
     }
-    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewport = $0 }
     // Session times for the chart's axis, and the reconcile clock other screens read.
     .task(id: model.baseURL) { await model.followJobs() }
   }
