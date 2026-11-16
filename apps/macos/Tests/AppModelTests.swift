@@ -281,4 +281,67 @@ struct AppModelTests {
     await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
     #expect(try #require(chart.plot(timeframe: .m1)).revision > first.revision)
   }
+  @Test("Ornaments move only while the bot runs with fresh live status, and never with Reduce Motion")
+  func ornamentsFollowTheBot() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    #expect(!model.ornamentsMove(reduceMotion: false), "no status yet")
+    let cases: [(String, Bool, Bool)] = [("running", false, true), ("running", true, false), ("stopped", false, false)]
+    for (state, stale, moves) in cases {
+      let body = try Self.status(botState: state, stale: stale)
+      RouteProtocol.routes.withLock { $0.bodies["/status"] = body }
+      await model.refreshStatus()
+      #expect(model.ornamentsMove(reduceMotion: false) == moves, "\(state), stale \(stale)")
+      #expect(!model.ornamentsMove(reduceMotion: true))
+    }
+    // A recorded day: the ornaments stand still even while the bot runs.
+    model.selectedDay = try WireDate("2020-01-02")
+    #expect(!model.ornamentsMove(reduceMotion: false))
+  }
+
+  @Test("Today's tile pulses for a trade or a position, not for another read of the same day")
+  func todayEvent() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    #expect(model.todayEvent == nil)
+    await model.refreshStatus()
+    let first = try #require(model.todayEvent)
+    await model.refreshStatus()
+    #expect(model.todayEvent == first, "the same trading read again is no event")
+    let body = try Self.status(botState: "running")
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = body }
+    await model.refreshStatus()
+    #expect(model.todayEvent != first, "a position closed is an event")
+  }
+
+  @Test("An open position's dot pulses for a fill or a stop, never for a newer price")
+  func positionEvent() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    let row = try #require(model.positions.first)
+    let moved = PositionRow(position: row.position, lastBarClose: (row.lastBarClose ?? 0) + 1,
+      lastBarAt: row.lastBarAt, closes: row.closes, latestClose: row.latestClose)
+    #expect(moved.event == row.event)
+    var status = try #require(JSONSerialization.jsonObject(with: Self.twoPositionStatus()) as? [String: Any])
+    var inner = try #require(status["status"] as? [String: Any])
+    var positions = try #require(inner["positions"] as? [[String: Any]])
+    var stop = try #require(positions[0]["stop"] as? [String: Any])
+    stop["state"] = stop["state"] as? String == "verified" ? "pending" : "verified"
+    positions[0]["stop"] = stop
+    inner["positions"] = positions
+    status["status"] = inner
+    let body = try JSONSerialization.data(withJSONObject: status)
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = body }
+    await model.refreshStatus()
+    #expect(try #require(model.positions.first).event != row.event)
+  }
+
+  @Test("The chart's LIVE dot pulses for a new bar, not for the same bars read again")
+  func newestBar() async throws {
+    let chart = ChartModel()
+    let day = try WireDate("2026-11-16")
+    #expect(chart.newestBar == nil)
+    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    let first = try #require(chart.newestBar)
+    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    #expect(chart.newestBar == first)
+  }
 }

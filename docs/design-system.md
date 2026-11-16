@@ -21,7 +21,7 @@ the approved design canvas. Code follows it one to one:
    - Protocol values from the bot (`exit_reason`, fence `kind`) are shown through a localized title and never translated in place.
 3. **System appearance only.** Light and dark follow macOS/iOS; there is no theme switch. Light is designed on its own (soft glows and a tinted shadow), not as an inverted dark.
 4. **Components carry the spacing.** Cards, rows, section labels, badges and tags come from shared components. A screen arranges components; it does not restyle them.
-5. **Motion has meaning and respects Reduce Motion.** Every animation uses a `Tokens.Motion` curve. With Reduce Motion on, every piece shows its still final state. Anything that reads as data or activity (status dots, flow stages, alarms, counts) moves only when the bot's data changes: one pulse, flight or fade per real event, still in between, never on a timer. Only pure ornament may loop (the brand mark's spark, the empty-positions radar, the ticker's scroll), marked `// decorative: <why>` in code; the `loop` rule of `check_swift_rules.py` rejects any other `repeatForever`, `TimelineView(.animation)` or Core Animation `repeatCount = .infinity` (owner, 2026-11-15).
+5. **Motion has meaning and respects Reduce Motion.** Every animation uses a `Tokens.Motion` curve. With Reduce Motion on, every piece shows its still final state. Anything that reads as data or activity (status dots, flow stages, alarms, counts) moves only when the bot's data changes: one pulse, flight or fade per real event, still in between, never on a timer. Only pure ornament may loop, marked `// decorative: <why>` in code: the brand mark's spark halo, the empty-positions radar (sweep and blips), the event ticker's and the screener chips' scroll, and the Lab's AI advisor title shine (owner wants the design's motion, 2026-11-16). Each loops only while `OrnamentGate` holds (macOS and iOS: Reduce Motion off, the live day shown, fresh status, the bot running), still otherwise; the `loop` rule of `check_swift_rules.py` rejects any other `repeatForever`, `TimelineView(.animation)` or Core Animation `repeatCount = .infinity` (owner, 2026-11-15).
 6. **Formatting: Swift uses 2-space indentation.**
    - `.editorconfig`, SwiftLint's `indentation_width` (every app) and the rules check (rule `indent`, every app) enforce it.
    - Planned with each app's move: the Xcode projects' text settings get the same values, so Xcode indents with 2.
@@ -207,7 +207,7 @@ a step; it does not define its own factor.
 | `stagger` | 0.05 s | Delay between cards of a screen |
 | `pulseSeconds` / `pulseScale` | 2.4 s / ×2.2 | One pulse ring per real event (never a loop) |
 | `breatheSeconds` / `breatheScale` | 2.4 s / ×1.08 | One swell of a glow when its value changes (never a loop) |
-| `rotationSeconds` | 3 s per turn | Radar sweep; it and the blips move only while the bot runs with live, fresh status (`RadarGate`), still otherwise |
+| `rotationSeconds` | 3 s per turn | Radar sweep; it and the blips move only while the bot runs with live, fresh status (`OrnamentGate`), still otherwise |
 | `blipScale` / `blipLagSeconds` | ×1.9 / 0.8 s | The radar's two blips: each one's ring (every `pulseSeconds`, ornament) and the second one's lag |
 | `openingSparkDelaySeconds` / `openingSpark` | 0.45 s / ease-out 0.25 s | macOS opening: the spark pops in as the line nearly ends |
 | `cellStagger` | 0.025 s | Delay between the tiles of a grid filling in (Trades calendar, on appear and month change) |
@@ -219,7 +219,8 @@ a step; it does not define its own factor.
 | `pop` / `popStagger` | spring 0.5 s, damping 0.55 / 0.4 s | A dot popping in (`popIn`): the protection chain's steps, one after another, and again when a step changes |
 | `bump` / `bumpSeconds` / `bumpScale` | ease-in-out, two halves of 0.6 s / ×1.35 (iPhone), ×1.25 (Mac) | A count growing and settling once when it rises (`bumps(on:)`: Lab refusal counts), never when it falls or first appears |
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
-| `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event |
+| `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event; also today's Trades calendar tile, once per change of today's trading (a trade closed, a position opened or closed) |
+| `shineSeconds` | 3.5 s | One pass of the light across the Lab's AI advisor title (ornament, `OrnamentGate`) |
 | `hintDelay` | 0.45 s | Hover before a hint appears (Mac) |
 | `clockTickSeconds` | 1 s | Redraw of clocks, ages ("3 s ago") and the session bar's cursor |
 

@@ -4,15 +4,6 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// When the radar moves. It is ornament, but a turning radar reads as "the bot is scanning", so it
-/// turns only while that is true: the bot runs and its status is live and fresh. Stopped, stale,
-/// unreachable or on a recorded day it stands still, as with Reduce Motion.
-enum RadarGate {
-  static func turns(reduceMotion: Bool, current: Bool, botState: BotState?) -> Bool {
-    !reduceMotion && current && botState == .running
-  }
-}
-
 /// The radar's turning sweep, a conic gradient, and its two blips, dots that each send out a ring
 /// in turn, as the design's empty-positions radar draws them. Core Animation runs both in the
 /// render server: driven by a `TimelineView(.animation)` the sweep redrew every display frame on
@@ -25,7 +16,7 @@ struct RadarSweep: NSViewRepresentable {
   let width: Angle
   /// Colours of the two blips, first then second.
   let blips: [Color]
-  /// Whether the sweep turns and the blips ping (`RadarGate`); still otherwise.
+  /// Whether the sweep turns and the blips ping (`OrnamentGate`); still otherwise.
   let turning: Bool
   /// Whether the scene is in front; a change updates the view, which starts the turn again.
   let active: Bool

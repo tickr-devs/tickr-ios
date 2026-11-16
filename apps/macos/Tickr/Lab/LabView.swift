@@ -78,12 +78,29 @@ struct LabView: View {
 private struct RoleTag: View {
   let title: LocalizedStringResource
   let color: Color
+  /// What the version did that its dot marks (a role change, a new decision or trade): one pulse
+  /// per change on the live day, still otherwise.
+  let event: AnyHashable?
 
   var body: some View {
     HStack(spacing: Tokens.Space.xs) {
-      PulseDot(color, size: Tokens.Size.dotSmall, pulsing: false)
+      PulseDot(color, size: Tokens.Size.dotSmall, event: event)
       Badge(title, color: color)
     }
+  }
+}
+
+/// What a version's role dot pulses for in the Lab: one pulse per change of it, never a loop.
+enum VersionEvent {
+  /// The active version: which version holds the role, and how many trades it made today.
+  static func active(_ status: StatusV1?) -> AnyHashable? {
+    guard let status else { return nil }
+    return AnyHashable([status.strategy.name, status.strategy.version, String(status.tradesToday.count)])
+  }
+
+  /// An observer: its version, and how many decisions it recorded today.
+  static func observer(_ observer: ObserverV1) -> AnyHashable {
+    AnyHashable([observer.version, String(observer.decisions.count)])
   }
 }
 
@@ -103,29 +120,35 @@ private struct VersionsCard: View {
     Card(L10n.Lab.versions) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         VStack(spacing: 0) {
-          row(name: activeName, version: model.status?.strategy.version, tag: L10n.Lab.tagActive,
-            color: Palette.accentText) {
+          // The active version's dot: a new version in the role, or a new trade of it.
+          row(name: activeName, version: model.status?.strategy.version,
+            tag: RoleTag(title: L10n.Lab.tagActive, color: Palette.accentText,
+              event: model.isLive ? VersionEvent.active(model.status) : nil)) {
             Text(L10n.Lab.activeRole)
           }
           activePanel
         }
         if let observers = model.observers?.observers {
           ForEach(observers) { observer in
-            row(name: observer.name, version: observer.version, tag: L10n.Lab.tagObserver,
-              color: Palette.highlightText) {
+            // An observer's dot: a new version of it, or a new decision it made.
+            row(name: observer.name, version: observer.version,
+              tag: RoleTag(title: L10n.Lab.tagObserver, color: Palette.highlightText,
+                event: model.isLive ? VersionEvent.observer(observer) : nil)) {
               Text(L10n.Lab.observerNote(observer.decisions.count))
             }
           }
         } else if let names = model.settings?.observers {
           ForEach(names, id: \.self) { name in
-            row(name: name, version: nil, tag: L10n.Lab.tagObserver, color: Palette.highlightText) {
+            row(name: name, version: nil,
+              tag: RoleTag(title: L10n.Lab.tagObserver, color: Palette.highlightText, event: nil)) {
               Text(L10n.Lab.observerNoteUnread)
             }
           }
         }
         ForEach(candidates, id: \.folder) { item in
-          row(name: item.strategy ?? item.folder, version: item.version, tag: L10n.Lab.tagCandidate,
-            color: Palette.warningText) {
+          row(name: item.strategy ?? item.folder, version: item.version,
+            tag: RoleTag(title: L10n.Lab.tagCandidate, color: Palette.warningText,
+              event: model.isLive ? item.version : nil)) {
             Text(L10n.Lab.candidateNote)
           }
         }
@@ -170,8 +193,9 @@ private struct VersionsCard: View {
     }
   }
 
+  /// One version's row, its role's tag at the end.
   private func row(
-    name: String, version: String?, tag: LocalizedStringResource, color: Color, @ViewBuilder note: () -> some View
+    name: String, version: String?, tag: RoleTag, @ViewBuilder note: () -> some View
   ) -> some View {
     HStack(spacing: Tokens.Space.s) {
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
@@ -190,7 +214,7 @@ private struct VersionsCard: View {
       .lineLimit(1)
       .minimumScaleFactor(Tokens.Shrink.standard)
       Spacer(minLength: Tokens.Space.s)
-      RoleTag(title: tag, color: color)
+      tag
     }
     .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.s)
@@ -451,6 +475,8 @@ private struct RefusalsCard: View {
         .frame(height: Tokens.Size.bar)
         .accessibilityHidden(true)
       Text(verbatim: String(count.count))
+        // One bump each time the bot skips another signal for this cause.
+        .bumps(on: count.count)
         .font(Tokens.Typography.calloutMono)
         .foregroundStyle(Palette.textPrimary)
         .frame(width: Self.countWidth, alignment: .trailing)
@@ -1052,12 +1078,14 @@ private struct ExplainCard: View {
         .font(Tokens.Typography.calloutMono)
         .foregroundStyle(Palette.textSecondary)
         .fixedSize(horizontal: false, vertical: true)
+      // The checks rise one after another as a decision is shown; another decision rises afresh.
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        ForEach(Array(decision.checks.enumerated()), id: \.offset) { _, check in
-          checkRow(check)
+        ForEach(Array(decision.checks.enumerated()), id: \.offset) { index, check in
+          checkRow(check).rise(step: index)
         }
-        admissionRow(decision.admission)
+        admissionRow(decision.admission).rise(step: decision.checks.count)
       }
+      .id(decision)
     } else if decisions != nil {
       Footnote(L10n.Lab.explainNone)
     } else if symbol.isEmpty {

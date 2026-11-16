@@ -63,6 +63,8 @@ public enum Tone: Sendable, Hashable, CaseIterable {
 /// A section's heading: a short glowing tick in its tone, the uppercase label, an optional count
 /// in a capsule, and a trailing accessory (a ghost button, a badge).
 public struct SectionHeader<Trailing: View>: View {
+  /// A light passes across the title while set (`Shine`, in the tone's text colour).
+  @Environment(\.titleShines) private var shines
   let title: Text
   let count: String?
   let tone: Tone
@@ -92,6 +94,7 @@ public struct SectionHeader<Trailing: View>: View {
         .tracking(Tokens.Typography.labelTracking)
         .foregroundStyle(Palette.textLabel)
         .lineLimit(1)
+        .shine(moving: shines, color: tone.text)
         .accessibilityAddTraits(.isHeader)
       if let count {
         Text(verbatim: count)

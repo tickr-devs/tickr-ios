@@ -23,7 +23,7 @@ struct TradesView: View {
   static let detailWidth: CGFloat = 330
 
   /// Entrance order of the screen's parts.
-  private enum Order: Int {
+  fileprivate enum Order: Int {
     case days = 0, performance, dayList, stats, trades, detail, notTaken, whatIf
   }
 
@@ -205,6 +205,8 @@ private struct DayRow: View {
   let day: DaySummary
   let isShown: Bool
   let isToday: Bool
+  /// Under the pointer: the sunken tint of the design's day rows.
+  @State private var hovered = false
 
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
@@ -233,12 +235,15 @@ private struct DayRow: View {
     }
     .padding(.horizontal, Tokens.Space.s)
     .padding(.vertical, Tokens.Space.s)
-    .background(isShown ? Palette.selection : .clear, in: .rect(cornerRadius: Tokens.Radius.medium))
+    .background(isShown ? Palette.selection : hovered ? Palette.surfaceSunken : .clear,
+      in: .rect(cornerRadius: Tokens.Radius.medium))
     .overlay(
       RoundedRectangle(cornerRadius: Tokens.Radius.medium)
         .strokeBorder(isShown ? Palette.separatorStrong : .clear, lineWidth: Tokens.Stroke.thin))
     .contentShape(.rect)
+    .onHover { hovered = $0 }
     .animation(Tokens.Motion.quick, value: isShown)
+    .animation(Tokens.Motion.quick, value: hovered)
   }
 }
 
@@ -326,6 +331,8 @@ private struct Stat<Value: View>: View {
 private struct TradesTable: View {
   @Environment(AppModel.self) private var model
   @Binding var selection: DayTrade.ID?
+  /// The row under the pointer, tinted as one.
+  @State private var hovered: TradeRow.ID?
   let showOnChart: (String) -> Void
 
   /// Least and preferred widths of the table's columns, in points: the least keeps a time, a
@@ -396,72 +403,95 @@ private struct TradesTable: View {
   private var table: some View {
     Table(rows, selection: $selection) {
       TableColumn(Self.header(L10n.Trades.closed)) { row in
-        switch row {
-        case .open(let position):
-          // Not closed yet: when it opened, quieter.
-          Text(verbatim: Format.marketTime(position.position.openedAt.date))
-            .font(Tokens.Typography.calloutMono)
-            .foregroundStyle(Palette.textTertiary)
-        case .closed(let trade):
-          Text(verbatim: Format.marketTime(trade.closedAt.date)).font(Tokens.Typography.calloutMono)
+        cell(row) {
+          switch row {
+          case .open(let position):
+            // Not closed yet: when it opened, quieter.
+            Text(verbatim: Format.marketTime(position.position.openedAt.date))
+              .font(Tokens.Typography.calloutMono)
+              .foregroundStyle(Palette.textTertiary)
+          case .closed(let trade):
+            Text(verbatim: Format.marketTime(trade.closedAt.date)).font(Tokens.Typography.calloutMono)
+          }
         }
       }
       .width(min: Column.timeMin, ideal: Column.time)
       TableColumn(Self.header(L10n.Trades.symbol)) { row in
-        Text(verbatim: row.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
+        cell(row) {
+          Text(verbatim: row.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
+        }
       }
       .width(min: Column.symbolMin, ideal: Column.symbol)
       TableColumn(Self.header(L10n.Trades.quantity)) { row in
-        Text(verbatim: Format.quantity(row.quantity)).font(Tokens.Typography.calloutMono)
+        cell(row) {
+          Text(verbatim: Format.quantity(row.quantity)).font(Tokens.Typography.calloutMono)
+        }
       }
       .width(min: Column.quantityMin, ideal: Column.quantity)
       TableColumn(Self.header(L10n.Trades.entry)) { row in
-        Text(verbatim: Format.price(row.entry)).font(Tokens.Typography.calloutMono)
+        cell(row) {
+          Text(verbatim: Format.price(row.entry)).font(Tokens.Typography.calloutMono)
+        }
       }
       .width(min: Column.priceMin, ideal: Column.price)
       TableColumn(Self.header(L10n.Trades.exit)) { row in
-        Text(verbatim: Format.price(row.exit)).font(Tokens.Typography.calloutMono)
-          .foregroundStyle(row.exit == nil ? Palette.textQuaternary : Palette.textPrimary)
+        cell(row) {
+          Text(verbatim: Format.price(row.exit)).font(Tokens.Typography.calloutMono)
+            .foregroundStyle(row.exit == nil ? Palette.textQuaternary : Palette.textPrimary)
+        }
       }
       .width(min: Column.priceMin, ideal: Column.price)
       TableColumn(Self.header(L10n.Trades.stop)) { row in
-        Text(verbatim: Format.price(row.stop)).font(Tokens.Typography.calloutMono)
-          .foregroundStyle(row.stopUnverified ? Palette.lossText : Palette.textPrimary)
+        cell(row) {
+          Text(verbatim: Format.price(row.stop)).font(Tokens.Typography.calloutMono)
+            .foregroundStyle(row.stopUnverified ? Palette.lossText : Palette.textPrimary)
+        }
       }
       .width(min: Column.priceMin, ideal: Column.price)
       TableColumn(Self.header(L10n.Trades.reason)) { row in
-        switch row {
-        case .open(let position):
-          // A position still open: the OPEN tag, which opens the Chart on it.
-          Button { showOnChart(position.id) } label: {
-            Badge(L10n.Trades.open, color: Palette.accentText)
+        cell(row) {
+          switch row {
+          case .open(let position):
+            // A position still open: the OPEN tag, which opens the Chart on it.
+            Button { showOnChart(position.id) } label: {
+              HStack(spacing: Tokens.Space.xs) {
+                // One pulse per thing the bot did to the position (a fill, a stop placed or
+                // verified), never a loop.
+                PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: position.event)
+                Badge(L10n.Trades.open, color: Palette.accentText)
+              }
+            }
+            .buttonStyle(.plain)
+            .help(Text(L10n.Trades.showOnChart))
+            .accessibilityLabel(Text(L10n.Trades.openPosition(position.id)))
+            .accessibilityIdentifier(TradeRow.openID)
+          case .closed(let trade):
+            // Coloured as the event ticker colours the exit: by its result, amber when forced.
+            Badge(verbatim: Board.exitReasonTitle(trade.exitReason),
+              color: Board.exitTone(trade.exitReason, result: trade.resultGrossUsd.value).color)
           }
-          .buttonStyle(.plain)
-          .help(Text(L10n.Trades.showOnChart))
-          .accessibilityLabel(Text(L10n.Trades.openPosition(position.id)))
-          .accessibilityIdentifier(TradeRow.openID)
-        case .closed(let trade):
-          // Coloured as the event ticker colours the exit: by its result, amber when forced.
-          Badge(verbatim: Board.exitReasonTitle(trade.exitReason),
-            color: Board.exitTone(trade.exitReason, result: trade.resultGrossUsd.value).color)
         }
       }
       .width(min: Column.reasonMin, ideal: Column.reason)
       TableColumn(Self.header(L10n.Trades.resultR)) { row in
-        Text(verbatim: row.resultR.map(Risk.text) ?? Format.missing)
-          .font(Tokens.Typography.calloutMono)
-          .foregroundStyle(row.resultRColor)
+        cell(row) {
+          Text(verbatim: row.resultR.map(Risk.text) ?? Format.missing)
+            .font(Tokens.Typography.calloutMono)
+            .foregroundStyle(row.resultRColor)
+        }
       }
       .width(min: Column.figureMin, ideal: Column.figure)
       TableColumn(Self.header(L10n.Trades.result)) { row in
-        if let result = row.result {
-          // Greyed while it is as of an older bar, as in the menu-bar panel.
-          MoneyText(value: result, usd: true, font: Tokens.Typography.calloutMono, muted: row.isStale)
-        } else {
-          Text(L10n.Trades.open)
-            .textCase(.lowercase)
-            .font(Tokens.Typography.calloutMono)
-            .foregroundStyle(Palette.textQuaternary)
+        cell(row) {
+          if let result = row.result {
+            // Greyed while it is as of an older bar, as in the menu-bar panel.
+            MoneyText(value: result, usd: true, font: Tokens.Typography.calloutMono, muted: row.isStale)
+          } else {
+            Text(L10n.Trades.open)
+              .textCase(.lowercase)
+              .font(Tokens.Typography.calloutMono)
+              .foregroundStyle(Palette.textQuaternary)
+          }
         }
       }
       .width(min: Column.moneyMin, ideal: Column.money)
@@ -476,6 +506,29 @@ private struct TradesTable: View {
       if let row = row(ids) { showOnChart(row.symbol) }
     }
   }
+
+  /// One cell of `row`: the row rises in its turn after the card as the table appears (and a row
+  /// the bot adds rises as it arrives), and the whole row takes a light tint under the pointer, as
+  /// the design's rows. Each cell's tint reaches half the gap to the next, so the row tints as one.
+  private func cell(_ row: TradeRow, @ViewBuilder _ content: () -> some View) -> some View {
+    let lit = hovered == row.id
+    return content()
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background {
+        Rectangle().fill(Palette.info.opacity(lit ? Tokens.Opacity.wash : 0))
+          .padding(-Self.cellOutset)
+          .allowsHitTesting(false)
+      }
+      .animation(Tokens.Motion.quick, value: lit)
+      .onHover { inside in
+        if inside { hovered = row.id } else if hovered == row.id { hovered = nil }
+      }
+      .rise(step: TradesView.Order.trades.rawValue + 1 + (rows.firstIndex { $0.id == row.id } ?? 0))
+  }
+
+  /// How far a hovered row's tint reaches past each cell, in points: half the table's cell gaps.
+  static let cellOutset = EdgeInsets(
+    top: Tokens.Space.xs, leading: Tokens.Space.xs / 2, bottom: Tokens.Space.xs, trailing: Tokens.Space.xs / 2)
 
   /// A column's title as the design's table heads read: mono label type, uppercase.
   private static func header(_ title: LocalizedStringResource) -> Text {

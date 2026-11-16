@@ -53,6 +53,10 @@ final class ChartModel {
     return plot
   }
 
+  /// Start of the newest bar read for the shown day: a change is a new M1 bar, the one event the
+  /// LIVE pill's dot pulses for (not each read, which brings the same bar most of the time).
+  var newestBar: WireTime? { bars?.bars.last?.start }
+
   /// Whether the last read for `range` in `timeframe` has answered, with candles or without.
   func hasRead(timeframe: Timeframe, range: ChartRange) -> Bool {
     range == .oneDay ? bars != nil : rangeChart.map { $0.range == range && $0.interval == timeframe } ?? false

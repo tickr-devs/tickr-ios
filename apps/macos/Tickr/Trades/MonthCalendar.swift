@@ -30,7 +30,8 @@ struct MonthCalendar: View {
           GridRow {
             ForEach(Array(week.enumerated()), id: \.offset) { column, cell in
               if let cell {
-                CalendarDay(cell: cell, isToday: cell.day == model.today, selected: cell.day == model.shownDay) {
+                CalendarDay(cell: cell, isToday: cell.day == model.today, selected: cell.day == model.shownDay,
+                  todayEvent: model.todayEvent) {
                   select(cell.day)
                 }
                 // The tiles fade up one after another, as the design fills a month in.
@@ -160,6 +161,9 @@ private struct CalendarDay: View {
   let cell: DayCalendar.Cell
   let isToday: Bool
   let selected: Bool
+  /// Today's trading (`AppModel.todayEvent`): today's tile pulses once per change, as the design's
+  /// today ring, never on a timer.
+  let todayEvent: [Int]?
   let action: () -> Void
   @State private var hovered = false
 
@@ -215,6 +219,8 @@ private struct CalendarDay: View {
         }
       }
       .shadow(color: selected ? Palette.info.opacity(Tokens.Opacity.border) : .clear, radius: Tokens.Space.xs)
+      .eventPulse(shape, color: Palette.accent, scale: Tokens.Motion.glyphPulseScale,
+        event: isToday ? todayEvent.map(AnyHashable.init) : nil)
       .contentShape(shape)
       // Under the pointer a day it can open lifts a little and outlines, as the design's tiles.
       .offset(y: lifted ? -Tokens.Motion.cellLift : 0)

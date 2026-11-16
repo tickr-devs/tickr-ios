@@ -114,11 +114,12 @@ extension ScreenerSource {
 /// day shows its last closed trade.
 struct LatestEvent: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   /// Accessibility id of the line, for the UI tests.
   static let id = "overview-latest-event"
 
-  private struct Line {
+  private struct Line: Hashable {
     let time: Date
     let tag: String
     let text: String
@@ -139,6 +140,18 @@ struct LatestEvent: View {
   }
 
   var body: some View {
+    // A new event fades in over the old one: one fade per real event, still in between.
+    ZStack(alignment: .leading) {
+      row.id(line).transition(.opacity)
+    }
+    .animation(reduceMotion ? nil : Tokens.Motion.standard, value: line)
+    .font(Tokens.Typography.captionMono)
+    .lineLimit(1)
+    .accessibilityElement(children: .combine)
+    .accessibilityIdentifier(Self.id)
+  }
+
+  private var row: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
       if let line {
         Text(L10n.Risk.clock(Format.marketTime(line.time))).foregroundStyle(Palette.textQuaternary)
@@ -150,10 +163,6 @@ struct LatestEvent: View {
         Text(L10n.Flow.nothingYet).foregroundStyle(Palette.textTertiary)
       }
     }
-    .font(Tokens.Typography.captionMono)
-    .lineLimit(1)
-    .accessibilityElement(children: .combine)
-    .accessibilityIdentifier(Self.id)
   }
 }
 
@@ -184,8 +193,11 @@ struct WatchingCard: View {
           let rows = expanded ? watching.rows : Array(watching.rows.prefix(Self.shown))
           VStack(spacing: Tokens.Space.s) {
             // Each row opens the Chart on its symbol.
-            ForEach(rows, id: \.symbol) { row in
+            // The rows rise one after another as the card shows them (a symbol the bot starts
+            // watching rises as it arrives).
+            ForEach(Array(rows.enumerated()), id: \.element.symbol) { index, row in
               ChartLink(row.symbol) { WatchingRow(row: row) }
+                .rise(step: index)
             }
           }
           HStack(spacing: Tokens.Space.s) {

@@ -188,11 +188,12 @@ struct WeightedColumns: Layout {
 
 private struct Header: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
       // Drawn at once while the opening flies the mark here; it draws itself on later visits.
-      BrandMark(live: model.isCurrent, drawsIn: model.openingPlayed)
+      BrandMark(live: model.ornamentsMove(reduceMotion: reduceMotion), drawsIn: model.openingPlayed)
         // Hidden while the launch's opening flies its own mark here; shown as that one lands.
         .opacity(model.openingPlayed ? 1 : 0)
         .onGeometryChange(for: CGPoint.self) { proxy in
@@ -350,6 +351,7 @@ private struct DayResult: View {
 
 private struct LiveFlowCard: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
     Card(L10n.Flow.title) {
@@ -370,7 +372,7 @@ private struct LiveFlowCard: View {
       // The latest event under the title, then the screeners' chips, as in the design.
       LatestEvent()
       if let chips = model.flow?.chips, !chips.isEmpty {
-        FlowChips(chips: chips, moving: model.isLive)
+        FlowChips(chips: chips, moving: model.ornamentsMove(reduceMotion: reduceMotion))
       }
       // A failed /flow read: the stages and dots below then lack the day's flow.
       if let error = model.flowError {
@@ -979,6 +981,9 @@ private struct MiniChart: View {
               .symbol { PulseDot(Palette.accent, event: values.count) }
           }
           .plain(bars: bars, prices: domain)
+          // Each new M1 bar: the line and the last-price dot glide to their new places (and the
+          // dot pulses once), still in between.
+          .animation(reduceMotion ? nil : Tokens.Motion.standard, value: values.count)
           .reveal(drawn)
         }
       } else {
@@ -1085,7 +1090,7 @@ private struct Radar: View {
       RadarSweep(
         color: Palette.accent.opacity(Tokens.Opacity.border), width: Self.sweep,
         blips: [Palette.highlight, Palette.accent],
-        turning: RadarGate.turns(reduceMotion: reduceMotion, current: model.isCurrent, botState: model.status?.botState),
+        turning: model.ornamentsMove(reduceMotion: reduceMotion),
         active: scenePhase == .active)
         .allowsHitTesting(false)
     }

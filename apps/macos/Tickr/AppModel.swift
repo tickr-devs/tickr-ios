@@ -46,6 +46,13 @@ public struct SentCommand: Identifiable, Equatable, Sendable {
 }
 
 /// One open position as the app shows it, one row per position in the bot's status.
+/// A position's own facts that its OPEN tag pulses for (`PositionRow.event`).
+public struct PositionEvent: Hashable, Sendable {
+  let quantity: DecimalString
+  let stop: StopState
+  let stopPrice: DecimalString?
+}
+
 public struct PositionRow: Identifiable, Equatable, Sendable {
   public let position: Position
   /// Close of the latest captured M1 bar, with its start time; nil until bars arrive.
@@ -67,6 +74,12 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
   public var latestUnrealized: Decimal? { latestClose.map { ($0 - entry) * quantity } }
   /// The newest bar is too old to be the current price: figures are shown greyed, as of its time.
   public var isStale: Bool { lastBarClose == nil && latestClose != nil }
+  /// What the bot did to the position, as its OPEN tag's dot marks it: a fill (the quantity), a
+  /// stop placed, verified or moved. A change is one pulse; a newer price is not an event.
+  public var event: PositionEvent {
+    PositionEvent(quantity: position.quantity, stop: position.stop.state, stopPrice: position.stop.price)
+  }
+
   public var resultR: Decimal? {
     guard let last = lastBarClose else { return nil }
     return Risk.multiple(entry: entry, stop: stop, price: last)
@@ -219,6 +232,13 @@ public final class AppModel {
 
   /// The live day, with a status the app can trust (read without error and not stale).
   public var isCurrent: Bool { isLive && status != nil && response?.stale == false && fetchError == nil }
+
+  /// Today's trading as the Trades calendar's today tile marks it: a change (a trade closed, a
+  /// position opened or closed) is one pulse of the tile; nil without a status.
+  public var todayEvent: [Int]? {
+    guard let status else { return nil }
+    return [status.tradesToday.count, status.positions.count]
+  }
 
   /// Commands make sense only for the live day with a status the app can trust.
   public var commandsEnabled: Bool { isCurrent && !sending }

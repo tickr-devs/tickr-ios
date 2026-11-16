@@ -106,6 +106,7 @@ enum AdvisorLook {
 struct AdvisorCard: View {
   @Environment(AppModel.self) private var model
   @Environment(AdvisorModel.self) private var advisor
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
     Card(AdvisorWords.title, tint: Palette.highlight, tone: .highlight) {
@@ -140,6 +141,8 @@ struct AdvisorCard: View {
       }
       Footnote(AdvisorWords.note)
     }
+    // The design's shine across the title: ornament, moving only while the bot is at work.
+    .environment(\.titleShines, model.ornamentsMove(reduceMotion: reduceMotion))
   }
 }
 
@@ -191,6 +194,11 @@ struct ChangeLine: View {
 /// changes and why, the hold-out check, and Accept or Reject. Either only records the owner's
 /// decision: nothing is copied, started or traded.
 struct AdvisorPage: View {
+  /// Order in which a run's rows rise.
+  private enum Rows: Int {
+    case path = 0, cards, decision
+  }
+
   @Environment(AppModel.self) private var model
   @Environment(AdvisorModel.self) private var advisor
   /// The run whose Accept is being confirmed, taken when Accept was clicked, so a read that
@@ -276,6 +284,8 @@ struct AdvisorPage: View {
 
   private func detail(_ run: AdvisorRunV1) -> some View {
     ScrollView {
+      // The run's cards rise one after another as it is shown, as the design's page; another run
+      // rises afresh.
       VStack(alignment: .leading, spacing: Tokens.Space.l) {
         Card(AdvisorWords.path, tint: Palette.highlight, tone: .highlight) {
           HStack(spacing: Tokens.Space.s) {
@@ -291,6 +301,7 @@ struct AdvisorPage: View {
             .truncationMode(.middle)
           StepPath(AdvisorLook.steps(run, settings: model.settings))
         }
+        .rise(step: Rows.path.rawValue)
         LazyVGrid(columns: [GridItem(.adaptive(minimum: Tokens.Size.gridColumnMin), spacing: Tokens.Space.l,
           alignment: .top)], alignment: .leading, spacing: Tokens.Space.l) {
           VStack(alignment: .leading, spacing: Tokens.Space.l) {
@@ -300,8 +311,10 @@ struct AdvisorPage: View {
           }
           if run.status == .proposed || run.status == .idea { HoldoutCard(run: run) }
         }
-        decisionBar(run)
+        .rise(step: Rows.cards.rawValue)
+        decisionBar(run).rise(step: Rows.decision.rawValue)
       }
+      .id(run.id)
       .padding(Tokens.Space.xl)
       .frame(maxWidth: Tokens.Size.contentMaxWidth, alignment: .leading)
     }

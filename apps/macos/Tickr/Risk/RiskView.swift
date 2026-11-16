@@ -860,7 +860,8 @@ private struct SessionCard: View {
       let open = now >= session.regularOpen.date && now < session.regularClose.date
       let span = Format.marketMinute(session.regularOpen.date) + Self.dash + Format.marketMinute(session.regularClose.date)
       HStack(spacing: Tokens.Space.xs) {
-        PulseDot(open ? Palette.accent : Palette.textQuaternary, size: Tokens.Size.dotSmall, pulsing: false)
+        // One pulse as the session opens or closes, still in between.
+        PulseDot(open ? Palette.accent : Palette.textQuaternary, size: Tokens.Size.dotSmall, event: open)
         Text(open ? L10n.Risk.sessionOpen(span) : L10n.Risk.sessionClosed(span))
       }
       .font(Tokens.Typography.annotation)

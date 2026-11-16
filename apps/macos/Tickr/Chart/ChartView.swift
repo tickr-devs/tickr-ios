@@ -467,11 +467,11 @@ struct ChartView: View {
     .help(Text(L10n.Chart.scrollHistoryHelp))
   }
 
-  /// "● LIVE" while the chart follows the live day.
+  /// "● LIVE" while the chart follows the live day; its dot pulses once per new M1 bar.
   private var livePill: some View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.chip, style: .continuous)
     return HStack(spacing: Tokens.Space.xs) {
-      Circle().fill(Palette.profit).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+      PulseDot(Palette.profit, size: Tokens.Size.dotSmall, event: chart.newestBar)
       Text(L10n.Chart.live).textCase(.uppercase)
     }
     .font(Tokens.Typography.label)

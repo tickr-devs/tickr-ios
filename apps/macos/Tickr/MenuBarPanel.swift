@@ -88,7 +88,11 @@ private struct TodayResult: View {
       VStack(alignment: .leading, spacing: 0) {
         CardLabel(L10n.MenuBar.dayResult)
         if let status = model.status {
-          MoneyText(value: status.resultTodayGrossUsd.value, usd: true, font: Tokens.Typography.panelFigure)
+          // Counts up from zero each time the panel opens, then on to each new result.
+          let result = status.resultTodayGrossUsd.value
+          CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signedUSD(Decimal($0)) }
+            .font(Tokens.Typography.panelFigure)
+            .foregroundStyle(Palette.result(result))
             .tracking(Tokens.Typography.panelFigureTracking)
           // Wraps rather than being cut short (Russian runs longer).
           Text(summary(status))

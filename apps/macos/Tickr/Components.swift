@@ -193,13 +193,17 @@ struct Card<Trailing: View, Content: View>: View {
         }
       }
       // A card sharing a row of a set height scrolls under its header when its content is taller.
-      if fills {
-        ScrollsWhenTall {
-          VStack(alignment: .leading, spacing: Tokens.Space.m) { content }
+      // Only the card's own title shines (`titleShines`), never a header inside its content.
+      Group {
+        if fills {
+          ScrollsWhenTall {
+            VStack(alignment: .leading, spacing: Tokens.Space.m) { content }
+          }
+        } else {
+          content
         }
-      } else {
-        content
       }
+      .environment(\.titleShines, false)
     }
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, maxHeight: fills ? .infinity : nil, alignment: .topLeading)
@@ -528,9 +532,11 @@ extension AppModel {
 /// sunken bar with a hairline below. Every section but Overview, whose live flow carries it.
 struct EventStrip: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
-    Ticker(model.tickerItems, moving: model.isLive)
+    // Scrolls only while the bot is at work (OrnamentGate); still on a recorded day, stopped or stale.
+    Ticker(model.tickerItems, moving: model.ornamentsMove(reduceMotion: reduceMotion))
       .frame(height: Tokens.Size.ticker)
       .padding(.horizontal, Tokens.Space.l)
       .padding(.vertical, Tokens.Space.xs)

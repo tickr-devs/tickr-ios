@@ -53,16 +53,27 @@ struct SettingsView: View {
 
   @ViewBuilder private var pane: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      switch tab {
-      case .general: GeneralSettings()
-      case .trading: TradingSettings()
-      case .notifications: NotificationSettings()
-      case .environment: EnvironmentSettings()
-      case .storage: StorageSettings()
-      case .advanced: AdvancedSettings()
+      // The pane's cards rise one after another each time a tab is shown, as the design's.
+      Group(subviews: paneCards) { cards in
+        ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
+          card.rise(step: index)
+        }
       }
     }
+    // A new identity per tab: the next tab's cards rise afresh.
+    .id(tab)
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  @ViewBuilder private var paneCards: some View {
+    switch tab {
+    case .general: GeneralSettings()
+    case .trading: TradingSettings()
+    case .notifications: NotificationSettings()
+    case .environment: EnvironmentSettings()
+    case .storage: StorageSettings()
+    case .advanced: AdvancedSettings()
+    }
   }
 }
 
@@ -130,8 +141,8 @@ private struct GeneralSettings: View {
           .keyboardShortcut(.defaultAction)
       }
       HStack(spacing: Tokens.Space.s) {
-        PulseDot(reachable ? Palette.profit : Palette.loss, pulsing: reachable,
-          event: model.response.map { AnyHashable($0.servedAt) })
+        // One pulse when the bot becomes reachable or unreachable, never per read.
+        PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
         Group {
           if let error = model.fetchError {
             Text(L10n.Settings.notReachable(error))
@@ -738,6 +749,12 @@ private struct ConfigCard: View {
 
 // MARK: - Jobs and session
 
+/// A job's state as its dot shows it; a change is one pulse of the dot.
+struct JobDot: Hashable {
+  let tone: Tone
+  let live: Bool
+}
+
 /// The design's "Session" card with the jobs under it (GET /jobs): today's session as a strip,
 /// then what runs on its own on the Mac, one row each: a dot in its colour (pulsing while it
 /// runs), its name, when it runs, its state and its last or next time. Read while Settings is open.
@@ -800,7 +817,8 @@ struct JobsSection: View {
   ) -> some View {
     let (tone, live) = dot
     return HStack(spacing: Tokens.Space.s) {
-      PulseDot(tone.fill, pulsing: live, event: live ? model.jobs.map { AnyHashable($0.servedAt) } : nil)
+      // One pulse when the job's state changes (its tone or whether it runs), never per read.
+      PulseDot(tone.fill, event: JobDot(tone: tone, live: live))
       name
         .font(Tokens.Typography.calloutMono)
         .foregroundStyle(Palette.textPrimary)
@@ -1058,10 +1076,19 @@ private struct BackupSection: View {
       Image(systemName: symbol)
         .font(Tokens.Typography.symbol)
         .foregroundStyle(tone.fill)
+        // Pops in as the card appears, and again when the backup's state changes (a new backup,
+        // a failure): a new identity per state.
+        .popIn(delay: Tokens.Motion.popStagger)
+        .id(state(of: model.jobs?.backup))
       text
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textPrimary)
     }
+  }
+
+  /// What the check stands for: the newest backup or failure the bot reports. A change pops it.
+  private func state(of job: BackupJobV1?) -> [WireTime?] {
+    [job?.lastAt, job?.lastFailedAt]
   }
 
   /// "Fri Nov 13 16:20" in New York time.

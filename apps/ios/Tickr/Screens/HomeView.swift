@@ -1002,8 +1002,8 @@ private struct EventStrip: View {
 
 /// When a looping ornament that reads as activity moves (Home's brand halo and ticker scroll): only
 /// while the bot runs and the app shows the live day with a fresh status. Stopped, stale,
-/// unreachable or on a recorded day it stands still, as with Reduce Motion (the macOS radar's
-/// `RadarGate` rule).
+/// unreachable or on a recorded day it stands still, as with Reduce Motion (the macOS ornaments'
+/// `OrnamentGate` rule).
 enum OrnamentGate {
   static func moves(reduceMotion: Bool, current: Bool, botState: BotState?) -> Bool {
     !reduceMotion && current && botState == .running
