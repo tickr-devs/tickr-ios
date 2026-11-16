@@ -118,6 +118,7 @@ public struct APIClient: Sendable {
   static let advisorRunField = "run"
   static let advisorVerdictField = "verdict"
   static let labReplayPath = "/lab/replay"
+  static let startBotPath = "/commands/start-bot"
   /// Body keys of a Lab replay start: the folder to replay, the one to compare it with, the day.
   static let labVersionKey = "version"
   static let labCompareKey = "compare"
@@ -328,6 +329,15 @@ public struct APIClient: Sendable {
       post.setValue(idempotencyKey, forHTTPHeaderField: Self.idempotencyKeyHeader)
     }
     return try await perform(post, expect: Self.accepted)
+  }
+
+  /// Start the bot job through launchd on the Mac (never inside the API). Accepted (202) means
+  /// launchd took the start; the bot's preflight may still refuse, so follow the status. The API
+  /// refuses while the bot is alive with 409 `conflict`, and answers 503 `unavailable` where no
+  /// start command is configured or it failed; both throw `APIError.refused`.
+  public func startBot() async throws -> BotStartV1 {
+    let body = try JSONSerialization.data(withJSONObject: [String: String]())
+    return try await perform(request(path: Self.startBotPath, body: body), expect: Self.accepted)
   }
 
   func request(path: String, query: [(String, String)] = [], body: Data?) -> URLRequest {
