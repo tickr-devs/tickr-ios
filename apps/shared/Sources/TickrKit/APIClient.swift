@@ -362,7 +362,7 @@ public struct APIClient: Sendable {
     return request
   }
 
-  private func perform<T: Decodable>(_ request: URLRequest, expect: Int) async throws -> T {
+  func perform<T: Decodable>(_ request: URLRequest, expect: Int) async throws -> T {
     let data: Data
     let response: URLResponse
     do {

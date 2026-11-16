@@ -91,6 +91,10 @@ final class FixtureProtocol: URLProtocol {
   static let flowFile = "flow-v1.json"
   static let watchingPath = "/watching"
   static let watchingFile = "watching-v1.json"
+  static let symbolsPath = "/symbols"
+  static let symbolsFile = "symbols-v1.json"
+  static let moversPath = "/movers"
+  static let moversFile = "movers-v1.json"
   static let jobsPath = "/jobs"
   static let jobsFile = "jobs-v1.json"
   static let labReplayPath = "/lab/replay"
@@ -128,6 +132,8 @@ final class FixtureProtocol: URLProtocol {
     case performancePath: return performanceFile
     case flowPath: return flowFile
     case watchingPath: return watchingFile
+    case symbolsPath: return symbolsFile
+    case moversPath: return moversFile
     case jobsPath: return jobsFile
     case labReplayPath: return labReplayFile
     case advisorPath: return advisorFile

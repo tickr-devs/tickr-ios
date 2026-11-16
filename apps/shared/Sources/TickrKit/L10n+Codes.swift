@@ -314,5 +314,78 @@ extension L10n {
     LocalizedStringResource("kit.rule.continuation_invalidation_below_trigger",
       defaultValue: "Continuation: invalidation below trigger", bundle: bundle)
   }
+  /// Strategy check: spike_volume_ratio
+  static var ruleSpikeVolumeRatio: LocalizedStringResource {
+    LocalizedStringResource("kit.rule.spike_volume_ratio", defaultValue: "Spike: volume × average", bundle: bundle)
+  }
+  /// Strategy check: spike_move_atr
+  static var ruleSpikeMoveAtr: LocalizedStringResource {
+    LocalizedStringResource("kit.rule.spike_move_atr", defaultValue: "Spike: move in ATR", bundle: bundle)
+  }
+  /// Strategy check: spike_invalidation_below_trigger
+  static var ruleSpikeInvalidationBelowTrigger: LocalizedStringResource {
+    LocalizedStringResource("kit.rule.spike_invalidation_below_trigger",
+      defaultValue: "Spike: invalidation below trigger", bundle: bundle)
+  }
+  /// Strategy check: spike_age_bars
+  static var ruleSpikeAgeBars: LocalizedStringResource {
+    LocalizedStringResource("kit.rule.spike_age_bars", defaultValue: "Spike: bars since it", bundle: bundle)
+  }
+  /// Strategy check: spike_low_held
+  static var ruleSpikeLowHeld: LocalizedStringResource {
+    LocalizedStringResource("kit.rule.spike_low_held", defaultValue: "Spike: its low held", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: CONFLICTING_ROWS
+  static var discoveryConflictingRows: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.CONFLICTING_ROWS", defaultValue: "Screeners disagree on it", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: EXCHANGE_NOT_ALLOWED
+  static var discoveryExchangeNotAllowed: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.EXCHANGE_NOT_ALLOWED", defaultValue: "Exchange not allowed", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: CURRENCY_NOT_ALLOWED
+  static var discoveryCurrencyNotAllowed: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.CURRENCY_NOT_ALLOWED", defaultValue: "Currency not allowed", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: SECURITY_TYPE_UNKNOWN
+  static var discoverySecurityTypeUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.SECURITY_TYPE_UNKNOWN",
+      defaultValue: "Security type unknown", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: SECURITY_TYPE_NOT_ALLOWED
+  static var discoverySecurityTypeNotAllowed: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.SECURITY_TYPE_NOT_ALLOWED",
+      defaultValue: "Not a common stock", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: NO_QUOTE
+  static var discoveryNoQuote: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.NO_QUOTE", defaultValue: "No quote", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: QUOTE_STALE
+  static var discoveryQuoteStale: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.QUOTE_STALE", defaultValue: "Quote too old", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: QUOTE_FROM_FUTURE
+  static var discoveryQuoteFromFuture: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.QUOTE_FROM_FUTURE",
+      defaultValue: "Quote time ahead of the clock", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: QUOTE_INVALID
+  static var discoveryQuoteInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.QUOTE_INVALID", defaultValue: "Quote invalid", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: NO_BARS
+  static var discoveryNoBars: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.NO_BARS", defaultValue: "No minute bars", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: SYMBOL_REFUSED
+  static var discoverySymbolRefused: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.SYMBOL_REFUSED",
+      defaultValue: "Refused by the data provider", bundle: bundle)
+  }
+  /// Why discovery dropped a symbol: STRATEGY_LIQUIDITY
+  static var discoveryStrategyLiquidity: LocalizedStringResource {
+    LocalizedStringResource("kit.discovery.STRATEGY_LIQUIDITY", defaultValue: "Strategy liquidity rule", bundle: bundle)
+  }
   // END Bot codes
 }

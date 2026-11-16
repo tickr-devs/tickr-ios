@@ -172,6 +172,11 @@ public enum CheckRule: String, CaseIterable, Sendable {
   case breakoutCloseAboveTrigger = "breakout_close_above_trigger"
   case breakoutInvalidationBelowTrigger = "breakout_invalidation_below_trigger"
   case continuationInvalidationBelowTrigger = "continuation_invalidation_below_trigger"
+  case spikeVolumeRatio = "spike_volume_ratio"
+  case spikeMoveAtr = "spike_move_atr"
+  case spikeInvalidationBelowTrigger = "spike_invalidation_below_trigger"
+  case spikeAgeBars = "spike_age_bars"
+  case spikeLowHeld = "spike_low_held"
 
   public var title: LocalizedStringResource {
     switch self {
@@ -196,6 +201,44 @@ public enum CheckRule: String, CaseIterable, Sendable {
     case .breakoutCloseAboveTrigger: L10n.ruleBreakoutCloseAboveTrigger
     case .breakoutInvalidationBelowTrigger: L10n.ruleBreakoutInvalidationBelowTrigger
     case .continuationInvalidationBelowTrigger: L10n.ruleContinuationInvalidationBelowTrigger
+    case .spikeVolumeRatio: L10n.ruleSpikeVolumeRatio
+    case .spikeMoveAtr: L10n.ruleSpikeMoveAtr
+    case .spikeInvalidationBelowTrigger: L10n.ruleSpikeInvalidationBelowTrigger
+    case .spikeAgeBars: L10n.ruleSpikeAgeBars
+    case .spikeLowHeld: L10n.ruleSpikeLowHeld
+    }
+  }
+}
+
+/// Why discovery dropped a symbol (`SymbolRowV1.cause`). An unknown code has no case; show the bot's own text then.
+public enum DiscoveryCause: String, CaseIterable, Sendable {
+  case conflictingRows = "CONFLICTING_ROWS"
+  case exchangeNotAllowed = "EXCHANGE_NOT_ALLOWED"
+  case currencyNotAllowed = "CURRENCY_NOT_ALLOWED"
+  case securityTypeUnknown = "SECURITY_TYPE_UNKNOWN"
+  case securityTypeNotAllowed = "SECURITY_TYPE_NOT_ALLOWED"
+  case noQuote = "NO_QUOTE"
+  case quoteStale = "QUOTE_STALE"
+  case quoteFromFuture = "QUOTE_FROM_FUTURE"
+  case quoteInvalid = "QUOTE_INVALID"
+  case noBars = "NO_BARS"
+  case symbolRefused = "SYMBOL_REFUSED"
+  case strategyLiquidity = "STRATEGY_LIQUIDITY"
+
+  public var title: LocalizedStringResource {
+    switch self {
+    case .conflictingRows: L10n.discoveryConflictingRows
+    case .exchangeNotAllowed: L10n.discoveryExchangeNotAllowed
+    case .currencyNotAllowed: L10n.discoveryCurrencyNotAllowed
+    case .securityTypeUnknown: L10n.discoverySecurityTypeUnknown
+    case .securityTypeNotAllowed: L10n.discoverySecurityTypeNotAllowed
+    case .noQuote: L10n.discoveryNoQuote
+    case .quoteStale: L10n.discoveryQuoteStale
+    case .quoteFromFuture: L10n.discoveryQuoteFromFuture
+    case .quoteInvalid: L10n.discoveryQuoteInvalid
+    case .noBars: L10n.discoveryNoBars
+    case .symbolRefused: L10n.discoverySymbolRefused
+    case .strategyLiquidity: L10n.discoveryStrategyLiquidity
     }
   }
 }

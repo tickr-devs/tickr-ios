@@ -1885,6 +1885,222 @@
         }
       }
     },
+    "kit.discovery.CONFLICTING_ROWS" : {
+      "comment" : "Why discovery dropped a symbol: CONFLICTING_ROWS",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screeners disagree on it"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скринеры расходятся по нему"
+          }
+        }
+      }
+    },
+    "kit.discovery.CURRENCY_NOT_ALLOWED" : {
+      "comment" : "Why discovery dropped a symbol: CURRENCY_NOT_ALLOWED",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currency not allowed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Валюта не разрешена"
+          }
+        }
+      }
+    },
+    "kit.discovery.EXCHANGE_NOT_ALLOWED" : {
+      "comment" : "Why discovery dropped a symbol: EXCHANGE_NOT_ALLOWED",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exchange not allowed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Биржа не разрешена"
+          }
+        }
+      }
+    },
+    "kit.discovery.NO_BARS" : {
+      "comment" : "Why discovery dropped a symbol: NO_BARS",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No minute bars"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет минутных баров"
+          }
+        }
+      }
+    },
+    "kit.discovery.NO_QUOTE" : {
+      "comment" : "Why discovery dropped a symbol: NO_QUOTE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No quote"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет котировки"
+          }
+        }
+      }
+    },
+    "kit.discovery.QUOTE_FROM_FUTURE" : {
+      "comment" : "Why discovery dropped a symbol: QUOTE_FROM_FUTURE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote time ahead of the clock"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время котировки впереди часов"
+          }
+        }
+      }
+    },
+    "kit.discovery.QUOTE_INVALID" : {
+      "comment" : "Why discovery dropped a symbol: QUOTE_INVALID",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote invalid"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Котировка негодна"
+          }
+        }
+      }
+    },
+    "kit.discovery.QUOTE_STALE" : {
+      "comment" : "Why discovery dropped a symbol: QUOTE_STALE",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote too old"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Котировка устарела"
+          }
+        }
+      }
+    },
+    "kit.discovery.SECURITY_TYPE_NOT_ALLOWED" : {
+      "comment" : "Why discovery dropped a symbol: SECURITY_TYPE_NOT_ALLOWED",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not a common stock"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не обыкновенная акция"
+          }
+        }
+      }
+    },
+    "kit.discovery.SECURITY_TYPE_UNKNOWN" : {
+      "comment" : "Why discovery dropped a symbol: SECURITY_TYPE_UNKNOWN",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security type unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип бумаги неизвестен"
+          }
+        }
+      }
+    },
+    "kit.discovery.STRATEGY_LIQUIDITY" : {
+      "comment" : "Why discovery dropped a symbol: STRATEGY_LIQUIDITY",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strategy liquidity rule"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правило ликвидности стратегии"
+          }
+        }
+      }
+    },
+    "kit.discovery.SYMBOL_REFUSED" : {
+      "comment" : "Why discovery dropped a symbol: SYMBOL_REFUSED",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refused by the data provider"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отклонён поставщиком данных"
+          }
+        }
+      }
+    },
     "kit.environment.demo" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3725,6 +3941,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Статус бота недоступен: %@. Входы невозможны."
+          }
+        }
+      }
+    },
+    "kit.mover.dollars" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/min"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/мин"
+          }
+        }
+      }
+    },
+    "kit.mover.move" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ATR"
+          }
+        }
+      }
+    },
+    "kit.mover.rules" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vol ≥ %1$@× · move ≥ %2$@ ATR · $ vol ≥ %3$@× · bar ≥ %4$@ · vs last %5$lld bars"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "объём ≥ %1$@× · движение ≥ %2$@ ATR · $ объём ≥ %3$@× · бар ≥ %4$@ · к %5$lld прошлым барам"
+          }
+        }
+      }
+    },
+    "kit.mover.volume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vol %@×"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "объём %@×"
           }
         }
       }
@@ -5812,6 +6096,96 @@
         }
       }
     },
+    "kit.rule.spike_age_bars" : {
+      "comment" : "Strategy check: spike_age_bars",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spike: bars since it"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всплеск: баров после него"
+          }
+        }
+      }
+    },
+    "kit.rule.spike_invalidation_below_trigger" : {
+      "comment" : "Strategy check: spike_invalidation_below_trigger",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spike: invalidation below trigger"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всплеск: уровень отмены ниже триггера"
+          }
+        }
+      }
+    },
+    "kit.rule.spike_low_held" : {
+      "comment" : "Strategy check: spike_low_held",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spike: its low held"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всплеск: минимум удержан"
+          }
+        }
+      }
+    },
+    "kit.rule.spike_move_atr" : {
+      "comment" : "Strategy check: spike_move_atr",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spike: move in ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всплеск: движение в ATR"
+          }
+        }
+      }
+    },
+    "kit.rule.spike_volume_ratio" : {
+      "comment" : "Strategy check: spike_volume_ratio",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spike: volume × average"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всплеск: объём × средний"
+          }
+        }
+      }
+    },
     "kit.rule.spread_ratio" : {
       "comment" : "Strategy check: spread_ratio",
       "extractionState" : "manual",
@@ -6830,6 +7204,397 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "СТОП ✓"
+          }
+        }
+      }
+    },
+    "kit.symbols.check" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ %3$@ %4$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ %3$@ %4$@"
+          }
+        }
+      }
+    },
+    "kit.symbols.dropped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
+    "kit.symbols.fastMovers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast movers"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрые движения"
+          }
+        }
+      }
+    },
+    "kit.symbols.filter.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все"
+          }
+        }
+      }
+    },
+    "kit.symbols.filter.dropped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dropped here"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отсеяны здесь"
+          }
+        }
+      }
+    },
+    "kit.symbols.filter.passed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прошли"
+          }
+        }
+      }
+    },
+    "kit.symbols.notReached" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ not reached: %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ не достигнут: %2$@"
+          }
+        }
+      }
+    },
+    "kit.symbols.passed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passed · stop verified"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прошёл · стоп подтверждён"
+          }
+        }
+      }
+    },
+    "kit.symbols.sort.change" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change %"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменение %"
+          }
+        }
+      }
+    },
+    "kit.symbols.sort.furthest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Furthest stage"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дальний этап"
+          }
+        }
+      }
+    },
+    "kit.symbols.sort.rank" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screener rank"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Место в скринере"
+          }
+        }
+      }
+    },
+    "kit.symbols.sort.symbol" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тикер"
+          }
+        }
+      }
+    },
+    "kit.symbols.source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ #%2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ №%2$lld"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.bars" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bars"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бары"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.order" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ордер"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.quote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Котировка"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.risk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Риск"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.screeners" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screeners"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скринеры"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.stop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп брокера"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strategy"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стратегия"
+          }
+        }
+      }
+    },
+    "kit.symbols.stage.universe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Universe"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отбор"
+          }
+        }
+      }
+    },
+    "kit.symbols.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: waiting"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: ожидает"
+          }
+        }
+      }
+    },
+    "kit.symbols.watching" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: watching for its setup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: ждём сетап"
           }
         }
       }
