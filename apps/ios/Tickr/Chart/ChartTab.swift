@@ -260,11 +260,7 @@ private struct DayBar: View {
   }
 
   private func arrow(_ symbol: String) -> some View {
-    Image(systemName: symbol)
-      // Small, as the design's "‹ ›".
-      .font(.footnote.weight(.bold))
-      .foregroundStyle(Palette.infoText)
-      .frame(minWidth: Tokens.Size.iconButtonCompact, minHeight: Tokens.Size.iconButton)
+    HeaderIcon(symbol: symbol).foregroundStyle(Palette.textPrimary)
   }
 
   /// The shown candles' high, low and volume, small and dim beside the arrows, as on the design.
@@ -516,16 +512,15 @@ private struct ChartControls: View {
   private var following: some View {
     HStack(spacing: Tokens.Space.s) {
       Group {
-        Button { zoom(by: Tokens.Chart.zoomStep) } label: { Image(systemName: "minus") }
+        Button { zoom(by: Tokens.Chart.zoomStep) } label: { HeaderIcon(symbol: "minus") }
           .disabled(!viewport.canZoomOut(series))
           .accessibilityLabel(Text(ChartText.zoomOut))
-        Button { zoom(by: 1 / Tokens.Chart.zoomStep) } label: { Image(systemName: "plus") }
+        Button { zoom(by: 1 / Tokens.Chart.zoomStep) } label: { HeaderIcon(symbol: "plus") }
           .disabled(!viewport.canZoomIn)
           .accessibilityLabel(Text(ChartText.zoomIn))
       }
-      .font(.body.weight(.bold))
+      .foregroundStyle(Palette.textPrimary)
       .buttonStyle(.borderless)
-      .frame(minWidth: Tokens.Size.iconButtonCompact, minHeight: Tokens.Size.iconButtonCompact)
       if chart.isToday {
         let following = viewport.showsEnd(series)
         Button {

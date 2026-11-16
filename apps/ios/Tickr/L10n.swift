@@ -32,13 +32,10 @@ enum L10n {
   }
 
   enum Common {
-    /// A pushed screen's way back when the screen under it has no name to show.
+    /// A pushed screen's way back: VoiceOver's name of the back button (its value is the screen
+    /// under it), and its title when that screen has no name to show.
     static var back: LocalizedStringResource {
       LocalizedStringResource("common.back", defaultValue: "Back", bundle: L10n.bundle)
-    }
-    /// VoiceOver name of the way back: "Back to Home".
-    static func backTo(_ screen: String) -> LocalizedStringResource {
-      LocalizedStringResource("common.backTo", defaultValue: "Back to \(screen)", bundle: L10n.bundle)
     }
     static var cancel: LocalizedStringResource {
       LocalizedStringResource("common.cancel", defaultValue: "Cancel", bundle: L10n.bundle)

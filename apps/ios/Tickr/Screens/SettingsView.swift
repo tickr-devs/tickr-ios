@@ -39,10 +39,10 @@ struct SettingsView: View {
   var body: some View {
     Form {
       Section {
+      } header: {
         PushedHeader(title: L10n.Settings.title, back: L10n.App.home, action: dismiss)
+          .formHeaderRow()
       }
-      .listRowBackground(Color.clear)
-      .listRowInsets(EdgeInsets())
       // As on the design: where the bot is, then the bot itself.
       connectionCard.cardRise(step: Order.connection.rawValue)
       if let status = model.status { botCard(status).cardRise(step: Order.bot.rawValue) }

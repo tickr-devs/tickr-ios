@@ -59,6 +59,55 @@ final class ScreenTourUITests: XCTestCase {
     }
   }
 
+  // MARK: - the way back and the header's touch targets
+
+  /// Apple's least comfortable touch target, in points (HIG).
+  private static let touchTarget: CGFloat = 44
+  /// The largest accessibility text size the header must still fit.
+  private static let accessibilityTextSize = "UICTContentSizeCategoryAccessibilityXXXL"
+
+  /// A pushed screen has the app's own back button, named "Back" for VoiceOver; it goes back, and
+  /// so does the swipe from the screen's left edge.
+  func testBackButtonAndEdgeSwipe() {
+    let settings = app.buttons[Identifier.settings]
+    XCTAssertTrue(settings.waitForExistence(timeout: Self.wait))
+    settings.tap()
+    let back = app.buttons[Identifier.back].firstMatch
+    XCTAssertTrue(back.waitForExistence(timeout: Self.wait), "Settings has no back button")
+    XCTAssertEqual(back.label, "Back")
+    XCTAssertGreaterThanOrEqual(back.frame.height, Self.touchTarget)
+    // The edge swipe: from the very left edge, quickly, to past the middle.
+    let window = app.windows.firstMatch
+    let edge = window.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5))
+    edge.press(forDuration: 0.01, thenDragTo: window.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5)),
+      withVelocity: .fast, thenHoldForDuration: 0)
+    XCTAssertTrue(back.waitForNonExistence(timeout: Self.wait), "the edge swipe did not go back")
+    XCTAssertTrue(settings.waitForExistence(timeout: Self.wait))
+    settings.tap()
+    XCTAssertTrue(back.waitForExistence(timeout: Self.wait))
+    back.tap()
+    XCTAssertTrue(back.waitForNonExistence(timeout: Self.wait), "the back button did not go back")
+  }
+
+  /// At the largest accessibility text size every header button keeps a 44-point touch target.
+  func testHeaderTouchTargetsAtAccessibilitySize() {
+    app.terminate()
+    app.launchArguments += ["-UIPreferredContentSizeCategoryName", Self.accessibilityTextSize]
+    app.launch()
+    let settings = app.buttons[Identifier.settings]
+    XCTAssertTrue(settings.waitForExistence(timeout: Self.wait))
+    for element in [app.buttons[Identifier.botControl], settings] {
+      XCTAssertGreaterThanOrEqual(element.frame.width, Self.touchTarget)
+      XCTAssertGreaterThanOrEqual(element.frame.height, Self.touchTarget)
+    }
+    shot("a11y-home-header")
+    settings.tap()
+    let back = app.buttons[Identifier.back].firstMatch
+    XCTAssertTrue(back.waitForExistence(timeout: Self.wait))
+    XCTAssertGreaterThanOrEqual(back.frame.height, Self.touchTarget)
+    shot("a11y-settings-back")
+  }
+
   // MARK: - screens behind Home and Activity
 
   private func homeDetails() {

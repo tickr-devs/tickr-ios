@@ -133,6 +133,8 @@ public enum Tokens {
     public static let chipValue = Font.system(.headline, design: .monospaced, weight: .bold)
     /// Chevrons and direction triangles beside a figure or a button title.
     public static let chevron = Font.system(.caption2, weight: .bold)
+    /// A header's symbol button (day arrows, title-bar buttons): a system bar-button symbol's size.
+    public static let headerSymbol = Font.system(.title3, weight: .semibold)
     /// Body text and values in rows: the platform's text styles, so Dynamic Type applies.
     public static let body = Font.body
     public static let bodyMono = Font.body.monospaced()
@@ -194,8 +196,7 @@ public enum Tokens {
     public static let flash = 0.22
   }
 
-  /// How far a line of text may shrink to fit before it truncates, as a share of its size
-  /// (`minimumScaleFactor`).
+  /// How far a line of text may shrink to fit before it truncates, as a share of its size (`minimumScaleFactor`).
   public enum Shrink {
     /// Button titles and tile text: barely.
     public static let slight = 0.8
@@ -238,8 +239,8 @@ public enum Tokens {
     public static let sparkline: CGFloat = 34
     /// A tab bar glyph (`DesignGlyph`), as on the iOS boards.
     public static let tabGlyph: CGFloat = 24
-    /// Home's title-row action glyphs (power, settings), as on the iOS Home board.
-    public static let headerGlyph: CGFloat = 16
+    /// iOS header glyphs (power, settings, calendar): a bar-button glyph's size, in a `touchTarget`.
+    public static let headerGlyph: CGFloat = 22
     /// A glyph inside a chip-height button (the chart-type buttons), as on the iOS Chart board.
     public static let chipGlyph: CGFloat = 14
     public static let bar: CGFloat = 8
@@ -391,8 +392,7 @@ public enum Tokens {
   public enum Chart {
     /// Space above and below the visible prices, as a share of their range.
     public static let pricePadding = 0.08
-    /// Height of the volume bars along the bottom of the price pane, as a share of the price
-    /// range.
+    /// Height of the volume bars along the bottom of the price pane, as a share of the price range.
     public static let volumeShare = 0.22
     /// Each zoom step shows this many times fewer (or more) candles.
     public static let zoomStep = 1.5

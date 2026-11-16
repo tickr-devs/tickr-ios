@@ -21,10 +21,10 @@ struct ConfigView: View {
   var body: some View {
     Form {
       Section {
+      } header: {
         PushedHeader(title: L10n.Settings.configuration, back: L10n.Settings.title, action: dismiss)
+          .formHeaderRow()
       }
-      .listRowBackground(Color.clear)
-      .listRowInsets(EdgeInsets())
       if let config = model.config {
         Section {
           Group {

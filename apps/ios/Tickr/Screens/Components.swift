@@ -232,8 +232,8 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
   }
 }
 
-/// A pushed screen's top, as on the design's Settings: "‹ Home" (blue chevron and the name of the
-/// screen under it, no glass circle), then the screen's title row, as on the tabs.
+/// A pushed screen's top: the app's own back button ("‹ Home", `BackButton`), then the screen's
+/// title row, as on the tabs. The one way every pushed screen draws its way back.
 struct PushedHeader<Leading: View, Actions: View>: View {
   let title: LocalizedStringResource
   /// The screen under this one; nil reads "Back".
@@ -261,17 +261,35 @@ struct PushedHeader<Leading: View, Actions: View>: View {
   }
 }
 
+extension PushedHeader {
+  /// A pushed header at the top of a form (Settings, Configuration): the header of the form's first
+  /// section, whose view is not cut at its edges as a row is, so the back button's shadow shows
+  /// whole; in the form's own text case and side margins.
+  func formHeaderRow() -> some View {
+    textCase(nil)
+      .listRowInsets(EdgeInsets())
+  }
+}
+
 extension PushedHeader where Leading == EmptyView, Actions == EmptyView {
   init(title: LocalizedStringResource, back: LocalizedStringResource?, action: DismissAction? = nil) {
     self.init(title: title, back: back, action: action, leading: { EmptyView() }, actions: { EmptyView() })
   }
 }
 
-/// "‹ Home": the way back from a pushed screen, drawn as on the design instead of the system's
-/// glass circle. The edge swipe still goes back (`EdgeSwipeBack`).
+/// "‹ Home": the way back from a pushed screen, the app's own control rather than the system's, as
+/// on the design (the boards' `.bk`): a glass capsule, 36 points tall (the card surface over a blur
+/// with the strong hairline and a soft shadow), holding the blue chevron and the name of the screen
+/// under it. Its touch target covers `Size.touchTarget` (Apple HIG). A long name wraps onto more
+/// lines rather than being cut. VoiceOver reads "Back, Home"; the edge swipe still goes back
+/// (`EdgeSwipeBack`). Every pushed screen draws it through `PushedHeader`.
 struct BackButton: View {
   /// Symbol of the way back.
   static let symbol = "chevron.left"
+  /// The chevron: 17 points semibold at the default text size, as on the design.
+  static let chevronFont = Font.body.weight(.semibold)
+  /// The screen's name: 15 points medium at the default text size, as on the design.
+  static let titleFont = Font.subheadline.weight(.medium)
 
   @Environment(\.dismiss) private var dismiss
   let title: LocalizedStringResource
@@ -282,18 +300,111 @@ struct BackButton: View {
     Button {
       (action ?? dismiss)()
     } label: {
-      HStack(spacing: Tokens.Space.xxs) {
-        Image(systemName: Self.symbol).fontWeight(.semibold)
-        Text(title).lineLimit(1)
+      HStack(spacing: Tokens.Space.xs) {
+        Image(systemName: Self.symbol)
+          .font(Self.chevronFont)
+          .foregroundStyle(Palette.infoText)
+        Text(title)
+          .font(Self.titleFont)
+          .foregroundStyle(Palette.textPrimary)
+          .multilineTextAlignment(.leading)
+          .fixedSize(horizontal: false, vertical: true)
       }
-      .font(.body)
-      .foregroundStyle(Palette.infoText)
+    }
+    .buttonStyle(BackButtonStyle())
+    .accessibilityLabel(Text(L10n.Common.back))
+    .accessibilityValue(Text(title))
+    .accessibilityIdentifier(AccessibilityID.back)
+  }
+}
+
+/// The look of `BackButton`: the glass capsule (rounded to half its one-line height, so a wrapped
+/// name keeps round ends), pressed in while held.
+private struct BackButtonStyle: ButtonStyle {
+  /// Half the one-line height, growing with the text size as the capsule does.
+  @ScaledMetric(relativeTo: .subheadline) private var radius = Tokens.Size.iconButton / 2
+
+  func makeBody(configuration: Configuration) -> some View {
+    let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+    configuration.label
+      .padding(.leading, Tokens.Space.s + Tokens.Space.xxs)
+      .padding(.trailing, Tokens.Space.m + Tokens.Space.xxs)
+      .padding(.vertical, Tokens.Space.xs)
+      .frame(minHeight: Tokens.Size.iconButton)
+      .glassSurface(in: shape, shadow: Tokens.Opacity.shadow)
       .frame(minHeight: Tokens.Size.touchTarget)
       .contentShape(Rectangle())
+      .scaleEffect(configuration.isPressed ? HeaderIcon.pressScale : 1)
+      .animation(Tokens.Motion.quick, value: configuration.isPressed)
+  }
+}
+
+extension View {
+  /// The design's glass for a header's controls (the boards' `.gbtn` and `.bk`): the card surface,
+  /// a little see-through over a blur, with the strong hairline and a soft shadow of `shadow`.
+  func glassSurface(in shape: some InsettableShape, shadow: Double) -> some View {
+    background(Palette.surface.opacity(Tokens.Opacity.overlay), in: shape)
+      .background(.ultraThinMaterial, in: shape)
+      .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+      .shadow(color: Palette.shadow.opacity(shadow), radius: HeaderIcon.shadowRadius, x: 0,
+        y: HeaderIcon.shadowOffset)
+  }
+}
+
+/// A header's icon button face, the same on every screen, as on the design (the boards' `.gbtn`):
+/// a round glass button, 40 points across, with the glyph (the design's own or a symbol) at the
+/// size of the system's bar-button glyphs, both growing with the text size, inside a touch target
+/// of at least `Size.touchTarget` (Apple HIG). `glass: false` leaves the glyph bare (the calendar's
+/// month arrows, inside a card). Wrap it in a `Button` or a `NavigationLink`.
+struct HeaderIcon: View {
+  /// What the button shows.
+  enum Glyph {
+    case design(DesignGlyph)
+    case symbol(String)
+  }
+
+  /// Diameter of the glass circle at the default text size, in points (the boards' `.gbtn`).
+  static let glassSide: CGFloat = 40
+  /// The soft shadow under the glass: blur radius and downward offset, in points.
+  static let shadowRadius: CGFloat = 7
+  static let shadowOffset: CGFloat = 4
+  /// How far a header control shrinks while pressed.
+  static let pressScale: CGFloat = 0.95
+
+  /// The glyph and the glass grow with the text, as the system's own bar buttons do.
+  @ScaledMetric(relativeTo: .title3) private var side = Tokens.Size.headerGlyph
+  @ScaledMetric(relativeTo: .title3) private var circle = HeaderIcon.glassSide
+  let glyph: Glyph
+  var glass = true
+  /// A wash of `info` under the glyph: the button's panel is open (Activity's calendar).
+  var selected = false
+
+  init(_ glyph: DesignGlyph, selected: Bool = false) {
+    self.glyph = .design(glyph)
+    self.selected = selected
+  }
+
+  init(symbol: String, glass: Bool = true) {
+    self.glyph = .symbol(symbol)
+    self.glass = glass
+  }
+
+  var body: some View {
+    Group {
+      switch glyph {
+      case .design(let glyph): DesignGlyphView(glyph, side: side)
+      case .symbol(let name): Image(systemName: name).font(Tokens.Typography.headerSymbol)
+      }
     }
-    .buttonStyle(.plain)
-    .accessibilityLabel(Text(L10n.Common.backTo(String(localized: title))))
-    .accessibilityIdentifier(AccessibilityID.back)
+    .frame(width: glass ? circle : nil, height: glass ? circle : nil)
+    .background {
+      if glass {
+        Circle().fill(selected ? Palette.info.opacity(TickrTabBar.selectedWash) : .clear)
+          .glassSurface(in: Circle(), shadow: Tokens.Opacity.wash)
+      }
+    }
+    .frame(minWidth: Tokens.Size.touchTarget, minHeight: Tokens.Size.touchTarget)
+    .contentShape(Rectangle())
   }
 }
 
@@ -351,13 +462,14 @@ struct TitleRow<Leading: View, Actions: View>: View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
         leading
-        Text(title)
-          .font(Tokens.Typography.title)
-          .foregroundStyle(Palette.textPrimary)
-          // One line: a long word shrinks rather than breaking ("Лаборато-рия").
-          .lineLimit(1)
-          .minimumScaleFactor(stacked ? Tokens.Shrink.tight : Tokens.Shrink.slight)
-          .accessibilityAddTraits(.isHeader)
+        // One line when it fits; otherwise it wraps (at large text sizes), never cut with "…".
+        ViewThatFits(in: .horizontal) {
+          Text(title).fixedSize()
+          Text(title).fixedSize(horizontal: false, vertical: true)
+        }
+        .font(Tokens.Typography.title)
+        .foregroundStyle(Palette.textPrimary)
+        .accessibilityAddTraits(.isHeader)
         Spacer(minLength: Tokens.Space.s)
         if !stacked { actionRow }
       }
@@ -366,8 +478,9 @@ struct TitleRow<Leading: View, Actions: View>: View {
     .padding(.top, Tokens.Space.s)
   }
 
+  /// The actions' touch targets (`HeaderIcon`) carry their own room, so they sit close.
   private var actionRow: some View {
-    HStack(spacing: Tokens.Space.m) { actions }
+    HStack(spacing: Tokens.Space.xs) { actions }
       .buttonStyle(.borderless)
       .tint(Palette.infoText)
   }

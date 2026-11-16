@@ -3762,23 +3762,6 @@
         }
       }
     },
-    "common.backTo" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Back to %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Назад: %@"
-          }
-        }
-      }
-    },
     "common.cancel" : {
       "extractionState" : "manual",
       "localizations" : {

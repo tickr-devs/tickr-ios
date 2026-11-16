@@ -366,14 +366,14 @@ private struct WindowToolbar: ToolbarContent {
 /// small bordered square; hides the sidebar or shows it again. An item of the sidebar column's
 /// toolbar, ahead of a flexible space, so it sits right after the window buttons, and stays there
 /// while the sidebar is hidden.
-private struct SidebarButton: View {
+struct SidebarButton: View {
   @Binding var columns: NavigationSplitViewVisibility
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   /// Accessibility id of the button, for the UI tests.
   static let id = "toolbar-sidebar"
-  /// Size of the glyph, in points.
-  static let glyphSize: CGFloat = 14
+  /// Size of the glyph, in points: a toolbar glyph's size on macOS (Apple HIG).
+  static let glyphSize: CGFloat = 16
 
   var body: some View {
     let hidden = columns == .detailOnly
@@ -457,12 +457,12 @@ private struct WindowLine: View {
 
 /// The right side of the title bar: the connection status, then ‹ day › with a menu of recorded
 /// days, and Today.
-private struct DayStepper: View {
+struct DayStepper: View {
   @Environment(AppModel.self) private var model
 
-  /// The design's glyphs of the previous and next day buttons (text, not symbols).
-  static let previousGlyph = "‹"
-  static let nextGlyph = "›"
+  /// Symbols of the previous and next day buttons (the design's "‹ ›").
+  static let previousSymbol = "chevron.left"
+  static let nextSymbol = "chevron.right"
   /// Gap between the connection status and the stepper, in points (added to the items' gap).
   static let connectionGap: CGFloat = 10
   /// Least width of the day label, in points, so the arrows keep their place from day to day:
@@ -501,8 +501,7 @@ private struct DayStepper: View {
   @ViewBuilder private var stepper: some View {
     HStack(spacing: Tokens.Space.s) {
       Button { model.showPreviousDay() } label: {
-        Text(verbatim: Self.previousGlyph)
-          .accessibilityLabel(Text(L10n.Toolbar.previousDay))
+        Label { Text(L10n.Toolbar.previousDay) } icon: { Image(systemName: Self.previousSymbol) }
       }
       .buttonStyle(TitleBarButtonStyle(square: true))
       .disabled(model.previousDay == nil)
@@ -535,8 +534,7 @@ private struct DayStepper: View {
       .fixedSize()
       .help(Text(L10n.Toolbar.pickDayHelp))
       Button { model.showNextDay() } label: {
-        Text(verbatim: Self.nextGlyph)
-          .accessibilityLabel(Text(L10n.Toolbar.nextDay))
+        Label { Text(L10n.Toolbar.nextDay) } icon: { Image(systemName: Self.nextSymbol) }
       }
       .buttonStyle(TitleBarButtonStyle(square: true))
       .disabled(model.isLive)
@@ -562,15 +560,16 @@ private struct DayStepper: View {
 
 /// The title bar's small bordered buttons (sidebar, ‹ › and Today): the chip fill, a strong
 /// hairline and the label in the muted text colour.
-private struct TitleBarButtonStyle: ButtonStyle {
+struct TitleBarButtonStyle: ButtonStyle {
   /// An icon-only button of the design's fixed size; otherwise the title with side padding.
   let square: Bool
 
   @Environment(\.isEnabled) private var isEnabled
 
-  /// Size of an icon-only button, in points.
-  static let width: CGFloat = 30
-  static let height: CGFloat = 26
+  /// Size of an icon-only button, in points: at least macOS's regular control height, 28 points
+  /// (Apple HIG), so the title bar's buttons are as easy to hit as the system's toolbar items.
+  static let width: CGFloat = 32
+  static let height: CGFloat = 28
   /// Corner radius of the button, in points.
   static let radius: CGFloat = 7
 
@@ -578,7 +577,8 @@ private struct TitleBarButtonStyle: ButtonStyle {
     let shape = RoundedRectangle(cornerRadius: Self.radius, style: .continuous)
     configuration.label
       .labelStyle(.iconOnly)
-      .font(Tokens.Typography.buttonCompact)
+      // An icon-only button's symbol at a toolbar symbol's size; a title in the compact button font.
+      .font(square ? Tokens.Typography.headerSymbol : Tokens.Typography.buttonCompact)
       .foregroundStyle(Palette.textTertiary)
       .padding(.horizontal, square ? 0 : Tokens.Space.s)
       .frame(minWidth: Self.width, minHeight: Self.height)
