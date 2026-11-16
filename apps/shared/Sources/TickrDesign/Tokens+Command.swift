@@ -52,7 +52,7 @@ public extension Tokens {
     /// Width of the emergency stop's outer halo, in points.
     public static let halo: CGFloat = 3
     /// Opacity of the emergency stop's halo, of its second line's white, of the hold sweep's
-    /// white, and of the shade a pressed command darkens by.
+    /// dark shade (`Palette.scrim`), and of the shade a pressed command darkens by.
     public static let haloOpacity = 0.22
     public static let detailOpacity = 0.8
     public static let sweepOpacity = 0.28

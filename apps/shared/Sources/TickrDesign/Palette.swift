@@ -18,7 +18,7 @@ public enum Palette {
   /// Window background behind cards.
   public static let background = Color(light: 0xEEF2FA, dark: 0x070A16)
   /// Cards, panels, popovers.
-  public static let surface = Color(light: 0xFFFFFF, dark: 0x0E1326)
+  public static let surface = Color(Swatch.surface)
   /// Inset areas inside a card: charts, wells.
   public static let surfaceSunken = Color(light: 0xF6F8FD, dark: 0x0A0F20)
   /// Card borders, grid lines, tracks of bars and rings.
@@ -35,7 +35,7 @@ public enum Palette {
   // MARK: text, strongest to weakest
 
   /// Headlines and primary values.
-  public static let textPrimary = Color(light: 0x0E1430, dark: 0xE7EAF6)
+  public static let textPrimary = Color(Swatch.textPrimary)
   /// Body text in rows and lists.
   public static let textSecondary = Color(light: 0x262F52, dark: 0xC9CFE6)
   /// Labels next to values, explanations.
@@ -60,10 +60,14 @@ public enum Palette {
   public static let profit = Color(light: 0x10B981, dark: 0x34D399)
   public static let profitText = Color(light: 0x047857, dark: 0x6EE7B7)
   /// Money lost, a missing stop, an alarm, destructive actions.
-  public static let loss = Color(light: 0xEF4444, dark: 0xF87171)
-  public static let lossText = Color(light: 0xB91C1C, dark: 0xFCA5A5)
-  /// Text and symbols on a solid `loss` fill (the emergency stop, a destructive command's glyph).
-  public static let onLoss = Color(light: 0xFFFFFF, dark: 0xFFFFFF)
+  public static let loss = Color(Swatch.loss)
+  public static let lossText = Color(Swatch.lossText)
+  /// A solid red fill with text or a symbol on it in `onLoss` (the emergency stop, a destructive
+  /// command's glyph tile): deeper than `loss`, so white on it keeps 4.5:1 in both appearances
+  /// (`loss` itself is for strokes, washes, halos and charts, never behind text).
+  public static let lossFill = Color(Swatch.lossFill)
+  /// Text and symbols on a solid `lossFill`.
+  public static let onLoss = Color(Swatch.onLoss)
   /// Attention: paused, blocked, stale, a closed gate.
   public static let warning = Color(light: 0xF59E0B, dark: 0xFBBF24)
   public static let warningText = Color(light: 0xB45309, dark: 0xFCD34D)
@@ -99,7 +103,7 @@ public enum Palette {
   /// Blue-tinted card shadow in light mode.
   public static let shadow = Color(light: 0x283C96, dark: 0x283C96)
   /// Deep navy behind an overlay panel (the Mac "Watching closely" list), at `Opacity.faint`, and its shadow.
-  public static let scrim = Color(light: 0x080C1E, dark: 0x080C1E)
+  public static let scrim = Color(Swatch.scrim)
 
   /// Text colour for a money result: gains profit, losses loss, zero tertiary.
   public static func result(_ value: Decimal) -> Color {
@@ -132,7 +136,32 @@ public enum Palette {
   @available(*, deprecated, renamed: "lossText") public static var redStrong: Color { lossText }
 }
 
+/// The raw light and dark values (0xRRGGBB) of the roles the bot's command tiers pair as text and
+/// fill, kept as numbers so a test can compute their contrast (`PaletteContrastTests`).
+public struct Swatch: Sendable, Hashable {
+  public let light: UInt32
+  public let dark: UInt32
+
+  public init(light: UInt32, dark: UInt32) {
+    self.light = light
+    self.dark = dark
+  }
+
+  public static let surface = Swatch(light: 0xFFFFFF, dark: 0x0E1326)
+  public static let textPrimary = Swatch(light: 0x0E1430, dark: 0xE7EAF6)
+  public static let loss = Swatch(light: 0xEF4444, dark: 0xF87171)
+  public static let lossText = Swatch(light: 0xB91C1C, dark: 0xFCA5A5)
+  public static let lossFill = Swatch(light: 0xB91C1C, dark: 0x991B1B)
+  public static let onLoss = Swatch(light: 0xFFFFFF, dark: 0xFFFFFF)
+  public static let scrim = Swatch(light: 0x080C1E, dark: 0x080C1E)
+}
+
 public extension Color {
+  /// A colour with a swatch's light and dark values.
+  init(_ swatch: Swatch) {
+    self.init(light: swatch.light, dark: swatch.dark)
+  }
+
   /// A colour with separate light and dark appearance values, given as 0xRRGGBB.
   init(light: UInt32, dark: UInt32) {
     #if canImport(UIKit)

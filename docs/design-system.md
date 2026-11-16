@@ -32,6 +32,13 @@ the approved design canvas. Code follows it one to one:
 Each meaning has a fill colour (strokes, fills, glows) and a text colour, which keeps at least 4.5:1
 contrast on `surface` in both appearances.
 
+**Text on a solid fill passes WCAG AA too (4.5:1, normal text), in both appearances**, with any
+opacity the text is drawn at and any shade over the fill (pressed, a hold's sweep, a tag)
+blended in first. A meaning's fill colour (`loss` and the like) is for strokes, washes, halos and
+charts; when text or a symbol sits on a solid red, the fill is `lossFill`, with `onLoss` on it.
+`PaletteContrastTests` (apps/shared) computes every text and fill pair of the destructive and
+emergency command tiers from the palette's values (`Swatch`) and fails below 4.5:1.
+
 | Role | Use | Light | Dark |
 |---|---|---|---|
 | `background` | Window background behind cards | `#EEF2FA` | `#070A16` |
@@ -50,6 +57,7 @@ contrast on `surface` in both appearances.
 | `accent` / `accentText` | Live, brand, running bot, focus | `#0EA5A0` / `#0B766F` | `#2DD4BF` / `#5EEAD4` |
 | `profit` / `profitText` | Gains, verified stop, healthy | `#10B981` / `#047857` | `#34D399` / `#6EE7B7` |
 | `loss` / `lossText` | Losses, missing stop, alarm, destructive | `#EF4444` / `#B91C1C` | `#F87171` / `#FCA5A5` |
+| `lossFill` / `onLoss` | A solid red with text or a symbol on it: the emergency stop, a destructive command's glyph tile (white on it 6.5:1 light, 8.3:1 dark) | `#B91C1C` / `#FFFFFF` | `#991B1B` / `#FFFFFF` |
 | `warning` / `warningText` | Paused, blocked, stale, closed gate, environment chip | `#F59E0B` / `#B45309` | `#FBBF24` / `#FCD34D` |
 | `info` / `infoText` | Entries, orders, commands in flight | `#3B82F6` / `#1D4ED8` | `#60A5FA` / `#93C5FD` |
 | `highlight` / `highlightText` | Recorded day, BACKLOG, observers | `#8B5CF6` / `#6D28D9` | `#A78BFA` / `#C4B5FD` |
@@ -63,7 +71,7 @@ contrast on `surface` in both appearances.
 | `seriesUniverse` | Universe stage of the live flow | = `seriesATR` | = `seriesATR` |
 | `glowIndigo`, `glowTeal` | Light background corner glows (at `Opacity.glow`, reach 420 pt; teal centred on the right edge, a fifth down) | `#6366F1`, `#14B8A6` | not drawn |
 | `shadow` | Light card shadow (at `Opacity.shadow`) | `#283C96` | not drawn |
-| `scrim` | Dimmed backdrop behind a Mac overlay panel (at `Opacity.faint`) and that panel's shadow | `#080C1E` | `#080C1E` |
+| `scrim` | Dimmed backdrop behind a Mac overlay panel (at `Opacity.faint`) and that panel's shadow; the emergency stop's hold sweep (at `Command.sweepOpacity`) | `#080C1E` | `#080C1E` |
 
 A money result uses `profitText` above zero, `lossText` below and `textTertiary` at zero.
 
@@ -282,8 +290,8 @@ still reads it. Every control takes a `Tone`.
 | `.action(.destructive)` | Destructive actions outside the bot's commands | `lossText` on a `loss` wash and border |
 | sizes | `.compact` (inline), `.regular`, `.large` (phone sheets, at least `Size.touchTarget` tall) | `Typography.buttonCompact` / `button` |
 | `.buttonStyle(.icon(tone))` | One-symbol actions | `Size.iconButton` circle (`iconButtonCompact`), tone wash and border; needs a `hint` |
-| `.buttonStyle(.command(tier))` | The bot's commands (both apps): `.secondary(tone)` pause, resume, cancel orders; `.destructive` close a position, Close all, stop the bot; `.primary` start the bot | A `Command.glyph` tile (`Command.glyphRadius`) then the title left-aligned, wrapping, never cut; `Command.height` (36 pt Mac, 50 pt iOS; `compact` 32 pt), `Command.radius`, soft shadow. Secondary: `surface`, `separatorStrong` border, glyph in its tone on an `Opacity.glow` tile. Destructive: `loss` wash, `loss` border, `lossText`, solid `loss` tile with an `onLoss` glyph. `tag:` puts a violet `CommandTag` ("DEMO") at the end. A trailing "…" in a title means it asks first |
-| `EmergencyButton` | The emergency stop, always last, after a `LastResortDivider` | Full width, solid `loss`, `onLoss` bold title with a second line (`Command.detailOpacity`), `Command.halo` ring. With `hold:` (Mac) it acts only after `Command.holdSeconds` held, a sweep filling from its glyph; release or moving away cancels; the accessibility action skips the hold; Reduce Motion stills the sweep |
+| `.buttonStyle(.command(tier))` | The bot's commands (both apps): `.secondary(tone)` pause, resume, cancel orders; `.destructive` close a position, Close all, stop the bot; `.primary` start the bot | A `Command.glyph` tile (`Command.glyphRadius`) then the title left-aligned, wrapping, never cut; `Command.height` (36 pt Mac, 50 pt iOS; `compact` 32 pt), `Command.radius`, soft shadow. Secondary: `surface`, `separatorStrong` border, glyph in its tone on an `Opacity.glow` tile. Destructive: `loss` wash, `loss` border, `lossText`, solid `lossFill` tile with an `onLoss` glyph. `detail:` puts a few mono words after the title in the command's colour, always whole (the menu bar's Close all: "2 positions", plural forms from the String Catalog). `tag:` puts a violet `CommandTag` ("DEMO") at the end. A trailing "…" in a title means it asks first |
+| `EmergencyButton` | The emergency stop, always last, after a `LastResortDivider` | Full width, solid `lossFill`, `onLoss` bold title with a second line (`Command.detailOpacity`), `loss` `Command.halo` ring. With `hold:` (Mac) it acts only after `Command.holdSeconds` held, a dark `scrim` sweep filling from its glyph; release or moving away cancels; the accessibility action skips the hold; Reduce Motion stills the sweep |
 | `CommandColumns(columns:)` | A row of commands | Equal columns, as many as fit each title on one line, down to one per row; one height per row |
 | `.buttonStyle(.chip(selected:))` | One of a few choices side by side (position tabs, the Chart's ranges and intervals) | `Typography.label` in `textTertiary` on `chipFill`, `separatorStrong` hairline, `Radius.chip`, `Space.s` × 6 pt padding; selected: `textPrimary` on `selection` with a tone outline |
 | `.toggleStyle(.chip)` | An on/off choice among chips (the Chart's studies, trade marks) | The chip above, title uppercase; on: `textPrimary` on `selection` with the `separatorStrong` hairline; off: the plain chip at `Opacity.muted` |

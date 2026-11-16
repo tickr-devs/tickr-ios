@@ -2,10 +2,11 @@ import SwiftUI
 
 // MARK: - the bot's commands
 
-/// A bot command, as the design's `cmd` button: a glyph tile, then the title left-aligned, then
-/// (when commands go to the demo day) a small "DEMO" pill. Three looks, never confusable:
+/// A bot command, as the design's `cmd` button: a glyph tile, then the title left-aligned, then an
+/// optional short mono detail (the menu bar's "2 positions" after Close all), then (when commands
+/// go to the demo day) a small "DEMO" pill. Three looks, never confusable:
 /// `secondary` (pause, resume, cancel orders) on the card surface with a glyph tinted in its tone;
-/// `destructive` (flatten, stop bot) washed red with a solid red glyph tile; `primary` (start the
+/// `destructive` (flatten, stop bot) washed red with a solid red (`lossFill`) glyph tile; `primary` (start the
 /// bot) in the accent fill. The emergency stop is its own button (`EmergencyButton`).
 ///
 /// Give it a `Label` (title and SF Symbol). A title never truncates: it wraps onto more lines.
@@ -21,26 +22,31 @@ public struct CommandButtonStyle: ButtonStyle {
 
   let tier: Tier
   let size: Size
+  let detail: Text?
   let tag: Text?
 
   /// - Parameters:
+  ///   - detail: a few words after the title in the command's colour, always whole, as the
+  ///     number of positions Close all closes.
   ///   - tag: the pill at the trailing end, as "DEMO" while commands go to the demo day.
-  public init(_ tier: Tier, size: Size = .regular, tag: Text? = nil) {
+  public init(_ tier: Tier, size: Size = .regular, detail: Text? = nil, tag: Text? = nil) {
     self.tier = tier
     self.size = size
+    self.detail = detail
     self.tag = tag
   }
 
   public func makeBody(configuration: Configuration) -> some View {
-    CommandButtonBody(configuration: configuration, tier: tier, size: size, tag: tag)
+    CommandButtonBody(configuration: configuration, tier: tier, size: size, detail: detail, tag: tag)
   }
 }
 
 public extension ButtonStyle where Self == CommandButtonStyle {
   /// `.buttonStyle(.command(.destructive))`, `.buttonStyle(.command(.secondary(.warning), tag: demo))`.
-  static func command(_ tier: CommandButtonStyle.Tier, size: CommandButtonStyle.Size = .regular, tag: Text? = nil)
-    -> CommandButtonStyle {
-    CommandButtonStyle(tier, size: size, tag: tag)
+  static func command(
+    _ tier: CommandButtonStyle.Tier, size: CommandButtonStyle.Size = .regular, detail: Text? = nil, tag: Text? = nil
+  ) -> CommandButtonStyle {
+    CommandButtonStyle(tier, size: size, detail: detail, tag: tag)
   }
 }
 
@@ -51,6 +57,7 @@ private struct CommandButtonBody: View {
   let configuration: ButtonStyleConfiguration
   let tier: CommandButtonStyle.Tier
   let size: CommandButtonStyle.Size
+  let detail: Text?
   let tag: Text?
 
   var body: some View {
@@ -58,7 +65,7 @@ private struct CommandButtonBody: View {
     let shape = RoundedRectangle(cornerRadius: small ? Tokens.Radius.chip : Tokens.Command.radius, style: .continuous)
     let pressed = configuration.isPressed && enabled
     configuration.label
-      .labelStyle(CommandLabelStyle(tier: tier, small: small, tag: tag))
+      .labelStyle(CommandLabelStyle(tier: tier, small: small, detail: detail, tag: tag))
       .font(small ? Tokens.Typography.buttonCompact : Tokens.Command.title)
       .foregroundStyle(foreground)
       .padding(.leading, small ? Tokens.Space.xxs + Tokens.Stroke.thin : Tokens.Space.xs + Tokens.Space.xxs)
@@ -132,10 +139,12 @@ private struct CommandButtonBody: View {
   }
 }
 
-/// A command's label: the symbol on its glyph tile, the title (wrapping, never cut), the tag.
+/// A command's label: the symbol on its glyph tile, the title (wrapping, never cut), the detail,
+/// the tag.
 private struct CommandLabelStyle: LabelStyle {
   let tier: CommandButtonStyle.Tier
   let small: Bool
+  let detail: Text?
   let tag: Text?
 
   func makeBody(configuration: Configuration) -> some View {
@@ -145,6 +154,12 @@ private struct CommandLabelStyle: LabelStyle {
         .multilineTextAlignment(.leading)
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: small ? nil : .infinity, alignment: .leading)
+      if let detail {
+        detail
+          .font(Tokens.Typography.label)
+          // A few words: always whole, on one line; the title wraps first.
+          .fixedSize()
+      }
       if let tag {
         CommandTag(tag)
       }
@@ -162,7 +177,7 @@ private struct CommandLabelStyle: LabelStyle {
   private var glyphFill: Color {
     switch tier {
     case .secondary(let tone): return tone.fill.opacity(Tokens.Opacity.glow)
-    case .destructive: return Palette.loss
+    case .destructive: return Palette.lossFill
     case .primary: return Palette.sheen.opacity(Tokens.Command.haloOpacity)
     }
   }

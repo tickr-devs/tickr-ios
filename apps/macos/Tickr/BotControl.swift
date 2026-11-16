@@ -198,7 +198,16 @@ struct BotControls: View {
   }
 
   private func button(_ action: BotAction) -> some View {
-    BotCommandButton(action: action, place: place, size: compact ? .compact : .regular)
+    BotCommandButton(action: action, place: place, size: compact ? .compact : .regular,
+      detail: compact ? Self.detail(action, positions: model.positions.count) : nil)
+  }
+
+  /// The words after a menu-bar command's title, as the design's "2 positions" after Close all:
+  /// how many positions it closes; nothing without one (the command is off then) and after the
+  /// other commands.
+  static func detail(_ action: BotAction, positions: Int) -> LocalizedStringResource? {
+    guard case .flattenAll = action, positions > 0 else { return nil }
+    return L10n.Bot.positionCount(positions)
   }
 
   private var emergency: some View {
@@ -238,6 +247,8 @@ private struct BotCommandButton: View {
   let action: BotAction
   let place: CommandPlace
   let size: CommandButtonStyle.Size
+  /// A few words after the title (`BotControls.detail`).
+  var detail: LocalizedStringResource?
 
   var body: some View {
     Button(role: action.isDestructive ? .destructive : nil) {
@@ -245,7 +256,8 @@ private struct BotCommandButton: View {
     } label: {
       Label { Text(action.label) } icon: { Image(systemName: action.symbol) }
     }
-    .buttonStyle(.command(action.tier, size: size, tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
+    .buttonStyle(.command(action.tier, size: size, detail: detail.map { Text($0) },
+      tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
     .disabled(!model.commandsEnabled || !applicable)
     // An off close command says why; the rest say what they do.
     .hint(verbatim: applicable ? action.explanation : String(localized: L10n.Bot.noPositions))

@@ -223,6 +223,10 @@ enum L10n {
     static var flattenAll: LocalizedStringResource {
       LocalizedStringResource("bot.flattenAll", defaultValue: "Close all", bundle: L10n.bundle)
     }
+    /// How many positions Close all closes, after its title in the menu bar ("2 positions").
+    static func positionCount(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("bot.positionCount", defaultValue: "\(count) positions", bundle: L10n.bundle)
+    }
     static var stopBot: LocalizedStringResource {
       LocalizedStringResource("bot.stopBot", defaultValue: "Stop bot", bundle: L10n.bundle)
     }

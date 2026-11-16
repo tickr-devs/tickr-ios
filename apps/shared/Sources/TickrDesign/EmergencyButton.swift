@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - the emergency stop
 
-/// The emergency stop, the strongest command and always the last: full width, solid red, white
+/// The emergency stop, the strongest command and always the last: full width, solid red (`lossFill`), white
 /// title with a second line saying what it does, in a soft red halo.
 ///
 /// With `hold` (the Mac) it acts only after being held for `hold.seconds`: a sweep fills it from
@@ -129,7 +129,7 @@ private struct HoldToAct: View {
   }
 }
 
-/// How the emergency stop looks: red fill, halo, white glyph, the title block, the hold hint and
+/// How the emergency stop looks: `lossFill`, a `loss` halo, white glyph, the title block, the hold hint and
 /// the sweep of a hold in progress.
 private struct EmergencyFace: View {
   @Environment(\.isEnabled) private var enabled
@@ -176,12 +176,13 @@ private struct EmergencyFace: View {
     .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
     .frame(maxWidth: .infinity, minHeight: Tokens.Command.emergencyHeight, alignment: .leading)
     .background {
-      shape.fill(Palette.loss)
+      shape.fill(Palette.lossFill)
         .overlay(shape.fill(Palette.textPrimary.opacity(pressed ? Tokens.Command.pressShade : 0)))
         .overlay {
-          // The hold's sweep, a conic fill from the glyph, as the design's ring.
+          // The hold's sweep, a conic fill from the glyph, as the design's ring. It darkens the
+          // red (a white sweep would take the white title under 4.5:1).
           HoldSweep(progress: progress, center: glyphCenter)
-            .fill(Palette.onLoss.opacity(Tokens.Command.sweepOpacity))
+            .fill(Palette.scrim.opacity(Tokens.Command.sweepOpacity))
             .clipShape(shape)
         }
     }
