@@ -83,6 +83,35 @@ public extension View {
   }
 }
 
+/// Grows a count a little and settles it back (`Motion.bump`, the boards' `bumpA/B`) once each time
+/// it rises: one bump per real rise of the data, nothing when it falls, stays or first appears, and
+/// nothing with Reduce Motion.
+struct CountBump: ViewModifier {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var bumps = 0
+  let count: Int
+
+  func body(content: Content) -> some View {
+    content
+      .phaseAnimator([false, true], trigger: bumps) { view, grown in
+        view.scaleEffect(grown ? Tokens.Motion.bumpScale : 1)
+      } animation: { _ in
+        Tokens.Motion.bump
+      }
+      .onChange(of: count) { old, new in
+        if Self.rises(from: old, to: new) && !reduceMotion { bumps += 1 }
+      }
+  }
+
+  /// Whether a change of the count is a rise, the one change that bumps it.
+  nonisolated static func rises(from old: Int, to new: Int) -> Bool { new > old }
+}
+
+public extension View {
+  /// One bump each time `count` rises (see `CountBump`): a refusal counted again, say.
+  func bumps(on count: Int) -> some View { modifier(CountBump(count: count)) }
+}
+
 /// A figure that counts up from zero as it appears and counts on to each new value (`Motion.fill`),
 /// as the design's figures do; at its value at once with Reduce Motion. `format` writes a value.
 public struct CountingText: View {

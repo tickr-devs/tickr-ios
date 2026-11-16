@@ -41,7 +41,9 @@ public struct StatusPill: View {
   public var body: some View {
     HStack(spacing: Tokens.Space.xs) {
       if let systemImage {
+        // A live symbol pulses as the dot does: one ring per change of `event`.
         Image(systemName: systemImage).font(Tokens.Typography.badge).accessibilityHidden(true)
+          .eventPulse(Circle(), color: tone.fill, scale: Tokens.Motion.pulseScale, event: live ? event : nil)
       } else {
         PulseDot(tone.fill, size: Tokens.Size.dotSmall, pulsing: live, event: event)
       }

@@ -217,6 +217,7 @@ a step; it does not define its own factor.
 | `tickerSpeed` | 22 pt/s | Event ticker (edges fade over 6% of its width) |
 | `tickerLoopSeconds` | 45 s | iOS Home ticker: the whole row passes once (the board's marquee) |
 | `pop` / `popStagger` | spring 0.5 s, damping 0.55 / 0.4 s | A dot popping in (`popIn`): the protection chain's steps, one after another, and again when a step changes |
+| `bump` / `bumpSeconds` / `bumpScale` | ease-in-out, two halves of 0.6 s / ×1.35 (iPhone), ×1.25 (Mac) | A count growing and settling once when it rises (`bumps(on:)`: Lab refusal counts), never when it falls or first appears |
 | `pressScale` | ×0.97 | Buttons and chips while pressed |
 | `glyphPulseScale` | ×1.35 | Pulse outline of a live state glyph, once per event |
 | `hintDelay` | 0.45 s | Hover before a hint appears (Mac) |

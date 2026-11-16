@@ -30,7 +30,11 @@ struct LabView: View {
           RowStack {
             CardLabel(L10n.Lab.active)
             Spacer()
-            StatusPill(L10n.Lab.trades, systemImage: Self.tradesSymbol, tone: .accent)
+            // One pulse per new trade of the active version (an entry the bot made), still in
+            // between; a new day starts still.
+            StatusPill(Text(L10n.Lab.trades), tone: .accent, live: true, event: Self.entries(status),
+              systemImage: Self.tradesSymbol)
+              .id(WireDate(newYorkDateOf: status.writtenAt.date))
           }
           // As on the design: the name with its version and the day's trades under it; the day's
           // result with its curve at the right. At large text sizes the result goes under.
@@ -131,6 +135,21 @@ struct LabView: View {
       status.positions.count)
   }
 
+  /// How many trades the active version entered that day: its closed trades (or ones without a
+  /// recorded strategy) and the open positions, each entry once, so a position that closes is
+  /// not counted again. It rises once per new entry.
+  static func entries(_ status: StatusV1) -> Int {
+    let closed = status.tradesToday.filter { $0.strategy == nil || $0.strategy == status.strategy }
+      .map { Entry(symbol: $0.symbol, at: $0.openedAt.date) }
+    return Set(closed + status.positions.map { Entry(symbol: $0.symbol, at: $0.openedAt.date) }).count
+  }
+
+  /// One entry of a trade: its symbol and when it opened.
+  private struct Entry: Hashable {
+    let symbol: String
+    let at: Date
+  }
+
   /// The day's realized result after each closed trade, from zero.
   static func curve(_ status: StatusV1) -> [Double] {
     let sorted = status.tradesToday.sorted { $0.closedAt.date < $1.closedAt.date }
@@ -186,6 +205,8 @@ private struct RefusalsCard: View {
               Text(verbatim: String(count.count))
                 .font(Tokens.Typography.calloutMono.bold())
                 .foregroundStyle(Palette.textPrimary)
+                // One bump each time the bot refused that cause again.
+                .bumps(on: count.count)
             }
             MeterBar(fraction: Double(count.count) / most, tone: .warning)
               .accessibilityHidden(true)

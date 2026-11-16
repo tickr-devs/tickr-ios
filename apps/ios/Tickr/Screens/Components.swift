@@ -761,8 +761,10 @@ struct SettingsIcon: View {
 }
 
 /// A settings section as the design's card: the section's label inside the card with its glowing
-/// tick (and an accessory at the end, such as a state pill), the rows, and its note last.
+/// tick (and an accessory at the end, such as a state pill), the rows, and its note last. With a
+/// `cardRise` step the whole card (rows and background) rises in as the screen's `step`-th block.
 struct SettingsCard<Accessory: View, Content: View>: View {
+  @Environment(\.cardRiseStep) private var step
   let title: LocalizedStringResource
   var note: LocalizedStringResource?
   let accessory: Accessory
@@ -780,13 +782,36 @@ struct SettingsCard<Accessory: View, Content: View>: View {
 
   var body: some View {
     Section {
-      SectionHeader(title) { accessory }
-      content
-      if let note {
-        InfoCaption(note)
+      Group {
+        SectionHeader(title) { accessory }
+        content
+        if let note {
+          InfoCaption(note)
+        }
       }
+      .modifier(RiseStep(step: step))
     }
-    .listRowBackground(Palette.surface)
+    .listRowBackground(Palette.surface.modifier(RiseStep(step: step)))
+  }
+}
+
+extension EnvironmentValues {
+  /// Which block of its screen a `SettingsCard` rises in as (`rise(step:)`); nil stays still.
+  @Entry var cardRiseStep: Int?
+}
+
+extension View {
+  /// Makes the `SettingsCard` inside rise in as the screen's `step`-th block, rows and background
+  /// together (a form's rows are separate views, so each row and its background rise alike).
+  func cardRise(step: Int) -> some View { environment(\.cardRiseStep, step) }
+}
+
+/// `rise(step:)` when there is a step; still otherwise.
+private struct RiseStep: ViewModifier {
+  let step: Int?
+
+  func body(content: Content) -> some View {
+    if let step { content.rise(step: step) } else { content }
   }
 }
 

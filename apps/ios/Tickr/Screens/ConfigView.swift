@@ -12,6 +12,9 @@ struct ConfigView: View {
   static let changedSymbol = "arrow.triangle.2.circlepath"
   static let editSymbol = "pencil"
 
+  /// Order in which the blocks rise in (`rise(step:)`): the file's state, then its tables.
+  private enum Order: Int { case file = 1, tables }
+
   @Environment(AppModel.self) private var model
   @Environment(\.dismiss) private var dismiss
 
@@ -24,24 +27,27 @@ struct ConfigView: View {
       .listRowInsets(EdgeInsets())
       if let config = model.config {
         Section {
-          LabeledContent {
-            if config.valid {
-              StatusPill(L10n.Settings.configValid, systemImage: Self.validSymbol, tone: .profit)
-            } else {
-              StatusPill(L10n.Settings.configInvalid, systemImage: Self.invalidSymbol, tone: .loss)
+          Group {
+            LabeledContent {
+              if config.valid {
+                StatusPill(L10n.Settings.configValid, systemImage: Self.validSymbol, tone: .profit)
+              } else {
+                StatusPill(L10n.Settings.configInvalid, systemImage: Self.invalidSymbol, tone: .loss)
+              }
+            } label: {
+              Text(verbatim: config.file).font(Tokens.Typography.bodyMono)
             }
-          } label: {
-            Text(verbatim: config.file).font(Tokens.Typography.bodyMono)
+            if let error = config.error {
+              InfoCaption(verbatim: error, tone: .loss)
+            }
+            if config.changedSinceStart {
+              InfoCaption(L10n.Settings.configChangedHint, systemImage: Self.changedSymbol, tone: .warning)
+            }
+            SettingsRow(L10n.Settings.configEdit, systemImage: Self.editSymbol, tone: .neutral) {
+              Badge(L10n.Settings.notYet, tone: .highlight, planned: true)
+            }
           }
-          if let error = config.error {
-            InfoCaption(verbatim: error, tone: .loss)
-          }
-          if config.changedSinceStart {
-            InfoCaption(L10n.Settings.configChangedHint, systemImage: Self.changedSymbol, tone: .warning)
-          }
-          SettingsRow(L10n.Settings.configEdit, systemImage: Self.editSymbol, tone: .neutral) {
-            Badge(L10n.Settings.notYet, tone: .highlight, planned: true)
-          }
+          .rise(step: Order.file.rawValue)
         } footer: {
           Text(L10n.Settings.configFooter)
         }
@@ -62,6 +68,7 @@ struct ConfigView: View {
                 }
               }
               .accessibilityElement(children: .combine)
+              .rise(step: Order.tables.rawValue)
             }
           } header: {
             Text(verbatim: section.name.isEmpty ? String(localized: L10n.Settings.configTop) : section.name)

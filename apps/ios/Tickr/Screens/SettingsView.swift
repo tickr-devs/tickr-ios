@@ -21,6 +21,11 @@ struct SettingsView: View {
   /// Accessibility id of the demo day switch, for the UI tests.
   static let demoDayID = "settings-demo-day"
 
+  /// Order in which the cards rise in (`cardRise(step:)`), as on the design.
+  private enum Order: Int {
+    case connection = 1, bot, demo, notifications, environment, session, preflight, jobs, about
+  }
+
   @Environment(AppModel.self) private var model
   @Environment(\.dismiss) private var dismiss
   @State private var draft = ""
@@ -38,8 +43,8 @@ struct SettingsView: View {
       .listRowBackground(Color.clear)
       .listRowInsets(EdgeInsets())
       // As on the design: where the bot is, then the bot itself.
-      connectionCard
-      if let status = model.status { botCard(status) }
+      connectionCard.cardRise(step: Order.connection.rawValue)
+      if let status = model.status { botCard(status).cardRise(step: Order.bot.rawValue) }
 
       // The demo day switch (#411), in the design's card style.
       SettingsCard(L10n.Settings.demoDay, note: L10n.Settings.demoDayFooter) {
@@ -49,20 +54,22 @@ struct SettingsView: View {
         .tint(Palette.warning)
         .accessibilityIdentifier(Self.demoDayID)
       }
+      .cardRise(step: Order.demo.rawValue)
 
       SettingsCard(L10n.Settings.notifications, note: L10n.Settings.notificationsFooter) {
         SettingsRow(L10n.Settings.lockScreen, systemImage: Self.lockScreenSymbol, tone: .warning) {
           Badge(L10n.Settings.notYet, tone: .highlight, planned: true)
         }
       }
+      .cardRise(step: Order.notifications.rawValue)
 
       if let status = model.status {
-        EnvironmentSection(status: status)
+        EnvironmentSection(status: status).cardRise(step: Order.environment.rawValue)
       }
       if model.isConfigured {
-        SessionSection(session: model.settings?.session)
-        PreflightSection()
-        JobsSection()
+        SessionSection(session: model.settings?.session).cardRise(step: Order.session.rawValue)
+        PreflightSection().cardRise(step: Order.preflight.rawValue)
+        JobsSection().cardRise(step: Order.jobs.rawValue)
       }
 
       SettingsCard(L10n.Settings.about) {
@@ -74,6 +81,7 @@ struct SettingsView: View {
           Text(L10n.Settings.contractVersion(Wire.apiVersion))
         }
       }
+      .cardRise(step: Order.about.rawValue)
     }
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
@@ -168,11 +176,18 @@ struct SettingsView: View {
       // exception, as it stops every entry (the open gate and the strategy are on Home and Lab).
       if !status.tradingGate.open {
         SettingsRow(L10n.Settings.gate, systemImage: Self.gateClosedSymbol, tone: .warning) {
-          StatusPill(L10n.Settings.gateClosed, tone: .warning)
+          // One pulse each time the closed gate changes (its cause), still in between.
+          StatusPill(Text(L10n.Settings.gateClosed), tone: .warning, live: true, event: Self.gateEvent(status))
         }
         InfoCaption(verbatim: ApiText.gate(status.tradingGate), tone: .warning)
       }
     }
+  }
+
+  /// What the closed gate's dot pulses on: the gate itself, so a new cause (or the gate closing
+  /// again) pulses once; nil while it is open, when the row is not shown.
+  static func gateEvent(_ status: StatusV1) -> Gate? {
+    status.tradingGate.open ? nil : status.tradingGate
   }
 
   /// Where the bot is: the address, the connection's state, pairing.

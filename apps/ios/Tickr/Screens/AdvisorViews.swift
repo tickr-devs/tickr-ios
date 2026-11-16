@@ -219,6 +219,9 @@ struct ChangeLine: View {
 /// One advisor run: its path, what changes and why, the hold-out check, and Accept or Reject.
 /// Accept asks for Face ID; either only records the owner's decision, nothing starts or trades.
 struct AdvisorProposalView: View {
+  /// Order in which the blocks rise in (`rise(step:)`), as on the design.
+  private enum Order: Int { case header = 1, path, changes, idea, texts, holdout, notes }
+
   let advisor: AdvisorModel
   let runID: String
   let url: URL?
@@ -232,16 +235,23 @@ struct AdvisorProposalView: View {
     Screen(AdvisorWords.page, back: L10n.App.lab) {
       if let run = advisor.run(runID) {
         header(run)
+          .rise(step: Order.header.rawValue)
         StepPath(AdvisorLook.steps(run, settings: model.settings))
           .padding(Tokens.Space.l)
           .tickrCard()
-        if !run.changes.isEmpty { changes(run) }
-        if let idea = run.idea { IdeaCard(idea: idea) }
+          .rise(step: Order.path.rawValue)
+        if !run.changes.isEmpty { changes(run).rise(step: Order.changes.rawValue) }
+        if let idea = run.idea { IdeaCard(idea: idea).rise(step: Order.idea.rawValue) }
         texts(run)
+          .rise(step: Order.texts.rawValue)
         holdout(run)
-        InfoCaption(AdvisorWords.note)
-        InfoCaption(AdvisorWords.tunedOn(run.tunedOn))
-        InfoCaption(AdvisorWords.judgeOn(run.judgeOn))
+          .rise(step: Order.holdout.rawValue)
+        Group {
+          InfoCaption(AdvisorWords.note)
+          InfoCaption(AdvisorWords.tunedOn(run.tunedOn))
+          InfoCaption(AdvisorWords.judgeOn(run.judgeOn))
+        }
+        .rise(step: Order.notes.rawValue)
       } else if advisor.runs != nil {
         InfoCaption(AdvisorWords.runGone)
       }

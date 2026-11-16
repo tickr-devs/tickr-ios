@@ -306,6 +306,17 @@ public enum Tokens {
     public static let hintDelay = 0.45
     /// How far a live state glyph's pulse outline grows.
     public static let glyphPulseScale: CGFloat = 1.35
+    #if os(iOS)
+    /// How far a count grows as it bumps once on a rise (`bumps(on:)`): the iPhone design's `bumpA/B`.
+    public static let bumpScale: CGFloat = 1.35
+    #else
+    /// How far a count grows as it bumps once on a rise (`bumps(on:)`): the Mac design's `bumpA/B`.
+    public static let bumpScale: CGFloat = 1.25
+    #endif
+    /// Seconds of a count's whole bump, grow and settle.
+    public static let bumpSeconds = 0.6
+    /// Each half of a bump (grow, then settle), so the whole takes `bumpSeconds`.
+    public static let bump = Animation.easeInOut(duration: bumpSeconds / 2)
     /// Seconds of one breath of a glow (rings, alarms).
     public static let breatheSeconds = 2.4
     /// How much a breathing glow grows.
