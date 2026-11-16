@@ -225,6 +225,38 @@ struct AppModelTests {
     #expect(keys.count == 2 && Set(keys).count == 2)
   }
 
+  @Test("Start is offered only when no current status says the bot is alive; it is sent once")
+  func startBot() async throws {
+    RouteProtocol.routes.withLock { $0.bodies["/commands/start-bot"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("bot-start-v1.json")) }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    #expect(!model.canStartBot, "no answer from the API yet")
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Self.status(botState: "running") }
+    await model.refreshStatus()
+    #expect(!model.canStartBot && model.canStopBot)
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Self.status(botState: "running", stale: true) }
+    await model.refreshStatus()
+    #expect(model.canStartBot, "a stale status proves nothing about the bot now")
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Self.status(botState: "stopped") }
+    await model.refreshStatus()
+    #expect(model.canStartBot && !model.canStopBot)
+    await model.startBot()
+    #expect(model.botStart == .accepted(stopCleared: true))
+    #expect(RouteProtocol.routes.withLock { $0.idempotencyKeys }.count == 1)
+  }
+
+  @Test("The configuration file is read; a failed read clears it")
+  func configFile() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    RouteProtocol.routes.withLock { $0.bodies["/config"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("config-v1.json")) }
+    await model.refreshConfig()
+    #expect(model.config?.valid == true && model.config?.sections.isEmpty == false)
+    RouteProtocol.routes.withLock { $0.bodies["/config"] = nil }
+    await model.refreshConfig()
+    #expect(model.config == nil && model.configError != nil)
+  }
+
   @Test("Flatten of one symbol closes only that symbol; every action has a command")
   func actionsMapToCommands() {
     #expect(BotAction.flatten(symbol: "ABCD").command == .flattenSymbol("ABCD"))

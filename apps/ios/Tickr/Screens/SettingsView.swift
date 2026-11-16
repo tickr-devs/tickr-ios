@@ -28,6 +28,7 @@ struct SettingsView: View {
   @State private var showPairing = false
   @State private var confirmForget = false
   @State private var showControl = false
+  @State private var confirmStart = false
 
   var body: some View {
     Form {
@@ -87,6 +88,22 @@ struct SettingsView: View {
     .onChange(of: model.connection.address) { _, address in draft = address }
     .botControl(isPresented: $showControl)
     .sheet(isPresented: $showPairing) { PairingSheet() }
+    .alert(Text(L10n.Control.startTitle), isPresented: $confirmStart) {
+      Button {
+        Task {
+          let reason = String(localized: L10n.Control.reason(String(localized: L10n.Control.startBot)))
+          await model.startBot(confirmOwner: { await Biometrics.confirm(reason) })
+        }
+      } label: {
+        Text(L10n.Control.startBot)
+      }
+      Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
+    } message: {
+      Text(L10n.Control.startWarning)
+    }
+    .onChange(of: model.canStartBot) { _, enabled in
+      if !enabled { confirmStart = false }
+    }
     .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {
       Button(role: .destructive) {
         model.connection = Connection(address: model.connection.address, demo: model.connection.demo)
@@ -114,6 +131,17 @@ struct SettingsView: View {
               .padding(.horizontal, Tokens.Space.m)
               .padding(.vertical, Tokens.Space.xs)
               .background(Palette.loss.opacity(Tokens.Opacity.wash), in: Capsule())
+          }
+          .buttonStyle(.borderless)
+        } else if model.canStartBot && (status.botState == .stopped || model.response?.stale == true) {
+          // Start as the design's green pill: the Mac's launchd starts the bot job, preflight first.
+          Button { confirmStart = true } label: {
+            Text(L10n.Settings.start)
+              .font(Tokens.Typography.buttonCompact)
+              .foregroundStyle(Palette.onAccent)
+              .padding(.horizontal, Tokens.Space.m)
+              .padding(.vertical, Tokens.Space.xs)
+              .background(Palette.profit, in: Capsule())
           }
           .buttonStyle(.borderless)
         } else {

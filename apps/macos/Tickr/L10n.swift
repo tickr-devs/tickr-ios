@@ -789,6 +789,111 @@ enum L10n {
   }
 
   enum Settings {
+    static var configuration: LocalizedStringResource {
+      LocalizedStringResource("settings.configuration", defaultValue: "Configuration", bundle: L10n.bundle)
+    }
+    static var configFooter: LocalizedStringResource {
+      LocalizedStringResource("settings.configFooter",
+        // swiftlint:disable:next line_length
+        defaultValue: "Read-only, as the file is on disk now. Every key with its comment. Credentials appear only as variable names.",
+        bundle: L10n.bundle)
+    }
+    static var configEditAction: LocalizedStringResource {
+      LocalizedStringResource("settings.configEditAction", defaultValue: "Edit…", bundle: L10n.bundle)
+    }
+    static var configTop: LocalizedStringResource {
+      LocalizedStringResource("settings.configTop", defaultValue: "Top level", bundle: L10n.bundle)
+    }
+    static var configChangedHint: LocalizedStringResource {
+      LocalizedStringResource("settings.configChangedHint",
+        // swiftlint:disable:next line_length
+        defaultValue: "The file differs from the one the bot's API loaded: running processes keep the old values until they restart.",
+        bundle: L10n.bundle)
+    }
+    static var configChanged: LocalizedStringResource {
+      LocalizedStringResource("settings.configChanged", defaultValue: "Changed", bundle: L10n.bundle)
+    }
+    static var configSame: LocalizedStringResource {
+      LocalizedStringResource("settings.configSame", defaultValue: "Same as running", bundle: L10n.bundle)
+    }
+    static var configInvalid: LocalizedStringResource {
+      LocalizedStringResource("settings.configInvalid", defaultValue: "Invalid", bundle: L10n.bundle)
+    }
+    static var configValid: LocalizedStringResource {
+      LocalizedStringResource("settings.configValid", defaultValue: "Valid", bundle: L10n.bundle)
+    }
+    static func configFile(_ file: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.configFile", defaultValue: "\(file) · read-only", bundle: L10n.bundle)
+    }
+    static var serviceStale: LocalizedStringResource {
+      LocalizedStringResource("settings.serviceStale",
+        defaultValue: "the status is not current, so the bot's state now is unknown",
+        bundle: L10n.bundle)
+    }
+    static var serviceNotReported: LocalizedStringResource {
+      LocalizedStringResource("settings.serviceNotReported", defaultValue: "Not reported", bundle: L10n.bundle)
+    }
+    static var serviceStopping: LocalizedStringResource {
+      LocalizedStringResource("settings.serviceStopping",
+        defaultValue: "cancelling entries, stops stay at the broker",
+        bundle: L10n.bundle)
+    }
+    static var serviceStarting: LocalizedStringResource {
+      LocalizedStringResource("settings.serviceStarting", defaultValue: "preflight running…", bundle: L10n.bundle)
+    }
+    static var serviceStopped: LocalizedStringResource {
+      LocalizedStringResource("settings.serviceStopped",
+        defaultValue: "Scheduled starts run; Start runs the preflight now",
+        bundle: L10n.bundle)
+    }
+    static func serviceHolds(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("settings.serviceHolds", defaultValue: "\(count) open", bundle: L10n.bundle)
+    }
+    static var serviceFlat: LocalizedStringResource {
+      LocalizedStringResource("settings.serviceFlat", defaultValue: "flat, nothing open", bundle: L10n.bundle)
+    }
+    static var startStopFootnote: LocalizedStringResource {
+      LocalizedStringResource("settings.startStopFootnote",
+        // swiftlint:disable:next line_length
+        defaultValue: "Start = launchctl kickstart of the bot job (preflight runs first), never inside the app or the API. Stop is refused while a trade is open or entering: flatten first.",
+        bundle: L10n.bundle)
+    }
+    static func startRefused(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.startRefused", defaultValue: "Not started: \(cause)", bundle: L10n.bundle)
+    }
+    static var startAcceptedCleared: LocalizedStringResource {
+      LocalizedStringResource("settings.startAcceptedCleared",
+        defaultValue: "Start requested; your earlier Stop was cleared, so scheduled starts run again.",
+        bundle: L10n.bundle)
+    }
+    static var startAccepted: LocalizedStringResource {
+      LocalizedStringResource("settings.startAccepted",
+        defaultValue: "Start requested: the bot runs its preflight first.",
+        bundle: L10n.bundle)
+    }
+    static var startExplanation: LocalizedStringResource {
+      LocalizedStringResource("settings.startExplanation",
+        // swiftlint:disable:next line_length
+        defaultValue: "launchd starts the bot job as on a scheduled morning: preflight first, then trading if every check passes. An earlier Stop is cleared, so scheduled starts run again.",
+        bundle: L10n.bundle)
+    }
+    static var startQuestion: LocalizedStringResource {
+      LocalizedStringResource("settings.startQuestion", defaultValue: "Start the bot?", bundle: L10n.bundle)
+    }
+    static var startBotHint: LocalizedStringResource {
+      LocalizedStringResource("settings.startBotHint",
+        defaultValue: "Starts the bot job on this Mac through launchd. The bot runs its preflight first.",
+        bundle: L10n.bundle)
+    }
+    static var stopBotAction: LocalizedStringResource {
+      LocalizedStringResource("settings.stopBotAction", defaultValue: "Stop…", bundle: L10n.bundle)
+    }
+    static var startBotAction: LocalizedStringResource {
+      LocalizedStringResource("settings.startBotAction", defaultValue: "Start", bundle: L10n.bundle)
+    }
+    static var botService: LocalizedStringResource {
+      LocalizedStringResource("settings.botService", defaultValue: "Bot service · launchd job", bundle: L10n.bundle)
+    }
     static var general: LocalizedStringResource {
       LocalizedStringResource("settings.general", defaultValue: "General", bundle: L10n.bundle)
     }
@@ -988,9 +1093,6 @@ enum L10n {
         defaultValue: "launch: Mac local time · other times ET",
         bundle: L10n.bundle)
     }
-    static var botService: LocalizedStringResource {
-      LocalizedStringResource("settings.botService", defaultValue: "Bot service", bundle: L10n.bundle)
-    }
     static var notRunning: LocalizedStringResource {
       LocalizedStringResource("settings.notRunning", defaultValue: "Not running", bundle: L10n.bundle)
     }
@@ -1078,14 +1180,6 @@ enum L10n {
     }
     static var staleAfter: LocalizedStringResource {
       LocalizedStringResource("settings.staleAfter", defaultValue: "Status stale after", bundle: L10n.bundle)
-    }
-    static var notAvailableYet: LocalizedStringResource {
-      LocalizedStringResource("settings.notAvailableYet", defaultValue: "Not available yet", bundle: L10n.bundle)
-    }
-    static var startStop: LocalizedStringResource {
-      LocalizedStringResource("settings.startStop",
-        defaultValue: "Start and stop the bot from the app",
-        bundle: L10n.bundle)
     }
     static var editConfig: LocalizedStringResource {
       LocalizedStringResource("settings.editConfig", defaultValue: "Edit the bot's configuration", bundle: L10n.bundle)

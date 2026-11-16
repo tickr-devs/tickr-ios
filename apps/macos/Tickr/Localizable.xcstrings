@@ -9951,13 +9951,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot service"
+            "value" : "Bot service · launchd job"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Служба бота"
+            "value" : "Служба бота · задание launchd"
           }
         }
       }
@@ -10013,6 +10013,91 @@
         }
       }
     },
+    "settings.configChanged" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменён"
+          }
+        }
+      }
+    },
+    "settings.configChangedHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file differs from the one the bot's API loaded: running processes keep the old values until they restart."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл отличается от того, что загрузил API бота: запущенные процессы работают со старыми значениями до перезапуска."
+          }
+        }
+      }
+    },
+    "settings.configEditAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменить…"
+          }
+        }
+      }
+    },
+    "settings.configFile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · read-only"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · только чтение"
+          }
+        }
+      }
+    },
+    "settings.configFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read-only, as the file is on disk now. Every key with its comment. Credentials appear only as variable names."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только чтение, как файл лежит на диске сейчас. Каждый ключ с комментарием. Учётные данные видны только как имена переменных."
+          }
+        }
+      }
+    },
     "settings.configFootnote" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10026,6 +10111,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Прочитано из локального API бота. Изменить можно в config/bot.toml, затем перезапустить бота."
+          }
+        }
+      }
+    },
+    "settings.configInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С ошибкой"
+          }
+        }
+      }
+    },
+    "settings.configSame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same as running"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как у запущенного"
+          }
+        }
+      }
+    },
+    "settings.configTop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top level"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Верхний уровень"
+          }
+        }
+      }
+    },
+    "settings.configuration" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuration"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конфигурация"
+          }
+        }
+      }
+    },
+    "settings.configValid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valid"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Корректен"
           }
         }
       }
@@ -10999,23 +11169,6 @@
         }
       }
     },
-    "settings.notAvailableYet" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not available yet"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пока недоступно"
-          }
-        }
-      }
-    },
     "settings.notifications" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11254,6 +11407,125 @@
         }
       }
     },
+    "settings.serviceFlat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flat, nothing open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "без позиций"
+          }
+        }
+      }
+    },
+    "settings.serviceHolds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "открыто: %lld"
+          }
+        }
+      }
+    },
+    "settings.serviceNotReported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not reported"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет данных"
+          }
+        }
+      }
+    },
+    "settings.serviceStale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the status is not current, so the bot's state now is unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "статус не актуален, состояние бота сейчас неизвестно"
+          }
+        }
+      }
+    },
+    "settings.serviceStarting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "preflight running…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "идёт предстартовая проверка…"
+          }
+        }
+      }
+    },
+    "settings.serviceStopped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheduled starts run; Start runs the preflight now"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуски по расписанию работают; «Запустить» проводит проверку сейчас"
+          }
+        }
+      }
+    },
+    "settings.serviceStopping" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cancelling entries, stops stay at the broker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отменяет входы, стопы остаются у брокера"
+          }
+        }
+      }
+    },
     "settings.session" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11339,19 +11611,138 @@
         }
       }
     },
-    "settings.startStop" : {
+    "settings.startAccepted" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start and stop the bot from the app"
+            "value" : "Start requested: the bot runs its preflight first."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Запуск и остановка бота из приложения"
+            "value" : "Запуск запрошен: бот сначала проходит предстартовую проверку."
+          }
+        }
+      }
+    },
+    "settings.startAcceptedCleared" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start requested; your earlier Stop was cleared, so scheduled starts run again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуск запрошен; прошлая остановка снята, запуски по расписанию снова работают."
+          }
+        }
+      }
+    },
+    "settings.startBotAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запустить"
+          }
+        }
+      }
+    },
+    "settings.startBotHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starts the bot job on this Mac through launchd. The bot runs its preflight first."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запускает задание бота на этом Mac через launchd. Сначала бот проходит предстартовую проверку."
+          }
+        }
+      }
+    },
+    "settings.startExplanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "launchd starts the bot job as on a scheduled morning: preflight first, then trading if every check passes. An earlier Stop is cleared, so scheduled starts run again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "launchd запускает задание бота, как утром по расписанию: сначала предстартовая проверка, затем торговля, если все проверки пройдены. Прошлая остановка снимается, и запуски по расписанию снова работают."
+          }
+        }
+      }
+    },
+    "settings.startQuestion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start the bot?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запустить бота?"
+          }
+        }
+      }
+    },
+    "settings.startRefused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not started: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не запущен: %@"
+          }
+        }
+      }
+    },
+    "settings.startStopFootnote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start = launchctl kickstart of the bot job (preflight runs first), never inside the app or the API. Stop is refused while a trade is open or entering: flatten first."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуск = launchctl kickstart задания бота (сначала предстартовая проверка), никогда внутри приложения или API. Остановка отклоняется, пока сделка открыта или входит: сначала закрой позицию."
           }
         }
       }
@@ -11369,6 +11760,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Обновление статуса"
+          }
+        }
+      }
+    },
+    "settings.stopBotAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остановить…"
           }
         }
       }

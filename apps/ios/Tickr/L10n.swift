@@ -137,6 +137,16 @@ enum L10n {
   }
 
   enum Notice {
+    static var startRequestedCleared: LocalizedStringResource {
+      LocalizedStringResource("notice.startRequestedCleared",
+        defaultValue: "Start requested; your earlier Stop was cleared, so scheduled starts run again.",
+        bundle: L10n.bundle)
+    }
+    static var startRequested: LocalizedStringResource {
+      LocalizedStringResource("notice.startRequested",
+        defaultValue: "Start requested: the bot runs its preflight first.",
+        bundle: L10n.bundle)
+    }
     static func busy(_ command: String) -> LocalizedStringResource {
       LocalizedStringResource("notice.busy",
         defaultValue: "\(command) not sent: another command is being sent.",
@@ -180,6 +190,18 @@ enum L10n {
   }
 
   enum Control {
+    static var startWarning: LocalizedStringResource {
+      LocalizedStringResource("control.startWarning",
+        // swiftlint:disable:next line_length
+        defaultValue: "The Mac starts the bot job through launchd, as on a scheduled morning: preflight first, then trading if every check passes. An earlier Stop is cleared, so scheduled starts run again. Face ID confirms.",
+        bundle: L10n.bundle)
+    }
+    static var startTitle: LocalizedStringResource {
+      LocalizedStringResource("control.startTitle", defaultValue: "Start the bot?", bundle: L10n.bundle)
+    }
+    static var startBot: LocalizedStringResource {
+      LocalizedStringResource("control.startBot", defaultValue: "Start the Bot", bundle: L10n.bundle)
+    }
     static var stopTitle: LocalizedStringResource {
       LocalizedStringResource("control.stopTitle",
         defaultValue: "Stop the bot?",
@@ -188,7 +210,7 @@ enum L10n {
     static var stopWarning: LocalizedStringResource {
       LocalizedStringResource("control.stopWarning",
         // swiftlint:disable:next line_length
-        defaultValue: "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. The phone cannot start the bot again: start it on the Mac.",
+        defaultValue: "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. Start it again from Settings.",
         bundle: L10n.bundle)
     }
     static var emergencyTitle: LocalizedStringResource {
@@ -1369,6 +1391,9 @@ enum L10n {
   }
 
   enum Settings {
+    static var start: LocalizedStringResource {
+      LocalizedStringResource("settings.start", defaultValue: "Start", bundle: L10n.bundle)
+    }
     static var demoDay: LocalizedStringResource {
       LocalizedStringResource("settings.demoDay", defaultValue: "Demo day", bundle: L10n.bundle)
     }

@@ -528,11 +528,224 @@ private struct AdvancedSettings: View {
           value: model.settings.map { Format.seconds($0.statusStaleSeconds.value) } ?? Format.missing)
       }
     }
-    SettingsCard(L10n.Settings.notAvailableYet) {
-      SettingsRow(L10n.Settings.startStop) { PlannedTag(.needsAPI).fixedSize() }
-      SettingsRow(L10n.Settings.editConfig) { PlannedTag().fixedSize() }
+    BotServiceCard()
+    ConfigCard()
+      .task(id: model.baseURL) { await model.refreshConfig() }
+  }
+}
+
+/// What the Bot service card asks before it acts.
+private enum ServiceQuestion: Equatable {
+  case start, stop
+}
+
+/// The design's "Bot service · launchd job" card: the bot's state with a power glyph, Start (the
+/// API kickstarts the launchd job, preflight first) and Stop (the stop-bot command, refused by the
+/// bot while a trade is open). Both ask first, inside the card, as the design draws the question.
+private struct BotServiceCard: View {
+  @Environment(AppModel.self) private var model
+  @State private var question: ServiceQuestion?
+
+  /// Symbol of the service glyph (the design's power sign).
+  static let serviceSymbol = "power"
+  /// Symbol of the Start button.
+  static let startSymbol = "play.fill"
+
+  var body: some View {
+    SettingsCard(L10n.Settings.botService, footnote: Text(L10n.Settings.startStopFootnote)) {
+      HStack(spacing: Tokens.Space.m) {
+        StateGlyph(Self.serviceSymbol, tone: tone, label: L10n.Settings.botService, live: running,
+          event: model.status?.botState)
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          title.font(Tokens.Typography.body.weight(.semibold)).foregroundStyle(Palette.textPrimary)
+          Text(note).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
+        }
+        Spacer(minLength: Tokens.Space.s)
+        Button { question = .start } label: {
+          Label { Text(L10n.Settings.startBotAction) } icon: { Image(systemName: Self.startSymbol) }
+        }
+        .buttonStyle(.action(.secondary, size: .compact))
+        .foregroundStyle(Palette.profitText)
+        .disabled(!model.canStartBot)
+        .hint(L10n.Settings.startBotHint)
+        Button(role: .destructive) { question = .stop } label: {
+          Label { Text(L10n.Settings.stopBotAction) } icon: { Image(systemName: BotAction.stopSymbol) }
+        }
+        .buttonStyle(.action(.destructive, size: .compact))
+        .disabled(!model.canStopBot)
+        .hint(verbatim: BotAction.stopBot.explanation)
+      }
+      if let question {
+        confirmation(question)
+      }
+      if let outcome = model.botStart {
+        switch outcome {
+        case .accepted(let cleared):
+          Text(cleared ? L10n.Settings.startAcceptedCleared : L10n.Settings.startAccepted)
+            .font(Tokens.Typography.callout).foregroundStyle(Palette.profitText)
+        case .refused(let cause):
+          Text(L10n.Settings.startRefused(cause))
+            .font(Tokens.Typography.callout).foregroundStyle(Palette.lossText)
+        }
+      }
+    }
+    .animation(Tokens.Motion.quick, value: question)
+    // A question asked in one state is withdrawn when the state no longer allows the action.
+    .onChange(of: model.canStartBot) { _, enabled in
+      if !enabled && question == .start { question = nil }
+    }
+    .onChange(of: model.canStopBot) { _, enabled in
+      if !enabled && question == .stop { question = nil }
     }
   }
+
+  /// The design's question inside the card: what happens, then Cancel and the action.
+  private func confirmation(_ asked: ServiceQuestion) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      Text(asked == .start ? L10n.Settings.startQuestion : L10n.Bot.stopQuestion)
+        .font(Tokens.Typography.body.weight(.semibold))
+        .foregroundStyle(Palette.textPrimary)
+      Group {
+        if asked == .start {
+          Text(L10n.Settings.startExplanation)
+        } else {
+          Text(verbatim: BotAction.stopBot.explanation)
+        }
+      }
+      .font(Tokens.Typography.callout)
+      .foregroundStyle(Palette.textTertiary)
+      .fixedSize(horizontal: false, vertical: true)
+      HStack(spacing: Tokens.Space.s) {
+        Spacer()
+        Button { question = nil } label: { Text(L10n.Common.cancel) }
+          .buttonStyle(.action(.secondary, size: .compact))
+          .keyboardShortcut(.cancelAction)
+        if asked == .start {
+          Button {
+            question = nil
+            Task { await model.startBot() }
+          } label: { Text(L10n.Settings.startQuestion) }
+            .buttonStyle(.action(.primary, size: .compact))
+            .disabled(!model.canStartBot)
+        } else {
+          Button(role: .destructive) {
+            question = nil
+            Task { await model.send(BotAction.stopBot.command, title: BotAction.stopBot.title) }
+          } label: { Text(verbatim: BotAction.stopBot.title) }
+            .buttonStyle(.action(.destructive, size: .compact))
+            .disabled(!model.canStopBot)
+        }
+      }
+    }
+    .padding(Tokens.Space.m)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous))
+    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+      .strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+    .transition(.opacity)
+  }
+
+  private var stale: Bool { model.response?.stale == true }
+  private var running: Bool { model.status?.botState == .running && !stale }
+
+  private var tone: Tone {
+    if stale { return .warning }
+    switch model.status?.botState {
+    case .running: return .accent
+    case .starting: return .info
+    case .stopping: return .warning
+    case .stopped, nil: return .neutral
+    }
+  }
+
+  /// A stale status proves nothing about the bot now, so the card says so instead of the last state.
+  private var title: Text {
+    guard !stale, let state = model.status?.botState else { return Text(L10n.Settings.serviceNotReported) }
+    return Text(verbatim: state.title)
+  }
+
+  private var note: LocalizedStringResource {
+    guard !stale, let status = model.status else { return L10n.Settings.serviceStale }
+    switch status.botState {
+    case .running:
+      return status.positions.isEmpty ? L10n.Settings.serviceFlat : L10n.Settings.serviceHolds(status.positions.count)
+    case .starting: return L10n.Settings.serviceStarting
+    case .stopping: return L10n.Settings.serviceStopping
+    case .stopped: return L10n.Settings.serviceStopped
+    }
+  }
+}
+
+/// The bot's configuration file, read-only (GET /config), as the design's card: the file and
+/// whether it loads and matches what runs in its header, then one folded group per table with
+/// each key's comment over its line. Editing comes later, behind a backup and a restart.
+private struct ConfigCard: View {
+  @Environment(AppModel.self) private var model
+
+  var body: some View {
+    SettingsCard(model.config.map { L10n.Settings.configFile($0.file) } ?? L10n.Settings.configuration,
+      footnote: Text(L10n.Settings.configFooter)) {
+      if let config = model.config {
+        if let error = config.error {
+          Text(verbatim: error).font(Tokens.Typography.callout).foregroundStyle(Palette.lossText)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        ForEach(config.sections, id: \.name) { section in
+          DisclosureGroup {
+            VStack(alignment: .leading, spacing: Tokens.Space.s) {
+              ForEach(section.keys, id: \.key) { key in line(key) }
+            }
+            .padding(.top, Tokens.Space.xs)
+          } label: {
+            Text(verbatim: section.name.isEmpty ? String(localized: L10n.Settings.configTop) : "[\(section.name)]")
+              .font(Tokens.Typography.calloutMono)
+              .foregroundStyle(Palette.highlightText)
+          }
+        }
+      } else if let error = model.configError {
+        Text(verbatim: error).font(Tokens.Typography.callout).foregroundStyle(Palette.warningText)
+      } else {
+        ProgressView().controlSize(.small)
+      }
+    } trailing: {
+      HStack(spacing: Tokens.Space.xs) {
+        if let config = model.config {
+          Badge(config.valid ? L10n.Settings.configValid : L10n.Settings.configInvalid,
+            tone: config.valid ? .profit : .loss)
+          if config.changedSinceStart {
+            Badge(L10n.Settings.configChanged, tone: .warning).hint(L10n.Settings.configChangedHint)
+          } else {
+            Badge(L10n.Settings.configSame, tone: .neutral)
+          }
+        }
+        Button {} label: { Text(L10n.Settings.configEditAction) }
+          .buttonStyle(.action(.secondary, size: .compact))
+          .disabled(true)
+          .hint(L10n.Settings.editConfig)
+        PlannedTag().fixedSize()
+      }
+    }
+  }
+
+  /// One key as the design writes it: its comment, then `key = value` in the design's colours.
+  private func line(_ key: ConfigKeyV1) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      if !key.comment.isEmpty {
+        Text(verbatim: Self.commentMark + key.comment)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      (Text(verbatim: key.key).foregroundStyle(Palette.infoText)
+        + Text(verbatim: Self.assign).foregroundStyle(Palette.textTertiary)
+        + Text(verbatim: key.value).foregroundStyle(Palette.warningText))
+        .textSelection(.enabled)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .font(Tokens.Typography.annotation)
+  }
+
+  /// TOML's comment mark and assignment, as the file writes them.
+  static let commentMark = "# "
+  static let assign = " = "
 }
 
 // MARK: - Jobs and session

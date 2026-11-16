@@ -4170,6 +4170,57 @@
         }
       }
     },
+    "control.startBot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start the Bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запустить бота"
+          }
+        }
+      }
+    },
+    "control.startTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start the bot?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запустить бота?"
+          }
+        }
+      }
+    },
+    "control.startWarning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Mac starts the bot job through launchd, as on a scheduled morning: preflight first, then trading if every check passes. An earlier Stop is cleared, so scheduled starts run again. Face ID confirms."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac запускает задание бота через launchd, как утром по расписанию: сначала предстартовая проверка, затем торговля, если все проверки пройдены. Прошлая остановка снимается, и запуски по расписанию снова работают. Подтверждение — Face ID."
+          }
+        }
+      }
+    },
     "control.state" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4244,13 +4295,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. The phone cannot start the bot again: start it on the Mac."
+            "value" : "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. Start it again from Settings."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бот мягко завершает работу: ордера на вход отменяются, стопы у брокера остаются. Открытые позиции остаются открытыми под дневными стопами, и в конце сессии их никто не закроет. С телефона бота снова не запустить: запускайте его на Mac."
+            "value" : "Бот мягко завершает работу: ордера на вход отменяются, стопы у брокера остаются. Открытые позиции остаются открытыми под дневными стопами, и в конце сессии их никто не закроет. Снова запустить его можно в Настройках."
           }
         }
       }
@@ -6519,6 +6570,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "«%@» отклонено: %@"
+          }
+        }
+      }
+    },
+    "notice.startRequested" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start requested: the bot runs its preflight first."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуск запрошен: бот сначала проходит предстартовую проверку."
+          }
+        }
+      }
+    },
+    "notice.startRequestedCleared" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start requested; your earlier Stop was cleared, so scheduled starts run again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуск запрошен; прошлая остановка снята, запуски по расписанию снова работают."
           }
         }
       }
@@ -9105,6 +9190,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Часы бирж США: расширенные 04:00–20:00, основные 09:30–16:00. Сокращённые дни не показаны."
+          }
+        }
+      }
+    },
+    "settings.start" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запустить"
           }
         }
       }

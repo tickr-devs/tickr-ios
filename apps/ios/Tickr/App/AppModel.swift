@@ -44,6 +44,8 @@ final class AppModel {
   private(set) var jobs: JobsV1?
   /// Why the jobs could not be read, if they could not.
   private(set) var jobsError: String?
+  /// A start of the bot job is on its way to the Mac.
+  private(set) var botStarting = false
   /// The bot's configuration file as on disk (GET /config), read when its page opens.
   private(set) var config: ConfigV1?
   /// Why it could not be read, if it could not.
@@ -346,6 +348,42 @@ final class AppModel {
       } else {
         notice = Notice(L10n.Notice.queued(title), tone: .info)
       }
+    } catch {
+      notice = Notice(L10n.Notice.failed(title, ErrorText.text(error)), tone: .failure)
+    }
+    await refresh()
+  }
+
+  /// Start makes sense when the Mac answers and no current status says the bot is alive (a stale
+  /// or missing status proves nothing; the API checks again and launchd never restarts a running job).
+  var canStartBot: Bool {
+    guard isConfigured, fetchError == nil, response != nil, !botStarting, !sending else { return false }
+    guard let status, response?.stale == false else { return true }
+    return status.botState == .stopped
+  }
+
+  /// Asks the Mac to start the bot job through launchd (POST /commands/start-bot), once, after
+  /// the owner's Face ID: Start clears an operator stop and lets the bot trade again.
+  func startBot(confirmOwner: () async -> Biometrics.Outcome) async {
+    let title = String(localized: L10n.Control.startBot)
+    guard canStartBot, let url = connection.url else {
+      notice = Notice(L10n.Notice.notCurrent(title), tone: .failure)
+      return
+    }
+    botStarting = true
+    defer { botStarting = false }
+    switch await confirmOwner() {
+    case .confirmed: break
+    case .declined: return
+    case .unavailable(let cause):
+      notice = Notice(L10n.Notice.notConfirmed(title, cause), tone: .failure)
+      return
+    }
+    guard connection.url == url else { return }
+    do {
+      let answer = try await Container.shared.apiClient(connection.endpoint(for: url)).startBot()
+      notice = Notice(answer.stopMarkerCleared ? L10n.Notice.startRequestedCleared : L10n.Notice.startRequested,
+        tone: .info)
     } catch {
       notice = Notice(L10n.Notice.failed(title, ErrorText.text(error)), tone: .failure)
     }

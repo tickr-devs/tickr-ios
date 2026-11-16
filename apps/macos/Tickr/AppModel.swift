@@ -27,6 +27,14 @@ enum Pace {
   static let toastSeconds: Double = 6
 }
 
+/// What the API answered to Start.
+public enum BotStartOutcome: Equatable, Sendable {
+  /// launchd took the start; `stopCleared` says an earlier Stop was removed first.
+  case accepted(stopCleared: Bool)
+  /// Not started, with the API's cause.
+  case refused(String)
+}
+
 /// A command the operator sent, followed until the bot reports its outcome.
 public struct SentCommand: Identifiable, Equatable, Sendable {
   public let id: String
@@ -128,6 +136,14 @@ public final class AppModel {
   public private(set) var jobs: JobsV1?
   /// Why the jobs could not be read, if they could not.
   public private(set) var jobsError: String?
+  /// The bot's configuration file as on disk (GET /config), read while Settings is open.
+  public private(set) var config: ConfigV1?
+  /// Why it could not be read, if it could not.
+  public private(set) var configError: String?
+  /// A start of the bot job is on its way to the API.
+  public private(set) var botStarting = false
+  /// The answer to the last Start, until the next one.
+  public private(set) var botStart: BotStartOutcome?
 
   // Navigation (the sidebar selection lives here so any card can jump to a section).
   var section: AppSection = .overview
@@ -380,6 +396,9 @@ public final class AppModel {
     account = nil
     jobs = nil
     jobsError = nil
+    config = nil
+    configError = nil
+    botStart = nil
     labReplay = nil
     labReplayError = nil
     labReplayRefusal = nil
@@ -413,6 +432,8 @@ public final class AppModel {
         await refreshHistory()
       }
       resolveSentCommands()
+      // A start answer stays until the bot is seen alive; then its status says the rest.
+      if !fresh.stale, let state = status?.botState, state != .stopped { botStart = nil }
       // Counts come from status, the trade list from /days/<today>: when status shows a
       // trade the list lacks, read the list now instead of waiting for the history poll.
       if let count = status?.tradesToday.count, let document = todayDocument, count != document.trades.count {
@@ -534,6 +555,20 @@ public final class AppModel {
       guard url == baseURL else { return }
       jobs = nil
       jobsError = Self.describe(error) ?? jobsError
+    }
+  }
+
+  public func refreshConfig() async {
+    let url = baseURL
+    do {
+      let read = try await client.config()
+      guard url == baseURL else { return }
+      config = read
+      configError = nil
+    } catch {
+      guard !Task.isCancelled, url == baseURL else { return }
+      config = nil
+      configError = Self.describe(error)
     }
   }
 
@@ -704,6 +739,31 @@ public final class AppModel {
   public func showToday() { selectedDay = nil }
 
   // MARK: commands
+
+  /// Start makes sense when the API answers and no current status says the bot is alive (a stale
+  /// or missing status proves nothing; the API checks again and launchd never restarts a running job).
+  public var canStartBot: Bool {
+    guard fetchError == nil, response != nil, !botStarting, !sending else { return false }
+    guard let status, response?.stale == false else { return true }
+    return status.botState == .stopped
+  }
+
+  /// Stop is the stop-bot command: the bot drains itself and refuses while a trade is open.
+  public var canStopBot: Bool { commandsEnabled && status?.botState == .running }
+
+  /// Asks the API to start the bot job through launchd (POST /commands/start-bot), once.
+  public func startBot() async {
+    guard canStartBot else { return }
+    botStarting = true
+    defer { botStarting = false }
+    do {
+      let answer = try await client.startBot()
+      botStart = .accepted(stopCleared: answer.stopMarkerCleared)
+    } catch {
+      botStart = .refused(ErrorText.text(error))
+    }
+    await refreshStatus()
+  }
 
   public func send(_ command: OperatorCommand, title: String) async {
     // A confirmation alert can stay open while the status goes stale or the day changes:
