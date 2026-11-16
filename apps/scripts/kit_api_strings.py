@@ -113,6 +113,11 @@ for code, en, ru in [
         "Закрывающий ордер не исполнен вовремя",
     ),
     ("market_closed", "The market is closed", "Рынок закрыт"),
+    (
+        "watchdog_started",
+        "Started by the watchdog: entries wait for you",
+        "Запущен сторожем: входы ждут вашего решения",
+    ),
 ]:
     add("fence_" + code, "kit.fence." + code, en, ru, F + code)
 

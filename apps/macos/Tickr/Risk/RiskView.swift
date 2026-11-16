@@ -409,7 +409,7 @@ private enum FenceGroup: CaseIterable, Identifiable {
     case .exits: [.exitRefused, .exitNotFilled, .cancelFailed, .cancelNotSent]
     case .brokerReads: [.startupReconcile, .brokerReadFailed, .detailBudget]
     case .session: [.shuttingDown, .marketClosed]
-    case .operatorStop: [.entryStop]
+    case .operatorStop: [.entryStop, .watchdogStarted]
     }
   }
 

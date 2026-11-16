@@ -259,6 +259,20 @@ GROUPS = [
                 "проверьте приложение Webull (торги остановлены? нет покупателей?)",
             ),
             (
+                "watchdog_started",
+                "The watchdog started the bot at {time} for a resting entry; no new entry "
+                "until you clear this (tickr clear-fence watchdog-started)",
+                "Сторож запустил бота в {time} из-за висящей лимитной заявки; новых входов "
+                "не будет, пока вы не снимете блокировку (tickr clear-fence watchdog-started)",
+            ),
+            (
+                "watchdog_record_unreadable",
+                "The watchdog's restart record is unreadable ({error}); no new entry until "
+                "you clear this (tickr clear-fence watchdog-started)",
+                "Запись сторожа о перезапуске не читается ({error}); новых входов не будет, "
+                "пока вы не снимете блокировку (tickr clear-fence watchdog-started)",
+            ),
+            (
                 "close_not_sent",
                 "Close of {quantity} of {expected} {symbol} not sent outside the regular "
                 "session; the stop stays. Close it in the Webull app, or clear this in the "

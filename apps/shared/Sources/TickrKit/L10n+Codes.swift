@@ -179,6 +179,11 @@ extension L10n {
   static var fenceMarketClosed: LocalizedStringResource {
     LocalizedStringResource("kit.fence.market_closed", defaultValue: "The market is closed", bundle: bundle)
   }
+  /// A fence (a block on new entries): watchdog_started
+  static var fenceWatchdogStarted: LocalizedStringResource {
+    LocalizedStringResource("kit.fence.watchdog_started",
+      defaultValue: "Started by the watchdog: entries wait for you", bundle: bundle)
+  }
   /// Order side buy
   static var orderSideBuy: LocalizedStringResource {
     LocalizedStringResource("kit.order.side_BUY", defaultValue: "Buy", bundle: bundle)

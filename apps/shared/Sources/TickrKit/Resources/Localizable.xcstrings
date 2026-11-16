@@ -2993,6 +2993,24 @@
         }
       }
     },
+    "kit.fence.watchdog_started" : {
+      "comment" : "A fence (a block on new entries): watchdog_started",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Started by the watchdog: entries wait for you"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запущен сторожем: входы ждут вашего решения"
+          }
+        }
+      }
+    },
     "kit.fenceKind.other" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3618,6 +3636,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подтверждённого стопа нет уже {seconds} с, детали стопа не читаются: стоп оставлен, ничего не продано; закройте позицию в приложении Webull"
+          }
+        }
+      }
+    },
+    "kit.fenceReason.watchdog_record_unreadable" : {
+      "comment" : "A fence's cause (`Fence.code`). watchdog_record_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The watchdog's restart record is unreadable ({error}); no new entry until you clear this (tickr clear-fence watchdog-started)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запись сторожа о перезапуске не читается ({error}); новых входов не будет, пока вы не снимете блокировку (tickr clear-fence watchdog-started)"
+          }
+        }
+      }
+    },
+    "kit.fenceReason.watchdog_started" : {
+      "comment" : "A fence's cause (`Fence.code`). watchdog_started",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The watchdog started the bot at {time} for a resting entry; no new entry until you clear this (tickr clear-fence watchdog-started)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сторож запустил бота в {time} из-за висящей лимитной заявки; новых входов не будет, пока вы не снимете блокировку (tickr clear-fence watchdog-started)"
           }
         }
       }

@@ -224,6 +224,18 @@ extension L10n {
       // swiftlint:disable:next line_length
       defaultValue: "Closing order {order} for {quantity} {symbol} not filled in {seconds} s (filled {filled}, {state}); nothing more is sent: check the Webull app (trading halt? no buyers?)", bundle: bundle)
   }
+  /// A fence's cause (`Fence.code`). watchdog_started (values: time)
+  static var fenceReasonWatchdogStarted: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.watchdog_started",
+      // swiftlint:disable:next line_length
+      defaultValue: "The watchdog started the bot at {time} for a resting entry; no new entry until you clear this (tickr clear-fence watchdog-started)", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). watchdog_record_unreadable (values: error)
+  static var fenceReasonWatchdogRecordUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.watchdog_record_unreadable",
+      // swiftlint:disable:next line_length
+      defaultValue: "The watchdog's restart record is unreadable ({error}); no new entry until you clear this (tickr clear-fence watchdog-started)", bundle: bundle)
+  }
   /// A fence's cause (`Fence.code`). close_not_sent (values: quantity, expected, symbol)
   static var fenceReasonCloseNotSent: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.close_not_sent",

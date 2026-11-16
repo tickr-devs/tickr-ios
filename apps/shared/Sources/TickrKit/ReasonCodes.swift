@@ -131,6 +131,8 @@ public enum FenceReason: String, CaseIterable, Sendable {
   case heldAfterReplace = "held_after_replace"
   case heldUntrackedSell = "held_untracked_sell"
   case exitNotFilled = "exit_not_filled"
+  case watchdogStarted = "watchdog_started"
+  case watchdogRecordUnreadable = "watchdog_record_unreadable"
   case closeNotSent = "close_not_sent"
 }
 
