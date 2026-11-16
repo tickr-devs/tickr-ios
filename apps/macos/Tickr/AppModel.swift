@@ -339,14 +339,15 @@ public final class AppModel {
 
   public var shownResult: Decimal {
     if isLive { return status?.resultTodayUsd.value ?? 0 }
-    return dayDocument?.resultGrossUsd.value ?? 0
+    return dayDocument?.resultUsd.value ?? 0
   }
 
   /// The shown result does not count the broker's fees yet: today before the bot has read every
-  /// fill's fees, or a recorded day (its document is gross).
+  /// fill's fees, or a recorded day with a trade whose fees are not recorded (its result is gross).
   public var shownResultBeforeFees: Bool {
     if isLive { return status?.resultBeforeFees ?? false }
-    return !(dayDocument?.trades.isEmpty ?? true)
+    guard let dayDocument else { return false }
+    return !dayDocument.trades.isEmpty && dayDocument.resultNetUsd == nil
   }
 
   /// Running sum of trade results through the day, starting at 0, for the sparkline.
@@ -355,7 +356,7 @@ public final class AppModel {
     var values: [Double] = [0]
     let results: [Decimal] = isLive
       ? (status?.tradesToday.map(\.resultUsd.value) ?? [])
-      : shownTrades.map(\.resultGrossUsd.value)
+      : shownTrades.map(\.resultUsd.value)
     for value in results {
       sum += value
       values.append(NSDecimalNumber(decimal: sum).doubleValue)
@@ -368,12 +369,12 @@ public final class AppModel {
   }
 
   public var shownWins: Int {
-    let results = isLive ? (status?.tradesToday.map(\.resultUsd.value) ?? []) : shownTrades.map(\.resultGrossUsd.value)
+    let results = isLive ? (status?.tradesToday.map(\.resultUsd.value) ?? []) : shownTrades.map(\.resultUsd.value)
     return results.filter { $0 > 0 }.count
   }
 
   public var shownLosses: Int {
-    let results = isLive ? (status?.tradesToday.map(\.resultUsd.value) ?? []) : shownTrades.map(\.resultGrossUsd.value)
+    let results = isLive ? (status?.tradesToday.map(\.resultUsd.value) ?? []) : shownTrades.map(\.resultUsd.value)
     return results.filter { $0 < 0 }.count
   }
 

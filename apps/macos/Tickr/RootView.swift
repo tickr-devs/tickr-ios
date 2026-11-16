@@ -528,7 +528,7 @@ struct DayStepper: View {
           Button {
             model.selectedDay = day.day
           } label: {
-            Text(L10n.Toolbar.dayRow(DayText.day(day.day), Money.signed(day.resultGrossUsd.value), day.trades))
+            Text(L10n.Toolbar.dayRow(DayText.day(day.day), Money.signed(day.resultUsd.value), day.trades))
           }
         }
       } label: {

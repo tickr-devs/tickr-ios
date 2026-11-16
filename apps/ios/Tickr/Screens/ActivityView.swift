@@ -359,7 +359,7 @@ private struct DayCell: View {
   let action: () -> Void
 
   var body: some View {
-    let result = cell.summary?.resultGrossUsd.value
+    let result = cell.summary?.resultUsd.value
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small)
     Button(action: action) {
       VStack(spacing: Tokens.Space.xxs) {
@@ -428,16 +428,16 @@ private struct DayFigures: Equatable {
 
   /// A recorded day with its trades.
   init(_ day: DayV1) {
-    let results = day.trades.map(\.resultGrossUsd.value)
-    result = day.resultGrossUsd.value
+    let results = day.trades.map(\.resultUsd.value)
+    result = day.resultUsd.value
     counts = L10n.Activity.pastCounts(results.count, results.filter { $0 > 0 }.count, results.filter { $0 < 0 }.count)
     tally = Tally(closed: results.count, wins: results.filter { $0 > 0 }.count, losses: results.filter { $0 < 0 }.count)
-    curve = Self.curve(day.trades.map { ($0.closedAt.date, $0.resultGrossUsd.value) })
+    curve = Self.curve(day.trades.map { ($0.closedAt.date, $0.resultUsd.value) })
   }
 
   /// A recorded day from the calendar's summary, while its trades load.
   init(_ summary: DaySummary) {
-    result = summary.resultGrossUsd.value
+    result = summary.resultUsd.value
     counts = L10n.Activity.pastCounts(summary.trades, summary.wins, summary.losses)
     tally = Tally(closed: summary.trades, wins: summary.wins, losses: summary.losses)
     curve = Self.curve([])
@@ -609,7 +609,7 @@ private struct TradeLine: Identifiable {
     quantity = trade.quantity.text
     entryPrice = Money.price(trade.entryPrice.value)
     exitPrice = Money.price(trade.exitPrice.value)
-    result = trade.resultGrossUsd.value
+    result = trade.resultUsd.value
     resultR = trade.resultR
     stopAfter = trade.stopConfirmedAfterSeconds?.value
     mae = trade.maeUsd?.value

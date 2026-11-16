@@ -13,7 +13,7 @@ struct DayCalendarTests {
   func summary(_ day: String, result: String) throws -> DaySummary {
     DaySummary(day: try WireDate(day), trades: 1, wins: 1, losses: 0,
       resultGrossUsd: try DecimalString(result), hasBars: true,
-      clean: try Wire.decoder().decode(CleanDay.self, from: Data(Self.clean.utf8)))
+      clean: try Wire.decoder().decode(CleanDay.self, from: Data(Self.clean.utf8)), resultNetUsd: nil)
   }
 
   @Test("A month starting on a Sunday has full Monday-to-Friday weeks and a lone last Monday")

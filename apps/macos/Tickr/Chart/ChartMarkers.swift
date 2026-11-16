@@ -102,7 +102,7 @@ enum ChartMarkers {
   /// An entry and an exit mark per closed trade.
   static func marks(trades: [DayTrade]) -> [ChartMark] {
     trades.flatMap { trade -> [ChartMark] in
-      let result = trade.resultGrossUsd.value
+      let result = trade.resultUsd.value
       let exitKind: ChartMark.Kind = result < 0 ? .exitLoss : .exitWin
       return [
         ChartMark(

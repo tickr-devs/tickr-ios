@@ -3,14 +3,15 @@ import Foundation
 /// Presentation facts derived from a status document, shared by the apps. Pure, so tests pin them.
 public enum Board {
   /// Closed trades of the day split into wins and losses, plus the day's result: after the
-  /// broker's fees once the bot reports them, else before them (`beforeFees`; a recorded day is gross).
+  /// broker's fees once the bot reports them, else before them (`beforeFees`).
   public struct DayStats: Equatable, Sendable {
     public let trades: Int
     public let wins: Int
     public let losses: Int
     public let resultUsd: Decimal
-    /// The result does not count the broker's fees yet: a recorded day (its summary is gross),
-    /// or today before the bot has read every fill's fees. False without trades.
+    /// The result does not count the broker's fees yet: a recorded day with a trade whose fees
+    /// are not recorded (its summary is gross), or today before the bot has read every fill's
+    /// fees. False without trades.
     public let beforeFees: Bool
 
     /// Wins as a share of closed trades, 0 when there were none.
@@ -29,8 +30,8 @@ public enum Board {
   /// A recorded day's numbers, as GET /days summarizes it.
   public static func dayStats(_ day: DaySummary) -> DayStats {
     DayStats(
-      trades: day.trades, wins: day.wins, losses: day.losses, resultUsd: day.resultGrossUsd.value,
-      beforeFees: day.trades > 0)
+      trades: day.trades, wins: day.wins, losses: day.losses, resultUsd: day.resultUsd.value,
+      beforeFees: day.trades > 0 && day.resultNetUsd == nil)
   }
 
   /// Every open position, in the order the bot lists them.

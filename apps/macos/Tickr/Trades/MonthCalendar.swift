@@ -123,7 +123,7 @@ struct MonthCalendar: View {
   }
 
   private func monthTotal(_ shown: DayCalendar.Month) -> Decimal? {
-    let results = model.days.filter { DayCalendar.Month($0.day) == shown }.map(\.resultGrossUsd.value)
+    let results = model.days.filter { DayCalendar.Month($0.day) == shown }.map(\.resultUsd.value)
     return results.isEmpty ? nil : results.reduce(0, +)
   }
 
@@ -179,7 +179,7 @@ private struct CalendarDay: View {
 
   var body: some View {
     let summary = cell.summary
-    let result = summary?.resultGrossUsd.value
+    let result = summary?.resultUsd.value
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     Button(action: action) {
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {

@@ -634,9 +634,9 @@ private struct DayTrades: View {
           }
           Spacer()
           VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
-            Text(Money.signedUSD(trade.resultGrossUsd.value))
+            Text(Money.signedUSD(trade.resultUsd.value))
               .font(Tokens.Typography.bodyMono)
-              .foregroundStyle(Palette.result(trade.resultGrossUsd.value))
+              .foregroundStyle(Palette.result(trade.resultUsd.value))
             if let r = trade.resultR {
               Text(Risk.text(r))
                 .font(Tokens.Typography.captionMono)

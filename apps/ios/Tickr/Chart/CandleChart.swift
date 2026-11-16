@@ -682,7 +682,7 @@ struct CandleChart: View {
         x: .value(Plot.time, trade.closedAt.date),
         y: .value(Plot.exit, exit))
         .symbol {
-          marker(Image(systemName: "arrowtriangle.down.fill"), Palette.result(trade.resultGrossUsd.value), lift: lift)
+          marker(Image(systemName: "arrowtriangle.down.fill"), Palette.result(trade.resultUsd.value), lift: lift)
         }
     }
   }

@@ -141,7 +141,7 @@ struct LatestEvent: View {
       return Line(time: event.time, tag: event.tag, text: event.text, color: event.tone.color)
     }
     guard let trade = model.shownTrades.max(by: { $0.closedAt.date < $1.closedAt.date }) else { return nil }
-    let result = trade.resultGrossUsd.value
+    let result = trade.resultUsd.value
     return Line(time: trade.closedAt.date, tag: Board.exitReasonTitle(trade.exitReason),
       text: "\(trade.symbol) \(Money.signed(result))", color: Palette.result(result))
   }

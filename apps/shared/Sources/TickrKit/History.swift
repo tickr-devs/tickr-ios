@@ -127,12 +127,19 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   public let strategy: StrategyId?
   /// The bot code version of the run that opened the trade; nil when not recorded. See `CodeVersion`.
   public let codeVersion: String?
+  /// The result after the broker's fees, as the daily loss counts it; nil while any filled
+  /// order's fees are not recorded. Added after version 1 shipped.
+  public let resultNetUsd: DecimalString?
+
+  /// The result as shown: after fees once known, else the gross from the order rows.
+  public var resultUsd: DecimalString { resultNetUsd ?? resultGrossUsd }
 
   public var id: String { tradeId }
 
   enum CodingKeys: String, CodingKey {
     case symbol, quantity, strategy
     case codeVersion = "code_version"
+    case resultNetUsd = "result_net_usd"
     case tradeId = "trade_id"
     case entryPrice = "entry_price"
     case exitPrice = "exit_price"
@@ -186,6 +193,8 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     strategy = try c.decodeNullable(StrategyId.self, forKey: .strategy)
     // Added after version 1 shipped: an older day document has no such key.
     codeVersion = try c.decodeIfPresent(String.self, forKey: .codeVersion)
+    // Added after version 1 shipped: an older day document has no such key.
+    resultNetUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultNetUsd)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -216,6 +225,7 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
     try c.encode(overshootCauseCodes, forKey: .overshootCauseCodes)
     try c.encodeNullable(strategy, forKey: .strategy)
     try c.encodeNullable(codeVersion, forKey: .codeVersion)
+    try c.encodeNullable(resultNetUsd, forKey: .resultNetUsd)
   }
 
   /// Result in R (result / planned loss), nil when the planned loss is zero.
@@ -235,6 +245,12 @@ public struct DaySummary: Codable, Hashable, Sendable, Identifiable {
   /// Whether the day was clean by the journal: no mismatch, unknown outcome, unprotected position
   /// or safety exit, and a clean day end.
   public let clean: CleanDay
+  /// The day's result after fees (the sum of its trades' `resultNetUsd`); nil while any of them
+  /// is nil. Added after version 1 shipped.
+  public let resultNetUsd: DecimalString?
+
+  /// The result as shown: after fees once known, else the gross from the order rows.
+  public var resultUsd: DecimalString { resultNetUsd ?? resultGrossUsd }
 
   public var id: WireDate { day }
 
@@ -242,6 +258,35 @@ public struct DaySummary: Codable, Hashable, Sendable, Identifiable {
     case day, trades, wins, losses, clean
     case resultGrossUsd = "result_gross_usd"
     case hasBars = "has_bars"
+    case resultNetUsd = "result_net_usd"
+  }
+}
+
+// In an extension so the memberwise initializer stays available.
+extension DaySummary {
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    day = try c.decode(WireDate.self, forKey: .day)
+    trades = try c.decode(Int.self, forKey: .trades)
+    wins = try c.decode(Int.self, forKey: .wins)
+    losses = try c.decode(Int.self, forKey: .losses)
+    resultGrossUsd = try c.decode(DecimalString.self, forKey: .resultGrossUsd)
+    hasBars = try c.decode(Bool.self, forKey: .hasBars)
+    clean = try c.decode(CleanDay.self, forKey: .clean)
+    // Added after version 1 shipped: an older days document has no such key.
+    resultNetUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultNetUsd)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(day, forKey: .day)
+    try c.encode(trades, forKey: .trades)
+    try c.encode(wins, forKey: .wins)
+    try c.encode(losses, forKey: .losses)
+    try c.encode(resultGrossUsd, forKey: .resultGrossUsd)
+    try c.encode(hasBars, forKey: .hasBars)
+    try c.encode(clean, forKey: .clean)
+    try c.encodeNullable(resultNetUsd, forKey: .resultNetUsd)
   }
 }
 
@@ -271,12 +316,18 @@ public struct DayV1: Codable, Hashable, Sendable {
   public let trades: [DayTrade]
   public let resultGrossUsd: DecimalString
   public let barSymbols: [String]
+  /// As `DaySummary.resultNetUsd`. Added after version 1 shipped.
+  public let resultNetUsd: DecimalString?
   public let apiVersion: Int
+
+  /// The result as shown: after fees once known, else the gross from the order rows.
+  public var resultUsd: DecimalString { resultNetUsd ?? resultGrossUsd }
 
   enum CodingKeys: String, CodingKey {
     case environment, day, trades
     case resultGrossUsd = "result_gross_usd"
     case barSymbols = "bar_symbols"
+    case resultNetUsd = "result_net_usd"
     case apiVersion = "api_version"
   }
 
@@ -288,6 +339,19 @@ public struct DayV1: Codable, Hashable, Sendable {
     trades = try c.decode([DayTrade].self, forKey: .trades)
     resultGrossUsd = try c.decode(DecimalString.self, forKey: .resultGrossUsd)
     barSymbols = try c.decode([String].self, forKey: .barSymbols)
+    // Added after version 1 shipped: an older day document has no such key.
+    resultNetUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultNetUsd)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(environment, forKey: .environment)
+    try c.encode(day, forKey: .day)
+    try c.encode(trades, forKey: .trades)
+    try c.encode(resultGrossUsd, forKey: .resultGrossUsd)
+    try c.encode(barSymbols, forKey: .barSymbols)
+    try c.encodeNullable(resultNetUsd, forKey: .resultNetUsd)
+    try c.encode(apiVersion, forKey: .apiVersion)
   }
 }
 

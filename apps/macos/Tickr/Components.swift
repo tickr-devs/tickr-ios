@@ -455,8 +455,8 @@ extension AppModel {
     guard let status, isLive else {
       return shownTrades.map {
         TickerItem(id: $0.tradeId, tag: Board.exitReasonTitle($0.exitReason).uppercased(),
-          text: "\($0.symbol) \(Money.signed($0.resultGrossUsd.value))",
-          tone: Board.exitTone($0.exitReason, result: $0.resultGrossUsd.value).tickerTone)
+          text: "\($0.symbol) \(Money.signed($0.resultUsd.value))",
+          tone: Board.exitTone($0.exitReason, result: $0.resultUsd.value).tickerTone)
       }
     }
     let events = Board.events(status)
