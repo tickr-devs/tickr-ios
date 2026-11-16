@@ -91,19 +91,23 @@ struct MonthCalendar: View {
           .lineLimit(1)
           .contentTransition(.opacity)
       }
-      HStack(spacing: Tokens.Space.xxs) {
-        Button { month = previous } label: { Image(systemName: "chevron.backward") }
-          .disabled(previous == nil)
-          .help(Text(L10n.Trades.previousMonth))
-          .accessibilityLabel(Text(L10n.Trades.previousMonth))
-        Button { month = next } label: { Image(systemName: "chevron.forward") }
-          .disabled(next == nil)
-          .help(Text(L10n.Trades.nextMonth))
-          .accessibilityLabel(Text(L10n.Trades.nextMonth))
+      // Only with another month to step to; the arrow that leads nowhere is dimmed (its own
+      // colour kept it looking active).
+      if previous != nil || next != nil {
+        HStack(spacing: Tokens.Space.xxs) {
+          Button { month = previous } label: { Image(systemName: "chevron.backward").dimmedWhenDisabled() }
+            .disabled(previous == nil)
+            .help(Text(L10n.Trades.previousMonth))
+            .accessibilityLabel(Text(L10n.Trades.previousMonth))
+          Button { month = next } label: { Image(systemName: "chevron.forward").dimmedWhenDisabled() }
+            .disabled(next == nil)
+            .help(Text(L10n.Trades.nextMonth))
+            .accessibilityLabel(Text(L10n.Trades.nextMonth))
+        }
+        .font(Tokens.Typography.chevron)
+        .foregroundStyle(Palette.textQuaternary)
+        .buttonStyle(.borderless)
       }
-      .font(Tokens.Typography.chevron)
-      .foregroundStyle(Palette.textQuaternary)
-      .buttonStyle(.borderless)
       Spacer(minLength: Tokens.Space.s)
       if let total {
         Text(L10n.Trades.monthTotal(Money.signed(total)))

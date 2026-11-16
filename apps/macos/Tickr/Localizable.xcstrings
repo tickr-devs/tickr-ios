@@ -10455,23 +10455,6 @@
         }
       }
     },
-    "settings.configEditAction" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Изменить…"
-          }
-        }
-      }
-    },
     "settings.configFile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10740,23 +10723,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показывает придуманный демо-день с этого Mac, и только его; адрес бота остаётся прежним."
-          }
-        }
-      }
-    },
-    "settings.editConfig" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit the bot's configuration"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Изменение конфигурации бота"
           }
         }
       }

@@ -13,3 +13,22 @@ public enum DaySteps {
     days.filter { $0.day > day && $0.day < today }.min { $0.day < $1.day }
   }
 }
+
+/// The ‹ › day arrows around a day: whether they show at all, and which of them steps somewhere.
+/// An arrow that would do nothing is never drawn as if it did: with nowhere to step in either
+/// direction (the demo day locked, or no recorded day but the shown one) both are hidden; with one
+/// way open, the other is shown disabled (dimmed, "dimmed" to VoiceOver).
+public struct DayArrows: Equatable, Sendable {
+  /// The arrows show at all.
+  public let visible: Bool
+  /// The back arrow steps to an older recorded day.
+  public let canGoBack: Bool
+  /// The forward arrow steps to a newer day (a recorded one, or today).
+  public let canGoForward: Bool
+
+  public init(locked: Bool, canGoBack: Bool, canGoForward: Bool) {
+    self.canGoBack = !locked && canGoBack
+    self.canGoForward = !locked && canGoForward
+    visible = self.canGoBack || self.canGoForward
+  }
+}

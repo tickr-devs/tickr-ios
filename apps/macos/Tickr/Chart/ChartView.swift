@@ -241,9 +241,13 @@ struct ChartView: View {
         Text(verbatim: symbol ?? Format.missing)
           .font(Tokens.Typography.metric)
           .foregroundStyle(Palette.textPrimary)
-        Image(systemName: Self.menuSymbol)
-          .font(Tokens.Typography.chevron)
-          .foregroundStyle(Palette.textQuaternary)
+        // The menu's chevron only while there is a symbol to pick: no promise of a menu
+        // that would not open.
+        if !symbols.isEmpty {
+          Image(systemName: Self.menuSymbol)
+            .font(Tokens.Typography.chevron)
+            .foregroundStyle(Palette.textQuaternary)
+        }
       }
       .contentShape(.rect)
     }
@@ -431,9 +435,11 @@ struct ChartView: View {
       chip(Self.zoomInSymbol, title: L10n.Chart.zoomIn) { viewport.zoomIn(total: candleCount) }
         .keyboardShortcut(Viewport.zoomInKey, modifiers: .command)
         .help(Text(L10n.Chart.zoomInHelp))
+        .disabled(!viewport.canZoomIn(total: candleCount))
       chip(Self.fitSymbol, title: L10n.Chart.fit) { viewport.fit() }
         .keyboardShortcut(Viewport.fitKey, modifiers: .command)
         .help(Text(L10n.Chart.fitHelp))
+        .disabled(!viewport.canFit(total: candleCount))
     }
     .disabled(candleCount == 0)
   }
@@ -611,6 +617,12 @@ struct Viewport: Equatable {
   static let zoomInKey: KeyEquivalent = "="
   static let zoomOutKey: KeyEquivalent = "-"
   static let fitKey: KeyEquivalent = "0"
+
+  /// Zoom in would show fewer candles: more than `minimumVisible` are on screen.
+  func canZoomIn(total: Int) -> Bool { (shown(total: total) ?? total) > Self.minimumVisible }
+
+  /// Fit would change the window: it is zoomed in or scrolled back from the newest candle.
+  func canFit(total: Int) -> Bool { shown(total: total) != nil || position != nil }
 
   /// Shows fewer candles, down to `minimumVisible`.
   mutating func zoomIn(total: Int) {

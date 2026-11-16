@@ -24,6 +24,9 @@ final class HomeDayModel {
   var locked: Bool { app.connection.demo }
   var canGoBack: Bool { !locked && DaySteps.previous(day, in: days) != nil }
   var canGoForward: Bool { shown != nil }
+  /// The ‹ › arrows: hidden while the day is locked or no other day is recorded, the one that
+  /// leads nowhere disabled.
+  var arrows: DayArrows { DayArrows(locked: locked, canGoBack: canGoBack, canGoForward: canGoForward) }
 
   /// List the recorded days of the bot at `url`. A failed list leaves the switcher where it was;
   /// it only offers fewer steps.

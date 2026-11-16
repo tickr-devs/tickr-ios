@@ -840,9 +840,6 @@ enum L10n {
         defaultValue: "Read-only, as the file is on disk now. Every key with its comment. Credentials appear only as variable names.",
         bundle: L10n.bundle)
     }
-    static var configEditAction: LocalizedStringResource {
-      LocalizedStringResource("settings.configEditAction", defaultValue: "Edit…", bundle: L10n.bundle)
-    }
     static var configTop: LocalizedStringResource {
       LocalizedStringResource("settings.configTop", defaultValue: "Top level", bundle: L10n.bundle)
     }
@@ -1222,9 +1219,6 @@ enum L10n {
     }
     static var staleAfter: LocalizedStringResource {
       LocalizedStringResource("settings.staleAfter", defaultValue: "Status stale after", bundle: L10n.bundle)
-    }
-    static var editConfig: LocalizedStringResource {
-      LocalizedStringResource("settings.editConfig", defaultValue: "Edit the bot's configuration", bundle: L10n.bundle)
     }
     static var features: LocalizedStringResource {
       LocalizedStringResource("settings.features", defaultValue: "Features · from config", bundle: L10n.bundle)

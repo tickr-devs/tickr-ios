@@ -723,11 +723,6 @@ private struct ConfigCard: View {
             Badge(L10n.Settings.configSame, tone: .neutral)
           }
         }
-        Button {} label: { Text(L10n.Settings.configEditAction) }
-          .buttonStyle(.action(.secondary, size: .compact))
-          .disabled(true)
-          .hint(L10n.Settings.editConfig)
-        PlannedTag().fixedSize()
       }
     }
   }

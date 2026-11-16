@@ -40,6 +40,30 @@ struct ViewportTests {
     #expect(viewport.visible == nil)
   }
 
+  @Test("Zoom in is offered only while more than the minimum is on screen")
+  func canZoomIn() {
+    #expect(Viewport().canZoomIn(total: 100))
+    #expect(Viewport(visible: Viewport.minimumVisible + 1).canZoomIn(total: 100))
+    #expect(!Viewport(visible: Viewport.minimumVisible).canZoomIn(total: 100))
+    // A range no longer than the minimum is shown whole and cannot be zoomed into.
+    #expect(!Viewport().canZoomIn(total: Viewport.minimumVisible))
+    var viewport = Viewport()
+    for _ in 0..<20 { viewport.zoomIn(total: 100) }
+    #expect(!viewport.canZoomIn(total: 100))
+  }
+
+  @Test("Fit is offered only while the window is zoomed in or scrolled back")
+  func canFit() {
+    #expect(!Viewport().canFit(total: 100))
+    #expect(Viewport(visible: 30).canFit(total: 100))
+    #expect(Viewport(visible: nil, position: .now).canFit(total: 100))
+    // A window wider than the range already shows it whole.
+    #expect(!Viewport(visible: 150).canFit(total: 100))
+    var viewport = Viewport(visible: 30, position: .now)
+    viewport.fit()
+    #expect(!viewport.canFit(total: 100))
+  }
+
   @Test("Show whole day forgets the zoom and the scroll")
   func fit() {
     var viewport = Viewport(visible: 30, position: .now)

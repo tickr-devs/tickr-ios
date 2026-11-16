@@ -491,10 +491,22 @@ struct DayStepper: View {
           .foregroundStyle(Palette.textPrimary)
           .fixedSize()
           .help(Text(L10n.Toolbar.demoHelp))
-      } else {
+      } else if arrows.visible {
         stepper
+      } else {
+        // No other recorded day: no arrows, day menu or Today that would do nothing.
+        Text(L10n.Toolbar.dayToday(Self.label(model.today)))
+          .font(Tokens.Typography.dayStepper)
+          .foregroundStyle(Palette.textPrimary)
+          .frame(minWidth: Self.dayMinWidth)
+          .fixedSize()
       }
     }
+  }
+
+  /// Which of ‹ › step somewhere; neither while the day is locked or no other day is recorded.
+  private var arrows: DayArrows {
+    DayArrows(locked: model.dayLocked, canGoBack: model.previousDay != nil, canGoForward: !model.isLive)
   }
 
   /// ‹ day menu › and Today.
@@ -504,10 +516,11 @@ struct DayStepper: View {
         Label { Text(L10n.Toolbar.previousDay) } icon: { Image(systemName: Self.previousSymbol) }
       }
       .buttonStyle(TitleBarButtonStyle(square: true))
-      .disabled(model.previousDay == nil)
+      .disabled(!arrows.canGoBack)
       .help(Text(L10n.Toolbar.previousDayHelp))
       Menu {
         Button(String(localized: L10n.Common.today)) { model.showToday() }
+          .disabled(model.isLive)
         if !model.days.isEmpty { Divider() }
         ForEach(model.days.filter { $0.day != model.today }) { day in
           Button {
@@ -537,10 +550,12 @@ struct DayStepper: View {
         Label { Text(L10n.Toolbar.nextDay) } icon: { Image(systemName: Self.nextSymbol) }
       }
       .buttonStyle(TitleBarButtonStyle(square: true))
-      .disabled(model.isLive)
+      .disabled(!arrows.canGoForward)
       .help(Text(L10n.Toolbar.nextDayHelp))
+      // Today is where the day already is while it is live: dimmed then, as ⌘T in the menu.
       Button(String(localized: L10n.Common.today)) { model.showToday() }
         .buttonStyle(TitleBarButtonStyle(square: false))
+        .disabled(model.isLive)
         .help(Text(L10n.Toolbar.todayHelp))
     }
   }

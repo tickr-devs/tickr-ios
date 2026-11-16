@@ -176,14 +176,18 @@ private struct DayLine: View {
           dayText
           demoChip
             .accessibilityIdentifier(Self.demoChipID)
-        } else {
+        } else if arrows.visible {
+          // The arrow that leads nowhere is dimmed and refuses taps ("dimmed" to VoiceOver).
           Button { days.back() } label: { arrow(Self.previousSymbol) }
-            .disabled(!days.canGoBack)
+            .disabled(!arrows.canGoBack)
             .accessibilityLabel(Text(L10n.Home.previousDay))
           dayText
           Button { days.forward() } label: { arrow(Self.nextSymbol) }
-            .disabled(!days.canGoForward)
+            .disabled(!arrows.canGoForward)
             .accessibilityLabel(Text(L10n.Home.nextDay))
+        } else {
+          // No other recorded day to step to: no arrows that would do nothing.
+          dayText
         }
       }
       if days.shown != nil {
@@ -197,8 +201,10 @@ private struct DayLine: View {
     .animation(Tokens.Motion.standard, value: days.shown)
   }
 
+  private var arrows: DayArrows { days.arrows }
+
   private func arrow(_ symbol: String) -> some View {
-    HeaderIcon(symbol: symbol).foregroundStyle(Palette.textPrimary)
+    HeaderIcon(symbol: symbol).foregroundStyle(Palette.textPrimary).dimmedWhenDisabled()
   }
 
   /// The day, centred in the room between the arrows (or the DEMO chips).
