@@ -43,7 +43,9 @@ AREA_OPACITY = 0.45
 # Launch-screen mark size in points (the image is drawn at this size, centred).
 LAUNCH_MARK = 160
 
-COLOR = re.compile(r"static let (\w+) = Color\(light: 0x([0-9A-F]{6}), dark: 0x([0-9A-F]{6})\)")
+# A role is a Color, or a Swatch when other code needs its raw values (Palette.swift).
+COLOR = re.compile(r"static let (\w+) = (?:Color|Swatch)"
+                   r"\(light: 0x([0-9A-F]{6}), dark: 0x([0-9A-F]{6})\)")
 
 
 def palette() -> dict[str, tuple[str, str]]:
