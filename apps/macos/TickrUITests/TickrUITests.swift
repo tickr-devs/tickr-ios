@@ -22,14 +22,20 @@ final class TickrUITests: XCTestCase {
   static let screenPrefix = "screen-"
   /// The open position in status-response-v1.json and its flatten button id (BotAction.id).
   static let flattenButton = "flatten-ABCD"
-  /// English texts from the catalog: the confirmation's cancel button, the account badge for a
-  /// broker read that matches the bot's records (account-response-v1.json), and the observer in
-  /// observers-v1.json.
+  /// English texts from the catalog: the confirmation's cancel button and the account badge for a
+  /// broker read that matches the bot's records (account-response-v1.json).
   static let cancel = "Cancel"
   static let matches = "MATCHES"
+  /// The first observer in observers-v1.json (price-action-v1, version 2, three decisions), as its
+  /// row on Strategy lab's versions card reads: its name and the English note of its decision
+  /// count (lab.observerNote). The active strategy (status-response-v1.json) is price-action-v1
+  /// too, so the name alone also matches the active version's row.
   static let observer = "price-action-v1"
-  /// The Overview badge for fixture data (overview.fixtures, upper-cased as every badge is).
-  static let fixturesBadge = "FIXTURES"
+  static let observerNote = "observer · decisions: 3"
+  /// The Overview header's one environment badge for the fixtures' environment (sandbox in
+  /// status-response-v1.json), as its English text reads (environmentLabel, upper-cased as every
+  /// badge is).
+  static let environmentBadge = "ENVIRONMENT: SANDBOX"
   /// The toolbar's connection status (ConnectionStatus.id).
   static let connectionItem = "toolbar-connection"
   /// The refusal detail of the first signal in skipped-v1.json, as the English app words it
@@ -181,10 +187,13 @@ final class TickrUITests: XCTestCase {
   }
 
   @MainActor
-  func testOverviewSaysItShowsFixtures() {
+  func testOverviewSaysWhereItsDataComesFrom() {
     let app = launch()
     open(Self.sections[0], in: app)
-    XCTAssertTrue(app.staticTexts[Self.fixturesBadge].firstMatch.waitForExistence(timeout: Self.timeout))
+    // The header's one environment badge names the environment the data comes from (#543 removed
+    // the separate FIXTURES badge: one badge, no second tag beside it).
+    XCTAssertTrue(app.staticTexts[Self.environmentBadge].firstMatch.waitForExistence(timeout: Self.timeout),
+      "environment badge\n\(app.debugDescription)")
     // The title bar names the bot's address (the fixture API answers as 127.0.0.1).
     let connection = app.descendants(matching: .any)[Self.connectionItem].firstMatch
     XCTAssertTrue(connection.waitForExistence(timeout: Self.timeout), "connection\n\(app.debugDescription)")
@@ -281,7 +290,12 @@ final class TickrUITests: XCTestCase {
   func testLabShowsTheObservers() {
     let app = launch()
     open(Self.sections[4], in: app)
-    XCTAssertTrue(app.staticTexts[Self.observer].firstMatch.waitForExistence(timeout: Self.timeout))
+    // A version's row reads as one text element (its texts combined into its value), so the
+    // observer's name and note are parts of a longer value. The day chart's legend names an
+    // observer by what sets it apart ("v2 · rel vol 1.5×"), not by its name.
+    let row = app.staticTexts.matching(NSPredicate(format: "value CONTAINS %@ AND value CONTAINS %@",
+      Self.observer, Self.observerNote)).firstMatch
+    XCTAssertTrue(row.waitForExistence(timeout: Self.timeout), "observer row\n\(app.debugDescription)")
   }
 
   /// The chart with every study and the decisions inspector opens, survives a narrower window

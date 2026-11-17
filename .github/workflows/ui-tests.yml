@@ -34,6 +34,10 @@ jobs:
         run: apps/scripts/select-xcode.sh
       # Builds the app as the owner does in Xcode and runs its UI tests against the contract
       # fixtures; ad-hoc signed, because a UI test runner must be signed.
+      # The runner's display starts at 1024 x 768 points, smaller than the app's least window
+      # (1377 x 810 in English on the fixtures): every control right of x 1024 would be off screen.
+      - name: Largest display mode
+        run: swift apps/scripts/largest-display-mode.swift
       - name: Xcode workspace builds the macOS app and runs its UI tests
         run: |
           xcodebuild -workspace Tickr.xcworkspace -scheme "Tickr macOS" \
