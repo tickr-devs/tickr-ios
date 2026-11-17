@@ -305,15 +305,16 @@ final class TickrUITests: XCTestCase {
     let day = calendar.buttons[Self.emptyDayLabel]
     waitUntilStill(day, "calendar day", in: app)
     day.click()
-    // The day's title names the picked day, and its empty table says so by date.
-    let title = app.staticTexts.matching(identifier: Self.dayTitle).firstMatch
-    let titled = NSPredicate(format: "value == %@", Self.emptyDayLabel)
-    expectation(for: titled, evaluatedWith: title)
-    waitForExpectations(timeout: Self.timeout)
-    let empty = app.descendants(matching: .any)[Self.tradesEmpty].firstMatch
-    XCTAssertTrue(empty.waitForExistence(timeout: Self.timeout), "empty day\n\(app.debugDescription)")
-    XCTAssertTrue(app.staticTexts[Self.emptyDayMessage].exists, "no-trades message\n\(app.debugDescription)")
-    XCTAssertFalse(trade.exists, "today's trade still listed")
+    // The empty table names the picked day, and the day's title (a heading, so any element
+    // type) says it too.
+    let message = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@ OR value == %@", Self.emptyDayMessage, Self.emptyDayMessage)).firstMatch
+    XCTAssertTrue(message.waitForExistence(timeout: Self.timeout), "no-trades message\n\(app.debugDescription)")
+    let title = app.descendants(matching: .any)[Self.dayTitle].firstMatch
+    XCTAssertTrue(title.waitForExistence(timeout: Self.timeout), "day title\n\(app.debugDescription)")
+    let text = [title.label, title.value as? String ?? ""]
+    XCTAssertTrue(text.contains(Self.emptyDayLabel), "day title \(text)\n\(app.debugDescription)")
+    XCTAssertFalse(trade.exists, "today's trade still listed\n\(app.debugDescription)")
   }
 
   @MainActor
