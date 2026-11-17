@@ -108,6 +108,15 @@ struct CountBump: ViewModifier {
 }
 
 public extension View {
+  /// Every change that comes with a new `period` (another shown day) lands at once: no crossfade
+  /// of one day's words over the other's and no figure counting from one day's to the other's.
+  func jumps<Period: Equatable>(on period: Period) -> some View {
+    transaction(value: period) { transaction in
+      transaction.animation = nil
+      transaction.disablesAnimations = true
+    }
+  }
+
   /// One bump each time `count` rises (see `CountBump`): a refusal counted again, say.
   func bumps(on count: Int) -> some View { modifier(CountBump(count: count)) }
 }
@@ -117,11 +126,17 @@ public extension View {
 public struct CountingText: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var shown: Double = 0
+  /// The period `shown` is of.
+  @State private var shownPeriod: AnyHashable?
   let value: Double
+  /// What the figure is of (the shown day): when it changes, the figure is another day's and shows
+  /// at once, never counting through values no day had.
+  let period: AnyHashable?
   let format: (Double) -> String
 
-  public init(_ value: Double, format: @escaping (Double) -> String) {
+  public init(_ value: Double, period: AnyHashable? = nil, format: @escaping (Double) -> String) {
     self.value = value
+    self.period = period
     self.format = format
   }
 
@@ -129,12 +144,17 @@ public struct CountingText: View {
     CountedText(value: shown, format: format)
       .onAppear(perform: count)
       .onChange(of: value, count)
+      .onChange(of: period, count)
       // VoiceOver reads the figure itself, never a step of the count.
       .accessibilityLabel(Text(verbatim: format(value)))
   }
 
   private func count() {
-    withAnimation(reduceMotion ? nil : Tokens.Motion.fill) { shown = value }
+    // Another period's figure lands at once; the first appearance and a new value of the same
+    // period count.
+    let samePeriod = shownPeriod == period || shown == 0
+    shownPeriod = period
+    withAnimation(reduceMotion || !samePeriod ? nil : Tokens.Motion.fill) { shown = value }
   }
 }
 

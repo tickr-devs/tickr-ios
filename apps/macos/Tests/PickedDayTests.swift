@@ -188,4 +188,20 @@ extension AppModelTests {
     #expect(!model.dayPending)
     #expect(model.shownResult != 0)
   }
+
+  @Test("Back on today, today's cards show what they showed before the pick at once, then read again")
+  func todayKeptAcrossAPick() async throws {
+    let model = try await Self.modelWithDays()
+    RouteProtocol.routes.withLock {
+      $0.bodies["/flow"] = try? Data(contentsOf: fixturesDir.appendingPathComponent("flow-v1.json"))
+    }
+    await model.refreshFlow()
+    let todayFlow = try #require(model.flow)
+    model.selectedDay = try WireDate("2026-11-15")
+    try await Self.waitForPick(model)
+    model.showToday()
+    // At once, before any read: never empty cards refilling.
+    #expect(model.flow == todayFlow)
+    RouteProtocol.routes.withLock { $0.bodies["/flow"] = nil }
+  }
 }

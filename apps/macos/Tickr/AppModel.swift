@@ -208,6 +208,7 @@ public final class AppModel {
         selectedDay = nil
         return
       }
+      if oldValue == nil, selectedDay != nil { todayParts = (today, shownParts) }
       if oldValue != selectedDay { beginDayLoad() }
       withdrawIfCommandsOff()
     }
@@ -224,6 +225,10 @@ public final class AppModel {
   /// What was read of the past days shown last: a day picked again shows at once, then is read
   /// again behind it (`PastDays`).
   @ObservationIgnored private var pastDays = PastDays<DayParts>()
+  /// Today's parts as last shown before a past day was picked: back on today they show at once
+  /// and are read again behind it, instead of empty cards refilling (owner's live check
+  /// 2026-11-17). Only for the New York date they were read on.
+  @ObservationIgnored private var todayParts: (day: WireDate, parts: DayParts)?
   public private(set) var todayDocument: DayV1?
   /// Observers with their decisions on the shown day; nil until read.
   public private(set) var observers: ObserversV1?
@@ -877,8 +882,19 @@ public final class AppModel {
   /// read of it, any other day its loading state, until the reads answer.
   private func beginDayLoad() {
     dayLoad?.cancel()
-    show(selectedDay.flatMap { pastDays.parts(of: $0) } ?? DayParts())
+    let kept: DayParts? = if let selectedDay {
+      pastDays.parts(of: selectedDay)
+    } else {
+      todayParts.flatMap { $0.day == today ? $0.parts : nil }
+    }
+    show(kept ?? DayParts())
     dayLoad = Task { await loadSelectedDay() }
+  }
+
+  /// The shown day's parts as they are now.
+  private var shownParts: DayParts {
+    DayParts(document: dayDocument, flow: flow, watching: watching, symbols: symbols, movers: movers,
+      observers: observers, skipped: skipped, performance: performance)
   }
 
   /// Shows `parts` as the shown day's, with no read failure.

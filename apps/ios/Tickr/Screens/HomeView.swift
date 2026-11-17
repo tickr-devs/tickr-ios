@@ -114,6 +114,8 @@ struct HomeView: View {
       }
     }
     .botControl(isPresented: $showControl)
+    // Another day lands at once: no crossfade of one day's figures over the other's.
+    .jumps(on: model.shownDay)
     .refreshable {
       await model.refreshAll()
       if let url = model.connection.url { await dayModel.load(url) }
@@ -369,7 +371,7 @@ private struct Summary: View {
       VStack(spacing: Tokens.Space.xxs) {
         CardLabel(L10n.Home.day)
         // Counts up from zero as the ring appears and on to each new result (the board's count).
-        CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signedUSD(Decimal($0)) }
+        CountingText(NSDecimalNumber(decimal: result).doubleValue, period: model.shownDay) { Money.signedUSD(Decimal($0)) }
           .font(Tokens.Typography.metric)
           .foregroundStyle(Palette.result(result))
           // One line at its full size; the ring grows around it.
@@ -1046,7 +1048,13 @@ private struct CleanLine: View {
   var body: some View {
     switch clean.verdict {
     case .clean:
-      Badge(L10n.Home.cleanBadge, color: Palette.profitText)
+      // A short badge that never outgrows the column beside the ring, its reason under it
+      // wrapping (the whole sentence in the badge pushed the page past the screen's edge).
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        Badge(L10n.Home.cleanBadge, color: Palette.profitText)
+        caption(Text(L10n.Home.cleanNote))
+      }
+      .accessibilityElement(children: .combine)
     case .notClean:
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         Badge(L10n.Home.needsLookBadge, color: Palette.warningText)

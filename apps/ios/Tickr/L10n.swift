@@ -321,7 +321,11 @@ enum L10n {
     }
     /// Clean-day badge: the journal, the broker and the bot's records agreed (as the Mac's).
     static var cleanBadge: LocalizedStringResource {
-      LocalizedStringResource("home.cleanBadge", defaultValue: "Clean day · broker and records agree", bundle: L10n.bundle)
+      LocalizedStringResource("home.cleanBadge", defaultValue: "Clean day", bundle: L10n.bundle)
+    }
+    /// Under the clean-day badge, wrapping: what made the day clean.
+    static var cleanNote: LocalizedStringResource {
+      LocalizedStringResource("home.cleanNote", defaultValue: "Broker and records agree", bundle: L10n.bundle)
     }
     /// Clean-day badge: the day was not clean (as the Mac's).
     static var needsLookBadge: LocalizedStringResource {

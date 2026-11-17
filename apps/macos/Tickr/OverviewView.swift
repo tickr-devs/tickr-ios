@@ -159,6 +159,8 @@ struct OverviewView: View {
     .environment(\.risesHeld, !model.openingPlayed && !model.openingFlying)
     // "Show all" of Watching closely opens its full list over the cards.
     .watchingAllPanel()
+    // Another day lands at once: no crossfade of one day's figures over the other's.
+    .jumps(on: model.shownDay)
   }
 
   /// UI tests (`LayoutSweep.safetyFirst`): the Safety · bot card at the top of the screen, kept
@@ -315,6 +317,9 @@ private struct DayResult: View {
   @Environment(AppModel.self) private var model
   @Environment(\.overviewLayout) private var layout
   @State private var counted: Decimal = 0
+  /// The day `counted` is of: another day's result lands at once, never counting through values
+  /// no day had.
+  @State private var countedDay: WireDate?
 
   /// Size of the result's sparkline, in points, as the design draws it.
   static let sparklineWidth: CGFloat = 200
@@ -358,6 +363,7 @@ private struct DayResult: View {
     }
     .onAppear { countUp() }
     .onChange(of: model.shownResult) { countUp() }
+    .onChange(of: model.shownDay) { countUp() }
   }
 
   private var beforeFees: some View {
@@ -382,7 +388,10 @@ private struct DayResult: View {
   }
 
   private func countUp() {
-    withAnimation(Tokens.Motion.fill) { counted = model.shownResult }
+    // Only today's live result counts on; a recorded day's lands at once when read.
+    let sameDay = countedDay == nil || countedDay == model.shownDay
+    countedDay = model.shownDay
+    withAnimation(sameDay && model.isLive ? Tokens.Motion.fill : nil) { counted = model.shownResult }
   }
 }
 

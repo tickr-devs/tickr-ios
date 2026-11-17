@@ -59,10 +59,12 @@ struct ActivityView: View {
         panes(status: status)
       }
     }
-    .animation(Tokens.Motion.standard, value: section)
+    // Another pane or day replaces the one shown at once: a crossfade laid one pane's words over
+    // the other's. The calendar still slides and a loaded day still fades in over its skeleton.
     .animation(Tokens.Motion.standard, value: showsCalendar)
-    .animation(Tokens.Motion.standard, value: activity.selectedDay)
     .animation(Tokens.Motion.standard, value: activity.phase)
+    .jumps(on: section)
+    .jumps(on: activity.selectedDay)
     .task(id: model.connection.url) {
       guard let url = model.connection.url else { return }
       await activity.loadDays(url)

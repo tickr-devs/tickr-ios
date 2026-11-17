@@ -5128,13 +5128,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clean day · broker and records agree"
+            "value" : "Clean day"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Чистый день · брокер и записи сходятся"
+            "value" : "Чистый день"
+          }
+        }
+      }
+    },
+    "home.cleanNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker and records agree"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Брокер и записи совпадают"
           }
         }
       }
