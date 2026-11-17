@@ -49,13 +49,15 @@ struct MenuBarPanel: View {
   }
 }
 
-/// The headline as on Overview (`HeadlineBanner`, framed), with a dot that pulses once per new
-/// headline.
+/// The headline as on Overview (`HeadlineBanner`, MacMenuBar board): the pill with its detail and,
+/// beside it, the session countdown and the gate badge; its dot pulses once per new headline.
 private struct StatusBanner: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    HeadlineBanner(model.headline.text, tone: model.headline.tone, pulse: AnyHashable(model.headline.pulse))
+    let headline = model.headline
+    HeadlineBanner(headline.text, detail: headline.detail, tone: headline.tone, alarm: headline.severity == .alarm,
+      pulse: AnyHashable(headline.pulse), facts: model.headlineFacts)
   }
 }
 

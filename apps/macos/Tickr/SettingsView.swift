@@ -472,10 +472,10 @@ private struct EnvironmentSettings: View {
         } else {
           Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
         }
-        // The gate at a glance beside it, the same badge as the Overview header's; its cause on hover.
+        // The gate at a glance beside it, the same badge as the headline's; its cause on hover.
         if let gate = model.status?.tradingGate {
-          Badge(gate.open ? L10n.Overview.gateOpen : L10n.Overview.gateClosed,
-            color: gate.open ? Palette.profitText : Palette.warningText)
+          let shown: EntryGate = gate.open ? .open : .closed
+          Badge(shown.title, tone: shown.tone)
             .help(Text(verbatim: ApiText.gate(gate)))
         }
         Spacer(minLength: 0)

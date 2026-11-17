@@ -269,7 +269,7 @@ enum EntriesGlyph {
   }
 }
 
-/// The ring with the day's result next to the headline.
+/// The headline on its own row, and under it the ring with the day's result.
 private struct Summary: View {
   /// Side of the result ring and the width of its track and arc, in points.
   static let ringSide: CGFloat = 136
@@ -295,87 +295,101 @@ private struct Summary: View {
     let unreachable = model.status == nil && model.fetchError != nil
     let text = past != nil ? String(localized: L10n.Home.recordedDay)
       : unreachable ? String(localized: L10n.Home.statusUnknown) : headline.text
+    let detail = past != nil ? String(localized: L10n.Home.recordedNote) : unreachable ? nil : headline.detail
     let tone = past == nil ? headline.tone : Tone.highlight
     // A stale status's text counts its age; read again it is no new event.
     let pulse: Headline.Pulse = past == nil ? headline.pulse : .text(text)
-    RowStack(spacing: Tokens.Space.l) {
-      ResultRing(fraction: stats?.winShare ?? 0, color: result < 0 ? Palette.seriesATR : Palette.accent,
-        lineWidth: Self.ringLine) {
-        VStack(spacing: Tokens.Space.xxs) {
-          CardLabel(L10n.Home.day)
-          // Counts up from zero as the ring appears and on to each new result (the board's count).
-          CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signedUSD(Decimal($0)) }
-            .font(Tokens.Typography.metric)
-            .foregroundStyle(Palette.result(result))
-            // One line at its full size; the ring grows around it.
-            .fixedSize()
-          Group {
-            if let stats {
-              Text(L10n.Common.winsLosses(stats.wins, stats.losses))
-            } else {
-              Text(verbatim: Format.missing)
-            }
+    VStack(alignment: .leading, spacing: Tokens.Space.l) {
+      // As IOSHome draws it (mockup v108): the shared headline on its own row above the ring, the
+      // title over its detail, with the session countdown and the gate badge on the live day.
+      HeadlineBanner(text, detail: detail, tone: tone, alarm: past == nil && headline.severity == .alarm,
+        pulse: past == nil && (headline.severity != .ok || model.response?.stale == false) ? AnyHashable(pulse) : nil,
+        arrangement: .stacked, facts: past == nil ? facts : nil)
+      RowStack(spacing: Tokens.Space.l) {
+        ring(stats: stats, result: result)
+        VStack(alignment: .leading, spacing: Tokens.Space.s) {
+          if stats?.beforeFees == true {
+            // The ring's result does not count the broker's fees yet; wraps rather than cuts.
+            Text(L10n.Home.beforeFees)
+              .font(.footnote)
+              .foregroundStyle(Palette.warningText)
+              .fixedSize(horizontal: false, vertical: true)
           }
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .multilineTextAlignment(.center)
-          // "1 в плюс · 5 в минусе" wraps in Russian, never cut.
-          .fixedSize(horizontal: false, vertical: true)
-        }
-        // Inside the ring's opening at every text size ("4 W · 7 L" ran past it).
-        .frame(minWidth: 0, maxWidth: ringSide * Self.innerShare)
-        .padding(Tokens.Space.l)
-      }
-      // Beside the headline the ring keeps its scaled side, growing only when its figures need
-      // more; stacked above it at large text sizes, it stops growing at the screen's width, so it
-      // is never cut and never widens the page.
-      .frame(minWidth: typeSize.stacksRows ? nil : ringSide, minHeight: typeSize.stacksRows ? nil : ringSide)
-      .aspectRatio(1, contentMode: .fit)
-      .frame(maxWidth: ringSide)
-      .accessibilityElement(children: .ignore)
-      .accessibilityLabel(Text(L10n.Home.dayResult(Money.signedUSD(result), stats?.wins ?? 0, stats?.losses ?? 0)))
-
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        // As IOSHome draws it: the shared headline, bare.
-        HeadlineBanner(text, tone: tone,
-          pulse: past == nil && (headline.severity != .ok || model.response?.stale == false) ? AnyHashable(pulse) : nil,
-          framed: false)
-        if stats?.beforeFees == true {
-          // The ring's result does not count the broker's fees yet; wraps rather than cuts.
-          Text(L10n.Home.beforeFees)
-            .font(.footnote)
-            .foregroundStyle(Palette.warningText)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        if let past {
-          Text(L10n.Home.recordedNote)
-            .font(.footnote)
-            .foregroundStyle(Palette.textTertiary)
-            .fixedSize(horizontal: false, vertical: true)
-          CleanLine(clean: past.clean)
-        } else if let status = model.status {
-          // Each position's protection and the gate as glyphs; the words are in their hints.
-          HStack(spacing: Tokens.Space.xs) {
-            ForEach(status.positions, id: \.symbol) { position in
-              StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
+          if let past {
+            CleanLine(clean: past.clean)
+          } else if let status = model.status {
+            // Each position's protection and the gate as glyphs; the words are in their hints.
+            HStack(spacing: Tokens.Space.xs) {
+              ForEach(status.positions, id: \.symbol) { position in
+                StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
+              }
+              if !status.tradingGate.open {
+                StateGlyph(Self.gateClosedSymbol, tone: .warning,
+                  label: L10n.Home.gateClosed(ApiText.gate(status.tradingGate)), style: .compact)
+              } else {
+                let entries = EntriesGlyph.make(status)
+                StateGlyph(entries.symbol, tone: entries.tone, label: entries.label, style: .compact)
+              }
+              Badge(keepingCase: status.codeVersion.map { L10n.Home.versionCode(status.strategy.version, CodeVersion.short($0)) }
+                ?? L10n.Common.version(status.strategy.version), tone: .highlight)
             }
-            if !status.tradingGate.open {
-              StateGlyph(Self.gateClosedSymbol, tone: .warning,
-                label: L10n.Home.gateClosed(ApiText.gate(status.tradingGate)), style: .compact)
-            } else {
-              let entries = EntriesGlyph.make(status)
-              StateGlyph(entries.symbol, tone: entries.tone, label: entries.label, style: .compact)
-            }
-            Badge(keepingCase: status.codeVersion.map { L10n.Home.versionCode(status.strategy.version, CodeVersion.short($0)) }
-              ?? L10n.Common.version(status.strategy.version), tone: .highlight)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(verbatim: subline(status)))
+            AgeLine()
           }
-          .accessibilityElement(children: .ignore)
-          .accessibilityLabel(Text(verbatim: subline(status)))
-          AgeLine()
         }
       }
-      .animation(Tokens.Motion.standard, value: pulse)
     }
+    .animation(Tokens.Motion.standard, value: pulse)
+  }
+
+  /// The headline's facts on the live day: the status's gate, and the countdown to today's regular
+  /// open or close from the /jobs session, on the bot's clock.
+  private var facts: HeadlineBanner.Facts {
+    let session = model.jobs?.session
+    let offset = model.botClockOffset
+    return HeadlineBanner.Facts(gate: EntryGate.make(model.status, headline: model.headline)) { local in
+      SessionCountdown.make(session: session, now: local.addingTimeInterval(offset))
+    }
+  }
+
+  /// The day's result in its ring.
+  private func ring(stats: Board.DayStats?, result: Decimal) -> some View {
+    ResultRing(fraction: stats?.winShare ?? 0, color: result < 0 ? Palette.seriesATR : Palette.accent,
+      lineWidth: Self.ringLine) {
+      VStack(spacing: Tokens.Space.xxs) {
+        CardLabel(L10n.Home.day)
+        // Counts up from zero as the ring appears and on to each new result (the board's count).
+        CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signedUSD(Decimal($0)) }
+          .font(Tokens.Typography.metric)
+          .foregroundStyle(Palette.result(result))
+          // One line at its full size; the ring grows around it.
+          .fixedSize()
+        Group {
+          if let stats {
+            Text(L10n.Common.winsLosses(stats.wins, stats.losses))
+          } else {
+            Text(verbatim: Format.missing)
+          }
+        }
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+        .multilineTextAlignment(.center)
+        // "1 в плюс · 5 в минусе" wraps in Russian, never cut.
+        .fixedSize(horizontal: false, vertical: true)
+      }
+      // Inside the ring's opening at every text size ("4 W · 7 L" ran past it).
+      .frame(minWidth: 0, maxWidth: ringSide * Self.innerShare)
+      .padding(Tokens.Space.l)
+    }
+    // Beside the facts the ring keeps its scaled side, growing only when its figures need more;
+    // stacked above them at large text sizes, it stops growing at the screen's width, so it is
+    // never cut and never widens the page.
+    .frame(minWidth: typeSize.stacksRows ? nil : ringSide, minHeight: typeSize.stacksRows ? nil : ringSide)
+    .aspectRatio(1, contentMode: .fit)
+    .frame(maxWidth: ringSide)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text(L10n.Home.dayResult(Money.signedUSD(result), stats?.wins ?? 0, stats?.losses ?? 0)))
   }
 
   private func subline(_ status: StatusV1) -> String {

@@ -1919,6 +1919,74 @@
         }
       }
     },
+    "kit.countdown.closesIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closes in"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закроется через"
+          }
+        }
+      }
+    },
+    "kit.countdown.hoursMinutes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld h %lld m"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ч %lld м"
+          }
+        }
+      }
+    },
+    "kit.countdown.minutes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld m"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld м"
+          }
+        }
+      }
+    },
+    "kit.countdown.opensIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens in"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Откроется через"
+          }
+        }
+      }
+    },
     "kit.demo.format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3922,6 +3990,57 @@
         }
       }
     },
+    "kit.gate.closed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gate closed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз закрыт"
+          }
+        }
+      }
+    },
+    "kit.gate.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gate open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз открыт"
+          }
+        }
+      }
+    },
+    "kit.gate.paused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries paused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы на паузе"
+          }
+        }
+      }
+    },
     "kit.gate.trading_disabled" : {
       "comment" : "The trading gate's cause (`Gate.code`). trading_disabled",
       "extractionState" : "manual",
@@ -4067,6 +4186,23 @@
         }
       }
     },
+    "kit.headline.noOpenPosition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open position"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиции нет"
+          }
+        }
+      }
+    },
     "kit.headline.noVerifiedStop" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4080,6 +4216,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "У позиции %@ нет подтверждённого стопа (%@). "
+          }
+        }
+      }
+    },
+    "kit.headline.protectedPositions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld open · %lld protected by a verified broker stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиций: %lld · под подтверждённым стопом брокера: %lld"
           }
         }
       }

@@ -471,23 +471,9 @@ enum L10n {
     static var beforeFees: LocalizedStringResource {
       LocalizedStringResource("overview.beforeFees", defaultValue: "before broker fees", bundle: L10n.bundle)
     }
-    static var gateOpen: LocalizedStringResource {
-      LocalizedStringResource("overview.gateOpen", defaultValue: "Gate open", bundle: L10n.bundle)
-    }
-    static var gateClosed: LocalizedStringResource {
-      LocalizedStringResource("overview.gateClosed", defaultValue: "Gate closed", bundle: L10n.bundle)
-    }
     static var recordedDetail: LocalizedStringResource {
       LocalizedStringResource("overview.recordedDetail",
         defaultValue: "Read-only view from the bot's records. Commands are off.",
-        bundle: L10n.bundle)
-    }
-    static var noOpenPosition: LocalizedStringResource {
-      LocalizedStringResource("overview.noOpenPosition", defaultValue: "No open position.", bundle: L10n.bundle)
-    }
-    static func protectedPositions(_ count: Int, _ protected: Int) -> LocalizedStringResource {
-      LocalizedStringResource("overview.protectedPositions",
-        defaultValue: "\(count) open · \(protected) protected by a verified broker stop",
         bundle: L10n.bundle)
     }
     static var dayResult: LocalizedStringResource {

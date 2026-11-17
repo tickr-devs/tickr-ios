@@ -49,6 +49,9 @@ final class AppModel {
   private(set) var jobs: JobsV1?
   /// Why the jobs could not be read, if they could not.
   private(set) var jobsError: String?
+  /// The bot day whose jobs were read for the headline's countdown (today's session); nil until
+  /// they are, so a failed read is tried again at the next status.
+  @ObservationIgnored private var jobsReadDay: WireDate?
   /// A start of the bot job is on its way to the Mac.
   private(set) var botStarting = false
   /// The bot's configuration file as on disk (GET /config), read when its page opens.
@@ -182,6 +185,7 @@ final class AppModel {
     accountError = nil
     jobs = nil
     jobsError = nil
+    jobsReadDay = nil
     config = nil
     configError = nil
     flow = nil
@@ -213,6 +217,12 @@ final class AppModel {
       return
     }
     if settings == nil { await refreshSettings(url) }
+    // Today's session for the headline's countdown: read once per bot day.
+    if jobsReadDay != today {
+      jobsReadDay = today
+      await refreshJobs()
+      if jobs == nil { jobsReadDay = nil }
+    }
   }
 
   /// Takes the bot's clock from a status served at `servedAt`. Network delay moves the offset by

@@ -156,11 +156,6 @@ private struct Header: View {
           if let status = model.status {
             EnvironmentBadge(ApiText.environment(status.environment), raw: status.environment,
               accessibilityLabel: ApiText.environmentLabel(status.environment))
-            // The gate as a word, as in the design; its cause on hover.
-            let open = status.tradingGate.open
-            Badge(open ? L10n.Overview.gateOpen : L10n.Overview.gateClosed,
-              color: open ? Palette.profitText : Palette.warningText)
-              .help(Text(verbatim: ApiText.gate(status.tradingGate)))
           }
           // The shown day's clean-day verdict from the bot's journal, as in the design.
           if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
@@ -176,8 +171,9 @@ private struct Header: View {
 
   private var banner: some View {
     let content = content
-    return HeadlineBanner(content.title, detail: content.detail, tone: content.tone,
-      pulse: model.isLive ? AnyHashable(content.pulse) : nil)
+    // The gate badge sits with the countdown beside the headline (mockup v108), live only.
+    return HeadlineBanner(content.title, detail: content.detail, tone: content.tone, alarm: content.alarm,
+      pulse: model.isLive ? AnyHashable(content.pulse) : nil, facts: model.isLive ? model.headlineFacts : nil)
       .modifier(AlarmPulse(active: content.alarm))
       .textSelection(.enabled)
   }
@@ -199,17 +195,7 @@ private struct Header: View {
         tone: .highlight, alarm: false, pulse: .text(title))
     }
     let headline = model.headline
-    var detail: String?
-    if let status = model.status, model.fetchError == nil, model.response?.stale == false {
-      let positions = Board.positions(status)
-      if positions.isEmpty {
-        detail = String(localized: L10n.Overview.noOpenPosition)
-      } else {
-        let protected = positions.filter { $0.stop.state.isProtected }.count
-        detail = String(localized: L10n.Overview.protectedPositions(positions.count, protected))
-      }
-    }
-    return Content(title: headline.text, detail: detail, tone: headline.tone,
+    return Content(title: headline.text, detail: headline.detail, tone: headline.tone,
       alarm: headline.severity == .alarm, pulse: headline.pulse)
   }
 }

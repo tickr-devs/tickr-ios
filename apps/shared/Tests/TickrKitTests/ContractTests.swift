@@ -298,8 +298,8 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
     let headline = Headline.make(response: try response("status-response-v1.json"), readFailed: false)
     #expect(headline.severity == .ok)
     #expect(headline.text == "Holding 1 position · protected by a broker stop")
-    // The boards draw this calm headline in the accent, not in profit (`Headline.tone`).
-    #expect(headline.holding)
+    // The title already says what is held and that it is protected.
+    #expect(headline.detail == nil)
   }
 
   @Test func blockNeedingTheOperatorIsAttention() throws {
@@ -308,13 +308,14 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
       .replacingOccurrences(of: "\"attention\": false", with: "\"attention\": true")
     let response = try Wire.decoder().decode(StatusResponseV1.self, from: Data(text.utf8))
     #expect(response.status?.entryBlock?.attention == true)
-    #expect(Headline.make(response: response, readFailed: false).severity == .attention)
+    let headline = Headline.make(response: response, readFailed: false)
+    #expect(headline.severity == .attention)
+    #expect(headline.detail == "1 open · 1 protected by a verified broker stop")
   }
 
   @Test func allowedIsOK() throws {
     let headline = Headline.make(response: try response("status-response-v1.minimal.json"), readFailed: false)
-    #expect(headline == Headline(text: "Entries allowed.", severity: .ok))
-    #expect(!headline.holding)
+    #expect(headline == Headline(text: "Entries allowed.", severity: .ok, detail: "No open position"))
   }
 
   @Test(arguments: ["status-response-v1.stale.json", "status-response-v1.unavailable.json"])

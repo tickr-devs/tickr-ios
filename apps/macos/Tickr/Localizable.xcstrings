@@ -6960,57 +6960,6 @@
         }
       }
     },
-    "overview.gateClosed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gate closed"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Торговля запрещена"
-          }
-        }
-      }
-    },
-    "overview.gateOpen" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gate open"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Торговля разрешена"
-          }
-        }
-      }
-    },
-    "overview.noOpenPosition" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No open position."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Открытых позиций нет."
-          }
-        }
-      }
-    },
     "overview.openResult" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7024,23 +6973,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : " · открытые %@"
-          }
-        }
-      }
-    },
-    "overview.protectedPositions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld open · %lld protected by a verified broker stop"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Позиций: %lld · под подтверждённым стопом брокера: %lld"
           }
         }
       }

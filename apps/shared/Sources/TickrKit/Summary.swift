@@ -15,9 +15,9 @@ public struct Headline: Equatable, Sendable {
   /// state. Not `text`: a stale status's text counts its age, which grows with every read of the
   /// same stale status.
   public let pulse: Pulse
-  /// The calm headline says what the bot holds: open positions, every one protected. The boards
-  /// draw it in the accent, a calm headline with nothing held in profit (`Headline.tone`).
-  public let holding: Bool
+  /// The line after the headline about a trusted status (`detail(_:)`); nil when the headline has
+  /// none (no trusted status) or already says it (held positions, all protected).
+  public let detail: String?
 
   /// The event key of `Headline.pulse`.
   public enum Pulse: Hashable, Sendable {
@@ -28,11 +28,11 @@ public struct Headline: Equatable, Sendable {
   }
 
   /// `pulse` defaults to the text.
-  public init(text: String, severity: Severity, pulse: Pulse? = nil, holding: Bool = false) {
+  public init(text: String, severity: Severity, pulse: Pulse? = nil, detail: String? = nil) {
     self.text = text
     self.severity = severity
     self.pulse = pulse ?? .text(text)
-    self.holding = holding
+    self.detail = detail
   }
 
   /// `readFailed`: the last read of /status failed; it wins over an older good response. The
@@ -53,18 +53,28 @@ public struct Headline: Equatable, Sendable {
       return Headline(
         text: String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
           + summary(response),
-        severity: .alarm)
+        severity: .alarm, detail: detail(status))
     }
     // Open positions, all protected and nothing for the operator to do: the headline says what
     // the bot holds, as on the design, not why a further entry would be refused.
     if status.entryBlock?.attention != true, !status.positions.isEmpty {
       let count = status.positions.count
       let text = count == 1 ? L10n.headlineHoldingOne : L10n.headlineHolding(count)
-      return Headline(text: String(localized: text), severity: .ok, holding: true)
+      return Headline(text: String(localized: text), severity: .ok)
     }
     // An ordinary refusal (outside the entry window) is calm; only a block that needs the operator
     // is attention.
-    return Headline(text: summary(response), severity: status.entryBlock?.attention == true ? .attention : .ok)
+    return Headline(text: summary(response), severity: status.entryBlock?.attention == true ? .attention : .ok,
+      detail: detail(status))
+  }
+
+  /// The line after the headline about a trusted status: how many positions are open and how
+  /// many a verified broker stop protects, or that none is open.
+  static func detail(_ status: StatusV1) -> String {
+    let positions = Board.positions(status)
+    guard !positions.isEmpty else { return String(localized: L10n.headlineNoOpenPosition) }
+    let protected = positions.filter { $0.stop.state.isProtected }.count
+    return String(localized: L10n.headlineProtectedPositions(positions.count, protected))
   }
 
   /// The bot's one-line summary in the person's language, built from the status as the bot builds
