@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import TickrDesign
 import TickrKit
 
 /// Which day the Activity tab shows: today, live from the status, or a recorded past day read from
@@ -34,6 +35,11 @@ final class ActivityModel {
   private(set) var skippedDay: WireDate?
   /// Why the skipped entries could not be read, if they could not.
   private(set) var skippedFailure: String?
+  /// The shown day's journal (GET /events) as lines, newest first, once read; `journalDay` is
+  /// the day they are of. Nil until read, and when the bot cannot serve it (an older bot: today
+  /// then shows what the status says).
+  private(set) var journal: [Board.Event]?
+  private(set) var journalDay: WireDate?
   /// The month the calendar shows.
   var month = DayCalendar.Month(Container.shared.appModel().today)
   /// Number of the newest load of a day; an answer to an older one is dropped.
@@ -154,6 +160,18 @@ final class ActivityModel {
     }
   }
 
+  /// Read the journal of `day`. Another day's lines are never shown under this one.
+  func loadJournal(_ url: URL, day: WireDate) async {
+    if journalDay != day {
+      journal = pastDays.parts(of: day)?.journal
+      journalDay = day
+    }
+    guard let read = try? await client(url).events(day: day), read.day == day, day == journalDay else { return }
+    let lines = Board.journal(read, price: Money.price)
+    journal = lines
+    pastDays.keep(day, today: today, empty: ActivityDayParts()) { $0.journal = lines }
+  }
+
   /// Show `day`: today goes back to the live view, any other recorded day loads its trades. With
   /// the demo day on, only the demo day (today) is shown.
   func show(_ day: WireDate, from url: URL) async {
@@ -218,6 +236,7 @@ final class ActivityModel {
 struct ActivityDayParts: Sendable {
   var day: DayV1?
   var skipped: [SkippedGroup]?
+  var journal: [Board.Event]?
 }
 
 /// Why a what-if of another version could not be shown: the bot's refusal or a failed read, as

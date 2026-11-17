@@ -82,6 +82,7 @@ public struct APIClient: Sendable {
   static let quotesPath = "/quotes"
   static let jobsPath = "/jobs"
   static let journalPath = "/journal"
+  static let eventsPath = "/events"
   static let advisorPath = "/advisor"
   static let advisorDecisionPath = "/advisor/decision"
   /// Body keys of POST /advisor/decision.
@@ -164,6 +165,12 @@ public struct APIClient: Sendable {
   public func decisions(symbol: String, day: WireDate) async throws -> DecisionsV1 {
     try await perform(request(path: Self.decisionsPath, query: [(Self.symbolQuery, symbol), (Self.dateQuery, day.text)],
       body: nil),
+      expect: Self.ok)
+  }
+
+  /// What the bot did on `day`, as events a person reads, oldest first.
+  public func events(day: WireDate) async throws -> DayEventsV1 {
+    try await perform(request(path: Self.eventsPath, query: [(Self.dateQuery, day.text)], body: nil),
       expect: Self.ok)
   }
 

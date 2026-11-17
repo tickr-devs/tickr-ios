@@ -78,7 +78,9 @@ struct ActivityView: View {
       guard let url = model.connection.url, let day = skippedKey.day else { return }
       // Today's refusals keep coming without a trade closing: read them again while today shows.
       repeat {
-        await activity.loadSkipped(url, day: day)
+        async let skippedRead: Void = activity.loadSkipped(url, day: day)
+        async let journalRead: Void = activity.loadJournal(url, day: day)
+        _ = await (skippedRead, journalRead)
         guard activity.selectedDay == nil, day == activity.today else { return }
         try? await Task.sleep(for: .seconds(ChartModel.liveReloadSeconds))
       } while !Task.isCancelled
@@ -96,7 +98,10 @@ struct ActivityView: View {
       guard let url = model.connection.url else { return }
       await activity.loadDays(url)
       if let selected = activity.selectedDay { await activity.show(selected, from: url) }
-      if let day = skippedKey.day { await activity.loadSkipped(url, day: day) }
+      if let day = skippedKey.day {
+        await activity.loadSkipped(url, day: day)
+        await activity.loadJournal(url, day: day)
+      }
     }
   }
 
@@ -207,7 +212,9 @@ struct ActivityView: View {
       case .skipped:
         NotTaken(groups: activity.skipped, failure: activity.skippedFailure)
       case .journal:
-        if let status {
+        if let lines = activity.journalDay == skippedKey.day ? activity.journal : nil {
+          Journal(events: lines)
+        } else if let status {
           Journal(events: Board.events(status))
         } else {
           ContentUnavailableView {
@@ -1171,82 +1178,22 @@ private struct CauseText: View {
 }
 
 private struct Journal: View {
-  /// Rows after this many rise in together, so a long journal does not keep animating.
-  static let staggeredRows = 10
-  /// Side of an event's dot, in points.
-  static let dotSide: CGFloat = 7
-
-  @Environment(\.dynamicTypeSize) private var typeSize
-  /// Events a new read brought while the journal was on screen: each flashes once.
-  @State private var arrived: Set<String> = []
   let events: [Board.Event]
 
   var body: some View {
-    VStack(spacing: 0) {
-      ForEach(Array(events.enumerated()), id: \.element.id) { index, event in
-        Group {
-          if typeSize.isAccessibilitySize {
-            // The time column would leave the text a few letters per line: time and tag go on
-            // top, wrapping as chips, and the text takes the whole width below.
-            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-              ChipFlow(spacing: Tokens.Space.s) {
-                HStack(spacing: Tokens.Space.s) {
-                  dot(event)
-                  time(event)
-                }
-                tag(event)
-              }
-              text(event)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-          } else {
-            HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-              time(event)
-              dot(event)
-              VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-                tag(event)
-                text(event)
-              }
-              Spacer(minLength: 0)
-            }
-          }
-        }
-        .padding(.horizontal, Tokens.Space.m)
-        .padding(.vertical, Tokens.Space.s)
-        // A genuinely new event washes its row once (the board's `flashA/B`), never a rotation.
-        .arrivalFlash(arrived.contains(event.id), color: Palette.info)
-        .rise(step: ActivityView.Order.list.rawValue + min(index, Self.staggeredRows))
-      }
+    Group {
       if events.isEmpty {
         Text(L10n.Activity.nothingYet)
           .font(.subheadline)
           .foregroundStyle(Palette.textTertiary)
-          .padding(Tokens.Space.l)
+          .frame(maxWidth: .infinity, alignment: .leading)
+      } else {
+        JournalLines(events)
       }
     }
+    .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.s)
-    .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard(radius: Tokens.Radius.card)
-    .onArrival(of: events.map(\.id)) { arrived = $0 }
-  }
-
-  private func time(_ event: Board.Event) -> some View {
-    Text(verbatim: Format.clock(event.time))
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(Palette.textQuaternary)
-  }
-
-  private func dot(_ event: Board.Event) -> some View {
-    Circle().fill(event.tone.color).frame(width: Self.dotSide, height: Self.dotSide)
-  }
-
-  private func tag(_ event: Board.Event) -> some View {
-    Text(verbatim: event.tag)
-      .font(Tokens.Typography.annotationBold)
-      .foregroundStyle(event.tone.color)
-  }
-
-  private func text(_ event: Board.Event) -> some View {
-    Text(verbatim: event.text).font(.footnote).foregroundStyle(Palette.textSecondary)
+    .rise(step: ActivityView.Order.list.rawValue)
   }
 }

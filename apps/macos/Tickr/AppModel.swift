@@ -234,6 +234,9 @@ public final class AppModel {
   public private(set) var observers: ObserversV1?
   public private(set) var observersError: String?
   /// The active strategy's ENTERs on the shown day that did not become a position; nil until read.
+  /// The shown day's journal (GET /events); nil until read and when the bot cannot serve it (an
+  /// older bot: today's card then shows what the status says).
+  public private(set) var events: DayEventsV1?
   public private(set) var skipped: SkippedV1?
   public private(set) var skippedError: String?
   /// Gross performance in R over the `performanceDays` days that end on the shown day.
@@ -814,7 +817,17 @@ public final class AppModel {
     async let watchingRead: Void = refreshWatching()
     async let symbolsRead: Void = refreshSymbols()
     async let moversRead: Void = refreshMovers()
-    _ = await (flowRead, watchingRead, symbolsRead, moversRead)
+    async let eventsRead: Void = refreshEvents()
+    _ = await (flowRead, watchingRead, symbolsRead, moversRead, eventsRead)
+  }
+
+  /// Reads the shown day's journal. A failed read clears it, so an old one never reads as current.
+  private func refreshEvents() async {
+    let day = shownDay
+    let read = try? await client.events(day: day)
+    guard day == shownDay else { return }
+    events = read?.day == day ? read : nil
+    if let read = events { keep(day) { $0.events = read } }
   }
 
   private func refreshFlowOnly() async {
@@ -913,6 +926,7 @@ public final class AppModel {
     observersError = nil
     skipped = parts.skipped
     skippedError = nil
+    events = parts.events
     performance = parts.performance
     performanceError = nil
   }
@@ -1170,5 +1184,6 @@ struct DayParts: Sendable {
   var movers: MoversV1?
   var observers: ObserversV1?
   var skipped: SkippedV1?
+  var events: DayEventsV1?
   var performance: PerformanceV1?
 }

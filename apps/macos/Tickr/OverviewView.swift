@@ -1683,50 +1683,33 @@ private struct OverviewObserverRow: View {
 
 private struct JournalCard: View {
   @Environment(AppModel.self) private var model
-  /// Events the bot added in the latest read: each flashes once as it slides in.
-  @State private var arrived: Set<Board.Event.ID> = []
 
   /// Most recent events shown here; the full journal is in Trades & days.
   static let shown = 10
-  /// A new line's flash reaches half the gaps between the cells, so the line flashes as one.
-  static let cellOutset = EdgeInsets(
-    top: Tokens.Space.xs / 2, leading: Tokens.Space.s / 2, bottom: Tokens.Space.xs / 2, trailing: Tokens.Space.s / 2)
 
   var body: some View {
-    // A console on the sunken surface, as in the design.
+    // A console on the sunken surface, as in the design; the lines are the shared journal's.
     Card(L10n.Journal.title, fill: Palette.surfaceSunken) {
       Text(L10n.Journal.latestFirst).font(Tokens.Typography.captionMono).foregroundStyle(Palette.textQuaternary)
     } content: {
-      let events = model.isLive ? (model.status.map(Board.events) ?? []) : []
+      let events = Array(lines.prefix(Self.shown))
       if events.isEmpty {
         Group {
-          if model.isLive { Text(L10n.Journal.nothingYet) } else { Text(L10n.Journal.seeTrades) }
+          if model.isLive || model.events != nil { Text(L10n.Journal.nothingYet) } else { Text(L10n.Journal.seeTrades) }
         }
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)
       } else {
-        // Time and tag in fixed columns, so the lines read down like a log.
-        Grid(alignment: .leading, horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.xs) {
-          ForEach(events.prefix(Self.shown)) { event in
-            GridRow {
-              let new = arrived.contains(event.id)
-              Text(verbatim: Format.marketTime(event.time)).foregroundStyle(Palette.textQuaternary)
-                .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
-              Text(verbatim: event.tag).fontWeight(.bold).foregroundStyle(event.tone.color)
-                .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
-              Text(verbatim: event.text).foregroundStyle(Palette.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .arrivalFlash(new, color: event.tone.color, outset: Self.cellOutset)
-            }
-            .font(Tokens.Typography.captionMono)
-            .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
-          }
-        }
-        .animation(Tokens.Motion.standard, value: events.map(\.id))
-        .onArrival(of: events.prefix(Self.shown).map(\.id)) { arrived = $0 }
-        .textSelection(.enabled)
+        JournalLines(events)
+          .textSelection(.enabled)
       }
     }
+  }
+
+  /// The shown day's journal; without it (an older bot), today's events from the status.
+  private var lines: [Board.Event] {
+    if let read = model.events { return Board.journal(read, price: Money.price) }
+    return model.isLive ? (model.status.map(Board.events) ?? []) : []
   }
 }
 
