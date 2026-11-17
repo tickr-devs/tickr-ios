@@ -178,6 +178,10 @@ struct LatestEvent: View {
 struct WatchingCard: View {
   @Environment(AppModel.self) private var model
   @Environment(\.openWatchingAll) private var openWatchingAll
+  /// Below the design's grid (MainNarrow v110) the card is as tall as its content: the closest
+  /// `CardArrangement.wideColumns` rows, across the full-width card on the two-column board and
+  /// one under another on the one-column board.
+  @Environment(\.overviewLayout) private var layout
   /// Each shown row's height as last laid out, by symbol: how many rows fit (`WatchingList.fitting`).
   @State private var rowHeights: [String: CGFloat] = [:]
   /// Height of the rows' space: the card's cell less its header and footer.
@@ -200,31 +204,16 @@ struct WatchingCard: View {
           Footnote(L10n.Watching.none)
         } else {
           let ordered = WatchingList.sorted(watching.rows, by: .closest)
-          let fit = WatchingList.fitting(ordered.map { rowHeights[$0.symbol].map { Double($0) } },
-            available: Double(rowsHeight), spacing: Double(Self.rowSpacing))
+          let fit = !layout.sized
+            ? WatchingList.fitting(ordered.map { rowHeights[$0.symbol].map { Double($0) } },
+              available: Double(rowsHeight), spacing: Double(Self.rowSpacing))
+            : CardArrangement.wideColumns
           let rows = Array(ordered.prefix(fit))
-          // The rows' space takes what the grid cell leaves under the header and over the footer;
-          // its own height never depends on how many rows it holds (at least the tallest row), so
-          // the count cannot feed back into the cell. The rows fill it from the top.
-          Color.clear
-            .frame(maxWidth: .infinity, minHeight: rowHeights.values.max() ?? 0, maxHeight: .infinity)
-            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowsHeight = $0 }
-            .overlay(alignment: .top) {
-              VStack(spacing: Self.rowSpacing) {
-                // Each row opens the Chart on its symbol.
-                // The rows rise one after another as the card shows them (a symbol the bot starts
-                // watching rises as it arrives).
-                ForEach(Array(rows.enumerated()), id: \.element.symbol) { index, row in
-                  ChartLink(row.symbol) { WatchingRow(row: row) }
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowHeights[row.symbol] = $0 }
-                    .rise(step: index)
-                }
-              }
-            }
-            .clipped()
-            .onChange(of: ordered.map(\.symbol)) { _, symbols in
-              rowHeights = rowHeights.filter { symbols.contains($0.key) }
-            }
+          if !layout.sized {
+            fittedRows(rows, ordered: ordered)
+          } else {
+            sizedRows(rows)
+          }
           // "Show all N · closest 3 of N ›": the card's footer link, last in the card, as on the
           // Controls board; without more rows, only how many of all the watched symbols it shows.
           let closest = watching.total > rows.count ? L10n.Watching.closestOf(rows.count, watching.total) : nil
@@ -242,6 +231,48 @@ struct WatchingCard: View {
     }
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
+  }
+
+  /// The design's grid: as many of the closest rows as fill the card's cell.
+  @ViewBuilder
+  private func fittedRows(_ rows: [WatchingRowV1], ordered: [WatchingRowV1]) -> some View {
+    // The rows' space takes what the grid cell leaves under the header and over the footer;
+    // its own height never depends on how many rows it holds (at least the tallest row), so
+    // the count cannot feed back into the cell. The rows fill it from the top.
+    Color.clear
+      .frame(maxWidth: .infinity, minHeight: rowHeights.values.max() ?? 0, maxHeight: .infinity)
+      .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowsHeight = $0 }
+      .overlay(alignment: .top) {
+        VStack(spacing: Self.rowSpacing) {
+          // Each row opens the Chart on its symbol.
+          // The rows rise one after another as the card shows them (a symbol the bot starts
+          // watching rises as it arrives).
+          ForEach(Array(rows.enumerated()), id: \.element.symbol) { index, row in
+            ChartLink(row.symbol) { WatchingRow(row: row) }
+              .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowHeights[row.symbol] = $0 }
+              .rise(step: index)
+          }
+        }
+      }
+      .clipped()
+      .onChange(of: ordered.map(\.symbol)) { _, symbols in
+        rowHeights = rowHeights.filter { symbols.contains($0.key) }
+      }
+  }
+
+  /// Below the design's grid: the rows as tall as they are, across or one under another.
+  @ViewBuilder
+  private func sizedRows(_ rows: [WatchingRowV1]) -> some View {
+    let links = ForEach(Array(rows.enumerated()), id: \.element.symbol) { index, row in
+      ChartLink(row.symbol) { WatchingRow(row: row) }
+        .frame(maxWidth: .infinity)
+        .rise(step: index)
+    }
+    if layout != .oneColumn {
+      HStack(alignment: .top, spacing: Self.rowSpacing) { links }
+    } else {
+      VStack(spacing: Self.rowSpacing) { links }
+    }
   }
 }
 
@@ -265,18 +296,24 @@ struct WatchingRow: View {
       Group {
         let state = WatchingCheck.state(row, prices: .money)
         if let check = row.decisiveCheck, let title = WatchingCheck.title(row) {
-          // The check's name, then where the measured value stands against what it needs. Both
-          // wrap in a narrow row, the figures first to keep their width.
-          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-            Text(verbatim: title)
-              .font(Tokens.Typography.caption)
-              .foregroundStyle(Palette.textTertiary)
-              .frame(maxWidth: .infinity, alignment: .leading)
-            Text(verbatim: state)
-              .font(Tokens.Typography.captionMono)
-              .foregroundStyle(Palette.textSecondary)
-              .multilineTextAlignment(.trailing)
-              .layoutPriority(1)
+          // The check's name, then where the measured value stands against what it needs: side
+          // by side when both fit on one line, else the figures under the name (a figure taking
+          // the line left the name one letter wide).
+          let name = Text(verbatim: title)
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(Palette.textTertiary)
+          let figures = Text(verbatim: state)
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textSecondary)
+          ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+              name.frame(maxWidth: .infinity, alignment: .leading)
+              figures
+            }
+            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+              name
+              figures
+            }
           }
           .help(Text(verbatim: check.note))
         } else {

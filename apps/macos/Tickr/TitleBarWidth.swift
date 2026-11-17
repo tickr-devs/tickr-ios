@@ -38,14 +38,33 @@ enum TitleBarWidth {
   /// between sections never changes the window's least width.
   @MainActor
   static func need(model: AppModel, chart: ChartModel) -> CGFloat {
-    let lines = AppSection.allCases.map {
-      String(localized: WindowLine.line(for: $0, model: model, chart: chart, now: model.botTime(.now)))
-    }
-    let line = lines.map { TextMeasure.width($0, font: Fonts.line) }.max() ?? 0
     let group = DayStepper.width(
       today: String(localized: L10n.Common.today),
       demoDay: String(localized: L10n.Toolbar.dayDemo(DayText.day(model.today))))
-    return need(lineWidth: line, groupWidth: group)
+    return need(lineWidth: lineWidth(code: true, model: model, chart: chart), groupWidth: group)
+  }
+
+  /// Where the toolbar's items start while the sidebar is hidden (the icon rail of a narrow
+  /// window), in points: after the window buttons and the sidebar button, about 130 points in
+  /// (see `need(lineWidth:groupWidth:)`), with a margin.
+  static let hiddenSidebarLead: CGFloat = 150
+
+  /// The window width at which the title bar holds `tier` (`TitleBarFit`) whole, its toolbar
+  /// starting `lead` points in: the line, then the connection status as text or as its dot.
+  @MainActor
+  static func need(_ tier: TitleBarFit, lead: CGFloat, model: AppModel, chart: ChartModel) -> CGFloat {
+    let status = tier.statusText ? ConnectionStatus.width : Tokens.Size.dot
+    return lead + edgeInset + item(lineWidth(code: tier.code, model: model, chart: chart)) + itemGap + item(status)
+      + edgeInset
+  }
+
+  /// Width of the longest of the five sections' lines, with or without the code version.
+  @MainActor
+  static func lineWidth(code: Bool, model: AppModel, chart: ChartModel) -> CGFloat {
+    let lines = AppSection.allCases.map {
+      String(localized: WindowLine.line(for: $0, model: model, chart: chart, now: model.botTime(.now), code: code))
+    }
+    return lines.map { TextMeasure.width($0, font: Fonts.line) }.max() ?? 0
   }
 
   /// The AppKit fonts the title bar's texts are drawn in (`Tokens.Typography` on the Mac).

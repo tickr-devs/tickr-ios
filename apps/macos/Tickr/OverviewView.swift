@@ -16,17 +16,19 @@ struct OverviewView: View {
     case header = 0, result, flow, watching, positions, safety, riskRoom, observers, fastMovers, journal
   }
 
-  /// Narrowest screen, in points, with the day's result beside the header: the mark, the name,
-  /// its badges and the result column.
-  static let headerBesideResultMinWidth: CGFloat = 1000
   /// Narrowest screen, in points, with the design's three columns of cards; below it the cards
-  /// sit in two columns.
+  /// sit in two columns (MainNarrow v110).
   static let threeColumnsMinWidth: CGFloat = 1040
   /// The design's column widths (CSS fr units): Watching closely, Positions, Safety and the bot;
   /// then Risk room, Observers, Fast movers, the journal.
   static let middleRowWeights: [CGFloat] = [1, 1.4, 1]
   static let bottomRowWeights: [CGFloat] = [1, 1, 1.2, 1.4]
-  /// Two equal columns on a narrower screen.
+  /// Width of the day's result beside the header on the two-column board, in points
+  /// (MainNarrow v110, 1024-point board: `width:250px`).
+  static let dayResultNarrowWidth: CGFloat = 250
+  /// Positions beside Safety · bot on the two-column board (MainNarrow v110, 1024-point board:
+  /// `grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)`), and two equal columns below them.
+  static let positionsSafetyWeights: [CGFloat] = [1.15, 1]
   static let twoColumnWeights: [CGFloat] = [1, 1]
   /// Least height of the design's middle row (Watching closely, Positions, Safety and the bot),
   /// in points. The row grows to its tallest card, so every safety fact and watched row is in
@@ -37,39 +39,78 @@ struct OverviewView: View {
   static let bottomRowMinHeight: CGFloat = 150
   /// Padding around the cards on each side: the screen's widths above are the grid's plus twice this.
   static let padding = Tokens.Space.l
+  /// Narrowest grid, in points, with the cards in two columns: two of the least grid column
+  /// (`Tokens.Size.gridColumnMin`) and the gap between. Narrower (a window capped to a small
+  /// display, `WindowFit`), the cards stack in one column, the Safety · bot card first after the
+  /// header and the result, so its commands are reached without a sideways scroll.
+  static let twoColumnsMinGridWidth: CGFloat = CardArrangement.columnsMinWidth(2)
+  /// The same as a screen width: the grid and its padding.
+  static let twoColumnsMinScreenWidth: CGFloat = twoColumnsMinGridWidth + padding * CardArrangement.paddedEdges
+  /// Least size of the screen, in points: one column of cards and the padding; any height, the
+  /// cards scroll. The window never scrolls the Overview sideways (`ScreenRoomFrame`).
+  static let leastSize = CGSize(
+    width: CardArrangement.columnsMinWidth(1) + padding * CardArrangement.paddedEdges, height: 0)
 
-  /// The design's grid at the widest, then two columns of cards with the result beside the
-  /// header, then the result under the header. The same cards in each: a resize moves them and
-  /// never makes them anew.
+  /// The board for a grid `width` points wide: the arrangement `arrangements` picks for it.
+  static func layout(gridWidth width: CGFloat) -> OverviewLayout {
+    if width >= threeColumnsMinWidth - padding * CardArrangement.paddedEdges { return .board }
+    if width >= headerBesideNarrowResultMinGridWidth { return .twoColumns }
+    return width >= twoColumnsMinGridWidth ? .twoColumnsResultBelow : .oneColumn
+  }
+
+  /// Narrowest two-column grid, in points, with the day's result beside the header: the result's
+  /// narrow column and its gap, beside the brand mark and the day controls (`DayControls`), the
+  /// widest part of the header that never wraps. Narrower, the result is one line under it.
+  static let headerBesideNarrowResultMinGridWidth: CGFloat = OverviewView.dayResultNarrowWidth + Tokens.Space.xl
+    + Tokens.Size.logo + Tokens.Space.l
+    + DayControls.stepperWidth(today: String(localized: L10n.Common.today))
+
+  /// The design's grid at the widest (Main); two columns with the result beside the header, then
+  /// one column with the Safety · bot card first after the header and the result (MainNarrow
+  /// v110). The same cards in each: a resize moves them and never makes them anew. Below the
+  /// design's grid every card is as tall as its content and the screen scrolls.
   static let arrangements: [CardArrangement] = [
     CardArrangement(minWidth: threeColumnsMinWidth - padding * CardArrangement.paddedEdges, rows: [
-      headerBesideResult,
+      headerBesideResult(Tokens.Size.dayResultWidth),
       single(.flow),
       weighted(middleRowWeights, [.watching, .positions, .safety], height: .atLeast(middleRowHeight)),
       weighted(bottomRowWeights, [.riskRoom, .observers, .fastMovers, .journal],
         height: .fillsRest(atLeast: bottomRowMinHeight)),
     ]),
-    CardArrangement(minWidth: headerBesideResultMinWidth - padding * CardArrangement.paddedEdges,
-      rows: [headerBesideResult] + twoColumnRows),
-    CardArrangement(minWidth: 0, rows: [single(.header), single(.result)] + twoColumnRows),
+    CardArrangement(minWidth: headerBesideNarrowResultMinGridWidth,
+      rows: [headerBesideResult(OverviewView.dayResultNarrowWidth)] + twoColumnRows),
+    CardArrangement(minWidth: twoColumnsMinGridWidth, rows: [single(.header), single(.result)] + twoColumnRows),
+    CardArrangement(minWidth: 0, rows: [
+      single(.header), single(.result), single(.safety), single(.flow), single(.positions), single(.watching),
+      single(.riskRoom), single(.observers), single(.fastMovers), single(.journal),
+    ]),
   ]
 
-  /// The day's result in its own column beside the header, each at its own height.
-  private static let headerBesideResult = CardRow(
-    columns: [
-      CardColumn(width: .share(1), cards: [Slot.header.rawValue]),
-      CardColumn(width: .fixed(Tokens.Size.dayResultWidth), cards: [Slot.result.rawValue]),
-    ],
-    linesUp: false, columnGap: Tokens.Space.xl)
-
-  /// Below the flow on a narrower screen: Positions across both columns, then the cards in pairs.
+  /// Below the header and the result on the two-column board (MainNarrow v110, 1024 points).
   private static let twoColumnRows: [CardRow] = [
     single(.flow),
-    single(.positions),
-    weighted(twoColumnWeights, [.watching, .safety], height: .atLeast(middleRowHeight)),
-    weighted(twoColumnWeights, [.riskRoom, .observers]),
-    weighted(twoColumnWeights, [.fastMovers, .journal]),
+    sized(positionsSafetyWeights, [.positions, .safety]),
+    single(.watching),
+    sized(twoColumnWeights, [.riskRoom, .observers]),
+    sized(twoColumnWeights, [.fastMovers, .journal]),
   ]
+
+  /// The day's result in its own column `width` points wide beside the header, each at its own
+  /// height.
+  private static func headerBesideResult(_ width: CGFloat) -> CardRow {
+    CardRow(
+      columns: [
+        CardColumn(width: .share(1), cards: [Slot.header.rawValue]),
+        CardColumn(width: .fixed(width), cards: [Slot.result.rawValue]),
+      ],
+      linesUp: false, columnGap: Tokens.Space.xl)
+  }
+
+  /// Cards side by side, each as tall as its own content (the two-column board's
+  /// `align-items:start`).
+  private static func sized(_ weights: [CGFloat], _ slots: [Slot]) -> CardRow {
+    CardRow(columns: zip(weights, slots).map { CardColumn(width: .share($0), cards: [$1.rawValue]) }, linesUp: false)
+  }
 
   private static func single(_ slot: Slot) -> CardRow {
     CardRow(columns: [CardColumn(width: .share(1), cards: [slot.rawValue])])
@@ -102,6 +143,10 @@ struct OverviewView: View {
             .rise(step: Order.right.rawValue)
           }
           .padding(Self.padding)
+          // The cards that change with the board (the day's result, Watching closely) read it
+          // from the same width the grid picks its arrangement from.
+          .environment(\.overviewLayout,
+            Self.layout(gridWidth: viewport.size.width - Self.padding * CardArrangement.paddedEdges))
         }
         // Also when the cards below grow: until they load, the page can be too short to bring the
         // card to the top.
@@ -125,11 +170,35 @@ struct OverviewView: View {
   }
 }
 
+/// Which of Overview's boards is shown (`OverviewView.arrangements`): the design's grid, two
+/// columns, or one column (MainNarrow v110).
+enum OverviewLayout {
+  /// The design's three columns.
+  case board
+  /// Two columns, the day's result beside the header.
+  case twoColumns
+  /// Two columns, the header too narrow for the result beside it: the result under it on one line.
+  case twoColumnsResultBelow
+  /// One column.
+  case oneColumn
+
+  /// The day's result is one line under the header.
+  var resultInline: Bool { self == .twoColumnsResultBelow || self == .oneColumn }
+  /// Below the design's grid: cards are as tall as their content.
+  var sized: Bool { self != .board }
+}
+
+extension EnvironmentValues {
+  /// Overview's board for the cards that change with it (`OverviewView.layout(gridWidth:)`).
+  @Entry var overviewLayout = OverviewLayout.board
+}
+
 // MARK: header
 
 private struct Header: View {
   @Environment(AppModel.self) private var model
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.windowFit) private var fit
 
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
@@ -146,20 +215,22 @@ private struct Header: View {
           if !model.openingPlayed { model.overviewMarkCentre = centre }
         }
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        HStack(spacing: Tokens.Space.m) {
-          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-            Text(L10n.App.name).font(Tokens.Typography.title).foregroundStyle(Palette.infoText)
-            Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textPrimary)
-          }
-          // The product name never wraps ("Tickr Operat / or" in a narrow window): badges give way first.
-          .fixedSize()
-          if let status = model.status {
-            EnvironmentBadge(ApiText.environment(status.environment), raw: status.environment,
-              accessibilityLabel: ApiText.environmentLabel(status.environment))
-          }
-          // The shown day's clean-day verdict from the bot's journal, as in the design.
-          if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
-            CleanBadge(clean: clean)
+        if fit.titleBar.stepper {
+          titleRow
+        } else {
+          // The day controls left the title bar (a window narrower than its comfortable width):
+          // beside the name and its badges when they fit, else on their own line, right-aligned
+          // (MainNarrow v110).
+          ViewThatFits(in: .horizontal) {
+            HStack(spacing: Tokens.Space.m) {
+              titleRow
+              Spacer(minLength: Tokens.Space.m)
+              DayControls()
+            }
+            VStack(alignment: .trailing, spacing: Tokens.Space.s) {
+              titleRow.frame(maxWidth: .infinity, alignment: .leading)
+              DayControls()
+            }
           }
         }
         banner
@@ -167,6 +238,27 @@ private struct Header: View {
       Spacer(minLength: 0)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  /// "Tickr Operator", the environment badge and the shown day's clean-day verdict.
+  private var titleRow: some View {
+    // The badges go onto a second line rather than run past a narrow header (MainNarrow v110).
+    WrapRow(spacing: Tokens.Space.m, lineSpacing: Tokens.Space.s) {
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+        Text(L10n.App.name).font(Tokens.Typography.title).foregroundStyle(Palette.infoText)
+        Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textPrimary)
+      }
+      // The product name never wraps ("Tickr Operat / or" in a narrow window): badges move first.
+      .fixedSize()
+      if let status = model.status {
+        EnvironmentBadge(ApiText.environment(status.environment), raw: status.environment,
+          accessibilityLabel: ApiText.environmentLabel(status.environment))
+      }
+      // The shown day's clean-day verdict from the bot's journal, as in the design.
+      if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
+        CleanBadge(clean: clean)
+      }
+    }
   }
 
   private var banner: some View {
@@ -217,9 +309,11 @@ struct AlarmPulse: ViewModifier {
 }
 
 /// The day's result beside the header, right-aligned and large, as the design sets it apart
-/// from the cards.
+/// from the cards; on the one-column board one line under the header that wraps rather than cuts
+/// (MainNarrow v110, 640-point board).
 private struct DayResult: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.overviewLayout) private var layout
   @State private var counted: Decimal = 0
 
   /// Size of the result's sparkline, in points, as the design draws it.
@@ -227,24 +321,46 @@ private struct DayResult: View {
   static let sparklineHeight: CGFloat = 26
 
   var body: some View {
-    VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
-      CardLabel(L10n.Overview.dayResult)
-      MoneyText(value: counted, font: Tokens.Typography.display)
-      Text(verbatim: subtitle).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
-      if model.shownResultBeforeFees {
-        // Wraps rather than cuts, in either language.
-        Text(L10n.Overview.beforeFees)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.warningText)
-          .multilineTextAlignment(.trailing)
-          .fixedSize(horizontal: false, vertical: true)
+    Group {
+      if layout.resultInline {
+        WrapRow(spacing: Tokens.Space.m) {
+          CardLabel(L10n.Overview.dayResult)
+          MoneyText(value: counted, font: Tokens.Typography.display)
+          Text(verbatim: subtitle).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
+          if model.shownResultBeforeFees { beforeFees }
+          sparkline
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      } else {
+        VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
+          CardLabel(L10n.Overview.dayResult)
+          MoneyText(value: counted, font: Tokens.Typography.display)
+          Text(verbatim: subtitle).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
+            .multilineTextAlignment(.trailing)
+          if model.shownResultBeforeFees {
+            // Wraps rather than cuts, in either language.
+            beforeFees
+              .multilineTextAlignment(.trailing)
+              .fixedSize(horizontal: false, vertical: true)
+          }
+          sparkline
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
       }
-      DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
-        .frame(width: Self.sparklineWidth, height: Self.sparklineHeight)
     }
-    .frame(maxWidth: .infinity, alignment: .trailing)
     .onAppear { countUp() }
     .onChange(of: model.shownResult) { countUp() }
+  }
+
+  private var beforeFees: some View {
+    Text(L10n.Overview.beforeFees)
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.warningText)
+  }
+
+  private var sparkline: some View {
+    DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
+      .frame(width: Self.sparklineWidth, height: Self.sparklineHeight)
   }
 
   private var subtitle: String {
@@ -460,23 +576,19 @@ private struct Pipeline: View {
   static let stageGlowHovered: CGFloat = 16
 
   var body: some View {
-    ZStack(alignment: .top) {
-      GeometryReader { proxy in
-        let inset = proxy.size.width / CGFloat(stages.count) / 2
-        // The track runs from the centre of the first stage to the centre of the last.
-        let width = proxy.size.width - proxy.size.width / CGFloat(stages.count)
-        Capsule().fill(Palette.separatorStrong)
-          .frame(width: width, height: Tokens.Stroke.bold)
-          .offset(x: inset, y: (Tokens.Size.stage - Tokens.Stroke.bold) / 2)
+    // One row of stages while each keeps its ring and its longest word whole; else rows of five
+    // and four (MainNarrow v110), so a name breaks only between its words. The track runs from
+    // the centre of the first row's first ring to its last one's.
+    StageRows(leastCellWidth: StageRows.leastCellWidth(names: stages.map { String(localized: $0.name) },
+      values: stages.compactMap(\.value)),
+      trackHeight: Tokens.Stroke.bold, trackY: Tokens.Size.stage / 2 + Tokens.Space.xs) {
+      Capsule().fill(Palette.separatorStrong)
+      ForEach(stages) { stage in
+        column(stage)
       }
-      HStack(alignment: .top, spacing: 0) {
-        ForEach(stages) { stage in
-          column(stage)
-        }
-      }
-      // A dot's flight is the change of its mark between two reads, never a loop.
-      .animation(reduceMotion ? nil : Tokens.Motion.standard, value: marks)
     }
+    // A dot's flight is the change of its mark between two reads, never a loop.
+    .animation(reduceMotion ? nil : Tokens.Motion.standard, value: marks)
   }
 
   /// A stage as a button: hovering highlights it, a click opens its symbols (or reconcile's detail).
@@ -603,7 +715,8 @@ private struct Pipeline: View {
       RoundedRectangle(cornerRadius: Tokens.Radius.small)
         .strokeBorder(color, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
     }
-    .fixedSize()
+    // Wraps inside its stage's cell rather than run under the next stage's value.
+    .fixedSize(horizontal: false, vertical: true)
     .hint(verbatim: out.map { [$0.id, $0.note].compactMap { $0 }.joined(separator: Format.itemSeparator) }
       .joined(separator: Format.lineSeparator))
     .accessibilityElement(children: .combine)
@@ -759,48 +872,64 @@ private struct PositionDetail: View {
   static let figuresWidth: CGFloat = 200
 
   var body: some View {
-    HStack(alignment: .top, spacing: Tokens.Space.l) {
-      // The price line opens the Chart on the position, as its "Open chart" does.
-      ChartLink(row.position.symbol) {
-        MiniChart(closes: row.closes, entry: row.entry, stop: row.stop)
-          .frame(minWidth: Self.chartMinWidth, minHeight: Self.chartMinHeight)
+    // The chart beside the figures; above them in a card too narrow for both (the two-column
+    // Overview, MainNarrow v110), so no figure runs under the next card.
+    ViewThatFits(in: .horizontal) {
+      HStack(alignment: .top, spacing: Tokens.Space.l) {
+        chart
+        // A long figure ("Once · acknowledged") wraps inside the column the design gives it.
+        facts.frame(width: Self.figuresWidth)
       }
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        HStack(spacing: Tokens.Space.s) {
-          StopGlyph(state: row.position.stop.state, symbol: row.position.symbol, price: row.position.stop.price,
-            style: .tile)
-          Text(verbatim: row.position.symbol).font(Tokens.Typography.metric)
-          Spacer()
-          if let value = row.unrealized {
-            DeltaTag(value, text: Money.signedUSD(value), large: true)
-              .hint(L10n.Position.unrealized)
-          } else {
-            Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
-          }
-        }
-        Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
-          GridRow {
-            IconMetric(Self.entrySymbol, label: L10n.Position.entry, value: Format.price(row.entry), tone: .info)
-            IconMetric(StopState.levelSymbol, label: L10n.Position.stop, value: Format.price(row.stop),
-              tone: row.position.stop.state.tone)
-          }
-          GridRow {
-            IconMetric(Self.quantitySymbol, label: L10n.Position.quantity, value: Format.quantity(row.quantity))
-            IconMetric(Self.openedSymbol, label: L10n.Position.opened,
-              value: Format.marketMinute(row.position.openedAt.date))
-          }
-        }
-        if let range = stopToLast {
-          MeterBar(fraction: range.fraction, tone: range.tone, marks: [
-            MeterMark(Format.price(row.stop), tone: .loss),
-            MeterMark(Format.price(row.lastBarClose)),
-          ])
-          .hint(L10n.Position.chartLabel)
-        }
-        figures
+      VStack(alignment: .leading, spacing: Tokens.Space.l) {
+        chart
+        facts
       }
-      // A long figure ("Once · acknowledged") wraps inside the column the design gives it.
-      .frame(width: Self.figuresWidth)
+    }
+  }
+
+  /// The price line; it opens the Chart on the position, as its "Open chart" does.
+  private var chart: some View {
+    ChartLink(row.position.symbol) {
+      MiniChart(closes: row.closes, entry: row.entry, stop: row.stop)
+        .frame(minWidth: Self.chartMinWidth, minHeight: Self.chartMinHeight)
+    }
+  }
+
+  /// The symbol, its result, the entry, stop, size and time, and the stop's distance.
+  private var facts: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      HStack(spacing: Tokens.Space.s) {
+        StopGlyph(state: row.position.stop.state, symbol: row.position.symbol, price: row.position.stop.price,
+          style: .tile)
+        Text(verbatim: row.position.symbol).font(Tokens.Typography.metric)
+        Spacer()
+        if let value = row.unrealized {
+          DeltaTag(value, text: Money.signedUSD(value), large: true)
+            .hint(L10n.Position.unrealized)
+        } else {
+          Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+        }
+      }
+      Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
+        GridRow {
+          IconMetric(Self.entrySymbol, label: L10n.Position.entry, value: Format.price(row.entry), tone: .info)
+          IconMetric(StopState.levelSymbol, label: L10n.Position.stop, value: Format.price(row.stop),
+            tone: row.position.stop.state.tone)
+        }
+        GridRow {
+          IconMetric(Self.quantitySymbol, label: L10n.Position.quantity, value: Format.quantity(row.quantity))
+          IconMetric(Self.openedSymbol, label: L10n.Position.opened,
+            value: Format.marketMinute(row.position.openedAt.date))
+        }
+      }
+      if let range = stopToLast {
+        MeterBar(fraction: range.fraction, tone: range.tone, marks: [
+          MeterMark(Format.price(row.stop), tone: .loss),
+          MeterMark(Format.price(row.lastBarClose)),
+        ])
+        .hint(L10n.Position.chartLabel)
+      }
+      figures
     }
   }
 

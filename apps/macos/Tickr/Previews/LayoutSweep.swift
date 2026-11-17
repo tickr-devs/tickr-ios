@@ -63,6 +63,20 @@ enum LayoutSweep {
   static var safetyFirst: Bool { ProcessInfo.processInfo.environment[safetyFirstKey] != nil }
   /// Seconds between looks for the main window while it opens.
   static let windowPollSeconds = 0.1
+  /// Environment variable that makes the app take its display's visible area as at most this
+  /// many points, `<width>x<height>` (for example `1024x768`): the UI tests of a small display
+  /// (OverviewCommandsUITests), which never change the Mac's own display settings. The window's
+  /// least size is capped to it and the window moved into it as on such a display (`WindowFit`).
+  static let screenKey = "TICKR_SCREEN"
+  /// Parts of a `<width>x<height>` size.
+  static let sizeParts = 2
+  /// The display size `screenKey` pretends, nil when it is not set or not `<width>x<height>`.
+  static var pretendedScreen: CGSize? {
+    guard let text = ProcessInfo.processInfo.environment[screenKey] else { return nil }
+    let parts = text.split(separator: Character(times)).compactMap { Double($0) }
+    guard parts.count == sizeParts, let width = parts.first, let height = parts.last else { return nil }
+    return CGSize(width: width, height: height)
+  }
 
   /// Sets the main window to the app's least size when the app was launched with `smallestKey`,
   /// once the status is read (the least width holds the title bar's line, which shows it).
@@ -78,9 +92,12 @@ enum LayoutSweep {
     }
   }
 
-  /// The main window's least size for the data shown now (`TickrMacApp.leastWidth`).
+  /// The main window's least size for the data shown now (`TickrMacApp.leastWidth`), capped to
+  /// the room its screen leaves it (`WindowFit`), as the window itself takes it.
   static func least(_ model: AppModel) -> CGSize {
-    CGSize(width: TickrMacApp.leastWidth(model: model, chart: Container.shared.chartModel()), height: TickrMacApp.minHeight)
+    let comfortable = CGSize(
+      width: TickrMacApp.leastWidth(model: model, chart: Container.shared.chartModel()), height: TickrMacApp.minHeight)
+    return WindowFit.least(comfortable: comfortable, room: mainWindow().flatMap(WindowFit.room(of:)))
   }
 
   /// Starts the sweep when the app was launched with `sweepKey` set.

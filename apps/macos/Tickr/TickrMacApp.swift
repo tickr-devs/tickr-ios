@@ -29,13 +29,15 @@ struct TickrMacApp: App {
   /// table). Derived, not set: a set 1000 cut the trades table at the card's edge.
   static let screensMinWidth: CGFloat = RootView.sidebarMax + RootView.screenMinWidth
 
-  /// Least width of the main window, in points: the screens' need or the title bar's
-  /// (`TitleBarWidth`), whichever is wider, so neither a card nor the title bar's line is cut.
+  /// Comfortable least width of the main window, in points: the screens' need or the title bar's
+  /// (`TitleBarWidth`), whichever is wider, so neither a card nor the title bar's line is cut. On
+  /// a display narrower than this the window's least width is the display's (`WindowFit`).
   static func leastWidth(model: AppModel, chart: ChartModel) -> CGFloat {
     max(screensMinWidth, TitleBarWidth.need(model: model, chart: chart))
   }
 
-  /// Least height of the main window's content (under the title bar), in points: the event strip
+  /// Comfortable least height of the main window's content (under the title bar), capped to the
+  /// display like the width (`WindowFit`), in points: the event strip
   /// above every screen but the Overview and the tallest least screen (`RootView.screenMinHeight`,
   /// the Chart with every study pane), so no card is cut or scrolls inside.
   static let minHeight: CGFloat = EventStrip.height + RootView.screenMinHeight
@@ -194,6 +196,7 @@ private struct OpeningOverlay: View {
 /// The main window's content at its least size or larger.
 ///
 /// The least size comes from data and constants only (`TickrMacApp.leastWidth`, `minHeight`),
+/// capped to the room the window's screen leaves it (`WindowFit`, owner decision 2026-11-16), and
 /// never from the screens' layout, so a screen that changes its layout while the window is
 /// resized (a card arrangement picked by width, a chart's panes) can never move the window's
 /// minimum and start AppKit's "Update Constraints in Window" loop. Screens fit themselves into
@@ -202,10 +205,15 @@ private struct OpeningOverlay: View {
 private struct MainWindow: View {
   let model: AppModel
   let chart: ChartModel
+  /// The room the window's screen leaves its content (`ScreenRoomReader`); nil until the window
+  /// is on a screen.
+  @State private var room: CGSize?
 
   var body: some View {
-    WindowFrame(minSize: CGSize(width: TickrMacApp.leastWidth(model: model, chart: chart), height: TickrMacApp.minHeight)) {
+    let comfortable = CGSize(width: TickrMacApp.leastWidth(model: model, chart: chart), height: TickrMacApp.minHeight)
+    WindowFrame(minSize: WindowFit.least(comfortable: comfortable, room: room)) {
       RootView()
+        .background(ScreenRoomReader { if room != $0 { room = $0 } })
         .overlay { OpeningOverlay() }
         .readFailureContext(model)
         .environment(model)

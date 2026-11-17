@@ -44,12 +44,16 @@ enum AppSection: String, CaseIterable, Identifiable {
 struct RootView: View {
   @Environment(AppModel.self) private var model
   @Environment(AdvisorModel.self) private var advisor
+  @Environment(ChartModel.self) private var chart
 
   /// Sidebar width: least, preferred and most, in points. The design's sidebar is 237 wide: a
   /// 212-point column of rows, 12 points of padding on each side and its hairline.
   static let sidebarMin: CGFloat = 200
   static let sidebarIdeal: CGFloat = 237
   static let sidebarMax: CGFloat = 260
+  /// Width of the sidebar as an icon rail in a narrow window (`WindowWidthFit.rail`), in points
+  /// (MainNarrow v110, 640-point board: `width:56px`).
+  static let railWidth: CGFloat = 56
   /// Least size of a screen, in points. The width is the widest any screen needs at its narrowest,
   /// Trades & days' table with every column whole (`TradesView.leastScreenWidth`); the others,
   /// the Chart with its rail open included, need less. With the sidebar at its widest it makes the
@@ -65,81 +69,127 @@ struct RootView: View {
   /// Whether the sidebar shows: the title bar's sidebar button and View > Hide Sidebar (⌃⌘S)
   /// switch it.
   @State private var columns = NavigationSplitViewVisibility.all
+  /// The window's width as last laid out (nil before the first layout), for its narrow-width fit
+  /// (`WindowWidthFit`): what the title bar holds and whether the sidebar is an icon rail.
+  @State private var windowWidth: CGFloat?
+  /// In a window narrow enough for the icon rail, the sidebar button shows the full sidebar
+  /// instead, until it is pressed again.
+  @State private var railExpanded = false
 
   private var section: AppSection { model.section }
 
+  private var fit: WindowWidthFit { WindowWidthFit.make(width: windowWidth, model: model, chart: chart) }
+
+  /// In a window narrow enough for the icon rail, what the sidebar button switches: the full
+  /// sidebar in place of the rail.
+  private var railToggle: Binding<NavigationSplitViewVisibility> {
+    Binding { railExpanded ? .all : .detailOnly } set: { railExpanded = $0 != .detailOnly }
+  }
+
   var body: some View {
     @Bindable var model = model
-    NavigationSplitView(columnVisibility: $columns) {
-      Sidebar(selection: $model.section)
-        // The design's own sidebar button right after the window buttons replaces the system's.
-        .toolbar(removing: .sidebarToggle)
-        .toolbar {
-          ToolbarItem(placement: .automatic) { SidebarButton(columns: $columns) }
-            .sharedBackgroundVisibility(.hidden)
-          ToolbarSpacer(.flexible)
+    let fit = fit
+    // The window's own size, whatever the view inside asks for: a view made anew when the rail
+    // comes or goes first lays out at a size of its own.
+    WindowFrame(minSize: .zero) {
+      if fit.rail {
+        // No split view in the rail's window: a split view collapses and expands its sidebar by
+        // the width itself, which fought the rail for good (UI test at 640 points, 2026-11-17).
+        HStack(spacing: 0) {
+          if railExpanded {
+            Sidebar(selection: $model.section).frame(width: Self.sidebarIdeal)
+          } else {
+            SidebarRail(selection: $model.section)
+          }
+          screen
         }
-        .navigationSplitViewColumnWidth(min: Self.sidebarMin, ideal: Self.sidebarIdeal, max: Self.sidebarMax)
-    } detail: {
-      ZStack(alignment: .bottom) {
-        TickrBackground()
-        // The strip stacked above the screen rather than a top safe-area inset whose content
-        // comes and goes, which made the screen's safe area change during layout.
-        VStack(spacing: 0) {
-          if section != .overview { EventStrip() }
-          // The link to the bot, said once above every section: the section keeps its last
-          // known data under it.
-          ConnectionBanner()
-          detail
-            // One container element per screen.
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier(section.screenID)
-            // A new section replaces the screen at once, as a sidebar does in Apple's apps; the
-            // screen's own cards then rise in. Sliding whole screens in and out kept two of them
-            // (one maybe the chart) laid out and animating together, and stuttered.
-            .id(section)
-            // A fixed least size for every screen, its content cut at it: a screen whose least
-            // size followed its content (a row of controls wider than the column, a layout
-            // that switches with the width) asked for more than the window beside the sidebar
-            // and the inspector, the split view shifted it inside its layout pass, and on
-            // macOS 27 AppKit threw ("needs another Update Constraints in Window pass").
-            .frame(minWidth: Self.screenMinWidth, maxWidth: .infinity, minHeight: Self.screenMinHeight,
-              maxHeight: .infinity, alignment: .topLeading)
-            .clipped()
-            .lastKnown(model.connectionState.isLastKnown)
-        }
-        if let unattended = model.unattendedPositions {
-          UnattendedBanner(unattended: unattended)
-            .padding(Tokens.Space.l)
-            .frame(maxHeight: .infinity, alignment: .top)
-            .transition(.move(edge: .top).combined(with: .opacity))
-        }
-        if let toast = model.toast {
-          CommandToast(command: toast)
-            .padding(.bottom, Tokens.Space.xl)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
+        .modifier(WindowChrome(fit: fit, section: section, sidebarButton: railToggle))
+      } else {
+        NavigationSplitView(columnVisibility: $columns) {
+          Sidebar(selection: $model.section)
+            // The design's own sidebar button right after the window buttons replaces the system's.
+            .toolbar(removing: .sidebarToggle)
+            .toolbar {
+              ToolbarItem(placement: .automatic) { SidebarButton(columns: $columns) }
+                .sharedBackgroundVisibility(.hidden)
+              ToolbarSpacer(.flexible)
+            }
+            .navigationSplitViewColumnWidth(min: Self.sidebarMin, ideal: Self.sidebarIdeal, max: Self.sidebarMax)
+        } detail: {
+          screen.modifier(WindowChrome(fit: fit, section: section, sidebarButton: nil))
         }
       }
-      // The title bar's hairline over the screen (the sidebar draws its own).
-      .overlay(alignment: .top) { Hairline(axis: .horizontal) }
-      .animation(Tokens.Motion.standard, value: model.toast)
-      .animation(Tokens.Motion.standard, value: model.unattendedPositions)
-      .animation(Tokens.Motion.standard, value: model.connectionState)
-      // Hints of the screen, the banner and the toast, drawn above all of them.
-      .hintHost()
-      // The window keeps the section's name (Window menu, Mission Control); the title bar shows
-      // the design's one centred line instead.
-      .navigationTitle(Text(section.title))
-      .toolbar(removing: .title)
-      .toolbar { WindowToolbar() }
-      .toolbarBackground(Palette.titleBar, for: .windowToolbar)
-      .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
+    }
+    // The window's width, for its narrow-width fit; only a crossing of a threshold changes what
+    // is drawn, and no fit changes the window's least size. A width under any real window's
+    // (`WindowWidthFit.leastMeasured`) is the window's first layout passes.
+    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+      if width >= WindowWidthFit.leastMeasured { windowWidth = width }
     }
     // The advisor's runs for the Overview's advisor row and the Lab, read again now and then.
     .task(id: model.baseURL) { await advisor.follow(model.baseURL) }
     // The window's bot command questions (Overview's Safety card), on the view that lives as long
     // as the window: never on the card, which a layout change or a section switch rebuilds.
     .botCommandQuestions(in: .window)
+  }
+
+  /// The shown screen under the event strip and the connection banner, with the unattended
+  /// banner and the command toast over it.
+  private var screen: some View {
+    ZStack(alignment: .bottom) {
+      TickrBackground()
+      // The strip stacked above the screen rather than a top safe-area inset whose content
+      // comes and goes, which made the screen's safe area change during layout.
+      VStack(spacing: 0) {
+        if section != .overview { EventStrip() }
+        // The link to the bot, said once above every section: the section keeps its last
+        // known data under it.
+        ConnectionBanner()
+        detail
+          // One container element per screen.
+          .accessibilityElement(children: .contain)
+          .accessibilityIdentifier(section.screenID)
+          // A new section replaces the screen at once, as a sidebar does in Apple's apps; the
+          // screen's own cards then rise in. Sliding whole screens in and out kept two of them
+          // (one maybe the chart) laid out and animating together, and stuttered.
+          .id(section)
+          // A fixed least size for every screen, scrolled to when the window leaves less (a
+          // window capped to a small display, `WindowFit`): a screen whose least size
+          // followed its content (a row of controls wider than the column, a layout that
+          // switches with the width) asked for more than the window beside the sidebar and
+          // the inspector, the split view shifted it inside its layout pass, and on macOS 27
+          // AppKit threw ("needs another Update Constraints in Window pass"). The room asks
+          // for nothing; the least size is a constant of the section.
+          .modifier(ScreenRoomFrame(least: screenLeast))
+          .lastKnown(model.connectionState.isLastKnown)
+      }
+      if let unattended = model.unattendedPositions {
+        UnattendedBanner(unattended: unattended)
+          .padding(Tokens.Space.l)
+          .frame(maxHeight: .infinity, alignment: .top)
+          .transition(.move(edge: .top).combined(with: .opacity))
+      }
+      if let toast = model.toast {
+        CommandToast(command: toast)
+          .padding(.bottom, Tokens.Space.xl)
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+      }
+    }
+    // The title bar's hairline over the screen (the sidebar draws its own).
+    .overlay(alignment: .top) { Hairline(axis: .horizontal) }
+    .animation(Tokens.Motion.standard, value: model.toast)
+    .animation(Tokens.Motion.standard, value: model.unattendedPositions)
+    .animation(Tokens.Motion.standard, value: model.connectionState)
+    // Hints of the screen, the banner and the toast, drawn above all of them.
+    .hintHost()
+  }
+
+  /// Least size of the shown screen, in points: Overview stacks its cards down to one column
+  /// (`OverviewView.leastSize`); every other screen, the Symbols screen in Overview's place
+  /// included, needs the screens' least size (`screenMinWidth`, `screenMinHeight`).
+  private var screenLeast: CGSize {
+    if section == .overview && model.symbolsTab == nil { return OverviewView.leastSize }
+    return CGSize(width: Self.screenMinWidth, height: Self.screenMinHeight)
   }
 
   @ViewBuilder private var detail: some View {
@@ -222,6 +272,54 @@ private struct Sidebar: View {
   private func badge(for item: AppSection) -> Int? {
     guard item == .trades, model.shownTradeCount > 0 else { return nil }
     return model.shownTradeCount
+  }
+}
+
+/// The sidebar as an icon rail in a narrow window (MainNarrow v110, 640-point board): each
+/// section's line icon, the selected one on the sidebar's tint, its name in the tooltip and for
+/// VoiceOver, and the bot's state as a dot at the bottom. The rows keep the sidebar's
+/// accessibility ids, so the UI tests find them in either form.
+private struct SidebarRail: View {
+  @Environment(AppModel.self) private var model
+  @Binding var selection: AppSection
+
+  /// Side of a section's square button, in points: the rail less its padding.
+  static let button: CGFloat = RootView.railWidth - Tokens.Space.m * CardArrangement.paddedEdges
+
+  var body: some View {
+    VStack(spacing: Tokens.Space.xs) {
+      ForEach(AppSection.allCases) { item in
+        Button { selection = item } label: {
+          ShellIcon(kind: item.glyph, size: Tokens.Size.rowSymbol)
+            .foregroundStyle(selection == item ? Palette.textPrimary : Palette.textTertiary)
+            .frame(width: Self.button, height: Self.button)
+            .background {
+              if selection == item {
+                let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                shape.fill(Palette.selection)
+                  .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+              }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(Text(item.title))
+        .accessibilityLabel(Text(item.title))
+        .accessibilityIdentifier(item.rowID)
+        .accessibilityAddTraits(selection == item ? .isSelected : [])
+      }
+      Spacer(minLength: 0)
+      PulseDot(BotStateCard.color(model), pulsing: model.isLive, event: model.status?.botState)
+        .help(Text(verbatim: BotStateCard.stateText(model)))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: BotStateCard.stateText(model)))
+    }
+    .padding(.vertical, Tokens.Space.l)
+    .frame(width: RootView.railWidth)
+    .frame(maxHeight: .infinity, alignment: .top)
+    .background(Palette.sidebar)
+    .overlay(alignment: .top) { Hairline(axis: .horizontal) }
+    .overlay(alignment: .trailing) { Hairline(axis: .vertical) }
   }
 }
 
@@ -334,7 +432,11 @@ private struct BotStateCard: View {
     return Duration.seconds(seconds).formatted(.time(pattern: .hourMinuteSecond(padHourToLength: Self.hourDigits)))
   }
 
-  private var stateText: String {
+  private var stateText: String { Self.stateText(model) }
+  private var color: Color { Self.color(model) }
+
+  /// The bot's state in words, as the card and the icon rail's dot say it.
+  static func stateText(_ model: AppModel) -> String {
     if model.fetchError != nil { return String(localized: L10n.Root.apiUnreachable) }
     guard let response = model.response else { return String(localized: L10n.Root.connecting) }
     guard let status = response.status else { return String(localized: L10n.Common.unavailable) }
@@ -342,7 +444,8 @@ private struct BotStateCard: View {
     return status.entryStop ? String(localized: L10n.Root.statePaused(status.botState.title)) : status.botState.title
   }
 
-  private var color: Color {
+  /// The colour of the bot's state dot.
+  static func color(_ model: AppModel) -> Color {
     guard let response = model.response, let status = response.status, !response.stale,
       model.fetchError == nil else { return Palette.loss }
     switch status.botState {
@@ -359,15 +462,45 @@ private struct BotStateCard: View {
 /// trailing edge the connection status, the day stepper ‹ day › and Today, a flexible space
 /// between them. The window is never narrower than both whole (`TitleBarWidth`), so neither is
 /// cut nor moved into the toolbar's overflow menu.
+/// The window's title and title bar around the shown screen: the section's name for the Window
+/// menu, the design's line and status in the title bar (`WindowToolbar`), and in the rail's window,
+/// where no split view holds it, the sidebar button.
+private struct WindowChrome: ViewModifier {
+  let fit: WindowWidthFit
+  let section: AppSection
+  let sidebarButton: Binding<NavigationSplitViewVisibility>?
+
+  func body(content: Content) -> some View {
+    content
+      .environment(\.windowFit, fit)
+      // The window keeps the section's name (Window menu, Mission Control); the title bar shows
+      // the design's one centred line instead.
+      .navigationTitle(Text(section.title))
+      .toolbar(removing: .title)
+      .toolbar { WindowToolbar(fit: fit.titleBar, sidebarButton: sidebarButton) }
+      .toolbarBackground(Palette.titleBar, for: .windowToolbar)
+      .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
+  }
+}
+
 private struct WindowToolbar: ToolbarContent {
+  /// What the title bar holds in a window narrower than its comfortable width (`TitleBarFit`).
+  let fit: TitleBarFit
+  /// The sidebar button, in the rail's window (elsewhere the sidebar column holds it).
+  var sidebarButton: Binding<NavigationSplitViewVisibility>?
+
   var body: some ToolbarContent {
+    if let sidebarButton {
+      ToolbarItem(placement: .navigation) { SidebarButton(columns: sidebarButton) }
+        .sharedBackgroundVisibility(.hidden)
+    }
     ToolbarItem(placement: .navigation) {
-      WindowLine()
+      WindowLine(code: fit.code)
     }
     .sharedBackgroundVisibility(.hidden)
     ToolbarSpacer(.flexible)
     ToolbarItem(placement: .primaryAction) {
-      DayStepper()
+      DayStepper(fit: fit)
     }
     .sharedBackgroundVisibility(.hidden)
   }
@@ -416,6 +549,8 @@ struct SidebarButton: View {
 struct WindowLine: View {
   @Environment(AppModel.self) private var model
   @Environment(ChartModel.self) private var chart
+  /// The line names the bot's code version; without it in a narrow window (`TitleBarFit.code`).
+  var code = true
 
   var body: some View {
     Group {
@@ -433,14 +568,16 @@ struct WindowLine: View {
   }
 
   private func line(now: Date?) -> LocalizedStringResource {
-    Self.line(for: model.section, model: model, chart: chart, now: now)
+    Self.line(for: model.section, model: model, chart: chart, now: now, code: code)
   }
 
-  /// The line `section`'s screen shows; `now` is the market clock of Risk & account.
-  static func line(for section: AppSection, model: AppModel, chart: ChartModel, now: Date?) -> LocalizedStringResource {
+  /// The line `section`'s screen shows; `now` is the market clock of Risk & account; `code`
+  /// names the bot's code version after the strategy.
+  static func line(for section: AppSection, model: AppModel, chart: ChartModel, now: Date?, code: Bool = true)
+    -> LocalizedStringResource {
     guard let status = model.status else { return L10n.Toolbar.windowLineEmpty }
     let environment = ApiText.environment(status.environment).localizedLowercase
-    let strategy = Format.strategy(status)
+    let strategy = code ? Format.strategy(status) : Format.strategy(status.strategy)
     let sectionTitle = String(localized: section.title).localizedLowercase
     switch section {
     case .overview:
@@ -468,12 +605,36 @@ struct WindowLine: View {
 }
 
 /// The right side of the title bar: the connection status, then ‹ day › with a menu of recorded
-/// days, and Today.
+/// days, and Today (`DayControls`). In a window narrower than the title bar's comfortable width
+/// the day controls sit in Overview's header instead, and in the narrowest the status is its dot
+/// alone (`TitleBarFit`).
 struct DayStepper: View {
-  @Environment(AppModel.self) private var model
+  /// What the title bar holds (`TitleBarFit`).
+  var fit = TitleBarFit.whole
 
   /// Gap between the connection status and the stepper, in points (added to the items' gap).
   static let connectionGap: CGFloat = 10
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.s) {
+      ConnectionStatus(compact: !fit.statusText)
+        .padding(.trailing, fit.stepper ? Self.connectionGap : 0)
+      if fit.stepper { DayControls() }
+    }
+  }
+
+  /// The group's width, in points, with the day controls at the widest of their three forms
+  /// (`DayControls.width`). Used for the window's least width.
+  static func width(today: String, demoDay: String) -> CGFloat {
+    ConnectionStatus.width + connectionGap + Tokens.Space.s + DayControls.width(today: today, demoDay: demoDay)
+  }
+}
+
+/// ‹ day › with a menu of recorded days, and Today: in the title bar (`DayStepper`), or in
+/// Overview's header in a narrow window.
+struct DayControls: View {
+  @Environment(AppModel.self) private var model
+
   /// Least width of the day label, in points, so the arrows keep their place from day to day:
   /// holds the widest live-day label in 11.5-point mono (`Typography.dayStepper`), the Russian
   /// "Сб, 28 февр. · сегодня" (157 points; "сент." and "февр." are the longest month
@@ -484,9 +645,7 @@ struct DayStepper: View {
   static let stepperItems = 4
 
   var body: some View {
-    HStack(spacing: Tokens.Space.s) {
-      ConnectionStatus()
-        .padding(.trailing, Self.connectionGap)
+    Group {
       // On the demo day there is one day: no arrows, no day menu and no Today that would do
       // nothing (they also pushed the stepper into the toolbar's overflow in a narrow window).
       if model.dayLocked {
@@ -508,18 +667,23 @@ struct DayStepper: View {
     }
   }
 
-  /// The group's width, in points, the widest of its three forms: ‹ day › and Today (`today` its
-  /// title), the demo day (`demoDay`; its DEMO is the header's environment badge), or the day alone. The connection
-  /// status, the day label and the buttons have fixed widths; the texts are measured in the fonts
-  /// they are drawn in (`TitleBarWidth.Fonts`). Used for the window's least width.
+  /// The controls' width, in points, the widest of their three forms: ‹ day › and Today (`today`
+  /// its title), the demo day (`demoDay`; its DEMO is the header's environment badge), or the day
+  /// alone. The day label and the buttons have fixed widths; the texts are measured in the fonts
+  /// they are drawn in (`TitleBarWidth.Fonts`).
   static func width(today: String, demoDay: String) -> CGFloat {
+    let stepper = stepperWidth(today: today)
+    let demo = TextMeasure.width(demoDay, font: TitleBarWidth.Fonts.day)
+    return max(stepper, demo, dayMinWidth)
+  }
+
+  /// Width of ‹ day › and Today (`today` its title), in points.
+  static func stepperWidth(today: String) -> CGFloat {
     let gap = Tokens.Space.s
     let edges = CardArrangement.paddedEdges
     let todayButton = max(TitleBarButtonStyle.width, TextMeasure.width(today, font: TitleBarWidth.Fonts.button) + gap * edges)
     let arrows = TitleBarButtonStyle.width * CGFloat(arrowCount)
-    let stepper = arrows + dayMinWidth + todayButton + gap * CGFloat(stepperItems - 1)
-    let demo = TextMeasure.width(demoDay, font: TitleBarWidth.Fonts.day)
-    return ConnectionStatus.width + connectionGap + gap + max(stepper, demo, dayMinWidth)
+    return arrows + dayMinWidth + todayButton + gap * CGFloat(stepperItems - 1)
   }
 
   /// Which of ‹ › step somewhere; neither while the day is locked or no other day is recorded.
@@ -582,6 +746,9 @@ struct DayStepper: View {
 /// connection's colour (green while fresh statuses arrive); the tooltip says what the headline says.
 struct ConnectionStatus: View {
   @Environment(AppModel.self) private var model
+  /// The dot alone, its text in the tooltip and the accessibility label (the narrowest window,
+  /// MainNarrow v110).
+  var compact = false
 
   /// Accessibility id of the item, for the UI tests.
   static let id = "toolbar-connection"
@@ -595,11 +762,28 @@ struct ConnectionStatus: View {
   static let dotGap: CGFloat = 6
 
   var body: some View {
+    if compact {
+      // The text as of the latest status read: no ticking clock redraws the title bar.
+      dot
+        .help(Text(verbatim: text(now: model.botTime(.now))))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: text(now: model.botTime(.now))))
+        .accessibilityIdentifier(Self.id)
+    } else {
+      whole
+    }
+  }
+
+  /// Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
+  private var dot: some View {
+    PulseDot(Self.color(hasStatus: model.status != nil, stale: model.response?.stale, failed: model.fetchError != nil),
+      size: Tokens.Size.dot, pulsing: isFresh, event: model.headline.pulse)
+  }
+
+  private var whole: some View {
     TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
       HStack(spacing: Self.dotGap) {
-        // Pulses only while a fresh status keeps arriving; a down or silent bot's dot holds still.
-        PulseDot(Self.color(hasStatus: model.status != nil, stale: model.response?.stale, failed: model.fetchError != nil),
-          size: Tokens.Size.dot, pulsing: isFresh, event: model.headline.pulse)
+        dot
         Text(verbatim: text(now: model.botTime(context.date)))
           .font(Tokens.Typography.subheadlineMono)
           .foregroundStyle(Palette.textQuaternary)
@@ -666,6 +850,9 @@ struct UnattendedBanner: View {
 struct CommandToast: View {
   let command: SentCommand
 
+  /// Accessibility id of the toast, for the UI tests: a sent command always shows it.
+  static let id = "command-toast"
+
   /// Blur of the floating shadow under the toast, in points (its offset is the cards').
   static let shadowRadius: CGFloat = 12
 
@@ -684,6 +871,8 @@ struct CommandToast: View {
     .background(.regularMaterial, in: Capsule())
     .overlay(Capsule().strokeBorder(color.opacity(Tokens.Opacity.border)))
     .shadow(radius: Self.shadowRadius, y: Tokens.Size.shadowOffset)
+    .accessibilityElement(children: .combine)
+    .accessibilityIdentifier(Self.id)
   }
 
   private var headline: String {
