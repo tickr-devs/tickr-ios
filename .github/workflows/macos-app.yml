@@ -60,7 +60,7 @@ jobs:
           # Its own command, so a failing diff stops the job instead of reading as "no changes".
           files=$(git diff --name-only --no-renames "$range")
           hits=$(printf '%s\n' "$files" | grep -E \
-            '^(apps/macos/|apps/shared/|tests/api/fixtures/|src/tickr/api/schema/|apps/scripts/select-xcode\.sh$|Tickr\.xcworkspace/|\.github/workflows/macos-app\.yml$)' \
+            '^(apps/macos/|apps/shared/|tests/api/fixtures/|src/tickr/api/schema/|apps/scripts/select-xcode\.sh$|apps/scripts/find_truncated_text\.swift$|Tickr\.xcworkspace/|\.github/workflows/macos-app\.yml$)' \
             || true)
           if [ -n "$hits" ]; then echo "app=true"; else echo "app=false"; fi >> "$GITHUB_OUTPUT"
   macos-build-and-test:
@@ -103,6 +103,10 @@ jobs:
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared
         run: swift test
+      # The truncation check's rules on recognized lines (which ellipses are a catalog text's own),
+      # so a change to them cannot excuse a cut text unnoticed (ui-tests.yml reads the pictures).
+      - name: Truncation check rules
+        run: swift apps/scripts/find_truncated_text.swift --self-test
       # `swift test` builds the app's modules too, so no separate `swift build`.
       - name: macOS app screen-logic tests
         working-directory: apps/macos
