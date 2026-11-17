@@ -238,6 +238,11 @@ private struct LossRoomCard: View {
       }
     }, content: {
       VStack(spacing: Tokens.Space.m) {
+        if !model.isLive {
+          // This screen is always live: the limits and the broker now, never the picked day.
+          InfoCaption(L10n.Risk.liveOnly(DayText.day(model.shownDay)), tone: .highlight)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
         VStack(spacing: Tokens.Space.xxs) {
           LossGauge(fraction: fraction, color: color)
             .frame(width: LossGauge.width, height: LossGauge.height)

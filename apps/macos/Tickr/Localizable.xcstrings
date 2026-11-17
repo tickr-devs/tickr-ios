@@ -8349,6 +8349,23 @@
         }
       }
     },
+    "risk.liveOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live: today's limits and the broker now. %@ is a recorded day."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас: лимиты на сегодня и брокер в эту минуту. %@ — записанный день."
+          }
+        }
+      }
+    },
     "risk.lossBacklog" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9250,6 +9267,23 @@
         }
       }
     },
+    "riskRoom.limit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "daily loss limit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "дневной лимит убытка"
+          }
+        }
+      }
+    },
     "riskRoom.netResult" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9297,6 +9331,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Читаем лимиты…"
+          }
+        }
+      }
+    },
+    "riskRoom.recordedNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room left, reservations and positions are live: Details shows today."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остаток, резервы и позиции — живые: в «Подробнее» они за сегодня."
+          }
+        }
+      }
+    },
+    "riskRoom.recordedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk room"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запас риска"
           }
         }
       }

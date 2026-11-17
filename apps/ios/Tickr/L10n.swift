@@ -611,6 +611,11 @@ enum L10n {
   }
 
   enum Risk {
+    /// Over the loss room while a recorded day is picked: this screen stays on today.
+    static func liveOnly(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.liveOnly",
+        defaultValue: "Live: today's limits and the broker now. \(day) is a recorded day.", bundle: L10n.bundle)
+    }
     static var title: LocalizedStringResource {
       LocalizedStringResource("risk.title", defaultValue: "Risk", bundle: L10n.bundle)
     }
@@ -1353,6 +1358,11 @@ enum L10n {
       LocalizedStringResource("lab.daySummary",
         defaultValue: "today · \(closed) closed · \(wins) W · \(losses) L · \(open) open", bundle: L10n.bundle)
     }
+    /// A recorded day's line under the active strategy: the day, then its closed trades.
+    static func pastDaySummary(_ day: String, _ closed: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
+      LocalizedStringResource("lab.pastDaySummary",
+        defaultValue: "\(day) · \(closed) closed · \(wins) W · \(losses) L", bundle: L10n.bundle)
+    }
     /// The note under the active strategy.
     static var modules: LocalizedStringResource {
       LocalizedStringResource("lab.modules",
@@ -1395,6 +1405,10 @@ enum L10n {
     }
     static var noRefusals: LocalizedStringResource {
       LocalizedStringResource("lab.noRefusals", defaultValue: "No signal was refused.", bundle: L10n.bundle)
+    }
+    /// A recorded day's trades (GET /days/<date>) could not be read for the Lab.
+    static var dayFailed: LocalizedStringResource {
+      LocalizedStringResource("lab.dayFailed", defaultValue: "Couldn't read the day's trades", bundle: L10n.bundle)
     }
     static var refusalsFailed: LocalizedStringResource {
       LocalizedStringResource("lab.refusalsFailed", defaultValue: "Couldn't read the refused signals",

@@ -85,6 +85,7 @@ private struct RoomCard: View {
 
   let status: StatusV1
   let risk: RiskSettings?
+  @Environment(AppModel.self) private var model
   /// The ring grows with the figure inside it, up to the card's width.
   @ScaledMetric(relativeTo: .title2) private var ringSide = RoomCard.ringSide
 
@@ -105,6 +106,11 @@ private struct RoomCard: View {
 
   var body: some View {
     RiskCard(title: L10n.Risk.room) {
+      if !model.isLive {
+        // This screen is always live: the limits and the broker now, never the picked day.
+        InfoCaption(L10n.Risk.liveOnly(DayText.day(model.shownDay.noonInNewYork)), tone: .highlight)
+          .frame(maxWidth: .infinity, alignment: .leading)
+      }
       ResultRing(fraction: share, color: color) {
         VStack(spacing: Tokens.Space.xxs) {
           Text(verbatim: RiskFormat.amount(room))

@@ -5734,6 +5734,23 @@
         }
       }
     },
+    "lab.dayFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the day's trades"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать сделки дня"
+          }
+        }
+      }
+    },
     "lab.daySummary" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5968,6 +5985,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "неполно"
+          }
+        }
+      }
+    },
+    "lab.pastDaySummary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$lld closed · %3$lld W · %4$lld L"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · закрыто %2$lld · %3$lld в плюс · %4$lld в минус"
           }
         }
       }
@@ -8459,6 +8493,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Лимиты"
+          }
+        }
+      }
+    },
+    "risk.liveOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live: today's limits and the broker now. %@ is a recorded day."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас: лимиты на сегодня и брокер в эту минуту. %@ — записанный день."
           }
         }
       }

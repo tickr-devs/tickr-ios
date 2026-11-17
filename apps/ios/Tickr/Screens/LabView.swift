@@ -21,7 +21,22 @@ struct LabView: View {
 
   var body: some View {
     Screen(L10n.Lab.title, tab: .lab) {
-      if let status = model.status {
+      if !model.isLive, lab.pastDay?.day != model.shownDay {
+        // A recorded day whose record is not read yet, or could not be.
+        if let failure = lab.pastDayFailure {
+          ReadFailureNote(L10n.Lab.dayFailed, detail: failure)
+        } else {
+          Skeleton(L10n.Common.loading) {
+            VStack(alignment: .leading, spacing: Tokens.Space.m) {
+              SkeletonTiles(Tokens.Loading.tiles)
+              SkeletonLines(Tokens.Loading.fewLines)
+            }
+          }
+          .padding(Tokens.Space.l)
+          .tickrCard()
+        }
+      } else if let status = model.status {
+        let active = ActiveDay(status: status, past: model.isLive ? nil : lab.pastDay)
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
           // The label, then its note; the note goes under it at large text sizes.
           RowStack {
@@ -35,15 +50,15 @@ struct LabView: View {
           RowStack(alignment: .top, spacing: Tokens.Space.s) {
             VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
               HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
-                Text(verbatim: status.strategy.name)
+                Text(verbatim: active.name)
                   .font(.title3.monospaced().bold())
                   .foregroundStyle(Palette.textPrimary)
-                Text(verbatim: L10n.Lab.versionTag(status.strategy.version))
+                Text(verbatim: L10n.Lab.versionTag(active.version))
                   .font(Tokens.Typography.annotation)
                   .foregroundStyle(Palette.textQuaternary)
                   .fixedSize()
               }
-              Text(Self.daySummary(status))
+              Text(Self.daySummary(active))
                 .font(Tokens.Typography.annotation)
                 .foregroundStyle(Palette.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -51,14 +66,14 @@ struct LabView: View {
             .layoutPriority(1)
             Spacer(minLength: 0)
             VStack(alignment: typeSize.stacksRows ? .leading : .trailing, spacing: Tokens.Space.xs) {
-              Text(verbatim: Money.signedUSD(status.resultTodayUsd.value))
+              Text(verbatim: Money.signedUSD(active.total))
                 .font(Tokens.Typography.metric)
-                .foregroundStyle(Palette.result(status.resultTodayUsd.value))
+                .foregroundStyle(Palette.result(active.total))
                 .contentTransition(.numericText())
                 .fixedSize()
-              let curve = Self.curve(status)
+              let curve = Self.curve(active)
               if curve.count > 1 {
-                DrawnSparkline(values: curve, color: Palette.result(status.resultTodayUsd.value))
+                DrawnSparkline(values: curve, color: Palette.result(active.total))
                   .frame(width: Self.curveWidth, height: Self.curveHeight)
                   .accessibilityHidden(true)
               }
@@ -71,14 +86,13 @@ struct LabView: View {
         .tickrCard()
         .rise(step: Order.active.rawValue)
 
-        VersionsCard(curves: curves(status), missing: missing,
-          end: WireDate(newYorkDateOf: status.writtenAt.date) == model.today ? model.botNow : status.writtenAt.date)
+        VersionsCard(curves: curves(active), missing: missing, end: active.end(now: model.botNow, today: model.today))
           .rise(step: Order.versions.rawValue)
         LabReplayCard(lab: lab, url: model.connection.url)
           .rise(step: Order.replay.rawValue)
         AdvisorCard(advisor: advisor, url: model.connection.url)
           .rise(step: Order.advisor.rawValue)
-        ObserversCard(lab: lab, traded: Self.traded(status))
+        ObserversCard(lab: lab, traded: active.traded)
           .rise(step: Order.observers.rawValue)
         RefusalsCard(counts: lab.refusals, failure: lab.refusalsFailure)
           .rise(step: Order.refusals.rawValue)
@@ -94,22 +108,20 @@ struct LabView: View {
     }
   }
 
-  /// The address and the status's session; a change reads the observers again.
+  /// The address and the day the Lab shows (the status's session, or the app's recorded day); a
+  /// change reads the observers again.
   private var sessionKey: [String] {
-    [model.connection.url?.absoluteString, model.status.map { WireDate(newYorkDateOf: $0.writtenAt.date).text }]
-      .compactMap { $0 }
+    [model.connection.url?.absoluteString, labDay?.text].compactMap { $0 }
+  }
+
+  /// The day the Lab shows: the app's recorded day, else the status's session.
+  private var labDay: WireDate? {
+    model.isLive ? model.status.map { WireDate(newYorkDateOf: $0.writtenAt.date) } : model.shownDay
   }
 
   /// The trading strategy's line, then each observer's whose trades the bot could list.
-  private func curves(_ status: StatusV1) -> [VersionCurve] {
-    [VersionCurve.active(name: status.strategy.name, version: status.strategy.version, trades: status.tradesToday,
-      total: status.resultTodayUsd.value)]
-      + (lab.observers?.observers.compactMap { VersionCurve.simulated($0, traded: Self.traded(status)) } ?? [])
-  }
-
-  /// The symbols the trading strategy traded or holds on the status's day.
-  static func traded(_ status: StatusV1) -> Set<String> {
-    Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol))
+  private func curves(_ active: ActiveDay) -> [VersionCurve] {
+    [active.curve] + (lab.observers?.observers.compactMap { VersionCurve.simulated($0, traded: active.traded) } ?? [])
   }
 
   /// Why an observer has no line: the bot could not list its simulated trades.
@@ -124,26 +136,81 @@ struct LabView: View {
   static let curveWidth: CGFloat = 70
   static let curveHeight: CGFloat = 20
 
-  /// "today · 3 closed · 2 W · 1 L · 1 open".
-  static func daySummary(_ status: StatusV1) -> LocalizedStringResource {
-    let results = status.tradesToday.map(\.resultUsd.value)
+  /// "today · 3 closed · 2 W · 1 L · 1 open", or a recorded day's "Nov 14 · 3 closed · 2 W · 1 L".
+  static func daySummary(_ active: ActiveDay) -> LocalizedStringResource {
+    let results = active.closes.map(\.result)
+    if let day = active.recordedDay {
+      return L10n.Lab.pastDaySummary(DayText.day(day.noonInNewYork), results.count, results.filter { $0 > 0 }.count,
+        results.filter { $0 < 0 }.count)
+    }
     return L10n.Lab.daySummary(results.count, results.filter { $0 > 0 }.count, results.filter { $0 < 0 }.count,
-      status.positions.count)
+      active.open)
   }
 
   /// The day's realized result after each closed trade, from zero.
-  static func curve(_ status: StatusV1) -> [Double] {
-    let sorted = status.tradesToday.sorted { $0.closedAt.date < $1.closedAt.date }
+  static func curve(_ active: ActiveDay) -> [Double] {
+    let sorted = active.closes.sorted { $0.at < $1.at }
     var total = Decimal.zero
-    return [0] + sorted.map { trade in
-      total += trade.resultUsd.value
+    return [0] + sorted.map { close in
+      total += close.result
       return NSDecimalNumber(decimal: total).doubleValue
     }
   }
 
   private func load() async {
-    guard let url = model.connection.url, let status = model.status else { return }
-    await lab.load(url, day: WireDate(newYorkDateOf: status.writtenAt.date))
+    guard let url = model.connection.url, let day = labDay else { return }
+    await lab.load(url, day: day, past: !model.isLive)
+  }
+}
+
+/// The trading strategy's day as the Lab shows it: today's from the status, or a recorded day's
+/// from its record (GET /days/<date>), never a mix of the two.
+struct ActiveDay {
+  let name: String
+  let version: String
+  /// Each closed trade: when it closed and its result.
+  let closes: [(at: Date, result: Decimal)]
+  /// The day's result as the bot reports it.
+  let total: Decimal
+  /// Positions still open (none on a recorded day).
+  let open: Int
+  /// The symbols the trading strategy traded or holds that day.
+  let traded: Set<String>
+  /// When the status was written; nil on a recorded day (its line runs to its last close).
+  let writtenAt: Date?
+  /// The recorded day shown; nil for the status's session.
+  let recordedDay: WireDate?
+  let curve: VersionCurve
+
+  init(status: StatusV1, past: DayV1?) {
+    if let past {
+      let strategy = past.trades.compactMap(\.strategy).first ?? status.strategy
+      name = strategy.name
+      version = strategy.version
+      closes = past.trades.map { (at: $0.closedAt.date, result: $0.resultUsd.value) }
+      total = past.resultUsd.value
+      open = 0
+      traded = Set(past.trades.map(\.symbol))
+      writtenAt = nil
+      recordedDay = past.day
+    } else {
+      name = status.strategy.name
+      version = status.strategy.version
+      closes = status.tradesToday.map { (at: $0.closedAt.date, result: $0.resultUsd.value) }
+      total = status.resultTodayUsd.value
+      open = status.positions.count
+      traded = Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol))
+      writtenAt = status.writtenAt.date
+      recordedDay = nil
+    }
+    curve = VersionCurve.active(name: name, version: version, closes: closes, total: total)
+  }
+
+  /// Where the lines end: now for today's live session, the status's time for an older one, the
+  /// last close of a recorded day.
+  func end(now: Date, today: WireDate) -> Date {
+    guard let writtenAt else { return closes.map(\.at).max() ?? now }
+    return WireDate(newYorkDateOf: writtenAt) == today ? now : writtenAt
   }
 }
 

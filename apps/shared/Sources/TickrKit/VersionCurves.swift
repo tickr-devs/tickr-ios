@@ -51,7 +51,15 @@ public struct VersionCurve: Hashable, Sendable, Identifiable {
   /// The trading strategy's line from its closed trades of the day; its total is the bot's own
   /// day result (`total`, the status's `result_today_gross_usd`), never re-summed here.
   public static func active(name: String, version: String, trades: [Trade], total: Decimal) -> VersionCurve {
-    let closes = trades.map { (at: $0.closedAt.date, result: Optional($0.resultUsd.value)) }
+    active(name: name, version: version, closes: trades.map { (at: $0.closedAt.date, result: $0.resultUsd.value) },
+      total: total)
+  }
+
+  /// The trading strategy's line from its closes (when, and the trade's result).
+  public static func active(
+    name: String, version: String, closes: [(at: Date, result: Decimal)], total: Decimal
+  ) -> VersionCurve {
+    let closes = closes.map { (at: $0.at, result: Optional($0.result)) }
     let curve = make(name: name, version: version, observer: false, closes: closes, truncated: false)
     var line = VersionCurve(name: name, version: version, observer: false, points: curve.points,
       complete: curve.complete, reported: total)

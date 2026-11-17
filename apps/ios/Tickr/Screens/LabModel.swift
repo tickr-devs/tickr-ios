@@ -11,6 +11,10 @@ final class LabModel {
   private(set) var observers: ObserversV1?
   /// Why they could not be read, if they could not.
   private(set) var failure: String?
+  /// The shown recorded day's record (GET /days/<date>), once read; nil while today is shown.
+  private(set) var pastDay: DayV1?
+  /// Why it could not be read, if it could not.
+  private(set) var pastDayFailure: String?
   /// The active strategy's refused signals of `refusalsDay` by cause (GET /skipped), once read.
   private(set) var refusals: [RefusalCount]?
   private(set) var refusalsDay: WireDate?
@@ -45,19 +49,50 @@ final class LabModel {
     Container.shared.apiClient(Container.shared.appModel().connection.endpoint(for: url))
   }
 
-  /// Read the observers and the refusals of `day` from the bot at `url`; another bot's answers are
-  /// dropped first.
-  func load(_ url: URL, day: WireDate) async {
+  /// Read the observers and the refusals of `day` from the bot at `url`, all at once, and, for a
+  /// recorded past day (`past`), its record, whose trades draw the trading strategy's line; another
+  /// bot's answers are dropped first.
+  func load(_ url: URL, day: WireDate, past: Bool) async {
     if source != url {
       observers = nil
       failure = nil
       refusals = nil
       refusalsDay = nil
       refusalsFailure = nil
+      pastDay = nil
+      pastDayFailure = nil
       source = url
     }
-    await loadObservers(url, day: day)
-    await loadRefusals(url, day: day)
+    async let observersRead: Void = loadObservers(url, day: day)
+    async let refusalsRead: Void = loadRefusals(url, day: day)
+    async let dayRead: Void = past ? loadPastDay(url, day: day) : clearPastDay()
+    _ = await (observersRead, refusalsRead, dayRead)
+  }
+
+  /// Read the record of past day `day`. Another day's record is never shown under this one.
+  func loadPastDay(_ url: URL, day: WireDate) async {
+    if pastDay?.day != day {
+      pastDay = nil
+      pastDayFailure = nil
+    }
+    do {
+      let read = try await client(url).day(day)
+      guard read.day == day else {
+        pastDayFailure = String(localized: L10n.Activity.otherDayAnswered(day.text, read.day.text))
+        return
+      }
+      pastDay = read
+      pastDayFailure = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      pastDayFailure = ErrorText.text(error)
+    }
+  }
+
+  private func clearPastDay() async {
+    pastDay = nil
+    pastDayFailure = nil
   }
 
   /// Read the refused signals of `day`. Another day's counts are never shown under this one.

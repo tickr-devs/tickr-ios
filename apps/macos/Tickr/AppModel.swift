@@ -378,6 +378,13 @@ public final class AppModel {
     return dayDocument?.trades ?? []
   }
 
+  /// A picked past day whose trades are still being read: its result and counts are not known
+  /// yet, so the cards show a skeleton, never a zero.
+  public var dayPending: Bool { shownDayState == .loading }
+  /// The same for the picked day's flow and observers.
+  public var flowPending: Bool { !isLive && flow == nil && flowError == nil }
+  public var observersPending: Bool { !isLive && observers == nil && observersError == nil }
+
   public var shownResult: Decimal {
     if isLive { return status?.resultTodayUsd.value ?? 0 }
     return dayDocument?.resultUsd.value ?? 0

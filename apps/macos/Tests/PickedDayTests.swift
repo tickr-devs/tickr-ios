@@ -176,4 +176,16 @@ extension AppModelTests {
     #expect(model.shownDayState == .live)
     #expect(model.dayDocument == nil)
   }
+
+  @Test("A picked day still being read is pending on every Overview card, never shown as zeros")
+  func pickedDayPending() async throws {
+    let model = try await Self.modelWithDays()
+    #expect(!model.dayPending && !model.flowPending && !model.observersPending)
+    model.selectedDay = try WireDate("2026-11-15")
+    // Nothing of today stays under the picked day while it is read.
+    #expect(model.dayPending && model.flowPending && model.observersPending)
+    try await Self.waitForPick(model)
+    #expect(!model.dayPending)
+    #expect(model.shownResult != 0)
+  }
 }

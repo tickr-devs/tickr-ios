@@ -767,6 +767,18 @@ enum L10n {
     static var title: LocalizedStringResource {
       LocalizedStringResource("riskRoom.title", defaultValue: "Risk room today", bundle: L10n.bundle)
     }
+    /// The card's title on a recorded day: its own result, not today's room.
+    static var recordedTitle: LocalizedStringResource {
+      LocalizedStringResource("riskRoom.recordedTitle", defaultValue: "Risk room", bundle: L10n.bundle)
+    }
+    static var limit: LocalizedStringResource {
+      LocalizedStringResource("riskRoom.limit", defaultValue: "daily loss limit", bundle: L10n.bundle)
+    }
+    /// Foot of the card on a recorded day.
+    static var recordedNote: LocalizedStringResource {
+      LocalizedStringResource("riskRoom.recordedNote",
+        defaultValue: "Room left, reservations and positions are live: Details shows today.", bundle: L10n.bundle)
+    }
     static var details: LocalizedStringResource {
       LocalizedStringResource("riskRoom.details", defaultValue: "Details", bundle: L10n.bundle)
     }
@@ -2476,6 +2488,11 @@ enum L10n {
   }
 
   enum Risk {
+    /// Over the loss limit while a recorded day is picked: this screen stays on today.
+    static func liveOnly(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.liveOnly",
+        defaultValue: "Live: today's limits and the broker now. \(day) is a recorded day.", bundle: L10n.bundle)
+    }
     /// Card title: room left before the daily loss limit.
     static var lossRoom: LocalizedStringResource {
       LocalizedStringResource("risk.lossRoom", defaultValue: "Daily loss limit · net", bundle: L10n.bundle)

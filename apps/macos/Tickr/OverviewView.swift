@@ -322,7 +322,15 @@ private struct DayResult: View {
 
   var body: some View {
     Group {
-      if layout.resultInline {
+      if model.dayPending {
+        // The picked day's result is still being read: a skeleton, never "$0.00".
+        VStack(alignment: layout.resultInline ? .leading : .trailing, spacing: Tokens.Space.xxs) {
+          CardLabel(L10n.Overview.dayResult)
+          Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.fewLines, leadingValue: true) }
+            .frame(width: Self.sparklineWidth)
+        }
+        .frame(maxWidth: .infinity, alignment: layout.resultInline ? .leading : .trailing)
+      } else if layout.resultInline {
         WrapRow(spacing: Tokens.Space.m) {
           CardLabel(L10n.Overview.dayResult)
           MoneyText(value: counted, font: Tokens.Typography.display)
@@ -400,8 +408,13 @@ private struct LiveFlowCard: View {
           .foregroundStyle(Palette.textQuaternary)
       }
     } content: {
-      // The latest event under the title, then the screeners' chips, as in the design.
-      LatestEvent()
+      // The latest event under the title, then the screeners' chips, as in the design; a picked
+      // day still being read shows a skeleton there, never "nothing recorded yet".
+      if model.dayPending || model.flowPending {
+        Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.fewLines) }
+      } else {
+        LatestEvent()
+      }
       if let chips = model.flow?.chips, !chips.isEmpty {
         FlowChips(chips: chips, moving: model.ornamentsMove(reduceMotion: reduceMotion))
       }
@@ -1391,10 +1404,12 @@ private struct RiskRoomCard: View {
   @State private var shownReserved: Double = 0
 
   var body: some View {
-    Card(L10n.RiskRoom.title) {
+    Card(model.isLive ? L10n.RiskRoom.title : L10n.RiskRoom.recordedTitle) {
       HeaderLink(L10n.RiskRoom.details) { model.section = .risk }
     } content: {
-      if let risk = model.settings?.risk {
+      if !model.isLive {
+        recorded
+      } else if let risk = model.settings?.risk {
         let limit = risk.maxDailyLossUsd.value
         // The bot's own room for today; the app never computes one the bot did not report.
         let room = model.dailyRoom
@@ -1432,6 +1447,25 @@ private struct RiskRoomCard: View {
       } else {
         Footnote(L10n.RiskRoom.reading)
       }
+    }
+  }
+
+  /// A recorded day: its own net result against the limit and whether its records agreed. The
+  /// room left, the reservations and the positions are today's (Details), never mixed in here.
+  @ViewBuilder private var recorded: some View {
+    if model.dayPending {
+      Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.fewLines, leadingValue: true) }
+    } else {
+      VStack(spacing: Tokens.Space.s) {
+        StatLine(L10n.RiskRoom.netResult, value: Money.signedUSD(model.shownResult), color: Palette.result(model.shownResult))
+        StatLine(L10n.RiskRoom.limit, value: model.settings.map { Money.usd($0.risk.maxDailyLossUsd.value) } ?? Format.missing)
+        let records = FlowStages.reconcile(liveFences: nil, latest: model.flow?.reconcile)
+        StatLine(L10n.RiskRoom.recordsAgree, value: records.value ?? Format.missing,
+          color: records.agrees.map { $0 ? Palette.profitText : Palette.warningText } ?? Palette.textQuaternary)
+          .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
+      }
+      Spacer(minLength: 0)
+      Footnote(L10n.RiskRoom.recordedNote)
     }
   }
 
@@ -1519,6 +1553,8 @@ private struct ObserversCard: View {
         }
       } else if model.observersError != nil {
         Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
+      } else if model.observersPending {
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows) }
       }
       Spacer(minLength: 0)
       AdvisorRow()
