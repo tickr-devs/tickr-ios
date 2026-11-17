@@ -587,7 +587,7 @@ private struct TradesTable: View {
       .width(min: Column.timeMin, ideal: Column.time)
       TableColumn(Self.header(L10n.Trades.symbol)) { row in
         cell(row, step: steps[row.id]) {
-          Text(verbatim: row.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
+          SymbolText(row.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
         }
       }
       .width(min: Column.symbolMin, ideal: Column.symbol)
@@ -1154,7 +1154,7 @@ private struct SkippedRow: View {
     Button { showOnChart(signal.symbol) } label: {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         HStack(spacing: Tokens.Space.s) {
-          Text(verbatim: signal.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
+          SymbolText(signal.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
           admission
           Spacer(minLength: 0)
           Text(verbatim: when)

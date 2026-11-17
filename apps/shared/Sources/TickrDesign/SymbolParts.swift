@@ -252,3 +252,20 @@ public struct SymbolPathStep: View {
     .accessibilityElement(children: .combine)
   }
 }
+
+/// A ticker ("BILL"), the same everywhere on both apps: always on one line at its full width, never
+/// wrapped ("BIL / L") or cut, however narrow its row; the row's other parts give way instead. The
+/// caller sets its font and colour.
+public struct SymbolText: View {
+  let symbol: String
+
+  public init(_ symbol: String) {
+    self.symbol = symbol
+  }
+
+  public var body: some View {
+    Text(verbatim: symbol)
+      .fixedSize()
+      .layoutPriority(1)
+  }
+}

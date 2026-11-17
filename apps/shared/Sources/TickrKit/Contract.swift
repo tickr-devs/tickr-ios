@@ -288,9 +288,11 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
   public let summary: String
   public let pollSeconds: DecimalString
   public let apiVersion: Int
+  public let apiStartedAt: WireTime? // the API's start: /settings are read again on a change (nil from an older API)
 
   enum CodingKeys: String, CodingKey {
     case status, stale, summary
+    case apiStartedAt = "api_started_at"
     case servedAt = "served_at"
     case ageSeconds = "age_seconds"
     case unavailableCause = "unavailable_cause"
@@ -310,6 +312,7 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
     unavailableCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .unavailableCauseCodes) ?? []
     summary = try c.decode(String.self, forKey: .summary)
     pollSeconds = try c.decode(DecimalString.self, forKey: .pollSeconds)
+    apiStartedAt = try c.decodeIfPresent(WireTime.self, forKey: .apiStartedAt)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -323,6 +326,7 @@ public struct StatusResponseV1: Codable, Hashable, Sendable {
     try c.encode(unavailableCauseCodes, forKey: .unavailableCauseCodes)
     try c.encode(summary, forKey: .summary)
     try c.encode(pollSeconds, forKey: .pollSeconds)
+    try c.encodeNullable(apiStartedAt, forKey: .apiStartedAt)
   }
 
   /// Why the bot's status is unavailable, in the person's language (the bot's words for an unknown code).

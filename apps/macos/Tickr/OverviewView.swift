@@ -850,7 +850,7 @@ private struct PositionTab: View {
     Button(action: action) {
       HStack(spacing: Tokens.Space.xs) {
         StopDot(row.position.stop.state)
-        Text(verbatim: row.position.symbol).foregroundStyle(Palette.textPrimary)
+        SymbolText(row.position.symbol).foregroundStyle(Palette.textPrimary)
         if let value = row.unrealized {
           Text(verbatim: Money.signedUSD(value)).foregroundStyle(Palette.result(value))
         }
@@ -901,7 +901,7 @@ private struct PositionDetail: View {
       HStack(spacing: Tokens.Space.s) {
         StopGlyph(state: row.position.stop.state, symbol: row.position.symbol, price: row.position.stop.price,
           style: .tile)
-        Text(verbatim: row.position.symbol).font(Tokens.Typography.metric)
+        SymbolText(row.position.symbol).font(Tokens.Typography.metric)
         Spacer()
         if let value = row.unrealized {
           DeltaTag(value, text: Money.signedUSD(value), large: true)

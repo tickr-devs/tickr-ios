@@ -146,6 +146,8 @@ public final class AppModel {
   public var fetchError: String? { readFailure?.detail }
   public private(set) var settings: SettingsV1?
   public private(set) var settingsError: String?
+  /// The API start (`StatusResponseV1.apiStartedAt`) the settings were read after: a new one reads them again.
+  @ObservationIgnored private var settingsReadFor: WireTime?
   /// The broker's view of the account at the bot's last read; nil until read.
   public private(set) var account: AccountResponseV1?
   public private(set) var accountError: String?
@@ -585,7 +587,7 @@ public final class AppModel {
     }
     // A stale status or a failed read turns commands off: an open question goes with them.
     withdrawIfCommandsOff()
-    if settings == nil { await refreshSettings() }
+    if response?.needsSettings(settings, readFor: settingsReadFor) ?? (settings == nil) { await refreshSettings() }
   }
 
   /// Takes the bot's clock from a status served at `servedAt`. Network delay moves the offset by
@@ -596,8 +598,10 @@ public final class AppModel {
   }
 
   public func refreshSettings() async {
+    let startedAt = response?.apiStartedAt
     do {
       settings = try await client.settings()
+      settingsReadFor = startedAt
       settingsError = nil
     } catch {
       settingsError = Self.describe(error) ?? settingsError

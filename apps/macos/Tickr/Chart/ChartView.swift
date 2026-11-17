@@ -267,13 +267,13 @@ struct ChartView: View {
         let price = livePrice ?? last.close
         Text(verbatim: Money.price(price))
           .font(Tokens.Typography.quote)
-          // Coloured as the day's change beside it when the screeners reported one, so the two
-          // never disagree; else by the last candle.
-          .foregroundStyle(Palette.result(dayChange ?? Money.decimal(price - last.open)))
+          // Coloured as the day's change beside it when there is one, so the two never disagree;
+          // else by the last candle.
+          .foregroundStyle(Palette.result(dayChange(price) ?? Money.decimal(price - last.open)))
           .contentTransition(.numericText(value: price))
           .animation(Tokens.Motion.quick, value: price)
       }
-      if !loadingBars, let change = dayChange {
+      if !loadingBars, let last = plot?.candles.last, let change = dayChange(livePrice ?? last.close) {
         Text(verbatim: Percent.signed(fraction: change))
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.result(change))
@@ -299,15 +299,13 @@ struct ChartView: View {
     return chart.loading || !chart.hasRead(timeframe: interval, range: range)
   }
 
-  /// The day's change of the shown symbol from the previous close, when the screeners reported
-  /// it (the bars carry no previous close).
-  private var dayChange: Decimal? {
-    guard let symbol, let pct = model.flow?.chips.first(where: { $0.symbol == symbol })?.changePct else { return nil }
-    return pct.value / Self.percentFactor
+  /// The day's change of the shown symbol at `price` from the previous close (`DayChange`), as
+  /// Webull shows it; nil unless today's session is shown live and a screener listed the symbol
+  /// today (the bars carry no previous close).
+  private func dayChange(_ price: Double) -> Decimal? {
+    guard model.isLive, showsDay, let symbol else { return nil }
+    return DayChange.fraction(price: Money.decimal(price), previousClose: DayChange.previousClose(symbol, flow: model.flow))
   }
-
-  /// A percent of 1 is 0.01.
-  static let percentFactor: Decimal = 100
 
   private var symbolMenu: some View {
     Menu {

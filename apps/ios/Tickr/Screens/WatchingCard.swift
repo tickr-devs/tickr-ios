@@ -55,7 +55,7 @@ struct WatchingRow: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: row.symbol)
+        SymbolText(row.symbol)
           .font(Tokens.Typography.calloutMono.bold())
           .foregroundStyle(Palette.textPrimary)
           .fixedSize()

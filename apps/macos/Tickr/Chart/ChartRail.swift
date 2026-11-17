@@ -142,7 +142,7 @@ private struct SymbolList: View {
     let selected = row.symbol == symbol
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     return HStack(spacing: Tokens.Space.s) {
-      Text(verbatim: row.symbol)
+      SymbolText(row.symbol)
         .font(Tokens.Typography.calloutMono.bold())
         .foregroundStyle(Palette.textPrimary)
         .frame(width: Self.symbolWidth, alignment: .leading)

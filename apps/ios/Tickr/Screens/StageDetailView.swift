@@ -108,7 +108,7 @@ struct StageDetailView: View {
   private func line(_ row: StageDetail.Row, symbol: String?) -> some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       if let symbol {
-        Text(verbatim: symbol)
+        SymbolText(symbol)
           .font(Tokens.Typography.calloutMono)
           .fontWeight(.semibold)
           .foregroundStyle(Palette.textPrimary)

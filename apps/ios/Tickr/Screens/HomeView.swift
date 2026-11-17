@@ -434,7 +434,7 @@ private struct PositionRow: View {
         VStack(alignment: .leading, spacing: Tokens.Space.xs) {
           HStack(spacing: Tokens.Space.s) {
             StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
-            Text(verbatim: position.symbol)
+            SymbolText(position.symbol)
               .font(.headline.monospaced())
               .foregroundStyle(Palette.textPrimary)
               .fixedSize()

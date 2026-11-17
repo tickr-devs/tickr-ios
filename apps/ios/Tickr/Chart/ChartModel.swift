@@ -134,6 +134,12 @@ final class ChartModel {
     guard isToday, let symbol, let live = Container.shared.appModel().livePrice(symbol) else { return nil }
     return NSDecimalNumber(decimal: live.bid).doubleValue
   }
+  /// The chosen symbol's previous close while today is shown (`DayChange`); nil otherwise or when
+  /// no screener listed it today.
+  var previousClose: Decimal? {
+    guard isToday, let symbol else { return nil }
+    return DayChange.previousClose(symbol, flow: Container.shared.appModel().flow)
+  }
   /// The day before and after the chosen one among the recorded days (newest first); none while
   /// the demo day is on, the only day then.
   var previousDay: WireDate? { dayLocked ? nil : neighbour(1) }

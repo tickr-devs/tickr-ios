@@ -720,7 +720,7 @@ private struct PositionSlots: View {
     let state = row.position.stop.state
     let colors = colors(state)
     return tile(frame: colors.frame) {
-      Text(verbatim: row.position.symbol)
+      SymbolText(row.position.symbol)
         .font(Tokens.Typography.bodyMono.bold())
         .foregroundStyle(Palette.textPrimary)
       Text(L10n.Risk.slotSize(Format.quantity(row.quantity), Format.price(row.entry)))
@@ -919,7 +919,7 @@ private struct AccountCard: View {
       }
       ForEach(account.positions, id: \.self) { position in
         HStack(spacing: Tokens.Space.s) {
-          Text(verbatim: position.symbol).fontWeight(.bold)
+          SymbolText(position.symbol).fontWeight(.bold)
           Spacer()
           Text(verbatim: position.quantity.text)
           Text(verbatim: position.avgPrice.map { Money.price($0.value) } ?? Format.missing)
@@ -937,7 +937,7 @@ private struct AccountCard: View {
       }
       ForEach(account.orders, id: \.self) { order in
         HStack(spacing: Tokens.Space.s) {
-          Text(verbatim: order.symbol).fontWeight(.bold)
+          SymbolText(order.symbol).fontWeight(.bold)
           Text(verbatim: ApiText.orderSide(order.side))
           Text(verbatim: ApiText.orderType(order.type))
           Text(verbatim: order.quantity.text)
@@ -961,7 +961,7 @@ private struct AccountCard: View {
         HStack(spacing: Tokens.Space.s) {
           Text(verbatim: Format.marketTime(fill.filledAt?.date))
             .foregroundStyle(Palette.textTertiary)
-          Text(verbatim: fill.symbol).fontWeight(.bold)
+          SymbolText(fill.symbol).fontWeight(.bold)
           Text(verbatim: ApiText.orderSide(fill.side))
           Text(verbatim: ApiText.orderType(fill.type))
           Text(verbatim: fill.quantity.text)

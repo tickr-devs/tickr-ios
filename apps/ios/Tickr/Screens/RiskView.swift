@@ -227,7 +227,7 @@ private struct AccountCard: View {
   private func row(_ symbol: String, detail: String, value: String, color: Color) -> some View {
     RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xxs) {
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        Text(verbatim: symbol)
+        SymbolText(symbol)
           .font(Tokens.Typography.calloutMono.bold())
         Text(verbatim: detail)
           .font(Tokens.Typography.annotation)

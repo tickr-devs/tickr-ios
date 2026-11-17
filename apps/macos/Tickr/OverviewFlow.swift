@@ -59,7 +59,7 @@ private struct FlowChip: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      Text(verbatim: chip.symbol)
+      SymbolText(chip.symbol)
         .font(Tokens.Typography.chip)
         .foregroundStyle(Palette.textPrimary)
       Text(verbatim: detail)
@@ -286,7 +286,7 @@ struct WatchingRow: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
-        Text(verbatim: row.symbol)
+        SymbolText(row.symbol)
           .font(Tokens.Typography.chip)
           .foregroundStyle(Palette.textPrimary)
         VerdictTag(verdict: row.verdict)
@@ -454,7 +454,7 @@ private struct FastMoverRow: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: mover.symbol)
+        SymbolText(mover.symbol)
           .font(Tokens.Typography.chip)
           .foregroundStyle(Palette.textPrimary)
         if mover.watching { VerdictTag(verdict: .watch) }

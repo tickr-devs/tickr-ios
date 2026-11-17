@@ -84,3 +84,13 @@ public struct SettingsV1: Codable, Hashable, Sendable {
     quotesPollSeconds = try c.decodeIfPresent(DecimalString.self, forKey: .quotesPollSeconds)
   }
 }
+
+extension StatusResponseV1 {
+  /// Whether the apps must read GET /settings (again) after this answer: none read yet, or the
+  /// API restarted since `readFor` (the `apiStartedAt` of the answer they were read after), and a
+  /// new release may have brought other settings. Settings were read once per launch before, so an
+  /// app left open across a release never learned of a new one (the live quotes stayed off).
+  public func needsSettings(_ settings: SettingsV1?, readFor: WireTime?) -> Bool {
+    settings == nil || apiStartedAt != readFor
+  }
+}

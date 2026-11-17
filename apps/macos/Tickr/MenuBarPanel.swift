@@ -184,7 +184,7 @@ struct MenuPosition: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: position.symbol)
+        SymbolText(position.symbol)
           .font(Tokens.Typography.headingMono.weight(.bold))
           .foregroundStyle(Palette.textPrimary)
         Text(L10n.MenuBar.shares(Format.quantity(position.quantity.value)))

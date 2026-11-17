@@ -112,7 +112,7 @@ private struct PositionChips: View {
               // Every tab carries its stop's dot, as on the Mac and the Main board: green verified,
               // amber pending, red missing (`StopState.tone`); the words are the tab's accessibility value.
               StopDot(position.stop.state)
-              Text(verbatim: position.symbol)
+              SymbolText(position.symbol)
             }
             .font(.footnote.monospaced().bold())
             if let unrealized = marks[position.symbol]?.unrealized {
@@ -188,7 +188,7 @@ private struct PositionDetail: View {
       // with the last price and R at the right. At large text sizes the result goes under.
       RowStack(alignment: .bottom, spacing: Tokens.Space.s) {
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-          Text(verbatim: position.symbol)
+          SymbolText(position.symbol)
             .font(.title.monospaced().bold())
             .fixedSize()
           Text(L10n.Positions.shares(position.quantity.text, Money.price(position.entryPrice.value),

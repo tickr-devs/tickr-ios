@@ -799,7 +799,7 @@ private struct TradesList: View {
   }
 
   private func headerText(_ symbol: String) -> some View {
-    Text(verbatim: symbol)
+    SymbolText(symbol)
       .font(Tokens.Typography.calloutMono.bold())
   }
 
@@ -974,7 +974,7 @@ private struct SkippedRow: View {
   }
 
   private func symbolText(_ symbol: String) -> some View {
-    Text(verbatim: symbol)
+    SymbolText(symbol)
       .font(Tokens.Typography.bodyMono.bold())
       .foregroundStyle(Palette.textPrimary)
   }

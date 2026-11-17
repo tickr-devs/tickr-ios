@@ -478,7 +478,7 @@ private struct SymbolsGrid: View {
     switch column {
     case .symbol:
       HStack(spacing: Tokens.Space.s) {
-        Text(verbatim: line.symbol)
+        SymbolText(line.symbol)
           .font(Tokens.Typography.symbolCompact.monospaced())
           .fontWeight(.bold)
           .foregroundStyle(Palette.textPrimary)
@@ -624,7 +624,7 @@ private struct SymbolsDetailPanel: View {
     let row = line.row
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: line.symbol)
+        SymbolText(line.symbol)
           .font(Tokens.Typography.quote)
           .fontWeight(.bold)
           .foregroundStyle(Palette.textPrimary)

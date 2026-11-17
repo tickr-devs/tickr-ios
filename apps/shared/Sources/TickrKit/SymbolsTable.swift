@@ -223,7 +223,7 @@ extension SymbolsBoard {
     let screener = SymbolsPrice(price: price(line)?.value, changePct: line.row?.changePct?.value, isLive: false)
     guard let live else { return screener }
     let previous = SymbolDayLine.previousClose(price: price(line), changePct: line.row?.changePct)
-    let change = previous.flatMap { $0 > 0 ? (live.bid - $0) / $0 * SymbolDayLine.percent : nil }
+    let change = DayChange.fraction(price: live.bid, previousClose: previous).map { $0 * SymbolDayLine.percent }
     return SymbolsPrice(price: live.bid, changePct: change, isLive: true)
   }
 

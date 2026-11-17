@@ -41,6 +41,8 @@ final class AppModel {
   private(set) var settings: SettingsV1?
   /// Why the settings could not be read, if they could not.
   private(set) var settingsError: String?
+  /// The API start (`StatusResponseV1.apiStartedAt`) the settings were read after: a new one reads them again.
+  @ObservationIgnored private var settingsReadFor: WireTime?
   /// The bot's last broker read (GET /account), read while Settings is on screen.
   private(set) var account: AccountResponseV1?
   /// Why the broker read could not be fetched, if it could not.
@@ -242,7 +244,7 @@ final class AppModel {
       readFailure = ReadFailure(error) ?? readFailure
       return
     }
-    if settings == nil { await refreshSettings(url) }
+    if response?.needsSettings(settings, readFor: settingsReadFor) ?? (settings == nil) { await refreshSettings(url) }
     // Today's session and the next one for the headline's countdown: read once per bot day, and
     // again once the next session has opened (it then names the one after).
     if jobsReadDay != today || jobs?.nextSession.map({ $0.regularOpen.date <= botNow }) == true {
@@ -419,10 +421,12 @@ final class AppModel {
 
   /// Reads the bot's configuration; the answer is dropped when the address changed meanwhile.
   private func refreshSettings(_ url: URL) async {
+    let startedAt = response?.apiStartedAt
     do {
       let read = try await Container.shared.apiClient(connection.endpoint(for: url)).settings()
       guard connection.url == url else { return }
       settings = read
+      settingsReadFor = startedAt
       settingsError = nil
     } catch {
       if connection.url == url { settingsError = Self.describe(error) ?? settingsError }

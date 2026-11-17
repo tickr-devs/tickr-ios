@@ -284,7 +284,7 @@ private struct SymbolListRow: View {
     HStack(spacing: Tokens.Space.s) {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Text(verbatim: line.symbol)
+          SymbolText(line.symbol)
             .font(Tokens.Typography.chip)
             .foregroundStyle(Palette.textPrimary)
           SymbolTagBadge(line: line)
@@ -406,7 +406,7 @@ struct FastMoverLine: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: mover.symbol)
+        SymbolText(mover.symbol)
           .font(Tokens.Typography.chip)
           .foregroundStyle(Palette.textPrimary)
         if mover.watching { Badge(Verdict.watch.title, color: Palette.infoText) }
