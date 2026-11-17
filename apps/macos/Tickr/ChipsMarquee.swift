@@ -182,6 +182,41 @@ struct MarqueePages: Equatable {
   func slots(from first: Int) -> Range<Int> { first..<(first + size) }
 }
 
+/// Where the row is along the lead page, kept by the strip itself rather than read back from the
+/// screen. Reading the drawn position (the layer's presentation) gave a stale answer in the same
+/// turn of the run loop as a hold or a release: the new scroll was not on screen yet, so the
+/// redraw that follows a release (the outline goes away) read the row as a whole page further on,
+/// and the row jumped to another chip under the pointer (owner, 2026-11-17). So the clock stops
+/// while the row is held and the row goes on from the very point where it stopped.
+struct MarqueeClock: Equatable {
+  /// Points along the lead page where the current scroll started, or where the row stands still.
+  private(set) var origin: CGFloat = 0
+  /// Media time, in seconds, when the current scroll started; nil while the row stands still.
+  private(set) var startedAt: Double?
+  /// Points per second.
+  private(set) var speed = 0.0
+
+  /// Points along the lead page at media time `now`, never past `limit` (where the page has
+  /// scrolled out).
+  func shift(at now: Double, limit: CGFloat) -> CGFloat {
+    guard let startedAt else { return origin }
+    return min(origin + CGFloat((now - startedAt) * speed), max(limit, origin))
+  }
+
+  /// Starts a scroll from `shift` at media time `now`.
+  mutating func run(from shift: CGFloat, at now: Double, speed: Double) {
+    origin = shift
+    startedAt = now
+    self.speed = speed
+  }
+
+  /// Stands the row still at `shift`.
+  mutating func stop(at shift: CGFloat) {
+    origin = shift
+    startedAt = nil
+  }
+}
+
 /// Lets the strip hold the moving row and find the chip under the pointer. Not observed: its
 /// values change as pages scroll by, and nothing redraws for them.
 @MainActor
@@ -263,6 +298,8 @@ final class ChipsMarqueeView: NSView {
   private var held = false
   /// Counts the scrolls started: a scroll that ends after another one started turns no page.
   private var generation = 0
+  /// Where the row is along the lead page (`MarqueeClock`).
+  private var clock = MarqueeClock()
 
   init() {
     super.init(frame: .zero)
@@ -361,11 +398,9 @@ final class ChipsMarqueeView: NSView {
     scroll(from: shift - width)
   }
 
-  /// How far the lead page is drawn shifted to the left now, in points.
-  private var current: CGFloat {
-    let shown = (mover.layer?.presentation()?.value(forKeyPath: Self.keyPath) as? CGFloat) ?? 0
-    return -(shown + mover.frame.minX)
-  }
+  /// How far the lead page is shifted to the left now, in points: by the row's own clock, which
+  /// stands still while the row is held.
+  private var current: CGFloat { clock.shift(at: CACurrentMediaTime(), limit: pageWidth) }
 
   /// Scrolls the lead page out from `shift` points along it: the mover's frame stands where the
   /// lead page has scrolled out, and the animation runs from `shift` to there.
@@ -378,16 +413,22 @@ final class ChipsMarqueeView: NSView {
     CATransaction.setDisableActions(true)
     layer.removeAnimation(forKey: Self.animationKey)
     guard !held, width > 0, speed > 0 else {
+      clock.stop(at: start)
       mover.frame.origin.x = -start
       CATransaction.commit()
       return
     }
+    let now = CACurrentMediaTime()
+    clock.run(from: start, at: now, speed: speed)
     mover.frame.origin.x = -width
     let animation = CABasicAnimation(keyPath: Self.keyPath)
     // From where the row is, not a time offset: an offset animation wraps to its start at the end.
     animation.fromValue = width - start
     animation.toValue = 0
     animation.duration = Double(width - start) / speed
+    // Starts at the clock's start, so the drawn row and the clock agree.
+    animation.beginTime = layer.convertTime(now, from: nil)
+    animation.fillMode = .backwards
     let scrolled = generation
     // decorative: the screeners' ticker is ornament; its caller moves it only while the bot runs (owner, 2026-11-16).
     CATransaction.setCompletionBlock { [weak self] in
@@ -405,15 +446,10 @@ final class ChipsMarqueeView: NSView {
 
   /// Stops the row where it is drawn.
   func hold() {
-    guard !held, let layer = mover.layer else { return }
+    guard !held else { return }
     let shift = current
     held = true
-    generation += 1
-    CATransaction.begin()
-    CATransaction.setDisableActions(true)
-    layer.removeAnimation(forKey: Self.animationKey)
-    mover.frame.origin.x = -shift
-    CATransaction.commit()
+    scroll(from: shift)
   }
 
   /// Lets the row scroll on from where it was held.
