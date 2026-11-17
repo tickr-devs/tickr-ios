@@ -30,10 +30,14 @@ final class OverviewCommandsUITests: XCTestCase {
   /// (status-response-v1.json). Pausing acts at once; the others ask first.
   static let pause = "pause"
   static let confirmed = ["cancel", "flatten-ABCD", "flatten-all", "stop", "emergency"]
-  /// The emergency stop (BotAction.emergency) asks only after a press held this long
-  /// (Tokens.Command.holdSeconds, 1.5 s, plus a margin), in seconds; a plain click asks nothing.
+  /// The emergency stop (BotAction.emergency) asks only after a press held
+  /// Tokens.Command.holdSeconds (1.5 s); a plain click asks nothing. The test holds it this long,
+  /// in seconds: XCUITest's held click can reach the app shorter than asked on a loaded runner
+  /// (a 2 s click arrived as mouse down and up 1.47 s apart, from 1.47 to 2.23 s over 16 runs,
+  /// 2026-11-17), so 2 s once left the app a press too short to ask. Twice the hold leaves room
+  /// for a shortfall about three times the largest seen (0.53 s).
   static let emergency = "emergency"
-  static let hold: TimeInterval = 2
+  static let hold: TimeInterval = 3
   /// How long a plain click on the emergency stop is watched for a question that must not come.
   static let noQuestion: TimeInterval = 2
   /// The narrowest window on the fixtures, in points: TickrMacApp.leastWidth, which this test
