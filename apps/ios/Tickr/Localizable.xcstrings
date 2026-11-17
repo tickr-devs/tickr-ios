@@ -2196,6 +2196,23 @@
         }
       }
     },
+    "chart.barsUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bars Unavailable"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бары недоступны"
+          }
+        }
+      }
+    },
     "chart.candlesUnavailable" : {
       "extractionState" : "manual",
       "localizations" : {

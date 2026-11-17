@@ -14,7 +14,7 @@ final class ChartModel {
   /// A longer read in the same candles whose earlier candles warm the lines and studies up
   /// (`ChartRange.warmup`); nil when the range has none or that read failed.
   private(set) var rangeWarmup: ChartV1?
-  /// Why the last read failed, if it did.
+  /// Why the last read failed, if it did: a refusal's cause alone, in the person's language.
   private(set) var error: String?
   /// A read is in flight.
   private(set) var loading = false
@@ -87,7 +87,7 @@ final class ChartModel {
       error = nil
     } catch {
       guard !Task.isCancelled, !(error is CancellationError) else { return }
-      self.error = ErrorText.text(error)
+      self.error = ErrorText.cause(error)
     }
   }
 
@@ -108,7 +108,7 @@ final class ChartModel {
       error = nil
     } catch {
       guard !Task.isCancelled, !(error is CancellationError) else { return }
-      self.error = ErrorText.text(error)
+      self.error = ErrorText.cause(error)
     }
   }
 

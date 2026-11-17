@@ -1985,6 +1985,10 @@ enum ChartText {
   static let rangeOneMonth = LocalizedStringResource("chart.range.oneMonth", defaultValue: "1M")
   static let rangeThreeMonths = LocalizedStringResource("chart.range.threeMonths", defaultValue: "3M")
   static let rangeOneYear = LocalizedStringResource("chart.range.oneYear", defaultValue: "1Y")
+  /// Title of the chart that could not be read for a range beyond one day (GET /chart).
+  static var barsUnavailable: LocalizedStringResource {
+    LocalizedStringResource("chart.barsUnavailable", defaultValue: "Bars Unavailable")
+  }
   /// Market data (GET /chart) could not be read for a range beyond one day.
   static var candlesUnavailable: LocalizedStringResource {
     LocalizedStringResource("chart.candlesUnavailable", defaultValue: "Market data is not available")

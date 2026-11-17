@@ -39,4 +39,12 @@ public enum ErrorText {
   public static func text(_ error: Error) -> String {
     (error as? LocalizedError)?.errorDescription ?? String(localized: L10n.unexpectedError)
   }
+
+  /// Why a read has nothing to show, for an empty state: a refusal's cause alone, in the
+  /// person's language (`ErrorV1.causeText`), without the API's status and error code; any
+  /// other error as `text` says it.
+  public static func cause(_ error: Error) -> String {
+    if case .refused(_, _, let cause) = error as? APIError { return cause }
+    return text(error)
+  }
 }

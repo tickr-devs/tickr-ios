@@ -37,7 +37,8 @@ final class ChartModel {
   /// A longer read in the same candles whose earlier candles warm the lines up
   /// (`ChartRange.warmup`); nil when the range has none or that read failed.
   private(set) var rangeWarmup: ChartV1?
-  /// Why the last GET /chart read failed, if it did (a 503 while market data is off).
+  /// Why the last GET /chart read failed, if it did (a 503 while market data is off): the
+  /// refusal's cause alone, in the person's language.
   private(set) var rangeFailure: String?
   private(set) var series: ChartSeries?
   /// Real times of `series`' candles and the time axis labels beyond one day.
@@ -203,7 +204,7 @@ final class ChartModel {
       return
     } catch {
       guard symbol == self.symbol, asked == (range, timeframe) else { return }
-      rangeFailure = ErrorText.text(error)
+      rangeFailure = ErrorText.cause(error)
     }
   }
 

@@ -122,8 +122,7 @@ struct ChartTab: View {
           } else if chart.range != .oneDay {
             RangePicker(chart: chart)
             if let failure = chart.rangeFailure {
-              ReadFailureNote(ChartText.candlesUnavailable, detail: failure)
-                .frame(maxWidth: .infinity, alignment: .leading)
+              UnavailableState(ChartText.barsUnavailable, message: ChartText.candlesUnavailable, cause: failure)
                 .rise()
             } else if let answer = chart.rangeChart, answer.symbol == chart.symbol, answer.range == chart.range,
               answer.interval == chart.timeframe {

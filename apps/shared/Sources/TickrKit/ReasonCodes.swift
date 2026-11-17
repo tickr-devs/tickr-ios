@@ -32,6 +32,7 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case freeMb = "free_mb"
   case held
   case host
+  case interval
   case key
   case keys
   case limit
@@ -41,8 +42,10 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case measured
   case minMb = "min_mb"
   case minRoom = "min_room"
+  case minutes
   case module
   case name
+  case names
   case need
   case new
   case notional
@@ -55,6 +58,7 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case plannedLoss = "planned_loss"
   case quantity
   case quoteSymbol = "quote_symbol"
+  case range
   case realized
   case replay
   case reserved
@@ -70,6 +74,7 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case stopPrice = "stop_price"
   case strategy
   case symbol
+  case symbols
   case time
   case today
   case total

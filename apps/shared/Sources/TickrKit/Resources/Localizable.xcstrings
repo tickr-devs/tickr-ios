@@ -5389,6 +5389,420 @@
         }
       }
     },
+    "kit.prose.chart_bar_outside_sessions" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_bar_outside_sessions",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data sent a {symbol} candle at {time}, outside the trading hours of {day}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные прислали свечу {symbol} в {time}, вне торговых часов {day}"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_bar_session_differs" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_bar_session_differs",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data and the calendar disagree on which part of the day the {symbol} candle at {time} belongs to"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные и календарь расходятся в том, к какой части дня относится свеча {symbol} в {time}"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_bars_out_of_order" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_bars_out_of_order",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data sent {symbol} candles out of time order"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные прислали свечи {symbol} не по порядку времени"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_check_error" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_check_error",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live charts are off on the bot: the chart check could not be looked up"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живые графики на боте выключены: не удалось узнать результат проверки графиков"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_check_not_passed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_check_not_passed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live charts are off on the bot: the last chart check did not pass"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живые графики на боте выключены: последняя проверка графиков не пройдена"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_check_not_run" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_check_not_run",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live charts are off on the bot: the chart check has not been run yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живые графики на боте выключены: проверка графиков ещё не проводилась"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_check_unreadable" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_check_unreadable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live charts are off on the bot: the last chart check's record cannot be read"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живые графики на боте выключены: запись последней проверки графиков не читается"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_client_failed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_client_failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live charts could not start on the bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живые графики на боте не смогли запуститься"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_daily_out_of_order" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_daily_out_of_order",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data sent {symbol} daily candles out of order at {day}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные прислали дневные свечи {symbol} не по порядку на {day}"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_data_delayed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_data_delayed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data for {symbols} is delayed by {minutes} min; the chart shows live data only"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные по {symbols} запаздывают на {minutes} мин; график показывает только данные без задержки"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_data_delayed.plain" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_data_delayed plain",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data is delayed; the chart shows live data only"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные запаздывают; график показывает только данные без задержки"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_interval_invalid" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_interval_invalid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The chart does not offer this candle size"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "График не строит свечи такого размера"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_off" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_off",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live charts are off on the bot until the chart checks pass"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живые графики на боте выключены, пока не пройдены проверки графиков"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_pair_not_served" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_pair_not_served",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{interval} candles are not offered over {range}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свечи {interval} не строятся за период {range}"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_range_invalid" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_range_invalid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The chart does not offer this range"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "График не строится за такой период"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_read_budget" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_read_budget",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many chart reads just now; try again in a moment"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Слишком много запросов графиков; попробуйте через минуту"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_read_failed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_read_failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data could not be read just now"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные сейчас не читаются"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_request_too_short" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_request_too_short",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One market data read of {count} minute candles did not reach the start of {day}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одного запроса на {count} минутных свечей не хватило до начала {day}"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_starting" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_starting",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live charts are starting on the bot; try again in a moment"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живые графики на боте запускаются; попробуйте через минуту"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_symbol_invalid" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_symbol_invalid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{symbol} is not a US stock ticker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{symbol} — не тикер акции США"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_symbol_unknown" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_symbol_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data does not know this symbol"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рыночные данные не знают этот тикер"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_too_few_sessions" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_too_few_sessions",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fewer than {count} trading days in the {days} days before {day}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Меньше {count} торговых дней за {days} дн. до {day}"
+          }
+        }
+      }
+    },
+    "kit.prose.chart_year_too_many_bars" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). chart_year_too_many_bars",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A year of daily candles needs up to {count} candles, more than one market data read gives"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для года дневных свечей нужно до {count} свечей, больше, чем даёт один запрос рыночных данных"
+          }
+        }
+      }
+    },
     "kit.prose.check_contradicts_record" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). check_contradicts_record",
       "extractionState" : "manual",
@@ -7221,6 +7635,96 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Папка советника не читается ({error})"
+          }
+        }
+      }
+    },
+    "kit.prose.query_malformed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). query_malformed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot could not read the request"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот не смог прочитать запрос"
+          }
+        }
+      }
+    },
+    "kit.prose.query_parameter_empty" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). query_parameter_empty",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The request leaves {name} empty"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В запросе {name} не заполнен"
+          }
+        }
+      }
+    },
+    "kit.prose.query_parameter_twice" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). query_parameter_twice",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The request gives {name} twice"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В запросе {name} указан дважды"
+          }
+        }
+      }
+    },
+    "kit.prose.query_parameters_missing" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). query_parameters_missing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The request is missing: {names}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В запросе не хватает: {names}"
+          }
+        }
+      }
+    },
+    "kit.prose.query_unknown_parameter" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). query_unknown_parameter",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The request has a value the bot does not take: {name}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В запросе есть значение, которое бот не принимает: {name}"
           }
         }
       }

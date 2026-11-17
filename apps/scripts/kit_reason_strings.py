@@ -1090,6 +1090,153 @@ GROUPS = [
                 "Нет свечей {symbol} за этот период",
             ),
             (
+                "chart_off",
+                "Live charts are off on the bot until the chart checks pass",
+                "Живые графики на боте выключены, пока не пройдены проверки графиков",
+            ),
+            (
+                "chart_check_not_run",
+                "Live charts are off on the bot: the chart check has not been run yet",
+                "Живые графики на боте выключены: проверка графиков ещё не проводилась",
+            ),
+            (
+                "chart_check_not_passed",
+                "Live charts are off on the bot: the last chart check did not pass",
+                "Живые графики на боте выключены: последняя проверка графиков не пройдена",
+            ),
+            (
+                "chart_check_unreadable",
+                "Live charts are off on the bot: the last chart check's record cannot be read",
+                "Живые графики на боте выключены: запись последней проверки графиков не читается",
+            ),
+            (
+                "chart_check_error",
+                "Live charts are off on the bot: the chart check could not be looked up",
+                "Живые графики на боте выключены: не удалось узнать результат проверки графиков",
+            ),
+            (
+                "chart_starting",
+                "Live charts are starting on the bot; try again in a moment",
+                "Живые графики на боте запускаются; попробуйте через минуту",
+            ),
+            (
+                "chart_client_failed",
+                "Live charts could not start on the bot",
+                "Живые графики на боте не смогли запуститься",
+            ),
+            (
+                "chart_read_budget",
+                "Too many chart reads just now; try again in a moment",
+                "Слишком много запросов графиков; попробуйте через минуту",
+            ),
+            (
+                "chart_data_delayed",
+                "Market data for {symbols} is delayed by {minutes} min; the chart shows live data "
+                "only",
+                "Рыночные данные по {symbols} запаздывают на {minutes} мин; график показывает "
+                "только данные без задержки",
+            ),
+            (
+                "chart_data_delayed",
+                "Market data is delayed; the chart shows live data only",
+                "Рыночные данные запаздывают; график показывает только данные без задержки",
+                "plain",
+            ),
+            (
+                "chart_symbol_unknown",
+                "Market data does not know this symbol",
+                "Рыночные данные не знают этот тикер",
+            ),
+            (
+                "chart_read_failed",
+                "Market data could not be read just now",
+                "Рыночные данные сейчас не читаются",
+            ),
+            (
+                "chart_symbol_invalid",
+                "{symbol} is not a US stock ticker",
+                "{symbol} — не тикер акции США",
+            ),
+            (
+                "chart_interval_invalid",
+                "The chart does not offer this candle size",
+                "График не строит свечи такого размера",
+            ),
+            (
+                "chart_range_invalid",
+                "The chart does not offer this range",
+                "График не строится за такой период",
+            ),
+            (
+                "chart_pair_not_served",
+                "{interval} candles are not offered over {range}",
+                "Свечи {interval} не строятся за период {range}",
+            ),
+            (
+                "chart_bar_outside_sessions",
+                "Market data sent a {symbol} candle at {time}, outside the trading hours of {day}",
+                "Рыночные данные прислали свечу {symbol} в {time}, вне торговых часов {day}",
+            ),
+            (
+                "chart_bar_session_differs",
+                "Market data and the calendar disagree on which part of the day the {symbol} "
+                "candle at {time} belongs to",
+                "Рыночные данные и календарь расходятся в том, к какой части дня относится свеча "
+                "{symbol} в {time}",
+            ),
+            (
+                "chart_bars_out_of_order",
+                "Market data sent {symbol} candles out of time order",
+                "Рыночные данные прислали свечи {symbol} не по порядку времени",
+            ),
+            (
+                "chart_too_few_sessions",
+                "Fewer than {count} trading days in the {days} days before {day}",
+                "Меньше {count} торговых дней за {days} дн. до {day}",
+            ),
+            (
+                "chart_request_too_short",
+                "One market data read of {count} minute candles did not reach the start of {day}",
+                "Одного запроса на {count} минутных свечей не хватило до начала {day}",
+            ),
+            (
+                "chart_daily_out_of_order",
+                "Market data sent {symbol} daily candles out of order at {day}",
+                "Рыночные данные прислали дневные свечи {symbol} не по порядку на {day}",
+            ),
+            (
+                "chart_year_too_many_bars",
+                "A year of daily candles needs up to {count} candles, more than one market data "
+                "read gives",
+                "Для года дневных свечей нужно до {count} свечей, больше, чем даёт один запрос "
+                "рыночных данных",
+            ),
+            (
+                "query_malformed",
+                "The bot could not read the request",
+                "Бот не смог прочитать запрос",
+            ),
+            (
+                "query_unknown_parameter",
+                "The request has a value the bot does not take: {name}",
+                "В запросе есть значение, которое бот не принимает: {name}",
+            ),
+            (
+                "query_parameter_twice",
+                "The request gives {name} twice",
+                "В запросе {name} указан дважды",
+            ),
+            (
+                "query_parameter_empty",
+                "The request leaves {name} empty",
+                "В запросе {name} не заполнен",
+            ),
+            (
+                "query_parameters_missing",
+                "The request is missing: {names}",
+                "В запросе не хватает: {names}",
+            ),
+            (
                 "no_advisor_runs",
                 "No advisor run yet",
                 "Запусков советника ещё не было",

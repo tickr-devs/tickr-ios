@@ -3,6 +3,147 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). chart_check_not_run
+  static var proseReasonChartCheckNotRun: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_check_not_run",
+      defaultValue: "Live charts are off on the bot: the chart check has not been run yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_check_not_passed
+  static var proseReasonChartCheckNotPassed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_check_not_passed",
+      defaultValue: "Live charts are off on the bot: the last chart check did not pass", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_check_unreadable
+  static var proseReasonChartCheckUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_check_unreadable",
+      defaultValue: "Live charts are off on the bot: the last chart check's record cannot be read", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_check_error
+  static var proseReasonChartCheckError: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_check_error",
+      defaultValue: "Live charts are off on the bot: the chart check could not be looked up", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_starting
+  static var proseReasonChartStarting: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_starting",
+      defaultValue: "Live charts are starting on the bot; try again in a moment", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_client_failed
+  static var proseReasonChartClientFailed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_client_failed",
+      defaultValue: "Live charts could not start on the bot", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_read_budget
+  static var proseReasonChartReadBudget: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_read_budget",
+      defaultValue: "Too many chart reads just now; try again in a moment", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_data_delayed (values: symbols, minutes)
+  static var proseReasonChartDataDelayed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_data_delayed",
+      defaultValue: "Market data for {symbols} is delayed by {minutes} min; the chart shows live data only", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_data_delayed plain
+  static var proseReasonChartDataDelayedPlain: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_data_delayed.plain",
+      defaultValue: "Market data is delayed; the chart shows live data only", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_symbol_unknown
+  static var proseReasonChartSymbolUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_symbol_unknown",
+      defaultValue: "Market data does not know this symbol", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_read_failed
+  static var proseReasonChartReadFailed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_read_failed",
+      defaultValue: "Market data could not be read just now", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_symbol_invalid (values: symbol)
+  static var proseReasonChartSymbolInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_symbol_invalid",
+      defaultValue: "{symbol} is not a US stock ticker", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_interval_invalid
+  static var proseReasonChartIntervalInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_interval_invalid",
+      defaultValue: "The chart does not offer this candle size", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_range_invalid
+  static var proseReasonChartRangeInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_range_invalid",
+      defaultValue: "The chart does not offer this range", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_pair_not_served (values: interval, range)
+  static var proseReasonChartPairNotServed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_pair_not_served",
+      defaultValue: "{interval} candles are not offered over {range}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_bar_outside_sessions (values: symbol, time, day)
+  static var proseReasonChartBarOutsideSessions: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_bar_outside_sessions",
+      defaultValue: "Market data sent a {symbol} candle at {time}, outside the trading hours of {day}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_bar_session_differs (values: symbol, time)
+  static var proseReasonChartBarSessionDiffers: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_bar_session_differs",
+      // swiftlint:disable:next line_length
+      defaultValue: "Market data and the calendar disagree on which part of the day the {symbol} candle at {time} belongs to", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_bars_out_of_order (values: symbol)
+  static var proseReasonChartBarsOutOfOrder: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_bars_out_of_order",
+      defaultValue: "Market data sent {symbol} candles out of time order", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_too_few_sessions (values: count, days, day)
+  static var proseReasonChartTooFewSessions: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_too_few_sessions",
+      defaultValue: "Fewer than {count} trading days in the {days} days before {day}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_request_too_short (values: count, day)
+  static var proseReasonChartRequestTooShort: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_request_too_short",
+      defaultValue: "One market data read of {count} minute candles did not reach the start of {day}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_daily_out_of_order (values: symbol, day)
+  static var proseReasonChartDailyOutOfOrder: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_daily_out_of_order",
+      defaultValue: "Market data sent {symbol} daily candles out of order at {day}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). chart_year_too_many_bars (values: count)
+  static var proseReasonChartYearTooManyBars: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_year_too_many_bars",
+      defaultValue: "A year of daily candles needs up to {count} candles, more than one market data read gives", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). query_malformed
+  static var proseReasonQueryMalformed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.query_malformed",
+      defaultValue: "The bot could not read the request", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). query_unknown_parameter (values: name)
+  static var proseReasonQueryUnknownParameter: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.query_unknown_parameter",
+      defaultValue: "The request has a value the bot does not take: {name}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). query_parameter_twice (values: name)
+  static var proseReasonQueryParameterTwice: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.query_parameter_twice",
+      defaultValue: "The request gives {name} twice", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). query_parameter_empty (values: name)
+  static var proseReasonQueryParameterEmpty: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.query_parameter_empty",
+      defaultValue: "The request leaves {name} empty", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). query_parameters_missing (values: names)
+  static var proseReasonQueryParametersMissing: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.query_parameters_missing",
+      defaultValue: "The request is missing: {names}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_advisor_runs
+  static var proseReasonNoAdvisorRuns: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_advisor_runs",
+      defaultValue: "No advisor run yet", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). proposals_unreadable (values: error)
   static var proseReasonProposalsUnreadable: LocalizedStringResource {
     LocalizedStringResource("kit.prose.proposals_unreadable",

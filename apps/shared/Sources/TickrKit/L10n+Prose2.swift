@@ -379,9 +379,9 @@ extension L10n {
     LocalizedStringResource("kit.prose.no_chart_bars",
       defaultValue: "No candles for {symbol} in this range", bundle: bundle)
   }
-  /// A cause the API writes itself (`<field>_codes`). no_advisor_runs
-  static var proseReasonNoAdvisorRuns: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_advisor_runs",
-      defaultValue: "No advisor run yet", bundle: bundle)
+  /// A cause the API writes itself (`<field>_codes`). chart_off
+  static var proseReasonChartOff: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.chart_off",
+      defaultValue: "Live charts are off on the bot until the chart checks pass", bundle: bundle)
   }
 }
