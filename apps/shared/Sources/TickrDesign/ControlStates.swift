@@ -71,7 +71,8 @@ public struct StatusPill: View {
 /// (`.u-badge` of the boards' shared spec):
 /// `badge` type (10.5 pt bold mono, uppercase, `badgeTracking`), `Radius.small` (6 pt) corners,
 /// `Space.xs` × `Space.s` padding, its colour at `Opacity.badgeFill` inside and `Opacity.border` around,
-/// the words in the colour's text role. Words only, never a symbol. `planned` draws it dashed
+/// the words in the colour's text role. Words only, but for a leading symbol where a board draws one
+/// (the closed gate's lock, mockup v109). `planned` draws it dashed
 /// (BACKLOG); `dashed` gives the usual wash a dashed edge (the demo day).
 public struct Badge: View {
   let text: Text
@@ -82,9 +83,17 @@ public struct Badge: View {
   let dashed: Bool
   /// Badges are capitals; a value whose case means something (a version, "v1") keeps its own.
   var textCase: Text.Case? = .uppercase
+  /// An SF Symbol before the words, in their colour; nil for words only.
+  var symbol: String?
 
   public init(_ title: LocalizedStringResource, tone: Tone, planned: Bool = false) {
     self.init(Text(title), fill: tone.fill, color: tone.text, planned: planned)
+  }
+
+  /// A badge with a symbol before its words (the closed gate's lock).
+  public init(_ title: LocalizedStringResource, symbol: String?, tone: Tone) {
+    self.init(Text(title), fill: tone.fill, color: tone.text, planned: false)
+    self.symbol = symbol
   }
 
   /// A badge whose text keeps its case: a version ("v1").
@@ -119,7 +128,14 @@ public struct Badge: View {
 
   public var body: some View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
-    text
+    HStack(spacing: Tokens.Space.xs) {
+      if let symbol {
+        Image(systemName: symbol)
+          .font(Tokens.Typography.badgeSymbol)
+          .accessibilityHidden(true)
+      }
+      text
+    }
       .textCase(textCase)
       .tracking(Tokens.Typography.badgeTracking)
       .font(Tokens.Typography.badge)

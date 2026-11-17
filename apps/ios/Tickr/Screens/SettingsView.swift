@@ -13,7 +13,6 @@ struct SettingsView: View {
   static let forgetSymbol = "minus.circle"
   static let stateSymbol = "power"
   static let startSymbol = "play.fill"
-  static let gateClosedSymbol = "lock.fill"
   static let configSymbol = "doc.plaintext.fill"
   static let appSymbol = "app.fill"
   static let contractSymbol = "doc.text.fill"
@@ -170,7 +169,7 @@ struct SettingsView: View {
       // As on the design the card holds the bot and its file; a closed trading gate is the one
       // exception, as it stops every entry (the open gate and the strategy are on Home and Lab).
       if !status.tradingGate.open {
-        SettingsRow(L10n.Settings.gate, systemImage: Self.gateClosedSymbol, tone: .warning) {
+        SettingsRow(L10n.Settings.gate, systemImage: Symbols.gateClosed, tone: EntryGate.closed.tone) {
           // The gate as a fact, the same badge as the Mac Overview's header (GATE CLOSED).
           Badge(L10n.Settings.gateClosed, tone: .warning)
         }

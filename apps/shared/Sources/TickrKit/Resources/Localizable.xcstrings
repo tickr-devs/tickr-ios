@@ -2254,6 +2254,57 @@
         }
       }
     },
+    "kit.entryGate.closed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gate closed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз закрыт"
+          }
+        }
+      }
+    },
+    "kit.entryGate.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gate open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз открыт"
+          }
+        }
+      }
+    },
+    "kit.entryGate.paused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries paused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы на паузе"
+          }
+        }
+      }
+    },
     "kit.environment.demo" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3990,57 +4041,6 @@
         }
       }
     },
-    "kit.gate.closed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gate closed"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Шлюз закрыт"
-          }
-        }
-      }
-    },
-    "kit.gate.open" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gate open"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Шлюз открыт"
-          }
-        }
-      }
-    },
-    "kit.gate.paused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entries paused"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Входы на паузе"
-          }
-        }
-      }
-    },
     "kit.gate.trading_disabled" : {
       "comment" : "The trading gate's cause (`Gate.code`). trading_disabled",
       "extractionState" : "manual",
@@ -4107,6 +4107,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подключение к локальному API…"
+          }
+        }
+      }
+    },
+    "kit.headline.entriesOff" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entries off"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Входы выключены"
+          }
+        }
+      }
+    },
+    "kit.headline.gateClosedInConfig" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "trading gate closed in config"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "шлюз закрыт в конфиге"
           }
         }
       }

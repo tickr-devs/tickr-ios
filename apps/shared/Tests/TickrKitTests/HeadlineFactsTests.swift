@@ -73,8 +73,8 @@ import Testing
       == "Откроется через 9 ч 25 м")
     #expect(try russian("kit.countdown.closesIn") + " " + filled(try russian("kit.countdown.minutes"), 42)
       == "Закроется через 42 м")
-    #expect(try russian("kit.gate.open") == "Шлюз открыт")
-    #expect(try russian("kit.gate.paused") == "Входы на паузе")
+    #expect(try russian("kit.entryGate.open") == "Шлюз открыт")
+    #expect(try russian("kit.entryGate.paused") == "Входы на паузе")
   }
 
   // MARK: gate
@@ -93,8 +93,18 @@ import Testing
     let closed = try status { $0.replacingOccurrences(of: "\"open\": true", with: "\"open\": false") }
     #expect(closed.status?.tradingGate.open == false)
     #expect(EntryGate.make(closed.status, headline: Headline.make(response: closed, readFailed: false)) == .closed)
-    #expect(EntryGate.open.title.key == "kit.gate.open")
+    #expect(EntryGate.open.title.key == "kit.entryGate.open")
     #expect(String(localized: EntryGate.paused.title) == "Entries paused")
+  }
+
+  @Test("A trading gate closed in config is a calm \"Entries off\", not a warning (mockup v109)")
+  func gateClosedHeadline() throws {
+    let closed = try status {
+      $0.replacingOccurrences(of: "\"open\": true", with: "\"open\": false")
+        .replacingOccurrences(of: "\"cause\": \"own_trade_open\"", with: "\"cause\": \"trading_gate_closed\"")
+    }
+    let headline = Headline.make(response: closed, readFailed: false)
+    #expect(headline == Headline(text: "Entries off", severity: .ok, detail: "trading gate closed in config"))
   }
 
   @Test("An alarm headline hides the gate badge; without a status there is none")

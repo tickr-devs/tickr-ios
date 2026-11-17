@@ -55,6 +55,12 @@ public struct Headline: Equatable, Sendable {
           + summary(response),
         severity: .alarm, detail: detail(status))
     }
+    // The trading gate closed by configuration is a setting, not a fault (mockup v109): a calm
+    // "Entries off", the gate's own badge beside it saying the rest.
+    if let block = status.entryBlock, BlockCode(rawValue: block.cause) == .tradingGateClosed {
+      return Headline(text: String(localized: L10n.headlineEntriesOff), severity: .ok,
+        detail: String(localized: L10n.headlineGateClosedInConfig))
+    }
     // Open positions, all protected and nothing for the operator to do: the headline says what
     // the bot holds, as on the design, not why a further entry would be refused.
     if status.entryBlock?.attention != true, !status.positions.isEmpty {

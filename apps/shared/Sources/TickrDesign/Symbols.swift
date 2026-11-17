@@ -10,6 +10,8 @@ public enum Symbols {
   public static let previous = "chevron.backward"
   /// One step on: the next day or month, and a link's disclosure chevron (the design's "›").
   public static let next = "chevron.forward"
+  /// The trading gate closed: the gate badge, the gate's glyph and Settings row (mockup v109).
+  public static let gateClosed = "lock.fill"
   /// Paused: entries paused, the Pause command.
   public static let pause = "pause.fill"
   /// A read or an action that failed: a failed day, chart bars that did not load.

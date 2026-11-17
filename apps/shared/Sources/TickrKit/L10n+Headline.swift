@@ -16,6 +16,16 @@ extension L10n {
       defaultValue: "\(count) open · \(protected) protected by a verified broker stop", bundle: bundle)
   }
 
+  /// The headline while the trading gate is closed by configuration (mockup v109).
+  static var headlineEntriesOff: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.entriesOff", defaultValue: "Entries off", bundle: bundle)
+  }
+  /// Its detail.
+  static var headlineGateClosedInConfig: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.gateClosedInConfig", defaultValue: "trading gate closed in config",
+      bundle: bundle)
+  }
+
   // MARK: Session countdown
 
   /// Before the regular session: the label in front of the time left.
@@ -40,14 +50,14 @@ extension L10n {
 
   /// The trading gate is open and the operator has not paused entries.
   static var gateOpen: LocalizedStringResource {
-    LocalizedStringResource("kit.gate.open", defaultValue: "Gate open", bundle: bundle)
+    LocalizedStringResource("kit.entryGate.open", defaultValue: "Gate open", bundle: bundle)
   }
   /// The operator's entry stop is on.
   static var gatePaused: LocalizedStringResource {
-    LocalizedStringResource("kit.gate.paused", defaultValue: "Entries paused", bundle: bundle)
+    LocalizedStringResource("kit.entryGate.paused", defaultValue: "Entries paused", bundle: bundle)
   }
   /// The trading gate is closed (configuration or the Production lock).
   static var gateClosed: LocalizedStringResource {
-    LocalizedStringResource("kit.gate.closed", defaultValue: "Gate closed", bundle: bundle)
+    LocalizedStringResource("kit.entryGate.closed", defaultValue: "Gate closed", bundle: bundle)
   }
 }

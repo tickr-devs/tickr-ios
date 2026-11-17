@@ -128,6 +128,8 @@ public enum Tokens {
     /// Tab names under the tab glyphs in the iPhone tab bar.
     public static let tabLabel = Font.system(size: tabLabelSize, weight: .medium)
     #endif
+    /// A symbol inside a badge (the closed gate's lock, the boards' 9 px glyph).
+    public static let badgeSymbol = Font.system(.caption2, weight: .bold)
     /// Buttons drawn by the apps' own button style (bot controls).
     public static let button = Font.system(.body, weight: .semibold)
     /// Tabs and figures that name a symbol or a value (position tabs, flow chips).

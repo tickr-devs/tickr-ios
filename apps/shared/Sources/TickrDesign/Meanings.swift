@@ -151,13 +151,19 @@ extension Headline {
 }
 
 extension EntryGate {
-  /// The gate badge's tone beside the headline (mockup v108): open in profit (green), paused or
-  /// closed in warning (amber).
+  /// The gate badge's tone beside the headline: open in profit (green), paused in warning
+  /// (amber), closed neutral grey (mockup v109: a setting, not a fault).
   public var tone: Tone {
     switch self {
     case .open: return .profit
-    case .paused, .closed: return .warning
+    case .paused: return .warning
+    case .closed: return .neutral
     }
+  }
+
+  /// The symbol before the badge's words: the lock of a closed gate, none otherwise.
+  public var symbol: String? {
+    self == .closed ? Symbols.gateClosed : nil
   }
 }
 

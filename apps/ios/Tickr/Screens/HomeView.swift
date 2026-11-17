@@ -276,8 +276,6 @@ private struct Summary: View {
   static let ringLine: CGFloat = 10
   /// Width of the ring's figures as a share of its side: the square inside the circle.
   static let innerShare: CGFloat = 0.7
-  /// Symbol of a closed trading gate.
-  static let gateClosedSymbol = "lock.fill"
 
   @Environment(AppModel.self) private var model
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -324,7 +322,7 @@ private struct Summary: View {
                 StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
               }
               if !status.tradingGate.open {
-                StateGlyph(Self.gateClosedSymbol, tone: .warning,
+                StateGlyph(Symbols.gateClosed, tone: EntryGate.closed.tone,
                   label: L10n.Home.gateClosed(ApiText.gate(status.tradingGate)), style: .compact)
               } else {
                 let entries = EntriesGlyph.make(status)

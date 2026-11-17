@@ -210,7 +210,7 @@ public struct HeadlineBanner: View {
         }
         .font(Tokens.Headline.countdown)
       }
-      if let gate { Badge(gate.title, tone: gate.tone) }
+      if let gate { Badge(gate.title, symbol: gate.symbol, tone: gate.tone) }
     }
     .fixedSize()
   }

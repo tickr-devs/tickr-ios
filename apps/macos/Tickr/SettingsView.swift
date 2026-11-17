@@ -475,7 +475,7 @@ private struct EnvironmentSettings: View {
         // The gate at a glance beside it, the same badge as the headline's; its cause on hover.
         if let gate = model.status?.tradingGate {
           let shown: EntryGate = gate.open ? .open : .closed
-          Badge(shown.title, tone: shown.tone)
+          Badge(shown.title, symbol: shown.symbol, tone: shown.tone)
             .help(Text(verbatim: ApiText.gate(gate)))
         }
         Spacer(minLength: 0)

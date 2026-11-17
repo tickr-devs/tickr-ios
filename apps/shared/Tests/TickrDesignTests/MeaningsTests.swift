@@ -58,9 +58,10 @@ import TickrKit
     #expect(Headline(text: "", severity: .alarm).tone == .loss)
   }
 
-  @Test("The gate badge: open green, paused and closed amber")
+  @Test("The gate badge (mockup v109): open green, paused amber, closed grey with a lock")
   func gateTones() {
-    #expect([EntryGate.open, .paused, .closed].map(\.tone) == [.profit, .warning, .warning])
+    #expect([EntryGate.open, .paused, .closed].map(\.tone) == [.profit, .warning, .neutral])
+    #expect([EntryGate.open, .paused, .closed].map(\.symbol) == [nil, nil, Symbols.gateClosed])
   }
 
   @Test("Verdicts: ENTER and HOLD accent, WATCH info, IGNORE pink, EXIT warning, all text roles")
