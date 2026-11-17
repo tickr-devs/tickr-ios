@@ -75,8 +75,10 @@ public enum Tokens {
     public static let quoteSize: CGFloat = 20
     /// Figures in compact tiles and stat rows (Trades' day figures, performance figures).
     public static let figureSize: CGFloat = 18
-    /// Tab names under the tab glyphs in the iPhone tab bar.
-    public static let tabLabelSize: CGFloat = 11
+    /// Tab names under the tab glyphs in the iPhone tab bar: the system tab bar's 10 pt (Apple HIG,
+    /// and the IOSHome board's `.tab`), so the longest Russian name ("Лаборатория") fits its tab on
+    /// one line.
+    public static let tabLabelSize: CGFloat = 10
 
     #if os(iOS)
     // iOS: each role follows a text style, so Dynamic Type (Settings › Display & Brightness ›
@@ -100,8 +102,10 @@ public enum Tokens {
     public static let panelFigure = Font.system(.largeTitle, design: .monospaced, weight: .bold)
     /// SF Symbols inside a compact round icon button.
     public static let symbolCompact = Font.system(.footnote, weight: .semibold)
-    /// Tab names under the tab glyphs in the iPhone tab bar.
-    public static let tabLabel = Font.system(.caption2, weight: .medium)
+    /// Tab names under the tab glyphs in the iPhone tab bar: a fixed `tabLabelSize`, as the system
+    /// tab bar's, which does not grow with Dynamic Type either; at large sizes a long press shows
+    /// the tab's name in the large-content viewer (`TickrTabBar`).
+    public static let tabLabel = Font.system(size: tabLabelSize, weight: .medium)
     /// The status headline (`HeadlineBanner`): IOSHome's 15 pt bold.
     public static let statusLine = Font.system(.subheadline, weight: .bold)
     #else

@@ -15,7 +15,6 @@ struct SettingsView: View {
   static let startSymbol = "play.fill"
   static let gateClosedSymbol = "lock.fill"
   static let configSymbol = "doc.plaintext.fill"
-  static let lockScreenSymbol = "bell.badge.fill"
   static let appSymbol = "app.fill"
   static let contractSymbol = "doc.text.fill"
   static let demoSymbol = "theatermasks.fill"
@@ -58,12 +57,7 @@ struct SettingsView: View {
       }
       .cardRise(step: Order.demo.rawValue)
 
-      SettingsCard(L10n.Settings.notifications, note: L10n.Settings.notificationsFooter) {
-        SettingsRow(L10n.Settings.lockScreen, systemImage: Self.lockScreenSymbol, tone: .warning) {
-          Badge(L10n.Settings.notYet, tone: .highlight, planned: true)
-        }
-      }
-      .cardRise(step: Order.notifications.rawValue)
+      NotificationsSection().cardRise(step: Order.notifications.rawValue)
 
       if let status = model.status {
         EnvironmentSection(status: status).cardRise(step: Order.environment.rawValue)

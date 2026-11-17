@@ -413,9 +413,13 @@ enum L10n {
 
   enum Flow {
     /// The event line's tag for a signal risk refused: "REFUSED".
-    /// VoiceOver label of a stage's refused tray: "2 refused".
-    static func refusedCount(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("flow.refusedCount", defaultValue: "\(count) refused", bundle: L10n.bundle)
+    /// Symbols a live-flow stage dropped today, on its tile: "−144".
+    static func dropped(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.dropped", defaultValue: "−\(count)", bundle: L10n.bundle)
+    }
+    /// VoiceOver label of a tile's dropped count: "144 dropped here today".
+    static func droppedCount(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("flow.droppedCount", defaultValue: "\(count) dropped here today", bundle: L10n.bundle)
     }
     /// Card title on Home: the stages a setup passes through.
     static var title: LocalizedStringResource {
@@ -451,10 +455,6 @@ enum L10n {
     static func stopsCount(_ verified: Int, _ total: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.stopsCount", defaultValue: "\(verified)/\(total)", bundle: L10n.bundle)
     }
-    /// Symbols at a live-flow stage beyond the dots shown: "+5".
-    static func more(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("flow.more", defaultValue: "+\(count)", bundle: L10n.bundle)
-    }
     /// Rows of a stage's detail beyond those listed: "4 more".
     static func moreRows(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.moreRows", defaultValue: "\(count) more", bundle: L10n.bundle)
@@ -471,9 +471,9 @@ enum L10n {
     static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
       LocalizedStringResource("flow.slots", defaultValue: "slots \(used) of \(limit)", bundle: L10n.bundle)
     }
-    /// The legend of the dashed trays that hold the symbols a stage refused today.
-    static var refusedToday: LocalizedStringResource {
-      LocalizedStringResource("flow.refusedToday", defaultValue: "refused today", bundle: L10n.bundle)
+    /// The legend of the tiles' pink counts, as on the board.
+    static var droppedLegend: LocalizedStringResource {
+      LocalizedStringResource("flow.droppedLegend", defaultValue: "−N dropped here today", bundle: L10n.bundle)
     }
     /// In place of the slots when the status is stale, failed or from an earlier session.
     static var notCurrent: LocalizedStringResource {
@@ -1152,19 +1152,19 @@ enum L10n {
   enum FlowStages {
     /// Funnel stage: a fresh quote with a spread within the limit.
     static var quote: LocalizedStringResource {
-      LocalizedStringResource("flowStages.quote", defaultValue: "Quote", bundle: L10n.bundle)
+      LocalizedStringResource("flowStages.quote", defaultValue: "quote", bundle: L10n.bundle)
     }
     /// Funnel stage: minute bars with enough dollar volume.
     static var bars: LocalizedStringResource {
-      LocalizedStringResource("flowStages.bars", defaultValue: "Bars", bundle: L10n.bundle)
+      LocalizedStringResource("flowStages.bars", defaultValue: "bars", bundle: L10n.bundle)
     }
     /// Funnel stage: the bot's records against the broker's.
     static var reconcile: LocalizedStringResource {
-      LocalizedStringResource("flowStages.reconcile", defaultValue: "Reconcile", bundle: L10n.bundle)
+      LocalizedStringResource("flowStages.reconcile", defaultValue: "reconcile", bundle: L10n.bundle)
     }
-    /// Reconcile stage value: the records match the broker.
+    /// Reconcile stage value: the records match the broker ("ok", as on the IOSHome board).
     static var match: LocalizedStringResource {
-      LocalizedStringResource("flowStages.match", defaultValue: "match", bundle: L10n.bundle)
+      LocalizedStringResource("flowStages.match", defaultValue: "ok", bundle: L10n.bundle)
     }
     /// Reconcile stage value: the records differ from the broker.
     static var mismatch: LocalizedStringResource {
@@ -1699,7 +1699,7 @@ enum L10n {
       LocalizedStringResource("settings.job.other", defaultValue: "Other job", bundle: L10n.bundle)
     }
     static var reconcile: LocalizedStringResource {
-      LocalizedStringResource("settings.reconcile", defaultValue: "Reconcile", bundle: L10n.bundle)
+      LocalizedStringResource("settings.reconcile", defaultValue: "reconcile", bundle: L10n.bundle)
     }
     /// Before the countdown to the next reconcile.
     static var nextIn: LocalizedStringResource {
@@ -1716,8 +1716,7 @@ enum L10n {
     }
     static var environmentFooter: LocalizedStringResource {
       LocalizedStringResource("settings.environmentFooter",
-        // swiftlint:disable:next line_length
-        defaultValue: "Sandbox or Production is set in config/bot.toml on the Mac; Production also needs your authorization file there. The phone only shows it.",
+        defaultValue: "Production is enabled only on the Mac: the config plus your authorization file. The phone shows it.",
         bundle: L10n.bundle)
     }
     static var session: LocalizedStringResource {
@@ -1821,19 +1820,52 @@ enum L10n {
     static var strategy: LocalizedStringResource {
       LocalizedStringResource("settings.strategy", defaultValue: "Strategy", bundle: L10n.bundle)
     }
-    static var lockScreen: LocalizedStringResource {
-      LocalizedStringResource("settings.lockScreen", defaultValue: "Lock-screen alerts", bundle: L10n.bundle)
-    }
     static var notYet: LocalizedStringResource {
       LocalizedStringResource("settings.notYet", defaultValue: "Not yet", bundle: L10n.bundle)
     }
-    static var notifications: LocalizedStringResource {
-      LocalizedStringResource("settings.notifications", defaultValue: "Notifications", bundle: L10n.bundle)
+    /// VoiceOver hint of the environment switch: the phone cannot change it.
+    static var environmentLocked: LocalizedStringResource {
+      LocalizedStringResource("settings.environmentLocked", defaultValue: "Production is enabled only on the Mac",
+        bundle: L10n.bundle)
+    }
+    /// The notifications card's label (IOSGateAlerts).
+    static var notifyPhone: LocalizedStringResource {
+      LocalizedStringResource("settings.notifyPhone", defaultValue: "Notify this iPhone", bundle: L10n.bundle)
+    }
+    /// The notifications card's backlog tag: push delivery waits for the developer membership.
+    static var pushNeedsDeveloper: LocalizedStringResource {
+      LocalizedStringResource("settings.pushNeedsDeveloper", defaultValue: "Push · needs Apple Developer",
+        bundle: L10n.bundle)
+    }
+    /// VoiceOver label of the lock beside an alarm that cannot be turned off.
+    static var alwaysOn: LocalizedStringResource {
+      LocalizedStringResource("settings.alwaysOn", defaultValue: "always on", bundle: L10n.bundle)
+    }
+    static var alertUnprotected: LocalizedStringResource {
+      LocalizedStringResource("settings.alertUnprotected", defaultValue: "Position without a stop", bundle: L10n.bundle)
+    }
+    static var alertRefused: LocalizedStringResource {
+      LocalizedStringResource("settings.alertRefused", defaultValue: "Stop or exit refused", bundle: L10n.bundle)
+    }
+    static var alertMismatch: LocalizedStringResource {
+      LocalizedStringResource("settings.alertMismatch", defaultValue: "Broker mismatch", bundle: L10n.bundle)
+    }
+    static var alertFilled: LocalizedStringResource {
+      LocalizedStringResource("settings.alertFilled", defaultValue: "Entry and exit filled", bundle: L10n.bundle)
+    }
+    static var alertTrailing: LocalizedStringResource {
+      LocalizedStringResource("settings.alertTrailing", defaultValue: "Trailing stop tightened", bundle: L10n.bundle)
+    }
+    static var alertCeiling: LocalizedStringResource {
+      LocalizedStringResource("settings.alertCeiling", defaultValue: "Daily loss ceiling", bundle: L10n.bundle)
+    }
+    static var alertAdvisor: LocalizedStringResource {
+      LocalizedStringResource("settings.alertAdvisor", defaultValue: "Advisor proposal", bundle: L10n.bundle)
     }
     static var notificationsFooter: LocalizedStringResource {
       LocalizedStringResource("settings.notificationsFooter",
         // swiftlint:disable:next line_length
-        defaultValue: "Alerts for stops, fills, paused entries and broker mismatches arrive when push notifications are set up. Environment and limits are set in the bot's config on the Mac; the phone only shows them.",
+        defaultValue: "Alerts reach this iPhone once push notifications are set up, which needs an Apple Developer membership. Until then the switches show the planned choice and cannot be changed; the three alarms with a lock are always on.",
         bundle: L10n.bundle)
     }
     static var about: LocalizedStringResource {

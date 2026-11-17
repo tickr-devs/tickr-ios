@@ -30,8 +30,9 @@ struct ChartTab: View {
     .background(TickrBackground())
     // The design starts with the symbol: no title row, the tab's name stays for VoiceOver.
     .tabRoot(.chart)
-    // The symbol and the day stay on top as the screen's bar: the chart scrolls under it with the
-    // system's scroll edge effect, never bare under the status bar.
+    // The symbol and the day stay on top as the screen's bar. `tabRoot`'s backdrop
+    // (`StatusBarBackdrop`) sits inside this bar's safe area, so it covers the status bar and the
+    // bar's own strip: the chart scrolled up never draws under the clock or behind the glass.
     .safeAreaBar(edge: .top) {
       if let url = app.connection.url, !chart.days.isEmpty, showsContent {
         DayBar(chart: chart, url: url)

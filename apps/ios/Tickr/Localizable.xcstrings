@@ -4544,19 +4544,53 @@
         }
       }
     },
-    "flow.more" : {
+    "flow.dropped" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+%lld"
+            "value" : "−%lld"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+%lld"
+            "value" : "−%lld"
+          }
+        }
+      }
+    },
+    "flow.droppedCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld dropped here today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отсеяно здесь сегодня: %lld"
+          }
+        }
+      }
+    },
+    "flow.droppedLegend" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "−N dropped here today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "−N отсеяно здесь сегодня"
           }
         }
       }
@@ -4693,40 +4727,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "чтение %lld с назад"
-          }
-        }
-      }
-    },
-    "flow.refusedCount" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld refused"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "отказов: %lld"
-          }
-        }
-      }
-    },
-    "flow.refusedToday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "refused today"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "отказы за день"
           }
         }
       }
@@ -4907,13 +4907,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bars"
+            "value" : "bars"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Бары"
+            "value" : "бары"
           }
         }
       }
@@ -4941,13 +4941,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "match"
+            "value" : "ok"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "совпадает"
+            "value" : "в норме"
           }
         }
       }
@@ -4975,13 +4975,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quote"
+            "value" : "quote"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Котировка"
+            "value" : "котировка"
           }
         }
       }
@@ -4992,13 +4992,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reconcile"
+            "value" : "reconcile"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сверка"
+            "value" : "сверка"
           }
         }
       }
@@ -8888,6 +8888,125 @@
         }
       }
     },
+    "settings.alertAdvisor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advisor proposal"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предложение советника"
+          }
+        }
+      }
+    },
+    "settings.alertCeiling" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily loss ceiling"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дневной лимит убытка"
+          }
+        }
+      }
+    },
+    "settings.alertFilled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry and exit filled"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход и выход исполнены"
+          }
+        }
+      }
+    },
+    "settings.alertMismatch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker mismatch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расхождение с брокером"
+          }
+        }
+      }
+    },
+    "settings.alertRefused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop or exit refused"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп или выход отклонён"
+          }
+        }
+      }
+    },
+    "settings.alertTrailing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trailing stop tightened"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Трейлинг подтянул стоп"
+          }
+        }
+      }
+    },
+    "settings.alertUnprotected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position without a stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиция без стопа"
+          }
+        }
+      }
+    },
     "settings.allPassed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8901,6 +9020,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "всё в порядке"
+          }
+        }
+      }
+    },
+    "settings.alwaysOn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "always on"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "всегда включено"
           }
         }
       }
@@ -9421,13 +9557,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sandbox or Production is set in config/bot.toml on the Mac; Production also needs your authorization file there. The phone only shows it."
+            "value" : "Production is enabled only on the Mac: the config plus your authorization file. The phone shows it."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sandbox или Production задаётся в config/bot.toml на Mac; для Production там же нужен ваш файл разрешения. Телефон только показывает среду."
+            "value" : "Production включается только на Mac: конфиг и файл вашего разрешения. Телефон показывает."
+          }
+        }
+      }
+    },
+    "settings.environmentLocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Production is enabled only on the Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Production включается только на Mac"
           }
         }
       }
@@ -9653,23 +9806,6 @@
         }
       }
     },
-    "settings.lockScreen" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lock-screen alerts"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уведомления на экране блокировки"
-          }
-        }
-      }
-    },
     "settings.nextIn" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9721,36 +9857,36 @@
         }
       }
     },
-    "settings.notifications" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notifications"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уведомления"
-          }
-        }
-      }
-    },
     "settings.notificationsFooter" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alerts for stops, fills, paused entries and broker mismatches arrive when push notifications are set up. Environment and limits are set in the bot's config on the Mac; the phone only shows them."
+            "value" : "Alerts reach this iPhone once push notifications are set up, which needs an Apple Developer membership. Until then the switches show the planned choice and cannot be changed; the three alarms with a lock are always on."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Уведомления о стопах, исполнениях, паузе входов и расхождениях с брокером появятся, когда будут настроены push-уведомления. Окружение и лимиты задаются в конфигурации бота на Mac, телефон только показывает их."
+            "value" : "Уведомления придут на этот iPhone, когда будет настроен push, а для него нужно членство Apple Developer. До тех пор переключатели показывают задуманный выбор и не меняются; три тревоги с замком включены всегда."
+          }
+        }
+      }
+    },
+    "settings.notifyPhone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notify this iPhone"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомлять этот iPhone"
           }
         }
       }
@@ -9853,6 +9989,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "премаркет"
+          }
+        }
+      }
+    },
+    "settings.pushNeedsDeveloper" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push · needs Apple Developer"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push · нужен Apple Developer"
           }
         }
       }

@@ -39,3 +39,20 @@ import TickrKit
     #expect(JobsSection.backupTone(jobs.backup) == .profit)
   }
 }
+
+/// The "Notify this iPhone" card shows the board's choice: the three alarms locked on, fills and the
+/// loss ceiling on, the trailing stop and advisor off.
+@Suite struct NotificationsSectionTests {
+  @Test func alarmsAreLockedOn() {
+    let locked = NotificationsSection.Event.allCases.filter(\.locked)
+    #expect(locked == [.unprotected, .refused, .mismatch])
+    for event in locked { #expect(event.on) }
+  }
+
+  @Test func ownerChoicesStartAsOnTheBoard() {
+    let on = NotificationsSection.Event.allCases.filter { !$0.locked && $0.on }
+    #expect(on == [.filled, .ceiling])
+    #expect(!NotificationsSection.Event.trailing.on)
+    #expect(!NotificationsSection.Event.advisor.on)
+  }
+}

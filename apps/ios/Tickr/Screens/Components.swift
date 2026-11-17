@@ -291,11 +291,44 @@ struct HeaderIcon: View {
   }
 }
 
+/// The screen's own background over the status bar, so scrolled content never draws under the
+/// clock. The app hides the navigation bar on every screen (each draws its own title row), and with
+/// it goes the system's scroll edge effect that would cover the status bar: without this, cards,
+/// chart tags and candles scrolled up ran under "9:41". The same `TickrBackground` the screen
+/// stands on, cut to the top safe area and fading out over `fade` below it, so the seam is not
+/// seen. It covers the whole top safe area of the content it modifies: under the Chart tab's
+/// symbol bar (`safeAreaBar`) that is the status bar and the bar, so nothing shows through the
+/// bar's glass either. Draws only; touches go to the content.
+struct StatusBarBackdrop: ViewModifier {
+  /// Height of the fade under the covered strip, in points.
+  static let fade = Tokens.Space.s
+
+  func body(content: Content) -> some View {
+    content.overlay {
+      GeometryReader { proxy in
+        TickrBackground()
+          .mask {
+            VStack(spacing: 0) {
+              Rectangle().frame(height: proxy.safeAreaInsets.top)
+              LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                .frame(height: Self.fade)
+              Spacer(minLength: 0)
+            }
+            .ignoresSafeArea()
+          }
+      }
+      .allowsHitTesting(false)
+      .accessibilityHidden(true)
+    }
+  }
+}
+
 extension View {
   /// A pushed screen draws its own top (`PushedHeader`): no navigation bar and no tab bar; the
   /// title stays the screen's name for VoiceOver and the app switcher.
   func pushedScreen(_ title: LocalizedStringResource) -> some View {
-    toolbarVisibility(.hidden, for: .navigationBar)
+    modifier(StatusBarBackdrop())
+      .toolbarVisibility(.hidden, for: .navigationBar)
       .navigationTitle(Text(title))
       .background { EdgeSwipeBack() }
   }
@@ -369,7 +402,8 @@ extension View {
   /// title a pushed screen's back button shows ("‹ Home"), and the design's tab bar under it. Pushed
   /// screens have no tab bar, as on the design's Settings.
   func tabRoot(_ tab: AppTab) -> some View {
-    toolbarVisibility(.hidden, for: .navigationBar)
+    modifier(StatusBarBackdrop())
+      .toolbarVisibility(.hidden, for: .navigationBar)
       .navigationTitle(Text(tab.title))
       .safeAreaInset(edge: .bottom, spacing: 0) { TickrTabBar() }
       // The bar sits lower than the space it reserves (it reaches into the home indicator's
@@ -458,8 +492,8 @@ struct TickrTabBar: View {
     .padding(.horizontal, Self.sideInset)
     // From the screen's bottom edge, not from the top of the home indicator's strip.
     .padding(.bottom, Self.bottomGap - bottomInset)
-    // As the system tab bar: its text stops growing at a large size, and a long press shows a
-    // tab's name in the large-content viewer at accessibility sizes.
+    // As the system tab bar: its names keep the tab label's fixed size (`Typography.tabLabel`),
+    // and a long press shows a tab's name in the large-content viewer at accessibility sizes.
     .dynamicTypeSize(...Self.largestText)
     .accessibilityElement(children: .contain)
     .accessibilityAddTraits(.isTabBar)
@@ -477,8 +511,9 @@ struct TickrTabBar: View {
       }
       .foregroundStyle(selected ? Palette.infoText : Palette.textSecondary)
       .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
+      // The name gets the tab's whole width (no side padding inside it), so the longest Russian
+      // name ("Лаборатория") stays on one line; the wash hugs it, at least `tabWidth` wide.
       .frame(minWidth: Self.tabWidth)
-      .padding(.horizontal, Tokens.Space.xs)
       .background {
         if selected {
           Capsule().fill(Palette.info.opacity(Self.selectedWash))
