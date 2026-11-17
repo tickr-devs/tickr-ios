@@ -101,7 +101,7 @@ public enum ConnectionState: Equatable, Sendable {
 
   /// The clock time of the last good read, to the second ("10:46:12").
   static func time(_ date: Date) -> String {
-    date.formatted(.dateTime.hour().minute().second())
+    ClockText.seconds(date)
   }
 }
 

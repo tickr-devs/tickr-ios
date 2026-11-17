@@ -108,7 +108,7 @@ struct MonthCalendar: View {
       }
       Spacer(minLength: Tokens.Space.s)
       if let total {
-        Text(L10n.Trades.monthTotal(Money.signed(total)))
+        Text(L10n.Trades.monthTotal(Money.signedUSD(total)))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.result(total))
           .fixedSize()
@@ -194,7 +194,8 @@ private struct CalendarDay: View {
         }
         Spacer(minLength: 0)
         if let summary, let result {
-          Text(verbatim: Money.signed(result))
+          // figure: a calendar cell's day result without "$" (the MacTrades board's compact cell).
+          Text(verbatim: Money.signed(result, fractionDigits: Money.centsDigits))
             .font(Tokens.Typography.calloutMono.bold())
             .foregroundStyle(Palette.result(result))
           Text(L10n.Trades.tradeCount(summary.trades))

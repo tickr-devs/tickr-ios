@@ -260,7 +260,7 @@ private struct ObserverRow: View {
         }
         Spacer(minLength: 0)
         if let result = summary.result {
-          DeltaTag(result, text: Money.signed(result))
+          DeltaTag(result, text: Money.signedUSD(result))
         } else {
           Badge(L10n.Lab.noResult, tone: .neutral)
         }

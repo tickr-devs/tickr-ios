@@ -116,7 +116,7 @@ private struct PositionChips: View {
             }
             .font(.footnote.monospaced().bold())
             if let unrealized = marks[position.symbol]?.unrealized {
-              Text(verbatim: Money.signed(unrealized))
+              Text(verbatim: Money.signedUSD(unrealized))
                 .font(Tokens.Typography.annotationBold)
                 .foregroundStyle(Palette.result(unrealized))
                 .contentTransition(.numericText())
@@ -170,13 +170,13 @@ private struct PositionDetail: View {
   let position: Position
   let marks: PositionMarks?
 
-  /// "−0.6 / +1.2 R", or per share in dollars while R is undefined; a dash without bars.
+  /// "−0.6 / +1.2 R", or in dollars while R is undefined; a dash without bars.
   private var excursion: String {
     guard let marks else { return Format.missing }
     if let adverse = marks.adverseR, let favorable = marks.favorableR {
       return Money.signed(adverse, fractionDigits: 1) + Format.slash + Risk.text(favorable)
     }
-    return Money.signed(marks.adverse) + Format.slash + Money.signed(marks.favorable)
+    return Money.signedUSD(marks.adverse) + Format.slash + Money.signedUSD(marks.favorable)
   }
 
   var body: some View {
@@ -205,7 +205,7 @@ private struct PositionDetail: View {
           // dated, never as a live result.
           let current = model.isCurrent(marks)
           VStack(alignment: typeSize.stacksRows ? .leading : .trailing, spacing: Tokens.Space.xxs) {
-            Text(verbatim: Money.signed(marks.unrealized))
+            Text(verbatim: Money.signedUSD(marks.unrealized))
               .font(Tokens.Typography.metric)
               .foregroundStyle(current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
               .contentTransition(.numericText())
@@ -236,7 +236,7 @@ private struct PositionDetail: View {
       // Three tiles in a row; one under another at large text sizes, so labels and figures stay whole.
       RowStack(alignment: .top, spacing: Tokens.Space.s) {
         StatTile(label: L10n.Positions.maxLoss,
-          value: Risk.plannedLoss(entry: entry, stop: stop, quantity: quantity).map { Money.plain($0) }
+          value: Risk.plannedLoss(entry: entry, stop: stop, quantity: quantity).map(Money.usd)
             ?? Format.missing)
         StatTile(label: L10n.Positions.toStop,
           value: stop.map {

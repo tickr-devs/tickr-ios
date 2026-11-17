@@ -93,8 +93,8 @@ struct ConnectionStateTests {
     #expect(ReadFailure(CancellationError()) == nil)
   }
 
-  @Test("The last good read shows its clock time to the second")
+  @Test("The last good read shows its clock time to the second, on the shared 24-hour clock")
   func lastSuccessTime() {
-    #expect(ConnectionState.time(now) == now.formatted(.dateTime.hour().minute().second()))
+    #expect(ConnectionState.time(now) == ClockText.seconds(now))
   }
 }

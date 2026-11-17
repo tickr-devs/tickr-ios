@@ -436,10 +436,6 @@ enum L10n {
     static var pickDayHelp: LocalizedStringResource {
       LocalizedStringResource("toolbar.pickDayHelp", defaultValue: "Pick a recorded trading day", bundle: L10n.bundle)
     }
-    /// The chip next to the day while the demo day is on.
-    static var demoChip: LocalizedStringResource {
-      LocalizedStringResource("toolbar.demoChip", defaultValue: "DEMO", bundle: L10n.bundle)
-    }
     static var demoHelp: LocalizedStringResource {
       LocalizedStringResource("toolbar.demoHelp",
         defaultValue: "Demo day: the made-up day only. Turn it off in Settings › General to pick another day.",
@@ -474,14 +470,6 @@ enum L10n {
     /// Under the day's result while it does not count the broker's fees yet.
     static var beforeFees: LocalizedStringResource {
       LocalizedStringResource("overview.beforeFees", defaultValue: "before broker fees", bundle: L10n.bundle)
-    }
-    static var fixtures: LocalizedStringResource {
-      LocalizedStringResource("overview.fixtures", defaultValue: "Fixtures", bundle: L10n.bundle)
-    }
-    static var fixturesHelp: LocalizedStringResource {
-      LocalizedStringResource("overview.fixturesHelp",
-        defaultValue: "Debug build reading the recorded contract fixtures, not a running bot.",
-        bundle: L10n.bundle)
     }
     static var gateOpen: LocalizedStringResource {
       LocalizedStringResource("overview.gateOpen", defaultValue: "Gate open", bundle: L10n.bundle)
@@ -790,7 +778,7 @@ enum L10n {
       LocalizedStringResource("riskRoom.details", defaultValue: "Details", bundle: L10n.bundle)
     }
     static func left(_ limit: String) -> LocalizedStringResource {
-      LocalizedStringResource("riskRoom.left", defaultValue: "of \(limit) USD left", bundle: L10n.bundle)
+      LocalizedStringResource("riskRoom.left", defaultValue: "of \(limit) left", bundle: L10n.bundle)
     }
     static var netResult: LocalizedStringResource {
       LocalizedStringResource("riskRoom.netResult", defaultValue: "net day result", bundle: L10n.bundle)

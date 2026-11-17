@@ -312,10 +312,6 @@ enum L10n {
     static var demoDetail: LocalizedStringResource {
       LocalizedStringResource("home.demoDetail", defaultValue: "Turn it off in Settings before trading.", bundle: L10n.bundle)
     }
-    /// The chip next to the day while the demo day is on.
-    static var demoChip: LocalizedStringResource {
-      LocalizedStringResource("home.demoChip", defaultValue: "DEMO", bundle: L10n.bundle)
-    }
     static var recordedDay: LocalizedStringResource {
       LocalizedStringResource("home.recordedDay", defaultValue: "Recorded day", bundle: L10n.bundle)
     }
@@ -936,10 +932,6 @@ enum L10n {
     }
     static var openTag: LocalizedStringResource {
       LocalizedStringResource("activity.openTag", defaultValue: "OPEN", bundle: L10n.bundle)
-    }
-    /// An open position's tag while its broker stop is verified, as on the design.
-    static var openVerifiedTag: LocalizedStringResource {
-      LocalizedStringResource("activity.openVerifiedTag", defaultValue: "OPEN · VERIFIED", bundle: L10n.bundle)
     }
     static func stopDetail(_ price: String, _ state: String) -> LocalizedStringResource {
       LocalizedStringResource("activity.stopDetail", defaultValue: "stop \(price) · \(state)", bundle: L10n.bundle)
@@ -1882,10 +1874,10 @@ enum L10n {
       LocalizedStringResource("settings.configuration", defaultValue: "Configuration", bundle: L10n.bundle)
     }
     static var configValid: LocalizedStringResource {
-      LocalizedStringResource("settings.configValid", defaultValue: "Loads", bundle: L10n.bundle)
+      LocalizedStringResource("settings.configValid", defaultValue: "Valid", bundle: L10n.bundle)
     }
     static var configInvalid: LocalizedStringResource {
-      LocalizedStringResource("settings.configInvalid", defaultValue: "Does not load", bundle: L10n.bundle)
+      LocalizedStringResource("settings.configInvalid", defaultValue: "Invalid", bundle: L10n.bundle)
     }
     static var configChanged: LocalizedStringResource {
       LocalizedStringResource("settings.configChanged", defaultValue: "Changed", bundle: L10n.bundle)

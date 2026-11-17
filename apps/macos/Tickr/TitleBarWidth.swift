@@ -44,7 +44,6 @@ enum TitleBarWidth {
     let line = lines.map { TextMeasure.width($0, font: Fonts.line) }.max() ?? 0
     let group = DayStepper.width(
       today: String(localized: L10n.Common.today),
-      demoChip: String(localized: L10n.Toolbar.demoChip),
       demoDay: String(localized: L10n.Toolbar.dayDemo(DayText.day(model.today))))
     return need(lineWidth: line, groupWidth: group)
   }
@@ -57,8 +56,6 @@ enum TitleBarWidth {
     static var button: NSFont { NSFont.systemFont(ofSize: callout, weight: .semibold) }
     /// `dayStepper`: the shown day.
     static var day: NSFont { NSFont.monospacedSystemFont(ofSize: Tokens.Typography.dayStepperSize, weight: .regular) }
-    /// `badge`: the DEMO chip.
-    static var badge: NSFont { NSFont.monospacedSystemFont(ofSize: Tokens.Typography.badgeSize, weight: .bold) }
     private static var callout: CGFloat { NSFont.preferredFont(forTextStyle: .callout).pointSize }
   }
 }

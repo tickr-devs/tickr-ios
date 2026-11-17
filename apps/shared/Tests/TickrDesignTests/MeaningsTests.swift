@@ -88,6 +88,10 @@ import TickrKit
     #expect(Tone.exit("stop-rejected") == .loss)
     #expect(Tone.exit("unprotected-too-long") == .loss)
     #expect(Tone.exit("a-reason-not-known-yet") == .neutral)
+    // A replay's words (observers, what-ifs): the same tags.
+    #expect(Tone.exit("stop") == .series)
+    #expect(Tone.exit("strategy_exit") == .accent)
+    #expect(Tone.exit("flatten") == .neutral)
     #expect(Tone.openPosition == .accent)
     #expect(Tone.refused == .warning)
     #expect(Tone.notEvaluated == .neutral)
@@ -97,6 +101,16 @@ import TickrKit
   func eventTones() {
     let tones: [Board.Event.Tone] = [.teal, .green, .blue, .amber, .violet, .red, .muted]
     #expect(tones.map { Tone($0) } == [.accent, .profit, .info, .warning, .highlight, .loss, .neutral])
+  }
+
+  @Test("A loss or a reservation is coloured only while it shows more than $0.00")
+  func amountsNeutralAtZero() {
+    #expect(Tone.loss(0) == .neutral)
+    #expect(Tone.loss(d("0.004")) == .neutral)
+    #expect(Tone.loss(d("1.60")) == .series)
+    #expect(Tone.amount(0, .warning) == .neutral)
+    #expect(Tone.amount(d("0.004"), .warning) == .neutral)
+    #expect(Tone.amount(d("50"), .warning) == .warning)
   }
 
   @Test("A money result: profit above zero, loss below, neutral at zero (never green)")

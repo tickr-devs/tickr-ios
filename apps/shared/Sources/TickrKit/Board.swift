@@ -198,8 +198,9 @@ public enum Board {
     guard let reason = ExitReason(rawValue: raw) else { return .forced }
     switch reason {
     case .stopRejected, .unprotectedTooLong: return .protectionFailure
-    case .streamLost, .sessionFlatten, .operatorFlatten, .operatorInterrupt: return .forced
-    case .stoppedOut, .strategyExit, .operatorExit, .entryNotFilled, .entryNotFilledInTime, .holdElapsed, .closed:
+    case .streamLost, .sessionFlatten, .operatorFlatten, .operatorInterrupt, .replayFlatten: return .forced
+    case .stoppedOut, .strategyExit, .operatorExit, .entryNotFilled, .entryNotFilledInTime, .holdElapsed, .closed,
+      .replayStop, .replayStrategyExit, .replayEndOfData:
       return .ordinary
     }
   }
@@ -217,8 +218,8 @@ public enum Board {
 
   public static func exitLook(_ raw: String) -> ExitLook {
     switch ExitReason(rawValue: raw) {
-    case .strategyExit: .strategy
-    case .stoppedOut: .stoppedOut
+    case .strategyExit, .replayStrategyExit: .strategy
+    case .stoppedOut, .replayStop: .stoppedOut
     case .stopRejected, .unprotectedTooLong: .protectionFailure
     default: .other
     }
@@ -250,7 +251,9 @@ public enum Board {
   }
 }
 
-/// The exit reasons the bot records for a closed trade (`trades.close_cause` in the bot's store).
+/// The exit reasons the bot records for a closed trade (`trades.close_cause` in the bot's store),
+/// and those of its replays (`tickr.replay.engine.ExitReason`: an observer's or a what-if's trade),
+/// one map for both, so neither is ever shown as its raw protocol value ("STRATEGY_EXIT").
 enum ExitReason: String {
   case stoppedOut = "stopped-out"
   case strategyExit = "strategy-exit"
@@ -265,21 +268,30 @@ enum ExitReason: String {
   case entryNotFilledInTime = "entry-not-filled-in-time"
   case holdElapsed = "hold-elapsed"
   case closed
+  /// A replay's trade (an observer's, a what-if): its stop was hit.
+  case replayStop = "stop"
+  /// A replay's trade: the strategy's own exit.
+  case replayStrategyExit = "strategy_exit"
+  /// A replay's trade: flattened before the session's close.
+  case replayFlatten = "flatten"
+  /// A replay's trade still open when the captured bars ran out.
+  case replayEndOfData = "end_of_data"
 
   var title: LocalizedStringResource {
     switch self {
-    case .stoppedOut: return L10n.exitStoppedOut
-    case .strategyExit: return L10n.exitStrategy
+    case .stoppedOut, .replayStop: return L10n.exitStoppedOut
+    case .strategyExit, .replayStrategyExit: return L10n.exitStrategy
     case .operatorExit: return L10n.exitOperator
     case .operatorFlatten: return L10n.exitOperatorFlatten
     case .operatorInterrupt: return L10n.exitInterrupted
-    case .sessionFlatten: return L10n.exitSessionEnd
+    case .sessionFlatten, .replayFlatten: return L10n.exitSessionEnd
     case .streamLost: return L10n.exitStreamLost
     case .stopRejected: return L10n.exitStopRejected
     case .unprotectedTooLong: return L10n.exitUnprotected
     case .entryNotFilled, .entryNotFilledInTime: return L10n.exitEntryNotFilled
     case .holdElapsed: return L10n.exitHoldElapsed
     case .closed: return L10n.exitClosed
+    case .replayEndOfData: return L10n.exitEndOfData
     }
   }
 }

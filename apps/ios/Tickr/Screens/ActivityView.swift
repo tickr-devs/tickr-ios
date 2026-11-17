@@ -368,9 +368,11 @@ private struct DayCell: View {
           // Inset from the cell's edges, so neighbouring day numbers never touch.
           .padding(.horizontal, Tokens.Space.xxs)
         if let result {
+          // figure: a calendar cell's day result in whole dollars without "$" (the IOSActivity
+          // board's compact cell), coloured by the figure as shown.
           Text(verbatim: Money.signed(result, fractionDigits: 0))
             .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.result(result))
+            .foregroundStyle(Tone.result(result, fractionDigits: 0).text)
         } else if isToday {
           PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: todayEvent)
         }
@@ -631,7 +633,7 @@ private struct TradeLine: Identifiable {
       parts.append(String(localized: L10n.Activity.stopAfter(Money.plain(stopAfter, fractionDigits: 1))))
     }
     if let mae, let mfe {
-      parts.append(String(localized: L10n.Activity.excursion(Money.signed(mae), Money.signed(mfe))))
+      parts.append(String(localized: L10n.Activity.excursion(Money.signedUSD(mae), Money.signedUSD(mfe))))
     }
     if let codeVersion {
       parts.append(String(localized: L10n.Activity.codeVersion(codeVersion)))
@@ -684,13 +686,13 @@ private struct TradesList: View {
     VStack(spacing: Tokens.Space.s) {
       ForEach(positions, id: \.symbol) { position in
         let state = position.stop.state
-        // As on the design: no time beside the symbol (the fill time is a chip below), and a verified
-        // stop said in the tag.
+        // As on the design (IOSActivity v99): no time beside the symbol (the fill time is a chip
+        // below); the OPEN tag, then the stop's own state beside it (VERIFIED green, PENDING amber…).
         row(symbol: position.symbol, time: nil,
-          tag: String(localized: state == .verified ? L10n.Activity.openVerifiedTag : L10n.Activity.openTag),
+          tag: String(localized: L10n.Activity.openTag),
           tone: Tone.openPosition,
           result: String(localized: L10n.Common.quantityAt(position.quantity.text, Money.price(position.entryPrice.value))),
-          figures: openFigures(position), stopState: state.isProtected ? nil : state, open: true)
+          figures: openFigures(position), stopState: state, open: true)
           .rise(step: ActivityView.Order.list.rawValue)
       }
       ForEach(Array(sorted.enumerated()), id: \.offset) { index, trade in
@@ -701,7 +703,7 @@ private struct TradesList: View {
           // as the Mac's Trades; the result keeps its sign's.
           tagTone: Tone.exit(trade.exitReason),
           tone: Tone.result(trade.result),
-          result: Money.signed(trade.result),
+          result: Money.signedUSD(trade.result),
           figures: figures(trade), metrics: metrics(trade), metricsText: trade.metrics, after: trade.pricesAfter,
           another: url == nil ? nil : trade)
           .rise(step: ActivityView.Order.list.rawValue + index)
@@ -782,8 +784,8 @@ private struct TradesList: View {
         value: String(localized: L10n.Risk.seconds(Money.plain(after, fractionDigits: 1))), tone: .profit))
     }
     if let mae = trade.mae, let mfe = trade.mfe {
-      list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signed(mae), tone: .series))
-      list.append(Figure(symbol: Self.mfeSymbol, label: L10n.Activity.hintMfe, value: Money.signed(mfe), tone: .profit))
+      list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signedUSD(mae), tone: .series))
+      list.append(Figure(symbol: Self.mfeSymbol, label: L10n.Activity.hintMfe, value: Money.signedUSD(mfe), tone: .profit))
     }
     if let code = trade.codeVersion {
       list.append(Figure(symbol: Self.codeSymbol, label: L10n.Activity.hintCodeVersion, value: code))
@@ -808,6 +810,17 @@ private struct TradesList: View {
       .foregroundStyle(tone.text)
   }
 
+  /// A row's tag, and for an open position its stop's state as a tag of its own beside it (the
+  /// board's OPEN, then VERIFIED): two meanings, two tags, never one "OPEN · VERIFIED".
+  @ViewBuilder
+  private func tags(_ tag: String, tone: Tone, stopState: StopState?) -> some View {
+    Badge(verbatim: tag, tone: tone)
+    if let stopState {
+      Badge(verbatim: Board.stopStateTitle(stopState), tone: stopState.tone)
+        .hint(L10n.Activity.hintStop)
+    }
+  }
+
   private func row(
     symbol: String, time: String?, tag: String, tagTone: Tone? = nil, tone: Tone, result: String,
     figures: [Figure], metrics: [Figure] = [], metricsText: String? = nil, stopState: StopState? = nil,
@@ -821,7 +834,7 @@ private struct TradesList: View {
           headerText(symbol)
           if let time { timeText(time) }
           Spacer(minLength: Tokens.Space.s)
-          Badge(verbatim: tag, tone: tagTone ?? tone)
+          tags(tag, tone: tagTone ?? tone, stopState: stopState)
           resultText(result, tone: tone)
           if let another { anotherButton(another) }
         }
@@ -834,7 +847,7 @@ private struct TradesList: View {
           }
           ChipFlow {
             if let time { timeText(time) }
-            Badge(verbatim: tag, tone: tagTone ?? tone)
+            tags(tag, tone: tagTone ?? tone, stopState: stopState)
           }
         }
         // The largest sizes: the result ("53 @ 24.69") gets a line of its own too.
@@ -847,17 +860,12 @@ private struct TradesList: View {
           resultText(result, tone: tone)
           ChipFlow {
             if let time { timeText(time) }
-            Badge(verbatim: tag, tone: tagTone ?? tone)
+            tags(tag, tone: tagTone ?? tone, stopState: stopState)
           }
         }
       }
       ChipFlow {
         chipViews(figures)
-        // An open position's stop state in words, so pending, missing and unknown never look alike.
-        if let stopState {
-          StatusPill(verbatim: Board.stopStateTitle(stopState), systemImage: stopState.symbol, tone: stopState.tone)
-            .hint(L10n.Activity.hintStop)
-        }
       }
       if !metrics.isEmpty {
         // VoiceOver reads the sentence ("stop confirmed in 1.4 s · MAE … (at least)").
@@ -1043,7 +1051,7 @@ struct AfterLine: View {
       var label = AttributedString(lead)
       label.swiftUI.foregroundColor = Palette.textQuaternary
       let change = point.changeUsd?.value
-      var value = AttributedString(change.map { Money.signed($0) } ?? Format.missing)
+      var value = AttributedString(change.map { Money.priceChange($0, at: point.price?.value) } ?? Format.missing)
       value.swiftUI.foregroundColor = change.map(Palette.result) ?? Palette.textQuaternary
       text += label + value
     }

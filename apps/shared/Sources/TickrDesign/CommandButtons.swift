@@ -206,7 +206,8 @@ private struct CommandGlyph<Icon: View>: View {
 }
 
 /// The small violet pill at a command's end while commands go to the demo day ("DEMO"); white on
-/// the emergency stop's red.
+/// the emergency stop's red. Its edge is dashed like the demo day's `EnvironmentBadge` (the
+/// IOSHome board's `.dm`), so the demo reads in one look on every surface.
 public struct CommandTag: View {
   let text: Text
   let onFill: Bool
@@ -228,7 +229,8 @@ public struct CommandTag: View {
       .background(Capsule().fill(onFill ? Palette.onLoss.opacity(Tokens.Opacity.glow)
         : Palette.highlight.opacity(Tokens.Opacity.glow)))
       .overlay(Capsule().strokeBorder(onFill ? Palette.onLoss.opacity(Tokens.Opacity.medium)
-        : Palette.highlight.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin))
+        : Palette.highlight.opacity(Tokens.Opacity.border),
+        style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine)))
   }
 }
 

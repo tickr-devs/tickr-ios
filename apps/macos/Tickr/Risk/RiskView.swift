@@ -262,10 +262,13 @@ private struct LossRoomCard: View {
           FigureRow(L10n.Risk.feesToday,
             value: model.status?.feesTodayUsd.map { Money.usd($0.value) } ?? Format.missing,
             symbol: Self.feesSymbol, symbolColor: Palette.warning, color: Palette.textSecondary)
+          // A loss and a reservation in their colour only while they show more than "$0.00".
+          let lossTone = model.status?.realizedLossTodayUsd.map { Tone.loss($0.value) } ?? .neutral
+          let reservedTone = model.status?.openReservationsUsd.map { Tone.amount($0.value, .warning) } ?? .neutral
           FigureRow(L10n.Risk.realizedLoss, value: loss(model.status?.realizedLossTodayUsd),
-            symbol: Self.realizedSymbol, symbolColor: Tone.series.fill, color: Tone.series.text)
+            symbol: Self.realizedSymbol, symbolColor: lossTone.fill, color: lossTone.text)
           FigureRow(L10n.Risk.reservations, value: amount(model.status?.openReservationsUsd),
-            symbol: Self.reservationsSymbol, symbolColor: Palette.warning, color: Palette.warningText)
+            symbol: Self.reservationsSymbol, symbolColor: reservedTone.fill, color: reservedTone.text)
           FigureRow(L10n.Risk.nextPlannedLoss, value: amount(model.settings?.risk.plannedLossUsd),
             symbol: Self.plannedSymbol)
         }
@@ -919,10 +922,10 @@ private struct AccountCard: View {
           Text(verbatim: position.symbol).fontWeight(.bold)
           Spacer()
           Text(verbatim: position.quantity.text)
-          Text(verbatim: position.avgPrice?.text ?? Format.missing)
+          Text(verbatim: position.avgPrice.map { Money.price($0.value) } ?? Format.missing)
             .foregroundStyle(Palette.textTertiary)
-          Text(verbatim: position.lastPrice?.text ?? Format.missing)
-          Text(verbatim: position.unrealizedPlUsd.map { Money.signed($0.value) } ?? Format.missing)
+          Text(verbatim: position.lastPrice.map { Money.price($0.value) } ?? Format.missing)
+          Text(verbatim: position.unrealizedPlUsd.map { Money.signedUSD($0.value) } ?? Format.missing)
             .foregroundStyle(position.unrealizedPlUsd.map { Palette.result($0.value) } ?? Palette.textQuaternary)
         }
         .font(Tokens.Typography.calloutMono)
@@ -940,7 +943,7 @@ private struct AccountCard: View {
           Text(verbatim: order.quantity.text)
           Spacer()
           if let price = order.stopPrice ?? order.limitPrice {
-            Text(verbatim: price.text)
+            Text(verbatim: Money.price(price.value))
           }
           Badge(verbatim: ApiText.orderStatus(order.status), color: Palette.profitText)
           if !order.ours {
@@ -963,8 +966,10 @@ private struct AccountCard: View {
           Text(verbatim: ApiText.orderType(fill.type))
           Text(verbatim: fill.quantity.text)
           Spacer()
-          Text(verbatim: (fill.exactPrice ?? fill.price)?.text ?? Format.missing)
-          Text(verbatim: fill.feesUsd?.text ?? Format.missing)
+          // The price at its tick (two decimals from $1, four below); the exact fill stays in the
+          // records, the screen shows what a price reads as everywhere else.
+          Text(verbatim: (fill.exactPrice ?? fill.price).map { Money.price($0.value) } ?? Format.missing)
+          Text(verbatim: fill.feesUsd.map { Money.usd($0.value) } ?? Format.missing)
             .foregroundStyle(Palette.warningText)
           if !fill.ours {
             Badge(L10n.Risk.notOurs, color: Palette.warningText)

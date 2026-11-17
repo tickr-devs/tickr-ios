@@ -117,6 +117,10 @@ enum L10n {
   static var exitClosed: LocalizedStringResource {
     LocalizedStringResource("kit.exit.closed", defaultValue: "closed", bundle: bundle)
   }
+  /// A replay's trade still open when the captured bars ran out.
+  static var exitEndOfData: LocalizedStringResource {
+    LocalizedStringResource("kit.exit.endOfData", defaultValue: "bars ran out", bundle: bundle)
+  }
 
   // MARK: Operator commands
 
@@ -191,6 +195,16 @@ enum L10n {
   static func apiRefused(_ status: Int, _ error: String, _ cause: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.api.refused", defaultValue: "API refused (\(status) \(error)): \(cause)",
       bundle: bundle)
+  }
+  /// A read the bot has no route for: a bot older than the app.
+  static var apiNotServed: LocalizedStringResource {
+    LocalizedStringResource("kit.api.notServed",
+      defaultValue: "this bot version does not provide it yet; update the bot", bundle: bundle)
+  }
+  /// A read the demo day's recording does not hold.
+  static var apiNotRecordedDemo: LocalizedStringResource {
+    LocalizedStringResource("kit.api.notRecordedDemo",
+      defaultValue: "the demo day's recording does not hold it yet", bundle: bundle)
   }
   /// Argument: what does not match.
   static func apiContract(_ detail: String) -> LocalizedStringResource {

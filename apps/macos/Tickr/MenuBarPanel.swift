@@ -106,7 +106,7 @@ private struct TodayResult: View {
     guard let limit = model.settings?.risk.maxDailyLossUsd.value, let room = status.dailyRoomUsd?.value else {
       return L10n.MenuBar.trades(results.count, wins, losses)
     }
-    return L10n.MenuBar.tradesAndRoom(results.count, wins, losses, Money.plain(room), Money.plain(limit))
+    return L10n.MenuBar.tradesAndRoom(results.count, wins, losses, Money.usd(room), Money.usd(limit))
   }
 
   /// The running sum of today's closed trades, from zero.

@@ -482,20 +482,11 @@ struct DayStepper: View {
   /// The stepper's arrows (‹ and ›), and its items `s` apart: ‹, the day, › and Today.
   static let arrowCount = 2
   static let stepperItems = 4
-  /// Accessibility id of the DEMO chip, for the UI tests.
-  static let demoChipID = "toolbar-demo"
 
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
       ConnectionStatus()
         .padding(.trailing, Self.connectionGap)
-      if model.dayLocked {
-        // The one demo chip of both apps (Settings, the iPhone's day line): violet, as the boards
-        // draw the demo; it becomes the dashed demo `EnvironmentBadge` once that is shared (#499).
-        Badge(L10n.Toolbar.demoChip, tone: .highlight)
-          .help(Text(L10n.Toolbar.demoHelp))
-          .accessibilityIdentifier(Self.demoChipID)
-      }
       // On the demo day there is one day: no arrows, no day menu and no Today that would do
       // nothing (they also pushed the stepper into the toolbar's overflow in a narrow window).
       if model.dayLocked {
@@ -518,18 +509,16 @@ struct DayStepper: View {
   }
 
   /// The group's width, in points, the widest of its three forms: ‹ day › and Today (`today` its
-  /// title), the demo day's chip (`demoChip`) and day (`demoDay`), or the day alone. The connection
+  /// title), the demo day (`demoDay`; its DEMO is the header's environment badge), or the day alone. The connection
   /// status, the day label and the buttons have fixed widths; the texts are measured in the fonts
   /// they are drawn in (`TitleBarWidth.Fonts`). Used for the window's least width.
-  static func width(today: String, demoChip: String, demoDay: String) -> CGFloat {
+  static func width(today: String, demoDay: String) -> CGFloat {
     let gap = Tokens.Space.s
     let edges = CardArrangement.paddedEdges
     let todayButton = max(TitleBarButtonStyle.width, TextMeasure.width(today, font: TitleBarWidth.Fonts.button) + gap * edges)
     let arrows = TitleBarButtonStyle.width * CGFloat(arrowCount)
     let stepper = arrows + dayMinWidth + todayButton + gap * CGFloat(stepperItems - 1)
-    let chip = TextMeasure.width(demoChip.uppercased(), font: TitleBarWidth.Fonts.badge,
-      kern: Tokens.Typography.badgeTracking) + gap * edges
-    let demo = chip + gap + TextMeasure.width(demoDay, font: TitleBarWidth.Fonts.day)
+    let demo = TextMeasure.width(demoDay, font: TitleBarWidth.Fonts.day)
     return ConnectionStatus.width + connectionGap + gap + max(stepper, demo, dayMinWidth)
   }
 
@@ -555,7 +544,7 @@ struct DayStepper: View {
           Button {
             model.selectedDay = day.day
           } label: {
-            Text(L10n.Toolbar.dayRow(DayText.day(day.day), Money.signed(day.resultUsd.value), day.trades))
+            Text(L10n.Toolbar.dayRow(DayText.day(day.day), Money.signedUSD(day.resultUsd.value), day.trades))
           }
         }
       } label: {

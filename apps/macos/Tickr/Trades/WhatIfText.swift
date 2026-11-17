@@ -30,16 +30,9 @@ enum WhatIfText {
   static func after(_ prices: [PriceAfterV1]) -> String? {
     guard !prices.isEmpty else { return nil }
     let items = prices.map { point in
-      let change = point.changeUsd.map { change in
-        Money.signed(change.value, fractionDigits: digits(point.price?.value))
-      }
+      let change = point.changeUsd.map { Money.priceChange($0.value, at: point.price?.value) }
       return String(localized: L10n.Trades.afterMinutes(point.minutes, change ?? Format.missing))
     }
     return String(localized: L10n.Trades.afterPrices(items.joined(separator: Format.itemSeparator)))
-  }
-
-  private static func digits(_ price: Decimal?) -> Int {
-    guard let price, abs(price) < Money.subPennyBelow else { return Money.centsDigits }
-    return Money.subPennyDigits
   }
 }

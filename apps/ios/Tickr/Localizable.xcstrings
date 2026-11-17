@@ -1038,23 +1038,6 @@
         }
       }
     },
-    "activity.openVerifiedTag" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPEN · VERIFIED"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ОТКРЫТА · СТОП ПОДТВЕРЖДЁН"
-          }
-        }
-      }
-    },
     "activity.pastCounts" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5173,23 +5156,6 @@
         }
       }
     },
-    "home.demoChip" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DEMO"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ДЕМО"
-          }
-        }
-      }
-    },
     "home.demoDetail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9268,13 +9234,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Does not load"
+            "value" : "Invalid"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не загружается"
+            "value" : "С ошибкой"
           }
         }
       }
@@ -9319,13 +9285,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loads"
+            "value" : "Valid"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Загружается"
+            "value" : "Корректен"
           }
         }
       }

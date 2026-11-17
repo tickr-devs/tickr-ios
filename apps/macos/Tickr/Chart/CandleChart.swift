@@ -1055,7 +1055,8 @@ struct ChartReadout: View {
 
   /// "+0.21 (+6.21%)": the change in price and as a percentage, signed (zero unsigned).
   static func changeText(_ change: CandleChange) -> String {
-    String(localized: L10n.Chart.change(Money.signed(change.amount), Percent.signed(fraction: change.fraction)))
+    String(localized: L10n.Chart.change(Money.priceChange(change.amount, at: change.price),
+      Percent.signed(fraction: change.fraction)))
   }
 
   private func value(_ name: LocalizedStringResource, _ text: String) -> some View {

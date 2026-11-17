@@ -250,7 +250,11 @@ private struct DemoDaySection: View {
         Spacer(minLength: Tokens.Space.s)
       }
     } trailing: {
-      if model.demoDay { Badge(L10n.Toolbar.demoChip, tone: .highlight) }
+      // On: the demo day's own environment badge (dashed violet), the one look of the demo.
+      if model.demoDay {
+        let demo = EnvironmentBadge.Kind.demo.rawValue
+        EnvironmentBadge(ApiText.environment(demo), raw: demo, accessibilityLabel: ApiText.environmentLabel(demo))
+      }
     }
     .animation(Tokens.Motion.quick, value: model.demoDay)
   }

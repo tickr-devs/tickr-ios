@@ -105,13 +105,22 @@ Russian.
 |---|---|---|
 | `Money.price` | "0.4567", "0.5000", "1.00", "12.35" (half away from zero), "1,234.50" | Every price: chart axes, readouts, tags, positions, trades, stops, entries. Owner rule: below $1 four decimals, from $1 two (`subPennyBelow`, `subPennyDigits`); from a thousand grouped with "," in every language. A chart `Double` is read through its shortest text (`Money.decimal`), so 12.345 shows 12.35 |
 | `Money.value` | "0.4567", "−0.0123", "1,234.50" | A chart study's value or scale (VWAP, EMA, MACD, RSI, ATR): a price's tick with its minus |
-| `Money.signed` / `Money.signedUSD` | "+11.80", "−1.60", "0.00" / "+$11.80", "−$1,234.50" | A result (zero unsigned); in dollars grouped with "," |
+| `Money.signedUSD` | "+$11.80", "−$1,234.50", "$0.00" | A money result (a day, a trade, an open position, MAE/MFE), zero unsigned, grouped with "," |
+| `Money.signed` | "+0.6", "−1.0" | A signed figure that is not money, with its digits named (R, a delta of a count); a calendar cell's compact day result is the one figure on purpose without "$", marked `// figure:` |
+| `Money.priceChange` | "+0.06", "−0.0012" | A price's move per share, at that price's tick (the prices after an exit, the chart's change): a move, not an amount, so no "$" |
 | `Money.usd` | "$250.00", "$1,000,011.80", "−$4.10" | An amount that is not a result: room, limits, balances, fees (never a plus), grouped with "," |
-| `Money.plain`, `Money.number` | "12.30" / "−0.12" | A plain figure (counts, statistics; not grouped); with its minus only below zero |
+| `Money.plain`, `Money.number` | "12.30" / "−0.12" | A plain figure that is not money (statistics, seconds; not grouped), its digits named; with its minus only below zero |
+| `ClockText.minutes` / `.seconds` (TickrKit) | "14:06" / "16:58:34" | Every clock time: New York, 24-hour in every language (never "4:58:34 PM") |
 | `Percent.signed(fraction:)` / `(points:)` | "+6.21%", "−0.40%" | A price change: `changeDigits` 2 (the Chart's day change and readout, both apps); a screener's change `moverDigits` 1 |
 | `Percent.plain` | "52%" | A share or win rate (`StatDigits.percent`) |
 | `Volume.compact` | "950", "23.4K", "1.2M" | A share volume (en_US short names in every language) |
 | `DayText.day` | "Mon Nov 16", "пн 16 нояб." | A trading day: weekday, then the date, no comma, the New York day, in the person's language |
+
+Money is always in dollars: the `format` rule of `check_swift_rules.py` fails a `Money.signed`,
+`Money.plain` or `Money.number` call at the cents default (an amount without its "$"), the bot's raw
+text of a money or price field (`fill.feesUsd?.text`), and "USD" written after an amount in an
+L10n text. A money tone that only means something when there is some (a realized loss, a
+reservation) is neutral at "$0.00": `Tone.loss`, `Tone.amount`.
 
 A chart value that is not a number (NaN, infinity) shows the shared dash `Money.missing` ("—"),
 never "0.0000". A line setting an `accessibilityValue` may let VoiceOver read a number in the
@@ -271,7 +280,7 @@ Which component shows which fact, on both apps:
 | A stop's state in a position's detail (VERIFIED) | `Badge`: `profitText` verified, otherwise `warningText` (Mac "Position on chart") or `lossText` (iOS position chain) | MacChart, IOSPosition |
 | "Show all N" under a card's rows | `CardFooterLink` with the count and the hint "closest 3 of N" (Mac Overview and iOS Home Watching closely) | Controls, Main |
 | A link in a card's header | `HeaderLink`; one that pushes a screen is a `NavigationLink` with a `HeaderLinkLabel`, styled `.headerLink()` (iOS Home live flow "slots 2 of 3 ›") | Controls, IOSHome (`.hlink`) |
-| The demo day's chip (Mac title bar, Mac Settings, iOS Home day line) | `Badge(_:tone: .highlight)`, the boards' violet demo (IOSHome `envLabel` DEMO); to become the dashed demo `EnvironmentBadge` when that is shared | IOSHome, Controls (`.demo-tag`) |
+| The demo day | Once per screen: the header's `EnvironmentBadge` (dashed violet DEMO), as IOSHome `envLabel` and Main draw it; Mac Settings › General shows the same badge beside its switch. Every command while the demo is on carries a `CommandTag` (dashed violet DEMO, IOSHome `.dm`, Main `.demo-tag`). No second chip next to the day | IOSHome, Main |
 | Retry after a failed read | `.action(.secondary, size: .compact)` | Controls, IOSPosition |
 | The way back to today | `TodayButton`: the Mac title bar's Today, the iPhone's Home day line and Activity calendar | Mac boards (`.tbtn`) |
 | The way back from a pushed screen | `BackCapsule` + `.backCapsule` (iOS `BackButton`, the Mac Lab's advisor page) | Controls |

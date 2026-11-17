@@ -123,12 +123,12 @@ private struct RoomCard: View {
       .padding(.vertical, Tokens.Space.s)
       .accessibilityElement(children: .combine)
       RiskLine(label: L10n.Risk.limit, value: RiskFormat.amount(limit))
-      // A loss with its minus ("−$1.60"), as on the Mac.
+      // A loss with its minus ("−$1.60"), as on the Mac; "$0.00" neutral, never pink.
       RiskLine(label: L10n.Risk.realizedLoss,
         value: status.realizedLossTodayUsd.map { Money.signedUSD(-$0.value) } ?? Format.missing,
-        color: Tone.series.text)
+        color: status.realizedLossTodayUsd.map { Tone.loss($0.value).text } ?? Palette.textQuaternary)
       RiskLine(label: L10n.Risk.reservations, value: RiskFormat.amount(status.openReservationsUsd?.value),
-        color: Palette.warningText)
+        color: status.openReservationsUsd.map { Tone.amount($0.value, .warning).text } ?? Palette.textQuaternary)
       RiskLine(label: L10n.Risk.resultToday, value: Money.signedUSD(status.resultTodayUsd.value),
         color: Palette.result(status.resultTodayUsd.value))
       RiskLine(label: L10n.Risk.feesToday, value: RiskFormat.amount(status.feesTodayUsd?.value))
@@ -187,7 +187,7 @@ private struct AccountCard: View {
           none
         }
         ForEach(account.positions, id: \.self) { position in
-          let last: String = position.lastPrice?.text ?? Format.missing
+          let last: String = position.lastPrice.map { Money.price($0.value) } ?? Format.missing
           let result: String = position.unrealizedPlUsd.map { Money.signedUSD($0.value) } ?? Format.missing
           row(position.symbol, detail: [position.quantity.text, last].joined(separator: Format.separator),
             value: result, color: position.unrealizedPlUsd.map { Palette.result($0.value) } ?? Palette.textQuaternary)
@@ -198,7 +198,7 @@ private struct AccountCard: View {
           none
         }
         ForEach(account.fills, id: \.self) { fill in
-          let price: String = (fill.exactPrice ?? fill.price)?.text ?? Format.missing
+          let price: String = (fill.exactPrice ?? fill.price).map { Money.price($0.value) } ?? Format.missing
           let feeAmount: String = fill.feesUsd.map { RiskFormat.amount($0.value) } ?? Format.missing
           let fees: String = String(localized: L10n.Risk.fees(feeAmount))
           row(fill.symbol,
@@ -356,8 +356,8 @@ private struct SessionCard: View {
   var body: some View {
     RiskCard(title: L10n.Risk.session) {
       TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
-        Text(context.date, format: .dateTime.hour().minute().second())
-          .environment(\.timeZone, WireDate.newYork.timeZone)
+        // The shared 24-hour New York clock, as every other time of the apps.
+        Text(verbatim: ClockText.seconds(context.date))
           .font(Tokens.Typography.metric)
           .monospacedDigit()
           .contentTransition(.numericText())

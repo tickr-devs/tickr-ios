@@ -210,6 +210,8 @@ public struct CandleChange: Hashable, Sendable {
   public let amount: Double
   /// The change as a share of the earlier close (0.05 is 5 %).
   public let fraction: Double
+  /// The price changed to (the candle's close), whose tick the change is written at.
+  public let price: Double
 }
 
 public extension Array where Element == Candle {
@@ -232,6 +234,6 @@ public extension Array where Element == Candle {
     let base = index > startIndex ? self[index - 1].close : self[index].open
     guard base != 0 else { return nil }
     let amount = self[index].close - base
-    return CandleChange(amount: amount, fraction: amount / base)
+    return CandleChange(amount: amount, fraction: amount / base, price: self[index].close)
   }
 }

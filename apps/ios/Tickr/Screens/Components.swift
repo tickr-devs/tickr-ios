@@ -59,10 +59,6 @@ extension StatusV1 {
   }
 }
 
-extension DecimalString {
-  var signedMoney: String { Money.signed(value) }
-}
-
 /// Money and time formatting used across screens.
 enum Format {
   /// Shown where a value is missing.
@@ -76,20 +72,11 @@ enum Format {
   /// Between two figures of one tile, such as MAE and MFE.
   static let slash = " / "
 
-  /// "14:06": 24-hour New York time, as the design shows every time and the bot keeps its
-  /// sessions, whatever the phone's clock setting and time zone.
-  static func time(_ date: Date) -> String {
-    date.formatted(Date.VerbatimFormatStyle(
-      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
-      timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork))
-  }
+  /// "14:06": the shared clock (TickrKit `ClockText`), 24-hour New York time.
+  static func time(_ date: Date) -> String { ClockText.minutes(date) }
 
   /// "14:06:09", the same with seconds.
-  static func clock(_ date: Date) -> String {
-    date.formatted(Date.VerbatimFormatStyle(
-      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
-      timeZone: WireDate.newYork.timeZone, calendar: WireDate.newYork))
-  }
+  static func clock(_ date: Date) -> String { ClockText.seconds(date) }
 
   static func timeOrDash(_ time: WireTime?) -> String {
     time.map { clock($0.date) } ?? missing

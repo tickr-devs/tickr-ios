@@ -1242,6 +1242,40 @@
         }
       }
     },
+    "kit.api.notRecordedDemo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the demo day's recording does not hold it yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "в записи демо-дня этого пока нет"
+          }
+        }
+      }
+    },
+    "kit.api.notServed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "this bot version does not provide it yet; update the bot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "эта версия бота этого ещё не умеет; обновите бота"
+          }
+        }
+      }
+    },
     "kit.api.refused" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2403,6 +2437,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "закрыта"
+          }
+        }
+      }
+    },
+    "kit.exit.endOfData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bars ran out"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "бары закончились"
           }
         }
       }

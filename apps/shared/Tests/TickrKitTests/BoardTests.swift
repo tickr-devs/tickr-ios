@@ -84,9 +84,10 @@ import Testing
 
   @Test func eventsCoverEverythingNewestFirst() throws {
     let events = Board.events(try status("status-response-v1.json"))
-    #expect(Set(events.map(\.tag)) == ["ENTER", "STOP", "OPEN", "STOP \u{2713}", "FENCE", "DONE"])
+    // The fixture's trade closed with the replay word "stop": the shared map reads it as stopped out.
+    #expect(Set(events.map(\.tag)) == ["ENTER", "STOPPED OUT", "OPEN", "STOP \u{2713}", "FENCE", "DONE"])
     #expect(Set(events.map(\.id)).count == events.count, "ids must be unique")
-    #expect(events.first { $0.tag == "STOP" }?.text == "WXYZ @ 5.02 -1.67")  // the exact result once listed
+    #expect(events.first { $0.tag == "STOPPED OUT" }?.text == "WXYZ @ 5.02 -1.67")  // the exact result once listed
     #expect(events.first { $0.tag == "DONE" }?.text == "Pause entries")
     for pair in zip(events, events.dropFirst()) { #expect(pair.0.time >= pair.1.time) }
   }
@@ -111,5 +112,19 @@ import Testing
   @Test func knownExitReasonsGetTitlesUnknownStayRaw() {
     #expect(Board.exitReasonTitle("stopped-out") == "stopped out")
     #expect(Board.exitReasonTitle("something-new") == "something-new")
+  }
+
+  /// A replay's trade (an observer's, a what-if) carries the replay's words: the same map reads
+  /// them, never as the raw value ("STRATEGY_EXIT").
+  @Test func replayExitReasonsReadAsTheBotsOwn() {
+    #expect(Board.exitReasonTitle("stop") == Board.exitReasonTitle("stopped-out"))
+    #expect(Board.exitReasonTitle("strategy_exit") == Board.exitReasonTitle("strategy-exit"))
+    #expect(Board.exitReasonTitle("flatten") == Board.exitReasonTitle("session-flatten"))
+    #expect(Board.exitReasonTitle("end_of_data") == "bars ran out")
+    #expect(Board.exitLook("stop") == .stoppedOut)
+    #expect(Board.exitLook("strategy_exit") == .strategy)
+    #expect(Board.exitLook("flatten") == .other)
+    #expect(Board.exitLook("end_of_data") == .other)
+    #expect(Board.exitKind("flatten") == .forced)
   }
 }

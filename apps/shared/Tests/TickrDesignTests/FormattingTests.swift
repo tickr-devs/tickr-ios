@@ -95,6 +95,15 @@ func d(_ text: String) -> Decimal { Decimal(string: text, locale: Locale(identif
     #expect(Money.number(1.5 as Double, fractionDigits: 1) == "1.5")
   }
 
+  @Test("A price's change per share keeps the price's tick, never a dollar sign")
+  func priceChange() {
+    #expect(Money.priceChange(d("0.06"), at: d("12.30")) == "+0.06")
+    #expect(Money.priceChange(d("-0.0012"), at: d("0.4567")) == "\u{2212}0.0012")
+    #expect(Money.priceChange(d("0.06"), at: nil) == "+0.06")
+    #expect(Money.priceChange(0.0012, at: 0.98) == "+0.0012")
+    #expect(Money.priceChange(Double.nan, at: 12) == "\u{2014}")
+  }
+
   @Test(arguments: [
     ("250", "$250.00"), ("-4.1", "\u{2212}$4.10"), ("0", "$0.00"), ("1234.5", "$1,234.50"),
     ("1000011.8", "$1,000,011.80"), ("-1234.5", "\u{2212}$1,234.50"),

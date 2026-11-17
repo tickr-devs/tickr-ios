@@ -143,7 +143,7 @@ private struct VersionsCard: View {
       .fixedSize()
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
         CardLabel(L10n.Lab.shownDayResult)
-        MoneyText(value: model.shownResult, usd: true, font: Tokens.Typography.calloutMono.bold())
+        MoneyText(value: model.shownResult, font: Tokens.Typography.calloutMono.bold())
       }
       .fixedSize()
       DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
@@ -271,7 +271,7 @@ private struct CurvesCard: View {
         Spacer(minLength: Tokens.Space.xs)
         Group {
           if let result {
-            MoneyText(value: result, usd: true, font: Tokens.Typography.calloutMono)
+            MoneyText(value: result, font: Tokens.Typography.calloutMono)
           } else {
             Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
           }
@@ -501,7 +501,7 @@ struct ObserverRow: View {
         Badge(verbatim: observer.version, color: Palette.accentText, keepingCase: true)
         Spacer()
         if let result = observer.resultGrossUSD {
-          MoneyText(value: result.value, usd: true, font: Tokens.Typography.calloutMono)
+          MoneyText(value: result.value, font: Tokens.Typography.calloutMono)
         } else {
           // The bot says why it has no result (no captured bars, no decisions...).
           Text(verbatim: Format.missing)

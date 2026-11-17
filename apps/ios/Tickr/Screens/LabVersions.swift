@@ -98,7 +98,7 @@ struct VersionsCard: View {
               tone: curve.observer ? .highlight : .accent)
             Spacer(minLength: 0)
             if let total = curve.total {
-              Text(verbatim: Money.signed(total))
+              Text(verbatim: Money.signedUSD(total))
                 .font(Tokens.Typography.calloutMono.bold())
                 .foregroundStyle(Palette.result(total))
                 .fixedSize()

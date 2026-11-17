@@ -41,6 +41,14 @@ format   (apps/macos, apps/ios) Numbers are formatted only by TickrDesign (`Mone
          `FloatingPointFormatStyle`, `NumberFormatter`, `String(format:` or `.currency(code:`.
          A line that sets an `accessibilityValue` may let VoiceOver read a number in the
          person's locale.
+         Money is always in dollars (owner rule 2026-11-16, one meaning one look). `Money.signed`,
+         `Money.plain` and `Money.number` write a bare figure, so a call that leaves their cents
+         default (or passes `Money.centsDigits`) is an amount without its "$": use
+         `Money.signedUSD` / `Money.usd`, `Money.price` for a price, or name the digits of a
+         figure that is not money; a figure on purpose without "$" (a calendar cell) is marked
+         `// figure: <why>` on its line or the line above. The bot's own text of a money or price
+         field (`fill.feesUsd?.text`, `"\\(position.lastPrice)"`) is never shown: format its
+         `.value`. An L10n text never writes "USD" after an amount: the "$" comes from `Money`.
 stopsymbol  (apps/macos, apps/ios) A stop's symbols (every SF Symbol with "shield") come only
          from TickrDesign's `StopState` constants, one symbol per meaning. A shield that means
          something else is marked `// symbol: <meaning>` on its line or the line above.
@@ -535,6 +543,14 @@ NUMBER_FORMAT = re.compile(
     r"|\.currency\(code:")
 # VoiceOver may read a number in the person's locale.
 ACCESSIBILITY_VALUE = "accessibilityValue"
+# A bare-figure formatter of `Money` (no "$"); its call text is read to the closing parenthesis.
+BARE_FIGURE = re.compile(r"\bMoney\.(?:signed|plain|number)\(")
+FIGURE_MARKER = "// figure:"
+# The kit's `DecimalString` fields that hold money or a price (`…Usd`, `…USD`, `…Price`, `price`).
+DECIMAL_FIELD = re.compile(r"public (?:let|var) (\w+): DecimalString\??")
+MONEY_FIELD = re.compile(r"\w*(?:Usd|USD|Price)|price")
+# An amount written in an L10n text with "USD" after it.
+USD_TEXT = re.compile(r"\\\([^)]*\)\s*USD\b")
 # An SF Symbol name with a shield (a string literal's whole text).
 SHIELD_SYMBOL = re.compile(r"(?:[a-z]+\.)*shield(?:\.[a-z]+)*")
 SYMBOL_MARKER = "// symbol:"
@@ -555,10 +571,85 @@ def result_violations(path: Path) -> list[tuple[int, str]]:
             if RESULT_SIGN.search(code)]
 
 
+def money_fields() -> set[str]:
+    """The kit's `DecimalString` fields holding money or a price."""
+    return {name for path in sorted((REPO / KIT_SOURCES).glob("*.swift"))
+            for name in DECIMAL_FIELD.findall(path.read_text(encoding="utf-8"))
+            if MONEY_FIELD.fullmatch(name)}
+
+
+def raw_money_pattern(names: set[str]) -> re.Pattern[str]:
+    """The bot's own text of one of `names`: its `.text` / `.description`, or the field
+    interpolated whole (`"\\(fill.feesUsd)"`)."""
+    alternatives = "|".join(sorted(names)) or "(?!)"
+    return re.compile(r"\.(?:" + alternatives + r")\??\.(?:text|description)\b"
+                      r"|\\\(\s*[\w.?]*\.(?:" + alternatives + r")\s*[!?]?\s*\)")
+
+
+def _interpolated_code(line: str) -> str:
+    """One line's code with comments dropped and each string literal reduced to the code of its
+    interpolations (`"\\(a) \\(Money.signed(b))"` keeps `\\(a)\\(Money.signed(b))`), so a call
+    inside a string is checked like any other (`check_swift_literals.strip` drops it whole)."""
+    out, i, n = [], 0, len(line)
+    while i < n:
+        if line.startswith("//", i):
+            break
+        if line[i] != '"':
+            out.append(line[i])
+            i += 1
+            continue
+        i += 1
+        while i < n and line[i] != '"':
+            if line.startswith("\\(", i):
+                depth, j = 1, i + 2
+                while j < n and depth:
+                    depth += {"(": 1, ")": -1}.get(line[j], 0)
+                    j += 1
+                out.append(line[i:j])
+                i = j
+            else:
+                i += 2 if line[i] == "\\" else 1
+        i += 1
+    return "".join(out)
+
+
+def _call_text(code: str, start: int) -> str:
+    """The text of the call whose "(" ends at `start` - 1, to its matching ")" (or the end)."""
+    depth, index = 1, start
+    while index < len(code) and depth:
+        depth += {"(": 1, ")": -1}.get(code[index], 0)
+        index += 1
+    return code[start:index]
+
+
+def _bare_money(code: str) -> bool:
+    """A `Money.signed/plain/number` call at the cents default: an amount without its "$"."""
+    for match in BARE_FIGURE.finditer(code):
+        call = _call_text(code, match.end())
+        if "fractionDigits:" not in call or "Money.centsDigits" in call:
+            return True
+    return False
+
+
 def format_violations(path: Path) -> list[tuple[int, str]]:
-    """A number formatted outside TickrDesign (a line setting an accessibilityValue excepted)."""
-    return [(number, code.strip()) for number, code, raw in _code_lines(path)
-            if NUMBER_FORMAT.search(code) and ACCESSIBILITY_VALUE not in raw]
+    """A number formatted outside TickrDesign (a line setting an accessibilityValue excepted);
+    money without its "$" (unless marked `// figure:`); the bot's raw text of a money or price
+    field; "USD" written after an amount in an L10n text."""
+    found, previous = [], ""
+    raw_money = raw_money_pattern(money_fields())
+    l10n = is_l10n(path)
+    for number, code, raw in _code_lines(path):
+        full = _interpolated_code(raw) if code.strip() else ""
+        if NUMBER_FORMAT.search(code) and ACCESSIBILITY_VALUE not in raw:
+            found.append((number, code.strip()))
+        elif _bare_money(full) and FIGURE_MARKER not in raw and FIGURE_MARKER not in previous:
+            found.append((number, raw.strip()))
+        elif raw_money.search(full):
+            found.append((number, raw.strip()))
+        elif l10n and USD_TEXT.search(raw):
+            found.append((number, raw.strip()))
+        previous = raw
+    return found
 
 
 def stop_symbol_violations(path: Path) -> list[tuple[int, str]]:
@@ -768,7 +859,8 @@ RULES = {
   "result": (result_violations,
       "result colour by hand; use Palette.result or Tone.result (zero is neutral)"),
   "format": (format_violations,
-      "number formatted outside TickrDesign; use Money, Percent or Volume (Formatting.swift)"),
+      "number formatted outside TickrDesign, or money without its \"$\"; use Money.signedUSD, "
+      "Money.usd, Money.price, Percent or Volume (Formatting.swift)"),
   "stopsymbol": (stop_symbol_violations,
       "stop symbol written by hand; use StopState's symbols, or mark another meaning `// symbol:`"),
   "cause": (cause_violations,

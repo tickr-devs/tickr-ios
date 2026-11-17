@@ -250,6 +250,27 @@ final class StubProtocol: URLProtocol {
     }
   }
 
+  /// An older bot without a route (`/movers`) answers 404 `not_found`: the app says the bot
+  /// version does not provide it, never "API refused (404 not_found): no resource '/movers'".
+  @Test func readTheBotHasNoRouteForIsNotServed() async throws {
+    let body = Data(#"{"error":"not_found","cause":"no resource '/movers'","api_version":1}"#.utf8)
+    StubProtocol.answer = (404, body)
+    await #expect(throws: APIError.notServed(demo: false)) {
+      try await client.movers(day: try WireDate("2026-11-16"))
+    }
+    #expect(APIError.notServed(demo: false).errorDescription == String(localized: L10n.apiNotServed))
+  }
+
+  /// The one GET whose 404 names a missing record (no decision for that symbol and day) stays a
+  /// refusal with its cause.
+  @Test func missingDecisionStaysARefusal() async throws {
+    let body = Data(#"{"error":"not_found","cause":"no decision recorded","api_version":1}"#.utf8)
+    StubProtocol.answer = (404, body)
+    await #expect(throws: APIError.refused(status: 404, error: "not_found", cause: "no decision recorded")) {
+      try await client.decisions(symbol: "ABCD", day: try WireDate("2026-11-16"))
+    }
+  }
+
   @Test func acceptedWarningIsDecoded() async throws {
     StubProtocol.answer = try (202, fixture("command-accepted-v1.warning.json"))
     let accepted = try await client.send(.flatten)

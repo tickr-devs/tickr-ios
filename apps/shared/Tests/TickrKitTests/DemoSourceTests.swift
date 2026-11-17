@@ -180,13 +180,11 @@ final class NetworkTrap: URLProtocol {
     #expect(try await fresh.status().status?.recentCommands.first?.commandId != second.command.commandId)
   }
 
-  @Test func aReadTheRecordingDoesNotHoldIsATypedRefusal() async throws {
+  @Test func aReadTheRecordingDoesNotHoldSaysSoInTheReadersLanguage() async throws {
     let client = Container.shared.apiClient(APIClient.Endpoint(baseURL: DemoDay.address))
-    await #expect(throws: APIError.self) { try await client.chart(symbol: "NOPE", interval: .m1, range: .oneDay) }
-    do {
-      _ = try await client.chart(symbol: "NOPE", interval: .m1, range: .oneDay)
-    } catch APIError.refused(let status, let error, _) {
-      #expect(status == 404 && error == "not_found")
+    await #expect(throws: APIError.notServed(demo: true)) {
+      try await client.chart(symbol: "NOPE", interval: .m1, range: .oneDay)
     }
+    #expect(APIError.notServed(demo: true).errorDescription == String(localized: L10n.apiNotRecordedDemo))
   }
 }

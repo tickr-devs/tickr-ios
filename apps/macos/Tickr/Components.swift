@@ -28,13 +28,12 @@ extension Badge {
   }
 }
 
-/// A money value whose digits roll when it changes.
+/// A money value whose digits roll when it changes, always in dollars ("+$12.40", "$292.00").
 struct MoneyText: View {
   let value: Decimal
-  var usd = false
   var font: Font = Tokens.Typography.bodyMono
   var colored = true
-  /// A result carries its sign ("+12.40"); an amount such as the room left does not ("292.00").
+  /// A result carries its sign ("+$12.40"); an amount such as the room left does not ("$292.00").
   var signed = true
   /// Greyed: a figure as of an older moment, not the current one.
   var muted = false
@@ -51,12 +50,7 @@ struct MoneyText: View {
   }
 
   private var text: String {
-    switch (signed, usd) {
-    case (true, true): Money.signedUSD(value)
-    case (true, false): Money.signed(value)
-    case (false, true): Money.usd(value)
-    case (false, false): Money.plain(value)
-    }
+    signed ? Money.signedUSD(value) : Money.usd(value)
   }
 }
 
@@ -311,23 +305,13 @@ enum Format {
   static let secondsPerMinute = 60
 
   /// "14:42:08" in New York time (market time), 24-hour whatever the Mac's clock setting.
+  /// The shared clock (TickrKit `ClockText`).
   static func marketTime(_ date: Date?) -> String {
-    guard let date else { return missing }
-    var calendar = Calendar(identifier: .gregorian)
-    calendar.timeZone = newYork
-    return date.formatted(Date.VerbatimFormatStyle(
-      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
-      timeZone: newYork, calendar: calendar))
+    date.map(ClockText.seconds) ?? missing
   }
 
-  /// "14:42" in New York time, 24-hour (`.twoDigits(amPM: .omitted)` would show 02:42).
-  static func marketMinute(_ date: Date) -> String {
-    var calendar = Calendar(identifier: .gregorian)
-    calendar.timeZone = newYork
-    return date.formatted(Date.VerbatimFormatStyle(
-      format: "\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)",
-      timeZone: newYork, calendar: calendar))
-  }
+  /// "14:42" in New York time, 24-hour: the shared clock (TickrKit `ClockText`).
+  static func marketMinute(_ date: Date) -> String { ClockText.minutes(date) }
 
   /// Date styles of a chart over several sessions or months, in New York time and the person's
   /// language.
@@ -461,7 +445,7 @@ extension AppModel {
     guard let status, isLive else {
       return shownTrades.map {
         TickerItem(id: $0.tradeId, tag: Board.exitReasonTitle($0.exitReason).uppercased(),
-          text: "\($0.symbol) \(Money.signed($0.resultUsd.value))",
+          text: "\($0.symbol) \(Money.signedUSD($0.resultUsd.value))",
           tone: Board.exitTone($0.exitReason, result: $0.resultUsd.value).tickerTone)
       }
     }

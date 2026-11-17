@@ -59,41 +59,6 @@ public enum OperatorCommand: Hashable, Sendable {
   }
 }
 
-public enum APIError: Error, LocalizedError, Equatable {
-  /// The API answered with a typed refusal (error-v1); `cause` in the person's language when the
-  /// bot sent a code this app knows (`ErrorV1.causeText`), else the bot's own words.
-  case refused(status: Int, error: String, cause: String)
-  /// The answer does not match contract v1.
-  case contract(String)
-  /// The API could not be reached.
-  case unreachable(String)
-
-  public var errorDescription: String? {
-    switch self {
-    case .refused(let status, let error, let cause): return String(localized: L10n.apiRefused(status, error, cause))
-    case .contract(let detail): return String(localized: L10n.apiContract(detail))
-    case .unreachable(let detail): return String(localized: L10n.apiUnreachable(detail))
-    }
-  }
-}
-
-/// Any error as the apps show it: its own description in the person's language when it has
-/// one (APIError, ContractError), a plain "unexpected error" otherwise; never Swift's English
-/// debug form of the error.
-public enum ErrorText {
-  /// What a failed read shows, or nil for a cancelled one: whoever cancelled it has moved on,
-  /// so it shows nothing.
-  public static func describe(_ error: Error) -> String? {
-    error is CancellationError ? nil : text(error)
-  }
-
-  /// Always a sentence, for a failure the person must see even when it was cancelled (a
-  /// command that may not have been sent).
-  public static func text(_ error: Error) -> String {
-    (error as? LocalizedError)?.errorDescription ?? String(localized: L10n.unexpectedError)
-  }
-}
-
 /// Client for the bot's local API. Stateless; safe to share.
 public struct APIClient: Sendable {
   /// Where the bot's local API listens by default (config/bot.toml `[api]`); the apps' settings
@@ -101,6 +66,9 @@ public struct APIClient: Sendable {
   public static let defaultBaseURL = URL(string: "http://127.0.0.1:8766")!
   /// HTTP status of a successful read.
   static let ok = 200
+  /// HTTP status and error-v1 `error` of a read the API has no answer for (docs/api.md).
+  static let notFound = 404
+  static let notFoundError = "not_found"
   /// HTTP status of a queued command (accepted, not yet executed).
   static let accepted = 202
   /// API paths of the reads (docs/api.md); `daysPath` + "/" + date reads one day.
@@ -363,6 +331,17 @@ public struct APIClient: Sendable {
     return request
   }
 
+  /// Whether a refusal says the bot has no route for this read: 404 `not_found` on a GET. The one
+  /// GET the bot answers 404 for a missing record (no decision recorded for a symbol and day,
+  /// `decisionsPath`) stays a refusal with its cause; the demo day answers 404 for every read its
+  /// recording does not hold, that one included.
+  static func notServed(_ request: URLRequest, status: Int, error: String, demo: Bool) -> Bool {
+    guard status == notFound, error == notFoundError, request.httpMethod == get, let url = request.url else {
+      return false
+    }
+    return demo || !url.path.hasSuffix(decisionsPath)
+  }
+
   func perform<T: Decodable>(_ request: URLRequest, expect: Int) async throws -> T {
     let data: Data
     let response: URLResponse
@@ -380,6 +359,10 @@ public struct APIClient: Sendable {
     if http.statusCode != expect {
       guard let refusal = try? decoder.decode(ErrorV1.self, from: data) else {
         throw APIError.contract(String(localized: L10n.apiNoErrorBody(http.statusCode)))
+      }
+      let demo = DemoDay.isDemo(baseURL)
+      if Self.notServed(request, status: http.statusCode, error: refusal.error, demo: demo) {
+        throw APIError.notServed(demo: demo)
       }
       // The cause in the person's language, so no screen shows the bot's raw words for a known code.
       throw APIError.refused(status: http.statusCode, error: refusal.error, cause: refusal.causeText)

@@ -78,6 +78,19 @@ public enum Tone: Sendable, Hashable, CaseIterable {
     let shown = Money.rounded(value, fractionDigits)
     return shown > 0 ? .profit : shown < 0 ? .series : .neutral
   }
+
+  /// The tone of a loss the bot reports as a positive amount (the day's realized loss): the
+  /// series pink while it shows as more than "$0.00", neutral at zero (`result` of its negative).
+  public static func loss(_ amount: Decimal) -> Tone {
+    result(-amount)
+  }
+
+  /// The tone of an amount that means something only when there is some (money reserved by open
+  /// trades): `tone` while it shows as more than "$0.00", neutral at zero, so an empty
+  /// reservation never looks like a warning.
+  public static func amount(_ value: Decimal, _ tone: Tone) -> Tone {
+    Money.rounded(value, Money.centsDigits) == 0 ? .neutral : tone
+  }
 }
 
 // MARK: - headings and captions

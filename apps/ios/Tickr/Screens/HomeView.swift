@@ -160,21 +160,12 @@ private struct DayLine: View {
   @Environment(AppModel.self) private var model
   let days: HomeDayModel
 
-  /// Accessibility id of the DEMO chip, for the UI tests.
-  static let demoChipID = "home-demo"
-
   var body: some View {
     VStack(spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
         if days.locked {
-          // The demo day is the only day: no arrows. An invisible twin of the DEMO chip on the
-          // left keeps the day centred.
-          demoChip
-            .hidden()
-            .accessibilityHidden(true)
+          // The demo day is the only day: no arrows; the header's environment badge says DEMO.
           dayText
-          demoChip
-            .accessibilityIdentifier(Self.demoChipID)
         } else if arrows.visible {
           // The arrow that leads nowhere is dimmed and refuses taps ("dimmed" to VoiceOver).
           Button { days.back() } label: { arrow(Symbols.previous) }
@@ -205,17 +196,13 @@ private struct DayLine: View {
     HeaderIcon(symbol: symbol).foregroundStyle(Palette.textPrimary).dimmedWhenDisabled()
   }
 
-  /// The day, centred in the room between the arrows (or the DEMO chips).
+  /// The day, centred in the room between the arrows.
   private var dayText: some View {
     day
       .frame(maxWidth: .infinity)
       .multilineTextAlignment(.center)
       // Wraps as far as it needs ("Пт 13 нояб. · сегодня" at large sizes), never cut.
       .fixedSize(horizontal: false, vertical: true)
-  }
-
-  private var demoChip: some View {
-    Badge(L10n.Home.demoChip, tone: .highlight)
   }
 
   /// The shown day: a recorded one, today or the last session.
@@ -318,7 +305,7 @@ private struct Summary: View {
         VStack(spacing: Tokens.Space.xxs) {
           CardLabel(L10n.Home.day)
           // Counts up from zero as the ring appears and on to each new result (the board's count).
-          CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signed(Decimal($0)) }
+          CountingText(NSDecimalNumber(decimal: result).doubleValue) { Money.signedUSD(Decimal($0)) }
             .font(Tokens.Typography.metric)
             .foregroundStyle(Palette.result(result))
             // One line at its full size; the ring grows around it.
@@ -478,9 +465,9 @@ private struct PositionRow: View {
         VStack(alignment: typeSize.stacksRows ? .leading : .trailing, spacing: Tokens.Space.xxs) {
           if let marks {
             if current {
-              DeltaTag(marks.unrealized, text: Money.signed(marks.unrealized))
+              DeltaTag(marks.unrealized, text: Money.signedUSD(marks.unrealized))
             } else {
-              Text(verbatim: Money.signed(marks.unrealized))
+              Text(verbatim: Money.signedUSD(marks.unrealized))
                 .font(Tokens.Typography.calloutMono.weight(.semibold))
                 .foregroundStyle(Palette.textQuaternary)
                 .contentTransition(.numericText())
