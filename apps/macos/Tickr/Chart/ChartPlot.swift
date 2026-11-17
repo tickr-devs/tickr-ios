@@ -11,13 +11,25 @@ struct ChartPlot: Sendable {
   let revision: Int
   /// The range shown: one day's bars, or several sessions or months.
   let range: ChartRange
-  /// The candles drawn. Over a range beyond one day they sit back to back (`gapless()`), with
-  /// no overnight, weekend or holiday gaps; `starts` keeps their real times.
+  /// The candles drawn, back to back (`gapless()`): no overnight, weekend or holiday gap and no
+  /// hole for a minute without trades, on every range (mockup v113); `real` and `starts` keep
+  /// their real times.
   let series: ChartSeries
+  /// The same candles at their real times, index for index.
+  let real: [Candle]
   /// Real opening time of each candle, for the time axis, the crosshair and the readout.
   let starts: [Date]
-  /// Labelled times on the time axis of a range beyond one day: where a session, week, month
-  /// or quarter begins. Empty for one day, whose axis shows clock times.
+  /// Where a real time (a trade, a decision, the position's entry) is drawn.
+  let clock: GaplessClock
+  /// Day and 5D: the parts of the day (bands, boundaries, the time axis), with the rest of today
+  /// reserved on today's Day chart; nil for daily, weekly and monthly candles.
+  let sessions: SessionAxis?
+  /// Today's session from the calendar, whose rest the Day chart reserves; nil otherwise.
+  let today: SessionSpan?
+  /// The extended close the Day axis ends on ("After 20:00"): today's from the calendar, else
+  /// the last candle's end.
+  let extendedClose: Date?
+  /// Labelled times on the time axis of a month or longer: where a week, month or quarter begins.
   let axisMarks: [ChartAxisMark]
   let atr: [Double?]
   /// Moving averages, Bollinger, MACD, RSI and stochastic of the candles, split into one array
@@ -39,32 +51,42 @@ struct ChartPlot: Sendable {
   /// Candles the volume average spans.
   static let volumeAveragePeriod = 20
 
-  /// One day's M1 bars (GET /bars) in `timeframe`, on the day's own clock.
+  /// A recorded day's M1 bars (GET /bars, the bot's capture) in `timeframe`.
   init(bars: [BarV1], timeframe: Timeframe, revision: Int) {
     let series = ChartSeries(bars: bars, timeframe: timeframe)
     self.init(
-      series: series, atr: ChartSeries.atr(bars: bars, timeframe: timeframe), starts: series.candles.map(\.start),
-      studies: CandleStudies(candles: series.candles), range: .oneDay, revision: revision)
+      real: series, atr: ChartSeries.atr(bars: bars, timeframe: timeframe), studies: CandleStudies(candles: series.candles),
+      range: .oneDay, today: nil, afterSlots: nil, revision: revision)
   }
 
-  /// Candles of a GET /chart answer, back to back, their lines and studies warmed up on the
-  /// earlier candles of `warmup` (`WarmChart`).
-  init(chart: ChartV1, warmup: ChartV1? = nil, revision: Int) {
+  /// Candles of a GET /chart answer, their lines and studies warmed up on the earlier candles of
+  /// `warmup` (`WarmChart`). `today`: the calendar's session of today, on today's Day chart, whose
+  /// rest is reserved up to the extended close.
+  init(chart: ChartV1, warmup: ChartV1? = nil, today: SessionSpan? = nil, revision: Int) {
     let warm = WarmChart(chart: chart, warmup: warmup)
     self.init(
-      series: warm.series.gapless(), atr: warm.atr, starts: warm.series.candles.map(\.start), studies: warm.studies,
-      range: chart.range, revision: revision)
+      real: warm.series, atr: warm.atr, studies: warm.studies, range: chart.range,
+      today: chart.range == .oneDay ? today : nil, afterSlots: chart.previousAfterCandles, revision: revision)
   }
 
   private init(
-    series: ChartSeries, atr: [Double?], starts: [Date], studies: CandleStudies, range: ChartRange, revision: Int
+    real: ChartSeries, atr: [Double?], studies: CandleStudies, range: ChartRange, today: SessionSpan?,
+    afterSlots: Int?, revision: Int
   ) {
     self.revision = revision
     self.range = range
+    let series = real.gapless()
     self.series = series
+    self.real = real.candles
     self.atr = atr
-    self.starts = starts
-    axisMarks = range == .oneDay
+    starts = real.candles.map(\.start)
+    clock = GaplessClock(real: real)
+    let intraday = real.timeframe.isIntraday
+    self.today = today
+    sessions = intraday ? SessionAxis(candles: real.candles, timeframe: real.timeframe, today: today, afterSlots: afterSlots)
+      : nil
+    extendedClose = intraday ? (today?.end ?? real.candles.last?.end) : nil
+    axisMarks = intraday
       ? [] : ChartAxisMark.marks(starts: starts, drawn: series.candles, range: range, timeframe: series.timeframe)
     movingAverages = studies.movingAverages
     bollingerUpper = studies.bollinger.map { $0?.upper }
@@ -79,6 +101,20 @@ struct ChartPlot: Sendable {
     volumeAverage = Studies.sma(series.candles.map(\.volume), period: Self.volumeAveragePeriod)
   }
 
+  /// The drawn start of slot `slot` (a candle's, or a reserved one's after the last candle).
+  func slotTime(_ slot: Int) -> Date {
+    (series.candles.first?.start ?? .distantPast).addingTimeInterval(Double(slot) * series.timeframe.seconds)
+  }
+
+  /// Where the drawn time axis ends: after the last candle, or after today's reserved slots.
+  var drawnEnd: Date {
+    guard let sessions else { return series.candles.last?.end ?? .distantPast }
+    return slotTime(sessions.slots)
+  }
+
+  /// Where a real time is drawn (`clock`); nil before the first candle.
+  func drawnTime(_ time: Date) -> Date? { clock.drawn(time) }
+
   var timeframe: Timeframe { series.timeframe }
   var candles: [Candle] { series.candles }
 
@@ -92,7 +128,16 @@ struct ChartPlot: Sendable {
     case .d1: return Format.chartDay(start)
     case .w1: return Format.chartMonthDay(start)
     case .mo1: return Format.chartMonthYear(start)
-    default: return range == .oneDay ? Format.marketMinute(start) : Format.chartSessionMinute(start)
+    default:
+      let time = range == .oneDay ? Format.marketMinute(start) : Format.chartSessionMinute(start)
+      // "19:50 · after-hours" (mockup v113).
+      let part: LocalizedStringResource? =
+        switch real[index].session {
+        case .pre: ChartSessionWords.preMarket
+        case .after: ChartSessionWords.afterHours
+        case .regular, nil: nil
+        }
+      return part.map { "\(time)\(Format.itemSeparator)\(String(localized: $0))" } ?? time
     }
   }
 
@@ -129,6 +174,12 @@ struct ChartAxisMark: Hashable, Sendable {
   let text: String
   /// Where a year begins: kept over a month label it would collide with.
   var major = false
+  /// How a session axis's label hangs from its time (mockup v113).
+  var anchor: ChartAxis.Anchor = .centre
+  /// A session, its end or a day's name, drawn stronger than a round time.
+  var strong = false
+  /// How far the label's left edge sits from its time, in points (placed by `AxisLabelPlacer`).
+  var offset: CGFloat = 0
 
   /// The first candle (the left edge included) of each session over five days, of each week over
   /// a month, of each month over three months or a year (of each quarter for monthly candles), or

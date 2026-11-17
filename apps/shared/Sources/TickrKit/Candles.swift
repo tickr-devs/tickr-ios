@@ -84,6 +84,9 @@ public struct Candle: Hashable, Sendable, Identifiable {
   /// Whether the candle lies outside the regular session (chart-v1's `extended`; GET /bars
   /// candles leave it false).
   public let extended: Bool
+  /// The part of the day the candle lies in (chart-v1's `session`); nil for daily, weekly and
+  /// monthly candles, and for an extended candle of an API too old to say which part.
+  public let session: ChartSession?
 
   public var id: Date { start }
   /// Whether the candle closed at or above its open.
@@ -91,9 +94,10 @@ public struct Candle: Hashable, Sendable, Identifiable {
 
   public init(
     start: Date, end: Date, open: Double, high: Double, low: Double, close: Double, volume: Double,
-    extended: Bool = false
+    extended: Bool = false, session: ChartSession? = nil
   ) {
     self.extended = extended
+    self.session = session
     self.start = start
     self.end = end
     self.open = open
@@ -142,7 +146,8 @@ public struct ChartSeries: Hashable, Sendable {
       return Candle(
         start: start, end: Candles.end(of: start, timeframe: interval), open: Candles.double(bar.open),
         high: Candles.double(bar.high), low: Candles.double(bar.low), close: Candles.double(bar.close),
-        volume: Candles.double(bar.volume), extended: bar.extended)
+        volume: Candles.double(bar.volume), extended: bar.extended,
+        session: bar.session ?? (interval.isIntraday && !bar.extended ? .regular : nil))
     }
     let closes = candles.map(\.close)
     timeframe = interval
@@ -178,7 +183,8 @@ public struct ChartSeries: Hashable, Sendable {
       let start = origin.addingTimeInterval(TimeInterval(index) * length)
       return Candle(
         start: start, end: start.addingTimeInterval(length), open: candle.open, high: candle.high,
-        low: candle.low, close: candle.close, volume: candle.volume, extended: candle.extended)
+        low: candle.low, close: candle.close, volume: candle.volume, extended: candle.extended,
+        session: candle.session)
     }
     return ChartSeries(timeframe: timeframe, candles: moved, vwap: vwap, fastEMA: fastEMA, slowEMA: slowEMA)
   }
@@ -212,12 +218,13 @@ public enum Candles {
       if let last = groups.last?.candle, last.start == start {
         let merged = Candle(
           start: start, end: last.end, open: last.open, high: max(last.high, high),
-          low: min(last.low, low), close: close, volume: last.volume + volume)
+          low: min(last.low, low), close: close, volume: last.volume + volume, session: last.session)
         groups[groups.count - 1] = (merged, index)
       } else {
+        // The bot captures the regular session only (its discovery reads M1 bars then).
         let candle = Candle(
           start: start, end: end, open: double(bar.open), high: high,
-          low: low, close: close, volume: volume)
+          low: low, close: close, volume: volume, session: .regular)
         groups.append((candle, index))
       }
     }

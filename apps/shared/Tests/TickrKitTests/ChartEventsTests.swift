@@ -35,6 +35,28 @@ struct ChartEventsTests {
     }
   }
 
+  @Test("On candles drawn back to back a mark sits on the drawn candle of its real candle's index")
+  func drawnCandles() throws {
+    // Real candles an hour apart; drawn back to back a minute apart.
+    let real = candles(3, length: 3_600).map {
+      Candle(start: $0.start, end: $0.start.addingTimeInterval(Self.minute), open: $0.open, high: $0.high,
+        low: $0.low, close: $0.close, volume: 1)
+    }
+    let drawn = candles(3)
+    let events = ChartEvent.make([try decision(0, "WATCH")], candles: real, drawn: drawn)
+    #expect(events.map(\.candle) == [drawn[0].start])
+    // 16:00 UTC is the second real candle, drawn at 15:01.
+    let json = """
+      {"at": "2026-11-16T16:00:30.000Z", "action": "ENTER",
+       "strategy": {"name": "price-action", "version": "2"}, "observer": false, "checks": [],
+       "entry_price": null, "stop_price": null, "admission": "taken", "refusal_cause": null, "refusal": null}
+      """
+    let enter = try Wire.decoder().decode(DecisionV1.self, from: Data(json.utf8))
+    let marked = ChartEvent.make([enter], candles: real, drawn: drawn)
+    #expect(marked.map(\.candle) == [drawn[1].start])
+    #expect(marked.map(\.price) == [11])
+  }
+
   @Test("A run of WATCH is marked once at its start; a taken and a refused ENTER each get a mark")
   func runs() throws {
     let events = ChartEvent.make([

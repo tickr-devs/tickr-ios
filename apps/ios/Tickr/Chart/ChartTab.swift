@@ -106,13 +106,13 @@ struct ChartTab: View {
           if let series = chart.series, !series.candles.isEmpty {
             // As on the design: the chart right under the symbols, then its range, timeframe,
             // zoom and lines, then why the bot acted.
-            // The bot's trades, position and strategy marks belong to the chosen day's minutes:
-            // on a longer range their times fall between drawn candles, so they stay off it.
+            // The bot's trades, position and strategy marks belong to the chosen day: on a longer
+            // range they stay off it.
             let oneDay = chart.range == .oneDay
             CandleChart(series: series, times: chart.times, studies: chart.studies, atr: chart.atr,
               trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
               events: oneDay ? chart.events : [], lines: lines, rangeTitle: RangePicker.title(chart.range),
-              fitsAll: !oneDay, viewport: $viewport)
+              pending: chart.pending, viewport: $viewport)
               // Its panes have a fixed height: past this size the scale's tags and legends would
               // cover each other and the candles.
               .dynamicTypeSize(...CandleChart.largestText)
@@ -135,6 +135,9 @@ struct ChartTab: View {
             } else {
               loadingView
             }
+          } else if chart.pending != nil || chart.needsTodayRead {
+            // Today's market data on its way: the chart's budget, or another interval being read.
+            loadingView
           } else {
             ContentUnavailableView {
               Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
@@ -164,16 +167,16 @@ struct ChartTab: View {
   /// "Loading ABCD · 1 min bars" in its top left. Nothing real until the bars are read.
   private var loadingView: some View {
     LoadingChart(
-      caption: chart.symbol.map {
+      caption: chart.pending.map(PendingText.caption) ?? chart.symbol.map {
         ChartText.loadingBars($0, interval: String(localized: ChartFormat.title(chart.timeframe)))
       } ?? L10n.Common.loading,
-      lines: lines)
+      lines: lines, pending: chart.pending)
       .transition(.opacity)
   }
 
   /// Changes whenever a different chart is on screen, restarting the reload loop.
   private var liveKey: LiveKey {
-    LiveKey(day: chart.selectedDay, symbol: chart.symbol, isToday: chart.isToday)
+    LiveKey(day: chart.selectedDay, symbol: chart.symbol, isToday: chart.isToday, timeframe: chart.timeframe)
   }
 
   /// Changes whenever another symbol, range or interval beyond one day is chosen.
@@ -189,13 +192,14 @@ struct ChartTab: View {
   }
 
   /// Read the candles of a range beyond one day; while they are intraday (five sessions), read
-  /// them again now and then so today's last candle stays current.
+  /// them again now and then so today's last candle stays current. A cold 5D fills as the chart's
+  /// budget allows: asked again when the bot says (`pending`).
   private func followRange() async {
     guard chart.range != .oneDay, let url = app.connection.url else { return }
     repeat {
-      await chart.loadRange(url)
-      guard chart.timeframe.isIntraday else { return }
-      try? await Task.sleep(for: .seconds(ChartModel.rangeReloadSeconds))
+      let wait = await chart.loadRange(url)
+      guard wait != nil || chart.timeframe.isIntraday else { return }
+      try? await Task.sleep(for: .seconds(wait ?? ChartModel.rangeReloadSeconds))
     } while !Task.isCancelled
   }
 
@@ -203,12 +207,16 @@ struct ChartTab: View {
     let day: WireDate?
     let symbol: String?
     let isToday: Bool
+    /// Today's market data is read in the chosen interval: another one is read again.
+    let timeframe: Timeframe
   }
 
-  /// While today's chart is on screen, reload its bars so the last candle stays current.
+  /// While today's chart is on screen, reload it so the last candle stays current: market data
+  /// at its own pace (or when the bot says while its budget fills it), the capture at the bars'.
   private func followToday() async {
+    if chart.isToday, chart.needsTodayRead, let url = app.connection.url { await chart.reloadBars(url) }
     while chart.isToday, !Task.isCancelled {
-      try? await Task.sleep(for: .seconds(ChartModel.liveReloadSeconds))
+      try? await Task.sleep(for: .seconds(chart.todayReloadSeconds))
       guard !Task.isCancelled, let url = app.connection.url else { return }
       await chart.reloadBars(url)
     }
@@ -636,6 +644,8 @@ private struct RangePicker: View {
 private struct LoadingChart: View {
   let caption: LocalizedStringResource
   let lines: CandleChart.Lines
+  /// How far a read the chart's request budget holds back has got, shown as a progress line.
+  var pending: ChartPendingV1?
 
   /// The silhouette's candles and the price pane's grid lines across and down, as the board's.
   static let candles = 34
@@ -675,6 +685,11 @@ private struct LoadingChart: View {
           .fixedSize(horizontal: false, vertical: true)
           .padding(Tokens.Space.s)
       }
+      .overlay(alignment: .top) {
+        if let pending {
+          ProgressLine(fraction: pending.fraction, label: PendingText.caption(pending))
+        }
+      }
       .tickrCard()
       ForEach(lines.panes, id: \.self) { _ in
         Skeleton(nil) {
@@ -687,5 +702,13 @@ private struct LoadingChart: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(Text(caption))
     .accessibilityAddTraits(.updatesFrequently)
+  }
+}
+
+/// What a chart the request budget fills says (a cold 5D): "Loading 3 of 5 days"; the waiting
+/// note for a read of one.
+enum PendingText {
+  static func caption(_ pending: ChartPendingV1) -> LocalizedStringResource {
+    pending.total > 1 ? ChartSessionWords.loadingDays(pending.read, pending.total) : ChartSessionWords.waitingForBudget
   }
 }

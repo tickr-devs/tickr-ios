@@ -390,6 +390,12 @@ size unchanged.
 | `priceMinHeight` / `priceMaxHeight` | 240 / 420 | The Mac's price pane fills what the study panes leave of the card, clamped (420 with the default panes) |
 | `timeAxisHeight` | 22 | The time axis's labels under the Mac chart's bottom pane |
 | `axisLabelHeight` / `levelTagHeight` | 13 / 17 | A price axis label and a level tag; a label closer to a tag than half of both is hidden |
+| `extendedBandOpacity` | 0.05 | The pre-market and after-hours band: `textPrimary` at this share, price area and volume |
+| `sessionBoundaryOpacity` | 0.7 | A session boundary: 1 pt, `Stroke.dashFine` (3 3), `textQuaternary` at this share |
+| `extendedVolumeShare` | 0.6 | Extended-hours volume bars, share of a regular bar's opacity |
+| `bandCaptionSize` / `bandCaptionInset` | 9 / 6 Mac, 8.5 / 4 iOS | "PRE" / "AFTER" on a band, mono semibold, tracking `bandCaptionTracking` (.06 em); left out when the band is narrower |
+| `sessionAxisLabelSize` | 10 Mac, 9 iOS | A Day / 5D time label, mono: sessions `textTertiary`, round times `textQuaternary` |
+| `hourLabelSpacing` / `axisLabelGap` / `axisLabelInset` | 64 / 8 / 0 Mac, 56 / 6 / 8 iOS | Least room for a round time, between any two labels, and from the chart's edges |
 
 The Mac chart's panes (`PaneStack`, mockup v103) ask for exactly price + panes + time axis, so the
 card holds them whole: nothing is clipped and nothing scrolls inside. The price axis's own labels
@@ -401,6 +407,20 @@ position's entry and stop) and every line that is switched on over them (VWAP, t
 moving averages, the Bollinger bands), so a VWAP far above the price is drawn, not cut
 (`ChartPriceSpan`). Every series and marker is clipped to the plot: a value off the scale ends at
 the plot's edge and never draws over the controls around the chart.
+
+Day and 5D are one continuous chart of every session (mockup v113): the candles sit back to back
+on every range (`ChartSeries.gapless`), so no night, weekend or minute without trades leaves a
+hole; a trade, decision or entry is placed by `GaplessClock`. `SessionAxis` (TickrKit) gives the
+parts of the day: a band behind the pre-market and after-hours, a dashed boundary where a part or a
+day begins (none at the left edge), and the labels, placed in order by `AxisLabelPlacer` (sessions,
+then the end, then round times; a session label falls back to its short form). Today's Day chart
+keeps the rest of the day as empty slots, from the calendar's session (GET /jobs), so the scale
+never jumps: the pre-market and regular session to their end, the after-hours as many slots as the
+session before had (`previous_after_candles`). A new candle never moves the person's zoom or
+scroll (`ChartViewport.take`): a fitted chart stays fitted, a window at the live edge follows it. Today's session comes from market data (GET /chart, 1d); a
+recorded day from the bot's capture (regular session only). Choosing Day opens the whole session in
+5-minute candles, 5D in 30-minute ones. A cold 5D the chart's request budget fills shows how far
+it got (`ProgressLine`, "Loading 3 of 5 days") and asks again when the bot says (`pending`).
 
 Statistics on the Lab and performance cards use `StatDigits` (`Formatting.swift`): mean R and
 profit factor with 2 decimals, win rate and confidence in whole percents.

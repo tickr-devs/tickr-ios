@@ -14,7 +14,7 @@ struct ChartView: View {
   /// The candle under the pointer: the chart, the header's readout and the explain card share it.
   @State private var pointer = ChartPointer()
   @AppStorage(Keys.symbol) private var picked = ""
-  @AppStorage(Keys.timeframe) private var timeframe: Timeframe = .m1
+  @AppStorage(Keys.timeframe) private var timeframe: Timeframe = ChartRange.oneDay.openingInterval
   @AppStorage(Keys.range) private var range: ChartRange = .oneDay
   @AppStorage(Keys.vwap) private var showVWAP = true
   @AppStorage(Keys.fastEMA) private var showFastEMA = true
@@ -157,15 +157,13 @@ struct ChartView: View {
     }
     .padding(Tokens.Space.l)
     .animation(Tokens.Motion.standard, value: showDecisions)
+    // Mockup v113: a range opens on its own interval (Day 5m, 5D 30m).
+    .onChange(of: range) { _, new in timeframe = new.openingInterval }
     .task(id: LoadKey(
       baseURL: model.baseURL, symbol: symbol, day: model.shownDay, live: model.isLive, range: range,
       interval: interval)
     ) {
       await keepLoading()
-    }
-    // The Overview read newer bars of this position: the chart shows them too.
-    .onChange(of: symbol.flatMap { model.isLive && showsDay ? model.positionBars($0) : nil }) { _, newer in
-      if let newer { chart.adopt(newer) }
     }
   }
 
@@ -185,11 +183,10 @@ struct ChartView: View {
   /// The picked symbol while it has something to show, else the first that does.
   private var symbol: String? { symbols.contains(picked) ? picked : symbols.first }
 
-  /// The picked interval while the range offers it, else the range's shortest.
-  private var interval: Timeframe { range.intervals.contains(timeframe) ? timeframe : range.intervals.first ?? .m1 }
+  /// The picked interval while the range offers it, else the one the range opens on.
+  private var interval: Timeframe { range.intervals.contains(timeframe) ? timeframe : range.openingInterval }
 
-  /// Whether the chart shows the shown day's recorded bars (with trades and decisions), not a
-  /// longer range of market data.
+  /// Whether the chart shows the shown day (with its trades and decisions), not a longer range.
   private var showsDay: Bool { range == .oneDay }
 
   private func keepLoading() async {
@@ -206,21 +203,29 @@ struct ChartView: View {
       let shownRange = range
       let shownInterval = interval
       // Market data over several sessions or months: it reaches today whatever day is shown, and
-      // only intraday candles (five sessions) still change during the day.
+      // only intraday candles (five sessions) still change during the day. A cold 5D fills as
+      // the chart's budget allows: asked again when the bot says (`pending`).
       repeat {
-        await chart.loadRange(baseURL: baseURL, symbol: symbol, interval: shownInterval, range: shownRange)
-        guard shownInterval.isIntraday else { return }
-        try? await Task.sleep(for: .seconds(Pace.chartSeconds))
+        let wait = await chart.loadRange(baseURL: baseURL, symbol: symbol, interval: shownInterval, range: shownRange)
+        guard wait != nil || shownInterval.isIntraday else { return }
+        try? await Task.sleep(for: .seconds(wait ?? Pace.chartSeconds))
       } while !Task.isCancelled
       return
     }
+    let shownInterval = interval
     repeat {
-      await chart.load(baseURL: baseURL, symbol: symbol, day: day)
-      // One price for one moment on every screen: the Overview's position card takes these bars.
-      if live, let bars = chart.bars { model.noteBars(bars) }
+      // Today's session from market data, every session of it; a recorded day from the capture.
+      var wait: TimeInterval?
+      if live {
+        wait = await chart.loadToday(baseURL: baseURL, symbol: symbol, interval: shownInterval, day: day)
+      } else {
+        await chart.load(baseURL: baseURL, symbol: symbol, day: day)
+      }
       await chart.loadDecisions(baseURL: baseURL, symbol: symbol, day: day)
       guard live else { return }
-      try? await Task.sleep(for: .seconds(Pace.barsSeconds))
+      // Market data is read at the chart's own pace (its request budget); the capture's at the
+      // bars' pace.
+      try? await Task.sleep(for: .seconds(wait ?? (chart.dayChart != nil ? Pace.chartSeconds : Pace.barsSeconds)))
     } while !Task.isCancelled
   }
 
@@ -560,7 +565,14 @@ struct ChartView: View {
 
   /// The shown bars or range as candles and lines; built once per new read, range or interval
   /// (ChartModel).
-  private var plot: ChartPlot? { chart.plot(timeframe: interval, range: range) }
+  private var plot: ChartPlot? { chart.plot(timeframe: interval, range: range, today: todaySession) }
+
+  /// Today's session from the calendar (GET /jobs) while the shown day is today: the Day chart
+  /// keeps the rest of the day to the extended close (mockup v113).
+  private var todaySession: SessionSpan? {
+    guard model.isLive, let session = model.jobs?.session, session.day == model.shownDay else { return nil }
+    return SessionSpan(session)
+  }
 
   private var candleCount: Int { plot?.candles.count ?? 0 }
 
@@ -575,11 +587,14 @@ struct ChartView: View {
           style: style, vwap: showVWAP, fastEMA: showFastEMA, slowEMA: showSlowEMA,
           movingAverages: showMovingAverages, bollinger: showBollinger, volume: showVolume,
           macd: showMACD, rsi: showRSI, stochastic: showStochastic, atr: showATR),
-        marks: marked ? ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol }) : [],
+        marks: marked ? ChartMarkers.marks(trades: model.shownTrades.filter { $0.symbol == symbol },
+          place: plot.drawnTime) : [],
         // The position's lines start at its entry minute: on one day only, as its trades.
-        levels: marked ? ChartMarkers.levels(position: model.positions.first { $0.id == symbol }) : [],
+        levels: marked ? ChartMarkers.levels(position: model.positions.first { $0.id == symbol },
+          place: plot.drawnTime) : [],
         decisions: marked
-          ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], candles: plot.candles) : [],
+          ? ChartMarkers.decisionMarks(decisions: chart.decisions?.decisions ?? [], real: plot.real,
+            place: plot.drawnTime) : [],
         // Only the shown live day and intraday ranges reaching today still change.
         live: model.isLive && (showsDay || interval.isIntraday),
         viewport: $viewport, pointer: pointer)
@@ -587,6 +602,12 @@ struct ChartView: View {
         // only when what it draws changed.
         .equatable()
         .id(ChartID(symbol: symbol, day: model.shownDay, timeframe: interval, range: range))
+        // Days still to come while the chart's budget fills a cold 5D (mockup v102's progress).
+        .overlay(alignment: .top) {
+          if let pending = chart.pending {
+            PendingLine(pending: pending)
+          }
+        }
         .transition(.opacity)
     } else if symbol == nil {
       empty(L10n.Chart.noSymbols, detail: L10n.Chart.noSymbolsDetail, symbol: "chart.xyaxis.line")
@@ -598,11 +619,20 @@ struct ChartView: View {
       LoadingChart(
         caption: L10n.Chart.loadingBars(symbol, interval: String(localized: Self.title(interval))),
         studies: [showVolume, showMACD, showRSI, showStochastic, showATR].filter { $0 }.count)
+    } else if let pending = chart.pending {
+      // The chart's request budget is spent for now: the skeleton, and how far the read got.
+      LoadingChart(caption: Self.pendingCaption(pending),
+        studies: [showVolume, showMACD, showRSI, showStochastic, showATR].filter { $0 }.count, pending: pending)
     } else if !showsDay, let cause = chart.rangeCause {
       empty(L10n.Chart.noBars, detail: L10n.Chart.noCandlesDetail(cause), symbol: "chart.bar.xaxis")
     } else {
       empty(L10n.Chart.noBars, detail: L10n.Chart.noBarsDetail, symbol: "chart.bar.xaxis")
     }
+  }
+
+  /// "Loading 3 of 5 days" while sessions are still to come; the waiting note for a read of one.
+  static func pendingCaption(_ pending: ChartPendingV1) -> LocalizedStringResource {
+    pending.total > 1 ? ChartSessionWords.loadingDays(pending.read, pending.total) : ChartSessionWords.waitingForBudget
   }
 
   private func empty(_ title: LocalizedStringResource, detail: LocalizedStringResource, symbol: String) -> some View {
@@ -622,6 +652,8 @@ private struct LoadingChart: View {
   let caption: LocalizedStringResource
   /// Study panes enabled (volume, MACD, RSI, stochastic, ATR).
   let studies: Int
+  /// How far a read the chart's budget holds back has got, shown as a progress line.
+  var pending: ChartPendingV1?
 
   /// The silhouette's candles and the price pane's grid lines across and down, as the board's.
   static let candles = 60
@@ -654,9 +686,31 @@ private struct LoadingChart: View {
         .fixedSize(horizontal: false, vertical: true)
         .padding(Tokens.Space.s)
     }
+    .overlay(alignment: .top) {
+      if let pending {
+        ProgressLine(fraction: pending.fraction, label: ChartView.pendingCaption(pending))
+      }
+    }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(Text(caption))
     .accessibilityAddTraits(.updatesFrequently)
+  }
+}
+
+/// The progress of a chart the request budget fills (a cold 5D): the line along the card's top
+/// edge and "Loading 3 of 5 days" under it (mockup v102, an operation of known length).
+private struct PendingLine: View {
+  let pending: ChartPendingV1
+
+  var body: some View {
+    VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
+      ProgressLine(fraction: pending.fraction, label: ChartView.pendingCaption(pending))
+      Text(ChartView.pendingCaption(pending))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+        .padding(.horizontal, Tokens.Space.s)
+    }
+    .allowsHitTesting(false)
   }
 }
 
@@ -699,12 +753,9 @@ struct Viewport: Equatable {
 
   /// The closest zoom still shows this many candles.
   static let minimumVisible = 12
-  /// Candles a chart opens on, the newest ones: at the design's candle width (about 9 points a
-  /// candle across the plot) bodies and wicks stay clear, where a whole day of one-minute
-  /// candles drew hairlines. Fit shows the whole range; the slider and the trackpad scroll back.
-  static let openingCandles = 90
-  /// The window a chart opens on: the newest `openingCandles`.
-  static let opening = Viewport(visible: openingCandles)
+  /// The window a chart opens on: the whole range (mockup v113: Day opens on its whole extended
+  /// session in 5-minute candles, 5D on its five days in 30-minute ones); zoom in to read closer.
+  static let opening = Viewport()
 
   /// Candles on screen out of `total`; nil when the window holds them all (a range shorter than
   /// the window shows whole).

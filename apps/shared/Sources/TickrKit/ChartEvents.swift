@@ -24,14 +24,21 @@ public struct ChartEvent: Hashable, Sendable, Identifiable {
   /// WATCH or ENTER bar after bar is marked once, at its first decision; one candle carries at most
   /// one mark of each kind; a decision outside every candle is not marked.
   public static func make(_ decisions: [DecisionV1], candles: [Candle]) -> [ChartEvent] {
+    make(decisions, candles: candles, drawn: candles)
+  }
+
+  /// The same marks on candles drawn back to back (`ChartSeries.gapless`): a decision is found in
+  /// its real candle (`candles`) and marked at the drawn candle of the same index (`drawn`).
+  public static func make(_ decisions: [DecisionV1], candles: [Candle], drawn: [Candle]) -> [ChartEvent] {
     let runs = DecisionRun.merge(decisions.reversed().filter { !$0.observer }).reversed()
     var events: [ChartEvent] = []
     for run in runs {
       let decision = run.earliest
       guard let kind = kind(decision),
-        let candle = candles.first(where: { $0.start <= decision.at.date && decision.at.date < $0.end })
+        let index = candles.firstIndex(where: { $0.start <= decision.at.date && decision.at.date < $0.end }),
+        drawn.indices.contains(index)
       else { continue }
-      let event = ChartEvent(kind: kind, candle: candle.start, price: candle.close)
+      let event = ChartEvent(kind: kind, candle: drawn[index].start, price: candles[index].close)
       if !events.contains(event) { events.append(event) }
     }
     return events

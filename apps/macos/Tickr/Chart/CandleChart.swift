@@ -26,6 +26,9 @@ struct CandleChart: View {
   /// the pane's width: during a window resize the width changed every frame and each change built
   /// the whole chart again, while the count changes only when a label more or fewer fits.
   @State private var labelSlots = 0
+  /// Width of the price pane's plot area, in whole points, for placing the session axis's labels
+  /// and the bands' captions (mockup v113).
+  @State private var plotWidth: CGFloat = 0
   @State private var pinchStart: Int?
   /// The price pane's height, in points: where the tags sit on its axis, so the axis's own
   /// labels they would cover give way (`AxisLabels`).
@@ -121,6 +124,7 @@ struct CandleChart: View {
   private var priceChart: some View {
     let scale = priceScale
     return Chart {
+      sessionMarks(span: scale, captions: true)
       if lines.style == .line {
         lineArea(scale)
       } else {
@@ -207,6 +211,8 @@ struct CandleChart: View {
     .chartXAxis { timeAxis(labels: studyPanes.isEmpty) }
     .modifier(SharedAxis(chart: self, pane: .price, showsTime: studyPanes.isEmpty, tags: priceTags))
     .onGeometryChange(for: Int.self, of: { Self.slotCount(chartWidth: $0.size.width) }, action: { labelSlots = $0 })
+    .onGeometryChange(for: CGFloat.self, of: { max($0.size.width - Self.axisLabelWidth, 0).rounded(.down) },
+      action: { plotWidth = $0 })
     .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { priceHeight = $0 })
   }
 
@@ -285,13 +291,16 @@ struct CandleChart: View {
     case .volume:
       let span = volumeSpan
       Chart {
+        sessionMarks(span: span, captions: false)
         ForEach(candles[drawn]) { candle in
           RectangleMark(
             xStart: .value(Plot.time, bodyStart(candle)),
             xEnd: .value(Plot.time, bodyEnd(candle)),
             yStart: .value(Plot.volume, 0),
             yEnd: .value(Plot.volume, candle.volume))
-            .foregroundStyle(color(candle).opacity(Tokens.Opacity.faint))
+            // Extended hours' volume lighter than the regular session's (mockup v113).
+            .foregroundStyle(color(candle).opacity(
+              Tokens.Opacity.faint * (candle.extended ? Tokens.Chart.extendedVolumeShare : 1)))
         }
         line(plot.volumeAverage, name: Plot.volumeAverage, color: Palette.warning)
       }
@@ -517,7 +526,17 @@ struct CandleChart: View {
   /// clock setting; over a longer range, where each session, week, month or quarter begins (the
   /// candles sit back to back there, so clock times would not read).
   @AxisContentBuilder private func timeAxis(labels: Bool) -> some AxisContent {
-    let marks = plot.axisMarks.isEmpty ? dayMarks : rangeMarks
+    if plot.sessions != nil {
+      sessionTimeAxis(labels: labels)
+    } else {
+      rangeTimeAxis(labels: labels)
+    }
+  }
+
+  /// A month or longer: gridlines and labels through the middle of the candles that open a week,
+  /// month or quarter.
+  @AxisContentBuilder private func rangeTimeAxis(labels: Bool) -> some AxisContent {
+    let marks = rangeMarks
     let shown = windowDomain
     let byMiddle = Dictionary(marks.compactMap { mark in plot.index(at: mark.time).map { (candles[$0].middle, mark) } },
       uniquingKeysWith: { first, _ in first })
@@ -539,12 +558,114 @@ struct CandleChart: View {
     }
   }
 
-  /// One day's clock labels: round New York times in the window that a candle starts at, as
-  /// many as fit `timeLabelSlot` apart.
-  private var dayMarks: [ChartAxisMark] {
-    guard labelSlots > 0 else { return [] }
-    return ChartAxis.clockMarks(in: windowDomain, shown: visibleLength, count: labelSlots)
-      .map { ChartAxisMark(time: $0, text: Format.marketMinute($0)) }
+  /// Day and 5D (mockup v113): the session labels at the boundaries ("Pre 04:00", "09:30",
+  /// "16:00", "After 20:00"; a day's name over five days) and round clock times between them,
+  /// none closer than `Tokens.Chart.axisLabelGap`; gridlines at the round times only (the
+  /// boundaries are their own dashed lines).
+  @AxisContentBuilder private func sessionTimeAxis(labels: Bool) -> some AxisContent {
+    let marks = sessionMarks
+    let byTime = Dictionary(marks.map { ($0.time, $0) }, uniquingKeysWith: { first, _ in first })
+    AxisMarks(values: marks.map(\.time)) { value in
+      let mark = value.as(Date.self).flatMap { byTime[$0] }
+      if mark?.strong == false {
+        AxisGridLine()
+      }
+      if labels {
+        AxisTick()
+        // Moved by its offset to where `AxisLabelPlacer` put it (centred on a boundary).
+        AxisValueLabel(
+          centered: false, anchor: mark?.anchor == .trailing ? .topTrailing : .topLeading,
+          collisionResolution: .disabled, horizontalSpacing: 0
+        ) {
+          Text(verbatim: mark?.text ?? Format.missing)
+            .font(Tokens.Chart.sessionAxisLabel)
+            .foregroundStyle(mark?.strong == true ? Palette.textTertiary : Palette.textQuaternary)
+            .fixedSize()
+            .offset(x: mark?.offset ?? 0)
+        }
+      }
+    }
+  }
+
+  /// The session axis's labels on screen, placed in order (sessions, the end, round times) so
+  /// none overlaps another; a session label too wide for its room takes its short form.
+  private var sessionMarks: [ChartAxisMark] {
+    guard let sessions = plot.sessions, plotWidth > 0, visibleLength > 0 else { return [] }
+    let shown = windowDomain
+    let perSecond = Double(plotWidth) / visibleLength
+    let step = SessionAxis.hourStep(
+      timeframe: series.timeframe, pointsPerSlot: series.timeframe.seconds * perSecond,
+      least: Double(Tokens.Chart.hourLabelSpacing))
+    let labels = sessions.labels(
+      range: plot.range, candles: plot.real, extendedClose: plot.extendedClose, hourStep: step)
+    let font = NSFont.monospacedSystemFont(ofSize: Tokens.Chart.sessionAxisLabelSize, weight: .regular)
+    let texts = labels.map { SessionAxisText.texts($0.kind, dayName: Format.chartSessionDay) }
+    let items = zip(labels, texts).map { label, forms in
+      AxisLabelPlacer.Item(
+        x: plot.slotTime(label.slot).timeIntervalSince(shown.lowerBound) * perSecond,
+        widths: forms.map { Double(TextMeasure.width($0, font: font)) }, anchor: label.anchor,
+        required: SessionAxisText.isSession(label.kind))
+    }
+    return AxisLabelPlacer.place(
+      items, width: Double(plotWidth), gap: Double(Tokens.Chart.axisLabelGap), inset: Double(Tokens.Chart.axisLabelInset)
+    ).map { placed in
+      let label = labels[placed.item]
+      // Charts hangs a trailing label's right edge from its tick and every other label's left
+      // edge (whatever its anchor): the offset moves it to where the placer put it.
+      let item = items[placed.item]
+      let edge = label.anchor == .trailing ? placed.left + item.widths[placed.text] : placed.left
+      return ChartAxisMark(
+        time: plot.slotTime(label.slot), text: texts[placed.item][placed.text], anchor: label.anchor,
+        strong: SessionAxisText.isSession(label.kind), offset: CGFloat(edge - item.x))
+    }
+  }
+
+  /// The extended-hours bands behind the candles (pre-market and after-hours, a `textPrimary`
+  /// tint) with their "PRE" / "AFTER" captions where the band is wide enough, and the dashed
+  /// boundaries between the parts of the day (mockup v113). `span`: the pane's value range.
+  @ChartContentBuilder private func sessionMarks(span: ClosedRange<Double>, captions: Bool) -> some ChartContent {
+    ForEach(sessionBands) { band in
+      RectangleMark(
+        xStart: .value(Plot.time, band.start), xEnd: .value(Plot.time, band.end),
+        yStart: .value(Plot.price, span.lowerBound), yEnd: .value(Plot.price, span.upperBound))
+        .foregroundStyle(Palette.textPrimary.opacity(Tokens.Chart.extendedBandOpacity))
+        .annotation(position: .overlay, alignment: .topLeading) {
+          if captions, let caption = band.caption, fits(caption, from: band.start, to: band.end) {
+            Text(caption)
+              .font(Tokens.Chart.bandCaption)
+              .tracking(Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking)
+              .foregroundStyle(Palette.textQuaternary)
+              .padding(Tokens.Chart.bandCaptionInset)
+              .fixedSize()
+          }
+        }
+    }
+    ForEach(sessionBoundaries, id: \.self) { time in
+      RuleMark(x: .value(Plot.time, time))
+        .foregroundStyle(Palette.textQuaternary.opacity(Tokens.Chart.sessionBoundaryOpacity))
+        .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+    }
+  }
+
+  /// The bands of the extended hours, at drawn times.
+  private var sessionBands: [SessionBand] {
+    (plot.sessions?.bands ?? []).map { band in
+      SessionBand(
+        start: plot.slotTime(band.segment.first), end: plot.slotTime(band.end),
+        caption: SessionAxisText.caption(band.segment.session).map { String(localized: $0) })
+    }
+  }
+
+  /// Where the parts of the day meet, at drawn times; none at the chart's left edge.
+  private var sessionBoundaries: [Date] { (plot.sessions?.boundaries ?? []).map(plot.slotTime) }
+
+  /// Whether a band's caption fits inside it on screen, with its inset on both sides.
+  private func fits(_ caption: String, from start: Date, to end: Date) -> Bool {
+    guard plotWidth > 0, visibleLength > 0 else { return false }
+    let font = NSFont.monospacedSystemFont(ofSize: Tokens.Chart.bandCaptionSize, weight: .semibold)
+    let width = TextMeasure.width(caption, font: font, kern: Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking)
+    let shown = Double(plotWidth) * end.timeIntervalSince(start) / visibleLength
+    return shown >= Double(width + Tokens.Chart.bandCaptionInset + Tokens.Chart.bandCaptionInset)
   }
 
   /// Time labels `timeLabelSlot` apart that fit across a price pane `chartWidth` wide (its value
@@ -649,7 +770,11 @@ struct CandleChart: View {
   // MARK: Geometry
 
   private var firstStart: Date { candles.first?.start ?? .now }
-  private var lastEnd: Date { candles.last?.end ?? .now }
+  /// Where the time axis ends: after the newest candle, or on today's Day chart at the extended
+  /// close, the rest of the day kept empty (mockup v113).
+  private var lastEnd: Date { candles.isEmpty ? .now : plot.drawnEnd }
+  /// After the newest candle, which a zoomed window follows.
+  private var newestEnd: Date { candles.last?.end ?? .now }
 
   /// Seconds of time on screen.
   var visibleLength: TimeInterval {
@@ -659,7 +784,7 @@ struct CandleChart: View {
 
   /// Opening time of the window on screen; while not scrolled it follows the newest candle.
   var windowStart: Date {
-    viewport.position ?? max(firstStart, lastEnd.addingTimeInterval(-visibleLength))
+    viewport.position ?? max(firstStart, newestEnd.addingTimeInterval(-visibleLength))
   }
 
   var xDomain: ClosedRange<Date> { firstStart...lastEnd }
@@ -777,6 +902,15 @@ struct PointedDot {
 struct PointedMarks {
   let box: PointedBox?
   let dots: [PointedDot]
+}
+
+/// An extended-hours band at drawn times, with its caption.
+private struct SessionBand: Identifiable {
+  let start: Date
+  let end: Date
+  let caption: String?
+
+  var id: Date { start }
 }
 
 /// One defined value of an indicator line.

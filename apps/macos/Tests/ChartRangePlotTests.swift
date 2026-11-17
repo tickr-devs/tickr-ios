@@ -20,7 +20,7 @@ struct ChartRangePlotTests {
     return try Wire.decoder().decode(ChartV1.self, from: Data(json.utf8))
   }
 
-  @Test("Five sessions draw back to back with one axis label per session")
+  @Test("Five sessions draw back to back with one day label per session")
   func fiveSessions() throws {
     let plot = ChartPlot(chart: try chart("1h", "5d", [
       "2026-11-13T19:30:00.000Z", "2026-11-13T20:00:00.000Z", "2026-11-16T14:30:00.000Z",
@@ -29,7 +29,8 @@ struct ChartRangePlotTests {
     #expect(candles[1].start == candles[0].end)
     #expect(candles[2].start == candles[1].end)
     #expect(plot.starts[2] == (try WireTime("2026-11-16T14:30:00.000Z").date))
-    #expect(plot.axisMarks.map(\.time) == [candles[0].start, candles[2].start])
+    let days = plot.sessions?.labels(range: .fiveDays, candles: plot.real, extendedClose: nil, hourStep: nil)
+    #expect(days?.map { plot.slotTime($0.slot) } == [candles[0].start, candles[2].start])
     #expect(plot.index(at: candles[2].middle) == 2)
   }
 
@@ -48,7 +49,7 @@ struct ChartRangePlotTests {
     #expect(plot.axisMarks.count == starts.count)
   }
 
-  @Test("One day keeps its own clock and no range labels")
+  @Test("One day has no range labels; a candle-per-minute day starts on its own clock")
   func oneDay() throws {
     let price = try DecimalString("10")
     let bar = BarV1(

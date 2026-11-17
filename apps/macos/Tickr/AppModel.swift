@@ -852,17 +852,8 @@ public final class AppModel {
       previousClose: previousClose, client: client)
   }
 
-  /// Today's bars of an open position's symbol as another screen (the Chart) read them: kept
-  /// unless older than the overview's own read, so the Overview and the Chart show one price for
-  /// one moment.
-  public func noteBars(_ bars: BarsV1) {
-    guard isLive, bars.day == today, status?.positions.contains(where: { $0.symbol == bars.symbol }) == true,
-      !Self.isOlder(bars, than: barsBySymbol[bars.symbol]) else { return }
-    if barsBySymbol[bars.symbol] != bars { barsBySymbol[bars.symbol] = bars }
-  }
-
-  /// Today's bars of an open position's symbol as the Overview last read or was told them; nil
-  /// for any other symbol.
+  /// Today's bars of an open position's symbol as the Overview last read them; nil for any other
+  /// symbol.
   public func positionBars(_ symbol: String) -> BarsV1? { barsBySymbol[symbol] }
 
   /// Whether `bars` end before `other` does (by their newest bar's start).

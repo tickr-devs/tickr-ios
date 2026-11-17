@@ -99,28 +99,32 @@ struct DecisionMark: Identifiable {
 
 /// Builds the marks and levels the chart draws from the bot's trades and open position.
 enum ChartMarkers {
-  /// An entry and an exit mark per closed trade.
-  static func marks(trades: [DayTrade]) -> [ChartMark] {
+  /// An entry and an exit mark per closed trade, at their drawn times (`place`: the chart's
+  /// candles sit back to back); a time before the first candle has no mark.
+  static func marks(trades: [DayTrade], place: (Date) -> Date?) -> [ChartMark] {
     trades.flatMap { trade -> [ChartMark] in
       let result = trade.resultUsd.value
       let exitKind: ChartMark.Kind = result < 0 ? .exitLoss : .exitWin
-      return [
-        ChartMark(
-          id: ChartMark.ID(trade: trade.tradeId, kind: .entry), time: trade.openedAt.date,
-          price: double(trade.entryPrice.value),
-          label: L10n.Chart.buyMark(Format.quantity(trade.quantity.value), Format.price(trade.entryPrice.value))),
-        ChartMark(
-          id: ChartMark.ID(trade: trade.tradeId, kind: exitKind), time: trade.closedAt.date,
-          price: double(trade.exitPrice.value),
-          label: L10n.Chart.exitMark(Money.signedUSD(result))),
-      ]
+      var marks: [ChartMark] = []
+      if let at = place(trade.openedAt.date) {
+        marks.append(ChartMark(
+          id: ChartMark.ID(trade: trade.tradeId, kind: .entry), time: at, price: double(trade.entryPrice.value),
+          label: L10n.Chart.buyMark(Format.quantity(trade.quantity.value), Format.price(trade.entryPrice.value))))
+      }
+      if let at = place(trade.closedAt.date) {
+        marks.append(ChartMark(
+          id: ChartMark.ID(trade: trade.tradeId, kind: exitKind), time: at, price: double(trade.exitPrice.value),
+          label: L10n.Chart.exitMark(Money.signedUSD(result))))
+      }
+      return marks
     }
   }
 
-  /// The open position's entry and stop, if it has one on this symbol.
-  static func levels(position row: PositionRow?) -> [ChartLevel] {
+  /// The open position's entry and stop, if it has one on this symbol, from its entry's drawn
+  /// time (`place`; the left edge when it opened before the first candle).
+  static func levels(position row: PositionRow?, place: (Date) -> Date?) -> [ChartLevel] {
     guard let row else { return [] }
-    let since = row.position.openedAt.date
+    let since = place(row.position.openedAt.date) ?? .distantPast
     var levels = [
       ChartLevel(
         kind: .entry, price: double(row.entry), since: since,
@@ -140,8 +144,9 @@ enum ChartMarkers {
   /// first WATCH since the day began or since its last ENTER or EXIT; observers never trade, so
   /// their WATCH is left out). A skipped
   /// ENTER sits at its what-if entry; otherwise a mark sits at the close of the candle it was made
-  /// in. A decision outside every candle has no mark.
-  static func decisionMarks(decisions: [DecisionV1], candles: [Candle]) -> [DecisionMark] {
+  /// in. A decision outside every candle has no mark. `real` are the candles at their real times,
+  /// `place` gives a real time's drawn time (the chart's candles sit back to back).
+  static func decisionMarks(decisions: [DecisionV1], real: [Candle], place: (Date) -> Date?) -> [DecisionMark] {
     // The strategy's own decisions that change something: an IGNORE or HOLD between two WATCH
     // bars does not start a new watch.
     let strategy = decisions.indices.filter {
@@ -154,14 +159,16 @@ enum ChartMarkers {
     return decisions.enumerated().compactMap { index, decision in
       guard decision.action == .enter || decision.action == .exit || watchStarts.contains(index) else { return nil }
       let at = decision.at.date
-      let candle = candles.last { $0.start <= at && at < $0.end }
-      guard let price = decision.entryPrice.map({ double($0.value) }) ?? candle?.close else { return nil }
+      let candle = real.last { $0.start <= at && at < $0.end }
+      guard let price = decision.entryPrice.map({ double($0.value) }) ?? candle?.close, let drawn = place(at) else {
+        return nil
+      }
       let title = String(localized: decision.action.title)
       let skipped = decision.entryPrice != nil
       let label = decision.observer ? L10n.Chart.observerMark(title)
         : skipped ? L10n.Chart.skippedMark(title) : decision.action.title
       return DecisionMark(
-        id: index, time: at, price: price, action: decision.action, observer: decision.observer,
+        id: index, time: drawn, price: price, action: decision.action, observer: decision.observer,
         skipped: skipped, label: label)
     }
   }

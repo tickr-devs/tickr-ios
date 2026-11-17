@@ -9,7 +9,7 @@ struct ChartMarkersTests {
   @Test("Each closed trade has an entry and an exit mark coloured by its result")
   func marks() throws {
     let trades = try fixture(DayV1.self, "day-v1.json").trades
-    let marks = ChartMarkers.marks(trades: trades)
+    let marks = ChartMarkers.marks(trades: trades, place: { $0 })
     #expect(marks.count == trades.count * 2)
     let loser = try #require(trades.first { $0.resultGrossUsd.value < 0 })
     let winner = try #require(trades.first { $0.resultGrossUsd.value > 0 })
@@ -21,16 +21,26 @@ struct ChartMarkersTests {
     #expect(marks.filter { $0.id.trade == winner.tradeId }.map(\.kind) == [.entry, .exitWin])
   }
 
+  @Test("Marks sit at their drawn times on candles drawn back to back; one before the first candle has none")
+  func marksAtDrawnTimes() throws {
+    let trades = try fixture(DayV1.self, "day-v1.json").trades
+    let trade = try #require(trades.first)
+    let shift: TimeInterval = 3_600
+    let marks = ChartMarkers.marks(trades: [trade], place: { $0 == trade.openedAt.date ? nil : $0 - shift })
+    #expect(marks.map(\.kind).count == 1)
+    #expect(marks.first?.time == trade.closedAt.date - shift)
+  }
+
   @Test("No position, no levels")
   func noPosition() {
-    #expect(ChartMarkers.levels(position: nil).isEmpty)
+    #expect(ChartMarkers.levels(position: nil, place: { $0 }).isEmpty)
   }
 
   @Test("An open position shows its entry and its stop; an unverified stop is marked so")
   func levels() throws {
     let position = try #require(try fixture(StatusResponseV1.self, "status-response-v1.json").status?.position)
     let row = PositionRow(position: position, lastBarClose: nil, lastBarAt: nil, closes: [])
-    let levels = ChartMarkers.levels(position: row)
+    let levels = ChartMarkers.levels(position: row, place: { $0 })
     #expect(levels.map(\.kind) == [.entry, position.stop.state == .verified ? .stop : .stopUnverified])
     #expect(levels[0].price == ChartMarkers.double(position.entryPrice.value))
     #expect(levels[0].since == position.openedAt.date)
@@ -50,7 +60,7 @@ struct ChartMarkersTests {
     let start = decisions[0].at.date
     let candle = Candle(start: start, end: start.addingTimeInterval(60), open: 12.3, high: 12.4, low: 12.2,
       close: 12.35, volume: 1000)
-    let marks = ChartMarkers.decisionMarks(decisions: decisions, candles: [candle])
+    let marks = ChartMarkers.decisionMarks(decisions: decisions, real: [candle], place: { $0 })
     #expect(marks.map(\.action) == [.exit, .enter, .enter])
     #expect(marks[0].price == 12.35)
     #expect(marks[0].observer == false)
@@ -69,7 +79,7 @@ struct ChartMarkersTests {
     let text = try String(contentsOf: url, encoding: .utf8)
       .replacingOccurrences(of: "\"observer\": true", with: "\"observer\": false")
     let decisions = try Wire.decoder().decode(DecisionsV1.self, from: Data(text.utf8)).decisions
-    let mark = try #require(ChartMarkers.decisionMarks(decisions: decisions, candles: []).first)
+    let mark = try #require(ChartMarkers.decisionMarks(decisions: decisions, real: [], place: { $0 }).first)
     #expect(mark.action == .enter)
     #expect(mark.observer == false)
     #expect(mark.skipped == true)
@@ -88,7 +98,7 @@ struct ChartMarkersTests {
     let candle = Candle(start: start, end: start.addingTimeInterval(60), open: 12.3, high: 12.4, low: 12.2,
       close: 12.35, volume: 1000)
     // The same WATCH twice in a row (as after an IGNORE bar in between) is one mark.
-    let marks = ChartMarkers.decisionMarks(decisions: watch + watch, candles: [candle])
+    let marks = ChartMarkers.decisionMarks(decisions: watch + watch, real: [candle], place: { $0 })
     #expect(marks.map(\.action) == [.watch])
     #expect(marks[0].price == 12.35)
     #expect(marks[0].id == 0)
@@ -96,10 +106,10 @@ struct ChartMarkersTests {
 
   @Test("A decision with no price and no candle around it has no mark; a WATCH without a candle neither")
   func decisionWithoutCandle() throws {
-    let marks = ChartMarkers.decisionMarks(decisions: try decisions(), candles: [])
+    let marks = ChartMarkers.decisionMarks(decisions: try decisions(), real: [], place: { $0 })
     #expect(marks.map(\.action) == [.enter, .enter])
     let watch = try fixture(DecisionsV1.self, "decisions-v1.json").decisions.filter { $0.action == .watch }
-    #expect(ChartMarkers.decisionMarks(decisions: watch, candles: []).isEmpty)
+    #expect(ChartMarkers.decisionMarks(decisions: watch, real: [], place: { $0 }).isEmpty)
   }
 
   @Test("The highest high and lowest low on screen are plain tags on the price axis, one for a flat stretch")

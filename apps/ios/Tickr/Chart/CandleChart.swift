@@ -125,9 +125,9 @@ struct CandleChart: View {
   let lines: Lines
   /// The range's name for the caption ("Day · 1m · 40 bars …").
   var rangeTitle: LocalizedStringResource = ChartText.rangeDay
-  /// Beyond one day the whole range is on screen (zoom in to read closer); one day opens on
-  /// the newest candles.
-  var fitsAll = false
+  /// What the chart still waits for while the chart's request budget fills it (a cold 5D):
+  /// a progress line over the chart (mockup v102); nil when it is complete.
+  var pending: ChartPendingV1?
   @Binding var viewport: ChartViewport
   /// The value scales' width, grown with Dynamic Type so a price such as 128.40 is never cut.
   @ScaledMetric(relativeTo: .caption2) private var axisWidth = CandleChart.axisLabelWidth
@@ -152,6 +152,13 @@ struct CandleChart: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      if let pending {
+        // Days still to come while the chart's budget fills a cold 5D (mockup v102's progress).
+        ProgressLine(fraction: pending.fraction, label: PendingText.caption(pending))
+        Text(PendingText.caption(pending))
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textQuaternary)
+      }
       readout
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(selected == nil ? Palette.textQuaternary : Palette.textSecondary)
@@ -185,29 +192,22 @@ struct CandleChart: View {
       if newBar && !reduceMotion { growing = new.last }
       grownThrough = new.last
     }
-    .onChange(of: fitsAll) { place() }
+    // Another chart (interval, range, day) opens on the whole range; a new read of the same
+    // chart keeps the person's window (`ChartViewport.take`).
     .onChange(of: series.timeframe) { place() }
-    .onChange(of: series.candles.first?.start) { if fitsAll { viewport.fit(series) } }
-    .onChange(of: series.candles.last) { old, _ in
-      if fitsAll {
-        viewport.fit(series)
-      } else if let old, old.end >= viewport.scroll.addingTimeInterval(window) {
-        // Keep following the newest candle when it was already in view.
-        viewport.followEnd(series)
-      }
-    }
+    .onChange(of: series.candles.first?.start) { place() }
+    .onChange(of: series) { old, new in viewport.take(new, slots: slotCount, previous: old) }
     .sensoryFeedback(.selection, trigger: selectedCandle)
   }
 
-  /// The whole range beyond one day; on one day the usual zoom, ending at the newest candle.
+  /// The whole range on screen, today's reserved slots included (mockup v113: Day opens on the
+  /// whole session, 5D on its five days); zoom in to read closer.
   private func place() {
-    if fitsAll {
-      viewport.fit(series)
-    } else {
-      viewport.unfit()
-      viewport.followEnd(series)
-    }
+    viewport.fit(series, slots: slotCount)
   }
+
+  /// Slots on the time axis: the candles, and on today's Day chart the rest of the day.
+  private var slotCount: Int { times.sessions?.slots ?? series.candles.count }
 
   // MARK: price pane
 
@@ -217,6 +217,7 @@ struct CandleChart: View {
       // The lines and marks are clipped to the plot: a value off the scale (a closed trade's
       // stop, a line just past the stretch on screen) ends at the plot's edge instead of running
       // over the chips above the chart. The labels below are kept inside by their own fit.
+      sessionMarks(scale)
       seriesMarks(scale)
         .clipShape(Rectangle())
       markerMarks(scale)
@@ -307,7 +308,9 @@ struct CandleChart: View {
           xEnd: .value(Plot.time, bodyEnd(candle)),
           yStart: .value(Plot.price, scale.volumeBase),
           yEnd: .value(Plot.price, scale.volumeTop(candle.volume)))
-          .foregroundStyle((candle.isUp ? Palette.profit : Palette.loss).opacity(Tokens.Opacity.faint))
+          // Extended hours' volume lighter than the regular session's (mockup v113).
+          .foregroundStyle((candle.isUp ? Palette.profit : Palette.loss).opacity(
+            Tokens.Opacity.faint * (candle.extended ? Tokens.Chart.extendedVolumeShare : 1)))
       }
     }
     if lines.style == .line {
@@ -683,13 +686,13 @@ struct CandleChart: View {
     levelLines(entry: entry, stop: trade.stopPrice.map(ChartFormat.double))
     if let lift = lifts[.entry(trade.tradeId)] {
       PointMark(
-        x: .value(Plot.time, trade.openedAt.date),
+        x: .value(Plot.time, times.drawn(trade.openedAt.date) ?? trade.openedAt.date),
         y: .value(Plot.entry, entry))
         .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info, lift: lift) }
     }
     if let lift = lifts[.exit(trade.tradeId)] {
       PointMark(
-        x: .value(Plot.time, trade.closedAt.date),
+        x: .value(Plot.time, times.drawn(trade.closedAt.date) ?? trade.closedAt.date),
         y: .value(Plot.exit, exit))
         .symbol {
           marker(Image(systemName: "arrowtriangle.down.fill"), Palette.result(trade.resultUsd.value), lift: lift)
@@ -705,7 +708,7 @@ struct CandleChart: View {
       protected: position.stop.state.isProtected)
     if let lift = lifts[.position] {
       PointMark(
-        x: .value(Plot.time, position.openedAt.date),
+        x: .value(Plot.time, times.drawn(position.openedAt.date) ?? position.openedAt.date),
         y: .value(Plot.entry, entry))
         .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info, lift: lift) }
     }
@@ -725,14 +728,17 @@ struct CandleChart: View {
   /// (`ChartMarkerLayout`); a marker missing here is off screen and not drawn.
   private func markerLifts(_ scale: PriceScale) -> [MarkerID: Int] {
     var markers: [ChartMarkerLayout.Marker<MarkerID>] = []
+    // At their drawn times (the candles sit back to back); one before the first candle is off it.
     for trade in trades {
-      markers.append(.init(id: .entry(trade.tradeId), time: trade.openedAt.date,
-        price: ChartFormat.double(trade.entryPrice)))
-      markers.append(.init(id: .exit(trade.tradeId), time: trade.closedAt.date,
-        price: ChartFormat.double(trade.exitPrice)))
+      if let at = times.drawn(trade.openedAt.date) {
+        markers.append(.init(id: .entry(trade.tradeId), time: at, price: ChartFormat.double(trade.entryPrice)))
+      }
+      if let at = times.drawn(trade.closedAt.date) {
+        markers.append(.init(id: .exit(trade.tradeId), time: at, price: ChartFormat.double(trade.exitPrice)))
+      }
     }
-    if let position {
-      markers.append(.init(id: .position, time: position.openedAt.date, price: ChartFormat.double(position.entryPrice)))
+    if let position, let at = times.drawn(position.openedAt.date) {
+      markers.append(.init(id: .position, time: at, price: ChartFormat.double(position.entryPrice)))
     }
     for event in events {
       markers.append(.init(id: .event(event), time: eventTime(event), price: event.price))
@@ -860,42 +866,148 @@ struct CandleChart: View {
       .offset(y: -CGFloat(lift) * Self.markerStep)
   }
 
-  /// Clock times on one day; beyond one day, where each session, week, month or quarter begins.
-  /// A label near either end of the stretch on screen hangs inward, so it is never cut.
+  /// Day and 5D: the session labels ("Pre 04:00", "09:30", "16:00", "After 20:00"; a day's name
+  /// over five days) and round clock times between them (mockup v113); a month or longer: where
+  /// each week, month or quarter begins. A label near either end hangs inward, never cut.
   @AxisContentBuilder private var timeAxis: some AxisContent {
     let marks = axisMarks
     let shown = shownStretch
     let byTime = Dictionary(marks.map { ($0.time, $0) }, uniquingKeysWith: { first, _ in first })
     AxisMarks(values: marks.map(\.time)) { value in
-      AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
-        .foregroundStyle(Palette.separator)
       // Looked up by time, never by position: a mark Charts leaves out must not shift the
       // labels after it onto the wrong candles.
       let mark = value.as(Date.self).flatMap { byTime[$0] }
-      AxisValueLabel(anchor: Self.unitPoint(mark.map { ChartAxis.anchor(of: $0.time, shown: shown) } ?? .centre)) {
-        Text(verbatim: mark?.text ?? ChartFormat.missing)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize()
+      // A session's start has its dashed boundary instead of a gridline.
+      if mark?.strong != true || times.sessions == nil {
+        AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
+          .foregroundStyle(Palette.separator)
+      }
+      if let placed = mark?.anchor {
+        // A session axis's label, moved by its offset to where `AxisLabelPlacer` put it: Charts
+        // hangs a trailing label's right edge from its tick and every other label's left edge.
+        AxisValueLabel(
+          centered: false, anchor: placed == .trailing ? .topTrailing : .topLeading,
+          collisionResolution: .disabled, horizontalSpacing: 0
+        ) {
+          Text(verbatim: mark?.text ?? ChartFormat.missing)
+            .font(Tokens.Chart.sessionAxisLabel)
+            .foregroundStyle(mark?.strong == true ? Palette.textTertiary : Palette.textQuaternary)
+            .fixedSize()
+            .offset(x: mark?.offset ?? 0)
+        }
+      } else {
+        AxisValueLabel(anchor: Self.unitPoint(mark.map { ChartAxis.anchor(of: $0.time, shown: shown) } ?? .centre)) {
+          Text(verbatim: mark?.text ?? ChartFormat.missing)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize()
+        }
       }
     }
   }
 
-  /// The labelled times on screen: round clock times spaced for the zoom on one day, the range's
-  /// own boundaries beyond it; none closer than a label's width, and none outside the stretch on
-  /// screen (a label just past the left edge hung back into it, cut: "L3:50").
+  /// The labelled times on screen: on Day and 5D the session axis's labels, placed in order so
+  /// none overlaps another; beyond them the range's own boundaries, none closer than a label's
+  /// width and none outside the stretch on screen (a label just past the left edge hung back
+  /// into it, cut: "L3:50").
   private var axisMarks: [ChartAxisLabel] {
     let shown = shownStretch
-    let all = times.marks.isEmpty
-      ? ChartAxis.clockMarks(in: timeDomain, shown: window, count: Self.clockLabels)
-        .map { ChartAxisLabel(time: $0, text: $0.formatted(ChartFormat.time)) }
-      : times.marks
-    let inside = all.filter { shown.contains($0.time) }
     let plot = chartWidth - axisWidth
+    if let sessions = times.sessions {
+      guard plot > 0, window > 0 else { return [] }
+      return sessionLabels(sessions, shown: shown, plot: Double(plot))
+    }
+    let inside = times.marks.filter { shown.contains($0.time) }
     guard plot > 0 else { return inside }
     let gap = window * Double(labelSlot / plot)
     return ChartAxis.spaced(inside.map(\.time), gap: gap, shown: shown, preferred: { inside[$0].major })
       .map { inside[$0] }
+  }
+
+  /// The session axis's labels across a plot `plot` points wide: sessions first, then the end,
+  /// then round times at least `Tokens.Chart.hourLabelSpacing` apart, each `axisLabelGap` from
+  /// the next and `axisLabelInset` in from the edges; a session label too wide takes its short
+  /// form (mockup v113, "Collisions").
+  private func sessionLabels(_ sessions: SessionAxis, shown: ClosedRange<Date>, plot: Double) -> [ChartAxisLabel] {
+    let perSecond = plot / window
+    let step = SessionAxis.hourStep(
+      timeframe: series.timeframe, pointsPerSlot: series.timeframe.seconds * perSecond,
+      least: Double(Tokens.Chart.hourLabelSpacing))
+    let labels = sessions.labels(range: times.range, candles: times.realCandles, extendedClose: times.extendedClose,
+      hourStep: step)
+    let font = UIFont.monospacedSystemFont(ofSize: Tokens.Chart.sessionAxisLabelSize, weight: .regular)
+    let texts = labels.map { SessionAxisText.texts($0.kind, dayName: { $0.formatted(ChartFormat.sessionDay) }) }
+    var items: [AxisLabelPlacer.Item] = []
+    for (label, forms) in zip(labels, texts) {
+      let time = times.slotTime(label.slot) ?? shown.lowerBound
+      items.append(AxisLabelPlacer.Item(
+        x: time.timeIntervalSince(shown.lowerBound) * perSecond,
+        widths: forms.map { Double(($0 as NSString).size(withAttributes: [.font: font]).width) }, anchor: label.anchor,
+        required: SessionAxisText.isSession(label.kind)))
+    }
+    return AxisLabelPlacer.place(
+      items, width: plot, gap: Double(Tokens.Chart.axisLabelGap), inset: Double(Tokens.Chart.axisLabelInset)
+    ).compactMap { placed in
+      let label = labels[placed.item]
+      guard let time = times.slotTime(label.slot) else { return nil }
+      let item = items[placed.item]
+      let edge = label.anchor == .trailing ? placed.left + item.widths[placed.text] : placed.left
+      return ChartAxisLabel(
+        time: time, text: texts[placed.item][placed.text], strong: SessionAxisText.isSession(label.kind),
+        anchor: label.anchor, offset: CGFloat(edge - item.x))
+    }
+  }
+
+  /// The extended-hours bands behind the candles (pre-market and after-hours, a `textPrimary`
+  /// tint) with their "PRE" / "AFTER" captions where the band is wide enough, and the dashed
+  /// boundaries between the parts of the day (mockup v113).
+  @ChartContentBuilder
+  private func sessionMarks(_ scale: PriceScale) -> some ChartContent {
+    ForEach(sessionBands) { band in
+      RectangleMark(
+        xStart: .value(Plot.time, band.start), xEnd: .value(Plot.time, band.end),
+        yStart: .value(Plot.price, scale.domain.lowerBound), yEnd: .value(Plot.price, scale.domain.upperBound))
+        .foregroundStyle(Palette.textPrimary.opacity(Tokens.Chart.extendedBandOpacity))
+        .annotation(position: .overlay, alignment: .topLeading) {
+          if let caption = band.caption, fits(caption, from: band.start, to: band.end) {
+            Text(caption)
+              .font(Tokens.Chart.bandCaption)
+              .tracking(Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking)
+              .foregroundStyle(Palette.textQuaternary)
+              .padding(Tokens.Chart.bandCaptionInset)
+              .fixedSize()
+          }
+        }
+    }
+    ForEach(sessionBoundaries, id: \.self) { time in
+      RuleMark(x: .value(Plot.time, time))
+        .foregroundStyle(Palette.textQuaternary.opacity(Tokens.Chart.sessionBoundaryOpacity))
+        .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
+    }
+  }
+
+  /// The bands of the extended hours, at drawn times.
+  private var sessionBands: [SessionBand] {
+    (times.sessions?.bands ?? []).compactMap { band in
+      guard let start = times.slotTime(band.segment.first), let end = times.slotTime(band.end) else { return nil }
+      return SessionBand(
+        start: start, end: end, caption: SessionAxisText.caption(band.segment.session).map { String(localized: $0) })
+    }
+  }
+
+  /// Where the parts of the day meet, at drawn times; none at the chart's left edge.
+  private var sessionBoundaries: [Date] { (times.sessions?.boundaries ?? []).compactMap(times.slotTime) }
+
+  /// Whether a band's caption fits inside it on screen, with its inset on both sides.
+  private func fits(_ caption: String, from start: Date, to end: Date) -> Bool {
+    let plot = Double(chartWidth - axisWidth)
+    guard plot > 0, window > 0 else { return false }
+    let font = UIFont.monospacedSystemFont(ofSize: Tokens.Chart.bandCaptionSize, weight: .semibold)
+    let width = (caption as NSString).size(withAttributes: [
+      .font: font, .kern: Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking,
+    ]).width
+    let room = width + Tokens.Chart.bandCaptionInset + Tokens.Chart.bandCaptionInset
+    return plot * end.timeIntervalSince(start) / window >= Double(room)
   }
 
   /// Where a time label's top hangs from its tick.
@@ -937,10 +1049,11 @@ struct CandleChart: View {
 
   // MARK: geometry
 
-  /// The day's time from the first candle's start to the last one's end.
+  /// The drawn time from the first candle's start to the last one's end, or on today's Day chart
+  /// to the extended close, the rest of the day kept empty (mockup v113).
   private var timeDomain: ClosedRange<Date> {
     guard let first = series.candles.first, let last = series.candles.last else { return Date.now...Date.now }
-    return first.start...last.end
+    return first.start...(times.reservedEnd ?? last.end)
   }
 
   /// Seconds of the day on screen.
@@ -1135,66 +1248,13 @@ private struct PaneAxes: ViewModifier {
   }
 }
 
-/// Which stretch of the day the chart shows: how many candles fit on screen and where the view
-/// starts. Kept by the Chart tab so its controls can zoom and follow the newest candle.
-struct ChartViewport: Equatable {
-  /// Candles on screen when the chart opens, and the fewest and most zooming allows.
-  static let defaultVisible = 40.0
-  static let fewestVisible = 15.0
-  static let mostVisible = 390.0
+/// An extended-hours band at drawn times, with its caption.
+private struct SessionBand: Identifiable {
+  let start: Date
+  let end: Date
+  let caption: String?
 
-  var visible = ChartViewport.defaultVisible
-  var scroll = Date.distantPast
-  /// Most candles the zoom may show: `mostVisible` on one day, every candle of a longer range.
-  var most = ChartViewport.mostVisible
-
-  /// Seconds of the day on screen.
-  func window(_ series: ChartSeries) -> TimeInterval { visible * series.timeframe.seconds }
-
-  /// Candles on screen: the zoom, or all of them when the day has fewer.
-  func barsShown(_ series: ChartSeries) -> Int {
-    min(Int(visible.rounded()), series.candles.count)
-  }
-
-  func canZoomOut(_ series: ChartSeries) -> Bool {
-    visible < min(most, Double(series.candles.count))
-  }
-
-  var canZoomIn: Bool { visible > Self.fewestVisible }
-
-  /// Whether the newest candle is on screen.
-  func showsEnd(_ series: ChartSeries) -> Bool {
-    guard let last = series.candles.last else { return true }
-    return last.end <= scroll.addingTimeInterval(window(series))
-  }
-
-  /// Show `factor` times as many candles, keeping the right edge where it is.
-  mutating func zoom(by factor: Double, _ series: ChartSeries) {
-    let end = scroll.addingTimeInterval(window(series))
-    visible = min(max(visible * factor, min(Self.fewestVisible, most)), most)
-    scroll = end.addingTimeInterval(-window(series))
-  }
-
-  /// Every candle on screen, first to last: a range beyond one day.
-  mutating func fit(_ series: ChartSeries) {
-    guard let first = series.candles.first else { return }
-    most = Double(series.candles.count)
-    visible = most
-    scroll = first.start
-  }
-
-  /// Back to one day's zoom after a longer range was fitted.
-  mutating func unfit() {
-    guard most != Self.mostVisible else { return }
-    most = Self.mostVisible
-    visible = Self.defaultVisible
-  }
-
-  /// Scroll so the newest candle sits at the right edge.
-  mutating func followEnd(_ series: ChartSeries) {
-    guard let last = series.candles.last, let first = series.candles.first else { return }
-    scroll = max(first.start, last.end.addingTimeInterval(-window(series)))
-  }
+  var id: Date { start }
 }
 
 /// Names of the plotted values, read by VoiceOver; built once, not for every mark.
@@ -1233,6 +1293,8 @@ enum ChartFormat {
   static let missing = Format.missing
   /// Between the parts of a check: measured, operator, threshold.
   static let space = " "
+  /// Between a candle's time and its part of the day in the readout ("19:50 · after").
+  static let separator = " · "
   /// 24-hour New York time of a bar ("14:05"): `.twoDigits(amPM: .omitted)` would drop the AM/PM
   /// of a 12-hour locale and show 02:05.
   static let time = Date.VerbatimFormatStyle(

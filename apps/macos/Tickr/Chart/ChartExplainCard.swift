@@ -65,7 +65,7 @@ struct ChartExplainCard: View {
   /// The candle under the pointer, on a chart of one day.
   private var pointed: Candle? {
     guard showsDay, let plot, let index = pointer.index, plot.candles.indices.contains(index) else { return nil }
-    return plot.candles[index]
+    return plot.real[index]
   }
 
   /// The decision made inside the pointed candle (the last one, when a candle of several minutes

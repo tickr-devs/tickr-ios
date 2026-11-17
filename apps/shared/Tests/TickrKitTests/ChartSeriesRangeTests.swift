@@ -194,31 +194,60 @@ struct ChartSeriesRangeTests {
     #expect(ChartRange.oneYear.warmup(for: .d1) == nil)
   }
 
-  @Test("Over five days only the regular session's candles are drawn, back to back")
-  func regularSessionOnly() throws {
-    let json = """
-      {"symbol": "ABCD", "interval": "1h", "range": "5d", "source": "webull", "cached_at": null,
-       "cause": null, "api_version": 1, "bars": [
-        {"start": "2026-11-13T19:30:00.000Z", "open": "10", "high": "10", "low": "10", "close": "10",
-         "volume": "100000", "extended": false},
-        {"start": "2026-11-13T21:00:00.000Z", "open": "14", "high": "15", "low": "9", "close": "11",
-         "volume": "300", "extended": true},
-        {"start": "2026-11-16T09:00:00.000Z", "open": "11", "high": "16", "low": "8", "close": "12",
-         "volume": "200", "extended": true},
-        {"start": "2026-11-16T14:30:00.000Z", "open": "12", "high": "12", "low": "12", "close": "12",
-         "volume": "100000", "extended": false}]}
+  /// A chart-v1 answer in `interval` over `range` with one bar per [start, close, volume, session].
+  func sessions(_ interval: String, _ range: String, _ bars: [[String]]) throws -> ChartV1 {
+    let items = bars.map { bar in
+      let (start, close, volume, session) = (bar[0], bar[1], bar[2], bar[3])
+      return
       """
-    let chart = try Wire.decoder().decode(ChartV1.self, from: Data(json.utf8))
+      {"start": "\(start)", "open": "\(close)", "high": "\(close)", "low": "\(close)", "close": "\(close)",
+       "volume": "\(volume)", "extended": \(session != "regular"), "session": "\(session)"}
+      """
+    }
+    let json = """
+      {"symbol": "ABCD", "interval": "\(interval)", "range": "\(range)", "source": "webull", "cached_at": null,
+       "cause": null, "api_version": 1, "pending": null, "bars": [\(items.joined(separator: ","))]}
+      """
+    return try Wire.decoder().decode(ChartV1.self, from: Data(json.utf8))
+  }
+
+  @Test("Over five days every session's candles are drawn, back to back across the nights")
+  func allSessionsContinuous() throws {
+    let chart = try sessions("1h", "5d", [
+      ["2026-11-13T19:30:00.000Z", "10", "100000", "regular"],
+      ["2026-11-13T21:00:00.000Z", "11", "300", "after"],
+      ["2026-11-16T09:00:00.000Z", "12", "200", "pre"],
+      ["2026-11-16T14:30:00.000Z", "12", "100000", "regular"],
+    ])
     let warm = WarmChart(chart: chart, warmup: nil)
-    #expect(warm.series.candles.map(\.extended) == [false, false])
-    #expect(warm.series.candles.map(\.close) == [10, 12])
-    // The thin after-hours and pre-market prints never stretch the price span.
-    #expect(warm.series.candles.map(\.high).max() == 12)
-    #expect(warm.series.vwap == [10, 12])
-    #expect(warm.atr.count == 2)
-    #expect(warm.studies.rsi.count == 2)
-    let gapless = warm.series.gapless()
-    #expect(gapless.candles[1].start == gapless.candles[0].end)
+    #expect(warm.series.candles.map(\.extended) == [false, true, true, false])
+    #expect(warm.series.candles.map(\.session) == [.regular, .after, .pre, .regular])
+    let drawn = warm.series.gapless()
+    #expect(drawn.candles.count == 4)
+    for index in 1..<drawn.candles.count {
+      #expect(drawn.candles[index].start == drawn.candles[index - 1].end)
+    }
+    #expect(drawn.candles.map(\.session) == [.regular, .after, .pre, .regular])
+  }
+
+  @Test("A pending answer says how far it got and when to ask again")
+  func pendingDecodes() throws {
+    let chart = try Wire.decoder().decode(ChartV1.self, from: fixture("chart-v1.pending.json"))
+    #expect(chart.pending?.read == 4)
+    #expect(chart.pending?.total == 5)
+    #expect(chart.pending?.retryAfter == 37.25)
+    #expect(chart.pending?.fraction == 0.8)
+    let done = try Wire.decoder().decode(ChartV1.self, from: fixture("chart-v1.json"))
+    #expect(done.pending == nil)
+    #expect(done.bars.map(\.session) == [.pre, .pre, .regular])
+  }
+
+  @Test("Day opens on 5-minute candles, 5D on 30-minute ones")
+  func openingIntervals() {
+    #expect(ChartRange.oneDay.openingInterval == .m5)
+    #expect(ChartRange.fiveDays.openingInterval == .m30)
+    #expect(ChartRange.oneYear.openingInterval == .d1)
+    for range in ChartRange.allCases { #expect(range.intervals.contains(range.openingInterval)) }
   }
 
   @Test("Every offered interval is one GET /chart serves for its range")
