@@ -80,7 +80,7 @@ extension Board {
     case .commandDone, .commandRefused:
       let title = event.subject.flatMap(CommandKind.init(rawValue:)).map(commandTitle)
         ?? String(localized: L10n.journalCommandOther)
-      return kind == .commandDone ? (L10n.tagDone, title, .blue) : (L10n.tagRefused, joined(title, event.cause), .red)
+      return kind == .commandDone ? (L10n.tagDone, title, .blue) : (L10n.tagRefused, joined(title, event.causeText), .red)
     default:
       // A trade closed (the order kinds are `orderParts`').
       return (L10n.journalClosed, joined(symbol, exitReasonTitle(cause)), closedTone(cause))

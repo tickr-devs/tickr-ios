@@ -12804,13 +12804,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trigger %@ · every recorded check passed, no quote check recorded"
+            "value" : "Setup ready · waiting for the price to reach trigger %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Триггер %@ · все записанные проверки пройдены, проверки котировки в записи нет"
+            "value" : "Сетап готов · ждём, когда цена дойдёт до триггера %@"
           }
         }
       }
@@ -12821,13 +12821,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Every recorded check passed · nothing recorded to measure"
+            "value" : "Setup ready · no trigger recorded to measure against"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все записанные проверки пройдены · измерять нечего"
+            "value" : "Сетап готов · триггер для сравнения не записан"
           }
         }
       }

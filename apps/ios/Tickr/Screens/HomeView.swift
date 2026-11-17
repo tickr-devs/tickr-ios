@@ -714,7 +714,7 @@ private struct LiveFlowCard: View {
 
   /// How many symbols got to `stage` today (GET /symbols); nil until the symbols are read.
   private func reached(_ stage: SymbolStage) -> String? {
-    symbols?.stages.first { $0.stage == stage }.map { String($0.count) }
+    symbols?.stages.first { $0.stage == stage }.map { $0.count.formatted() }
   }
 
   /// How many symbols `stage` dropped today (the Symbols screen's "dropped here" rows); nil until
@@ -727,7 +727,7 @@ private struct LiveFlowCard: View {
 
   /// How many symbols reached `stage` today; nil until the flow is read.
   private func count(_ stage: FlowStage) -> String? {
-    flow?.stages.first { $0.stage == stage }.map { String($0.count) }
+    flow?.stages.first { $0.stage == stage }.map { $0.count.formatted() }
   }
 
   var body: some View {
@@ -873,10 +873,13 @@ private struct LiveFlowCard: View {
     }
   }
 
-  /// A stage as the board's tile: its dot and name, then its value, the symbols it dropped today
-  /// ("−144", pink), a flag ("blocked", "not now") and the chevron of the screen it opens.
+  /// A stage as the board's tile: its dot, name and the chevron of the screen it opens, then its
+  /// value on a line of its own, then the symbols it dropped today ("−1,243", pink) and a flag
+  /// ("blocked", "not now"). A number never wraps inside the narrow tile ("168/2"): each keeps
+  /// its line, and the tile grows instead.
   private func tile(_ stage: Stage) -> some View {
     let lit = stage.value != nil || stage.flag != nil
+    let dropped = dropped(stage.id)
     return VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.xs) {
         FlowDot(color: stage.color, lit: lit, event: stage.value)
@@ -884,29 +887,32 @@ private struct LiveFlowCard: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textTertiary)
           .fixedSize(horizontal: false, vertical: true)
-      }
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        if stage.value != nil || stage.flag == nil {
-          Text(verbatim: stage.value ?? Format.missing)
-            .font(.subheadline.monospaced().bold())
-            .foregroundStyle(stage.value == nil ? Palette.textQuaternary : Palette.textPrimary)
-            .contentTransition(.numericText())
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        if let dropped = dropped(stage.id) {
-          Text(L10n.Flow.dropped(dropped))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.droppedText)
-            .accessibilityLabel(Text(L10n.Flow.droppedCount(dropped)))
-        }
-        if let flag = stage.flag {
-          Badge(flag, color: stage.flagColor)
-        }
         Spacer(minLength: 0)
         Image(systemName: Symbols.next)
           .font(Tokens.Typography.annotationBold)
           .foregroundStyle(Palette.textQuaternary)
           .accessibilityHidden(true)
+      }
+      if stage.value != nil || stage.flag == nil {
+        Text(verbatim: stage.value ?? Format.missing)
+          .font(.subheadline.monospaced().bold())
+          .foregroundStyle(stage.value == nil ? Palette.textQuaternary : Palette.textPrimary)
+          .contentTransition(.numericText())
+          .fixedSize()
+      }
+      if dropped != nil || stage.flag != nil {
+        ChipFlow(spacing: Tokens.Space.xs) {
+          if let dropped {
+            Text(L10n.Flow.dropped(dropped))
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.droppedText)
+              .fixedSize()
+              .accessibilityLabel(Text(L10n.Flow.droppedCount(dropped)))
+          }
+          if let flag = stage.flag {
+            Badge(flag, color: stage.flagColor)
+          }
+        }
       }
     }
     .padding(.horizontal, Tokens.Space.s)

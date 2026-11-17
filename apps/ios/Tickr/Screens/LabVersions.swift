@@ -73,7 +73,9 @@ struct VersionsCard: View {
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
         .frame(height: Self.chartHeight)
-        .drawsIn(on: curves.map(\.points))
+        // Again only when a version closes a trade: a fresh read whose open totals moved (each
+        // read on a live day) restarted the draw halfway.
+        .drawsIn(on: curves.map(\.points.count))
         .accessibilityHidden(true)
       } else {
         Text(L10n.Lab.noClosed)

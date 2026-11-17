@@ -141,10 +141,11 @@ private struct SessionBar: View {
           .clipShape(Capsule())
         }
         .frame(height: Self.height)
-        HStack {
-          ForEach([span.start, span.regularOpen, span.regularClose, span.end], id: \.self) { mark in
-            if mark != span.start { Spacer() }
-            Text(verbatim: Format.time(mark))
+        // Each time under its own place on the bar (16:00 under the regular close, not spread
+        // evenly), the first and last kept inside the bar's ends.
+        AxisMarks(shares: marks.map { span.share($0) }) {
+          ForEach(marks, id: \.self) { mark in
+            Text(verbatim: Format.time(mark)).fixedSize()
           }
         }
         .font(Tokens.Typography.annotation)
@@ -154,6 +155,9 @@ private struct SessionBar: View {
     }
     .accessibilityElement(children: .combine)
   }
+
+  /// The times named under the bar: the day's start, the regular open and close, its end.
+  private var marks: [Date] { [span.start, span.regularOpen, span.regularClose, span.end] }
 
   /// What the part of the day is called beside the clock.
   static func partName(_ part: SessionSpan.Part) -> LocalizedStringResource {
@@ -351,6 +355,29 @@ struct NotificationsSection: View {
         }
         .disabled(true)
       }
+    }
+  }
+}
+
+/// Places each label under its share (0 to 1) of the width: centred there, moved in so it stays
+/// inside the width, and after the label before it so two never overlap.
+private struct AxisMarks: Layout {
+  let shares: [Double]
+
+  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+    let width = proposal.width ?? sizes.reduce(0) { $0 + $1.width }
+    return CGSize(width: width, height: sizes.map(\.height).max() ?? 0)
+  }
+
+  func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    var next = bounds.minX
+    for (index, subview) in subviews.enumerated() where index < shares.count {
+      let size = subview.sizeThatFits(.unspecified)
+      let centre = bounds.minX + CGFloat(shares[index]) * bounds.width
+      let x = min(max(centre - size.width / 2, next), bounds.maxX - size.width)
+      subview.place(at: CGPoint(x: x, y: bounds.minY), proposal: ProposedViewSize(size))
+      next = x + size.width
     }
   }
 }

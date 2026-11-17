@@ -37,12 +37,17 @@ public struct DayEventV1: Codable, Hashable, Sendable {
   public let subject: String?
   /// Why, as the bot recorded it (an exit reason, an order refusal, how the bot stopped).
   public let cause: String?
+  /// The codes of `cause` (empty from an older API).
+  public let causeCodes: [ReasonV1]
 
   public var event: DayEventKind? { DayEventKind(rawValue: kind) }
+  /// `cause` in the person's language; the bot's words for a code this app does not know.
+  public var causeText: String? { ApiText.prose(causeCodes, text: cause) }
 
   enum CodingKeys: String, CodingKey {
     case seq, at, kind, symbol, leg, quantity, price, subject, cause
     case stopPrice = "stop_price"
+    case causeCodes = "cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -57,6 +62,7 @@ public struct DayEventV1: Codable, Hashable, Sendable {
     stopPrice = try c.decodeNullable(DecimalString.self, forKey: .stopPrice)
     subject = try c.decodeNullable(String.self, forKey: .subject)
     cause = try c.decodeNullable(String.self, forKey: .cause)
+    causeCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .causeCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -71,6 +77,7 @@ public struct DayEventV1: Codable, Hashable, Sendable {
     try c.encodeNullable(stopPrice, forKey: .stopPrice)
     try c.encodeNullable(subject, forKey: .subject)
     try c.encodeNullable(cause, forKey: .cause)
+    try c.encode(causeCodes, forKey: .causeCodes)
   }
 }
 

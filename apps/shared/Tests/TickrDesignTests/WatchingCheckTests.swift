@@ -76,12 +76,12 @@ private func row(
       againstTrigger: false, decisive: false)
     #expect(WatchingCheck.title(noQuote) == nil)
     #expect(WatchingCheck.state(noQuote, prices: prices)
-      == "Trigger 9.63 · every recorded check passed, no quote check recorded")
+      == "Setup ready · waiting for the price to reach trigger 9.63")
     #expect(WatchingCheck.progress(noQuote) == nil)
     #expect(WatchingCheck.unmeasured(noQuote) == nil)
     let nothing = try row(measured: nil, threshold: nil, cause: "every recorded check passed", againstTrigger: false,
       decisive: false)
-    #expect(WatchingCheck.state(nothing, prices: prices) == "Every recorded check passed · nothing recorded to measure")
+    #expect(WatchingCheck.state(nothing, prices: prices) == "Setup ready · no trigger recorded to measure against")
     // A yes/no check: "not met", no bar, the bot's cause instead.
     let flag = try row(measured: nil, op: "is", threshold: nil, rule: "quote_valid",
       cause: "quote_valid: a yes/no check has no measured value", againstTrigger: false)

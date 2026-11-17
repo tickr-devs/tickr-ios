@@ -32,15 +32,16 @@ extension L10n {
   static func watchingAtTrigger(_ measured: String, _ trigger: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.watching.atTrigger", defaultValue: "\(measured) · at trigger \(trigger)", bundle: bundle)
   }
-  /// A WATCH with no failed check and a recorded trigger: nothing measured against it.
+  /// A WATCH with no failed check and a recorded trigger: the setup is ready and the entry waits
+  /// for the price to reach the trigger.
   static func watchingNoQuoteCheck(_ trigger: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.watching.noQuoteCheck",
-      defaultValue: "Trigger \(trigger) · every recorded check passed, no quote check recorded", bundle: bundle)
+      defaultValue: "Setup ready · waiting for the price to reach trigger \(trigger)", bundle: bundle)
   }
   /// A WATCH with no failed check and no recorded trigger.
   static var watchingNothingToMeasure: LocalizedStringResource {
     LocalizedStringResource("kit.watching.nothingToMeasure",
-      defaultValue: "Every recorded check passed · nothing recorded to measure", bundle: bundle)
+      defaultValue: "Setup ready · no trigger recorded to measure against", bundle: bundle)
   }
   /// What the closeness bar's ends mean for a check against the trigger.
   static func watchingScale(_ invalidation: String, _ trigger: String) -> LocalizedStringResource {
