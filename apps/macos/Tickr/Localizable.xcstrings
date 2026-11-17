@@ -13678,13 +13678,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clean day · broker and records agree"
+            "value" : "Clean day"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Чистый день · брокер и записи сходятся"
+            "value" : "Чистый день"
           }
         }
       }
@@ -13763,13 +13763,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld · %2$lld W · %3$lld L"
+            "value" : "%1$lld closed · %2$lld W · %3$lld L"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld · %2$lld П · %3$lld У"
+            "value" : "закрыто: %1$lld · %2$lld приб. · %3$lld убыт."
           }
         }
       }
@@ -14041,7 +14041,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ожидание"
+            "value" : "Матожидание"
           }
         }
       }
@@ -14546,7 +14546,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Результаты в R · %lld дн."
+            "value" : "Результат в R · %lld дн."
           }
         }
       }
@@ -14563,7 +14563,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "сделок: %1$lld · %2$lld П · %3$lld У · %4$lld в ноль · брутто, до комиссий"
+            "value" : "сделок: %1$lld · %2$lld приб. · %3$lld убыт. · %4$lld в 0 · брутто"
           }
         }
       }
@@ -14666,6 +14666,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Причина"
+          }
+        }
+      }
+    },
+    "trades.recordsAgree" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "records agree"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "записи сходятся"
+          }
+        }
+      }
+    },
+    "trades.recordsDiffer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "records differ"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "записи расходятся"
           }
         }
       }
@@ -15022,7 +15056,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld П · %2$lld У · без расчёта: %3$lld"
+            "value" : "%1$lld приб. · %2$lld убыт. · без расчёта: %3$lld"
           }
         }
       }
@@ -15158,7 +15192,24 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Доля прибыльных"
+            "value" : "Винрейт"
+          }
+        }
+      }
+    },
+    "trades.winsLosses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld W · %2$lld L"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld приб. · %2$lld убыт."
           }
         }
       }

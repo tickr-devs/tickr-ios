@@ -17,7 +17,9 @@ struct MonthCalendar: View {
     let months = DayCalendar.months(model.days, including: model.today)
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       header(shown, months: months)
-      Grid(horizontalSpacing: Tokens.Space.xs + Tokens.Space.xxs, verticalSpacing: Tokens.Space.xs + Tokens.Space.xxs) {
+      // The board's 4-point gap between tiles (MacTrades v106), so a 378-point column leaves each
+      // tile room for "−$1,234.56".
+      Grid(horizontalSpacing: Tokens.Space.xs, verticalSpacing: Tokens.Space.xs) {
         GridRow {
           ForEach(weekdays, id: \.self) { name in
             Text(verbatim: name)
@@ -159,10 +161,17 @@ struct CleanDot: View {
 }
 
 /// One weekday tile: its number and clean dot on top, then, when the bot recorded it, its gross
-/// result to the cent and its trade count.
+/// result to the cent and a list glyph with its trade count ("3 trades" is its tooltip and
+/// accessibility value), as the board draws it (MacTrades v106).
 private struct CalendarDay: View {
-  /// Least height of a day's tile, in points: a tile grows when its text needs more.
-  static let height: CGFloat = 62
+  /// Least height of a day's tile, in points: the board's 46 (`.cell` min-height); a tile grows
+  /// when its text needs more.
+  static let height: CGFloat = 46
+  /// Inset of a tile's content, in points: the board's 5 (top, bottom) and 4 (sides) on the
+  /// spacing scale.
+  static let inset: CGFloat = Tokens.Space.xs
+  /// SF Symbol before the trade count.
+  static let countSymbol = "list.bullet"
 
   let cell: DayCalendar.Cell
   let isToday: Bool
@@ -194,16 +203,24 @@ private struct CalendarDay: View {
         }
         Spacer(minLength: 0)
         if let summary, let result {
-          // figure: a calendar cell's day result without "$" (the MacTrades board's compact cell).
-          Text(verbatim: Money.signed(result, fractionDigits: Money.centsDigits))
-            .font(Tokens.Typography.calloutMono.bold())
-            .foregroundStyle(Palette.result(result))
-          Text(L10n.Trades.tradeCount(summary.trades))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
+          // The largest size that holds the whole result: never cut, never scaled down.
+          ViewThatFits(in: .horizontal) {
+            ForEach(Tokens.Typography.calendarResultFonts.indices, id: \.self) { index in
+              Text(verbatim: Money.signedUSD(result))
+                .font(Tokens.Typography.calendarResultFonts[index])
+                .fixedSize()
+            }
+          }
+          .foregroundStyle(Palette.result(result))
+          HStack(spacing: Tokens.Space.xxs) {
+            Image(systemName: Self.countSymbol)
+            Text(verbatim: String(summary.trades))
+          }
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
         }
       }
-      .padding(Tokens.Space.xs + Tokens.Space.xxs)
+      .padding(Self.inset)
       .frame(maxWidth: .infinity, minHeight: Self.height, alignment: .topLeading)
       .background {
         if let result {
@@ -234,10 +251,14 @@ private struct CalendarDay: View {
     .buttonStyle(.plain)
     .onHover { hovered = $0 }
     .disabled(!opens)
-    .help(Text(verbatim: summary.map { DayText.day(cell.day) + Format.lineSeparator + CleanMark.text($0.clean) }
-      ?? DayText.day(cell.day)))
+    .help(Text(verbatim: summary.map {
+      [DayText.day(cell.day), Money.signedUSD($0.resultUsd.value), String(localized: L10n.Trades.tradeCount($0.trades))]
+        .joined(separator: Format.itemSeparator) + Format.lineSeparator + CleanMark.text($0.clean)
+    } ?? DayText.day(cell.day)))
     .accessibilityLabel(Text(verbatim: DayText.day(cell.day)))
-    .accessibilityValue(result.map { Text(verbatim: Money.signedUSD($0)) } ?? Text(L10n.Trades.noRecords))
+    .accessibilityValue(Text(verbatim: summary.map {
+      Money.signedUSD($0.resultUsd.value) + Format.itemSeparator + String(localized: L10n.Trades.tradeCount($0.trades))
+    } ?? String(localized: L10n.Trades.noRecords)))
     .accessibilityAddTraits(selected ? .isSelected : [])
   }
 }

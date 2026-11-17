@@ -1954,10 +1954,14 @@ enum L10n {
     static var result: LocalizedStringResource {
       LocalizedStringResource("trades.result", defaultValue: "Result", bundle: L10n.bundle)
     }
-    /// Trades of a day with wins and losses.
+    /// A day in the all-days list: its closed trades with wins and losses.
     static func closedWinsLosses(_ trades: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
       LocalizedStringResource("trades.closedWinsLosses",
-        defaultValue: "\(trades) · \(wins) W · \(losses) L", bundle: L10n.bundle)
+        defaultValue: "\(trades) closed · \(wins) W · \(losses) L", bundle: L10n.bundle)
+    }
+    /// Wins and losses beside the shown day's trade count.
+    static func winsLosses(_ wins: Int, _ losses: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.winsLosses", defaultValue: "\(wins) W · \(losses) L", bundle: L10n.bundle)
     }
     /// Tooltip: a day without bars.
     static var noBarsHelp: LocalizedStringResource {
@@ -2179,7 +2183,15 @@ enum L10n {
     }
     /// Day header badge: the journal, the broker and the bot's records agreed.
     static var cleanBadge: LocalizedStringResource {
-      LocalizedStringResource("trades.cleanBadge", defaultValue: "Clean day · broker and records agree", bundle: L10n.bundle)
+      LocalizedStringResource("trades.cleanBadge", defaultValue: "Clean day", bundle: L10n.bundle)
+    }
+    /// Note after the clean-day badge on Trades & days.
+    static var recordsAgree: LocalizedStringResource {
+      LocalizedStringResource("trades.recordsAgree", defaultValue: "records agree", bundle: L10n.bundle)
+    }
+    /// Note after the needs-a-look badge on Trades & days.
+    static var recordsDiffer: LocalizedStringResource {
+      LocalizedStringResource("trades.recordsDiffer", defaultValue: "records differ", bundle: L10n.bundle)
     }
     /// Day header badge: the day was not clean.
     static var needsLookBadge: LocalizedStringResource {

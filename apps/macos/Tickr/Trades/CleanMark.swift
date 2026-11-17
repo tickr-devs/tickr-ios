@@ -37,27 +37,37 @@ struct CleanMark: View {
   }
 }
 
-/// The shown day's verdict in its header (Trades and Overview): the apps' clean-day `Badge`, a clean
+/// The shown day's verdict in its header, as the boards draw it: the shared `Badge` saying a clean
 /// day or one that needs a look, with what made it so in the tooltip; nothing while the verdict is
-/// unknown.
+/// unknown. Trades & days follows it with the records' agreement in words (`showsNote`), as
+/// MacTrades does; the Overview header draws the badge alone.
 struct CleanBadge: View {
   let clean: CleanDay
+  /// The note after the badge ("records agree", "records differ").
+  var showsNote = false
 
   /// Accessibility id of the badge, for the UI tests.
   static let id = "trades-clean-badge"
 
   var body: some View {
     switch clean.verdict {
-    case .clean: badge(L10n.Trades.cleanBadge, color: Palette.profitText)
-    case .notClean: badge(L10n.Trades.needsLookBadge, color: Palette.warningText)
+    case .clean: badge(L10n.Trades.cleanBadge, note: L10n.Trades.recordsAgree, color: Palette.profitText)
+    case .notClean: badge(L10n.Trades.needsLookBadge, note: L10n.Trades.recordsDiffer, color: Palette.warningText)
     case .unknown: EmptyView()
     }
   }
 
-  private func badge(_ title: LocalizedStringResource, color: Color) -> some View {
-    Badge(title, color: color)
-      .help(Text(verbatim: CleanMark.text(clean)))
-      .accessibilityElement(children: .combine)
-      .accessibilityIdentifier(Self.id)
+  private func badge(_ title: LocalizedStringResource, note: LocalizedStringResource, color: Color) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      Badge(title, color: color)
+      if showsNote {
+        Text(note)
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+    }
+    .help(Text(verbatim: CleanMark.text(clean)))
+    .accessibilityElement(children: .combine)
+    .accessibilityIdentifier(Self.id)
   }
 }

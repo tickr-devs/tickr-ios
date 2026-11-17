@@ -11,17 +11,32 @@ struct TradesView: View {
   @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   @State private var selection: DayTrade.ID?
 
-  /// Least width of this screen, in points: the screen's padding (`Space.xl`) and the trades
-  /// card's own padding (`Space.l`) around the trades table at its least width. It is the widest
-  /// least width of all screens, so it sets the window's (`RootView.screenMinWidth`).
-  static let leastScreenWidth: CGFloat = Tokens.Space.xl * CardArrangement.paddedEdges
+  /// Padding around the screen's content, in points: the board's 16 (top, bottom) and 12 (sides)
+  /// (MacTrades v106, `main` padding 16px 12px), which lets the trades table, never cut or
+  /// wrapped, sit beside the days column at the first window size (1440, the sidebar at its
+  /// preferred width).
+  static let verticalPadding: CGFloat = Tokens.Space.l
+  static let horizontalPadding: CGFloat = Tokens.Space.m
+  /// Gap between the days column and the day, and between the cards of each, in points: the
+  /// board's 14 (MacTrades v106, `gap:14px`) on the spacing scale.
+  static let columnGap: CGFloat = Tokens.Space.m
+  /// Width of the days column (calendar, performance in R, all days) beside the day, in points:
+  /// the shared side column, the board's 378 (MacTrades v106, `grid-template-columns:378px 1fr`).
+  static let daysColumnWidth: CGFloat = Tokens.Size.sideColumn
+
+  /// Least width of this screen, in points: the screen's padding and the trades card's own
+  /// padding (`Space.l`) around the trades table at its least width. It is the widest least width
+  /// of all screens, so it sets the window's (`RootView.screenMinWidth`).
+  static let leastScreenWidth: CGFloat = horizontalPadding * CardArrangement.paddedEdges
     + Tokens.Space.l * CardArrangement.paddedEdges + TradesTable.leastWidth
-  /// Narrowest screen, in points, that shows the days column beside the trades: the least screen
-  /// with the days column and its gap beside the table (the four figures of the day and the
-  /// selected trade beside Not taken need less). Narrower, the days follow the trades (the
-  /// toolbar's day picker stays at the top). Derived, not set: a set 1180 left the table 6 points
-  /// short of its columns, so the columns were cut to "10:07:…".
-  static let sideBySideMinWidth: CGFloat = leastScreenWidth + Tokens.Size.sideColumn + Tokens.Space.l
+  /// Narrowest screen, in points, that shows the days column beside the day, as the board does:
+  /// the least screen with the days column and its gap beside the table (the four figures of the
+  /// day and the selected trade beside Not taken need less). Narrower, the board has no layout,
+  /// so the days follow the day's detail in one column (the toolbar's day picker stays at the
+  /// top). Derived, not set: a set 1180 left the table 6 points short of its columns, so the
+  /// columns were cut to "10:07:…". With the sidebar at its preferred width the window's first
+  /// width (`TickrMacApp.defaultWidth`) is wide enough, as on the board.
+  static let sideBySideMinWidth: CGFloat = leastScreenWidth + daysColumnWidth + columnGap
   /// Width of the selected trade's card beside Not taken, in points.
   static let detailWidth: CGFloat = 330
 
@@ -30,12 +45,36 @@ struct TradesView: View {
     case days = 0, performance, dayList, stats, trades, detail, notTaken, whatIf
   }
 
+  /// The screen's size, read from its scroll area: whether the days column fits beside the day,
+  /// and how tall each column's own scroll area is.
+  @State private var screenSize: CGSize = .zero
+  /// Each column's content height, in points: a column's height while the screen scrolls as one.
+  @State private var columnHeights: [Part: CGFloat] = [:]
+
+  /// Whether the days column sits beside the day: the screen's content (at most
+  /// `contentMaxWidth`) holds both.
+  private var sideBySide: Bool {
+    min(screenSize.width, Tokens.Size.contentMaxWidth) >= Self.sideBySideMinWidth
+  }
+
   var body: some View {
-    // The screen scrolls as one, as Risk and Lab do: taller than the window, an unscrolled stack
-    // overflowed upward under the toolbar, and the calendar showed blurred behind the title.
-    ScrollView {
-      content
+    let beside = sideBySide
+    // Beside the day, each column scrolls on its own, as the board's days column holds still while
+    // the day's trades scroll; one above the other, the screen scrolls as one, as Risk and Lab do
+    // (an unscrolled stack overflowed upward under the toolbar). The same scroll views in both,
+    // only their axes and heights changed: a resize never makes the cards anew (new ones played
+    // their entrance again mid-drag).
+    ScrollView(beside ? [] : .vertical) {
+      CardGrid(arrangements: Self.arrangements, spacing: Self.columnGap) {
+        column(.side, beside: beside) { sideColumn }
+        column(.day, beside: beside) { dayDetail }
+      }
+      .padding(.horizontal, Self.horizontalPadding)
+      .padding(.vertical, beside ? 0 : Self.verticalPadding)
+      .frame(maxWidth: Tokens.Size.contentMaxWidth)
+      .frame(maxWidth: .infinity)
     }
+    .onGeometryChange(for: CGSize.self) { $0.size } action: { screenSize = $0 }
     .plainCardLabels()
     // The first trade of the day is selected until another is picked, so its details show at once.
     .onChange(of: model.shownTrades.map(\.id), initial: true) { _, ids in
@@ -43,13 +82,27 @@ struct TradesView: View {
     }
   }
 
+  /// One of the two columns (`part`): its own vertical scroll area, the screen's height, while
+  /// beside the other; one above the other, a still area as tall as its content, inside the
+  /// screen's scroll area. Its content is always laid out at its own height (a scroll area offers
+  /// it no height), which is what the still area is set to.
+  private func column(_ part: Part, beside: Bool, @ViewBuilder _ content: () -> some View) -> some View {
+    ScrollView(.vertical) {
+      content()
+        .padding(.vertical, beside ? Self.verticalPadding : 0)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { columnHeights[part] = $0 }
+    }
+    .scrollDisabled(!beside)
+    .frame(height: beside ? screenSize.height : columnHeights[part] ?? 0)
+  }
+
   /// The days column beside the day's detail, or after it in a narrow window so the day's trades
   /// are on the first screen. The same two views in both: a resize moves them and never makes
   /// them anew (new ones played their entrance again mid-drag).
   static let arrangements: [CardArrangement] = [
-    CardArrangement(minWidth: sideBySideMinWidth - Tokens.Space.xl * CardArrangement.paddedEdges, rows: [
+    CardArrangement(minWidth: sideBySideMinWidth - horizontalPadding * CardArrangement.paddedEdges, rows: [
       CardRow(columns: [
-        CardColumn(width: .fixed(Tokens.Size.sideColumn), cards: [Part.side.rawValue]),
+        CardColumn(width: .fixed(daysColumnWidth), cards: [Part.side.rawValue]),
         CardColumn(width: .share(1), cards: [Part.day.rawValue]),
       ], linesUp: false)
     ]),
@@ -77,20 +130,10 @@ struct TradesView: View {
   /// selected trade) and the second (the day's detail, Not taken).
   private enum Part: Int { case side = 0, day }
 
-  private var content: some View {
-    CardGrid(arrangements: Self.arrangements, spacing: Tokens.Space.l) {
-      sideColumn
-      dayDetail
-    }
-    .padding(Tokens.Space.xl)
-    .frame(maxWidth: Tokens.Size.contentMaxWidth)
-    .frame(maxWidth: .infinity)
-  }
-
   /// The calendar, the 30-day performance and the day list: beside the day as in the design, or
   /// after it in a narrow window, so the day's trades are on the first screen.
   private var sideColumn: some View {
-    VStack(spacing: Tokens.Space.l) {
+    VStack(spacing: Self.columnGap) {
       DaysColumn()
         .rise(step: Order.days.rawValue)
       PerformanceCard()
@@ -103,7 +146,7 @@ struct TradesView: View {
   /// The shown day's figures, trades, the selected trade with the signals not taken, and
   /// replays.
   private var dayDetail: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.l) {
+    VStack(alignment: .leading, spacing: Self.columnGap) {
       dayTitle
         .rise(step: Order.stats.rawValue)
       DayStatsRow()
@@ -130,7 +173,7 @@ struct TradesView: View {
       .foregroundStyle(Palette.textPrimary)
       .accessibilityAddTraits(.isHeader)
       if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
-        CleanBadge(clean: clean)
+        CleanBadge(clean: clean, showsNote: true)
       }
     }
   }
@@ -160,6 +203,11 @@ struct TradesView: View {
 private struct DaysColumn: View {
   @Environment(AppModel.self) private var model
 
+  /// The calendar card's padding, in points: the board's 12 (top, bottom) and 10 (sides)
+  /// (MacTrades v106), which leaves each day tile room for "−$1,234.56" in a 378-point column.
+  static let verticalInset: CGFloat = Tokens.Space.m
+  static let horizontalInset: CGFloat = Tokens.Space.s + Tokens.Space.xxs
+
   var body: some View {
     if model.days.isEmpty {
       Card(L10n.Trades.days) {
@@ -173,7 +221,8 @@ private struct DaysColumn: View {
       }
     } else {
       MonthCalendar()
-        .padding(Tokens.Space.l)
+        .padding(.vertical, Self.verticalInset)
+        .padding(.horizontal, Self.horizontalInset)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .tickrCard(radius: Tokens.Radius.large)
     }
@@ -192,7 +241,7 @@ private struct DayListCard: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }, content: {
-        // The screen's scroll view scrolls the list too; a nested one would collapse to nothing.
+        // The column's scroll area scrolls the list too; a nested one would collapse to nothing.
         LazyVStack(spacing: Tokens.Space.xxs) {
           ForEach(model.days) { day in
             Button { select(day.day) } label: {
@@ -293,10 +342,16 @@ private struct DayStatsRow: View {
   }
 
   private var trades: some View {
+    // As the board: the count, and its wins and losses beside it in a smaller, quieter type.
     Stat(L10n.Trades.trades) {
-      Text(L10n.Trades.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses))
-        .font(Tokens.Typography.figure)
-        .foregroundStyle(Palette.textPrimary)
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+        Text(verbatim: String(model.shownTradeCount))
+          .font(Tokens.Typography.figure)
+          .foregroundStyle(Palette.textPrimary)
+        Text(L10n.Trades.winsLosses(model.shownWins, model.shownLosses))
+          .font(Tokens.Typography.calloutMono.weight(.semibold))
+          .foregroundStyle(Palette.textTertiary)
+      }
     }
   }
 
@@ -359,8 +414,9 @@ private struct TradesTable: View {
     /// "10:07:00" (59.3).
     static let timeMin: CGFloat = 60
     static let time: CGFloat = 76
-    /// A five-letter symbol such as "BRK.B" and the heading "SYMBOL" (37.1 each).
-    static let symbolMin: CGFloat = 40
+    /// The heading "SYMBOL" (37.1, and the header cell's own inset, as the quantity's: at 40 it
+    /// read "SYMB…"); a five-letter symbol such as "BRK.B" takes 37.1.
+    static let symbolMin: CGFloat = 46
     static let symbol: CGFloat = 56
     /// The Russian heading "КОЛ-ВО" (37.1, and the header cell's own inset: at 38 it read
     /// "КОЛ-…"); a four-digit quantity takes 29.7.
