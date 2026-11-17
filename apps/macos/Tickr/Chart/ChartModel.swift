@@ -110,49 +110,35 @@ final class ChartModel {
     }
   }
 
-  /// Reads today's session of `symbol` in `interval` from market data (GET /chart, 1d): every
-  /// session, as the longer ranges. While market data is unavailable (503: the chart is off or
-  /// not ready) or the latest session is not `day` yet (before its 04:00 pre-market), the bot's
-  /// capture is read instead (`load`), so today's chart still shows what the bot recorded.
-  /// Returns how long to wait before asking again while the answer is `pending`.
+  /// Reads today's session of `symbol` in `interval` where every screen reads it (`DayBars`):
+  /// market data (GET /chart, 1d, every session), or the bot's capture while market data is
+  /// unavailable or the latest session is not `day` yet. Returns how long to wait before asking
+  /// again while the answer is `pending`.
   @discardableResult
   func loadToday(baseURL: URL, symbol: String, interval: Timeframe, day: WireDate) async -> TimeInterval? {
     let client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
     loading = true
     defer { loading = false }
     do {
-      let fresh = try await client.chart(symbol: symbol, interval: interval, range: .oneDay)
+      let fresh = try await DayBars.read(client, symbol: symbol, day: day, today: day, interval: interval)
       guard !Task.isCancelled else { return nil }
-      guard fresh.holdsSession(of: day) else {
-        await useCapture(baseURL: baseURL, symbol: symbol, day: day)
-        return nil
-      }
-      if fresh != dayChart {
-        dayChart = fresh
-        bars = nil
+      let (chart, captured): (ChartV1?, BarsV1?) =
+        switch fresh {
+        case .marketData(let chart): (chart, nil)
+        case .capture(let captured): (nil, captured)
+        }
+      if chart != dayChart || captured != bars {
+        dayChart = chart
+        bars = captured
         revision += 1
       }
       error = nil
       return fresh.pending?.retryAfter
-    } catch APIError.refused(let status, _, _) where status == Self.unavailable {
-      await useCapture(baseURL: baseURL, symbol: symbol, day: day)
-      return nil
     } catch {
       guard !Task.isCancelled, !(error is CancellationError) else { return nil }
       self.error = ErrorText.cause(error)
       return nil
     }
-  }
-
-  /// HTTP status of GET /chart while market data is off or not ready (docs/api.md).
-  static let unavailable = 503
-
-  private func useCapture(baseURL: URL, symbol: String, day: WireDate) async {
-    if dayChart != nil {
-      dayChart = nil
-      revision += 1
-    }
-    await load(baseURL: baseURL, symbol: symbol, day: day)
   }
 
   /// Reads the M1 bars of `symbol` on `day` from the API at `baseURL` (the bot's capture). A

@@ -149,6 +149,8 @@ struct CandleChart: View {
   /// frame and the growth showed as a jump.
   @State private var growing: Date?
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  /// The theme on screen: the extended-hours band is stronger in dark (mockup v114).
+  @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
@@ -967,7 +969,7 @@ struct CandleChart: View {
       RectangleMark(
         xStart: .value(Plot.time, band.start), xEnd: .value(Plot.time, band.end),
         yStart: .value(Plot.price, scale.domain.lowerBound), yEnd: .value(Plot.price, scale.domain.upperBound))
-        .foregroundStyle(Palette.textPrimary.opacity(Tokens.Chart.extendedBandOpacity))
+        .foregroundStyle(Palette.textPrimary.opacity(Tokens.Chart.extendedBandOpacity(colorScheme)))
         .annotation(position: .overlay, alignment: .topLeading) {
           if let caption = band.caption, fits(caption, from: band.start, to: band.end) {
             Text(caption)

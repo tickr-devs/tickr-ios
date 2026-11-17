@@ -5,8 +5,15 @@ import SwiftUI
 
 extension Tokens.Chart {
   /// Fill of the band behind the pre-market and after-hours slots: `textPrimary` at this share,
-  /// in the price area and the volume pane (the board's `--tx` 5%).
-  public static let extendedBandOpacity = 0.05
+  /// in the price area and the volume pane, per theme (mockup v114: `--tx` 5% in light, 9% in
+  /// dark, where 5% of a light text on a dark plot hardly showed).
+  public static let extendedBandOpacityLight = 0.05
+  public static let extendedBandOpacityDark = 0.09
+
+  /// `extendedBandOpacityLight` or `extendedBandOpacityDark` for the theme on screen.
+  public static func extendedBandOpacity(_ scheme: ColorScheme) -> Double {
+    scheme == .dark ? extendedBandOpacityDark : extendedBandOpacityLight
+  }
   /// A session boundary: 1 point, dashed 3 and 3 (`Tokens.Stroke.dashFine`), `textQuaternary`
   /// (the board's `--dim`) at this share.
   public static let sessionBoundaryOpacity = 0.7

@@ -390,7 +390,7 @@ size unchanged.
 | `priceMinHeight` / `priceMaxHeight` | 240 / 420 | The Mac's price pane fills what the study panes leave of the card, clamped (420 with the default panes) |
 | `timeAxisHeight` | 22 | The time axis's labels under the Mac chart's bottom pane |
 | `axisLabelHeight` / `levelTagHeight` | 13 / 17 | A price axis label and a level tag; a label closer to a tag than half of both is hidden |
-| `extendedBandOpacity` | 0.05 | The pre-market and after-hours band: `textPrimary` at this share, price area and volume |
+| `extendedBandOpacityLight` / `extendedBandOpacityDark` | 0.05 / 0.09 | The pre-market and after-hours band: `textPrimary` at this share in light / dark (mockup v114), price area and volume |
 | `sessionBoundaryOpacity` | 0.7 | A session boundary: 1 pt, `Stroke.dashFine` (3 3), `textQuaternary` at this share |
 | `extendedVolumeShare` | 0.6 | Extended-hours volume bars, share of a regular bar's opacity |
 | `bandCaptionSize` / `bandCaptionInset` | 9 / 6 Mac, 8.5 / 4 iOS | "PRE" / "AFTER" on a band, mono semibold, tracking `bandCaptionTracking` (.06 em); left out when the band is narrower |
@@ -418,7 +418,10 @@ keeps the rest of the day as empty slots, from the calendar's session (GET /jobs
 never jumps: the pre-market and regular session to their end, the after-hours as many slots as the
 session before had (`previous_after_candles`). A new candle never moves the person's zoom or
 scroll (`ChartViewport.take`): a fitted chart stays fitted, a window at the live edge follows it. Today's session comes from market data (GET /chart, 1d); a
-recorded day from the bot's capture (regular session only). Choosing Day opens the whole session in
+recorded day from the bot's capture (regular session only). Every screen that shows a symbol's
+bars or last price of a day (the Chart, the Overview's and the Positions tab's position cards, the
+Symbols detail's line) reads them through `DayBars` (TickrKit), so they never show two prices
+for one moment (owner rule: one source of truth per value). Choosing Day opens the whole session in
 5-minute candles, 5D in 30-minute ones. A cold 5D the chart's request budget fills shows how far
 it got (`ProgressLine`, "Loading 3 of 5 days") and asks again when the bot says (`pending`).
 

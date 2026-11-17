@@ -3,10 +3,10 @@ import Foundation
 /// A symbol's price line today for the Symbols detail (mockup v101): the close of every one-minute
 /// bar, oldest first, and the previous close it is measured against.
 ///
-/// The bars come from GET /bars, the minute bars the bot already stored for its watched and
-/// candidate symbols, so showing a line costs no market data request. Only when the bot stored
-/// none for the symbol does one GET /chart read of today's one-minute candles follow, for the one
-/// symbol the person selected; the API serves it through its own chart request budget and cache.
+/// The bars come from where every screen reads a day's bars (`DayBars`), so the line agrees with
+/// the Chart and the position cards: today from market data (one GET /chart read for the one
+/// symbol the person selected, through the chart's own budget and the cache every reader of the
+/// symbol shares), a recorded day from the bot's capture.
 public struct SymbolDayLine: Hashable, Sendable {
   /// Percent per whole (unit factor).
   static let percent: Decimal = 100
@@ -19,19 +19,15 @@ public struct SymbolDayLine: Hashable, Sendable {
     self.previousClose = previousClose
   }
 
-  /// The line of `symbol` on `day`: stored bars first, the chart read only without them and only
-  /// for today (the chart serves the latest session). Nil when neither has a bar or the reads
-  /// fail; the detail then shows no line, never an invented one.
+  /// The line of `symbol` on `day` (`DayBars`). Nil when it has no bar or the read fails; the
+  /// detail then shows no line, never an invented one.
   public static func read(
     _ symbol: String, day: WireDate, today: WireDate, previousClose: Decimal?, client: APIClient
   ) async -> SymbolDayLine? {
-    if let stored = try? await client.bars(symbol: symbol, day: day), !stored.bars.isEmpty {
-      return SymbolDayLine(closes: stored.bars.map(\.close.value), previousClose: previousClose)
+    guard let read = try? await DayBars.read(client, symbol: symbol, day: day, today: today), !read.bars.isEmpty else {
+      return nil
     }
-    guard day == today, !Task.isCancelled,
-      let chart = try? await client.chart(symbol: symbol, interval: .m1, range: .oneDay),
-      !chart.bars.isEmpty else { return nil }
-    return SymbolDayLine(closes: chart.bars.map(\.close.value), previousClose: previousClose)
+    return SymbolDayLine(closes: read.bars.map(\.close.value), previousClose: previousClose)
   }
 
   /// The previous close behind `price` and its change in percent; nil without either.

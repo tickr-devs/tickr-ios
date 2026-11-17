@@ -279,29 +279,22 @@ final class ChartModel {
     // Another symbol or day: the last one's decisions must never show under this chart.
     if decisionsFor != DecisionsKey(symbol: symbol, day: selectedDay) { clearDecisions() }
     let asked = timeframe
-    let today = isToday ? try await todayChart(url, symbol: symbol, day: selectedDay) : nil
-    let loaded = today == nil ? try await client(url).bars(symbol: symbol, day: selectedDay) : nil
+    // Where every screen reads a day's bars (`DayBars`): today from market data in the chosen
+    // interval, else (a recorded day, or no market data) the bot's capture.
+    let read = try await DayBars.read(
+      client(url), symbol: symbol, day: selectedDay, today: Container.shared.appModel().today, interval: asked)
     // A slower answer for a symbol, day or interval no longer chosen is dropped.
-    guard symbol == self.symbol, selectedDay == self.selectedDay, today == nil || asked == timeframe else { return }
-    dayChart = today
-    bars = loaded
+    guard symbol == self.symbol, selectedDay == self.selectedDay, asked == timeframe else { return }
+    switch read {
+    case .marketData(let chart):
+      dayChart = chart
+      bars = nil
+    case .capture(let captured):
+      dayChart = nil
+      bars = captured
+    }
     rebuild()
     await loadDecisions(url, symbol: symbol, day: selectedDay)
-  }
-
-  /// HTTP status of GET /chart while market data is off or not ready (docs/api.md).
-  static let unavailable = 503
-
-  /// Today's session of `symbol` from market data (GET /chart, 1d, in the chosen interval); nil
-  /// while market data is unavailable (503: the chart is off or not ready) or the latest session
-  /// is not `day` yet (before its 04:00 pre-market): the bot's capture is read then.
-  private func todayChart(_ url: URL, symbol: String, day: WireDate) async throws -> ChartV1? {
-    do {
-      let chart = try await client(url).chart(symbol: symbol, interval: timeframe, range: .oneDay)
-      return chart.holdsSession(of: day) ? chart : nil
-    } catch APIError.refused(let status, _, _) where status == Self.unavailable {
-      return nil
-    }
   }
 
   /// Whether today's market data was read in another interval than the chosen one: read again.

@@ -222,8 +222,8 @@ public final class AppModel {
   public private(set) var movers: MoversV1?
   public private(set) var moversError: String?
 
-  // Positions with their latest bars.
-  private var barsBySymbol: [String: BarsV1] = [:]
+  // Positions with their latest bars, from where the Chart reads them too (`DayBars`).
+  private var barsBySymbol: [String: DayBars] = [:]
   /// The open positions (symbols, on `barsDay`) the last bars read was for. A status that lists
   /// others has their bars read at once (`refreshStatus`), not at the next bars poll.
   private var barsReadFor: [String] = []
@@ -302,8 +302,9 @@ public final class AppModel {
     guard isLive, let status else { return [] }
     return status.positions.map { position in
       let since = position.openedAt.date.addingTimeInterval(-Self.barSeconds)
-      let bars = barsBySymbol[position.symbol]?.bars.filter { $0.start.date >= since } ?? []
-      let last = barsBySymbol[position.symbol]?.bars.last
+      let read = barsBySymbol[position.symbol]?.bars ?? []
+      let bars = read.filter { $0.start.date >= since }
+      let last = read.last
       let fresh = last.map { barIsFresh(start: $0.start.date, now: botNow) } ?? false
       return PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
         closes: [position.entryPrice.value] + bars.map(\.close.value), latestClose: last?.close.value)
@@ -827,14 +828,16 @@ public final class AppModel {
     }
   }
 
+  /// Reads today's bars of every open position where the Chart reads them (`DayBars`: market
+  /// data, else the capture), so the Overview and the Chart show one price for one moment.
   public func refreshPositionBars() async {
     let symbols = status?.positions.map(\.symbol) ?? []
     barsReadFor = symbols
     barsDay = today
     for symbol in symbols {
       do {
-        let fresh = try await client.bars(symbol: symbol, day: today)
-        // The Chart may have noted newer bars meanwhile: an older read never replaces them.
+        let fresh = try await DayBars.read(client, symbol: symbol, day: today, today: today)
+        // An answer the chart's budget left empty, or an older one, never replaces newer bars.
         if !Self.isOlder(fresh, than: barsBySymbol[symbol]) { barsBySymbol[symbol] = fresh }
       } catch {
         // The position still shows its entry and stop; only "last" stays empty.
@@ -854,12 +857,12 @@ public final class AppModel {
 
   /// Today's bars of an open position's symbol as the Overview last read them; nil for any other
   /// symbol.
-  public func positionBars(_ symbol: String) -> BarsV1? { barsBySymbol[symbol] }
+  public func positionBars(_ symbol: String) -> DayBars? { barsBySymbol[symbol] }
 
   /// Whether `bars` end before `other` does (by their newest bar's start).
-  static func isOlder(_ bars: BarsV1, than other: BarsV1?) -> Bool {
-    guard let other, let theirs = other.bars.last?.start.date else { return false }
-    guard let ours = bars.bars.last?.start.date else { return true }
+  static func isOlder(_ bars: DayBars, than other: DayBars?) -> Bool {
+    guard let other, let theirs = other.newestStart else { return false }
+    guard let ours = bars.newestStart else { return true }
     return ours < theirs
   }
 

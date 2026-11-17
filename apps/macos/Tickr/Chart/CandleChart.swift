@@ -22,6 +22,8 @@ struct CandleChart: View {
   /// The pointer state, for the shared axis and crosshair of every pane.
   var pointerModel: ChartPointer { pointer }
   @State private var appeared = false
+  /// The theme on screen: the extended-hours band is stronger in dark (mockup v114).
+  @Environment(\.colorScheme) private var colorScheme
   /// How many time labels fit across the price pane, `timeLabelSlot` apart. Kept as a count, not
   /// the pane's width: during a window resize the width changed every frame and each change built
   /// the whole chart again, while the count changes only when a label more or fewer fits.
@@ -628,7 +630,7 @@ struct CandleChart: View {
       RectangleMark(
         xStart: .value(Plot.time, band.start), xEnd: .value(Plot.time, band.end),
         yStart: .value(Plot.price, span.lowerBound), yEnd: .value(Plot.price, span.upperBound))
-        .foregroundStyle(Palette.textPrimary.opacity(Tokens.Chart.extendedBandOpacity))
+        .foregroundStyle(Palette.textPrimary.opacity(Tokens.Chart.extendedBandOpacity(colorScheme)))
         .annotation(position: .overlay, alignment: .topLeading) {
           if captions, let caption = band.caption, fits(caption, from: band.start, to: band.end) {
             Text(caption)

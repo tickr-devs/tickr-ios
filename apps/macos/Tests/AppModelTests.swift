@@ -11,7 +11,8 @@ import TickrKit
 final class RouteProtocol: URLProtocol {
   struct Routes: Sendable {
     var bodies: [String: Data] = [:]
-    var barSymbols: [String] = []
+    /// Symbols whose today was asked of market data (GET /chart).
+    var chartSymbols: [String] = []
     var idempotencyKeys: [String?] = []
   }
 
@@ -36,9 +37,9 @@ final class RouteProtocol: URLProtocol {
       let key = request.value(forHTTPHeaderField: "Idempotency-Key")
       Self.routes.withLock { $0.idempotencyKeys.append(key) }
     }
-    if path == "/bars", let symbol = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+    if let symbol = URLComponents(url: url, resolvingAgainstBaseURL: false)?
       .queryItems?.first(where: { $0.name == "symbol" })?.value {
-      Self.routes.withLock { $0.barSymbols.append(symbol) }
+      if path == "/chart" { Self.routes.withLock { $0.chartSymbols.append(symbol) } }
     }
     let body = Self.routes.withLock { $0.bodies[path] }
     // A queued command answers 202 Accepted, a read 200 OK (docs/api.md).
@@ -72,6 +73,14 @@ struct AppModelTests {
     return try JSONSerialization.data(withJSONObject: response)
   }
 
+  /// Today's one-minute market data of the status's day (the chart fixture, as 1m candles).
+  static func todayChart() throws -> Data {
+    let data = try Data(contentsOf: fixturesDir.appendingPathComponent("chart-v1.json"))
+    var chart = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    chart["interval"] = "1m"
+    return try JSONSerialization.data(withJSONObject: chart)
+  }
+
   /// The status fixture with the bot in `state`.
   static func status(botState state: String, stale: Bool = false) throws -> Data {
     let data = try Data(contentsOf: fixturesDir.appendingPathComponent("status-response-v1.json"))
@@ -89,18 +98,26 @@ struct AppModelTests {
       "/status": try Self.twoPositionStatus(),
       "/settings": try file("settings-v1.json"),
       "/bars": try file("bars-v1.json"),
+      "/chart": try Self.todayChart(),
     ]
     RouteProtocol.routes.withLock { $0 = RouteProtocol.Routes(bodies: bodies) }
     Container.shared.urlSession.register { RouteProtocol.session() }
   }
 
-  @Test("Every open position gets a row and its own bars")
+  @Test("Every open position gets a row and its own bars, today's from market data as on the Chart")
   func everyPositionCounts() async throws {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)
     await model.refreshStatus()
     await model.refreshPositionBars()
     #expect(model.positions.map(\.id) == ["ABCD", "EFGH"])
-    #expect(Set(RouteProtocol.routes.withLock { $0.barSymbols }) == ["ABCD", "EFGH"])
+    #expect(Set(RouteProtocol.routes.withLock { $0.chartSymbols }) == ["ABCD", "EFGH"])
+    // One source of truth: the Overview's card reads today where the Chart does (`DayBars`).
+    guard case .marketData(let chart) = model.positionBars("ABCD") else {
+      Issue.record("the position card did not read market data")
+      return
+    }
+    #expect(chart.range == .oneDay)
+    #expect(model.positions.first?.latestClose == chart.bars.last?.close.value)
   }
 
   @Test("A status listing positions whose bars were not read reads them at once, not at the next bars poll")
@@ -108,14 +125,14 @@ struct AppModelTests {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)
     // At launch the bars poll runs before any status: it knows no position and reads nothing.
     await model.refreshPositionBars()
-    #expect(RouteProtocol.routes.withLock { $0.barSymbols }.isEmpty)
+    #expect(RouteProtocol.routes.withLock { $0.chartSymbols }.isEmpty)
     await model.refreshStatus()
-    #expect(Set(RouteProtocol.routes.withLock { $0.barSymbols }) == ["ABCD", "EFGH"])
+    #expect(Set(RouteProtocol.routes.withLock { $0.chartSymbols }) == ["ABCD", "EFGH"])
     #expect(model.positionBars("ABCD") != nil, "the position card has its price rows with the first status")
     // The same positions again: the bars poll keeps them current, the status read does not repeat it.
-    let reads = RouteProtocol.routes.withLock { $0.barSymbols.count }
+    let reads = RouteProtocol.routes.withLock { $0.chartSymbols.count }
     await model.refreshStatus()
-    #expect(RouteProtocol.routes.withLock { $0.barSymbols.count } == reads)
+    #expect(RouteProtocol.routes.withLock { $0.chartSymbols.count } == reads)
   }
 
   @Test("The daily room is the bot's own number, never computed by the app")

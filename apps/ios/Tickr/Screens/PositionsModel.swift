@@ -2,8 +2,9 @@ import Foundation
 import Observation
 import TickrKit
 
-/// Marks of the open positions for the Positions tab: each one's captured bars of the status's
-/// session (GET /bars), read again every few seconds while the tab is on screen. Display only:
+/// Marks of the open positions for the Positions tab: each one's bars of the status's session
+/// where the Chart reads them too (`DayBars`: market data, else the capture), so both show one
+/// price for one moment; read again every few seconds while the tab is on screen. Display only:
 /// the bot never acts on them, and a failed read leaves a position without marks, never with
 /// guessed ones.
 @MainActor
@@ -30,7 +31,9 @@ final class PositionsModel {
     let day = WireDate(newYorkDateOf: status.writtenAt.date)
     var read: [String: PositionMarks] = [:]
     for position in status.positions {
-      guard let bars = try? await client(url).bars(symbol: position.symbol, day: day) else { continue }
+      guard let bars = try? await DayBars.read(client(url), symbol: position.symbol, day: day, today: day) else {
+        continue
+      }
       read[position.symbol] = PositionMarks(bars: bars.bars, entry: position.entryPrice.value,
         stop: position.stop.price?.value, quantity: position.quantity.value, openedAt: position.openedAt.date)
     }
