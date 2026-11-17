@@ -155,13 +155,19 @@ final class ActivityModel {
     do {
       let loaded = try await client(url).day(day)
       guard request == latestRequest else { return }
-      self.day = loaded
-      phase = .loaded
+      phase = Self.phase(of: loaded, asked: day)
+      if phase == .loaded { self.day = loaded }
     } catch {
       // A cancelled load (a refresh cut short by leaving the tab) fails too, so the day offers
       // a retry instead of a spinner that never ends.
       if request == latestRequest { phase = .failed(ErrorText.text(error)) }
     }
+  }
+
+  /// What a read of `asked` that answered `loaded` shows: its trades, or, for another day's
+  /// document, the refusal; another day's trades are never shown under the picked one.
+  static func phase(of loaded: DayV1, asked: WireDate) -> Phase {
+    loaded.day == asked ? .loaded : .failed(String(localized: L10n.Activity.otherDayAnswered(asked.text, loaded.day.text)))
   }
 
   /// Back to today, live from the status.

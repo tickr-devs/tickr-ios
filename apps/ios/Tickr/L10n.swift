@@ -878,8 +878,9 @@ enum L10n {
     static var nextMonth: LocalizedStringResource {
       LocalizedStringResource("activity.nextMonth", defaultValue: "Next month", bundle: L10n.bundle)
     }
-    static var noTradesThatDay: LocalizedStringResource {
-      LocalizedStringResource("activity.noTradesThatDay", defaultValue: "No trades that day", bundle: L10n.bundle)
+    /// A picked past day without trades, by its date ("Mon Nov 16"), so the pick visibly lands.
+    static func noTradesOn(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.noTradesOn", defaultValue: "No trades on \(day)", bundle: L10n.bundle)
     }
     static var noTradesThatDayBody: LocalizedStringResource {
       LocalizedStringResource("activity.noTradesThatDayBody",
@@ -897,8 +898,19 @@ enum L10n {
     static var loadingDay: LocalizedStringResource {
       LocalizedStringResource("activity.loadingDay", defaultValue: "Loading the day…", bundle: L10n.bundle)
     }
-    static var dayFailed: LocalizedStringResource {
-      LocalizedStringResource("activity.dayFailed", defaultValue: "Couldn't load the day", bundle: L10n.bundle)
+    /// A picked past day's trades could not be read: the unavailable state's title.
+    static func dayUnavailable(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.dayUnavailable", defaultValue: "\(day) is unavailable", bundle: L10n.bundle)
+    }
+    /// Its plain line when no cause is known.
+    static var dayUnavailableDetail: LocalizedStringResource {
+      LocalizedStringResource("activity.dayUnavailableDetail",
+        defaultValue: "The bot's API did not send this day's trades.", bundle: L10n.bundle)
+    }
+    /// The API answered a day document of another day than the one asked for.
+    static func otherDayAnswered(_ asked: String, _ answered: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.otherDayAnswered",
+        defaultValue: "Asked for \(asked), the API answered \(answered).", bundle: L10n.bundle)
     }
     static var retry: LocalizedStringResource {
       LocalizedStringResource("activity.retry", defaultValue: "Try Again", bundle: L10n.bundle)

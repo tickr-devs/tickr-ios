@@ -2281,9 +2281,37 @@ enum L10n {
     static var noTradesToday: LocalizedStringResource {
       LocalizedStringResource("trades.noTradesToday", defaultValue: "No closed trades yet today.", bundle: L10n.bundle)
     }
-    /// Trade table empty on a recorded day.
-    static var noTrades: LocalizedStringResource {
-      LocalizedStringResource("trades.noTrades", defaultValue: "No closed trades on this day.", bundle: L10n.bundle)
+    /// Trade table empty on a picked past day, naming the day ("Mon Nov 16"), so a pick of a day
+    /// without trades visibly lands on that day.
+    static func noTradesOn(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.noTradesOn", defaultValue: "No trades on \(day)", bundle: L10n.bundle)
+    }
+    /// Under `noTradesOn`: what an empty past day means.
+    static var noTradesOnDetail: LocalizedStringResource {
+      LocalizedStringResource("trades.noTradesOnDetail",
+        defaultValue: "The bot closed no trades that day.", bundle: L10n.bundle)
+    }
+    /// Shown while a picked past day's trades are read (the skeleton's VoiceOver label).
+    static func loadingDay(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.loadingDay", defaultValue: "Reading \(day)…", bundle: L10n.bundle)
+    }
+    /// A picked past day's trades could not be read: the unavailable state's title.
+    static func dayUnavailable(_ day: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.dayUnavailable", defaultValue: "\(day) is unavailable", bundle: L10n.bundle)
+    }
+    /// Its plain line when no cause is known.
+    static var dayUnavailableDetail: LocalizedStringResource {
+      LocalizedStringResource("trades.dayUnavailableDetail",
+        defaultValue: "The bot's API did not send this day's trades.", bundle: L10n.bundle)
+    }
+    /// The API answered a day document of another day than the one asked for.
+    static func otherDayAnswered(_ asked: String, _ answered: String) -> LocalizedStringResource {
+      LocalizedStringResource("trades.otherDayAnswered",
+        defaultValue: "Asked for \(asked), the API answered \(answered).", bundle: L10n.bundle)
+    }
+    /// Button: read the unavailable day again.
+    static var retryDay: LocalizedStringResource {
+      LocalizedStringResource("trades.retryDay", defaultValue: "Try again", bundle: L10n.bundle)
     }
     /// Column: time the trade closed (New York).
     static var closed: LocalizedStringResource {

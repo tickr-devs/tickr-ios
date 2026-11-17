@@ -148,11 +148,9 @@ struct ActivityView: View {
       }
       switch activity.phase {
       case .failed(let cause):
-        ContentUnavailableView {
-          Label { Text(L10n.Activity.dayFailed) } icon: { Image(systemName: Symbols.failure) }
-        } description: {
-          Text(verbatim: cause)
-        } actions: {
+        VStack(spacing: Tokens.Space.m) {
+          UnavailableState(L10n.Activity.dayUnavailable(DayText.day(selected)),
+            message: L10n.Activity.dayUnavailableDetail, cause: cause)
           Button {
             guard let url = model.connection.url else { return }
             Task { await activity.show(selected, from: url) }
@@ -161,6 +159,8 @@ struct ActivityView: View {
           }
           .buttonStyle(.action(.secondary, size: .compact))
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(AccessibilityID.dayUnavailable)
         .rise()
       default:
         Skeleton(L10n.Activity.loadingDay) {
@@ -189,7 +189,8 @@ struct ActivityView: View {
         } else {
           TradesList(activity: activity, url: model.connection.url, positions: [],
             trades: activity.day?.trades.map(TradeLine.init) ?? [],
-            empty: (L10n.Activity.noTradesThatDay, L10n.Activity.noTradesThatDayBody))
+            empty: (L10n.Activity.noTradesOn(DayText.day(activity.selectedDay ?? activity.today)),
+              L10n.Activity.noTradesThatDayBody))
         }
       case .skipped:
         NotTaken(groups: activity.skipped, failure: activity.skippedFailure)

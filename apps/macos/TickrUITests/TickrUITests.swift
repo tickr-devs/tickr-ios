@@ -59,6 +59,13 @@ final class TickrUITests: XCTestCase {
   static let calendar = "trades-calendar"
   /// The fixtures' live day (2026-11-16) as the calendar names it (DayText.day, no comma).
   static let fixtureDayLabel = "Mon Nov 16"
+  /// A recorded past day without trades (day-v1.empty.json, PreviewAPI.dayFiles), its English
+  /// "no trades" title (trades.noTradesOn), and the ids of the shown day's title
+  /// (TradesView.dayTitleID) and of the empty table's message (TradesTable.emptyID).
+  static let emptyDayLabel = "Fri Nov 13"
+  static let emptyDayMessage = "No trades on Fri Nov 13"
+  static let dayTitle = "trades-day-title"
+  static let tradesEmpty = "trades-empty"
   /// The Chart's decisions toggle (ChartView.decisionsToggleID) and a rule from decisions-v1.json
   /// (ask_above_trigger), as the English app shows it (ApiText.rule).
   static let decisionsToggle = "chart-decisions"
@@ -284,6 +291,29 @@ final class TickrUITests: XCTestCase {
     // The fixture's live day is a cell of the month grid, named by its date.
     XCTAssertTrue(calendar.buttons[Self.fixtureDayLabel].waitForExistence(timeout: Self.timeout),
       "calendar day\n\(app.debugDescription)")
+  }
+
+  @MainActor
+  func testPickingAPastDayInTheCalendarShowsThatDay() {
+    let app = launch()
+    open(Self.sections[2], in: app)
+    let calendar = app.descendants(matching: .any)[Self.calendar].firstMatch
+    XCTAssertTrue(calendar.waitForExistence(timeout: Self.timeout), "calendar\n\(app.debugDescription)")
+    // Today first: its trade WXYZ is listed.
+    let trade = app.outlineRows.staticTexts.matching(NSPredicate(format: "value == %@", Self.tradeSymbol)).firstMatch
+    XCTAssertTrue(trade.waitForExistence(timeout: Self.timeout), "today's trade\n\(app.debugDescription)")
+    let day = calendar.buttons[Self.emptyDayLabel]
+    waitUntilStill(day, "calendar day", in: app)
+    day.click()
+    // The day's title names the picked day, and its empty table says so by date.
+    let title = app.staticTexts.matching(identifier: Self.dayTitle).firstMatch
+    let titled = NSPredicate(format: "value == %@", Self.emptyDayLabel)
+    expectation(for: titled, evaluatedWith: title)
+    waitForExpectations(timeout: Self.timeout)
+    let empty = app.descendants(matching: .any)[Self.tradesEmpty].firstMatch
+    XCTAssertTrue(empty.waitForExistence(timeout: Self.timeout), "empty day\n\(app.debugDescription)")
+    XCTAssertTrue(app.staticTexts[Self.emptyDayMessage].exists, "no-trades message\n\(app.debugDescription)")
+    XCTAssertFalse(trade.exists, "today's trade still listed")
   }
 
   @MainActor

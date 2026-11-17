@@ -358,23 +358,6 @@
         }
       }
     },
-    "activity.dayFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't load the day"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не удалось загрузить день"
-          }
-        }
-      }
-    },
     "activity.daysFailed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -388,6 +371,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не удалось получить список дней"
+          }
+        }
+      }
+    },
+    "activity.dayUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is unavailable"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ недоступен"
+          }
+        }
+      }
+    },
+    "activity.dayUnavailableDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's API did not send this day's trades."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API бота не прислал сделки этого дня."
           }
         }
       }
@@ -902,19 +919,19 @@
         }
       }
     },
-    "activity.noTradesThatDay" : {
+    "activity.noTradesOn" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No trades that day"
+            "value" : "No trades on %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "В этот день сделок не было"
+            "value" : "Нет сделок за %@"
           }
         }
       }
@@ -1034,6 +1051,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ОТКРЫТА"
+          }
+        }
+      }
+    },
+    "activity.otherDayAnswered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asked for %1$@, the API answered %2$@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запрошен %1$@, API ответил за %2$@."
           }
         }
       }

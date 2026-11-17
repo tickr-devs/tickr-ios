@@ -73,6 +73,11 @@ final class FixtureProtocol: URLProtocol {
   static let daysPath = "/days"
   static let daysFile = "days-v1.json"
   static let dayFile = "day-v1.json"
+  /// Each recorded day's document by its date, as the API answers GET /days/<date>: the fixtures'
+  /// live day with its trades, and a day without trades. Any other date has no fixture and is
+  /// answered 404, as a day the API cannot read (the day's unavailable state). One document for
+  /// every date showed the live day's trades under whatever past day was picked.
+  static let dayFiles = ["2026-11-16": dayFile, "2026-11-13": "day-v1.empty.json"]
   static let barsPath = "/bars"
   static let barsFile = "bars-v1.json"
   static let pendingPath = "/commands/pending"
@@ -138,7 +143,9 @@ final class FixtureProtocol: URLProtocol {
     case labReplayPath: return labReplayFile
     case advisorPath: return advisorFile
     case tradeWhatIfPath: return tradeWhatIfFile
-    default: return path.hasPrefix(daysPath + "/") ? dayFile : nil
+    default:
+      guard path.hasPrefix(daysPath + "/") else { return nil }
+      return dayFiles[String(path.dropFirst(daysPath.count + 1))]
     }
   }
 

@@ -64,15 +64,21 @@ struct TradesView: View {
     // (an unscrolled stack overflowed upward under the toolbar). The same scroll views in both,
     // only their axes and heights changed: a resize never makes the cards anew (new ones played
     // their entrance again mid-drag).
-    ScrollView(beside ? [] : .vertical) {
-      CardGrid(arrangements: Self.arrangements, spacing: Self.columnGap) {
-        column(.side, beside: beside) { sideColumn }
-        column(.day, beside: beside) { dayDetail }
+    ScrollViewReader { proxy in
+      ScrollView(beside ? [] : .vertical) {
+        CardGrid(arrangements: Self.arrangements, spacing: Self.columnGap) {
+          column(.side, beside: beside) { sideColumn }
+          column(.day, beside: beside) { dayDetail }
+        }
+        .padding(.horizontal, Self.horizontalPadding)
+        .padding(.vertical, beside ? 0 : Self.verticalPadding)
+        .frame(maxWidth: Tokens.Size.contentMaxWidth)
+        .frame(maxWidth: .infinity)
       }
-      .padding(.horizontal, Self.horizontalPadding)
-      .padding(.vertical, beside ? 0 : Self.verticalPadding)
-      .frame(maxWidth: Tokens.Size.contentMaxWidth)
-      .frame(maxWidth: .infinity)
+      // A picked day is shown from its title: the pick is often made below it.
+      .onChange(of: model.shownDay) {
+        withAnimation(Tokens.Motion.standard) { proxy.scrollTo(Self.dayTopID, anchor: .top) }
+      }
     }
     .onGeometryChange(for: CGSize.self) { $0.size } action: { screenSize = $0 }
     .plainCardLabels()
@@ -145,19 +151,44 @@ struct TradesView: View {
 
   /// The shown day's figures, trades, the selected trade with the signals not taken, and
   /// replays.
+  /// A picked past day shows its title at once, then its trades once read: a skeleton while they
+  /// are, the unavailable state with its cause when they could not be (never the day before's
+  /// figures, nor zeros that read as an empty day).
   private var dayDetail: some View {
     VStack(alignment: .leading, spacing: Self.columnGap) {
       dayTitle
+        .id(Self.dayTopID)
         .rise(step: Order.stats.rawValue)
-      DayStatsRow()
-        .rise(step: Order.stats.rawValue)
-      TradesTable(selection: $selection, showOnChart: showOnChart)
-        .rise(step: Order.trades.rawValue)
-      selectedAndNotTaken
-      WhatIfCard()
-        .rise(step: Order.whatIf.rawValue)
+      switch model.shownDayState {
+      case .failed(let cause):
+        DayUnavailable(day: model.shownDay, cause: cause)
+      case .loading:
+        Skeleton(L10n.Trades.loadingDay(DayText.day(model.shownDay))) {
+          VStack(alignment: .leading, spacing: Self.columnGap) {
+            SkeletonTiles(Tokens.Loading.tiles)
+            SkeletonRows(Tokens.Loading.manyRows, badge: true)
+          }
+        }
+        .accessibilityIdentifier(Self.dayLoadingID)
+      case .live, .loaded:
+        DayStatsRow()
+          .rise(step: Order.stats.rawValue)
+        TradesTable(selection: $selection, showOnChart: showOnChart)
+          .rise(step: Order.trades.rawValue)
+        selectedAndNotTaken
+        WhatIfCard()
+          .rise(step: Order.whatIf.rawValue)
+      }
     }
   }
+
+  /// Scroll id of the shown day's title: a picked day scrolls it into view, so the change is
+  /// seen even when the pick was made far below it (the days column under the day in a narrow
+  /// window, or the day's own column scrolled down).
+  static let dayTopID = "trades-day-top"
+  /// Accessibility ids of the day's title and of its loading skeleton, for the UI tests.
+  static let dayTitleID = "trades-day-title"
+  static let dayLoadingID = "trades-day-loading"
 
   /// "Today · Mon, Nov 16" (or the recorded day) with its clean-day verdict.
   private var dayTitle: some View {
@@ -172,6 +203,7 @@ struct TradesView: View {
       .font(Tokens.Typography.heading)
       .foregroundStyle(Palette.textPrimary)
       .accessibilityAddTraits(.isHeader)
+      .accessibilityIdentifier(Self.dayTitleID)
       if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
         CleanBadge(clean: clean, showsNote: true)
       }
@@ -194,6 +226,31 @@ struct TradesView: View {
   private func showOnChart(_ symbol: String) {
     chartSymbol = symbol
     model.section = .chart
+  }
+}
+
+/// A picked past day whose trades could not be read: the shared unavailable state with the
+/// cause in the person's language, and a way to read the day again.
+private struct DayUnavailable: View {
+  @Environment(AppModel.self) private var model
+  let day: WireDate
+  let cause: String
+
+  /// Accessibility id, for the UI tests.
+  static let id = "trades-day-unavailable"
+
+  var body: some View {
+    Card(L10n.Trades.tradesOfDay) {
+      VStack(spacing: Tokens.Space.m) {
+        UnavailableState(L10n.Trades.dayUnavailable(DayText.day(day)), message: L10n.Trades.dayUnavailableDetail,
+          cause: cause)
+        Button { model.retryShownDay() } label: { Text(L10n.Trades.retryDay) }
+          .buttonStyle(.action(.secondary, size: .compact))
+      }
+      .frame(maxWidth: .infinity)
+    }
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier(Self.id)
   }
 }
 
@@ -453,6 +510,8 @@ private struct TradesTable: View {
 
   /// Height of the "no trades" message in place of the table, in points.
   static let emptyHeight: CGFloat = 280
+  /// Accessibility id of that message, for the UI tests.
+  static let emptyID = "trades-empty"
   /// The table's vertical geometry, in points, as AppKit lays it out (read with Accessibility,
   /// 2026-11-16, 3 and 9 rows): the first row starts `headerHeight` under the table's top (the
   /// 28-point header and the gap under it), rows are `rowHeight` apart, and `bottomInset` stays
@@ -485,10 +544,21 @@ private struct TradesTable: View {
         .foregroundStyle(Palette.textQuaternary)
     }, content: {
       if rows.isEmpty {
-        ContentUnavailableView {
-          Label { Text(model.isLive ? L10n.Trades.noTradesToday : L10n.Trades.noTrades) } icon: { BrandMark.empty() }
+        Group {
+          if model.isLive {
+            ContentUnavailableView {
+              Label { Text(L10n.Trades.noTradesToday) } icon: { BrandMark.empty() }
+            }
+          } else {
+            ContentUnavailableView {
+              Label { Text(L10n.Trades.noTradesOn(DayText.day(model.shownDay))) } icon: { BrandMark.empty() }
+            } description: {
+              Text(L10n.Trades.noTradesOnDetail)
+            }
+          }
         }
         .frame(height: Self.emptyHeight)
+        .accessibilityIdentifier(Self.emptyID)
       } else {
         table
           .frame(height: tableHeight)

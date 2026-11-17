@@ -12,6 +12,8 @@ enum AccessibilityID {
   static let botControlCancel = "botControl.cancel"
   /// Activity toolbar button that shows or hides the calendar.
   static let calendar = "activity.calendar"
+  /// Activity's unavailable state of a picked past day whose trades could not be read.
+  static let dayUnavailable = "activity.dayUnavailable"
   /// The tab bar's buttons.
   static let tabHome = "tab.home"
   static let tabPositions = "tab.positions"

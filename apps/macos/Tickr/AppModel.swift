@@ -195,11 +195,19 @@ public final class AppModel {
         selectedDay = nil
         return
       }
-      if oldValue != selectedDay { Task { await loadSelectedDay() } }
+      if oldValue != selectedDay { beginDayLoad() }
       withdrawIfCommandsOff()
     }
   }
+  /// The picked past day's trades (GET /days/<date>); nil while it is read, after a failed read
+  /// and while today is shown. Never another day's document: it is cleared the moment another
+  /// day is picked.
   public private(set) var dayDocument: DayV1?
+  /// Why the picked past day's trades could not be read, if they could not (its own cause, not
+  /// the day list's `historyError`).
+  public private(set) var dayError: String?
+  /// The read of the picked day that is under way; a newer pick cancels it.
+  @ObservationIgnored private var dayLoad: Task<Void, Never>?
   public private(set) var todayDocument: DayV1?
   /// Observers with their decisions on the shown day; nil until read.
   public private(set) var observers: ObserversV1?
@@ -794,7 +802,22 @@ public final class AppModel {
     }
   }
 
+  /// Starts reading the picked day: what was shown for the earlier pick goes at once, so the
+  /// screen says the new day is being read instead of showing the old one under its title.
+  private func beginDayLoad() {
+    dayLoad?.cancel()
+    dayDocument = nil
+    dayError = nil
+    dayLoad = Task { await loadSelectedDay() }
+  }
+
+  /// Reads the picked day: its trades first, the document every screen of a past day shows, then
+  /// the rest of the day (flow, symbols, observers, skipped signals, performance). Those reads
+  /// can take the API seconds each for a busy day; read first, they held the trades back for
+  /// over a minute (owner report 2026-11-17), and the screen looked as if the pick did nothing.
   private func loadSelectedDay() async {
+    await readSelectedDayDocument()
+    guard !Task.isCancelled else { return }
     observers = nil
     skipped = nil
     skippedError = nil
@@ -812,20 +835,55 @@ public final class AppModel {
     await refreshObservers()
     await refreshSkipped()
     await refreshPerformance()
+  }
+
+  /// Reads the picked past day's document into `dayDocument`, or its cause into `dayError`. An
+  /// answer for a day no longer picked, or for another day than asked, is dropped.
+  func readSelectedDayDocument() async {
     guard let day = selectedDay, day != today else {
       dayDocument = nil
+      dayError = nil
       return
     }
     do {
       let document = try await client.day(day)
-      guard day == selectedDay else { return }
+      guard day == selectedDay, !Task.isCancelled else { return }
+      guard document.day == day else {
+        dayDocument = nil
+        dayError = String(localized: L10n.Trades.otherDayAnswered(day.text, document.day.text))
+        return
+      }
       dayDocument = document
-      historyError = nil
+      dayError = nil
     } catch {
-      guard day == selectedDay else { return }
+      guard day == selectedDay, !Task.isCancelled else { return }
       dayDocument = nil
-      historyError = Self.describe(error) ?? historyError
+      dayError = Self.describe(error) ?? String(localized: L10n.Common.unavailable)
     }
+  }
+
+  /// What the shown day's trades are: today's (live), or the picked past day's being read,
+  /// unavailable with a cause, or read.
+  public enum ShownDayState: Equatable, Sendable {
+    case live
+    case loading
+    case failed(String)
+    case loaded(DayV1)
+  }
+
+  public var shownDayState: ShownDayState {
+    if isLive { return .live }
+    if let dayDocument { return .loaded(dayDocument) }
+    if let dayError { return .failed(dayError) }
+    return .loading
+  }
+
+  /// Reads the picked past day's trades again (the Retry of its unavailable state).
+  public func retryShownDay() {
+    guard !isLive else { return }
+    dayLoad?.cancel()
+    dayError = nil
+    dayLoad = Task { await readSelectedDayDocument() }
   }
 
   /// Reads today's bars of every open position where the Chart reads them (`DayBars`: market

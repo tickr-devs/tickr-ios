@@ -14,6 +14,8 @@ final class RouteProtocol: URLProtocol {
     /// Symbols whose today was asked of market data (GET /chart).
     var chartSymbols: [String] = []
     var idempotencyKeys: [String?] = []
+    /// Every path asked for, in the order asked.
+    var paths: [String] = []
   }
 
   static let routes = Mutex(Routes())
@@ -33,6 +35,7 @@ final class RouteProtocol: URLProtocol {
       return
     }
     let path = url.path()
+    Self.routes.withLock { $0.paths.append(path) }
     if request.httpMethod == "POST" {
       let key = request.value(forHTTPHeaderField: "Idempotency-Key")
       Self.routes.withLock { $0.idempotencyKeys.append(key) }

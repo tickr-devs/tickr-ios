@@ -13825,6 +13825,40 @@
         }
       }
     },
+    "trades.dayUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is unavailable"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ недоступен"
+          }
+        }
+      }
+    },
+    "trades.dayUnavailableDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's API did not send this day's trades."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API бота не прислал сделки этого дня."
+          }
+        }
+      }
+    },
     "trades.entry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13974,6 +14008,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Матожидание"
+          }
+        }
+      }
+    },
+    "trades.loadingDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading %@…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Читаю %@…"
           }
         }
       }
@@ -14216,19 +14267,36 @@
         }
       }
     },
-    "trades.noTrades" : {
+    "trades.noTradesOn" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No closed trades on this day."
+            "value" : "No trades on %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "В этот день закрытых сделок нет."
+            "value" : "Нет сделок за %@"
+          }
+        }
+      }
+    },
+    "trades.noTradesOnDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot closed no trades that day."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этот день бот не закрыл ни одной сделки."
           }
         }
       }
@@ -14399,6 +14467,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Открытая позиция %@: показать на графике"
+          }
+        }
+      }
+    },
+    "trades.otherDayAnswered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asked for %1$@, the API answered %2$@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запрошен %1$@, API ответил за %2$@."
           }
         }
       }
@@ -14734,6 +14819,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "R"
+          }
+        }
+      }
+    },
+    "trades.retryDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
           }
         }
       }
