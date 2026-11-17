@@ -104,6 +104,24 @@ extension AppModelTests {
     #expect(model.dayDocument?.day == (try WireDate(Self.unreadDay)))
   }
 
+  @Test("Retry reads the whole day again: its trades first, then the day's other reads")
+  func retryReadsTheWholeDay() async throws {
+    let model = try await Self.modelWithDays()
+    model.selectedDay = try WireDate(Self.unreadDay)
+    try await Self.waitForPick(model)
+    RouteProtocol.routes.withLock { $0.paths = [] }
+    model.retryShownDay()
+    let clock = ContinuousClock()
+    let deadline = clock.now.advanced(by: Self.pickWait)
+    while !RouteProtocol.routes.withLock({ $0.paths.contains("/performance") }), clock.now < deadline {
+      try await Task.sleep(for: Self.pickPoll)
+    }
+    let paths = RouteProtocol.routes.withLock { $0.paths }
+    #expect(paths.first == "/days/\(Self.unreadDay)")
+    #expect(paths.contains("/skipped"))
+    #expect(paths.contains("/performance"))
+  }
+
   @Test("An answer for another day than the one asked is refused with its cause, never shown")
   func otherDaysAnswerRefused() async throws {
     let model = try await Self.modelWithDays()

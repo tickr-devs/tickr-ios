@@ -909,12 +909,14 @@ public final class AppModel {
     return .loading
   }
 
-  /// Reads the picked past day's trades again (the Retry of its unavailable state).
+  /// Reads the picked past day again (the Retry of its unavailable state): its trades first, then
+  /// the rest of the day. The Retry cancels the pick's read still under way, so it reads the whole
+  /// day again; reading only the trades left the day's other cards with a cancelled read's error.
   public func retryShownDay() {
     guard !isLive else { return }
     dayLoad?.cancel()
     dayError = nil
-    dayLoad = Task { await readSelectedDayDocument() }
+    dayLoad = Task { await loadSelectedDay() }
   }
 
   /// Reads today's bars of every open position where the Chart reads them (`DayBars`: market
