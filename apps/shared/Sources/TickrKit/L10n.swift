@@ -157,16 +157,15 @@ enum L10n {
       bundle: bundle)
   }
   /// Headline: the bot holds one open position with a verified broker stop, and nothing needs the
-  /// operator. Its own key: the catalog's plural forms are not applied everywhere (swift test).
+  /// operator (mockup v111: "Holding 2 positions · stops verified"). Its own key: the catalog's
+  /// plural forms are not applied everywhere (swift test).
   static var headlineHoldingOne: LocalizedStringResource {
-    LocalizedStringResource("kit.headline.holdingOne",
-      defaultValue: "Holding 1 position · protected by a broker stop", bundle: bundle)
+    LocalizedStringResource("kit.headline.holdingOne", defaultValue: "Holding 1 position", bundle: bundle)
   }
-  /// Headline: the bot holds several open positions, every one with a verified broker stop, and
-  /// nothing needs the operator; argument: how many (Russian has plural forms).
+  /// Headline: the bot holds several open positions, every one with a verified broker stop;
+  /// argument: how many (Russian writes "Позиции: N", which needs no plural forms).
   static func headlineHolding(_ count: Int) -> LocalizedStringResource {
-    LocalizedStringResource("kit.headline.holding",
-      defaultValue: "Holding \(count) positions · all protected by broker stops", bundle: bundle)
+    LocalizedStringResource("kit.headline.holding", defaultValue: "Holding \(count) positions", bundle: bundle)
   }
   /// Headline: entries are allowed.
   static var headlineAllowed: LocalizedStringResource {

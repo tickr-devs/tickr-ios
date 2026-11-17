@@ -26,6 +26,15 @@ extension L10n {
       bundle: bundle)
   }
 
+  /// The holding headline's detail with one position.
+  static var headlineStopVerified: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.stopVerified", defaultValue: "stop verified", bundle: bundle)
+  }
+  /// The holding headline's detail with several positions.
+  static var headlineStopsVerified: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.stopsVerified", defaultValue: "stops verified", bundle: bundle)
+  }
+
   // MARK: Session countdown
 
   /// Before the regular session: the label in front of the time left.

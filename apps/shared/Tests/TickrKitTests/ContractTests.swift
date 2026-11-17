@@ -297,9 +297,8 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
   func ordinaryBlockIsCalm() throws {
     let headline = Headline.make(response: try response("status-response-v1.json"), readFailed: false)
     #expect(headline.severity == .ok)
-    #expect(headline.text == "Holding 1 position · protected by a broker stop")
-    // The title already says what is held and that it is protected.
-    #expect(headline.detail == nil)
+    #expect(headline.text == "Holding 1 position")
+    #expect(headline.detail == "stop verified")
   }
 
   @Test func blockNeedingTheOperatorIsAttention() throws {

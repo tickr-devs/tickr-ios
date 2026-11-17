@@ -4151,37 +4151,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Holding %lld positions · all protected by broker stops"
+            "value" : "Holding %lld positions"
           }
         },
         "ru" : {
-          "variations" : {
-            "plural" : {
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Держим %lld позиции · все защищены стопами у брокера"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Держим %lld позиций · все защищены стопами у брокера"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Держим %lld позицию · она защищена стопом у брокера"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Держим %lld позиции · все защищены стопами у брокера"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиции: %lld"
           }
         }
       }
@@ -4192,13 +4168,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Holding 1 position · protected by a broker stop"
+            "value" : "Holding 1 position"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Держим 1 позицию · она защищена стопом у брокера"
+            "value" : "Позиции: 1"
           }
         }
       }
@@ -4284,6 +4260,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Статусу бота %lld с: бот, возможно, не работает. Не доверяйте остальному на этой странице."
+          }
+        }
+      }
+    },
+    "kit.headline.stopsVerified" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stops verified"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стопы подтверждены"
+          }
+        }
+      }
+    },
+    "kit.headline.stopVerified" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop verified"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "стоп подтверждён"
           }
         }
       }

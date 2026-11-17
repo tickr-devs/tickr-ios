@@ -15,8 +15,8 @@ public struct Headline: Equatable, Sendable {
   /// state. Not `text`: a stale status's text counts its age, which grows with every read of the
   /// same stale status.
   public let pulse: Pulse
-  /// The line after the headline about a trusted status (`detail(_:)`); nil when the headline has
-  /// none (no trusted status) or already says it (held positions, all protected).
+  /// The line after the headline about a trusted status: the open positions (`detail(_:)`), "stops
+  /// verified" after the holding headline, or why entries are off; nil without a trusted status.
   public let detail: String?
 
   /// The event key of `Headline.pulse`.
@@ -55,23 +55,27 @@ public struct Headline: Equatable, Sendable {
           + summary(response),
         severity: .alarm, detail: detail(status))
     }
-    // The trading gate closed by configuration is a setting, not a fault (mockup v109): a calm
-    // "Entries off", the gate's own badge beside it saying the rest.
-    if let block = status.entryBlock, BlockCode(rawValue: block.cause) == .tradingGateClosed {
-      return Headline(text: String(localized: L10n.headlineEntriesOff), severity: .ok,
-        detail: String(localized: L10n.headlineGateClosedInConfig))
+    // Below an alarm (mockup v109): a block that needs the operator, then held positions, then a
+    // trading gate closed in config, then the calm rest. The closed gate is a setting, not a fault:
+    // it never warns, and its grey badge beside the headline says it even while positions are held.
+    let gateClosed = status.entryBlock.map { BlockCode(rawValue: $0.cause) == .tradingGateClosed } ?? false
+    if status.entryBlock?.attention == true, !gateClosed {
+      return Headline(text: summary(response), severity: .attention, detail: detail(status))
     }
     // Open positions, all protected and nothing for the operator to do: the headline says what
     // the bot holds, as on the design, not why a further entry would be refused.
-    if status.entryBlock?.attention != true, !status.positions.isEmpty {
+    if !status.positions.isEmpty {
       let count = status.positions.count
       let text = count == 1 ? L10n.headlineHoldingOne : L10n.headlineHolding(count)
-      return Headline(text: String(localized: text), severity: .ok)
+      let detail = count == 1 ? L10n.headlineStopVerified : L10n.headlineStopsVerified
+      return Headline(text: String(localized: text), severity: .ok, detail: String(localized: detail))
     }
-    // An ordinary refusal (outside the entry window) is calm; only a block that needs the operator
-    // is attention.
-    return Headline(text: summary(response), severity: status.entryBlock?.attention == true ? .attention : .ok,
-      detail: detail(status))
+    if gateClosed {
+      return Headline(text: String(localized: L10n.headlineEntriesOff), severity: .ok,
+        detail: String(localized: L10n.headlineGateClosedInConfig))
+    }
+    // An ordinary refusal (outside the entry window) is calm.
+    return Headline(text: summary(response), severity: .ok, detail: detail(status))
   }
 
   /// The line after the headline about a trusted status: how many positions are open and how
