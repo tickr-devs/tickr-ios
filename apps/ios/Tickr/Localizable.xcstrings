@@ -9557,23 +9557,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Production is enabled only on the Mac: the config plus your authorization file. The phone shows it."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Production включается только на Mac: конфиг и файл вашего разрешения. Телефон показывает."
-          }
-        }
-      }
-    },
-    "settings.environmentLocked" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Production is enabled only on the Mac"
           }
         },
@@ -9989,6 +9972,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "премаркет"
+          }
+        }
+      }
+    },
+    "settings.productionGateBacklog" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Production gate · backlog"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шлюз Production · backlog"
           }
         }
       }

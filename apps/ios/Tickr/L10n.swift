@@ -1715,8 +1715,7 @@ enum L10n {
       LocalizedStringResource("settings.backupFailed", defaultValue: "Failed \(time)", bundle: L10n.bundle)
     }
     static var environmentFooter: LocalizedStringResource {
-      LocalizedStringResource("settings.environmentFooter",
-        defaultValue: "Production is enabled only on the Mac: the config plus your authorization file. The phone shows it.",
+      LocalizedStringResource("settings.environmentFooter", defaultValue: "Production is enabled only on the Mac",
         bundle: L10n.bundle)
     }
     static var session: LocalizedStringResource {
@@ -1823,9 +1822,9 @@ enum L10n {
     static var notYet: LocalizedStringResource {
       LocalizedStringResource("settings.notYet", defaultValue: "Not yet", bundle: L10n.bundle)
     }
-    /// VoiceOver hint of the environment switch: the phone cannot change it.
-    static var environmentLocked: LocalizedStringResource {
-      LocalizedStringResource("settings.environmentLocked", defaultValue: "Production is enabled only on the Mac",
+    /// The environment card's backlog tag: the Production gate's readiness is not shown yet.
+    static var productionGateBacklog: LocalizedStringResource {
+      LocalizedStringResource("settings.productionGateBacklog", defaultValue: "Production gate · backlog",
         bundle: L10n.bundle)
     }
     /// The notifications card's label (IOSGateAlerts).

@@ -6,7 +6,9 @@ import TickrKit
 /// environment raised and Production locked. The phone only shows it: Sandbox or Production is set
 /// in config on the Mac, and Production also needs the owner's authorization file there, so
 /// nothing here can be tapped. Another environment (the demo day, a name the owner chose) raises
-/// no segment and is named by its badge above them.
+/// no segment and is named by its badge above them. A section of its own, as is
+/// `NotificationsSection`, so the Safety screen (IOSGateAlerts, still a backlog board with no screen
+/// in the app) shows the same one.
 struct EnvironmentSection: View {
   /// Symbol of the environment row.
   static let symbol = "server.rack"
@@ -16,6 +18,9 @@ struct EnvironmentSection: View {
   var body: some View {
     let current = BotEnvironment(rawValue: status.environment)
     SettingsCard(L10n.Settings.environment, note: L10n.Settings.environmentFooter) {
+      // The board's tag: the Production gate's readiness checks come later.
+      Badge(L10n.Settings.productionGateBacklog, tone: .highlight, planned: true)
+    } content: {
       if current != .sandbox && current != .production {
         SettingsRow(L10n.Settings.environment, systemImage: Self.symbol,
           tone: EnvironmentBadge.Kind(raw: status.environment).tone) {
@@ -28,7 +33,7 @@ struct EnvironmentSection: View {
         .init(BotEnvironment.production, title: Text(BotEnvironment.production.title), locked: true),
       ], shown: current)
       .accessibilityLabel(Text(L10n.Settings.environment))
-      .accessibilityHint(Text(L10n.Settings.environmentLocked))
+      .accessibilityHint(Text(L10n.Settings.environmentFooter))
       .padding(.vertical, Tokens.Space.xs)
     }
   }
