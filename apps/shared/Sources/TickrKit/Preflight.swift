@@ -9,7 +9,8 @@ public enum Preflight {
     case botRunning
     /// The bot's status is current (not stale, not unavailable).
     case statusCurrent
-    /// The quote stream is fresh.
+    /// The quote stream is fresh for the open positions (not needed without one: the bot then
+    /// reports the stream `off` by design).
     case streamFresh
     /// The broker's positions and orders matched the bot's records at its last read.
     case brokerMatches
@@ -19,7 +20,9 @@ public enum Preflight {
     case gateOpen
   }
 
-  public enum Outcome: Equatable, Sendable { case passed, failed, unknown }
+  /// `notNeeded`: the check has nothing to prove now (no open position needs a fresh quote); shown
+  /// neutral and never counted as failing.
+  public enum Outcome: Equatable, Sendable { case passed, failed, unknown, notNeeded }
 
   public struct Result: Identifiable, Equatable, Sendable {
     public let check: Check
@@ -41,7 +44,8 @@ public enum Preflight {
       case .botRunning:
         outcome = verdict(current.map { $0.botState == .running })
       case .streamFresh:
-        outcome = verdict(current.map { $0.freshness.stream == .fresh })
+        outcome = current.map { $0.freshness.stream == .off ? .notNeeded : verdict($0.freshness.stream == .fresh) }
+          ?? .unknown
       case .stopsVerified:
         outcome = verdict(current.map { $0.positions.allSatisfy { $0.stop.state == .verified } })
       case .gateOpen:

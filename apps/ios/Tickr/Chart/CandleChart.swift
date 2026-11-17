@@ -250,7 +250,7 @@ struct CandleChart: View {
           }
         PointMark(x: .value(Plot.time, middle(candle)), y: .value(Plot.price, candle.close))
           .symbolSize(Self.scrubDotArea)
-          .foregroundStyle(candle.isUp ? Palette.profit : Palette.loss)
+          .foregroundStyle(candle.isUp ? Palette.candleUp : Palette.candleDown)
       }
     }
     .chartYScale(domain: scale.domain)
@@ -314,7 +314,7 @@ struct CandleChart: View {
           yStart: .value(Plot.price, scale.volumeBase),
           yEnd: .value(Plot.price, scale.volumeTop(candle.volume)))
           // Extended hours' volume lighter than the regular session's (mockup v113).
-          .foregroundStyle((candle.isUp ? Palette.profit : Palette.loss).opacity(
+          .foregroundStyle((candle.isUp ? Palette.candleUp : Palette.candleDown).opacity(
             Tokens.Opacity.faint * (candle.extended ? Tokens.Chart.extendedVolumeShare : 1)))
       }
     }
@@ -361,7 +361,7 @@ struct CandleChart: View {
   /// the stretch on screen ended above where it began.
   @ChartContentBuilder
   private func lineArea(_ scale: PriceScale) -> some ChartContent {
-    let tint = visibleTrendUp ? Palette.profit : Palette.loss
+    let tint = visibleTrendUp ? Palette.candleUp : Palette.candleDown
     ForEach(series.candles) { candle in
       AreaMark(
         x: .value(Plot.time, middle(candle)),
@@ -645,7 +645,7 @@ struct CandleChart: View {
     // A new bar not taken in yet, or growing in over the chart, is not drawn here.
     let shown = candle.start <= (grownThrough ?? .distantFuture) && candle.start != growing
     let height = { (price: Double) in shown ? price : candle.low }
-    let colour = (candle.isUp ? Palette.profit : Palette.loss).opacity(shown ? 1 : 0)
+    let colour = (candle.isUp ? Palette.candleUp : Palette.candleDown).opacity(shown ? 1 : 0)
     RuleMark(
       x: .value(Plot.time, middle(candle)),
       yStart: .value(Plot.price, candle.low),
@@ -830,7 +830,7 @@ struct CandleChart: View {
   private func priceTags(_ scale: PriceScale) -> [PriceTag] {
     var tags: [(price: Double, fill: Color)] = []
     if let last = series.candles.last {
-      tags.append((livePrice ?? last.close, last.isUp ? Palette.profit : Palette.loss))
+      tags.append((livePrice ?? last.close, last.isUp ? Palette.candleUp : Palette.candleDown))
     }
     var levels = trades.sorted { $0.openedAt.date > $1.openedAt.date }.map {
       (ChartFormat.double($0.entryPrice), $0.stopPrice.map(ChartFormat.double), true)
@@ -1164,7 +1164,7 @@ private struct GrowingCandle: View {
   let done: () -> Void
 
   var body: some View {
-    let colour = candle.isUp ? Palette.profit : Palette.loss
+    let colour = candle.isUp ? Palette.candleUp : Palette.candleDown
     let middle = (frame.left + frame.right) / 2
     let top = min(frame.open, frame.close)
     let isGrown = grown

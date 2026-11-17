@@ -62,6 +62,9 @@ final class ActivityModel {
   /// The bot's summary of the chosen past day.
   var summary: DaySummary? { days.first { $0.day == selectedDay } }
 
+  /// The API's error for a request it declines for now (GET /trades/whatif in the session).
+  static let declinedForNow = "conflict"
+
   /// The bot's API at `url`, from the container, with the paired token only where it may go.
   private func client(_ url: URL) -> APIClient {
     Container.shared.apiClient(Container.shared.appModel().connection.endpoint(for: url))
@@ -83,8 +86,9 @@ final class ActivityModel {
   func whatIf(_ url: URL, symbol: String, day: WireDate, version: String) async -> Result<TradeWhatIfV1, WhatIfFailure> {
     do {
       return .success(try await client(url).tradeWhatIf(symbol: symbol, day: day, version: version))
-    } catch APIError.refused(_, _, let cause) {
-      return .failure(WhatIfFailure(cause: cause))
+    } catch APIError.refused(_, let error, let cause) {
+      // `conflict`: declined for now (the session is open); any other refusal is a failure.
+      return .failure(WhatIfFailure(cause: cause, refused: error == Self.declinedForNow))
     } catch {
       return .failure(WhatIfFailure(cause: ErrorText.text(error)))
     }
@@ -220,4 +224,7 @@ struct ActivityDayParts: Sendable {
 /// sent.
 struct WhatIfFailure: Error, Equatable {
   let cause: String
+  /// The API answered and declined (the regular session is open: "Available after 16:00 ET"):
+  /// a state to explain, not a failed read.
+  var refused = false
 }

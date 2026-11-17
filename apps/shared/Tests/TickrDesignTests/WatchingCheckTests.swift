@@ -92,7 +92,7 @@ private func row(
     // not flag it, so it reads as recorded, with no price rounding and no scale.
     let count = try row(measured: "1", op: ">=", threshold: "2", rule: "trigger_confirmation", closeness: "0.5",
       trigger: "2", invalidation: "0.5", againstTrigger: false)
-    #expect(WatchingCheck.state(count, prices: prices) == "1 · needs >= 2")
+    #expect(WatchingCheck.state(count, prices: prices) == "1 · needs ≥ 2")
     #expect(WatchingCheck.scale(count, prices: prices) == nil)
     #expect(abs((WatchingCheck.progress(count) ?? 0) - 0.5) < Self.tolerance)
     // An older bot (no levels sent): the check's own values in words, never a false comparison.
@@ -110,6 +110,18 @@ private func row(
     #expect(flag.valueText == "met")
   }
 
+  @Test("A check's numbers read as numbers: grouped, a price's decimals, signs not ASCII")
+  func checkValues() throws {
+    // Half rounds up: .2850 is .29, never the number style's half-to-even .28.
+    #expect(CheckValue.text(try #require(Decimal(string: "12627555.2850"))) == (try #require(Decimal(string: "12627555.29")))
+      .formatted(.number.precision(.fractionLength(2))))
+    #expect(CheckValue.text(5_000_000) == (5_000_000 as Decimal).formatted(.number.precision(.fractionLength(0))))
+    #expect(CheckValue.text(try #require(Decimal(string: "0.0031"))) == (0.0031 as Decimal)
+      .formatted(.number.precision(.fractionLength(0...4))))
+    #expect(CheckValue.symbol(">=") == "≥")
+    #expect(CheckValue.symbol(">") == ">")
+  }
+
   @Test("Only the bot's flag makes a check a price against the trigger, never equal numbers")
   func flagNotEquality() throws {
     // The same numbers, flagged and not: only the flagged one is a price with a distance.
@@ -118,7 +130,7 @@ private func row(
     #expect(WatchingCheck.scale(flagged, prices: prices) == "Empty at the invalidation 0.5000, full at the trigger 2.00")
     let count = try row(measured: "1", op: ">=", threshold: "2", rule: "trigger_confirmation", closeness: "0.5",
       trigger: "2", invalidation: "0.5", againstTrigger: false)
-    #expect(WatchingCheck.state(count, prices: prices) == "1 · needs >= 2")
+    #expect(WatchingCheck.state(count, prices: prices) == "1 · needs ≥ 2")
     #expect(WatchingCheck.scale(count, prices: prices) == nil)
   }
 

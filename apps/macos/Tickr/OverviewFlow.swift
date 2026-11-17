@@ -281,6 +281,7 @@ struct WatchingCard: View {
 /// bar of how far the measured value has come; without a measured distance, why instead of a bar.
 struct WatchingRow: View {
   let row: WatchingRowV1
+  @Environment(AppModel.self) private var model
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
@@ -291,6 +292,15 @@ struct WatchingRow: View {
           .foregroundStyle(Palette.textPrimary)
         VerdictTag(verdict: row.verdict)
         Spacer(minLength: 0)
+        // The symbol's live bid, as every other place shows it (the check below is the decision's
+        // own measurement, once a minute).
+        if let live = model.livePrice(row.symbol) {
+          Text(verbatim: Money.price(live.bid))
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textPrimary)
+            .contentTransition(.numericText())
+            .help(Text(L10n.Position.bid))
+        }
         quoteAge
       }
       Group {

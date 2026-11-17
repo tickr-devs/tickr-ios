@@ -380,8 +380,11 @@ extension CheckV1 {
     guard let measured, let threshold else {
       return String(localized: passed ? L10n.checkMet : L10n.checkNotMet)
     }
-    if passed { return [measured.text, `operator`, threshold.text].joined(separator: StageDetail.space) }
-    return String(localized: L10n.checkNeeds(measured.text, `operator`, threshold.text))
+    let m = CheckValue.text(measured.value)
+    let t = CheckValue.text(threshold.value)
+    let op = CheckValue.symbol(`operator`)
+    if passed { return [m, op, t].joined(separator: StageDetail.space) }
+    return String(localized: L10n.checkNeeds(m, op, t))
   }
 }
 

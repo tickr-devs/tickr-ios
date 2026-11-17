@@ -133,7 +133,7 @@ private struct CheckRow: View {
         .foregroundStyle(Palette.textSecondary)
         .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: Tokens.Space.xs)
-      Text(verbatim: check.measured?.text ?? Format.missing)
+      Text(verbatim: check.measured.map { CheckValue.text($0.value) } ?? Format.missing)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
     }

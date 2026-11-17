@@ -24,6 +24,17 @@ struct PreflightTests {
     #expect(results.allSatisfy { $0.outcome == .passed })
   }
 
+  @Test("Without an open position the stream is off by design: not needed, never failing")
+  func streamOffWithoutPosition() throws {
+    let text = try #require(String(data: try fixture("status-response-v1.json"), encoding: .utf8))
+      .replacingOccurrences(of: "\"stream\": \"fresh\"", with: "\"stream\": \"off\"")
+    let off = try Wire.decoder().decode(StatusResponseV1.self, from: Data(text.utf8))
+    #expect(off.status?.freshness.stream == .off)
+    let results = Preflight.run(status: off, readFailed: false, account: try account("account-response-v1.json"))
+    #expect(outcomes(results)[.streamFresh] == .notNeeded)
+    #expect(!results.contains { $0.outcome == .failed })
+  }
+
   @Test("Nothing read yet: every check is unknown, none passed")
   func nothingRead() {
     #expect(Preflight.run(status: nil, readFailed: false, account: nil).allSatisfy { $0.outcome == .unknown })

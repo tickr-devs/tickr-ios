@@ -4652,13 +4652,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "−N dropped here today"
+            "value" : "pink: dropped at this stage today"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "−N отсеяно здесь сегодня"
+            "value" : "розовым: отсеяно на этом этапе сегодня"
           }
         }
       }
@@ -10044,6 +10044,23 @@
         }
       }
     },
+    "settings.notNeeded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not needed now"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас не нужна"
+          }
+        }
+      }
+    },
     "settings.notReachable" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10329,6 +10346,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Стратегия"
+          }
+        }
+      }
+    },
+    "settings.streamNoPosition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "off · no open position"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "выкл. · нет открытой позиции"
           }
         }
       }

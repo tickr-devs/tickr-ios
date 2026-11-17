@@ -62,6 +62,16 @@ struct WatchingRow: View {
         // The verdict as every verdict tag on both apps: a `Badge` (WATCH in blue).
         Badge(row.verdict.title, color: row.verdict.color)
         Spacer(minLength: 0)
+        // The symbol's live bid, as every other place shows it (the check below is the decision's
+        // own measurement, once a minute).
+        if let live = Container.shared.appModel().livePrice(row.symbol) {
+          Text(verbatim: Money.price(live.bid))
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textPrimary)
+            .contentTransition(.numericText())
+            .accessibilityLabel(Text(L10n.Activity.hintBid))
+            .accessibilityValue(Text(verbatim: Money.price(live.bid)))
+        }
         Text(verbatim: Format.time(row.at.date))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)

@@ -215,6 +215,9 @@ struct PreflightSection: View {
     case .unknown:
       Image(systemName: "circle.dashed").foregroundStyle(Palette.textQuaternary)
         .accessibilityLabel(Text(L10n.Access.checking))
+    case .notNeeded:
+      Image(systemName: "minus.circle").foregroundStyle(Palette.textQuaternary)
+        .accessibilityLabel(Text(L10n.Settings.notNeeded))
     }
   }
 
@@ -250,7 +253,8 @@ struct PreflightSection: View {
     case .statusCurrent:
       return Format.age(model.response)
     case .streamFresh:
-      return status?.freshness.stream.title ?? L10n.Common.unknown
+      guard let stream = status?.freshness.stream else { return L10n.Common.unknown }
+      return stream == .off ? L10n.Settings.streamNoPosition : stream.title
     case .brokerMatches:
       guard let account = model.account?.account else { return L10n.Common.unknown }
       return L10n.Settings.brokerCounts(account.positions.count, account.orders.count)

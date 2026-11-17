@@ -89,6 +89,9 @@ struct AnotherStrategySheet: View {
       switch shown {
       case nil:
         Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows) }
+      case .failure(let failure) where failure.refused:
+        // Declined for now (the session is open), said as it is: not a failure.
+        InfoCaption(verbatim: failure.cause)
       case .failure(let failure):
         ReadFailureNote(L10n.ReadFailed.whatIf, detail: failure.cause)
       case .success(let found):

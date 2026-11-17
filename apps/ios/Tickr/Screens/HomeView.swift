@@ -787,9 +787,11 @@ private struct LiveFlowCard: View {
         VStack(spacing: Tokens.Space.s) {
           Divider().overlay(Palette.separator)
           HStack(spacing: Tokens.Space.s) {
-            Text(L10n.Flow.quotes(String(localized: status.freshness.stream.title)))
+            // Off is the bot's normal state while flat: said so, never just "off".
+            Text(L10n.Flow.quotes(String(localized: status.freshness.stream == .off
+              ? L10n.Settings.streamNoPosition : status.freshness.stream.title)))
             Spacer(minLength: Tokens.Space.s)
-            // The legend of the tiles' pink "−N".
+            // The legend of the tiles' pink counts.
             Text(L10n.Flow.droppedLegend)
               .foregroundStyle(Palette.droppedText)
           }
