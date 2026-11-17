@@ -44,7 +44,9 @@ final class ChartModel {
       guard let bars, !bars.bars.isEmpty else { return nil }
       plot = ChartPlot(bars: bars.bars, timeframe: timeframe, revision: revision)
     } else {
-      guard let rangeChart, rangeChart.range == range, rangeChart.interval == timeframe, !rangeChart.bars.isEmpty else {
+      // Only the regular session's candles are drawn (`WarmChart.regularSession`).
+      guard let rangeChart, rangeChart.range == range, rangeChart.interval == timeframe,
+        !WarmChart.regularSession(rangeChart.bars).isEmpty else {
         return nil
       }
       plot = ChartPlot(chart: rangeChart, warmup: rangeWarmup, revision: revision)

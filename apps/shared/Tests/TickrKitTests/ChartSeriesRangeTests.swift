@@ -194,6 +194,33 @@ struct ChartSeriesRangeTests {
     #expect(ChartRange.oneYear.warmup(for: .d1) == nil)
   }
 
+  @Test("Over five days only the regular session's candles are drawn, back to back")
+  func regularSessionOnly() throws {
+    let json = """
+      {"symbol": "ABCD", "interval": "1h", "range": "5d", "source": "webull", "cached_at": null,
+       "cause": null, "api_version": 1, "bars": [
+        {"start": "2026-11-13T19:30:00.000Z", "open": "10", "high": "10", "low": "10", "close": "10",
+         "volume": "100000", "extended": false},
+        {"start": "2026-11-13T21:00:00.000Z", "open": "14", "high": "15", "low": "9", "close": "11",
+         "volume": "300", "extended": true},
+        {"start": "2026-11-16T09:00:00.000Z", "open": "11", "high": "16", "low": "8", "close": "12",
+         "volume": "200", "extended": true},
+        {"start": "2026-11-16T14:30:00.000Z", "open": "12", "high": "12", "low": "12", "close": "12",
+         "volume": "100000", "extended": false}]}
+      """
+    let chart = try Wire.decoder().decode(ChartV1.self, from: Data(json.utf8))
+    let warm = WarmChart(chart: chart, warmup: nil)
+    #expect(warm.series.candles.map(\.extended) == [false, false])
+    #expect(warm.series.candles.map(\.close) == [10, 12])
+    // The thin after-hours and pre-market prints never stretch the price span.
+    #expect(warm.series.candles.map(\.high).max() == 12)
+    #expect(warm.series.vwap == [10, 12])
+    #expect(warm.atr.count == 2)
+    #expect(warm.studies.rsi.count == 2)
+    let gapless = warm.series.gapless()
+    #expect(gapless.candles[1].start == gapless.candles[0].end)
+  }
+
   @Test("Every offered interval is one GET /chart serves for its range")
   func offeredPairsAreServed() {
     for range in ChartRange.allCases {
