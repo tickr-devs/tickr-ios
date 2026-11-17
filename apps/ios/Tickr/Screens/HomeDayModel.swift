@@ -2,15 +2,16 @@ import Foundation
 import Observation
 import TickrKit
 
-/// Which day Home shows: today, live from the status, or a recorded past day stepped to with the
-/// day switcher, summarized from GET /days. A past day is read-only; nothing live is shown for it.
+/// Home's day switcher over the recorded days (GET /days). The day it steps to is the app's one
+/// shown day (`AppModel.selectedDay`), so every tab follows it. A past day is read-only; nothing
+/// live is shown for it.
 @MainActor
 @Observable
 final class HomeDayModel {
   /// Every recorded day, newest first, once listed.
   private(set) var days: [DaySummary] = []
-  /// The chosen past day; nil while today is shown.
-  private(set) var shown: DaySummary?
+  /// The shown past day's summary; nil while today is shown (or the day is not listed yet).
+  var shown: DaySummary? { app.selectedDay.flatMap { day in days.first { $0.day == day } } }
   /// The bot the days were listed from; another bot starts again from today.
   @ObservationIgnored private var source: URL?
   @ObservationIgnored @Injected(\.appModel) private var app
@@ -19,11 +20,11 @@ final class HomeDayModel {
   private var today: WireDate { app.today }
 
   /// The day the switcher stands on: the chosen past day, else today.
-  var day: WireDate { shown?.day ?? today }
+  var day: WireDate { app.shownDay }
   /// The switcher stands still: the demo day is the only day while its switch is on.
   var locked: Bool { app.connection.demo }
   var canGoBack: Bool { !locked && DaySteps.previous(day, in: days) != nil }
-  var canGoForward: Bool { shown != nil }
+  var canGoForward: Bool { app.selectedDay != nil }
   /// The ‹ › arrows: hidden while the day is locked or no other day is recorded, the one that
   /// leads nowhere disabled.
   var arrows: DayArrows { DayArrows(locked: locked, canGoBack: canGoBack, canGoForward: canGoForward) }
@@ -34,25 +35,24 @@ final class HomeDayModel {
     if source != url {
       source = url
       days = []
-      shown = nil
     }
     let client = Container.shared.apiClient(app.connection.endpoint(for: url))
     guard let listed = try? await client.days().days, source == url else { return }
     days = listed
     // A day no longer listed (another environment's database) is not shown as recorded.
-    if let shown, !listed.contains(where: { $0.day == shown.day }) { self.shown = nil }
+    if let picked = app.selectedDay, !listed.contains(where: { $0.day == picked }) { app.selectedDay = nil }
   }
 
   func back() {
     guard !locked else { return }
-    if let previous = DaySteps.previous(day, in: days) { shown = previous }
+    if let previous = DaySteps.previous(day, in: days) { app.selectedDay = previous.day }
   }
 
   /// One day forward; from the newest past day, back to today.
   func forward() {
-    guard shown != nil else { return }
-    shown = DaySteps.next(day, in: days, today: today)
+    guard app.selectedDay != nil else { return }
+    app.selectedDay = DaySteps.next(day, in: days, today: today)?.day
   }
 
-  func showToday() { shown = nil }
+  func showToday() { app.selectedDay = nil }
 }

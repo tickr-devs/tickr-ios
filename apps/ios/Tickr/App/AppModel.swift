@@ -60,7 +60,17 @@ final class AppModel {
   private(set) var config: ConfigV1?
   /// Why it could not be read, if it could not.
   private(set) var configError: String?
-  /// Today's live flow (GET /flow): stage counts and stops, read while Home is on screen.
+  /// The day every tab shows: nil = today, live; else a recorded past day. One day for the whole
+  /// app, as on the Mac: Home's arrows, Activity's calendar and the Chart's day menu all set it,
+  /// and every tab that shows a day's data reads this one (owner report 2026-11-17: Home showed
+  /// yesterday's P&L over nothing while every other tab stayed on today).
+  var selectedDay: WireDate? {
+    didSet {
+      guard selectedDay != oldValue else { return }
+      dayChanged()
+    }
+  }
+  /// The shown day's flow (GET /flow): stage counts and stops, read while Home is on screen.
   private(set) var flow: FlowV1?
   /// Why the flow could not be read, if it could not.
   private(set) var flowError: String?
@@ -93,6 +103,8 @@ final class AppModel {
   private(set) var botClockOffset: TimeInterval = 0
 
   @ObservationIgnored private var pollTask: Task<Void, Never>?
+  /// The read of a newly shown day; another day cancels it.
+  @ObservationIgnored private var dayRead: Task<Void, Never>?
   @ObservationIgnored private var quotesTask: Task<Void, Never>?
   /// The bot's live quotes (GET /quotes), read every `settings.quotes_poll_seconds` while the app
   /// runs: every live price the app shows comes from here.
@@ -124,6 +136,10 @@ final class AppModel {
   }
   /// The bot's trading day: today in New York on the bot's clock.
   var today: WireDate { WireDate(newYorkDateOf: botNow) }
+  /// The day every tab shows: the picked past day, else today.
+  var shownDay: WireDate { selectedDay ?? today }
+  /// Today is shown, live from the status.
+  var isLive: Bool { selectedDay == nil }
   var isConfigured: Bool { connection.url != nil }
 
   var headline: Headline {
@@ -224,7 +240,23 @@ final class AppModel {
     movers = nil
     moversError = nil
     flowAnsweredDay = nil
+    selectedDay = nil
     start()
+  }
+
+  /// Another day is shown: what was read of the day before goes at once (the screens show the
+  /// new day's loading state, never the old day's figures under the new day), and its flow,
+  /// skipped signals, symbols and fast movers are read now.
+  private func dayChanged() {
+    flow = nil
+    flowError = nil
+    skipped = nil
+    symbols = nil
+    symbolsError = nil
+    movers = nil
+    moversError = nil
+    dayRead?.cancel()
+    dayRead = Task { await refreshFlow() }
   }
 
   func refresh() async {
@@ -342,14 +374,26 @@ final class AppModel {
     }
   }
 
-  /// Reads today's live flow; the answer is dropped when the address or the day changed meanwhile.
+  /// Reads the shown day's flow, skipped signals, symbols and fast movers, all at once; an answer
+  /// is dropped when the address or the shown day changed meanwhile.
   func refreshFlow() async {
     guard let url = connection.url else { return }
-    let day = today
+    let day = shownDay
     let client = Container.shared.apiClient(connection.endpoint(for: url))
+    async let flowRead: Void = readFlow(client, url: url, day: day)
+    async let skippedRead: Void = readSkipped(client, url: url, day: day)
+    async let symbolsRead: Void = refreshSymbols(client, url: url, day: day)
+    async let moversRead: Void = refreshMovers(client, url: url, day: day)
+    _ = await (flowRead, skippedRead, symbolsRead, moversRead)
+  }
+
+  /// Whether an answer read for `day` from `url` is still the one to show.
+  private func stillShown(_ url: URL, _ day: WireDate) -> Bool { connection.url == url && day == shownDay }
+
+  private func readFlow(_ client: APIClient, url: URL, day: WireDate) async {
     do {
       let read = try await client.flow(day: day)
-      guard connection.url == url, day == today else { return }
+      guard stillShown(url, day) else { return }
       flow = read
       flowError = nil
       flowAnsweredDay = day
@@ -357,17 +401,19 @@ final class AppModel {
       return
     } catch {
       // Old counts prove nothing about the day now.
-      guard connection.url == url, day == today else { return }
+      guard stillShown(url, day) else { return }
       flow = nil
       flowError = Self.describe(error) ?? flowError
       flowAnsweredDay = day
     }
-    // The refusals only place refused symbols on the board; without them they stay where they
-    // stopped, so a failed read is not an error of its own.
+  }
+
+  /// The refusals only place refused symbols on the board; without them they stay where they
+  /// stopped, so a failed read is not an error of its own.
+  private func readSkipped(_ client: APIClient, url: URL, day: WireDate) async {
     let refusals = try? await client.skipped(day: day)
-    guard connection.url == url, day == today else { return }
+    guard stillShown(url, day) else { return }
     skipped = refusals
-    await refreshSymbols(client, url: url, day: day)
   }
 
   /// Today's price line of `symbol` for the Symbols detail, against `previousClose`
@@ -375,43 +421,47 @@ final class AppModel {
   func symbolDayLine(_ symbol: String, previousClose: Decimal?) async -> SymbolDayLine? {
     guard let url = connection.url else { return nil }
     let client = Container.shared.apiClient(connection.endpoint(for: url))
-    return await SymbolDayLine.read(symbol, day: symbols?.day ?? today, today: today,
+    return await SymbolDayLine.read(symbol, day: symbols?.day ?? shownDay, today: today,
       previousClose: previousClose, client: client)
   }
 
-  /// Reads today's symbols and fast movers (the funnel's Quote and Bars, the Symbols screen and
-  /// the Fast movers card); an answer is dropped when the address or the day changed meanwhile.
+  /// Reads the shown day's symbols (the funnel's Quote and Bars, the Symbols screen); an answer is
+  /// dropped when the address or the shown day changed meanwhile.
   private func refreshSymbols(_ client: APIClient, url: URL, day: WireDate) async {
     do {
       let read = try await client.symbols(day: day)
-      guard connection.url == url, day == today else { return }
+      guard stillShown(url, day) else { return }
       symbols = read
       symbolsError = nil
     } catch is CancellationError {
       return
     } catch {
-      guard connection.url == url, day == today else { return }
+      guard stillShown(url, day) else { return }
       symbols = nil
       symbolsError = Self.describe(error) ?? symbolsError
     }
+  }
+
+  /// Reads the shown day's fast movers (the Fast movers card), likewise.
+  private func refreshMovers(_ client: APIClient, url: URL, day: WireDate) async {
     do {
       let read = try await client.movers(day: day)
-      guard connection.url == url, day == today else { return }
+      guard stillShown(url, day) else { return }
       movers = read
       moversError = nil
     } catch is CancellationError {
       return
     } catch {
-      guard connection.url == url, day == today else { return }
+      guard stillShown(url, day) else { return }
       movers = nil
       moversError = Self.describe(error) ?? moversError
     }
   }
 
-  /// The first /flow answer for today has not come yet (a new address, a new day).
-  var flowPending: Bool { flowAnsweredDay != today }
+  /// The first /flow answer for the shown day has not come yet (a new address, a new day).
+  var flowPending: Bool { flowAnsweredDay != shownDay }
 
-  /// Reads today's live flow every `flowSeconds` until cancelled; used while Home is on screen.
+  /// Reads the shown day's flow every `flowSeconds` until cancelled; used while Home is on screen.
   func followFlow() async {
     while !Task.isCancelled {
       await refreshFlow()

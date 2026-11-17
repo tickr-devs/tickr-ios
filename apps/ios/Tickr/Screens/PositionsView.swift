@@ -13,14 +13,25 @@ struct PositionsView: View {
   var body: some View {
     Screen(L10n.App.positions, tab: .positions) {
       // The slots in use, mono and dim at the end of the title row, as on the design.
-      if let status = model.status, let limit = model.settings?.risk.maxOpenPositions {
+      if model.isLive, let status = model.status, let limit = model.settings?.risk.maxOpenPositions {
         Text(L10n.Positions.slots(status.positions.count, limit))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
           .contentTransition(.numericText())
       }
     } content: {
-      if let status = model.status {
+      if !model.isLive {
+        // A recorded day has no open positions: they are today's, live. What it watched follows.
+        Text(L10n.Home.pastDayNote(DayText.day(model.shownDay.noonInNewYork)))
+          .font(.subheadline)
+          .foregroundStyle(Palette.textTertiary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(Tokens.Space.l)
+          .tickrCard()
+          .rise()
+        WatchingCard(watching: watching.watching, failure: watching.failure)
+          .rise(step: PositionDetail.Order.watching.rawValue)
+      } else if let status = model.status {
         let positions = Board.positions(status)
         if positions.isEmpty {
           ContentUnavailableView {
@@ -50,12 +61,12 @@ struct PositionsView: View {
     .refreshable {
       await model.refresh()
       if let url = model.connection.url, let status = model.status { await prices.load(url, status: status) }
-      if let url = model.connection.url { await watching.load(url, day: model.today) }
+      if let url = model.connection.url { await watching.load(url, day: model.shownDay) }
     }
     .task(id: model.connection.url) { await model.followAccount() }
-    .task(id: WatchKey(url: model.connection.url, day: model.today)) {
+    .task(id: WatchKey(url: model.connection.url, day: model.shownDay)) {
       guard let url = model.connection.url else { return }
-      await watching.follow(url, day: model.today)
+      await watching.follow(url, day: model.shownDay)
     }
     .task(id: followKey) {
       guard let url = model.connection.url, let status = model.status, !status.positions.isEmpty else { return }

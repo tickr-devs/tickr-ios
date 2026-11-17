@@ -22,3 +22,27 @@ import TickrKit
     #expect(cause.contains(day.day.text))
   }
 }
+
+/// One shown day for every tab (owner report 2026-11-17: Home stepped to yesterday while every
+/// other tab stayed on today).
+@MainActor
+@Suite struct SharedDayTests {
+  @Test func todayIsShownUntilADayIsPicked() {
+    let app = AppModel()
+    #expect(app.isLive)
+    #expect(app.shownDay == app.today)
+  }
+
+  @Test func aPickedDayIsTheShownDayAndItsPartsStartEmpty() throws {
+    let app = AppModel()
+    let past = try WireDate("2026-11-13")
+    app.selectedDay = past
+    #expect(!app.isLive)
+    #expect(app.shownDay == past)
+    // Nothing of the day shown before stays under the new one.
+    #expect(app.flow == nil && app.symbols == nil && app.movers == nil && app.skipped == nil)
+    #expect(app.flowPending)
+    app.selectedDay = nil
+    #expect(app.isLive)
+  }
+}

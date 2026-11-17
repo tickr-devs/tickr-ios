@@ -30,6 +30,15 @@ import Testing
     #expect(abs(ShimmerBandView.offset(width: 100, share: Tokens.Loading.shimmerTo) - 30) < 1e-9)
   }
 
+  @Test("Every skeleton sweeps on one clock: two started apart are at the same point of the sweep")
+  func sharedSweepClock() {
+    let seconds = Tokens.Loading.shimmerSeconds
+    let first = ShimmerBandView.sweepPhase(at: 1_000.25)
+    let later = ShimmerBandView.sweepPhase(at: 1_000.25 + 3 * seconds)
+    #expect(abs(first - later) < 1e-6)
+    #expect(first >= 0 && first < seconds)
+  }
+
   @Test("A 90° gradient runs left to right across the middle; 110° leans down to the right")
   func gradientPoints() {
     let flat = ShimmerBandView.gradientPoints(size: CGSize(width: 200, height: 50), degrees: 90)

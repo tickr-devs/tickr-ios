@@ -21,8 +21,9 @@ final class ActivityModel {
   private(set) var days: [DaySummary] = []
   /// Why the recorded days could not be listed, if they could not.
   private(set) var daysFailure: String?
-  /// The chosen past day; nil while today is shown.
-  private(set) var selectedDay: WireDate?
+  /// The chosen past day, the app's one shown day (`AppModel.selectedDay`); nil while today is
+  /// shown.
+  var selectedDay: WireDate? { Container.shared.appModel().selectedDay }
   /// The chosen past day's trades, once loaded.
   private(set) var day: DayV1?
   /// The record of the status's session (GET /days/<date>), for what the status leaves out.
@@ -37,12 +38,17 @@ final class ActivityModel {
   var month = DayCalendar.Month(Container.shared.appModel().today)
   /// Number of the newest load of a day; an answer to an older one is dropped.
   @ObservationIgnored private var latestRequest = 0
+  /// The past day this tab last began reading; another tab's pick is read when it differs.
+  @ObservationIgnored private var askedDay: WireDate?
   /// Number of the newest load of the days list, likewise.
   @ObservationIgnored private var latestDaysRequest = 0
   /// The bot's address `session` was read from.
   @ObservationIgnored private var sessionSource: URL?
   /// The bot's address the days were listed from; another address starts again from today.
   @ObservationIgnored private var source: URL?
+  /// What was read of the past days shown last: a day picked again shows at once, then is read
+  /// again behind it (`PastDays`, as on the Mac).
+  @ObservationIgnored private var pastDays = PastDays<ActivityDayParts>()
 
   /// Today in New York, on the bot's clock.
   var today: WireDate { Container.shared.appModel().today }
@@ -90,6 +96,7 @@ final class ActivityModel {
     if url != source {
       source = url
       days = []
+      pastDays = PastDays()
       showToday()
     }
     latestDaysRequest += 1
@@ -125,15 +132,17 @@ final class ActivityModel {
   /// Read the skipped entries of `day`. Another day's list is never shown under this one.
   func loadSkipped(_ url: URL, day: WireDate) async {
     if skippedDay != day {
-      skipped = nil
+      skipped = pastDays.parts(of: day)?.skipped
       skippedFailure = nil
       skippedDay = day
     }
     do {
       let read = try await client(url).skipped(day: day)
       guard read.day == day, day == skippedDay else { return }
-      skipped = SkippedGroup.make(read.signals)
+      let groups = SkippedGroup.make(read.signals)
+      skipped = groups
       skippedFailure = nil
+      pastDays.keep(day, today: today, empty: ActivityDayParts()) { $0.skipped = groups }
     } catch is CancellationError {
       return
     } catch {
@@ -149,14 +158,18 @@ final class ActivityModel {
       return
     }
     let request = begin()
-    selectedDay = day
-    self.day = nil
-    phase = .loading
+    askedDay = day
+    Container.shared.appModel().selectedDay = day
+    month = DayCalendar.Month(day)
+    // A day read before shows at once; it is read again behind it.
+    self.day = pastDays.parts(of: day)?.day
+    phase = self.day == nil ? .loading : .loaded
     do {
       let loaded = try await client(url).day(day)
       guard request == latestRequest else { return }
       phase = Self.phase(of: loaded, asked: day)
-      if phase == .loaded { self.day = loaded }
+      self.day = phase == .loaded ? loaded : nil
+      if phase == .loaded { pastDays.keep(day, today: today, empty: ActivityDayParts()) { $0.day = loaded } }
     } catch {
       // A cancelled load (a refresh cut short by leaving the tab) fails too, so the day offers
       // a retry instead of a spinner that never ends.
@@ -173,16 +186,34 @@ final class ActivityModel {
   /// Back to today, live from the status.
   func showToday() {
     _ = begin()
-    selectedDay = nil
+    askedDay = nil
+    Container.shared.appModel().selectedDay = nil
     day = nil
     phase = .idle
     month = DayCalendar.Month(today)
+  }
+
+  /// Follows the app's shown day when another tab changed it (Home's arrows, the Chart's day
+  /// menu): reads that day's trades, or goes back to today.
+  func follow(from url: URL) async {
+    if let picked = selectedDay {
+      guard picked != askedDay else { return }  // read (or being read) here already
+      await show(picked, from: url)
+    } else if phase != .idle {
+      showToday()
+    }
   }
 
   private func begin() -> Int {
     latestRequest += 1
     return latestRequest
   }
+}
+
+/// What the phone read of one past day (`ActivityModel.pastDays`); a part not read yet is nil.
+struct ActivityDayParts: Sendable {
+  var day: DayV1?
+  var skipped: [SkippedGroup]?
 }
 
 /// Why a what-if of another version could not be shown: the bot's refusal or a failed read, as

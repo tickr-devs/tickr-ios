@@ -248,6 +248,11 @@ final class ShimmerBandView: PlatformView {
     }
   }
 
+  /// How far into its current sweep the shared clock is at media time `now`, in seconds.
+  static func sweepPhase(at now: CFTimeInterval) -> CFTimeInterval {
+    now.truncatingRemainder(dividingBy: Tokens.Loading.shimmerSeconds)
+  }
+
   /// Start and end of a CSS linear gradient at `degrees` over a box of `size`, in the layer's
   /// unit coordinates (y downward): the gradient line runs through the centre, as long as the
   /// box's extent along it.
@@ -270,11 +275,16 @@ final class ShimmerBandView: PlatformView {
     (width - width * Tokens.Loading.shimmerWidth) * share
   }
 
-  /// The band sweeps from `shimmerFrom` to `shimmerTo`, ease-in-out, again and again.
+  /// The band sweeps from `shimmerFrom` to `shimmerTo`, ease-in-out, again and again. Every
+  /// skeleton sweeps on one clock (`sweepPhase`): the cards of a screen shimmer together, and a
+  /// skeleton laid out again (another size) goes on where the sweep is instead of jumping back to
+  /// its start, which read as a jerky loader (owner report 2026-11-17).
   private func startSweep() {
     let width = bounds.width
     guard width > 0 else { return }
+    let now = CACurrentMediaTime()
     let sweep = CABasicAnimation(keyPath: Self.translationPath)
+    sweep.beginTime = band.convertTime(now, from: nil) - Self.sweepPhase(at: now)
     sweep.fromValue = Self.offset(width: width, share: Tokens.Loading.shimmerFrom)
     sweep.toValue = Self.offset(width: width, share: Tokens.Loading.shimmerTo)
     sweep.duration = Tokens.Loading.shimmerSeconds

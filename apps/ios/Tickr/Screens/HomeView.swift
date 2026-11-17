@@ -17,7 +17,7 @@ struct HomeView: View {
   /// Whether Home's looping ornaments (the brand mark's halo, the ticker's scroll) move: they read
   /// as "the bot is at work", so only on the live day with a fresh status while the bot runs.
   private var ornamentMoves: Bool {
-    guard dayModel.shown == nil else { return false }
+    guard model.isLive else { return false }
     return OrnamentGate.moves(reduceMotion: reduceMotion, current: model.showsLiveStatus,
       botState: model.status?.botState)
   }
@@ -41,9 +41,9 @@ struct HomeView: View {
         showControl = true
       } label: {
         HeaderIcon(.power)
-          .foregroundStyle(model.canCommand && dayModel.shown == nil ? powerTint : Palette.textQuaternary)
+          .foregroundStyle(model.canCommand && model.isLive ? powerTint : Palette.textQuaternary)
       }
-      .disabled(!model.canCommand || dayModel.shown != nil)
+      .disabled(!model.canCommand || !model.isLive)
       .accessibilityLabel(Text(L10n.Control.title))
       .accessibilityIdentifier(AccessibilityID.botControl)
       NavigationLink {
@@ -61,15 +61,25 @@ struct HomeView: View {
       }
       DayLine(days: dayModel).rise(step: Order.day.rawValue)
       Summary(past: dayModel.shown).rise(step: Order.summary.rawValue)
-      if let past = dayModel.shown {
-        // A recorded day: its result above, nothing live below.
-        Text(L10n.Home.pastDayNote(DayText.day(past.day.noonInNewYork)))
+      if !model.isLive, let status = model.status {
+        // A recorded day: its result above, then what it recorded (the flow, its fast movers);
+        // nothing live (no positions, quotes or fences of today).
+        Text(L10n.Home.pastDayNote(DayText.day(model.shownDay.noonInNewYork)))
           .font(.subheadline)
           .foregroundStyle(Palette.textTertiary)
           .frame(maxWidth: .infinity, alignment: .leading)
           .padding(Tokens.Space.l)
           .tickrCard()
           .rise(step: Order.positions.rawValue)
+        let dayFlow = model.flow?.day == model.shownDay ? model.flow : nil
+        LiveFlowCard(status: status, flow: dayFlow, flowPending: model.flowPending,
+          slotLimit: model.settings?.risk.maxOpenPositions, current: false, recorded: true,
+          sources: StageSources(flow: dayFlow, skipped: model.skipped?.day == model.shownDay ? model.skipped : nil,
+            watching: nil, status: nil, settings: model.settings),
+          symbols: model.symbols?.day == model.shownDay ? model.symbols : nil)
+          .rise(step: Order.flow.rawValue)
+        FastMoversCard(movers: model.movers?.day == model.shownDay ? model.movers : nil, failure: model.moversError)
+          .rise(step: Order.movers.rawValue)
       } else if let status = model.status {
         if let strip = EventStrip.make(status: status,
           skipped: model.skipped?.day == model.today ? model.skipped : nil) {
@@ -93,7 +103,7 @@ struct HomeView: View {
         let current = model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today
         LiveFlowCard(status: status, flow: todayFlow, flowPending: model.flowPending,
           slotLimit: model.settings?.risk.maxOpenPositions,
-          current: current,
+          current: current, recorded: false,
           // The status only while it is current, as the stages' own values.
           sources: StageSources(flow: todayFlow, skipped: todaySkipped, watching: nil,
             status: current ? status : nil, settings: model.settings),
@@ -543,6 +553,9 @@ private struct LiveFlowCard: View {
   let slotLimit: Int?
   /// The status is fresh and describes today's session.
   let current: Bool
+  /// A recorded past day: every value comes from that day's flow and symbols, nothing from the
+  /// status (today's), and nothing is live.
+  let recorded: Bool
   /// What the reconcile stage's detail is built from (`StageDetail`).
   let sources: StageSources
   /// Today's symbols by the stage they got to: the Quote and Bars counts; nil until read.
@@ -626,13 +639,13 @@ private struct LiveFlowCard: View {
   }
 
   private var stages: [Stage] {
-    let positions = status.positions
+    let positions = recorded ? [] : status.positions
     let verified = positions.filter { $0.stop.state.isProtected }.count
     let flowVerified = flow?.stops.filter { $0.state == .verified }.count
     // The one stage rule of both apps (`StopState.stageTone`): neutral with no position, else the
     // worst of the open and the day's stops.
     let stopTone = StopState.stageTone(open: positions.map(\.stop.state), day: (flow?.stops ?? []).map(\.state))
-    guard current else {
+    guard current || recorded else {
       // Nothing here is live: no counts, no green, nothing breathing.
       return StageID.allCases.map { id in
         Stage(id: id, name: Self.names[id.rawValue], value: nil, color: Palette.textQuaternary)
@@ -645,10 +658,12 @@ private struct LiveFlowCard: View {
       flow.map { Self.stops(flowVerified ?? 0, of: $0.stops.count) }
     }
     // The day's count stays; an entry block shows under it, red when it needs the operator.
-    let blocked = !status.entriesAllowed && !status.entriesCalm
+    let blocked = !recorded && !status.entriesAllowed && !status.entriesCalm
     let riskCount = count(.risk)
-    // With a flow, every count comes from it; the status's numbers only stand in when /flow failed.
-    let fromStatus = flow == nil
+    // With a flow, every count comes from it; the status's numbers only stand in when /flow failed,
+    // and never for a recorded day (they are today's).
+    let fromStatus = flow == nil && !recorded
+    let allowed = recorded || status.entriesAllowed
     return [
       Stage(id: .screen, name: L10n.Flow.screen, value: count(.screeners), color: Palette.accent),
       Stage(id: .stocks, name: L10n.Flow.stocks, value: count(.universe), color: Palette.seriesUniverse),
@@ -657,10 +672,10 @@ private struct LiveFlowCard: View {
       Stage(id: .strategy, name: L10n.Flow.strategy,
         value: count(.strategy) ?? (fromStatus ? status.strategy.version : nil), color: Palette.highlight),
       Stage(id: .risk, name: L10n.Flow.risk,
-        value: riskCount ?? (status.entriesAllowed ? RiskFormat.amount(status.dailyRoomUsd?.value) : nil),
-        color: blocked ? Palette.loss : status.entriesAllowed ? Palette.warning : Palette.textQuaternary,
+        value: riskCount ?? (fromStatus && status.entriesAllowed ? RiskFormat.amount(status.dailyRoomUsd?.value) : nil),
+        color: blocked ? Palette.loss : allowed ? Palette.warning : Palette.textQuaternary,
         urgent: blocked,
-        flag: status.entriesAllowed ? nil : blocked ? L10n.Flow.blocked : L10n.Risk.notNow,
+        flag: allowed ? nil : blocked ? L10n.Flow.blocked : L10n.Risk.notNow,
         flagColor: blocked ? Palette.lossText : Palette.textQuaternary),
       Stage(id: .order, name: L10n.Flow.order,
         value: count(.order) ?? (fromStatus ? String(status.tradesToday.count) : nil), color: Palette.info),
@@ -673,7 +688,7 @@ private struct LiveFlowCard: View {
   /// Live fences first (the status is newer than any reconciliation), then the latest
   /// reconciliation's match or mismatch; without one, no value (never read as fine).
   private var reconcileStage: Stage {
-    let fences = status.fences
+    let fences = liveFences
     let agreement = flow?.reconcile.agreement
     let value: LocalizedStringResource? = if !fences.isEmpty {
       L10n.FlowStages.fences(fences.count)
@@ -703,7 +718,7 @@ private struct LiveFlowCard: View {
   /// How many symbols `stage` dropped today (the Symbols screen's "dropped here" rows); nil until
   /// the symbols are read, or for a stage that drops none.
   private func dropped(_ stage: StageID) -> Int? {
-    guard current, let symbols, let here = stage.symbolStage else { return nil }
+    guard current || recorded, let symbols, let here = stage.symbolStage else { return nil }
     let count = symbols.rows.filter { $0.stage == here && $0.state == .dropped }.count
     return count > 0 ? count : nil
   }
@@ -738,16 +753,19 @@ private struct LiveFlowCard: View {
         }
         Spacer(minLength: 0)
         HStack(alignment: .center, spacing: Tokens.Space.s) {
-          if !current {
+          if !current && !recorded {
             Text(L10n.Flow.notCurrent)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.warningText)
               .fixedSize(horizontal: false, vertical: true)
           }
-          StateGlyph(Self.streamSymbol, tone: streamTone,
-            label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
-            live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
-          BrokerReadAge(readAt: status.freshness.lastBrokerReadAt, alarm: current)
+          // Today's quote stream and broker read say nothing about a recorded day.
+          if !recorded {
+            StateGlyph(Self.streamSymbol, tone: streamTone,
+              label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
+              live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
+            BrokerReadAge(readAt: status.freshness.lastBrokerReadAt, alarm: current)
+          }
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -761,7 +779,7 @@ private struct LiveFlowCard: View {
         }
       }
       // Until the first /flow read answers, a placeholder instead of numbers that would jump.
-      .redacted(reason: current && flowPending ? .placeholder : [])
+      .redacted(reason: (current || recorded) && flowPending ? .placeholder : [])
       // The quote stream in words and the trays' legend, under a hairline, as on the design.
       if current {
         VStack(spacing: Tokens.Space.s) {
@@ -777,7 +795,7 @@ private struct LiveFlowCard: View {
           .foregroundStyle(Palette.textQuaternary)
         }
       }
-      ForEach(status.fences, id: \.kind) { fence in
+      ForEach(liveFences, id: \.kind) { fence in
         Label { Text(verbatim: Board.fenceText(fence, status: status)) } icon: {
           Image(systemName: "exclamationmark.triangle.fill")
         }
@@ -789,6 +807,9 @@ private struct LiveFlowCard: View {
     .padding(.vertical, Tokens.Space.m)
     .tickrCard()
   }
+
+  /// Today's fences from the status; none on a recorded day.
+  private var liveFences: [Fence] { recorded ? [] : status.fences }
 
   /// Stage names, in `StageID` order.
   private static let names = [L10n.Flow.screen, L10n.Flow.stocks, L10n.FlowStages.quote, L10n.FlowStages.bars,

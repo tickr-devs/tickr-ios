@@ -67,6 +67,11 @@ struct ActivityView: View {
       guard let url = model.connection.url else { return }
       await activity.loadDays(url)
     }
+    // The app's one shown day: another tab's pick (Home's arrows, the Chart's day menu) shows here.
+    .task(id: ShownDayKey(url: model.connection.url, day: model.selectedDay)) {
+      guard let url = model.connection.url else { return }
+      await activity.follow(from: url)
+    }
     .task(id: skippedKey) {
       guard let url = model.connection.url, let day = skippedKey.day else { return }
       // Today's refusals keep coming without a trade closing: read them again while today shows.
@@ -98,6 +103,11 @@ struct ActivityView: View {
   private var sessionKey: SessionKey {
     SessionKey(url: model.connection.url, day: model.status.map(activity.sessionDay(of:)),
       trades: model.status?.tradesToday.count ?? 0)
+  }
+
+  private struct ShownDayKey: Hashable {
+    let url: URL?
+    let day: WireDate?
   }
 
   /// The day the Not taken pane lists (the chosen past day, else the status's session), with the

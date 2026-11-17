@@ -54,7 +54,7 @@ struct SymbolsView: View {
   /// "Mon Nov 16 · 10:48 ET · 412 screened": the day, the end of the latest discovery pass and how
   /// many symbols the screeners listed; the bot's cause when no pass is recorded.
   private var context: String {
-    let day = DayText.day(model.today)
+    let day = DayText.day(model.shownDay)
     guard let symbols = model.symbols else {
       return [day, model.symbolsError.map { String(localized: L10n.Symbols.unavailable($0)) }]
         .compactMap { $0 }.joined(separator: Format.separator)
@@ -526,7 +526,10 @@ private struct SymbolDetailScreen: View {
               .foregroundStyle((shown.changePct ?? 0) < 0 ? Palette.droppedText : Palette.profitText)
           }
           Spacer(minLength: Tokens.Space.s)
-          Text(SymbolsText.today)
+          // The shown day: "today", or the recorded day the line is of.
+          Group {
+            if model.isLive { Text(SymbolsText.today) } else { Text(verbatim: DayText.day(model.shownDay)) }
+          }
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
         }

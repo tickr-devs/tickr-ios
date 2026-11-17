@@ -221,6 +221,9 @@ public final class AppModel {
   public private(set) var dayError: String?
   /// The read of the picked day that is under way; a newer pick cancels it.
   @ObservationIgnored private var dayLoad: Task<Void, Never>?
+  /// What was read of the past days shown last: a day picked again shows at once, then is read
+  /// again behind it (`PastDays`).
+  @ObservationIgnored private var pastDays = PastDays<DayParts>()
   public private(set) var todayDocument: DayV1?
   /// Observers with their decisions on the shown day; nil until read.
   public private(set) var observers: ObserversV1?
@@ -616,9 +619,10 @@ public final class AppModel {
     } catch {
       historyError = Self.describe(error) ?? historyError
     }
-    await refreshObservers()
-    await refreshSkipped()
-    await refreshPerformance()
+    async let observersRead: Void = refreshObservers()
+    async let skippedRead: Void = refreshSkipped()
+    async let performanceRead: Void = refreshPerformance()
+    _ = await (observersRead, skippedRead, performanceRead)
   }
 
   /// Reads the Lab's replay; a failed read clears it, so an old result never reads as current.
@@ -748,6 +752,7 @@ public final class AppModel {
       guard day == shownDay else { return }
       observers = document
       observersError = nil
+      keep(day) { $0.observers = document }
     } catch {
       guard day == shownDay else { return }
       observers = nil
@@ -764,6 +769,7 @@ public final class AppModel {
       guard day == shownDay else { return }
       skipped = document
       skippedError = nil
+      keep(day) { $0.skipped = document }
     } catch {
       guard day == shownDay else { return }
       skipped = nil
@@ -780,6 +786,7 @@ public final class AppModel {
       guard day == shownDay else { return }
       performance = document
       performanceError = nil
+      keep(day) { $0.performance = document }
     } catch {
       guard day == shownDay else { return }
       performance = nil
@@ -787,45 +794,70 @@ public final class AppModel {
     }
   }
 
-  /// Reads the shown day's flow, watched symbols, symbols and fast movers. An answer for a day
-  /// no longer shown is dropped; a failed read clears its part, so an old one never reads as current.
+  /// Reads the shown day's flow, watched symbols, symbols and fast movers, all at once. An answer
+  /// for a day no longer shown is dropped; a failed read clears its part, so an old one never
+  /// reads as current.
   public func refreshFlow() async {
+    async let flowRead: Void = refreshFlowOnly()
+    async let watchingRead: Void = refreshWatching()
+    async let symbolsRead: Void = refreshSymbols()
+    async let moversRead: Void = refreshMovers()
+    _ = await (flowRead, watchingRead, symbolsRead, moversRead)
+  }
+
+  private func refreshFlowOnly() async {
     let day = shownDay
     do {
       let document = try await client.flow(day: day)
       guard day == shownDay else { return }
       flow = document
       flowError = nil
+      keep(day) { $0.flow = document }
     } catch {
       guard day == shownDay else { return }
       flow = nil
       flowError = Self.describe(error) ?? flowError
     }
+  }
+
+  private func refreshWatching() async {
+    let day = shownDay
     do {
       let document = try await client.watching(day: day)
       guard day == shownDay else { return }
       watching = document
       watchingError = nil
+      keep(day) { $0.watching = document }
     } catch {
       guard day == shownDay else { return }
       watching = nil
       watchingError = Self.describe(error) ?? watchingError
     }
+  }
+
+  private func refreshSymbols() async {
+    let day = shownDay
     do {
       let document = try await client.symbols(day: day)
       guard day == shownDay else { return }
       symbols = document
       symbolsError = nil
+      keep(day) { $0.symbols = document }
     } catch {
       guard day == shownDay else { return }
       symbols = nil
       symbolsError = Self.describe(error) ?? symbolsError
     }
+  }
+
+  private func refreshMovers() async {
+    let day = shownDay
     do {
       let document = try await client.movers(day: day)
       guard day == shownDay else { return }
       movers = document
       moversError = nil
+      keep(day) { $0.movers = document }
     } catch {
       guard day == shownDay else { return }
       movers = nil
@@ -833,39 +865,51 @@ public final class AppModel {
     }
   }
 
-  /// Starts reading the picked day: what was shown for the earlier pick goes at once, so the
-  /// screen says the new day is being read instead of showing the old one under its title.
+  /// Starts reading the picked day. What was shown for the earlier pick goes at once, so the
+  /// screen never shows the old day under the new title: a past day read before shows what was
+  /// read of it, any other day its loading state, until the reads answer.
   private func beginDayLoad() {
     dayLoad?.cancel()
-    dayDocument = nil
-    dayError = nil
+    show(selectedDay.flatMap { pastDays.parts(of: $0) } ?? DayParts())
     dayLoad = Task { await loadSelectedDay() }
   }
 
-  /// Reads the picked day: its trades first, the document every screen of a past day shows, then
-  /// the rest of the day (flow, symbols, observers, skipped signals, performance). Those reads
-  /// can take the API seconds each for a busy day; read first, they held the trades back for
-  /// over a minute (owner report 2026-11-17), and the screen looked as if the pick did nothing.
-  private func loadSelectedDay() async {
-    await readSelectedDayDocument()
-    guard !Task.isCancelled else { return }
-    observers = nil
-    skipped = nil
-    skippedError = nil
-    performance = nil
-    performanceError = nil
-    flow = nil
+  /// Shows `parts` as the shown day's, with no read failure.
+  private func show(_ parts: DayParts) {
+    dayDocument = parts.document
+    dayError = nil
+    flow = parts.flow
     flowError = nil
-    watching = nil
+    watching = parts.watching
     watchingError = nil
-    symbols = nil
+    symbols = parts.symbols
     symbolsError = nil
-    movers = nil
+    movers = parts.movers
     moversError = nil
-    await refreshFlow()
-    await refreshObservers()
-    await refreshSkipped()
-    await refreshPerformance()
+    observers = parts.observers
+    observersError = nil
+    skipped = parts.skipped
+    skippedError = nil
+    performance = parts.performance
+    performanceError = nil
+  }
+
+  /// Reads every part of the picked day at once: its trades, flow, watched symbols, symbols,
+  /// movers, observers, skipped signals and performance. One after another, each waited for the
+  /// ones before it, and the last (Not taken, performance) came seconds after the trades (owner
+  /// report 2026-11-17).
+  private func loadSelectedDay() async {
+    async let documentRead: Void = readSelectedDayDocument()
+    async let flowRead: Void = refreshFlow()
+    async let observersRead: Void = refreshObservers()
+    async let skippedRead: Void = refreshSkipped()
+    async let performanceRead: Void = refreshPerformance()
+    _ = await (documentRead, flowRead, observersRead, skippedRead, performanceRead)
+  }
+
+  /// Keeps `update` applied to what is kept of `day`, when it is a past day.
+  private func keep(_ day: WireDate, _ update: (inout DayParts) -> Void) {
+    pastDays.keep(day, today: today, empty: DayParts(), update)
   }
 
   /// Reads the picked past day's document into `dayDocument`, or its cause into `dayError`. An
@@ -886,6 +930,7 @@ public final class AppModel {
       }
       dayDocument = document
       dayError = nil
+      keep(day) { $0.document = document }
     } catch {
       guard day == selectedDay, !Task.isCancelled else { return }
       dayDocument = nil
@@ -1090,4 +1135,17 @@ public final class AppModel {
 public enum TradeWhatIfAnswer: Sendable, Equatable {
   case found(TradeWhatIfV1)
   case refused(String)
+}
+
+/// What the Mac read of one past day: its trades and every other part the screens show of it
+/// (`AppModel.pastDays`). A part not read yet is nil.
+struct DayParts: Sendable {
+  var document: DayV1?
+  var flow: FlowV1?
+  var watching: WatchingV1?
+  var symbols: SymbolsV1?
+  var movers: MoversV1?
+  var observers: ObserversV1?
+  var skipped: SkippedV1?
+  var performance: PerformanceV1?
 }

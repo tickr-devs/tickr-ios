@@ -152,6 +152,14 @@ final class ChartModel {
     Container.shared.apiClient(Container.shared.appModel().connection.endpoint(for: url))
   }
 
+  /// Follows the app's shown day when another tab changed it (Home's arrows, Activity's calendar),
+  /// when the chart has that day recorded.
+  func follow(_ url: URL) async {
+    let shown = Container.shared.appModel().shownDay
+    guard !dayLocked, shown != selectedDay, days.contains(where: { $0.day == shown }) else { return }
+    await show(shown, from: url)
+  }
+
   /// Load the days list and the newest day, keeping the chosen day and symbol when still listed.
   func load(_ url: URL, preferring preferred: String?) async {
     let request = begin()
@@ -160,9 +168,13 @@ final class ChartModel {
       let listed = try await client(url).days().days
       guard request == latestRequest else { return }
       days = listed
+      let shown = Container.shared.appModel().shownDay
       if dayLocked {
         // The demo day is the newest the demo has recorded.
         selectedDay = days.first?.day
+      } else if days.contains(where: { $0.day == shown }) {
+        // The app's one shown day, as every tab.
+        selectedDay = shown
       } else if selectedDay == nil || !days.contains(where: { $0.day == selectedDay }) {
         selectedDay = days.first?.day
       }
@@ -175,11 +187,14 @@ final class ChartModel {
     }
   }
 
-  /// Switch to another recorded day; none while the demo day is on.
+  /// Switch to another recorded day; none while the demo day is on. The day becomes the app's
+  /// shown day, so every tab follows it.
   func show(_ day: WireDate, from url: URL) async {
     guard !dayLocked else { return }
     let request = begin()
     selectedDay = day
+    let app = Container.shared.appModel()
+    app.selectedDay = day == app.today ? nil : day
     phase = .loading
     do {
       try await loadDay(url, preferring: symbol, request: request)

@@ -48,6 +48,11 @@ struct ChartTab: View {
       guard let url = app.connection.url else { return }
       await chart.load(url, preferring: app.selectedSymbol ?? app.status?.positions.first?.symbol)
     }
+    // The app's one shown day: another tab's pick shows here.
+    .task(id: app.shownDay) {
+      guard let url = app.connection.url else { return }
+      await chart.follow(url)
+    }
     .task(id: liveKey) { await followToday() }
     .task(id: rangeKey) { await followRange() }
     .refreshable {
