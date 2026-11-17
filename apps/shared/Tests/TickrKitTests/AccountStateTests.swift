@@ -87,7 +87,8 @@ import Testing
     let status = try #require(response.status)
     #expect(status.feesTodayUsd?.text == "0.07")
     #expect(status.resultTodayNetUsd?.text == "-1.67")
-    #expect(status.resultTodayUsd.text == "-1.64")  // the broker's own result wins once read
+    #expect(status.resultTodayBrokerUsd?.text == "-1.64")
+    #expect(status.resultTodayUsd.text == "-1.67")  // the bot's own net, never the whole account
     #expect(status.resultTodayGrossUsd.text == "-1.60")
     #expect(!status.resultBeforeFees)
     #expect(!Board.dayStats(status).beforeFees)

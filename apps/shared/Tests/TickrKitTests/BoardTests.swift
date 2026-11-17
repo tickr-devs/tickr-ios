@@ -12,7 +12,7 @@ import Testing
     #expect(stats.trades == 1)
     #expect(stats.wins == 0)
     #expect(stats.losses == 1)
-    #expect(stats.resultUsd == Decimal(string: "-1.64"))  // the fixture's broker result
+    #expect(stats.resultUsd == Decimal(string: "-1.67"))  // the bot's own net, not the broker's -1.64
     #expect(stats.winShare == 0)
   }
 
