@@ -261,6 +261,7 @@ private struct BotCommandButton: View {
     .buttonStyle(.command(action.tier, size: size, detail: detail.map { Text($0) },
       tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
     .disabled(!model.commandsEnabled || !applicable)
+    .inFlight(model.inFlight == action.command ? Text(action.command.inFlightTitle) : nil)
     // An off close command says why; the rest say what they do.
     .hint(verbatim: applicable ? action.explanation : String(localized: L10n.Bot.noPositions))
     .accessibilityIdentifier(action.id)

@@ -194,7 +194,7 @@ private struct RefusalsCard: View {
           .accessibilityElement(children: .combine)
         }
       } else if failure == nil {
-        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.rows) }
       }
     }
     .padding(Tokens.Space.l)
@@ -234,7 +234,7 @@ private struct ObserversCard: View {
       } else if let failure = lab.failure {
         ReadFailureNote(L10n.Lab.failed, detail: failure)
       } else {
-        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows, badge: true) }
       }
     }
     .padding(Tokens.Space.l)

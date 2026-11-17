@@ -57,7 +57,7 @@ struct ChartExplainCard: View {
       } else if decisions != nil || symbol == nil {
         note(L10n.Chart.noDecisions)
       } else {
-        TickrLoader(L10n.Common.loading)
+        Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.lines) }
       }
     }
   }

@@ -228,6 +228,8 @@ public final class AppModel {
 
   // Commands.
   public private(set) var sending = false
+  /// The command being sent, while it is: its button shows the spinner (`.inFlight`).
+  public private(set) var inFlight: OperatorCommand?
   public private(set) var sent: [SentCommand] = []
   public private(set) var toast: SentCommand?
   /// The bot command waiting for the operator's yes, and where it was asked (`BotControls`).
@@ -931,8 +933,12 @@ public final class AppModel {
       return
     }
     sending = true
+    inFlight = command
     withdrawIfCommandsOff()
-    defer { sending = false }
+    defer {
+      sending = false
+      inFlight = nil
+    }
     do {
       // One key per operator action: a repeat of this exact send answers the first, never queues twice.
       let accepted = try await client.send(command, idempotencyKey: UUID().uuidString)

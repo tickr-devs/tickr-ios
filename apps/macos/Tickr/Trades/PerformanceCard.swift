@@ -34,7 +34,12 @@ struct PerformanceCard: View {
       } else if let error = model.performanceError {
         ReadFailureNote(L10n.Trades.performanceUnavailable, detail: error)
       } else {
-        TickrLoader(L10n.Common.loading)
+        Skeleton(L10n.Common.loading) {
+          VStack(alignment: .leading, spacing: Tokens.Space.m) {
+            SkeletonTiles(Tokens.Loading.tiles)
+            SkeletonLines(Tokens.Loading.fewLines)
+          }
+        }
       }
     })
     .accessibilityElement(children: .contain)

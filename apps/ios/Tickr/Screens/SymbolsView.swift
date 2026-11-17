@@ -198,6 +198,16 @@ struct SymbolsView: View {
     let fastMovers = tab == .fastMovers
     return VStack(alignment: .leading, spacing: 0) {
       LazyVStack(alignment: .leading, spacing: 0) {
+        if loading {
+          // Two-line rows in the rows' own columns and padding (mockup v102).
+          Skeleton(L10n.Common.loading) {
+            VStack(alignment: .leading, spacing: 0) {
+              ForEach(0..<SymbolsSkeleton.rows, id: \.self) { index in
+                SymbolsSkeleton.row(index)
+              }
+            }
+          }
+        }
         ForEach(shown) { line in
           Button {
             selected = SelectedSymbol(id: line.symbol)
@@ -207,7 +217,7 @@ struct SymbolsView: View {
           .buttonStyle(.plain)
           .accessibilityHint(Text(L10n.Symbols.rowHint))
         }
-        if shown.isEmpty {
+        if shown.isEmpty && !loading {
           Text(verbatim: emptyText)
             .font(Tokens.Typography.callout)
             .foregroundStyle(Palette.textTertiary)
@@ -226,6 +236,12 @@ struct SymbolsView: View {
     }
     .tickrCard()
     .accessibilityElement(children: .contain)
+  }
+
+  /// Whether the shown tab's rows are being read: none yet and no failure.
+  private var loading: Bool {
+    tab == .fastMovers ? model.movers == nil && model.moversError == nil
+      : model.symbols == nil && model.symbolsError == nil
   }
 
   private var emptyText: String {
@@ -316,6 +332,55 @@ private struct SymbolListRow: View {
   private var time: Date? { fastMovers ? line.mover?.at.date : line.row?.firstSeen?.date }
 }
 
+/// The Symbols list while its rows load (mockup v102): two-line skeleton rows in `SymbolListRow`'s
+/// shape — the symbol and its badge, the price, the change and the time in the row's own column
+/// widths; the stage track, the stage and why under them; the chevron's room.
+@MainActor
+private enum SymbolsSkeleton {
+  /// Skeleton rows in the list, as the board's.
+  static let rows = 9
+  /// Widths that differ row to row, in points, repeating: the symbol, its badge, the price and
+  /// why.
+  static let symbols: [CGFloat] = [44, 38, 50, 42, 36]
+  static let badges: [CGFloat] = [48, 56, 40, 60, 52]
+  static let prices: [CGFloat] = [46, 40, 52, 44, 38]
+  static let whys: [CGFloat] = [110, 84, 130, 96, 72]
+  /// Fixed blocks of a row, in points: the symbol's and the price's heights, the change, the
+  /// stage track (and its height) and the stage's name.
+  static let symbolHeight: CGFloat = 14
+  static let priceHeight: CGFloat = 12
+  static let change: CGFloat = 38
+  static let track: CGFloat = 57
+  static let trackHeight: CGFloat = 10
+  static let stage: CGFloat = 58
+
+  static func row(_ index: Int) -> some View {
+    let pick = { (widths: [CGFloat]) in widths[index % widths.count] }
+    return HStack(spacing: Tokens.Space.s) {
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        HStack(spacing: Tokens.Space.s) {
+          SkeletonBlock(.block(height: symbolHeight), width: pick(symbols))
+          SkeletonBlock(.pill, width: pick(badges))
+          Spacer(minLength: 0)
+          SkeletonBlock(.block(height: priceHeight), width: pick(prices))
+          SkeletonBlock(.line, width: change).frame(width: SymbolListRow.changeWidth, alignment: .trailing)
+          SkeletonBlock(.line, width: SymbolListRow.timeWidth)
+        }
+        HStack(spacing: Tokens.Space.s) {
+          SkeletonBlock(.block(height: trackHeight), width: track)
+          SkeletonBlock(.line, width: stage)
+          SkeletonBlock(.line, width: pick(whys))
+        }
+      }
+      Chevron().hidden()
+    }
+    .padding(.horizontal, Tokens.Space.l)
+    .padding(.vertical, Tokens.Space.m)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .overlay(alignment: .top) { SkeletonGridLine() }
+  }
+}
+
 /// The POSITION (teal) or WATCH (blue) badge beside a symbol.
 private struct SymbolTagBadge: View {
   let line: SymbolsLine
@@ -396,7 +461,7 @@ struct FastMoversCard: View {
           .foregroundStyle(Palette.warningText)
           .fixedSize(horizontal: false, vertical: true)
       } else {
-        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows) }
       }
       if let movers, !movers.movers.isEmpty {
         CardFooterLink(L10n.FastMovers.showAll, count: movers.movers.count) { showsAll = true }

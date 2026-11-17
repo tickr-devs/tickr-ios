@@ -32,7 +32,7 @@ enum L10n {
   }
 
   enum Common {
-    /// VoiceOver's name of the loader (`TickrLoader`) while a card's data is read.
+    /// VoiceOver's name of a skeleton (`Skeleton`) while a card's data is read.
     static var loading: LocalizedStringResource {
       LocalizedStringResource("common.loading", defaultValue: "Loading…", bundle: L10n.bundle)
     }

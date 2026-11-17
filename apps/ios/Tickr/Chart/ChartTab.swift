@@ -159,13 +159,16 @@ struct ChartTab: View {
     }
   }
 
+  /// The chart while its bars load (mockup v102): the price, change and day's high, low and
+  /// volume as skeleton blocks, the price pane's grid, a faint candle silhouette with its volume,
+  /// the price and time axes, and every enabled study pane, as skeleton in the chart's own sizes;
+  /// "Loading ABCD · 1 min bars" in its top left. Nothing real until the bars are read.
   private var loadingView: some View {
-    TickrLoader(
-      chart.symbol.map { ChartText.loadingBars($0, interval: String(localized: ChartFormat.title(chart.timeframe))) }
-        ?? L10n.Common.loading,
-      size: .large, caption: true)
-      .frame(maxWidth: .infinity)
-      .padding(.top, Tokens.Space.xxl)
+    LoadingChart(
+      caption: chart.symbol.map {
+        ChartText.loadingBars($0, interval: String(localized: ChartFormat.title(chart.timeframe)))
+      } ?? L10n.Common.loading,
+      lines: lines)
       .transition(.opacity)
   }
 
@@ -627,5 +630,63 @@ private struct RangePicker: View {
     case .threeMonths: ChartText.rangeThreeMonths
     case .oneYear: ChartText.rangeOneYear
     }
+  }
+}
+
+/// The Chart tab while its bars load (see `ChartTab.loadingView`).
+private struct LoadingChart: View {
+  let caption: LocalizedStringResource
+  let lines: CandleChart.Lines
+
+  /// The silhouette's candles and the price pane's grid lines across and down, as the board's.
+  static let candles = 34
+  static let rows = 5
+  static let columns = 4
+  /// Widths of the header's blocks, in points: the price, its change, and the day's high, low
+  /// and volume figures (the board's).
+  static let price: CGFloat = 54
+  static let priceHeight: CGFloat = 18
+  static let change: CGFloat = 48
+  static let dayFigure: CGFloat = 34
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      Skeleton(nil) {
+        HStack(alignment: .center, spacing: Tokens.Space.s) {
+          SkeletonBlock(.block(height: Self.priceHeight), width: Self.price)
+          SkeletonBlock(.line, width: Self.change)
+          Spacer(minLength: Tokens.Space.s)
+          VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
+            ForEach(0..<Tokens.Loading.lines, id: \.self) { _ in
+              SkeletonBlock(.line, width: Self.dayFigure)
+            }
+          }
+        }
+      }
+      Skeleton(nil) {
+        SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns,
+          axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume)
+          .padding(Tokens.Space.s)
+          .frame(height: CandleChart.priceHeight)
+      }
+      .overlay(alignment: .topLeading) {
+        Text(caption)
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(Tokens.Space.s)
+      }
+      .tickrCard()
+      ForEach(lines.panes, id: \.self) { _ in
+        Skeleton(nil) {
+          SkeletonPane(axisWidth: CandleChart.axisLabelWidth)
+            .frame(height: CandleChart.paneHeight)
+        }
+        .tickrCard()
+      }
+    }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text(caption))
+    .accessibilityAddTraits(.updatesFrequently)
   }
 }

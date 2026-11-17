@@ -37,7 +37,8 @@ public struct ActionButtonStyle: ButtonStyle {
 }
 
 private struct ActionButtonBody: View {
-  @Environment(\.isEnabled) private var enabled
+  @Environment(\.isEnabled) private var isEnabled
+  @Environment(\.commandInFlight) private var inFlight
   @State private var hovered = false
   let configuration: ButtonStyleConfiguration
   let kind: ActionButtonStyle.Kind
@@ -45,8 +46,7 @@ private struct ActionButtonBody: View {
 
   var body: some View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-    configuration.label
-      .labelStyle(ControlLabelStyle())
+    label
       .font(size == .compact || size == .medium ? Tokens.Typography.buttonCompact : Tokens.Typography.button)
       .foregroundStyle(foreground)
       .padding(.horizontal, horizontalPadding)
@@ -64,6 +64,26 @@ private struct ActionButtonBody: View {
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
       .animation(Tokens.Motion.quick, value: hovered)
       .onHover { hovered = $0 }
+      .inFlightBehaviour(inFlight)
+  }
+
+  /// In flight a button is off but drawn as on: the spinner in it says why nothing answers.
+  private var enabled: Bool { isEnabled || inFlight != nil }
+
+  /// The button's label; in flight the spinner and the in-progress words in its place, whatever
+  /// the label was (a `Label` or a title alone), the button keeping at least the label's size.
+  @ViewBuilder private var label: some View {
+    if let inFlight {
+      ZStack {
+        configuration.label.labelStyle(ControlLabelStyle()).hidden()
+        HStack(spacing: Tokens.Space.xs) {
+          Spinner()
+          inFlight
+        }
+      }
+    } else {
+      configuration.label.labelStyle(ControlLabelStyle())
+    }
   }
 
   private var active: Bool { enabled && (hovered || configuration.isPressed) }
@@ -310,6 +330,21 @@ public struct ControlLabelStyle: LabelStyle {
     HStack(spacing: Tokens.Space.xs) {
       configuration.icon
       configuration.title
+    }
+  }
+}
+
+extension View {
+  /// A command button in flight: a second click or tap does nothing, and VoiceOver reads the
+  /// in-progress words as the button's name, updating as they change.
+  @ViewBuilder func inFlightBehaviour(_ inFlight: Text?) -> some View {
+    if let inFlight {
+      self
+        .allowsHitTesting(false)
+        .accessibilityLabel(inFlight)
+        .accessibilityAddTraits(.updatesFrequently)
+    } else {
+      self
     }
   }
 }

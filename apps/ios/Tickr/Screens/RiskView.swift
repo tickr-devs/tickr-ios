@@ -343,7 +343,7 @@ private struct LimitsCard: View {
       } else if let failure {
         ReadFailureNote(L10n.Risk.settingsFailed, detail: failure)
       } else {
-        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.manyRows) }
       }
     }
   }

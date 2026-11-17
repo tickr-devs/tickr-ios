@@ -27,13 +27,10 @@ struct CandleChart: View {
   /// the whole chart again, while the count changes only when a label more or fewer fits.
   @State private var labelSlots = 0
   @State private var pinchStart: Int?
+  /// The price pane's height, in points: where the tags sit on its axis, so the axis's own
+  /// labels they would cover give way (`AxisLabels`).
+  @State private var priceHeight: CGFloat = 0
 
-  /// Height of each study pane (volume, MACD, RSI, stochastic, ATR), in points.
-  static let paneHeight: CGFloat = 96
-  /// Least heights of the price pane and of a study pane, in points: with many studies in a
-  /// short window the study panes shrink first, never the price pane below its least height.
-  static let priceMinHeight: CGFloat = 240
-  static let paneMinHeight: CGFloat = 56
   /// Most decisions on screen that are labelled; with more, only their diamonds are drawn, and
   /// the labels no longer pile up over the candles.
   static let decisionLabelLimit = 3
@@ -46,8 +43,8 @@ struct CandleChart: View {
   nonisolated static let axisLabelWidth: CGFloat = 56
   /// Gridlines each pane asks for on its value axis.
   static let priceTicks = 6
-  /// Share of the price pane's height a tag covers on the scale (with a gap): an axis price
-  /// this close to a tag hides under it.
+  /// Share of the price pane's height kept free of axis labels at its bottom (the lowest hung
+  /// over the pane below), and within which a high or low beside a plate is left out.
   static let tagClearance = 0.05
   static let paneTicks = 3
   /// Share of a study pane's value range kept free of scale labels at its top and bottom: a
@@ -90,7 +87,7 @@ struct CandleChart: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      PaneStack(priceMinimum: Self.priceMinHeight, paneHeight: Self.paneHeight, paneMinimum: Self.paneMinHeight) {
+      PaneStack {
         // The legend in its own row above the plot, never over it: the marks' plates are kept
         // inside the plot, so a plate near the top ("ENTER · OBSERVER") can no longer sit on the
         // lines' values.
@@ -205,11 +202,25 @@ struct CandleChart: View {
     }
     .chartYScale(domain: scale)
     .chartYAxis {
-      valueAxis(ticks: Self.priceTicks, hiding: priceTags.map(\.value), span: scale)
+      valueAxis(ticks: Self.priceTicks, hiding: shownTagValues(span: scale), span: scale)
     }
     .chartXAxis { timeAxis(labels: studyPanes.isEmpty) }
     .modifier(SharedAxis(chart: self, pane: .price, showsTime: studyPanes.isEmpty, tags: priceTags))
     .onGeometryChange(for: Int.self, of: { Self.slotCount(chartWidth: $0.size.width) }, action: { labelSlots = $0 })
+    .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { priceHeight = $0 })
+  }
+
+  /// Where the price tags are drawn on the axis, in prices: placed apart as `AxisTags` draws
+  /// them (`AxisLabels.placed`), a high or low beside a plate left out.
+  private func shownTagValues(span: ClosedRange<Double>) -> [Double] {
+    let tags = priceTags
+    let range = span.upperBound - span.lowerBound
+    guard priceHeight > 0, range > 0 else { return tags.map(\.value) }
+    let perPoint = range / Double(priceHeight)
+    let placed = AxisLabels.placed(
+      tags.map { AxisLabels.Tag(y: (span.upperBound - $0.value) / perPoint, plain: $0.plain) },
+      spacing: Double(Self.tagSpacing))
+    return placed.compactMap { $0.map { span.upperBound - $0 * perPoint } }
   }
 
   /// The close as a line with a fill fading down to the bottom of the pane, coloured by whether
@@ -450,18 +461,21 @@ struct CandleChart: View {
     return (low - pad)...(high + pad)
   }
 
-  /// The price scale, its labels left out where a tag (last price, entry, stop) covers them
-  /// (within `tagClearance` of the pane's height from a tagged value), and at the very bottom
-  /// (with the same clearance), where the lowest one hung over the pane below.
+  /// The price scale, its labels left out where a tag shown at `tagged` (last price, entry,
+  /// stop, high, low) would overlap them (`AxisLabels`, mockup v103: "11.80" never under
+  /// "L 11.78"), and at the very bottom (within `tagClearance`), where the lowest one hung over
+  /// the pane below.
   private func valueAxis(ticks: Int, hiding tagged: [Double], span: ClosedRange<Double>) -> some AxisContent {
-    let clearance = (span.upperBound - span.lowerBound) * Self.tagClearance
-    let lowest = span.lowerBound + clearance
+    let range = span.upperBound - span.lowerBound
+    let lowest = span.lowerBound + range * Self.tagClearance
+    let clearance = AxisLabels.clearance(labelHeight: Double(Tokens.Chart.axisLabelHeight),
+      tagHeight: Double(Tokens.Chart.levelTagHeight), span: range, height: Double(priceHeight))
     return AxisMarks(position: .trailing, values: .automatic(desiredCount: ticks)) { value in
       AxisGridLine()
       AxisTick()
       AxisValueLabel {
         if let price = value.as(Double.self), price >= lowest,
-          !tagged.contains(where: { abs($0 - price) < clearance }) {
+          AxisLabels.shows(price, tags: tagged, clearance: clearance) {
           Text(verbatim: Money.price(price))
             .frame(width: Self.axisLabelWidth, alignment: .leading)
         } else {
@@ -889,17 +903,10 @@ private struct AxisTags: View {
       guard let y = proxy.position(forY: tag.value), y >= 0, y <= height else { return nil }
       return (tag: tag, y: y)
     }
-    let plates = inside.filter { !$0.tag.plain }.sorted { $0.y < $1.y }
-    var placed: [(tag: AxisTag, y: CGFloat)] = []
-    for item in plates {
-      let y = placed.last.map { max(item.y, $0.y + CandleChart.tagSpacing) } ?? item.y
-      placed.append((tag: item.tag, y: y))
-    }
-    // A plain tag too close to a plate is left out: the plate already says where the price is.
-    let plain = inside.filter { item in
-      item.tag.plain && !placed.contains { abs($0.y - item.y) < CandleChart.tagSpacing }
-    }
-    return placed + plain
+    // The axis's own labels give way to the very places drawn here (`AxisLabels`).
+    let shown = AxisLabels.placed(inside.map { AxisLabels.Tag(y: Double($0.y), plain: $0.tag.plain) },
+      spacing: Double(CandleChart.tagSpacing))
+    return zip(inside, shown).compactMap { item, y in y.map { (tag: item.tag, y: CGFloat($0)) } }
   }
 }
 

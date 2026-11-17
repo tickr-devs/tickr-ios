@@ -75,10 +75,12 @@ struct LabReplayCard: View {
         guard let url else { return }
         Task { await lab.startReplay(url, version: first, compare: second, day: chosenDay) }
       } label: {
-        // The design's full-width button: the title alone, a spinner beside it while starting.
+        // The design's full-width button: the title alone; while starting, the spinner and what
+        // is in flight (mockup v102).
         HStack(spacing: Tokens.Space.s) {
-          if lab.replayStarting { TickrLoader(L10n.Common.loading) }
-          Text(second == nil ? L10n.Lab.replayStart : L10n.Lab.replayStartCompare)
+          if lab.replayStarting { Spinner() }
+          Text(lab.replayStarting ? InFlightText.replayStarting
+            : second == nil ? L10n.Lab.replayStart : L10n.Lab.replayStartCompare)
         }
         .font(Tokens.Typography.button)
         .foregroundStyle(Palette.infoText)
@@ -245,7 +247,7 @@ struct LabReplayCard: View {
       switch replay.state {
       case .running:
         HStack(spacing: Tokens.Space.s) {
-          TickrLoader(L10n.Common.loading)
+          Spinner()
           if let started = replay.startedAt {
             Text(L10n.Lab.replayRunningSince(Format.time(started.date)))
               .font(Tokens.Typography.caption)
@@ -280,7 +282,7 @@ struct LabReplayCard: View {
     } else if let failure = lab.replayFailure {
       ReadFailureNote(L10n.Lab.replayFailed, detail: failure)
     } else if url != nil {
-      TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
+      Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.lines) }
     }
   }
 

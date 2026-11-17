@@ -847,7 +847,7 @@ private struct AnotherStrategyView: View {
         if let error = model.labReplayError {
           ReadFailureNote(L10n.ReadFailed.replay, detail: error)
         } else {
-          TickrLoader(L10n.Common.loading)
+          Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.lines) }
         }
       } else if versions.isEmpty {
         Footnote(L10n.Trades.anotherNoVersions)
@@ -893,7 +893,7 @@ private struct AnotherStrategyView: View {
     switch answer {
     case nil:
       GridRow {
-        TickrLoader(L10n.Common.loading)
+        Skeleton(L10n.Common.loading) { SkeletonBlock(.line) }
         Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
         Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
       }
@@ -1005,7 +1005,7 @@ private struct NotTakenCard: View {
       } else if model.skipped != nil {
         Footnote(L10n.Trades.notTakenEmpty)
       } else {
-        TickrLoader(L10n.Common.loading)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.manyRows, badge: true) }
       }
     })
   }

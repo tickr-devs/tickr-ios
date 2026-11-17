@@ -214,7 +214,12 @@ private struct CurvesCard: View {
         } else if model.observersError != nil {
           Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
         } else {
-          TickrLoader(L10n.Common.loading)
+          Skeleton(L10n.Common.loading) {
+            VStack(alignment: .leading, spacing: Tokens.Space.m) {
+              SkeletonBlock(.block(height: DayCurvesChart.height))
+              SkeletonRows(Tokens.Loading.fewRows)
+            }
+          }
         }
         Text(L10n.Lab.curvesNote)
           .font(Tokens.Typography.annotation)
@@ -414,7 +419,7 @@ private struct RefusalsCard: View {
         } else if let error = model.skippedError {
           ReadFailureNote(L10n.Trades.notTakenUnavailable, detail: error)
         } else {
-          TickrLoader(L10n.Common.loading)
+          Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.rows) }
         }
         Spacer(minLength: 0)
         PlannedLine(text: L10n.Lab.screenerBacklog)
@@ -644,11 +649,10 @@ private struct ReplayCard: View {
         .buttonStyle(.action(.secondary))
         .disabled(running || model.labReplayStarting || replay == nil || (first == nil && !listsNone)
           || (oneDay && chosenDay == nil) || waitsUntil != nil)
+        .inFlight(model.labReplayStarting ? Text(InFlightText.replayStarting)
+          : running ? Text(InFlightText.replayRunning) : nil)
         if let waitsUntil, !running {
           availability(waitsUntil)
-        }
-        if running || model.labReplayStarting {
-          TickrLoader(L10n.Common.loading)
         }
         status
         Text(L10n.Lab.replayPriority)
@@ -995,9 +999,7 @@ private struct ExplainCard: View {
           }
           .buttonStyle(.action(.secondary, size: .compact))
           .disabled(wanted.isEmpty || explain.loading)
-          if explain.loading {
-            TickrLoader(L10n.Common.loading)
-          }
+          .inFlight(explain.loading ? Text(L10n.Lab.explainReading) : nil)
         }
         content
         Spacer(minLength: 0)
@@ -1033,6 +1035,8 @@ private struct ExplainCard: View {
         admissionRow(decision.admission).rise(step: decision.checks.count)
       }
       .id(decision)
+    } else if explain.loading {
+      Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.manyLines, leadingValue: true) }
     } else if decisions != nil {
       Footnote(L10n.Lab.explainNone)
     } else if symbol.isEmpty {

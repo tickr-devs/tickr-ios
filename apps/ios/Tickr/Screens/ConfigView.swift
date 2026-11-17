@@ -76,7 +76,7 @@ struct ConfigView: View {
       } else if let error = model.configError {
         ReadFailureNote(L10n.ReadFailed.config, detail: error)
       } else {
-        TickrLoader(L10n.Common.loading)
+        Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.manyLines) }
       }
     }
     .contentMargins(.top, 0, for: .scrollContent)

@@ -237,7 +237,7 @@ struct WatchingCard: View {
       } else if let error = model.watchingError {
         Footnote(L10n.Watching.unavailable(error), color: Palette.warningText)
       } else {
-        TickrLoader(L10n.Common.loading)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows, badge: true) }
       }
     }
     .accessibilityElement(children: .contain)
@@ -401,7 +401,7 @@ struct FastMoversCard: View {
       } else if let error = model.moversError {
         Footnote(L10n.FastMovers.unavailable(error), color: Palette.warningText)
       } else {
-        TickrLoader(L10n.Common.loading)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Self.rowCap) }
       }
     }
     .accessibilityElement(children: .contain)

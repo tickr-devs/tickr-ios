@@ -1,8 +1,8 @@
 import SwiftUI
 
-// Tokens of the card links (`HeaderLink`, `CardFooterLink`), the back capsule (`BackCapsule`) and
-// the loader (`TickrLoader`), as on the Controls board (docs/design-system.md); in their own file
-// because Tokens.swift is at SwiftLint's file length limit.
+// Tokens of the card links (`HeaderLink`, `CardFooterLink`) and the back capsule (`BackCapsule`),
+// as on the Controls board (docs/design-system.md); in their own file because Tokens.swift is at
+// SwiftLint's file length limit.
 
 extension Tokens.Typography {
   /// A card's header link, the label of its footer link, and the back capsule's title and chevron,
@@ -49,25 +49,16 @@ extension Tokens.Size {
   public static let glassShadowOffset: CGFloat = 4
   /// The round chevron chip at the end of a footer link (`CardFooterLink`).
   public static let footerChip: CGFloat = 22
-  /// The large loader of a whole pane (the Chart's, `TickrLoader`), and its ping dot.
-  public static let loaderLarge: CGFloat = 56
-  public static let loaderDotLarge: CGFloat = 7
-  /// The ping dot of the compact loader.
-  public static let loaderDot: CGFloat = 5
   #if os(iOS)
   /// A header link's capsule height (`HeaderLink`); its touch target is `touchTarget`.
   public static let headerLink: CGFloat = 30
   /// A footer link's row height (`CardFooterLink`): the whole row is the touch target.
   public static let footerLink: CGFloat = 44
-  /// The compact loader inside a card (`TickrLoader`).
-  public static let loader: CGFloat = 32
   #else
   /// A header link's capsule height (`HeaderLink`).
   public static let headerLink: CGFloat = 24
   /// A footer link's row height (`CardFooterLink`): the whole row is the click target.
   public static let footerLink: CGFloat = 36
-  /// The compact loader inside a card (`TickrLoader`).
-  public static let loader: CGFloat = 28
   #endif
 }
 
@@ -78,14 +69,4 @@ extension Tokens.Motion {
   public static let backPressScale: CGFloat = 0.96
   /// How far a footer link's chevron chip moves on under the pointer.
   public static let linkNudge: CGFloat = 2
-  /// The loader (`TickrLoader`, ornament): seconds of one turn of its beam (a ping of its dot each
-  /// turn), how far the dot's ping starts grown, and the share of the turn the beam's tail covers.
-  public static let loaderTurnSeconds = 1.4
-  public static let loaderPingScale: CGFloat = 1.7
-  public static let loaderTail = 0.32
-  /// Under Reduce Motion the loader's rings pulse instead (owner, 2026-11-16): seconds of one
-  /// pulse, how faint a ring gets, and each inner ring's lag behind the one around it.
-  public static let loaderPulseSeconds = 2.4
-  public static let loaderPulseLow = 0.3
-  public static let loaderPulseLagSeconds = 0.4
 }

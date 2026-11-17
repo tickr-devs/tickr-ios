@@ -163,9 +163,12 @@ struct ActivityView: View {
         }
         .rise()
       default:
-        TickrLoader(L10n.Activity.loadingDay, size: .large, caption: true)
-          .frame(maxWidth: .infinity)
-          .padding(.top, Tokens.Space.xl)
+        Skeleton(L10n.Activity.loadingDay) {
+          VStack(alignment: .leading, spacing: Tokens.Space.l) {
+            SkeletonTiles(Tokens.Loading.tiles)
+            SkeletonRows(Tokens.Loading.manyRows, badge: true)
+          }
+        }
       }
     }
   }
@@ -945,7 +948,7 @@ private struct NotTaken: View {
       ReadFailureNote(L10n.Activity.notTakenFailed, detail: failure)
         .frame(maxWidth: .infinity, alignment: .leading)
     } else {
-      TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity).padding(.top, Tokens.Space.xl)
+      Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.rows, badge: true) }
     }
   }
 }

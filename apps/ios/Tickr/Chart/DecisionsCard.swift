@@ -44,7 +44,7 @@ struct DecisionsCard: View {
       } else if let failure {
         ReadFailureNote(ChartText.decisionsFailed, detail: failure)
       } else {
-        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows, badge: true) }
       }
     }
     .padding(Tokens.Space.l)

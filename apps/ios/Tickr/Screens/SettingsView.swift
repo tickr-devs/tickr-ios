@@ -144,12 +144,14 @@ struct SettingsView: View {
         }
         .buttonStyle(.command(.destructive, tag: tag))
         .fixedSize(horizontal: false, vertical: true)
+        .inFlight(model.inFlight == .stopBot ? Text(OperatorCommand.stopBot.inFlightTitle) : nil)
       } else if model.canStartBot && (status.botState == .stopped || model.response?.stale == true) {
         Button { confirmStart = true } label: {
           Label { Text(L10n.Control.startBot) } icon: { Image(systemName: Self.startSymbol) }
         }
         .buttonStyle(.command(.primary, tag: tag))
         .fixedSize(horizontal: false, vertical: true)
+        .inFlight(model.botStarting ? Text(InFlightText.startBot) : nil)
       }
       NavigationLink {
         ConfigView()

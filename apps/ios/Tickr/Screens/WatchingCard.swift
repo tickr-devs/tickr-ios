@@ -34,7 +34,7 @@ struct WatchingCard: View {
           }
         }
       } else if failure == nil {
-        TickrLoader(L10n.Common.loading).frame(maxWidth: .infinity)
+        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows, badge: true) }
       }
     }
     .padding(Tokens.Space.l)

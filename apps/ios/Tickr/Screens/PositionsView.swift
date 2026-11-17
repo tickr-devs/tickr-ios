@@ -257,6 +257,8 @@ private struct PositionDetail: View {
       // As tall as its title needs: it wraps at large text sizes, never cut.
       .fixedSize(horizontal: false, vertical: true)
       .disabled(!model.canCommand)
+      .inFlight(model.inFlight == .flattenSymbol(position.symbol)
+        ? Text(OperatorCommand.flattenSymbol(position.symbol).inFlightTitle) : nil)
       .rise(step: Order.flatten.rawValue)
       .confirmationDialog(Text(L10n.Positions.closeNow(position.symbol)), isPresented: $confirmFlatten,
         titleVisibility: .visible) {

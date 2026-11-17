@@ -84,8 +84,8 @@ struct ChartView: View {
   /// the history scroller.
   static let columnParts = 4
 
-  /// Least height of the Chart screen, in points: with every study pane on, no pane is under its
-  /// least height (`CandleChart.priceMinHeight`, `paneMinHeight`) and the history scroller stays
+  /// Least height of the Chart screen, in points: with every study pane on, the panes at their
+  /// least (`PaneStack`: the price pane at `Tokens.Chart.priceMinHeight`) and the history scroller stays
   /// in the window. The screen's padding, the header (one line of the 24-point symbol), the
   /// controls (`leastControlRows` rows of chips, a chip being one label line with its padding), the
   /// chart's card (its padding around the panes) and the scroller, `m` apart (`columnParts`).
@@ -96,7 +96,7 @@ struct ChartView: View {
     let chip = TextMeasure.lineHeight(label) + (Tokens.Space.xs + Tokens.Space.xxs) * edges
     let rows = CGFloat(leastControlRows)
     let controls = chip * rows + Tokens.Space.s * (rows - 1)
-    let panes = CandleChart.priceMinHeight + CGFloat(paneKeys.count) * CandleChart.paneMinHeight
+    let panes = PaneStack.height(available: 0, studies: paneKeys.count)
     let card = panes + Tokens.Space.s * edges
     let gaps = Tokens.Space.m * CGFloat(columnParts - 1)
     return Tokens.Space.l * edges + header + controls + card + scrollerHeight + gaps
@@ -133,7 +133,9 @@ struct ChartView: View {
         controls
         content
           .padding(Tokens.Space.s)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          // A chart (or its skeleton) is exactly as tall as its panes (`PaneStack`); a note fills
+          // the card.
+          .frame(maxWidth: .infinity, maxHeight: plot != nil || loadingBars ? nil : .infinity, alignment: .top)
           .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.large))
           // Nothing the chart draws (crosshair, tags) reaches past its card.
           .clipShape(.rect(cornerRadius: Tokens.Radius.large))
@@ -142,7 +144,7 @@ struct ChartView: View {
               .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
         historyScroller
       }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
       if showDecisions {
         ChartRail(
           symbol: symbol, symbols: symbols, pick: { picked = $0 }, plot: showsDay ? plot : nil, pointer: pointer,
@@ -229,7 +231,26 @@ struct ChartView: View {
   private var header: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
       symbolMenu
-      if let last = plot?.candles.last {
+      if loadingBars {
+        // Nothing real until the bars are read: the price, change and readout as skeleton blocks.
+        Skeleton(nil) {
+          HStack(spacing: Tokens.Space.s) {
+            SkeletonBlock(.pill, width: Self.skeletonQuote)
+            SkeletonBlock(.line, width: Self.skeletonChange)
+          }
+        }
+        .fixedSize()
+        Spacer(minLength: Tokens.Space.m)
+        Skeleton(nil) {
+          HStack(spacing: Tokens.Space.m) {
+            ForEach(Array(Self.skeletonReadout.enumerated()), id: \.offset) { _, width in
+              SkeletonBlock(.line, width: width)
+            }
+          }
+        }
+        .fixedSize()
+      }
+      if !loadingBars, let last = plot?.candles.last {
         Text(verbatim: Money.price(last.close))
           .font(Tokens.Typography.quote)
           // Coloured as the day's change beside it when the screeners reported one, so the two
@@ -238,7 +259,7 @@ struct ChartView: View {
           .contentTransition(.numericText(value: last.close))
           .animation(Tokens.Motion.quick, value: last.close)
       }
-      if let change = dayChange {
+      if !loadingBars, let change = dayChange {
         Text(verbatim: Percent.signed(fraction: change))
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.result(change))
@@ -250,6 +271,18 @@ struct ChartView: View {
           .layoutPriority(-1)
       }
     }
+  }
+
+  /// Widths of the header's skeleton blocks while the bars load, in points: the last price, the
+  /// day's change and the readout's figures (time, open, high, low, close, volume), as the board.
+  static let skeletonQuote: CGFloat = 68
+  static let skeletonChange: CGFloat = 58
+  static let skeletonReadout: [CGFloat] = [36, 52, 52, 52, 52, 44]
+
+  /// Whether the shown symbol's bars are being read (nothing of them is on screen yet).
+  private var loadingBars: Bool {
+    guard symbol != nil, plot == nil, chart.error == nil else { return false }
+    return chart.loading || !chart.hasRead(timeframe: interval, range: range)
   }
 
   /// The day's change of the shown symbol from the previous close, when the screeners reported
@@ -565,9 +598,10 @@ struct ChartView: View {
         ReadFailureNote(showsDay ? L10n.Chart.barsUnavailableDetail : L10n.Chart.candlesUnavailableDetail,
           detail: error)
       }
-    } else if let symbol, chart.loading || !chart.hasRead(timeframe: interval, range: range) {
-      TickrLoader(
-        L10n.Chart.loadingBars(symbol, interval: String(localized: Self.title(interval))), size: .large, caption: true)
+    } else if let symbol, loadingBars {
+      LoadingChart(
+        caption: L10n.Chart.loadingBars(symbol, interval: String(localized: Self.title(interval))),
+        studies: [showVolume, showMACD, showRSI, showStochastic, showATR].filter { $0 }.count)
     } else if !showsDay, let cause = chart.rangeCause {
       empty(L10n.Chart.noBars, detail: L10n.Chart.noCandlesDetail(cause), symbol: "chart.bar.xaxis")
     } else {
@@ -581,6 +615,52 @@ struct ChartView: View {
     } description: {
       Text(detail)
     }
+  }
+}
+
+/// The chart while its bars load (mockup v102): the price pane's grid, a faint candle silhouette
+/// and its price axis, every enabled study pane, and the time axis, as skeleton in the very panes
+/// the chart will take (`PaneStack`); "Loading ABCD · 1 min bars" in its top left. The toolbar
+/// above stays live.
+private struct LoadingChart: View {
+  let caption: LocalizedStringResource
+  /// Study panes enabled (volume, MACD, RSI, stochastic, ATR).
+  let studies: Int
+
+  /// The silhouette's candles and the price pane's grid lines across and down, as the board's.
+  static let candles = 60
+  static let rows = 6
+  static let columns = 7
+  /// Width of the price axis beside the plot, as the chart's.
+  static let axis = CandleChart.axisLabelWidth + Tokens.Space.s
+
+  var body: some View {
+    Skeleton(nil) {
+      PaneStack {
+        SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns, axisWidth: Self.axis,
+          showsTime: studies == 0)
+        ForEach(0..<studies, id: \.self) { index in
+          VStack(spacing: 0) {
+            SkeletonGridLine()
+            SkeletonPane(axisWidth: Self.axis)
+            if index == studies - 1 {
+              SkeletonTimeAxis(columns: Self.columns, axisWidth: Self.axis)
+                .frame(height: Tokens.Chart.timeAxisHeight)
+            }
+          }
+        }
+      }
+    }
+    .overlay(alignment: .topLeading) {
+      Text(caption)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(Tokens.Space.s)
+    }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text(caption))
+    .accessibilityAddTraits(.updatesFrequently)
   }
 }
 

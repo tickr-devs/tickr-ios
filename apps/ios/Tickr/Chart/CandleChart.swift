@@ -133,6 +133,8 @@ struct CandleChart: View {
   @ScaledMetric(relativeTo: .caption2) private var axisWidth = CandleChart.axisLabelWidth
   /// A price tag's height on the scale, grown with Dynamic Type like the tag's text.
   @ScaledMetric(relativeTo: .caption2) private var tagRoom = CandleChart.tagClearance
+  /// An axis label's height on the scale, grown with Dynamic Type like its text.
+  @ScaledMetric(relativeTo: .caption2) private var labelRoom = Tokens.Chart.axisLabelHeight
   /// The time labels' slot, grown with Dynamic Type.
   @ScaledMetric(relativeTo: .caption2) private var labelSlot = CandleChart.timeLabelSlot
   /// The price pane's plot width, for spacing the time labels.
@@ -268,12 +270,13 @@ struct CandleChart: View {
       // Coloured tags over the scale: the last price, entries and stops; a plain axis price
       // they would cover stays hidden.
       let tags = priceTags(scale)
-      let clearance = tagClearance(scale)
+      let shownAt = tags.map(\.shownAt)
+      let clearance = labelClearance(scale)
       AxisMarks(position: .trailing) { value in
         AxisGridLine(stroke: StrokeStyle(lineWidth: Tokens.Stroke.hairline))
           .foregroundStyle(Palette.separator)
         AxisValueLabel {
-          if let price = value.as(Double.self), !tags.contains(where: { abs($0.shownAt - price) < clearance }) {
+          if let price = value.as(Double.self), AxisLabels.shows(price, tags: shownAt, clearance: clearance) {
             axisLabel(value, Palette.textQuaternary)
           }
         }
@@ -402,8 +405,15 @@ struct CandleChart: View {
     }
   }
 
-  /// The price span a tag covers on the scale: an axis price or a high or low label this close
-  /// to a tag hides under it.
+  /// How close, in prices, an axis label may come to a tag before they overlap (`AxisLabels`):
+  /// half a label's height and half a tag's, both grown with Dynamic Type.
+  private func labelClearance(_ scale: PriceScale) -> Double {
+    AxisLabels.clearance(labelHeight: Double(labelRoom), tagHeight: Double(tagRoom),
+      span: scale.domain.upperBound - scale.domain.lowerBound, height: Double(Self.priceHeight))
+  }
+
+  /// The price span a tag covers on the scale: a high or low label this close to a tag hides
+  /// under it.
   private func tagClearance(_ scale: PriceScale) -> Double {
     (scale.domain.upperBound - scale.domain.lowerBound) * Double(tagRoom) / Self.priceHeight
   }

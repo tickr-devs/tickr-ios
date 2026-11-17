@@ -72,6 +72,8 @@ final class AppModel {
   /// The day the last /flow answer (or failure) was for; until it is today the flow is pending.
   private(set) var flowAnsweredDay: WireDate?
   private(set) var sending = false
+  /// The command being sent, while it is: its button shows the spinner (`.inFlight`).
+  private(set) var inFlight: OperatorCommand?
   var notice: Notice?
   var selectedTab: AppTab = .home
   /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
@@ -405,7 +407,11 @@ final class AppModel {
       return
     }
     sending = true
-    defer { sending = false }
+    inFlight = command
+    defer {
+      sending = false
+      inFlight = nil
+    }
     if let confirmOwner {
       switch await confirmOwner() {
       case .confirmed: break

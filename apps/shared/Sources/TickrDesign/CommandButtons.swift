@@ -51,7 +51,8 @@ public extension ButtonStyle where Self == CommandButtonStyle {
 }
 
 private struct CommandButtonBody: View {
-  @Environment(\.isEnabled) private var enabled
+  @Environment(\.isEnabled) private var isEnabled
+  @Environment(\.commandInFlight) private var inFlight
   @Environment(\.colorScheme) private var scheme
   @State private var hovered = false
   let configuration: ButtonStyleConfiguration
@@ -65,7 +66,7 @@ private struct CommandButtonBody: View {
     let shape = RoundedRectangle(cornerRadius: small ? Tokens.Command.smallRadius : Tokens.Command.radius, style: .continuous)
     let pressed = configuration.isPressed && enabled
     configuration.label
-      .labelStyle(CommandLabelStyle(tier: tier, small: small, detail: detail, tag: tag))
+      .labelStyle(CommandLabelStyle(tier: tier, small: small, detail: detail, tag: tag, inFlight: inFlight))
       .font(small ? Tokens.Typography.buttonCompact : Tokens.Command.title)
       .foregroundStyle(foreground)
       .padding(.leading, small ? Tokens.Space.xxs + Tokens.Stroke.thin : Tokens.Space.xs + Tokens.Space.xxs)
@@ -96,7 +97,11 @@ private struct CommandButtonBody: View {
       .animation(Tokens.Motion.quick, value: pressed)
       .animation(Tokens.Motion.quick, value: hovered)
       .onHover { hovered = $0 }
+      .inFlightBehaviour(inFlight)
   }
+
+  /// In flight a command is off but drawn as on: the spinner in it says why nothing answers.
+  private var enabled: Bool { isEnabled || inFlight != nil }
 
   private var height: CGFloat {
     switch size {
@@ -146,11 +151,20 @@ private struct CommandLabelStyle: LabelStyle {
   let small: Bool
   let detail: Text?
   let tag: Text?
+  /// The in-progress title while the command is in flight: the spinner then takes the glyph's
+  /// place on a clear tile, as the board's busy command.
+  let inFlight: Text?
 
   func makeBody(configuration: Configuration) -> some View {
     HStack(spacing: small ? Tokens.Space.xs + Tokens.Space.xxs : Tokens.Command.gap) {
-      CommandGlyph(icon: configuration.icon, small: small, color: glyphColor, fill: glyphFill)
-      configuration.title
+      if inFlight != nil {
+        CommandGlyph(icon: Spinner(), small: small, color: glyphColor, fill: .clear)
+      } else {
+        CommandGlyph(icon: configuration.icon, small: small, color: glyphColor, fill: glyphFill)
+      }
+      Group {
+        if let inFlight { inFlight } else { configuration.title }
+      }
         .multilineTextAlignment(.leading)
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: small ? nil : .infinity, alignment: .leading)

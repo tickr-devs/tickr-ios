@@ -5413,6 +5413,23 @@
         }
       }
     },
+    "lab.explainReading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading decisions"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Читаю решения"
+          }
+        }
+      }
+    },
     "lab.explainRun" : {
       "extractionState" : "manual",
       "localizations" : {

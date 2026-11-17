@@ -54,7 +54,7 @@ enum L10n {
   }
 
   enum Common {
-    /// VoiceOver's name of the loader (`TickrLoader`) while a card's data is read.
+    /// VoiceOver's name of a skeleton (`Skeleton`) while a card's data is read.
     static var loading: LocalizedStringResource {
       LocalizedStringResource("common.loading", defaultValue: "Loading…", bundle: L10n.bundle)
     }
@@ -3178,6 +3178,10 @@ enum L10n {
     /// Button: read the decisions on the symbol.
     static var explainRun: LocalizedStringResource {
       LocalizedStringResource("lab.explainRun", defaultValue: "Explain", bundle: L10n.bundle)
+    }
+    /// The Explain button while the decisions are read (its spinner beside it).
+    static var explainReading: LocalizedStringResource {
+      LocalizedStringResource("lab.explainReading", defaultValue: "Reading decisions", bundle: L10n.bundle)
     }
     /// Explain card: planned detail (BACKLOG).
     static var explainBacklog: LocalizedStringResource {
