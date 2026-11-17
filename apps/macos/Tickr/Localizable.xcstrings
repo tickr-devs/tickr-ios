@@ -7028,6 +7028,40 @@
         }
       }
     },
+    "position.bid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bid, live"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "бид, живая цена"
+          }
+        }
+      }
+    },
+    "position.bidAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bid · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "бид · %@"
+          }
+        }
+      }
+    },
     "position.chartLabel" : {
       "extractionState" : "manual",
       "localizations" : {

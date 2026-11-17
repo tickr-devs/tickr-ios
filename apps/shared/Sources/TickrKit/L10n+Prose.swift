@@ -380,9 +380,9 @@ extension L10n {
     LocalizedStringResource("kit.prose.no_account_file",
       defaultValue: "The bot has not written an account file yet", bundle: bundle)
   }
-  /// A cause the API writes itself (`<field>_codes`). no_start_command
-  static var proseReasonNoStartCommand: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_start_command",
-      defaultValue: "No start command is set on this machine: start the bot where it runs", bundle: bundle)
+  /// A cause the API writes itself (`<field>_codes`). no_quotes_file
+  static var proseReasonNoQuotesFile: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_quotes_file",
+      defaultValue: "The bot has not written a quotes file yet", bundle: bundle)
   }
 }

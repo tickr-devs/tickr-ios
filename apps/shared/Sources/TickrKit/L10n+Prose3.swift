@@ -3,6 +3,17 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). binding_not_proven
+  static var proseReasonBindingNotProven: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.binding_not_proven",
+      // swiftlint:disable:next line_length
+      defaultValue: "The record does not show which limit set the size: the planned loss, the position cap or the daily room", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_chart_bars (values: symbol)
+  static var proseReasonNoChartBars: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_chart_bars",
+      defaultValue: "No candles for {symbol} in this range", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). chart_off
   static var proseReasonChartOff: LocalizedStringResource {
     LocalizedStringResource("kit.prose.chart_off",

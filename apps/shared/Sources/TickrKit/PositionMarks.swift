@@ -7,10 +7,12 @@ public struct PositionMarks: Hashable, Sendable {
   /// Seconds in one captured bar (the API serves M1 only).
   public static let barSeconds: TimeInterval = 60
 
-  /// Close of the newest bar.
+  /// Close of the newest bar, or the live bid once `live(_:)` gave one.
   public let last: Decimal
-  /// When the newest bar started.
+  /// When the newest bar started, or when the live bid was quoted.
   public let lastAt: Date
+  /// `last` is the live bid of the bot's quote stream, not a bar's close.
+  public let isLive: Bool
   /// (last − entry) × quantity, in dollars.
   public let unrealized: Decimal
   /// (last − entry) / (entry − stop); nil when the stop is unknown or not below the entry.
@@ -32,9 +34,9 @@ public struct PositionMarks: Hashable, Sendable {
   /// Whether the newest bar is the latest one the bot can have captured by `now` (the bot's
   /// clock), give or take `staleSeconds`: a bar is captured once it closes, so the newest is up to
   /// one bar behind. Only then are the last price and the results current. Older marks are
-  /// history and must say so.
+  /// history and must say so. Live marks are always current.
   public func isFresh(now: Date, staleSeconds: TimeInterval) -> Bool {
-    now.timeIntervalSince(lastAt.addingTimeInterval(Self.barSeconds)) <= Self.barSeconds + staleSeconds
+    isLive || now.timeIntervalSince(lastAt.addingTimeInterval(Self.barSeconds)) <= Self.barSeconds + staleSeconds
   }
 
   /// Nil when no bar covers the time since the position opened.
@@ -44,20 +46,60 @@ public struct PositionMarks: Hashable, Sendable {
     guard let lastBar = since.last,
       let low = since.map(\.low.value).min(),
       let high = since.map(\.high.value).max() else { return nil }
-    let risk: Decimal? = stop.flatMap { $0 < entry ? entry - $0 : nil }
-    let last = lastBar.close.value
-    let adverse = min(low - entry, 0)
-    let favorable = max(high - entry, 0)
+    self.init(newest: Newest(price: lastBar.close.value, at: lastBar.start.date, isLive: false),
+      path: Path(low: low, high: high, closes: [entry] + since.map(\.close.value)),
+      basis: Basis(entry: entry, stop: stop, quantity: quantity))
+  }
+
+  /// These marks with the position's live bid as the last price, when there is one: the result,
+  /// R and the extremes follow it at once, and the line ends at it. Unchanged without one.
+  public func live(_ price: LivePrice?) -> PositionMarks {
+    guard let price else { return self }
+    return PositionMarks(newest: Newest(price: price.bid, at: price.quotedAt, isLive: true),
+      path: Path(low: min(low, price.bid), high: max(high, price.bid), closes: closes + [price.bid]), basis: basis)
+  }
+
+  /// The newest price, when it was, and whether it is the live bid.
+  private struct Newest {
+    let price: Decimal
+    let at: Date
+    let isLive: Bool
+  }
+
+  /// The extremes and the price line since the open.
+  private struct Path {
+    let low: Decimal
+    let high: Decimal
+    let closes: [Decimal]
+  }
+
+  /// What the results are measured from.
+  private struct Basis: Hashable, Sendable {
+    let entry: Decimal
+    let stop: Decimal?
+    let quantity: Decimal
+  }
+
+  private let basis: Basis
+
+  private init(newest: Newest, path: Path, basis: Basis) {
+    let entry = basis.entry
+    let last = newest.price
+    let risk: Decimal? = basis.stop.flatMap { $0 < entry ? entry - $0 : nil }
+    let adverse = min(path.low - entry, 0)
+    let favorable = max(path.high - entry, 0)
     self.last = last
-    lastAt = lastBar.start.date
-    unrealized = (last - entry) * quantity
+    lastAt = newest.at
+    isLive = newest.isLive
+    unrealized = (last - entry) * basis.quantity
     self.adverse = adverse
     self.favorable = favorable
     resultR = risk.map { (last - entry) / $0 }
     adverseR = risk.map { adverse / $0 }
     favorableR = risk.map { favorable / $0 }
-    closes = [entry] + since.map(\.close.value)
-    self.low = low
-    self.high = high
+    closes = path.closes
+    low = path.low
+    high = path.high
+    self.basis = basis
   }
 }

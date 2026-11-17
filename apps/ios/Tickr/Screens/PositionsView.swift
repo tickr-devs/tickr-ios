@@ -209,8 +209,8 @@ private struct PositionDetail: View {
               .font(Tokens.Typography.metric)
               .foregroundStyle(current ? Palette.result(marks.unrealized) : Palette.textQuaternary)
               .contentTransition(.numericText())
-            Text(marks.resultR.map { L10n.Positions.lastAndR(Money.price(marks.last), Risk.text($0)) }
-              ?? L10n.Positions.last(Money.price(marks.last)))
+            Text(marks.resultR.map { (marks.isLive ? L10n.Positions.bidAndR : L10n.Positions.lastAndR)(
+              Money.price(marks.last), Risk.text($0)) } ?? marks.priceText)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.textTertiary)
             if !current {

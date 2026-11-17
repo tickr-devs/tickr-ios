@@ -34,6 +34,13 @@ extension Container {
     }.cached
   }
 
+  /// The bot's live quotes as last read (GET /quotes): one per app run, so every screen shows the
+  /// same price for one symbol at one moment. The app model reads it every second.
+  @MainActor
+  public var liveQuotes: Factory<LiveQuotes> {
+    self { LiveQuotes() }.cached
+  }
+
   /// The current moment. Tests pin it.
   public var now: Factory<@Sendable () -> Date> {
     self { { Date() } }

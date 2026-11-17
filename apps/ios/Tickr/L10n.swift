@@ -569,6 +569,13 @@ enum L10n {
     static func lastAndR(_ price: String, _ r: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.lastAndR", defaultValue: "last \(price) · \(r)", bundle: L10n.bundle)
     }
+    /// The live bid of the bot's quote stream, what the position would sell at: "bid 12.34".
+    static func bid(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.bid", defaultValue: "bid \(price)", bundle: L10n.bundle)
+    }
+    static func bidAndR(_ price: String, _ r: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.bidAndR", defaultValue: "bid \(price) · \(r)", bundle: L10n.bundle)
+    }
     /// The entry level's label in the risk band, with its price, as on the design: "entry 12.34".
     static func entryLevel(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.entryLevel", defaultValue: "entry \(price)", bundle: L10n.bundle)
@@ -841,6 +848,10 @@ enum L10n {
     /// An open position's chips: last price, how many times the entry was sent ("×1"), fill time.
     static var hintLast: LocalizedStringResource {
       LocalizedStringResource("activity.hintLast", defaultValue: "Last price", bundle: L10n.bundle)
+    }
+    /// The live bid in place of the last bar's close.
+    static var hintBid: LocalizedStringResource {
+      LocalizedStringResource("activity.hintBid", defaultValue: "Bid, live", bundle: L10n.bundle)
     }
     static var hintSends: LocalizedStringResource {
       LocalizedStringResource("activity.hintSends", defaultValue: "Times the entry was sent", bundle: L10n.bundle)

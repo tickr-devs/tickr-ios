@@ -651,6 +651,13 @@ enum L10n {
     static var lastBarClose: LocalizedStringResource {
       LocalizedStringResource("position.lastBarClose", defaultValue: "last bar close", bundle: L10n.bundle)
     }
+    /// The live bid of the bot's quote stream, what the position would sell at, with its time.
+    static func bidAt(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("position.bidAt", defaultValue: "bid · \(time)", bundle: L10n.bundle)
+    }
+    static var bid: LocalizedStringResource {
+      LocalizedStringResource("position.bid", defaultValue: "bid, live", bundle: L10n.bundle)
+    }
     /// Tooltip of a position's price and R when the newest captured bar is not current.
     static func staleHelp(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("position.staleHelp",

@@ -747,7 +747,8 @@ private struct TradesList: View {
     let state = position.stop.state
     var list: [Figure] = []
     if let marks = marks[position.symbol] {
-      list.append(Figure(symbol: Self.lastSymbol, label: L10n.Activity.hintLast, value: Money.price(marks.last)))
+      list.append(Figure(symbol: Self.lastSymbol, label: marks.isLive ? L10n.Activity.hintBid : L10n.Activity.hintLast,
+        value: Money.price(marks.last)))
       if let r = marks.resultR {
         list.append(Figure(symbol: r < 0 ? Self.resultDownSymbol : Self.resultUpSymbol, label: L10n.Activity.hintResultR,
           value: Risk.text(r), tone: Tone.result(marks.unrealized)))

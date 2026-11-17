@@ -15,6 +15,9 @@ struct CandleChart: View {
   let levels: [ChartLevel]
   let decisions: [DecisionMark]
   let live: Bool
+  /// The live bid of the symbol (GET /quotes) while the live day is shown: the price tag sits at it
+  /// instead of the last closed candle's close, as the price above the chart does.
+  var livePrice: Double?
   @Binding var viewport: Viewport
   /// The candle under the pointer, shared with the screen's header readout and the explain card.
   let pointer: ChartPointer
@@ -258,7 +261,8 @@ struct CandleChart: View {
   private var priceTags: [AxisTag] {
     var tags = levels.map { AxisTag(value: $0.price, text: Money.price($0.price), color: $0.color) }
     if let last = candles.last {
-      tags.append(AxisTag(value: last.close, text: Money.price(last.close), color: color(last)))
+      let price = livePrice ?? last.close
+      tags.append(AxisTag(value: price, text: Money.price(price), color: color(last)))
     }
     // A high or low next to a plate (the last price at the day's high) would sit under it.
     let span = priceScale

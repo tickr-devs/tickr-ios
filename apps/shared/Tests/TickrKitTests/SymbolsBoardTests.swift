@@ -148,4 +148,21 @@ struct SymbolsBoardTests {
     let plotted = SymbolDayLine(closes: [10, 11], previousClose: 10).plotted
     #expect(plotted.closes == [10, 11] && plotted.previousClose == 10)
   }
+
+  @Test("A symbol on the bot's quote stream shows its live bid and the change it makes; others the screener's")
+  func livePrice() throws {
+    let row = try #require(symbols.rows.first { $0.symbol == "ABCD" })
+    let line = SymbolsLine(symbol: "ABCD", row: row, mover: nil, position: false)
+    let screener = SymbolsBoard.shown(line, live: nil)
+    #expect(screener == SymbolsPrice(price: Decimal(string: "4.12"), changePct: Decimal(string: "18.20"), isLive: false))
+    let quotes = try Wire.decoder().decode(QuotesResponseV1.self, from: fixture("quotes-response-v1.json"))
+    let quote = try #require(quotes.quotes.quotes.first { $0.symbol == "ABCD" })
+    let live = try #require(LivePrice(quote: quote, now: quote.quotedAt.date, maxAgeSeconds: 60))
+    let shown = SymbolsBoard.shown(line, live: live)
+    #expect(shown.isLive)
+    #expect(shown.price == live.bid)
+    // The previous close the screener implies (4.12 at +18.20%), measured to the live bid.
+    let previous = try #require(SymbolDayLine.previousClose(price: row.price, changePct: row.changePct))
+    #expect(shown.changePct == (live.bid - previous) / previous * SymbolDayLine.percent)
+  }
 }

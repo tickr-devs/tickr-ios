@@ -127,6 +127,13 @@ final class ChartModel {
   var trades: [DayTrade] { day?.trades.filter { $0.symbol == symbol } ?? [] }
   /// Whether the chosen day is today in New York on the bot's clock, so its bars still grow.
   var isToday: Bool { selectedDay == Container.shared.appModel().today }
+
+  /// The symbol's live bid (GET /quotes) while today is shown; nil otherwise or without a live
+  /// quote, and then the last closed candle stands for the price.
+  var livePrice: Double? {
+    guard isToday, let symbol, let live = Container.shared.appModel().livePrice(symbol) else { return nil }
+    return NSDecimalNumber(decimal: live.bid).doubleValue
+  }
   /// The day before and after the chosen one among the recorded days (newest first); none while
   /// the demo day is on, the only day then.
   var previousDay: WireDate? { dayLocked ? nil : neighbour(1) }

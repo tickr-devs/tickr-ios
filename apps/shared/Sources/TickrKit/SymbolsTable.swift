@@ -77,6 +77,15 @@ public struct SymbolsOrder: Hashable, Sendable {
 
 /// One line of the table: the symbol's row of the day, its fast mover bar, and whether it is an
 /// open position. A pinned line (Fast movers tab) has a row but no bar.
+/// A line's price and change as shown (`SymbolsBoard.shown`).
+public struct SymbolsPrice: Hashable, Sendable {
+  public let price: Decimal?
+  /// Change from the previous close, in percent.
+  public let changePct: Decimal?
+  /// `price` is the live bid of the bot's quotes, not the screener's.
+  public let isLive: Bool
+}
+
 public struct SymbolsLine: Identifiable, Hashable, Sendable {
   public let symbol: String
   public let row: SymbolRowV1?
@@ -207,9 +216,25 @@ extension SymbolsBoard {
   /// The line's last price: the screener row's, else the fast bar's close.
   public static func price(_ line: SymbolsLine) -> DecimalString? { line.row?.price ?? line.mover?.close }
 
+  /// What a line shows as its price and change: the live bid of the bot's quotes where it holds
+  /// one for the symbol (the symbol is on its stream), with the change from the previous close the
+  /// screener row implies; else the screener's price and change, as of its last pass.
+  public static func shown(_ line: SymbolsLine, live: LivePrice?) -> SymbolsPrice {
+    let screener = SymbolsPrice(price: price(line)?.value, changePct: line.row?.changePct?.value, isLive: false)
+    guard let live else { return screener }
+    let previous = SymbolDayLine.previousClose(price: price(line), changePct: line.row?.changePct)
+    let change = previous.flatMap { $0 > 0 ? (live.bid - $0) / $0 * SymbolDayLine.percent : nil }
+    return SymbolsPrice(price: live.bid, changePct: change, isLive: true)
+  }
+
   /// "▲ 18.20%", "▼ 4.20%": the change from the previous close; nil without one.
   public static func tableChange(_ value: DecimalString?) -> String? {
-    guard let value = value?.value else { return nil }
+    tableChange(value?.value)
+  }
+
+  /// "▲ 18.20%", "▼ 4.20%": the change from the previous close; nil without one.
+  public static func tableChange(_ value: Decimal?) -> String? {
+    guard let value else { return nil }
     let body = fixed(abs(value), digits: tableChangeDigits)
     return String(localized: value < 0 ? L10n.symbolsChangeDown(body) : L10n.symbolsChangeUp(body))
   }

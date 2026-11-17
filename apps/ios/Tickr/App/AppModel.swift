@@ -91,6 +91,10 @@ final class AppModel {
   private(set) var botClockOffset: TimeInterval = 0
 
   @ObservationIgnored private var pollTask: Task<Void, Never>?
+  @ObservationIgnored private var quotesTask: Task<Void, Never>?
+  /// The bot's live quotes (GET /quotes), read every `settings.quotes_poll_seconds` while the app
+  /// runs: every live price the app shows comes from here.
+  @ObservationIgnored @Injected(\.liveQuotes) var quotes
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
@@ -166,11 +170,32 @@ final class AppModel {
         try? await Task.sleep(for: .seconds(self.pollSeconds))
       }
     }
+    quotesTask = Task { [weak self] in
+      while !Task.isCancelled {
+        guard let self else { return }
+        await self.refreshQuotes()
+        // Until the settings say how often (an older API has no /quotes), wait as the status does.
+        try? await Task.sleep(for: .seconds(LiveQuotes.pollSeconds(self.settings) ?? self.pollSeconds))
+      }
+    }
   }
 
   func stop() {
     pollTask?.cancel()
     pollTask = nil
+    quotesTask?.cancel()
+    quotesTask = nil
+  }
+
+  /// Reads the bot's live quotes once, when its API has them; nothing without an address.
+  func refreshQuotes() async {
+    guard let url = connection.url, LiveQuotes.pollSeconds(settings) != nil else { return }
+    await quotes.refresh(Container.shared.apiClient(connection.endpoint(for: url)))
+  }
+
+  /// The live price of `symbol` now, from the bot's quotes; nil when there is none (`LivePrice`).
+  func livePrice(_ symbol: String) -> LivePrice? {
+    quotes.price(symbol, now: botNow, settings: settings)
   }
 
   private func restart() {
@@ -181,6 +206,7 @@ final class AppModel {
     botClockOffset = 0
     settings = nil
     settingsError = nil
+    quotes.clear()
     account = nil
     accountError = nil
     jobs = nil

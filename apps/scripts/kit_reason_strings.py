@@ -705,6 +705,11 @@ GROUPS = [
                 "Бот ещё не записал файл счёта",
             ),
             (
+                "no_quotes_file",
+                "The bot has not written a quotes file yet",
+                "Бот ещё не записал файл котировок",
+            ),
+            (
                 "no_start_command",
                 "No start command is set on this machine: start the bot where it runs",
                 "На этой машине не задана команда запуска: запустите бота там, где он работает",
@@ -1011,6 +1016,11 @@ GROUPS = [
                 "account_file_invalid",
                 "The bot's account file is invalid: {detail}",
                 "Файл счёта бота неверен: {detail}",
+            ),
+            (
+                "quotes_file_invalid",
+                "The bot's quotes file is invalid: {detail}",
+                "Файл котировок бота неверен: {detail}",
             ),
             (
                 "past_day_reconciliation",

@@ -112,7 +112,7 @@ struct ChartTab: View {
             CandleChart(series: series, times: chart.times, studies: chart.studies, atr: chart.atr,
               trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
               events: oneDay ? chart.events : [], lines: lines, rangeTitle: RangePicker.title(chart.range),
-              pending: chart.pending, viewport: $viewport)
+              pending: chart.pending, livePrice: oneDay ? chart.livePrice : nil, viewport: $viewport)
               // Its panes have a fixed height: past this size the scale's tags and legends would
               // cover each other and the candles.
               .dynamicTypeSize(...CandleChart.largestText)
@@ -306,12 +306,14 @@ private struct DayBar: View {
   @ViewBuilder
   private var quote: some View {
     if let candles = chart.series?.candles, let first = candles.first, let last = candles.last {
-      let amount = last.close - first.open
+      // The live bid where the bot's quotes have one (today, one day shown), else the last close.
+      let price = (chart.range == .oneDay ? chart.livePrice : nil) ?? last.close
+      let amount = price - first.open
       let change = first.open == 0 ? 0 : amount / first.open
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: Money.price(last.close))
+        Text(verbatim: Money.price(price))
           .font(.headline.monospaced().bold())
-          .contentTransition(.numericText(value: last.close))
+          .contentTransition(.numericText(value: price))
         Text(verbatim: Percent.signed(fraction: change))
           .font(Tokens.Typography.captionMono)
       }

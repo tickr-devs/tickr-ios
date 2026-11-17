@@ -9,6 +9,7 @@ public enum Wire {
   public static let statusSchemaVersion = 1
   public static let commandSchemaVersion = 1
   public static let accountSchemaVersion = 1
+  public static let quotesSchemaVersion = 1
 
   static let decimalPattern = "^-?[0-9]+(\\.[0-9]+)?$"
   /// A wire time: date, `timeSeparator`, clock with milliseconds, `utcSuffix`.

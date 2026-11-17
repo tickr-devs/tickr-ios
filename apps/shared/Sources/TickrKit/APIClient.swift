@@ -79,6 +79,7 @@ public struct APIClient: Sendable {
   static let daysPath = "/days"
   static let barsPath = "/bars"
   static let accountPath = "/account"
+  static let quotesPath = "/quotes"
   static let jobsPath = "/jobs"
   static let journalPath = "/journal"
   static let advisorPath = "/advisor"
@@ -146,6 +147,11 @@ public struct APIClient: Sendable {
   /// its records.
   public func account() async throws -> AccountResponseV1 {
     try await perform(request(path: Self.accountPath, body: nil), expect: Self.ok)
+  }
+
+  /// The newest quote of every symbol on the bot's quote stream (display only).
+  public func quotes() async throws -> QuotesResponseV1 {
+    try await perform(request(path: Self.quotesPath, body: nil), expect: Self.ok)
   }
 
   /// Every configured observer with its decisions recorded on `day`, oldest first.

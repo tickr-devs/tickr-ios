@@ -7626,6 +7626,24 @@
         }
       }
     },
+    "kit.prose.no_quotes_file" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_quotes_file",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot has not written a quotes file yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот ещё не записал файл котировок"
+          }
+        }
+      }
+    },
     "kit.prose.no_reference_price" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). no_reference_price",
       "extractionState" : "manual",
@@ -8162,6 +8180,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не записано: в решениях нет времени котировки"
+          }
+        }
+      }
+    },
+    "kit.prose.quotes_file_invalid" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). quotes_file_invalid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's quotes file is invalid: {detail}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл котировок бота неверен: {detail}"
           }
         }
       }

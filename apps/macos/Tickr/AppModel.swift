@@ -63,17 +63,25 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
   public let closes: [Decimal]
   /// Close of the newest captured bar however old it is; shown as history when it is not fresh.
   public var latestClose: Decimal?
+  /// The live bid of the bot's quotes (`LivePrice`); nil without one, and then the price is the
+  /// fresh bar's close.
+  public var live: LivePrice?
+
+  /// The position's current price: the live bid, else the close of a fresh captured bar.
+  public var price: Decimal? { live?.bid ?? lastBarClose }
+  /// The small chart's line: the closes, ending at the live bid when there is one.
+  public var line: [Decimal] { closes + (live.map { [$0.bid] } ?? []) }
 
   public var id: String { position.symbol }
   public var entry: Decimal { position.entryPrice.value }
   public var stop: Decimal? { position.stop.price?.value }
   public var quantity: Decimal { position.quantity.value }
 
-  public var unrealized: Decimal? { lastBarClose.map { ($0 - entry) * quantity } }
+  public var unrealized: Decimal? { price.map { ($0 - entry) * quantity } }
   /// Result at the newest captured bar, fresh or not.
   public var latestUnrealized: Decimal? { latestClose.map { ($0 - entry) * quantity } }
   /// The newest bar is too old to be the current price: figures are shown greyed, as of its time.
-  public var isStale: Bool { lastBarClose == nil && latestClose != nil }
+  public var isStale: Bool { price == nil && latestClose != nil }
   /// What the bot did to the position, as its OPEN tag's dot marks it: a fill (the quantity), a
   /// stop placed, verified or moved. A change is one pulse; a newer price is not an event.
   public var event: PositionEvent {
@@ -81,7 +89,7 @@ public struct PositionRow: Identifiable, Equatable, Sendable {
   }
 
   public var resultR: Decimal? {
-    guard let last = lastBarClose else { return nil }
+    guard let last = price else { return nil }
     return Risk.multiple(entry: entry, stop: stop, price: last)
   }
   /// R at the newest captured bar, fresh or not.
@@ -120,6 +128,9 @@ public final class AppModel {
   @ObservationIgnored private var client: APIClient
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
+  /// The bot's live quotes (GET /quotes), read every `settings.quotes_poll_seconds`: every live
+  /// price the app shows comes from here.
+  @ObservationIgnored @Injected(\.liveQuotes) public var quotes
   /// How far the bot's clock is ahead of this Mac's, from the last status's `served_at`. The
   /// bot's clock decides what "today" is and how old its reads are: the Mac's clock can drift,
   /// and `tickr demo` plays a past day on a clock of its own.
@@ -315,7 +326,8 @@ public final class AppModel {
       let last = read.last
       let fresh = last.map { barIsFresh(start: $0.start.date, now: botNow) } ?? false
       return PositionRow(position: position, lastBarClose: fresh ? last?.close.value : nil, lastBarAt: last?.start.date,
-        closes: [position.entryPrice.value] + bars.map(\.close.value), latestClose: last?.close.value)
+        closes: [position.entryPrice.value] + bars.map(\.close.value), latestClose: last?.close.value,
+        live: livePrice(position.symbol))
     }
   }
 
@@ -449,6 +461,20 @@ public final class AppModel {
         try? await Task.sleep(for: .seconds(Pace.accountSeconds))
       }
     })
+    tasks.append(Task { [weak self] in
+      while !Task.isCancelled {
+        guard let self else { return }
+        // Until the settings say how often (an older API has no /quotes), wait as the status does.
+        let seconds = LiveQuotes.pollSeconds(self.settings)
+        if seconds != nil { await self.quotes.refresh(self.client) }
+        try? await Task.sleep(for: .seconds(seconds ?? self.pollSeconds))
+      }
+    })
+  }
+
+  /// The live price of `symbol` now, from the bot's quotes; nil when there is none (`LivePrice`).
+  public func livePrice(_ symbol: String) -> LivePrice? {
+    quotes.price(symbol, now: botNow, settings: settings)
   }
 
   public func stop() {
@@ -484,6 +510,7 @@ public final class AppModel {
     readFailure = nil
     lastReadAt = nil
     settings = nil
+    quotes.clear()
     days = []
     dayDocument = nil
     todayDocument = nil

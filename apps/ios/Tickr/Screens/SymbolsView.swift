@@ -268,8 +268,12 @@ private struct SelectedSymbol: Identifiable, Hashable {
 /// stage track with the stage name in the outcome's colour and why; on the Fast movers tab the
 /// bar's three figures. A chevron, as the row pushes the detail. Every text wraps; none is cut.
 private struct SymbolListRow: View {
+  @Environment(AppModel.self) private var model
   let line: SymbolsLine
   let fastMovers: Bool
+
+  /// The line's price and change: live where the bot's quotes hold the symbol.
+  private var shown: SymbolsPrice { SymbolsBoard.shown(line, live: model.livePrice(line.symbol)) }
 
   /// Widths of the change and the time on the first line, in points (the design's).
   static let changeWidth: CGFloat = 66
@@ -285,12 +289,12 @@ private struct SymbolListRow: View {
             .foregroundStyle(Palette.textPrimary)
           SymbolTagBadge(line: line)
           Spacer(minLength: 0)
-          Text(verbatim: SymbolsBoard.price(line).map { Money.price($0.value) } ?? Format.missing)
+          Text(verbatim: shown.price.map { Money.price($0) } ?? Format.missing)
             .font(Tokens.Typography.calloutMono)
             .foregroundStyle(Palette.textPrimary)
-          Text(verbatim: SymbolsBoard.tableChange(row?.changePct) ?? Format.missing)
+          Text(verbatim: SymbolsBoard.tableChange(shown.changePct) ?? Format.missing)
             .font(Tokens.Typography.annotation)
-            .foregroundStyle(row?.changePct?.isNegative == true ? Palette.droppedText : Palette.profitText)
+            .foregroundStyle((shown.changePct ?? 0) < 0 ? Palette.droppedText : Palette.profitText)
             .frame(width: Self.changeWidth, alignment: .trailing)
           Text(verbatim: time.map(Format.time) ?? Format.missing)
             .font(Tokens.Typography.annotation)
@@ -487,6 +491,9 @@ private struct SymbolDetailScreen: View {
   let line: SymbolsLine
   let rules: FastMoverRulesV1?
 
+  /// The line's price and change: live where the bot's quotes hold the symbol.
+  private var shown: SymbolsPrice { SymbolsBoard.shown(line, live: model.livePrice(line.symbol)) }
+
   /// SF Symbols of the chart link and the path steps.
   static let chartSymbol = "chart.xyaxis.line"
   static let passedSymbol = "checkmark"
@@ -509,14 +516,14 @@ private struct SymbolDetailScreen: View {
           }
         }
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Text(verbatim: SymbolsBoard.price(line).map { Money.price($0.value) } ?? Format.missing)
+          Text(verbatim: shown.price.map { Money.price($0) } ?? Format.missing)
             .font(Tokens.Typography.metric)
             .foregroundStyle(Palette.textPrimary)
-          if let change = SymbolsBoard.tableChange(row?.changePct) {
+          if let change = SymbolsBoard.tableChange(shown.changePct) {
             Text(verbatim: change)
               .font(Tokens.Typography.calloutMono)
               .fontWeight(.semibold)
-              .foregroundStyle(row?.changePct?.isNegative == true ? Palette.droppedText : Palette.profitText)
+              .foregroundStyle((shown.changePct ?? 0) < 0 ? Palette.droppedText : Palette.profitText)
           }
           Spacer(minLength: Tokens.Space.s)
           Text(SymbolsText.today)

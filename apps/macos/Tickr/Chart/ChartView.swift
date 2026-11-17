@@ -189,6 +189,13 @@ struct ChartView: View {
   /// Whether the chart shows the shown day (with its trades and decisions), not a longer range.
   private var showsDay: Bool { range == .oneDay }
 
+  /// The shown symbol's live bid (GET /quotes) while the chart shows the live day; nil otherwise or
+  /// without a live quote, and then the last closed candle stands for the price.
+  private var livePrice: Double? {
+    guard model.isLive, showsDay, let symbol, let live = model.livePrice(symbol) else { return nil }
+    return NSDecimalNumber(decimal: live.bid).doubleValue
+  }
+
   private func keepLoading() async {
     chart.clear()
     chart.hasSymbol = symbol != nil
@@ -256,13 +263,15 @@ struct ChartView: View {
         .fixedSize()
       }
       if !loadingBars, let last = plot?.candles.last {
-        Text(verbatim: Money.price(last.close))
+        // The live bid where the bot's quotes have one, else the last closed candle's close.
+        let price = livePrice ?? last.close
+        Text(verbatim: Money.price(price))
           .font(Tokens.Typography.quote)
           // Coloured as the day's change beside it when the screeners reported one, so the two
           // never disagree; else by the last candle.
-          .foregroundStyle(Palette.result(dayChange ?? Money.decimal(last.close - last.open)))
-          .contentTransition(.numericText(value: last.close))
-          .animation(Tokens.Motion.quick, value: last.close)
+          .foregroundStyle(Palette.result(dayChange ?? Money.decimal(price - last.open)))
+          .contentTransition(.numericText(value: price))
+          .animation(Tokens.Motion.quick, value: price)
       }
       if !loadingBars, let change = dayChange {
         Text(verbatim: Percent.signed(fraction: change))
@@ -597,6 +606,7 @@ struct ChartView: View {
             place: plot.drawnTime) : [],
         // Only the shown live day and intraday ranges reaching today still change.
         live: model.isLive && (showsDay || interval.isIntraday),
+        livePrice: livePrice,
         viewport: $viewport, pointer: pointer)
         // The bot's status arrives every few seconds and redraws this screen; the chart itself
         // only when what it draws changed.

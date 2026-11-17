@@ -217,8 +217,8 @@ struct MenuPosition: View {
         Text(L10n.MenuBar.entry(Format.price(position.entryPrice.value)))
           .hint(L10n.Position.entryLevel(Format.price(position.entryPrice.value)))
         Spacer()
-        Text(verbatim: Format.price(row?.lastBarClose ?? row?.latestClose))
-          .hint(L10n.Position.lastBarClose)
+        Text(verbatim: Format.price(row?.price ?? row?.latestClose))
+          .hint(row?.live == nil ? L10n.Position.lastBarClose : L10n.Position.bid)
       }
       .font(Tokens.Typography.annotation)
       .foregroundStyle(Palette.textQuaternary)

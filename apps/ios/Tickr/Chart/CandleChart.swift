@@ -128,6 +128,9 @@ struct CandleChart: View {
   /// What the chart still waits for while the chart's request budget fills it (a cold 5D):
   /// a progress line over the chart (mockup v102); nil when it is complete.
   var pending: ChartPendingV1?
+  /// The live bid of the symbol (GET /quotes) while today is shown: the price tag sits at it instead
+  /// of the last closed candle's close, as the price above the chart does.
+  var livePrice: Double?
   @Binding var viewport: ChartViewport
   /// The value scales' width, grown with Dynamic Type so a price such as 128.40 is never cut.
   @ScaledMetric(relativeTo: .caption2) private var axisWidth = CandleChart.axisLabelWidth
@@ -827,7 +830,7 @@ struct CandleChart: View {
   private func priceTags(_ scale: PriceScale) -> [PriceTag] {
     var tags: [(price: Double, fill: Color)] = []
     if let last = series.candles.last {
-      tags.append((last.close, last.isUp ? Palette.profit : Palette.loss))
+      tags.append((livePrice ?? last.close, last.isUp ? Palette.profit : Palette.loss))
     }
     var levels = trades.sorted { $0.openedAt.date > $1.openedAt.date }.map {
       (ChartFormat.double($0.entryPrice), $0.stopPrice.map(ChartFormat.double), true)

@@ -3,6 +3,11 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). no_start_command
+  static var proseReasonNoStartCommand: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_start_command",
+      defaultValue: "No start command is set on this machine: start the bot where it runs", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). bot_not_stopped (values: state)
   static var proseReasonBotNotStopped: LocalizedStringResource {
     LocalizedStringResource("kit.prose.bot_not_stopped",
@@ -303,6 +308,11 @@ extension L10n {
     LocalizedStringResource("kit.prose.account_file_invalid",
       defaultValue: "The bot's account file is invalid: {detail}", bundle: bundle)
   }
+  /// A cause the API writes itself (`<field>_codes`). quotes_file_invalid (values: detail)
+  static var proseReasonQuotesFileInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.quotes_file_invalid",
+      defaultValue: "The bot's quotes file is invalid: {detail}", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). past_day_reconciliation
   static var proseReasonPastDayReconciliation: LocalizedStringResource {
     LocalizedStringResource("kit.prose.past_day_reconciliation",
@@ -372,16 +382,5 @@ extension L10n {
   static var proseReasonUniverseType: LocalizedStringResource {
     LocalizedStringResource("kit.prose.universe_type",
       defaultValue: "Security type {measured} is not traded", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). binding_not_proven
-  static var proseReasonBindingNotProven: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.binding_not_proven",
-      // swiftlint:disable:next line_length
-      defaultValue: "The record does not show which limit set the size: the planned loss, the position cap or the daily room", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). no_chart_bars (values: symbol)
-  static var proseReasonNoChartBars: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_chart_bars",
-      defaultValue: "No candles for {symbol} in this range", bundle: bundle)
   }
 }

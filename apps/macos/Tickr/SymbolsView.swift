@@ -382,6 +382,7 @@ private enum SymbolsSkeleton {
 /// line uses the same columns, an empty cell reads "—" and nothing moves into another column.
 /// Zebra rows, a blue bar on the selected one; a long reason makes the row taller, never cut.
 private struct SymbolsGrid: View {
+  @Environment(AppModel.self) private var model
   let line: SymbolsLine
   let fastMovers: Bool
   let zebra: Bool
@@ -468,6 +469,9 @@ private struct SymbolsGrid: View {
     .accessibilityAddTraits(selected ? .isSelected : [])
   }
 
+  /// The line's price and change: live where the bot's quotes hold the symbol.
+  private var shown: SymbolsPrice { SymbolsBoard.shown(line, live: model.livePrice(line.symbol)) }
+
   @ViewBuilder private func cell(_ column: SymbolsColumn) -> some View {
     let row = line.row
     let mover = line.mover
@@ -481,9 +485,9 @@ private struct SymbolsGrid: View {
         SymbolsLineBadge(line: line)
       }
     case .last:
-      figure(SymbolsBoard.price(line).map { Money.price($0.value) })
+      figure(shown.price.map { Money.price($0) })
     case .change:
-      figure(SymbolsBoard.tableChange(row?.changePct), color: row?.changePct?.isNegative == true
+      figure(SymbolsBoard.tableChange(shown.changePct), color: (shown.changePct ?? 0) < 0
         ? Palette.droppedText : Palette.profitText)
     case .volume:
       mover.map { MoverFigure(text: SymbolsBoard.ratio($0.volumeRatio), fired: $0.fired(.volume)) }
@@ -613,6 +617,9 @@ private struct SymbolsDetailPanel: View {
   static let waitingSymbol = "clock"
   static let aheadSymbol = "minus"
 
+  /// The line's price and change: live where the bot's quotes hold the symbol.
+  private var shown: SymbolsPrice { SymbolsBoard.shown(line, live: model.livePrice(line.symbol)) }
+
   var body: some View {
     let row = line.row
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
@@ -630,14 +637,14 @@ private struct SymbolsDetailPanel: View {
         }
       }
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: SymbolsBoard.price(line).map { Money.price($0.value) } ?? Format.missing)
+        Text(verbatim: shown.price.map { Money.price($0) } ?? Format.missing)
           .font(Tokens.Typography.metric)
           .foregroundStyle(Palette.textPrimary)
-        if let change = SymbolsBoard.tableChange(row?.changePct) {
+        if let change = SymbolsBoard.tableChange(shown.changePct) {
           Text(verbatim: change)
             .font(Tokens.Typography.captionMono)
             .fontWeight(.semibold)
-            .foregroundStyle(row?.changePct?.isNegative == true ? Palette.droppedText : Palette.profitText)
+            .foregroundStyle((shown.changePct ?? 0) < 0 ? Palette.droppedText : Palette.profitText)
         }
         Spacer(minLength: Tokens.Space.s)
         Text(SymbolsText.today)
