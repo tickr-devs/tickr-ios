@@ -45,6 +45,14 @@ extension L10n {
   static var countdownClosesIn: LocalizedStringResource {
     LocalizedStringResource("kit.countdown.closesIn", defaultValue: "Closes in", bundle: bundle)
   }
+  /// A day or more before the next regular open: the label in front of its weekday and time.
+  static var countdownOpensOn: LocalizedStringResource {
+    LocalizedStringResource("kit.countdown.opensOn", defaultValue: "Opens", bundle: bundle)
+  }
+  /// The next open a day or more away; arguments: its abbreviated weekday, its New York time.
+  static func countdownWeekdayTime(_ weekday: String, _ time: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.countdown.weekdayTime", defaultValue: "\(weekday) \(time)", bundle: bundle)
+  }
   /// The time left, an hour or more; arguments: whole hours, then minutes. Abbreviated units take
   /// no plural forms in either language ("ч", "м"), so any count reads right.
   static func countdownHoursMinutes(_ hours: Int, _ minutes: Int) -> LocalizedStringResource {

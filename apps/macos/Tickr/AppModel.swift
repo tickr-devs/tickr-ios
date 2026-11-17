@@ -253,12 +253,13 @@ public final class AppModel {
   public var status: StatusV1? { response?.status }
   public var headline: Headline { Headline.make(response: response, readFailed: readFailure != nil) }
   /// The facts beside the live headline (mockup v108): the gate of the status, and the countdown
-  /// to today's regular open or close from the /jobs session, on the bot's clock.
+  /// to the regular close or the next open from /jobs, on the bot's clock.
   public var headlineFacts: HeadlineBanner.Facts {
     let session = jobs?.session
+    let next = jobs?.nextSession
     let offset = botClockOffset
     return HeadlineBanner.Facts(gate: EntryGate.make(status, headline: headline)) { local in
-      SessionCountdown.make(session: session, now: local.addingTimeInterval(offset))
+      SessionCountdown.make(session: session, next: next, now: local.addingTimeInterval(offset))
     }
   }
   /// What every section says about the link to the bot: last known data under a banner, or a
@@ -522,8 +523,9 @@ public final class AppModel {
         await refreshHistory()
       }
       resolveSentCommands()
-      // Today's session for the headline's countdown: read once per bot day.
-      if jobsReadDay != today {
+      // Today's session and the next one for the headline's countdown: read once per bot day,
+      // and again once the next session has opened (it then names the one after).
+      if jobsReadDay != today || jobs?.nextSession.map({ $0.regularOpen.date <= botNow }) == true {
         jobsReadDay = today
         await refreshJobs()
         if jobs == nil { jobsReadDay = nil }

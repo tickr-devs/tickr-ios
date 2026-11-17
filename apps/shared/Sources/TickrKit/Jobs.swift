@@ -147,6 +147,28 @@ public struct SessionTimesV1: Codable, Hashable, Sendable {
   }
 }
 
+/// The next regular session that opens after the jobs' `served_at`, from the session calendar
+/// (GET /jobs `next_session`): display only, for the headline's "Opens in" overnight and over
+/// weekends and holidays.
+public struct NextSessionV1: Codable, Hashable, Sendable {
+  /// The calendar's kind of the day: a full regular session or a half day (an early close).
+  public enum Kind: String, Codable, Hashable, Sendable {
+    case regular
+    case halfDay = "half_day"
+  }
+
+  public let day: WireDate
+  public let regularOpen: WireTime
+  public let regularClose: WireTime
+  public let kind: Kind
+
+  enum CodingKeys: String, CodingKey {
+    case day, kind
+    case regularOpen = "regular_open"
+    case regularClose = "regular_close"
+  }
+}
+
 /// GET /jobs.
 public struct JobsV1: Codable, Hashable, Sendable {
   public let servedAt: WireTime
@@ -163,6 +185,12 @@ public struct JobsV1: Codable, Hashable, Sendable {
   public let sessionCauseCodes: [ReasonV1]
   /// The nightly market-data fetch for the Lab's replay.
   public let nightlyFetch: NightlyFetchJobV1
+  /// The next regular session after `servedAt`; nil with `nextSessionCause` when the calendar
+  /// cannot answer. Added after version 1 shipped: nil, with no cause, from an older API.
+  public let nextSession: NextSessionV1?
+  public let nextSessionCause: String?
+  /// The codes of `nextSessionCause` (empty from an older API).
+  public let nextSessionCauseCodes: [ReasonV1]
   public let apiVersion: Int
 
   enum CodingKeys: String, CodingKey {
@@ -175,6 +203,9 @@ public struct JobsV1: Codable, Hashable, Sendable {
     case nightlyFetch = "nightly_fetch"
     case apiVersion = "api_version"
     case sessionCauseCodes = "session_cause_codes"
+    case nextSession = "next_session"
+    case nextSessionCause = "next_session_cause"
+    case nextSessionCauseCodes = "next_session_cause_codes"
   }
 
   public init(from decoder: Decoder) throws {
@@ -191,6 +222,9 @@ public struct JobsV1: Codable, Hashable, Sendable {
     sessionCause = try c.decodeNullable(String.self, forKey: .sessionCause)
     sessionCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .sessionCauseCodes) ?? []
     nightlyFetch = try c.decode(NightlyFetchJobV1.self, forKey: .nightlyFetch)
+    nextSession = try c.decodeIfPresent(NextSessionV1.self, forKey: .nextSession)
+    nextSessionCause = try c.decodeIfPresent(String.self, forKey: .nextSessionCause)
+    nextSessionCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .nextSessionCauseCodes) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -207,6 +241,9 @@ public struct JobsV1: Codable, Hashable, Sendable {
     try c.encode(sessionCauseCodes, forKey: .sessionCauseCodes)
     try c.encode(nightlyFetch, forKey: .nightlyFetch)
     try c.encode(apiVersion, forKey: .apiVersion)
+    try c.encodeNullable(nextSession, forKey: .nextSession)
+    try c.encodeNullable(nextSessionCause, forKey: .nextSessionCause)
+    try c.encode(nextSessionCauseCodes, forKey: .nextSessionCauseCodes)
   }
 
   /// Why today has no session the bot trades, in the person's language (the bot's words for an unknown code).

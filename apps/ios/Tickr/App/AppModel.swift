@@ -217,8 +217,9 @@ final class AppModel {
       return
     }
     if settings == nil { await refreshSettings(url) }
-    // Today's session for the headline's countdown: read once per bot day.
-    if jobsReadDay != today {
+    // Today's session and the next one for the headline's countdown: read once per bot day, and
+    // again once the next session has opened (it then names the one after).
+    if jobsReadDay != today || jobs?.nextSession.map({ $0.regularOpen.date <= botNow }) == true {
       jobsReadDay = today
       await refreshJobs()
       if jobs == nil { jobsReadDay = nil }

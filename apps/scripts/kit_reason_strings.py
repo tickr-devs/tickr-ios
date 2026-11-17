@@ -921,6 +921,11 @@ GROUPS = [
                 "Нет сессии {day}: это сокращённый день, а сокращённые дни выключены",
             ),
             (
+                "no_next_session",
+                "The session calendar has no regular session within {days} days after {day}",
+                "В календаре сессий нет основной сессии в течение {days} дн. после {day}",
+            ),
+            (
                 "no_database",
                 "The bot has not created its database yet",
                 "Бот ещё не создал свою базу данных",

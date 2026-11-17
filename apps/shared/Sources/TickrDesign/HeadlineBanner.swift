@@ -204,7 +204,7 @@ public struct HeadlineBanner: View {
             .foregroundStyle(Palette.textQuaternary)
             .accessibilityHidden(true)
           Text(verbatim: countdown.label).foregroundStyle(Palette.textTertiary)
-          Text(verbatim: countdown.value)
+          Text(verbatim: countdown.value())
             .font(Tokens.Headline.countdownValue)
             .foregroundStyle(Palette.textPrimary)
         }

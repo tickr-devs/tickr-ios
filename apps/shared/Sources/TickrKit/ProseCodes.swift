@@ -121,6 +121,7 @@ public enum ProseReason: String, CaseIterable, Sendable {
   case calendarNaiveTime = "calendar_naive_time"
   case calendarInvalidOffset = "calendar_invalid_offset"
   case halfDayOff = "half_day_off"
+  case noNextSession = "no_next_session"
   case noDatabase = "no_database"
   case databaseUnreadable = "database_unreadable"
   case noBackup = "no_backup"

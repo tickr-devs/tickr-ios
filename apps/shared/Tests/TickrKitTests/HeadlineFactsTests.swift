@@ -20,35 +20,78 @@ import Testing
     try #require(ISO8601DateFormatter().date(from: text))
   }
 
+  func next(_ day: String, open: String, close: String) throws -> NextSessionV1 {
+    let json = """
+      {"day": "\(day)", "regular_open": "\(open)", "regular_close": "\(close)", "kind": "regular"}
+      """
+    return try Wire.decoder().decode(NextSessionV1.self, from: Data(json.utf8))
+  }
+
+  /// Today's session from /jobs as next_session names it before its open.
+  func todayNext() throws -> NextSessionV1 {
+    try next("2026-11-16", open: "2026-11-16T14:30:00.000Z", close: "2026-11-16T21:00:00.000Z")
+  }
+
   @Test("Before the open it counts to the open, in hours and minutes")
   func opensInHoursAndMinutes() throws {
-    let countdown = try #require(SessionCountdown.make(session: try session(), now: try at("2026-11-16T05:05:00Z")))
-    #expect(countdown == SessionCountdown(kind: .opens, minutes: 565))
+    let countdown = try #require(
+      SessionCountdown.make(session: try session(), next: try todayNext(), now: try at("2026-11-16T05:05:00Z")))
+    #expect((countdown.kind, countdown.minutes) == (.opens, 565))
     #expect(countdown.label == "Opens in")
-    #expect(countdown.value == "9 h 25 m")
+    #expect(countdown.value() == "9 h 25 m")
   }
 
   @Test("Inside the session it counts to the close; under an hour in minutes only")
   func closesInMinutes() throws {
-    let countdown = try #require(SessionCountdown.make(session: try session(), now: try at("2026-11-16T20:18:00Z")))
-    #expect(countdown == SessionCountdown(kind: .closes, minutes: 42))
+    let tomorrow = try next("2026-11-17", open: "2026-11-17T14:30:00.000Z", close: "2026-11-17T21:00:00.000Z")
+    let countdown = try #require(
+      SessionCountdown.make(session: try session(), next: tomorrow, now: try at("2026-11-16T20:18:00Z")))
+    #expect((countdown.kind, countdown.minutes) == (.closes, 42))
     #expect(countdown.label == "Closes in")
-    #expect(countdown.value == "42 m")
+    #expect(countdown.value() == "42 m")
   }
 
   @Test("Part of a minute counts as a whole one, so it never shows 0 m before the moment")
   func roundsUp() throws {
-    let countdown = SessionCountdown.make(session: try session(), now: try at("2026-11-16T14:29:30Z"))
-    #expect(countdown == SessionCountdown(kind: .opens, minutes: 1))
-    #expect(SessionCountdown(kind: .closes, minutes: 60).value == "1 h 0 m")
+    let countdown = SessionCountdown.make(session: try session(), next: try todayNext(),
+      now: try at("2026-11-16T14:29:30Z"))
+    #expect(countdown?.minutes == 1)
+    #expect(SessionCountdown(kind: .closes, minutes: 60, at: Date()).value() == "1 h 0 m")
   }
 
-  @Test("At the open it turns to the close; after the close and without a session it is not shown")
+  @Test("After the close it counts to the next session's open, overnight too")
+  func afterTheClose() throws {
+    let tomorrow = try next("2026-11-17", open: "2026-11-17T14:30:00.000Z", close: "2026-11-17T21:00:00.000Z")
+    // 23:05 New York: 10 h 25 m to Tuesday's 09:30.
+    let countdown = try #require(
+      SessionCountdown.make(session: try session(), next: tomorrow, now: try at("2026-11-17T04:05:00Z")))
+    #expect((countdown.kind, countdown.minutes) == (.opens, 625))
+    #expect(countdown.value() == "10 h 25 m")
+  }
+
+  @Test("A day or more away (Friday evening to Monday) it names the weekday and time")
+  func weekend() throws {
+    let monday = try next("2026-11-23", open: "2026-11-23T14:30:00.000Z", close: "2026-11-23T21:00:00.000Z")
+    let countdown = try #require(SessionCountdown.make(session: nil, next: monday, now: try at("2026-11-20T22:00:00Z")))
+    #expect(countdown.kind == .opensOn)
+    #expect(countdown.label == "Opens")
+    #expect(countdown.value(locale: Locale(identifier: "en_US")) == "Mon 09:30")
+    // As the v111 boards write it: «Откроется Пн 09:30».
+    #expect(countdown.value(locale: Locale(identifier: "ru_RU")) == "Пн 09:30")
+    // 23 h 59 m is still a countdown.
+    let almost = SessionCountdown.make(session: nil, next: monday, now: try at("2026-11-22T14:31:00Z"))
+    #expect(almost?.kind == .opens)
+  }
+
+  @Test("At the open it turns to the close; nothing is shown when neither answers")
   func boundaries() throws {
-    #expect(SessionCountdown.make(session: try session(), now: try at("2026-11-16T14:30:00Z"))
-      == SessionCountdown(kind: .closes, minutes: 390))
-    #expect(SessionCountdown.make(session: try session(), now: try at("2026-11-16T21:00:00Z")) == nil)
-    #expect(SessionCountdown.make(session: nil, now: try at("2026-11-16T15:00:00Z")) == nil)
+    let countdown = SessionCountdown.make(session: try session(), next: try todayNext(), now: try at("2026-11-16T14:30:00Z"))
+    #expect((countdown?.kind, countdown?.minutes) == (.closes, 390))
+    // After the close without a next session (the calendar could not answer), or no data at all.
+    #expect(SessionCountdown.make(session: try session(), next: nil, now: try at("2026-11-16T21:00:00Z")) == nil)
+    #expect(SessionCountdown.make(session: nil, next: nil, now: try at("2026-11-16T15:00:00Z")) == nil)
+    // An older bot without next_session: today's open while it is ahead.
+    #expect(SessionCountdown.make(session: try session(), next: nil, now: try at("2026-11-16T14:00:00Z"))?.kind == .opens)
   }
 
   /// `swift test` reads the English defaults only; the Russian texts are read from the catalog
@@ -73,6 +116,7 @@ import Testing
       == "Откроется через 9 ч 25 м")
     #expect(try russian("kit.countdown.closesIn") + " " + filled(try russian("kit.countdown.minutes"), 42)
       == "Закроется через 42 м")
+    #expect(try russian("kit.countdown.opensOn") == "Откроется")
     // Mockup v111: «Позиции: 2 · стопы подтверждены» beside a closed gate's badge.
     #expect(filled(try russian("kit.headline.holding"), 2) + " · " + (try russian("kit.headline.stopsVerified"))
       == "Позиции: 2 · стопы подтверждены")

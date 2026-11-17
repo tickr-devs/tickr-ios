@@ -341,13 +341,14 @@ private struct Summary: View {
     .animation(Tokens.Motion.standard, value: pulse)
   }
 
-  /// The headline's facts on the live day: the status's gate, and the countdown to today's regular
-  /// open or close from the /jobs session, on the bot's clock.
+  /// The headline's facts on the live day: the status's gate, and the countdown to the regular
+  /// close or the next open from /jobs, on the bot's clock.
   private var facts: HeadlineBanner.Facts {
     let session = model.jobs?.session
+    let next = model.jobs?.nextSession
     let offset = model.botClockOffset
     return HeadlineBanner.Facts(gate: EntryGate.make(model.status, headline: model.headline)) { local in
-      SessionCountdown.make(session: session, now: local.addingTimeInterval(offset))
+      SessionCountdown.make(session: session, next: next, now: local.addingTimeInterval(offset))
     }
   }
 

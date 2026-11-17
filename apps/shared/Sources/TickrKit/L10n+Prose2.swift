@@ -212,6 +212,11 @@ extension L10n {
     LocalizedStringResource("kit.prose.half_day_off",
       defaultValue: "No session on {day}: it is a half day, and half days are off", bundle: bundle)
   }
+  /// A cause the API writes itself (`<field>_codes`). no_next_session (values: days, day)
+  static var proseReasonNoNextSession: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_next_session",
+      defaultValue: "The session calendar has no regular session within {days} days after {day}", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). no_database
   static var proseReasonNoDatabase: LocalizedStringResource {
     LocalizedStringResource("kit.prose.no_database",
@@ -378,10 +383,5 @@ extension L10n {
   static var proseReasonNoChartBars: LocalizedStringResource {
     LocalizedStringResource("kit.prose.no_chart_bars",
       defaultValue: "No candles for {symbol} in this range", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). chart_off
-  static var proseReasonChartOff: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.chart_off",
-      defaultValue: "Live charts are off on the bot until the chart checks pass", bundle: bundle)
   }
 }

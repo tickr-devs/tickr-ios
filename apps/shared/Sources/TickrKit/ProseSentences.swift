@@ -124,6 +124,7 @@ extension ProseReason {
     case .calendarNaiveTime: [ReasonSentence(L10n.proseReasonCalendarNaiveTime, [.detail])]
     case .calendarInvalidOffset: [ReasonSentence(L10n.proseReasonCalendarInvalidOffset, [.detail])]
     case .halfDayOff: [ReasonSentence(L10n.proseReasonHalfDayOff, [.day])]
+    case .noNextSession: [ReasonSentence(L10n.proseReasonNoNextSession, [.days, .day])]
     case .noDatabase: [ReasonSentence(L10n.proseReasonNoDatabase, [])]
     case .databaseUnreadable: [ReasonSentence(L10n.proseReasonDatabaseUnreadable, [.error])]
     case .noBackup: [ReasonSentence(L10n.proseReasonNoBackup, [])]
