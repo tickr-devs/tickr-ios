@@ -24,25 +24,6 @@ public enum WatchingList {
     Array(sorted(rows, by: .closest).prefix(max(count, 0)))
   }
 
-  /// How many rows, stacked `spacing` apart, fit in `available` points: each row at its measured
-  /// height (`heights`, in the card's order), a row not measured yet at the tallest measured one.
-  /// At least one row when there is any; `shown` until the card or every row is unmeasured (the
-  /// first layout pass). A card sized to its grid cell shows this many, so it fills the cell
-  /// with rows and leaves no gap under its footer.
-  public static func fitting(_ heights: [Double?], available: Double, spacing: Double) -> Int {
-    guard !heights.isEmpty else { return 0 }
-    guard available > 0, let tallest = heights.compactMap({ $0 }).max() else { return min(shown, heights.count) }
-    var used = 0.0
-    var count = 0
-    for height in heights {
-      let next = used + (count == 0 ? 0 : spacing) + (height ?? tallest)
-      if next > available { break }
-      used = next
-      count += 1
-    }
-    return max(count, 1)
-  }
-
   /// Whether the card has rows beyond the ones it shows, so "Show all" leads somewhere.
   public static func hasMore(_ rows: [WatchingRowV1], shown count: Int = shown) -> Bool {
     rows.count > count

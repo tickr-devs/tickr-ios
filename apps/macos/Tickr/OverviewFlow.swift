@@ -182,10 +182,6 @@ struct WatchingCard: View {
   /// `CardArrangement.wideColumns` rows, across the full-width card on the two-column board and
   /// one under another on the one-column board.
   @Environment(\.overviewLayout) private var layout
-  /// Each shown row's height as last laid out, by symbol: how many rows fit (`WatchingList.fitting`).
-  @State private var rowHeights: [String: CGFloat] = [:]
-  /// Height of the rows' space: the card's cell less its header and footer.
-  @State private var rowsHeight: CGFloat = 0
 
   /// Accessibility id of the card, for the UI tests.
   static let id = "overview-watching"
@@ -204,23 +200,21 @@ struct WatchingCard: View {
           Footnote(L10n.Watching.none)
         } else {
           let ordered = WatchingList.sorted(watching.rows, by: .closest)
-          let fit = !layout.sized
-            ? WatchingList.fitting(ordered.map { rowHeights[$0.symbol].map { Double($0) } },
-              available: Double(rowsHeight), spacing: Double(Self.rowSpacing))
-            : CardArrangement.wideColumns
-          let rows = Array(ordered.prefix(fit))
           if !layout.sized {
-            fittedRows(rows, ordered: ordered)
+            // The design's grid: as many of the closest rows as fill the card's cell, then the
+            // footer on its bottom edge.
+            FittingRows(ordered, id: \.symbol, spacing: Self.rowSpacing, fallback: WatchingList.shown) { index, row in
+              // Each row opens the Chart on its symbol; the rows rise one after another as the card
+              // shows them (a symbol the bot starts watching rises as it arrives).
+              ChartLink(row.symbol) { WatchingRow(row: row) }
+                .rise(step: index)
+            } footer: { shown in
+              footer(watching, shown: shown)
+            }
           } else {
+            let rows = Array(ordered.prefix(CardArrangement.wideColumns))
             sizedRows(rows)
-          }
-          // "Show all N · closest 3 of N ›": the card's footer link, last in the card, as on the
-          // Controls board; without more rows, only how many of all the watched symbols it shows.
-          let closest = watching.total > rows.count ? L10n.Watching.closestOf(rows.count, watching.total) : nil
-          if WatchingList.hasMore(watching.rows, shown: rows.count) {
-            CardFooterLink(L10n.Watching.showAll, count: watching.rows.count, hint: closest) { openWatchingAll() }
-          } else if let closest {
-            Footnote(closest)
+            footer(watching, shown: rows.count)
           }
         }
       } else if let error = model.watchingError {
@@ -233,31 +227,16 @@ struct WatchingCard: View {
     .accessibilityIdentifier(Self.id)
   }
 
-  /// The design's grid: as many of the closest rows as fill the card's cell.
+  /// "Show all N · closest 3 of N ›": the card's footer link, last in the card, as on the
+  /// Controls board; without more rows, only how many of all the watched symbols it shows.
   @ViewBuilder
-  private func fittedRows(_ rows: [WatchingRowV1], ordered: [WatchingRowV1]) -> some View {
-    // The rows' space takes what the grid cell leaves under the header and over the footer;
-    // its own height never depends on how many rows it holds (at least the tallest row), so
-    // the count cannot feed back into the cell. The rows fill it from the top.
-    Color.clear
-      .frame(maxWidth: .infinity, minHeight: rowHeights.values.max() ?? 0, maxHeight: .infinity)
-      .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowsHeight = $0 }
-      .overlay(alignment: .top) {
-        VStack(spacing: Self.rowSpacing) {
-          // Each row opens the Chart on its symbol.
-          // The rows rise one after another as the card shows them (a symbol the bot starts
-          // watching rises as it arrives).
-          ForEach(Array(rows.enumerated()), id: \.element.symbol) { index, row in
-            ChartLink(row.symbol) { WatchingRow(row: row) }
-              .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowHeights[row.symbol] = $0 }
-              .rise(step: index)
-          }
-        }
-      }
-      .clipped()
-      .onChange(of: ordered.map(\.symbol)) { _, symbols in
-        rowHeights = rowHeights.filter { symbols.contains($0.key) }
-      }
+  private func footer(_ watching: WatchingV1, shown: Int) -> some View {
+    let closest = watching.total > shown ? L10n.Watching.closestOf(shown, watching.total) : nil
+    if WatchingList.hasMore(watching.rows, shown: shown) {
+      CardFooterLink(L10n.Watching.showAll, count: watching.rows.count, hint: closest) { openWatchingAll() }
+    } else if let closest {
+      Footnote(closest)
+    }
   }
 
   /// Below the design's grid: the rows as tall as they are, across or one under another.
@@ -408,15 +387,21 @@ extension CheckV1 {
   }
 }
 
-/// The day's fast movers (GET /movers): a few newest rows (symbol, its last bar's volume against
+/// The day's fast movers (GET /movers): as many newest rows as fill the card (symbol, its last bar's volume against
 /// the average, its move in ATR, its dollar volume, the time and whether the strategy watches it),
 /// then "Show all N ›" opening the Symbols screen on its Fast movers tab. A new mover rises in as
 /// it arrives, a real event of the bot.
 struct FastMoversCard: View {
   @Environment(AppModel.self) private var model
+  /// On the design's grid the card fills its cell with rows; below it the card is as tall as its
+  /// content (`rowCap` rows).
+  @Environment(\.overviewLayout) private var layout
 
-  /// Rows the card shows; the rest are on the Symbols screen.
+  /// Rows the card shows below the design's grid, and on it until the rows are measured; the rest
+  /// are on the Symbols screen.
   static let rowCap = 4
+  /// Space between two rows.
+  static let rowSpacing = Tokens.Space.xs
   /// Accessibility id of the card, for the UI tests.
   static let id = "overview-fast-movers"
 
@@ -434,15 +419,24 @@ struct FastMoversCard: View {
         if movers.movers.isEmpty {
           Footnote(verbatim: movers.rulesCauseText ?? String(localized: L10n.FastMovers.none))
         } else {
-          VStack(spacing: Tokens.Space.xs) {
-            ForEach(Array(movers.movers.prefix(Self.rowCap).enumerated()), id: \.element.symbol) { index, mover in
+          if !layout.sized {
+            // The design's grid: as many of the newest rows as fill the card's cell, then the
+            // footer on its bottom edge.
+            FittingRows(movers.movers, id: \.symbol, spacing: Self.rowSpacing, fallback: Self.rowCap) { index, mover in
               ChartLink(mover.symbol) { FastMoverRow(mover: mover) }
                 .rise(step: index)
+            } footer: { _ in
+              footer(movers)
             }
-          }
-          .animation(Tokens.Motion.standard, value: movers.movers.prefix(Self.rowCap).map(\.symbol))
-          CardFooterLink(L10n.FastMovers.showAll, count: movers.movers.count) {
-            withAnimation(Tokens.Motion.standard) { model.symbolsTab = .fastMovers }
+          } else {
+            VStack(spacing: Self.rowSpacing) {
+              ForEach(Array(movers.movers.prefix(Self.rowCap).enumerated()), id: \.element.symbol) { index, mover in
+                ChartLink(mover.symbol) { FastMoverRow(mover: mover) }
+                  .rise(step: index)
+              }
+            }
+            .animation(Tokens.Motion.standard, value: movers.movers.prefix(Self.rowCap).map(\.symbol))
+            footer(movers)
           }
         }
       } else if let error = model.moversError {
@@ -453,6 +447,13 @@ struct FastMoversCard: View {
     }
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
+  }
+
+  /// "Show all N ›" on the card's bottom edge: the Symbols screen on its Fast movers tab.
+  private func footer(_ movers: MoversV1) -> some View {
+    CardFooterLink(L10n.FastMovers.showAll, count: movers.movers.count) {
+      withAnimation(Tokens.Motion.standard) { model.symbolsTab = .fastMovers }
+    }
   }
 }
 
