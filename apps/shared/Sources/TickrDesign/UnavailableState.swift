@@ -3,7 +3,8 @@ import SwiftUI
 /// A view with nothing to show because its read was refused or failed, said the same in both
 /// apps: a warning symbol (never the calm empty mark), a plain title, and why in the person's
 /// language (`ErrorText.cause`), never the API's own words or status. While the link to the bot
-/// is down the connection banner says why, so it shows the calm "waiting" caption instead.
+/// is down the connection banner says why, so it shows only the quiet outline of content
+/// (`OfflineOutline`) instead.
 public struct UnavailableState: View {
   /// What the description shows.
   enum Content: Equatable {
@@ -36,12 +37,20 @@ public struct UnavailableState: View {
   }
 
   public var body: some View {
+    if Self.content(cause: cause, connectionDown: context?.connectionDown ?? false) == .waiting {
+      OfflineOutline(Tokens.Loading.lines)
+    } else {
+      unavailable
+    }
+  }
+
+  private var unavailable: some View {
     ContentUnavailableView {
       Label { Text(title) } icon: { Image(systemName: Symbols.failure) }
     } description: {
       switch Self.content(cause: cause, connectionDown: context?.connectionDown ?? false) {
       case .waiting:
-        if let context { InfoCaption(context.waiting, systemImage: ReadFailureNote.waitingSymbol) }
+        EmptyView()
       case .cause(let text):
         Text(verbatim: text)
       case .message:

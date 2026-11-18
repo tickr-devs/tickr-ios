@@ -1201,6 +1201,7 @@ private struct WhatIfCard: View {
           .foregroundStyle(Palette.textTertiary)
           .fixedSize(horizontal: false, vertical: true)
       }
+      .offlineOutline(lines: Tokens.Loading.fewLines)
       .frame(maxWidth: .infinity, alignment: .leading)
     }
     .padding(Tokens.Space.l)

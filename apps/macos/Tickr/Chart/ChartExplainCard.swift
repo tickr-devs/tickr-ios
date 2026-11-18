@@ -20,7 +20,7 @@ struct ChartExplainCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      content
+      content.offlineOutline(lines: Tokens.Loading.fewLines)
     }
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)

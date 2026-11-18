@@ -30,6 +30,19 @@ extension L10n {
     LocalizedStringResource("kit.connection.nothingYet",
       defaultValue: "nothing received yet · retrying every \(seconds) s · commands off", bundle: bundle)
   }
+  /// Title of the banner when the bot answers but refuses this app's address or token.
+  static var connectionRefusedTitle: LocalizedStringResource {
+    LocalizedStringResource("kit.connection.refusedTitle", defaultValue: "The bot refuses this address", bundle: bundle)
+  }
+  /// The banner's line when the bot refuses this app's address or token: no retry fixes it.
+  static var connectionRefusedBody: LocalizedStringResource {
+    LocalizedStringResource("kit.connection.refusedBody",
+      defaultValue: "the address or pairing is wrong, retrying will not help · commands off", bundle: bundle)
+  }
+  /// The banner's action that goes back to the default address; argument: that address.
+  static func connectionUseAddress(_ address: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.connection.useAddress", defaultValue: "Use \(address)", bundle: bundle)
+  }
   /// Title of the empty state before an address is set.
   static var connectionNotConfiguredTitle: LocalizedStringResource {
     LocalizedStringResource("kit.connection.notConfiguredTitle", defaultValue: "Connect to your Mac", bundle: bundle)

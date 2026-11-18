@@ -5,16 +5,29 @@ import Foundation
 public struct ReadFailure: Equatable, Sendable {
   /// The failure as the API client describes it, in the person's language: for "Details" only.
   public let detail: String
+  /// The API answered and refused this app at this address (a Host, Origin or token it does not
+  /// accept): a setup mistake that reading again never fixes, unlike a bot that does not answer.
+  public let refused: Bool
 
-  public init(detail: String) {
+  /// The API's error codes that refuse the caller itself rather than one read.
+  static let refusalCodes: Set<String> = ["forbidden_host", "forbidden_origin", "unauthorized"]
+
+  public init(detail: String, refused: Bool = false) {
     self.detail = detail
+    self.refused = refused
   }
 
   /// The failure of a read, or nil for a cancelled one: whoever cancelled it has moved on, and
   /// the failure seen before stays (`ReadFailure(error) ?? old`).
   public init?(_ error: Error) {
     guard let detail = ErrorText.describe(error) else { return nil }
-    self.init(detail: detail)
+    self.init(detail: detail, refused: Self.isRefusal(error))
+  }
+
+  /// Whether `error` is the API refusing the caller (`refusalCodes`).
+  static func isRefusal(_ error: Error) -> Bool {
+    guard case .refused(_, let code, _) = error as? APIError else { return false }
+    return refusalCodes.contains(code)
   }
 }
 
@@ -104,6 +117,13 @@ public enum ConnectionState: Equatable, Sendable {
     }
   }
 
+  /// No read has answered and the last one failed: every card has nothing true to show, so it
+  /// shows its outline (`ReadFailureContext.noData`), never zeros or "nothing today".
+  public var isNeverConnected: Bool {
+    if case .neverConnected = self { return true }
+    return false
+  }
+
   /// The failure behind the state, if any.
   public var failure: ReadFailure? {
     switch self {
@@ -125,6 +145,9 @@ public enum ConnectionState: Equatable, Sendable {
     case .noBotStatus(let cause):
       return ConnectionMessage(title: L10n.connectionNoBotStatusTitle, subtitle: L10n.connectionNoBotStatusBody,
         details: cause)
+    case .stale(_, let failure) where failure.refused, .neverConnected(let failure) where failure.refused:
+      return ConnectionMessage(title: L10n.connectionRefusedTitle, subtitle: L10n.connectionRefusedBody,
+        details: failure.detail, refused: true)
     case .stale(let lastSuccess, let failure):
       return ConnectionMessage(title: L10n.connectionUnreachableTitle,
         subtitle: L10n.connectionLastKnown(Self.time(lastSuccess), retrySeconds), details: failure.detail)
@@ -148,6 +171,16 @@ public struct ConnectionMessage: Equatable, Sendable {
   public let subtitle: LocalizedStringResource
   /// The technical cause (address, port, the API's own words); shown only when asked for.
   public let details: String?
+  /// The bot refused this app's address or token (`ReadFailure.refused`): the banner offers the
+  /// way to fix the setup rather than another read.
+  public let refused: Bool
+
+  init(title: LocalizedStringResource, subtitle: LocalizedStringResource, details: String?, refused: Bool = false) {
+    self.title = title
+    self.subtitle = subtitle
+    self.details = details
+    self.refused = refused
+  }
 
   /// Labels of the actions every banner offers.
   public static var retry: LocalizedStringResource { L10n.connectionRetry }
@@ -157,4 +190,6 @@ public struct ConnectionMessage: Equatable, Sendable {
   public static var waiting: LocalizedStringResource { L10n.connectionWaiting }
   /// The details' first line: the address the app reads from.
   public static func address(_ address: String) -> LocalizedStringResource { L10n.connectionAddress(address) }
+  /// The action that goes back to the address this app reads from by default; argument: it.
+  public static func useAddress(_ address: String) -> LocalizedStringResource { L10n.connectionUseAddress(address) }
 }

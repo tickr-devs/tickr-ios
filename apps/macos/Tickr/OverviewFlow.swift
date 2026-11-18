@@ -231,7 +231,7 @@ struct WatchingCard: View {
           }
         }
       } else if let error = model.watchingError {
-        Footnote(L10n.Watching.unavailable(error), color: Palette.warningText)
+        ReadFailureNote(L10n.Watching.unavailable(error), detail: nil)
       } else {
         Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows, badge: true) }
       }
@@ -453,7 +453,7 @@ struct FastMoversCard: View {
           }
         }
       } else if let error = model.moversError {
-        Footnote(L10n.FastMovers.unavailable(error), color: Palette.warningText)
+        ReadFailureNote(L10n.FastMovers.unavailable(error), detail: nil)
       } else {
         Skeleton(L10n.Common.loading) { SkeletonRows(Self.rowCap) }
       }

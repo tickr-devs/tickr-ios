@@ -379,7 +379,8 @@ struct ChartView: View {
     HStack(spacing: Tokens.Space.xs) {
       zoomButtons
       decisionsToggle
-      if model.isLive && showsDay { livePill }
+      // LIVE claims fresh bars: never while the link to the bot is down.
+      if model.isLive && showsDay && model.fetchError == nil { livePill }
     }
     .fixedSize()
   }
@@ -621,6 +622,10 @@ struct ChartView: View {
           }
         }
         .transition(.opacity)
+    } else if symbol == nil && model.connectionState.isNeverConnected {
+      // Nothing was ever read: not "nothing to chart", which says the day is empty.
+      OfflineOutline(Tokens.Loading.manyLines)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     } else if symbol == nil {
       empty(L10n.Chart.noSymbols, detail: L10n.Chart.noSymbolsDetail, symbol: "chart.xyaxis.line")
     } else if let error = chart.error {

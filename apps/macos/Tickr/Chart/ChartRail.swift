@@ -126,6 +126,7 @@ private struct SymbolList: View {
         Text(L10n.Chart.railEmpty)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textTertiary)
+          .offlineOutline(lines: Tokens.Loading.fewLines)
       }
       ForEach(rows) { row in
         Button { pick(row.symbol) } label: { label(row) }

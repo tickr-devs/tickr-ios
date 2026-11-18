@@ -440,8 +440,9 @@ private struct BotStateCard: View {
 
   /// The colour of the bot's state dot.
   static func color(_ model: AppModel) -> Color {
-    guard let response = model.response, let status = response.status, !response.stale,
-      model.fetchError == nil else { return Palette.loss }
+    // No connection says nothing about the bot: a quiet grey, never the red of danger.
+    guard model.fetchError == nil else { return Palette.textQuaternary }
+    guard let response = model.response, let status = response.status, !response.stale else { return Palette.loss }
     switch status.botState {
     case .running: return status.entryStop ? Palette.warning : Palette.profit
     case .starting, .stopping: return Palette.warning
@@ -794,9 +795,11 @@ struct ConnectionStatus: View {
   private var isFresh: Bool { model.response?.stale == false && model.fetchError == nil }
 
   /// The dot sits next to the status's age, so it tells the connection's health, not the
-  /// headline's: green for a fresh status, amber for a stale one, red for none or a failed read.
+  /// headline's: green for a fresh status, amber for a stale one, quiet grey for a failed read
+  /// (the connection banner says why), red for none.
   static func color(hasStatus: Bool, stale: Bool?, failed: Bool) -> Color {
-    guard hasStatus, !failed else { return Palette.loss }
+    guard !failed else { return Palette.textQuaternary }
+    guard hasStatus else { return Palette.loss }
     return stale == false ? Palette.profit : Palette.warning
   }
 

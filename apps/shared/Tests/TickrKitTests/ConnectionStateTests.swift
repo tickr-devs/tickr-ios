@@ -50,6 +50,40 @@ struct ConnectionStateTests {
     #expect(message.details == unreachable.detail)
   }
 
+  @Test("The API refusing this app's Host, Origin or token is a refusal; other failures are not")
+  func refusalOfTheCaller() {
+    for code in ["forbidden_host", "forbidden_origin", "unauthorized"] {
+      let failure = ReadFailure(APIError.refused(status: 403, error: code, cause: "x"))
+      #expect(failure?.refused == true)
+    }
+    #expect(ReadFailure(APIError.refused(status: 404, error: "not_found", cause: "x"))?.refused == false)
+    #expect(ReadFailure(APIError.unreachable("down"))?.refused == false)
+  }
+
+  @Test("A refused address says so and never promises that a retry helps")
+  func refusedAddress() throws {
+    let refused = ReadFailure(detail: "API refused (403 forbidden_host)", refused: true)
+    let never = ConnectionState.make(configured: true, response: nil, failure: refused, lastSuccess: nil)
+    #expect(never.isNeverConnected)
+    let message = try #require(never.message(retrySeconds: retry))
+    #expect(message.refused)
+    #expect(message.title == L10n.connectionRefusedTitle)
+    #expect(message.subtitle == L10n.connectionRefusedBody)
+    #expect(message.details == refused.detail)
+    let stale = ConnectionState.make(configured: true, response: try response("status-response-v1.json"),
+      failure: refused, lastSuccess: now)
+    #expect(!stale.isNeverConnected)
+    #expect(stale.message(retrySeconds: retry)?.title == L10n.connectionRefusedTitle)
+  }
+
+  @Test("Only a link that never answered and is failing is never connected")
+  func neverConnectedFlag() throws {
+    #expect(!ConnectionState.connecting.isNeverConnected)
+    #expect(!ConnectionState.connected.isNeverConnected)
+    #expect(ConnectionState.neverConnected(failure: unreachable).isNeverConnected)
+    #expect(!ConnectionState.stale(lastSuccess: now, failure: unreachable).isNeverConnected)
+  }
+
   @Test("A failed read with nothing ever read is never connected: an empty state")
   func neverConnected() {
     let state = ConnectionState.make(configured: true, response: nil, failure: unreachable, lastSuccess: nil)

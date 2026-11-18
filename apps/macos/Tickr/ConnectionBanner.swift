@@ -17,21 +17,38 @@ struct ConnectionBanner: View {
     if let message = model.connectionMessage {
       ConnectionNotice(.banner, title: message.title, subtitle: message.subtitle,
         detailsLabel: ConnectionMessage.detailsLabel, details: details(message)) {
-        Button {
-          Task {
-            retrying = true
-            await model.refreshStatus()
-            retrying = false
-          }
-        } label: { Text(ConnectionMessage.retry) }
-          .buttonStyle(.action(.secondary, size: .compact))
-          .disabled(retrying)
+        if message.refused && model.address != APIClient.defaultBaseURL {
+          // The bot refuses this address (a Host or token it does not accept): reading it again
+          // never helps, going back to this Mac's own address does.
+          Button {
+            UserDefaults.standard.set(APIClient.defaultBaseURL.absoluteString, forKey: Defaults.apiBaseURL)
+            model.connect(to: APIClient.defaultBaseURL)
+          } label: { Text(ConnectionMessage.useAddress(Self.defaultAddress)) }
+            .buttonStyle(.action(.primary, size: .compact))
+        } else {
+          Button {
+            Task {
+              retrying = true
+              await model.refreshStatus()
+              retrying = false
+            }
+          } label: { Text(ConnectionMessage.retry) }
+            .buttonStyle(.action(.secondary, size: .compact))
+            .disabled(retrying)
+        }
         SettingsLink { Text(ConnectionMessage.settings) }
           .buttonStyle(.action(.ghost, size: .compact))
       }
       .padding([.horizontal, .top], Tokens.Space.l)
       .transition(.move(edge: .top).combined(with: .opacity))
     }
+  }
+
+  /// This Mac's own API address as the banner names it ("127.0.0.1:8766").
+  static var defaultAddress: String {
+    let url = APIClient.defaultBaseURL
+    let host = url.host() ?? url.absoluteString
+    return url.port.map { "\(host):\($0)" } ?? host
   }
 
   /// The technical lines under "Details": the address read from, then the failure as the API
@@ -43,10 +60,12 @@ struct ConnectionBanner: View {
 }
 
 extension View {
-  /// Sets what every `ReadFailureNote` below says: while the link to the bot is down, cards wait
-  /// calmly and leave the failure to the connection banner. Set on each scene's root.
+  /// Sets what every `ReadFailureNote` and card below says: while the link to the bot is down,
+  /// cards say nothing of it and leave the failure to the connection banner; when nothing was
+  /// ever read, they show their quiet outline. Set on each scene's root.
   func readFailureContext(_ model: AppModel) -> some View {
     environment(\.readFailureContext, ReadFailureContext(connectionDown: model.connectionState.failure != nil,
-      detailsLabel: ConnectionMessage.detailsLabel, waiting: ConnectionMessage.waiting))
+      noData: model.connectionState.isNeverConnected, detailsLabel: ConnectionMessage.detailsLabel,
+      waiting: ConnectionMessage.waiting))
   }
 }

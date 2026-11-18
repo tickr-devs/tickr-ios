@@ -7,13 +7,20 @@ public struct ReadFailureContext: Equatable, Sendable {
   /// The link to the bot is down: cards keep their last known data and leave the failure to the
   /// banner.
   public let connectionDown: Bool
+  /// The link is down and nothing was ever read: a card has nothing true to show, so it shows its
+  /// outline (`OfflineOutline`), never zeros, "nothing today" or an error of its own.
+  public let noData: Bool
   /// The disclosure's label ("Details").
   public let detailsLabel: LocalizedStringResource
   /// The calm placeholder of a card with nothing to show while the link is down.
   public let waiting: LocalizedStringResource
 
-  public init(connectionDown: Bool, detailsLabel: LocalizedStringResource, waiting: LocalizedStringResource) {
+  public init(
+    connectionDown: Bool, noData: Bool = false, detailsLabel: LocalizedStringResource,
+    waiting: LocalizedStringResource
+  ) {
     self.connectionDown = connectionDown
+    self.noData = noData
     self.detailsLabel = detailsLabel
     self.waiting = waiting
   }
@@ -24,13 +31,11 @@ public extension EnvironmentValues {
   @Entry var readFailureContext: ReadFailureContext?
 }
 
-/// A card's own failed read, said the same everywhere: while the link to the bot is down, a calm
-/// "waiting for the connection" (the banner above says why); while it is up, a short plain
-/// message, with the technical cause (the API client's words) only behind "Details".
+/// A card's own failed read, said the same everywhere: while the link to the bot is down, nothing
+/// at all (the one connection banner says why, owner 2026-11-18: no card repeats it); while it
+/// is up, a short plain message, with the technical cause (the API client's words) only behind
+/// "Details".
 public struct ReadFailureNote: View {
-  /// Symbol of a card waiting for the connection (a failed read draws `Symbols.failure`).
-  static let waitingSymbol = "clock"
-
   let message: LocalizedStringResource
   let detail: String?
   let tone: Tone
@@ -52,7 +57,7 @@ public struct ReadFailureNote: View {
 
   public var body: some View {
     if defers, let context, context.connectionDown {
-      InfoCaption(context.waiting, systemImage: Self.waitingSymbol)
+      EmptyView()
     } else {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         InfoCaption(message, systemImage: Symbols.failure, tone: tone)

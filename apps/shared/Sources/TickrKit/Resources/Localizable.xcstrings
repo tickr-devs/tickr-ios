@@ -2038,6 +2038,40 @@
         }
       }
     },
+    "kit.connection.refusedBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the address or pairing is wrong, retrying will not help · commands off"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "неверный адрес или сопряжение, повтор не поможет · команды выключены"
+          }
+        }
+      }
+    },
+    "kit.connection.refusedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot refuses this address"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бот не принимает этот адрес"
+          }
+        }
+      }
+    },
     "kit.connection.retry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2085,6 +2119,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет связи с ботом"
+          }
+        }
+      }
+    },
+    "kit.connection.useAddress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать %@"
           }
         }
       }

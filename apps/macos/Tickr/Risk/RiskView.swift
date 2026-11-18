@@ -56,13 +56,14 @@ struct RiskView: View {
   private var lossRoom: some View { LossRoomCard().rise(step: Order.lossRoom.rawValue) }
   private var limits: some View { LimitsCard().rise(step: Order.limits.rawValue) }
   private var account: some View { AccountCard().rise(step: Order.account.rawValue) }
-  private var session: some View { SessionCard().rise(step: Order.session.rawValue) }
+  // The New York clock is this Mac's own: it stays while the link is down.
+  private var session: some View { SessionCard().keepsContentOffline().rise(step: Order.session.rawValue) }
   private var fences: some View { ReconciliationCard().rise(step: Order.fences.rawValue) }
   private var budget: some View {
-    PlannedCard(title: L10n.Risk.budget, note: L10n.Risk.budgetNote).rise(step: Order.budget.rawValue)
+    PlannedCard(title: L10n.Risk.budget, note: L10n.Risk.budgetNote).keepsContentOffline().rise(step: Order.budget.rawValue)
   }
   private var stream: some View {
-    PlannedCard(title: L10n.Risk.stream, note: L10n.Risk.streamNote).rise(step: Order.stream.rawValue)
+    PlannedCard(title: L10n.Risk.stream, note: L10n.Risk.streamNote).keepsContentOffline().rise(step: Order.stream.rawValue)
   }
 }
 
@@ -894,7 +895,7 @@ private struct AccountCard: View {
       if let response = model.account {
         content(response)
       } else if model.accountError != nil {
-        Footnote(L10n.Risk.accountUnavailable, color: Palette.warningText)
+        ReadFailureNote(L10n.Risk.accountUnavailable, detail: nil)
       } else {
         Footnote(L10n.Risk.accountReading)
       }

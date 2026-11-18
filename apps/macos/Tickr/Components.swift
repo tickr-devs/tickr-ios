@@ -90,6 +90,9 @@ extension EnvironmentValues {
   /// Whether a card's header leads with the glowing tone tick (the Overview board); the other
   /// screens' designs label their cards plainly.
   @Entry var cardTicks = true
+  /// Whether a card keeps its content while nothing was ever read from the bot: true only for a
+  /// card that shows nothing read from the bot (a clock, a field to type in, a note).
+  @Entry var cardKeepsContentOffline = false
 }
 
 extension View {
@@ -108,6 +111,12 @@ extension View {
   func plainCardLabels() -> some View {
     environment(\.cardTicks, false)
   }
+
+  /// Cards in this view show nothing read from the bot, so they keep their content while the
+  /// link is down and nothing was ever read (every other card shows its quiet outline).
+  func keepsContentOffline() -> some View {
+    environment(\.cardKeepsContentOffline, true)
+  }
 }
 
 extension View {
@@ -123,6 +132,8 @@ extension View {
 struct Card<Trailing: View, Content: View>: View {
   @Environment(\.cardFills) private var fills
   @Environment(\.cardTicks) private var ticks
+  @Environment(\.cardKeepsContentOffline) private var keepsContent
+  @Environment(\.readFailureContext) private var readContext
   let title: Text
   var tint: Color?
   var tone: Tone
@@ -143,9 +154,16 @@ struct Card<Trailing: View, Content: View>: View {
     self.content = content()
   }
 
+  /// Nothing was ever read and the link is down: the header stays, the content and the
+  /// header's accessory give way to the quiet outline (mockup "no connection" v2).
+  private var outlined: Bool { readContext?.noData == true && !keepsContent }
+
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      if ticks {
+      if outlined {
+        SectionHeader(title, tone: .neutral) { EmptyView() }
+        OfflineOutline()
+      } else if ticks {
         SectionHeader(title, tone: tone) { trailing }
       } else {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
@@ -162,7 +180,9 @@ struct Card<Trailing: View, Content: View>: View {
       // A card sharing a row of a set height scrolls under its header when its content is taller.
       // Only the card's own title shines (`titleShines`), never a header inside its content.
       Group {
-        if fills {
+        if outlined {
+          EmptyView()
+        } else if fills {
           ScrollsWhenTall {
             VStack(alignment: .leading, spacing: Tokens.Space.m) { content }
           }

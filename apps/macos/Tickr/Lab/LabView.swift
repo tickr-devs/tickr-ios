@@ -221,7 +221,7 @@ private struct CurvesCard: View {
           note
           legend(lines, observers)
         } else if model.observersError != nil {
-          Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
+          ReadFailureNote(L10n.Lab.observersUnavailable, detail: nil)
         } else {
           Skeleton(L10n.Common.loading) {
             VStack(alignment: .leading, spacing: Tokens.Space.m) {

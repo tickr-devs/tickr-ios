@@ -207,7 +207,9 @@ private struct Header: View {
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
       // Drawn at once while the opening flies the mark here; it draws itself on later visits.
-      BrandMark(live: model.ornamentsMove(reduceMotion: reduceMotion), drawsIn: model.openingPlayed)
+      // Muted while the link is down: nothing about the bot can be known, so no green mark.
+      BrandMark(live: model.ornamentsMove(reduceMotion: reduceMotion) && !linkDown,
+        tone: linkDown ? .muted : .brand, drawsIn: model.openingPlayed)
         // Hidden while the launch's opening flies its own mark here; shown as that one lands.
         .opacity(model.openingPlayed ? 1 : 0)
         .onGeometryChange(for: CGPoint.self) { proxy in
@@ -237,12 +239,17 @@ private struct Header: View {
             }
           }
         }
-        banner
+        // While the link is down the one connection banner above the screen says so; the
+        // headline would only repeat it in red (owner, 2026-11-18).
+        if !linkDown { banner }
       }
       Spacer(minLength: 0)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
+
+  /// The last read of the bot failed: the connection banner speaks for the whole screen.
+  private var linkDown: Bool { model.connectionState.failure != nil }
 
   /// "Tickr Operator", the environment badge and the shown day's clean-day verdict.
   private var titleRow: some View {
@@ -329,7 +336,16 @@ private struct DayResult: View {
 
   var body: some View {
     Group {
-      if model.dayPending {
+      if model.connectionState.isNeverConnected {
+        // Nothing was ever read: the result is unknown, never "$0.00" (mockup "no connection" v2).
+        VStack(alignment: layout.resultInline ? .leading : .trailing, spacing: Tokens.Space.xxs) {
+          CardLabel(L10n.Overview.dayResult)
+          Text(verbatim: ApiText.missing)
+            .font(Tokens.Typography.display)
+            .foregroundStyle(Palette.textQuaternary)
+        }
+        .frame(maxWidth: .infinity, alignment: layout.resultInline ? .leading : .trailing)
+      } else if model.dayPending {
         // The picked day's result is still being read: a skeleton, never "$0.00".
         VStack(alignment: layout.resultInline ? .leading : .trailing, spacing: Tokens.Space.xxs) {
           CardLabel(L10n.Overview.dayResult)
@@ -431,7 +447,7 @@ private struct LiveFlowCard: View {
       }
       // A failed /flow read: the stages and dots below then lack the day's flow.
       if let error = model.flowError {
-        Footnote(L10n.Screener.unavailable(error), color: Palette.warningText)
+        ReadFailureNote(L10n.Screener.unavailable(error), detail: nil)
       }
       Pipeline(stages: stages, marks: FlowBoard.marks(flow: model.flow, skipped: model.skipped,
         positions: model.isLive ? model.status?.positions ?? [] : []), moving: model.isLive,
@@ -870,6 +886,7 @@ private struct PositionsCard: View {
   }
 
   private var title: LocalizedStringResource {
+    if model.connectionState.isNeverConnected { return L10n.Position.titleUnknown }
     let count = model.positions.count
     if let limit = model.settings?.risk.maxOpenPositions {
       return L10n.Position.titleOfLimit(count, limit)
@@ -1273,6 +1290,8 @@ private struct SafetyCard: View {
           }
         }
       }
+      // Nothing was ever read: the facts' outline, never "unavailable" in every tile.
+      .offlineOutline(lines: Tokens.Loading.fewLines)
       Spacer(minLength: 0)
       BotSection()
     }
@@ -1407,14 +1426,19 @@ private struct BotSection: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      // While the link is down the controls are off and quiet grey, and the connection banner
+      // says "commands off": no red line repeats it here (owner, 2026-11-18).
       BotControls()
+        .grayscale(linkDown ? 1 : 0)
       if !model.isLive {
         Footnote(L10n.Safety.offWhileRecorded)
-      } else if model.response?.stale == true || model.fetchError != nil {
+      } else if model.response?.stale == true && !linkDown {
         Footnote(L10n.Safety.offWhileUntrusted, color: Palette.lossText)
       }
     }
   }
+
+  private var linkDown: Bool { model.fetchError != nil }
 }
 
 // MARK: right column
@@ -1501,7 +1525,7 @@ private struct ObserversCard: View {
         CappedList(observers, id: \.id, title: L10n.Observers.title, limit: Tokens.Lists.comparedRows,
           spacing: Tokens.Space.m, endsCard: false) { _, observer in OverviewObserverRow(observer: observer, largest: largest) }
       } else if model.observersError != nil {
-        Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
+        ReadFailureNote(L10n.Lab.observersUnavailable, detail: nil)
       } else if model.observersPending {
         Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows) }
       }
