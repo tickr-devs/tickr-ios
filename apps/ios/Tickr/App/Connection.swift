@@ -16,10 +16,24 @@ struct Connection: Equatable {
   static let demoKey = "demoDay"
   /// URL schemes the bot's local API answers on.
   static let schemes: Set<String> = ["http", "https"]
-  /// The only scheme a token is ever sent over.
+  /// The scheme a token is sent over to another machine.
   static let remoteScheme = "https"
-  /// The API's loopback address, which the Simulator reaches because it shares the Mac's network.
-  static let simulatorAddress = "http://127.0.0.1:8766"
+  /// Plain HTTP, and the hosts that are this machine: a token may go to them over it (the Simulator reading
+  /// the phone's listener on the Mac), since that traffic never leaves the machine.
+  static let localScheme = "http"
+  static let loopbackHosts: Set<String> = ["127.0.0.1", "localhost", "::1"]
+
+  /// Info.plist key of the address the build starts with (`TICKR_API_ADDRESS` in
+  /// Config/Signing.xcconfig: the phone listener on loopback for the Simulator, this Mac's
+  /// Tailscale name for an iPhone).
+  static let builtAddressKey = "TickrAPIAddress"
+  /// The address field's example when the build names none.
+  static let exampleAddress = "https://mac.tailnet.ts.net"
+  /// The address field's example: the address this build starts with, else `exampleAddress`.
+  static var addressExample: String {
+    let built = builtAddress()
+    return built.isEmpty ? exampleAddress : built
+  }
 
   var address: String
   var token: String?
@@ -63,9 +77,27 @@ struct Connection: Equatable {
 
   /// The token for a request to `url`: only over HTTPS and only to the paired origin.
   func bearer(for url: URL) -> String? {
-    guard url.scheme?.lowercased() == Self.remoteScheme, let token, let pairedAddress,
+    guard Self.carriesToken(url), let token, let pairedAddress,
       let paired = Self.origin(pairedAddress), paired == Self.origin(url.absoluteString) else { return nil }
     return token
+  }
+
+  /// Whether a token may go over plain HTTP to this machine: in a Simulator build only (its own
+  /// token to the phone's listener on the Mac); an iPhone build sends a token over HTTPS only.
+  #if targetEnvironment(simulator)
+  static let carriesOverLoopback = true
+  #else
+  static let carriesOverLoopback = false
+  #endif
+
+  /// Whether a token may travel to `url`: over HTTPS, or in a Simulator build over HTTP to this
+  /// machine only.
+  static func carriesToken(_ url: URL) -> Bool {
+    switch url.scheme?.lowercased() {
+    case remoteScheme: true
+    case localScheme: carriesOverLoopback && (url.host.map { loopbackHosts.contains($0.lowercased()) } ?? false)
+    default: false
+    }
   }
 
   /// What the API client needs for a request to `url`, with the token only where it may go.
@@ -104,10 +136,22 @@ struct Connection: Equatable {
         pairedAddress: defaults.string(forKey: pairedKey), demo: defaults.bool(forKey: demoKey))
     }
     #if targetEnvironment(simulator)
-    return Connection(address: simulatorAddress, demo: defaults.bool(forKey: demoKey))
-    #else
-    return Connection(address: "", demo: defaults.bool(forKey: demoKey))
+    // The Simulator's own token and the address it opens (`pair-simulator`), read from the Mac
+    // at every launch: no pairing by hand for a new Simulator, the phone's token never touched.
+    if let pairing = SimulatorPairing.read() {
+      return Connection(address: pairing.address, token: pairing.token, pairedAddress: pairing.address,
+        demo: defaults.bool(forKey: demoKey))
+    }
     #endif
+    return Connection(address: builtAddress(), demo: defaults.bool(forKey: demoKey))
+  }
+
+  /// The address this build starts with (`builtAddressKey`), or "" when it names no host (an
+  /// iPhone build without TICKR_TAILSCALE_HOST): Settings then asks for one.
+  static func builtAddress(_ bundle: Bundle = .main) -> String {
+    guard let address = bundle.object(forInfoDictionaryKey: builtAddressKey) as? String,
+      URL(string: address)?.host?.isEmpty == false else { return "" }
+    return address
   }
 
   func save(_ defaults: UserDefaults = .standard) {
@@ -121,5 +165,31 @@ struct Connection: Equatable {
       keychain.deleteToken()
       defaults.removeObject(forKey: Self.pairedKey)
     }
+  }
+}
+
+/// The Simulator's own pairing, from the file `python -m tickr.api pair-simulator` left on the Mac
+/// (JSON: the address it opens, made from bot.toml's [api] host and remote_port, and the token).
+/// Its path is Info.plist's `TickrSimulatorTokenFile`, set for Simulator builds only. The token is
+/// never logged.
+struct SimulatorPairing: Decodable, Equatable {
+  /// Info.plist key of the file's path (`TICKR_SIMULATOR_TOKEN_FILE` in Local.xcconfig).
+  static let fileKey = "TickrSimulatorTokenFile"
+
+  let address: String
+  let token: String
+
+  /// The pairing in the file the build names, or nil without a readable, complete one.
+  static func read(_ bundle: Bundle = .main) -> SimulatorPairing? {
+    guard let path = bundle.object(forInfoDictionaryKey: fileKey) as? String, !path.isEmpty,
+      let data = FileManager.default.contents(atPath: path) else { return nil }
+    return decode(data)
+  }
+
+  /// The pairing in `data`, or nil when it is not one: a missing field or an empty value.
+  static func decode(_ data: Data) -> SimulatorPairing? {
+    guard let pairing = try? JSONDecoder().decode(SimulatorPairing.self, from: data),
+      !pairing.token.isEmpty, URL(string: pairing.address)?.host != nil else { return nil }
+    return pairing
   }
 }

@@ -43,6 +43,10 @@
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Confirms commands that cancel orders or close positions.</string>
+	<key>TickrAPIAddress</key>
+	<string>$(TICKR_API_ADDRESS)</string>
+	<key>TickrSimulatorTokenFile</key>
+	<string>$(TICKR_SIMULATOR_FILE)</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

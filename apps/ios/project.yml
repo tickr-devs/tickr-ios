@@ -63,6 +63,11 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
+        # The API address the app starts with before pairing: the Simulator's or the iPhone's,
+        # set per destination in Config/Signing.xcconfig.
+        TickrAPIAddress: $(TICKR_API_ADDRESS)
+        # The Simulator's own token file on this Mac, read by a Simulator build at launch.
+        TickrSimulatorTokenFile: $(TICKR_SIMULATOR_FILE)
         # tickr://pair?... links from `python -m tickr.api pair` open the app to pair.
         CFBundleURLTypes:
           - CFBundleURLName: local.tickr.pair
@@ -71,7 +76,8 @@ targets:
         # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
-    # The team id comes from the git-ignored Config/Local.xcconfig (see Config/Signing.xcconfig).
+    # The team id and the API address come from Config/Signing.xcconfig and the git-ignored
+    # Config/Local.xcconfig.
     configFiles:
       Debug: Config/Signing.xcconfig
       Release: Config/Signing.xcconfig

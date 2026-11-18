@@ -1,5 +1,21 @@
-// Signing settings for running on a real iPhone. The team id is personal, so it lives in the
-// git-ignored Config/Local.xcconfig next to this file, never in the committed project.
-// To run on your iPhone: copy Local.xcconfig.example to Local.xcconfig and put your team id in
-// it. Do not pick the team in Xcode's Signing & Capabilities, which writes it into the project.
+// Build settings that differ per machine or per destination. The personal ones (team id, this
+// Mac's Tailscale name) live in the git-ignored Config/Local.xcconfig next to this file, never in
+// the committed project. To run on your iPhone: copy Local.xcconfig.example to Local.xcconfig and
+// fill it in. Do not pick the team in Xcode's Signing & Capabilities, which writes it into the
+// project.
+
+// Where the app reads the bot's API until a pairing link says otherwise (Info.plist, read by
+// Connection.load), per destination:
+// - an iPhone build starts at this Mac's Tailscale name (TICKR_TAILSCALE_HOST in Local.xcconfig),
+//   which `tailscale serve` forwards to the phone's listener; pairing gives it the token.
+// - a Simulator build reads the file `python -m tickr.api pair-simulator` wrote (its path in
+//   TICKR_SIMULATOR_TOKEN_FILE in Local.xcconfig): the phone's listener on this Mac's loopback,
+//   the same server path as the iPhone, and the Simulator's own token. The file names the
+//   address, made from config/bot.toml's [api] remote_port, so the port has one source.
+// "/$()/" keeps "//" from starting an xcconfig comment.
+TICKR_TAILSCALE_HOST =
+TICKR_SIMULATOR_TOKEN_FILE =
+TICKR_API_ADDRESS[sdk=iphoneos*] = https:/$()/$(TICKR_TAILSCALE_HOST)
+TICKR_SIMULATOR_FILE[sdk=iphonesimulator*] = $(TICKR_SIMULATOR_TOKEN_FILE)
+
 #include? "Local.xcconfig"

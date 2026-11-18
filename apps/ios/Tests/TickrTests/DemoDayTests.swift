@@ -39,9 +39,14 @@ import TickrKit
     let connection = try paired().demo(true)
     let elsewhere = try #require(URL(string: "https://elsewhere.example/demo/status"))
     #expect(connection.bearer(for: elsewhere) == nil)
-    // Over plain HTTP (the Simulator's loopback address) no token is ever sent.
-    let local = Connection(address: Connection.simulatorAddress)
+    // Over plain HTTP no token is ever sent to another machine, only to this one (the
+    // Simulator reading the phone's listener on the Mac's loopback).
+    let local = Connection(address: "http://127.0.0.1:8767")
     #expect(local.bearer == nil)
+    let lan = try #require(URL(string: "http://192.168.1.5:8767/status"))
+    let loopback = try #require(URL(string: "http://127.0.0.1:8767/status"))
+    #expect(!Connection.carriesToken(lan))
+    #expect(Connection.carriesToken(loopback))
   }
 
   @Test func editingTheAddressKeepsTheSwitch() throws {
@@ -69,5 +74,14 @@ import TickrKit
     #expect(BotControl.target("Stops the bot.", demo: false).key == "control.toBot")
     let demo = String(localized: BotControl.target("Stops the bot.", demo: true))
     #expect(demo.hasPrefix("Stops the bot.") && demo.contains("DEMO"))
+  }
+
+  /// The file `pair-simulator` leaves: the address and the token, both required.
+  @Test func theSimulatorPairingFileNeedsBothFields() {
+    let good = Data(#"{"address": "http://127.0.0.1:8767", "token": "abc"}"#.utf8)
+    #expect(SimulatorPairing.decode(good) == SimulatorPairing(address: "http://127.0.0.1:8767", token: "abc"))
+    #expect(SimulatorPairing.decode(Data(#"{"address": "http://127.0.0.1:8767", "token": ""}"#.utf8)) == nil)
+    #expect(SimulatorPairing.decode(Data(#"{"token": "abc"}"#.utf8)) == nil)
+    #expect(SimulatorPairing.decode(Data("abc".utf8)) == nil)
   }
 }

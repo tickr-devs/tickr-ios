@@ -181,7 +181,7 @@ struct SettingsView: View {
   /// Where the bot is: the address, the connection's state, pairing.
   private var connectionCard: some View {
     SettingsCard(L10n.Settings.botOnMac, note: L10n.Settings.addressFooter) {
-      TextField(text: $draft, prompt: Text(verbatim: Connection.simulatorAddress)) {
+      TextField(text: $draft, prompt: Text(verbatim: Connection.addressExample)) {
         Text(L10n.Settings.botOnMac)
       }
       .keyboardType(.URL)

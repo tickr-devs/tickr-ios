@@ -1,3 +1,11 @@
 // Copy to Local.xcconfig (git-ignored) and set your Apple Developer team id (Xcode › Settings ›
 // Accounts › your Apple ID › Team ID column). A free Apple ID's personal team works too.
 DEVELOPMENT_TEAM = YOUR_TEAM_ID
+
+// This Mac's name on your tailnet, as `tailscale serve` shows it (no https://), e.g.
+// mac.tailnet-name.ts.net: the address an iPhone build starts with.
+TICKR_TAILSCALE_HOST = YOUR_MAC.YOUR_TAILNET.ts.net
+
+// The file `python -m tickr.api pair-simulator` wrote (its full path, as it prints it): the
+// Simulator's own token and the address it opens, read by a Simulator build at launch only.
+TICKR_SIMULATOR_TOKEN_FILE = /path/to/data/remote-simulator-token
