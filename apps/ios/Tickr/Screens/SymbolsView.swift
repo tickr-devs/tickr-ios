@@ -633,7 +633,7 @@ private struct SymbolDetailScreen: View {
   }
 
   private func pathStep(_ step: SymbolsBoard.Step, row: SymbolRowV1) -> some View {
-    let reachedAt = row.reached.first { $0.stage == step.stage }?.at?.date
+    let reachedAt = SymbolsBoard.time(step, row: row)
     let (glyph, color): (String, Color) = switch step.mark {
     case .passed, .here(.passed): (Self.passedSymbol, Palette.profitText)
     case .here(.dropped): (Self.droppedSymbol, Palette.droppedText)

@@ -245,6 +245,15 @@ public enum SymbolsBoard {
     public var id: SymbolStage { stage }
   }
 
+  /// When the row got to `step`: for the stage it stands at, the time of that state (a drop at a
+  /// later pass is dated by that pass, never by when the stage was first passed); for any other
+  /// stage when it was first reached. Nil where no record says when.
+  public static func time(_ step: Step, row: SymbolRowV1) -> Date? {
+    let reached = row.reached.first { $0.stage == step.stage }?.at?.date
+    if case .here = step.mark { return row.at?.date ?? reached }
+    return reached
+  }
+
   /// Every stage in order: passed up to where the row stands, its outcome there, then ahead.
   /// A stage it went past earlier but stands before now (dropped at a later pass) reads passed.
   public static func path(_ row: SymbolRowV1) -> [Step] {

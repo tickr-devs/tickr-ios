@@ -101,8 +101,16 @@ public struct SymbolsLine: Identifiable, Hashable, Sendable {
 
   public var id: String { symbol }
 
-  /// The strategy's latest decision is WATCH.
-  public var watching: Bool { row?.verdict == .watch || mover?.watching == true }
+  /// The strategy's latest decision is WATCH and still where the symbol stands: a WATCH of 10:06
+  /// is over once a later pass dropped the symbol before the strategy (owner, 2026-11-18, ZIM
+  /// marked WATCH while every pass since dropped it at the quote).
+  public var watching: Bool { (row.map(Self.stillWatching) ?? false) || mover?.watching == true }
+
+  static func stillWatching(_ row: SymbolRowV1) -> Bool {
+    guard row.verdict == .watch else { return false }
+    guard let decided = row.decidedAt?.date, let now = row.at?.date else { return true }
+    return decided >= now
+  }
 }
 
 /// What a line's outcome badge says.

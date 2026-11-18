@@ -86,6 +86,30 @@ struct SymbolsBoardTests {
     #expect(steps[3...].allSatisfy { $0.mark == .ahead })
   }
 
+  /// QRST from the fixture, its latest decision a WATCH at `decided` and its state at 15:00.
+  func watched(decided: String) throws -> SymbolRowV1 {
+    var document = try #require(try JSONSerialization.jsonObject(with: fixture("symbols-v1.json")) as? [String: Any])
+    var rows = try #require(document["rows"] as? [[String: Any]])
+    let index = try #require(rows.firstIndex { $0["symbol"] as? String == "QRST" })
+    rows[index]["verdict"] = "WATCH"
+    rows[index]["decided_at"] = decided
+    document["rows"] = rows
+    let data = try JSONSerialization.data(withJSONObject: document)
+    return try #require(try Wire.decoder().decode(SymbolsV1.self, from: data).rows.first { $0.symbol == "QRST" })
+  }
+
+  @Test("A WATCH is over once a later pass dropped the symbol; the drop is dated by that pass")
+  func watchOverAfterLaterDrop() throws {
+    let current = try watched(decided: "2026-11-16T15:00:00.000Z")
+    #expect(SymbolsLine(symbol: "QRST", row: current, mover: nil, position: false).watching)
+    let earlier = try watched(decided: "2026-11-16T14:40:00.000Z")
+    #expect(!SymbolsLine(symbol: "QRST", row: earlier, mover: nil, position: false).watching)
+    let here = try #require(SymbolsBoard.path(earlier).first { $0.stage == earlier.stage })
+    #expect(SymbolsBoard.time(here, row: earlier) == earlier.at?.date)
+    let passed = try #require(SymbolsBoard.path(earlier).first { $0.stage == .quote })
+    #expect(SymbolsBoard.time(passed, row: earlier) == earlier.reached.first { $0.stage == .quote }?.at?.date)
+  }
+
   @Test("A fast mover reads as the design writes it")
   func moverTexts() throws {
     let klmn = try #require(movers.movers.first)
