@@ -5500,6 +5500,42 @@
         }
       }
     },
+    "kit.order.type_STOP_LOSS_LIMIT" : {
+      "comment" : "Order type stop_loss_limit",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop limit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп-лимит"
+          }
+        }
+      }
+    },
+    "kit.order.type_TRAILING_STOP_LOSS" : {
+      "comment" : "Order type trailing_stop_loss",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trailing stop"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Трейлинг-стоп"
+          }
+        }
+      }
+    },
     "kit.orderOther.side" : {
       "extractionState" : "manual",
       "localizations" : {

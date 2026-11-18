@@ -204,6 +204,14 @@ extension L10n {
   static var orderTypeStopLoss: LocalizedStringResource {
     LocalizedStringResource("kit.order.type_STOP_LOSS", defaultValue: "Stop loss", bundle: bundle)
   }
+  /// Order type stop_loss_limit
+  static var orderTypeStopLossLimit: LocalizedStringResource {
+    LocalizedStringResource("kit.order.type_STOP_LOSS_LIMIT", defaultValue: "Stop limit", bundle: bundle)
+  }
+  /// Order type trailing_stop_loss
+  static var orderTypeTrailingStopLoss: LocalizedStringResource {
+    LocalizedStringResource("kit.order.type_TRAILING_STOP_LOSS", defaultValue: "Trailing stop", bundle: bundle)
+  }
   /// Order status accepted
   static var orderStatusAccepted: LocalizedStringResource {
     LocalizedStringResource("kit.order.status_ACCEPTED", defaultValue: "Accepted", bundle: bundle)

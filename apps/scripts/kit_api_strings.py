@@ -129,6 +129,8 @@ for name, en, ru in [
     ("type_MARKET", "Market", "Рыночный"),
     ("type_LIMIT", "Limit", "Лимитный"),
     ("type_STOP_LOSS", "Stop loss", "Стоп-лосс"),
+    ("type_STOP_LOSS_LIMIT", "Stop limit", "Стоп-лимит"),
+    ("type_TRAILING_STOP_LOSS", "Trailing stop", "Трейлинг-стоп"),
     ("status_ACCEPTED", "Accepted", "Принят"),
     ("status_PARTIALLY_FILLED", "Partly filled", "Частично исполнен"),
     ("status_FILLED", "Filled", "Исполнен"),

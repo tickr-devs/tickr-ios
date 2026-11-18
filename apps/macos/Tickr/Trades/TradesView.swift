@@ -1131,7 +1131,12 @@ private struct NotTakenCard: View {
       } else if let error = model.skippedError {
         ReadFailureNote(L10n.Trades.notTakenUnavailable, detail: error)
       } else if model.skipped != nil {
-        Footnote(L10n.Trades.notTakenEmpty)
+        // The apps' empty state, centred in the card beside the trade's detail: a lone line at
+        // the top left the card half empty.
+        ContentUnavailableView {
+          Label { Text(L10n.Trades.notTakenEmpty) } icon: { BrandMark.empty() }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
       } else {
         Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.manyRows, badge: true) }
       }

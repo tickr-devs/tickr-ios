@@ -38,6 +38,8 @@ struct CandleChart: View {
   /// The price pane's height, in points: where the tags sit on its axis, so the axis's own
   /// labels they would cover give way (`AxisLabels`).
   @State private var priceHeight: CGFloat = 0
+  /// Each band pane's plot height, in points (RSI, stochastic): whether its band labels fit.
+  @State private var bandHeights: [ChartPane: CGFloat] = [:]
 
   /// Most decisions on screen that are labelled; with more, only their diamonds are drawn, and
   /// the labels no longer pile up over the candles.
@@ -179,17 +181,6 @@ struct CandleChart: View {
               .fixedSize()
           }
       }
-      ForEach(marks) { mark in
-        PointMark(x: .value(Plot.time, mark.time), y: .value(Plot.price, mark.price))
-          .symbol {
-            Image(systemName: mark.kind == .entry ? Self.entrySymbol : Self.exitSymbol)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(mark.color)
-          }
-          .annotation(position: mark.kind == .entry ? .bottom : .top, overflowResolution: Self.keepInside) {
-            MarkPlate(text: mark.label, color: mark.color, textColor: mark.textColor)
-          }
-      }
       ForEach(decisions) { mark in
         PointMark(x: .value(Plot.time, mark.time), y: .value(Plot.price, mark.price))
           .symbol {
@@ -201,6 +192,19 @@ struct CandleChart: View {
             if labelsDecisions {
               MarkPlate(text: mark.label, color: mark.color, textColor: mark.color)
             }
+          }
+      }
+      // The trades after the decisions: drawn later, their plates ("EXIT −$42.23") sit over a
+      // decision's diamond on the same bar instead of under it.
+      ForEach(marks) { mark in
+        PointMark(x: .value(Plot.time, mark.time), y: .value(Plot.price, mark.price))
+          .symbol {
+            Image(systemName: mark.kind == .entry ? Self.entrySymbol : Self.exitSymbol)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(mark.color)
+          }
+          .annotation(position: mark.kind == .entry ? .bottom : .top, overflowResolution: Self.keepInside) {
+            MarkPlate(text: mark.label, color: mark.color, textColor: mark.textColor)
           }
       }
       if let last = candles.last {
@@ -339,9 +343,10 @@ struct CandleChart: View {
         line(plot.rsi, name: Plot.rsi, color: Palette.info)
       }
       .chartYScale(domain: 0...Studies.oscillatorScale)
-      .chartYAxis { valueAxis(values: [Studies.rsiLow, Studies.rsiHigh]) }
+      .chartYAxis { bandAxis(pane, values: [Studies.rsiLow, Studies.rsiHigh], tags: lastTag(plot.rsi, color: Palette.info)) }
       .chartXAxis { timeAxis(labels: bottom) }
-      .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: lastTag(plot.rsi, color: Palette.info)))
+      .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: lastTag(plot.rsi, color: Palette.info),
+        plotHeight: { bandHeights[pane] = $0 }))
       .overlay { waiting(plot.rsi) }
     case .stochastic:
       Chart {
@@ -350,9 +355,9 @@ struct CandleChart: View {
         line(plot.stochasticD, name: Plot.stochasticD, color: Palette.warning)
       }
       .chartYScale(domain: 0...Studies.oscillatorScale)
-      .chartYAxis { valueAxis(values: [Studies.stochasticLow, Studies.stochasticHigh]) }
+      .chartYAxis { bandAxis(pane, values: [Studies.stochasticLow, Studies.stochasticHigh], tags: []) }
       .chartXAxis { timeAxis(labels: bottom) }
-      .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: []))
+      .modifier(SharedAxis(chart: self, pane: pane, showsTime: bottom, tags: [], plotHeight: { bandHeights[pane] = $0 }))
       .overlay { waiting(plot.stochasticK) }
     case .atr:
       Chart {
@@ -520,9 +525,29 @@ struct CandleChart: View {
   }
 
   /// A value scale with gridlines at exactly `values` (an oscillator's band levels).
-  private func valueAxis(values: [Double]) -> some AxisContent {
-    AxisMarks(position: .trailing, values: values) { value in
-      axisMark(value)
+  /// An oscillator's band levels ("70", "30") on its 0–100 scale. A low pane put "70.00" over
+  /// "30.00" and the current value's plate over both: the labels show only when the pane is tall
+  /// enough to hold them apart, and one under the plate gives way. The gridlines always stay.
+  private func bandAxis(_ pane: ChartPane, values: [Double], tags: [AxisTag]) -> some AxisContent {
+    let height = Double(bandHeights[pane] ?? 0)
+    let label = Double(Tokens.Chart.axisLabelHeight)
+    let span = Studies.oscillatorScale
+    let gaps = zip(values, values.dropFirst()).map { abs($1 - $0) / span * height }
+    let fits = height > 0 && gaps.allSatisfy { $0 >= label }
+    let clearance = AxisLabels.clearance(labelHeight: label, tagHeight: Double(Tokens.Chart.levelTagHeight),
+      span: span, height: height)
+    return AxisMarks(position: .trailing, values: values) { value in
+      AxisGridLine()
+      AxisTick()
+      AxisValueLabel {
+        if fits, let level = value.as(Double.self),
+          AxisLabels.shows(level, tags: tags.map(\.value), clearance: clearance) {
+          Text(verbatim: Money.plain(Decimal(level), fractionDigits: .zero))
+            .frame(width: Self.axisLabelWidth, alignment: .leading)
+        } else {
+          Color.clear.frame(width: Self.axisLabelWidth)
+        }
+      }
     }
   }
 
@@ -698,15 +723,6 @@ struct CandleChart: View {
     case .leading: .topLeading
     case .centre: .top
     case .trailing: .topTrailing
-    }
-  }
-
-  @AxisMarkBuilder private func axisMark(_ value: AxisValue) -> some AxisMark {
-    AxisGridLine()
-    AxisTick()
-    AxisValueLabel {
-      Text(verbatim: value.as(Double.self).map(Money.value) ?? Format.missing)
-        .frame(width: Self.axisLabelWidth, alignment: .leading)
     }
   }
 
@@ -946,6 +962,8 @@ private struct SharedAxis: ViewModifier {
   /// Whether this pane shows the time axis (the bottom pane), and so the pointed time's tag.
   let showsTime: Bool
   let tags: [AxisTag]
+  /// Told the plot area's height as it changes (a band pane's labels fit by it); nil when unused.
+  var plotHeight: ((CGFloat) -> Void)?
 
   func body(content: Content) -> some View {
     let pointer = chart.pointerModel
@@ -986,7 +1004,10 @@ extension SharedAxis {
     } else {
       content
         .chartXScale(domain: chart.windowDomain)
-        .chartPlotStyle { $0.clipped() }
+        .chartPlotStyle { plotArea in
+          plotArea.clipped()
+            .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { plotHeight?($0) })
+        }
     }
   }
 }

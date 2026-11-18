@@ -118,12 +118,16 @@ public enum OrderKind: String, CaseIterable, Sendable {
   case market = "MARKET"
   case limit = "LIMIT"
   case stopLoss = "STOP_LOSS"
+  case stopLossLimit = "STOP_LOSS_LIMIT"
+  case trailingStopLoss = "TRAILING_STOP_LOSS"
 
   public var title: LocalizedStringResource {
     switch self {
     case .market: L10n.orderTypeMarket
     case .limit: L10n.orderTypeLimit
     case .stopLoss: L10n.orderTypeStopLoss
+    case .stopLossLimit: L10n.orderTypeStopLossLimit
+    case .trailingStopLoss: L10n.orderTypeTrailingStopLoss
     }
   }
 }

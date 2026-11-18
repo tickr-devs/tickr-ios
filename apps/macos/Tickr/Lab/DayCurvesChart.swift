@@ -38,9 +38,11 @@ struct DayCurvesChart: View {
   /// Diameter of the end dot, in points.
   static let endDot: CGFloat = 3.5
   /// Minutes between labels on the time axis (09:30, 11:00, 12:30 ... as the design), and the
-  /// least gap before the last label, which is the axis's end.
+  /// least gap before the last label, which is the axis's end. The end label is drawn leftwards
+  /// from its tick, so the gap is more than a step: at 45 minutes "20:00" and "21:32" (and
+  /// "18:30" / "19:16") were drawn over each other; two hours still keep 14:00 before 16:00.
   static let labelStepMinutes: Double = 90
-  static let lastLabelGapMinutes: Double = 45
+  static let lastLabelGapMinutes: Double = 120
   /// Seconds in a minute (unit factor).
   static let secondsPerMinute: Double = 60
   /// Accessibility id of the chart, for the UI tests.
