@@ -52,7 +52,7 @@ extension L10n {
   /// A cause the API writes itself (`<field>_codes`). chart_off
   static var proseReasonChartOff: LocalizedStringResource {
     LocalizedStringResource("kit.prose.chart_off",
-      defaultValue: "Live charts are off on the bot until the chart checks pass", bundle: bundle)
+      defaultValue: "Live charts are turned off in the bot's settings", bundle: bundle)
   }
   /// A cause the API writes itself (`<field>_codes`). chart_check_not_run
   static var proseReasonChartCheckNotRun: LocalizedStringResource {

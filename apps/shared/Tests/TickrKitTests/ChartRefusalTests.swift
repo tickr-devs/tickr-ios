@@ -14,7 +14,7 @@ import Testing
       {"error": "unavailable", "cause": "chart market data is off ([chart] webull_enabled = false)",
        "api_version": 1, "cause_codes": [{"code": "chart_off", "params": {}}]}
       """)
-    #expect(off.causeText == "Live charts are off on the bot until the chart checks pass")
+    #expect(off.causeText == "Live charts are turned off in the bot's settings")
     #expect(off.causeText == ProseReason.chartOff.text([:]))
     #expect(!off.causeText.contains("webull_enabled"))
   }

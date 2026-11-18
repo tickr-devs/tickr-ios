@@ -6474,13 +6474,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Live charts are off on the bot until the chart checks pass"
+            "value" : "Live charts are turned off in the bot's settings"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Живые графики на боте выключены, пока не пройдены проверки графиков"
+            "value" : "Живые графики выключены в настройках бота"
           }
         }
       }

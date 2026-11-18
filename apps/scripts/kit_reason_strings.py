@@ -1164,8 +1164,8 @@ GROUPS = [
             ),
             (
                 "chart_off",
-                "Live charts are off on the bot until the chart checks pass",
-                "Живые графики на боте выключены, пока не пройдены проверки графиков",
+                "Live charts are turned off in the bot's settings",
+                "Живые графики выключены в настройках бота",
             ),
             (
                 "chart_check_not_run",
