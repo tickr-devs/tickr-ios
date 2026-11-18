@@ -292,6 +292,11 @@ extension L10n {
     LocalizedStringResource("kit.refusal.POSITION_LIMIT_REACHED",
       defaultValue: "{open} open, limit {limit}", bundle: bundle)
   }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. WORKING_ENTRY_LIMIT_REACHED (values: working, limit)
+  static var refusalReasonWorkingEntryLimitReached: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.WORKING_ENTRY_LIMIT_REACHED",
+      defaultValue: "{working} entries working, limit {limit}", bundle: bundle)
+  }
   /// A refused entry's detail (`refusal.params`), after the rule's title. SYMBOL_COOLDOWN (values: symbol, until)
   static var refusalReasonSymbolCooldown: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.SYMBOL_COOLDOWN",
@@ -377,11 +382,5 @@ extension L10n {
     LocalizedStringResource("kit.refusal.DAILY_CEILING",
       // swiftlint:disable:next line_length
       defaultValue: "Room {room} USD is under the minimum {min_room} USD (limit {ceiling}, realized {realized}, reserved {reserved})", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING total (values: realized, reserved, new, total, ceiling)
-  static var refusalReasonDailyCeilingTotal: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.DAILY_CEILING.total",
-      // swiftlint:disable:next line_length
-      defaultValue: "Realized {realized} + reserved {reserved} + this trade {new} = {total} USD, over the daily limit of {ceiling} USD", bundle: bundle)
   }
 }

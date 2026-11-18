@@ -85,6 +85,7 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case verdict
   case verified
   case version
+  case working
 }
 
 /// The trading gate's cause (`Gate.code`). An unknown code has no case; show the bot's own text then.
@@ -153,6 +154,7 @@ public enum RefusalReason: String, CaseIterable, Sendable {
   case ownPositionOpen = "OWN_POSITION_OPEN"
   case ownOrderWorking = "OWN_ORDER_WORKING"
   case positionLimitReached = "POSITION_LIMIT_REACHED"
+  case workingEntryLimitReached = "WORKING_ENTRY_LIMIT_REACHED"
   case symbolCooldown = "SYMBOL_COOLDOWN"
   case decisionNotEnter = "DECISION_NOT_ENTER"
   case decisionNotActive = "DECISION_NOT_ACTIVE"

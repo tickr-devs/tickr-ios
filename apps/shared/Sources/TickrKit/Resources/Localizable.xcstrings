@@ -10069,6 +10069,24 @@
         }
       }
     },
+    "kit.refusal.WORKING_ENTRY_LIMIT_REACHED" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. WORKING_ENTRY_LIMIT_REACHED",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{working} entries working, limit {limit}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активных входов {working} при пределе {limit}"
+          }
+        }
+      }
+    },
     "kit.refusedByRisk" : {
       "extractionState" : "manual",
       "localizations" : {

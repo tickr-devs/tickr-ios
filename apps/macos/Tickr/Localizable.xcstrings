@@ -1346,6 +1346,23 @@
         }
       }
     },
+    "cause.workingEntryLimit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many entries working at once"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Слишком много активных входов"
+          }
+        }
+      }
+    },
     "chart.atr" : {
       "extractionState" : "manual",
       "localizations" : {

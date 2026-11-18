@@ -16,6 +16,7 @@ public enum RefusalCode: String, Sendable, CaseIterable {
   case ownPosition = "OWN_POSITION_OPEN"
   case ownOrder = "OWN_ORDER_WORKING"
   case positionLimit = "POSITION_LIMIT_REACHED"
+  case workingEntryLimit = "WORKING_ENTRY_LIMIT_REACHED"
   case cooldown = "SYMBOL_COOLDOWN"
   case setupInvalidated = "SETUP_INVALIDATED"
   case quoteMissing = "QUOTE_MISSING"
@@ -52,7 +53,7 @@ public enum RefusalCode: String, Sendable, CaseIterable {
     case .notReconciled, .brokerReadMissing, .brokerReadStale: return Self.brokerSymbol
     case .unresolvedExposure, .foreignExposure: return Self.exposureSymbol
     case .halfDay, .outsideSession, .afterLastEntry: return Self.sessionSymbol
-    case .ownPosition, .ownOrder, .positionLimit: return Self.ownSymbol
+    case .ownPosition, .ownOrder, .positionLimit, .workingEntryLimit: return Self.ownSymbol
     case .cooldown: return Self.cooldownSymbol
     case .setupInvalidated: return Self.setupSymbol
     case .quoteMissing, .quoteStale: return Self.quoteSymbol

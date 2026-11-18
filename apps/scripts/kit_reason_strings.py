@@ -320,6 +320,11 @@ GROUPS = [
                 "Открыто {open} при пределе {limit}",
             ),
             (
+                "WORKING_ENTRY_LIMIT_REACHED",
+                "{working} entries working, limit {limit}",
+                "Активных входов {working} при пределе {limit}",
+            ),
+            (
                 "SYMBOL_COOLDOWN",
                 "{symbol} closed at a loss; no entry before {until}",
                 "{symbol} закрыт в убыток; входа нет до {until}",

@@ -2438,6 +2438,8 @@ enum L10n {
         defaultValue: "An order on this symbol is working", bundle: L10n.bundle)
       case .positionLimit: LocalizedStringResource("cause.positionLimit",
         defaultValue: "All position slots taken", bundle: L10n.bundle)
+      case .workingEntryLimit: LocalizedStringResource("cause.workingEntryLimit",
+        defaultValue: "Too many entries working at once", bundle: L10n.bundle)
       case .cooldown: LocalizedStringResource("cause.cooldown",
         defaultValue: "Pause after a loss", bundle: L10n.bundle)
       case .setupInvalidated: LocalizedStringResource("cause.setupInvalidated",
