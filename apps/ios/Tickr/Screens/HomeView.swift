@@ -475,10 +475,11 @@ private struct PositionRow: View {
           // The day's closes with the last price under them, as on the design.
           ViewThatFits(in: .horizontal) {
             VStack(spacing: Tokens.Space.xxs) {
-              DrawnSparkline(values: marks.closes.map { NSDecimalNumber(decimal: $0).doubleValue },
-                color: current ? Palette.accent : Palette.textQuaternary)
+              // Drawn in once; each new price glides the line's end and its dot, which rings
+              // while the price is current (mockup v116).
+              LiveSparkline(values: marks.closes.map { NSDecimalNumber(decimal: $0).doubleValue }, live: current,
+                scale: .small)
                 .frame(width: Self.sparkWidth, height: Self.sparkHeight)
-                .accessibilityHidden(true)
               if current {
                 Text(marks.priceText)
                   .font(Tokens.Typography.annotation)
