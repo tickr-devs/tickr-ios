@@ -130,11 +130,17 @@ struct ChartTab: View {
               UnavailableState(ChartText.barsUnavailable, message: ChartText.candlesUnavailable, cause: failure)
                 .rise()
             } else if let answer = chart.rangeChart, answer.symbol == chart.symbol, answer.range == chart.range,
-              answer.interval == chart.timeframe {
+              answer.interval == chart.timeframe, answer.pending == nil {
+              // Only a finished answer can say there are no candles: a pending one (the chart's
+              // budget still filling the range) shows loading, never an empty state.
               ContentUnavailableView {
                 Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
               } description: {
-                Text(ChartText.noCandles(answer.causeText ?? ChartFormat.missing))
+                if let cause = answer.causeText {
+                  Text(ChartText.noCandles(cause))
+                } else {
+                  Text(ChartText.noCandlesPlain)
+                }
               }
               .rise()
             } else {

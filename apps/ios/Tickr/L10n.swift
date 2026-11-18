@@ -2048,6 +2048,9 @@ enum ChartText {
   static func noCandles(_ cause: String) -> LocalizedStringResource {
     LocalizedStringResource("chart.noCandles", defaultValue: "Market data has no candles for this symbol and range: \(cause)")
   }
+  /// Market data answered with no candles for the range and gave no cause.
+  static let noCandlesPlain = LocalizedStringResource("chart.noCandles.plain",
+    defaultValue: "Market data has no candles for this symbol and range.")
   static let m1 = LocalizedStringResource("chart.timeframe.m1", defaultValue: "1m")
   static let m5 = LocalizedStringResource("chart.timeframe.m5", defaultValue: "5m")
   static let m30 = LocalizedStringResource("chart.timeframe.m30", defaultValue: "30m")

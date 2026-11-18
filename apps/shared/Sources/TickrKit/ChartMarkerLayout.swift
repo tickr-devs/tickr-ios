@@ -12,11 +12,15 @@ public enum ChartMarkerLayout {
     public let id: ID
     public let time: Date
     public let price: Double
+    /// A marker that states a price (a trade's entry or exit, the open position's entry): placed
+    /// before every other marker, so it stays on its price and the others move out of its way.
+    public let pinned: Bool
 
-    public init(id: ID, time: Date, price: Double) {
+    public init(id: ID, time: Date, price: Double, pinned: Bool = false) {
       self.id = id
       self.time = time
       self.price = price
+      self.pinned = pinned
     }
   }
 
@@ -50,7 +54,8 @@ public enum ChartMarkerLayout {
 
   /// How far each marker on screen is moved, in steps, by its id: 0 where it belongs, positive
   /// up, negative down. A marker missing from the result does not fit whole in the stretch on
-  /// screen and is not drawn. Markers are placed oldest first; equal times keep the order given.
+  /// screen and is not drawn. Pinned markers are placed first, then the others; within each,
+  /// oldest first, and equal times keep the order given.
   public static func place<ID>(_ markers: [Marker<ID>], scale: Scale) -> [ID: Int] {
     // Half a marker in time: a centre closer than this to either edge would be cut.
     let half = scale.pointsPerSecond > 0 ? scale.side / 2 / scale.pointsPerSecond : 0
@@ -58,7 +63,10 @@ public enum ChartMarkerLayout {
     let last = scale.shown.upperBound.addingTimeInterval(-half)
     let visible = markers.enumerated()
       .filter { first <= $0.element.time && $0.element.time <= last }
-      .sorted { ($0.element.time, $0.offset) < ($1.element.time, $1.offset) }
+      .sorted {
+        // false < true would put pinned last: compare "not pinned" so pinned come first.
+        (!$0.element.pinned ? 1 : 0, $0.element.time, $0.offset) < (!$1.element.pinned ? 1 : 0, $1.element.time, $1.offset)
+      }
       .map(\.element)
     var placed: [(x: Double, y: Double)] = []
     var lifts: [ID: Int] = [:]

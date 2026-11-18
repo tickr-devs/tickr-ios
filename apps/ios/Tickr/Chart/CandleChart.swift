@@ -734,16 +734,19 @@ struct CandleChart: View {
   private func markerLifts(_ scale: PriceScale) -> [MarkerID: Int] {
     var markers: [ChartMarkerLayout.Marker<MarkerID>] = []
     // At their drawn times (the candles sit back to back); one before the first candle is off it.
+    // Entries and exits state a price, so they are pinned there: the strategy's marks move instead.
     for trade in trades {
       if let at = times.drawn(trade.openedAt.date) {
-        markers.append(.init(id: .entry(trade.tradeId), time: at, price: ChartFormat.double(trade.entryPrice)))
+        markers.append(.init(id: .entry(trade.tradeId), time: at, price: ChartFormat.double(trade.entryPrice),
+          pinned: true))
       }
       if let at = times.drawn(trade.closedAt.date) {
-        markers.append(.init(id: .exit(trade.tradeId), time: at, price: ChartFormat.double(trade.exitPrice)))
+        markers.append(.init(id: .exit(trade.tradeId), time: at, price: ChartFormat.double(trade.exitPrice),
+          pinned: true))
       }
     }
     if let position, let at = times.drawn(position.openedAt.date) {
-      markers.append(.init(id: .position, time: at, price: ChartFormat.double(position.entryPrice)))
+      markers.append(.init(id: .position, time: at, price: ChartFormat.double(position.entryPrice), pinned: true))
     }
     for event in events {
       markers.append(.init(id: .event(event), time: eventTime(event), price: event.price))

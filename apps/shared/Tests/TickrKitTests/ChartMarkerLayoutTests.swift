@@ -67,4 +67,15 @@ struct ChartMarkerLayoutTests {
     let lifts = ChartMarkerLayout.place([marker("exit", 12.5, 10), marker("entry", 12, 10)], scale: Self.scale)
     #expect(lifts == ["entry": 0, "exit": 1])
   }
+
+  @Test("A pinned marker (a trade's entry) stays on its price; an older strategy mark moves instead")
+  func pinnedStaysOnItsPrice() {
+    // The strategy decided a minute before the fill, at nearly the same price: without the pin
+    // the entry would be lifted off the price it states.
+    let decision = marker("decision", 12, 10)
+    let entry = ChartMarkerLayout.Marker(id: "entry", time: Self.base.addingTimeInterval(12.5 * Self.minute),
+      price: 10, pinned: true)
+    let lifts = ChartMarkerLayout.place([decision, entry], scale: Self.scale)
+    #expect(lifts == ["entry": 0, "decision": 1])
+  }
 }

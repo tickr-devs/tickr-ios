@@ -3252,6 +3252,23 @@
         }
       }
     },
+    "chart.noCandles.plain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data has no candles for this symbol and range."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В рыночных данных нет свечей по этой бумаге за этот период."
+          }
+        }
+      }
+    },
     "chart.noDays.body" : {
       "extractionState" : "manual",
       "localizations" : {
