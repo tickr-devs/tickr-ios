@@ -41,6 +41,17 @@ public struct ChartViewport: Equatable, Sendable {
     scroll = end.addingTimeInterval(-window(series))
   }
 
+  /// Show `count` candles (within the zoom's limits), keeping the time at `anchor` (0: the left
+  /// edge, 1: the right edge) where it is on screen: a pinch zooms around the fingers.
+  public mutating func zoom(to count: Double, keeping anchor: Double, _ series: ChartSeries) {
+    let share = min(max(anchor, 0), 1)
+    let held = scroll.addingTimeInterval(window(series) * share)
+    visible = min(max(count, min(Self.fewestVisible, most)), most)
+    var start = held.addingTimeInterval(-window(series) * share)
+    if let first = series.candles.first { start = max(start, first.start) }
+    scroll = start
+  }
+
   /// Every candle on screen, first to last, and the `slots` reserved after them on today's Day
   /// chart.
   public mutating func fit(_ series: ChartSeries, slots: Int) {

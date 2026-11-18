@@ -62,4 +62,19 @@ struct ChartViewportTests {
     #expect(viewport.isFitted)
     #expect(!viewport.canZoomOut(series(100)))
   }
+
+  @Test("A pinch zooms around the fingers: the time under them stays, never before the first candle")
+  func pinchKeepsTheAnchor() {
+    var viewport = ChartViewport()
+    viewport.fit(series(100), slots: 100)
+    let middle = Self.origin.addingTimeInterval(50 * Self.minute)
+    viewport.zoom(to: 20, keeping: 0.5, series(100))
+    #expect(viewport.visible == 20)
+    #expect(viewport.scroll == middle.addingTimeInterval(-10 * Self.minute))
+    viewport.zoom(to: 1_000, keeping: 0.5, series(100))
+    #expect(viewport.isFitted)
+    #expect(viewport.scroll == Self.origin)
+    viewport.zoom(to: 1, keeping: 0, series(100))
+    #expect(viewport.visible == ChartViewport.fewestVisible)
+  }
 }

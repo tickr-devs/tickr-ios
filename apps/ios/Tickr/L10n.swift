@@ -2149,7 +2149,7 @@ enum ChartText {
   /// already formatted), and how to move and read the chart.
   static func caption(_ range: String, _ timeframe: String, _ bars: String) -> LocalizedStringResource {
     LocalizedStringResource("chart.caption",
-      defaultValue: "\(range) · \(timeframe) · \(bars) · drag to scroll · touch and hold to read")
+      defaultValue: "\(range) · \(timeframe) · \(bars) · drag to scroll · pinch to zoom · touch and hold to read")
   }
 
   /// Candles on screen, for `caption`.

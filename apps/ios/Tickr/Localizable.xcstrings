@@ -2355,13 +2355,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ · %3$@ · drag to scroll · touch and hold to read"
+            "value" : "%1$@ · %2$@ · %3$@ · drag to scroll · pinch to zoom · touch and hold to read"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ · %3$@ · листайте · удерживайте, чтобы прочитать свечу"
+            "value" : "%1$@ · %2$@ · %3$@ · листайте · сведите пальцы для масштаба · удерживайте, чтобы прочитать свечу"
           }
         }
       }

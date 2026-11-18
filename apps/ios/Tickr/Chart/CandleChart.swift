@@ -157,6 +157,8 @@ struct CandleChart: View {
       touched = time
     })
   }
+  /// The window when the pinch began: the pinch scales it, not the window it last set.
+  @State private var pinchStart: ChartViewport?
   /// Start of the newest candle the chart has taken in. A candle after it, a new minute bar that
   /// just arrived, is left out until it has grown in over the chart (the board's `grow`).
   @State private var grownThrough: Date?
@@ -194,6 +196,9 @@ struct CandleChart: View {
             .transition(.opacity)
         }
       }
+      // Two fingers zoom every pane together, around the point between them; one finger still
+      // scrolls and touch-and-hold still reads a candle.
+      .simultaneousGesture(pinch)
     }
     .padding(Tokens.Space.l)
     .tickrCard()
@@ -1053,6 +1058,19 @@ struct CandleChart: View {
   }
 
   // MARK: readout and zoom
+
+  /// Pinch: spread to zoom in, pinch to zoom out down to the whole range, as the − and + do.
+  private var pinch: some Gesture {
+    MagnifyGesture()
+      .onChanged { value in
+        let start = pinchStart ?? viewport
+        pinchStart = start
+        var zoomed = start
+        zoomed.zoom(to: start.visible / value.magnification, keeping: value.startAnchor.x, series)
+        viewport = zoomed
+      }
+      .onEnded { _ in pinchStart = nil }
+  }
 
   @ViewBuilder
   private var readout: some View {
