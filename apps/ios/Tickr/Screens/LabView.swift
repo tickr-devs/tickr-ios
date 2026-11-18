@@ -231,7 +231,8 @@ private struct RefusalsCard: View {
           InfoCaption(L10n.Lab.noRefusals)
         }
         let most = Double(counts.first?.count ?? 1)
-        ForEach(counts) { count in
+        // The most frequent causes, then "Show all N ›".
+        CappedList(counts, id: \.id, title: L10n.Lab.refusals, spacing: Tokens.Space.m) { _, count in
           VStack(alignment: .leading, spacing: Tokens.Space.xs) {
             HStack(spacing: Tokens.Space.s) {
               StateGlyph(count.cause?.known?.symbol ?? RefusalCode.unknownSymbol, tone: .warning,
@@ -295,7 +296,9 @@ private struct ObserversCard: View {
         if observers.observers.isEmpty {
           InfoCaption(L10n.Lab.noObservers)
         }
-        ForEach(observers.observers.map { ObserverSummary($0, traded: traded) }) { summary in
+        // The first observers, then "Show all N ›".
+        CappedList(observers.observers.map { ObserverSummary($0, traded: traded) }, id: \.id, title: L10n.Lab.board,
+          limit: Tokens.Lists.comparedRows, spacing: Tokens.Space.m) { _, summary in
           ObserverRow(summary: summary)
             .transition(.opacity.combined(with: .move(edge: .top)))
         }

@@ -1028,8 +1028,9 @@ private struct NotTakenCard: View {
     }, content: {
       if let signals = model.skipped?.signals, !signals.isEmpty {
         let groups = SkippedGroup.make(signals)
-        VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
+        // The latest runs (newest first), then "Show all N ›": refusals add up all day.
+        CappedList(groups, id: \.id, title: L10n.Trades.notTaken) { index, group in
+          VStack(alignment: .leading, spacing: Tokens.Space.s) {
             if index > 0 { Divider() }
             SkippedRow(group: group, showOnChart: showOnChart)
               .arrivalFlash(arrived.contains(group.id), color: Palette.info, outset: Self.rowOutset)

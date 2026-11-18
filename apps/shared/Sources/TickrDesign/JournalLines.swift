@@ -7,10 +7,6 @@ import TickrKit
 /// screen washes its line once. At the accessibility text sizes time and tag go on top, so the
 /// line keeps the whole width.
 public struct JournalLines: View {
-  /// Side of an event's dot, in points.
-  static let dotSide: CGFloat = 7
-
-  @Environment(\.dynamicTypeSize) private var typeSize
   @State private var arrived: Set<String> = []
   let events: [Board.Event]
 
@@ -21,15 +17,36 @@ public struct JournalLines: View {
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       ForEach(events) { event in
-        line(event)
-          .padding(.vertical, Tokens.Space.xs)
-          .arrivalFlash(arrived.contains(event.id), color: Tone(event.tone).fill)
+        JournalLine(event, arrived: arrived.contains(event.id))
           .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .animation(Tokens.Motion.standard, value: events.map(\.id))
     .onArrival(of: events.map(\.id)) { arrived = $0 }
+  }
+}
+
+/// One line of the journal (`JournalLines`; a capped journal card lists them one by one): time,
+/// dot, tag and the line in words. `arrived`: the bot added it while the list was on screen, so
+/// its line washes once.
+public struct JournalLine: View {
+  /// Side of an event's dot, in points.
+  static let dotSide: CGFloat = 7
+
+  @Environment(\.dynamicTypeSize) private var typeSize
+  let event: Board.Event
+  let arrived: Bool
+
+  public init(_ event: Board.Event, arrived: Bool = false) {
+    self.event = event
+    self.arrived = arrived
+  }
+
+  public var body: some View {
+    line(event)
+      .padding(.vertical, Tokens.Space.xs)
+      .arrivalFlash(arrived, color: Tone(event.tone).fill)
   }
 
   @ViewBuilder

@@ -91,6 +91,11 @@ private struct VersionsCard: View {
   var body: some View {
     Card(L10n.Lab.versions) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        // Above the list, so the list's "Show all" ends the card.
+        Text(L10n.Lab.swapNote)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textTertiary)
+          .fixedSize(horizontal: false, vertical: true)
         VStack(spacing: 0) {
           row(name: activeName, version: model.status?.strategy.version,
             tag: Badge(L10n.Lab.tagActive, tone: .accent)) {
@@ -98,32 +103,11 @@ private struct VersionsCard: View {
           }
           activePanel
         }
-        if let observers = model.observers?.observers {
-          ForEach(observers) { observer in
-            row(name: observer.name, version: observer.version,
-              tag: Badge(L10n.Lab.tagObserver, tone: .highlight)) {
-              Text(L10n.Lab.observerNote(observer.decisions.count))
-            }
-          }
-        } else if let names = model.settings?.observers {
-          ForEach(names, id: \.self) { name in
-            row(name: name, version: nil,
-              tag: Badge(L10n.Lab.tagObserver, tone: .highlight)) {
-              Text(L10n.Lab.observerNoteUnread)
-            }
-          }
+        // Observers first, then candidates: the first few (more in a tall window), then
+        // "Show all N ›" on the card's bottom edge; the active version above is always shown.
+        CappedList(others, id: \.id, title: L10n.Lab.versions, limit: Tokens.Lists.comparedRows) { _, other in
+          row(name: other.name, version: other.version, tag: other.tag) { Text(other.note) }
         }
-        ForEach(candidates, id: \.folder) { item in
-          row(name: item.strategy ?? item.folder, version: item.version,
-            tag: Badge(L10n.Lab.tagCandidate, tone: .warning)) {
-            Text(L10n.Lab.candidateNote)
-          }
-        }
-        Spacer(minLength: 0)
-        Text(L10n.Lab.swapNote)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textTertiary)
-          .fixedSize(horizontal: false, vertical: true)
       }
       .animation(Tokens.Motion.standard, value: model.observers)
     }
@@ -131,6 +115,29 @@ private struct VersionsCard: View {
 
   /// Height of the active version's curve, in points.
   static let sparkHeight: CGFloat = 24
+
+  /// A version other than the active one, as its row shows it.
+  private struct Other: Identifiable {
+    enum Key: Hashable { case observer(String), candidate(String) }
+    let id: Key
+    let name: String
+    let version: String?
+    let tag: Badge
+    let note: LocalizedStringResource
+  }
+
+  /// The observers (as read, else as set in the settings), then the candidates.
+  private var others: [Other] {
+    let observers: [Other] = if let read = model.observers?.observers {
+      read.map { Other(id: .observer($0.id), name: $0.name, version: $0.version,
+        tag: Badge(L10n.Lab.tagObserver, tone: .highlight), note: L10n.Lab.observerNote($0.decisions.count)) }
+    } else {
+      (model.settings?.observers ?? []).map { Other(id: .observer($0), name: $0, version: nil,
+        tag: Badge(L10n.Lab.tagObserver, tone: .highlight), note: L10n.Lab.observerNoteUnread) }
+    }
+    return observers + candidates.map { Other(id: .candidate($0.folder), name: $0.strategy ?? $0.folder, version: $0.version,
+      tag: Badge(L10n.Lab.tagCandidate, tone: .warning), note: L10n.Lab.candidateNote) }
+  }
 
   /// The active version's shown day under its row: trades, gross result and the day's curve.
   private var activePanel: some View {
@@ -208,10 +215,11 @@ private struct CurvesCard: View {
           if realDayMatches, let span = span(observers) {
             DayCurvesChart(lines: lines, start: span.start, end: span.end, domain: span.domain, live: model.isLive)
           }
-          legend(lines, observers)
           if observers.isEmpty {
             Footnote(L10n.Lab.observersEmpty)
           }
+          note
+          legend(lines, observers)
         } else if model.observersError != nil {
           Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
         } else {
@@ -221,14 +229,19 @@ private struct CurvesCard: View {
               SkeletonRows(Tokens.Loading.fewRows)
             }
           }
+          note
         }
-        Text(L10n.Lab.curvesNote)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
       }
       .animation(Tokens.Motion.standard, value: model.observers)
     })
+  }
+
+  /// What the curves are; above the legend, so the legend's "Show all" ends the card.
+  private var note: some View {
+    Text(L10n.Lab.curvesNote)
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.textQuaternary)
+      .fixedSize(horizontal: false, vertical: true)
   }
 
   @ViewBuilder private var trailing: some View {
@@ -257,7 +270,9 @@ private struct CurvesCard: View {
             model.shownLosses))],
           result: model.shownResult)
       }
-      ForEach(Array(observers.enumerated()), id: \.element.id) { index, observer in
+      // The first observers (more in a tall window), then "Show all N ›".
+      CappedList(observers, id: \.id, title: model.isLive ? L10n.Lab.curves : L10n.Lab.curvesOnDay,
+        limit: Tokens.Lists.comparedRows) { index, observer in
         legendRow(color: DayCurveLine.color(observerIndex: index), curve: DayCurve.observer(observer),
           name: ObserverLabel.observer(observer), notes: notes(observer), result: observer.resultGrossUSD?.value)
           .help(help(observer))
@@ -408,13 +423,16 @@ private struct RefusalsCard: View {
   var body: some View {
     Card(model.isLive ? L10n.Lab.refusalsToday : L10n.Lab.refusals) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        // Above the bars, so their "Show all" ends the card.
+        PlannedLine(text: L10n.Lab.screenerBacklog)
         if let signals = model.skipped?.signals {
           let counts = RefusalCount.make(signals)
           if counts.isEmpty {
             Footnote(L10n.Lab.noRefusals)
           }
           let most = Double(counts.first?.count ?? 1)
-          ForEach(Array(counts.enumerated()), id: \.element.id) { index, count in
+          // The most frequent causes (more in a tall window), then "Show all N ›".
+          CappedList(counts, id: \.id, title: model.isLive ? L10n.Lab.refusalsToday : L10n.Lab.refusals) { index, count in
             row(count, share: Double(count.count) / most, color: Self.colors[index % Self.colors.count], step: index)
           }
         } else if let error = model.skippedError {
@@ -422,8 +440,6 @@ private struct RefusalsCard: View {
         } else {
           Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.rows) }
         }
-        Spacer(minLength: 0)
-        PlannedLine(text: L10n.Lab.screenerBacklog)
       }
       .animation(Tokens.Motion.standard, value: model.skipped)
     }

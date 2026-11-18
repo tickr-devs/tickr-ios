@@ -1497,9 +1497,9 @@ private struct ObserversCard: View {
         // The design's compact rows: name and result, then a bar of the result against the
         // largest; the decisions are in the Lab and on hover.
         let largest = observers.compactMap { $0.resultGrossUSD.map { abs($0.value) } }.max() ?? 0
-        ForEach(observers) { observer in
-          OverviewObserverRow(observer: observer, largest: largest)
-        }
+        // The first observers (more in a tall window), then "Show all N ›" above the advisor.
+        CappedList(observers, id: \.id, title: L10n.Observers.title, limit: Tokens.Lists.comparedRows,
+          spacing: Tokens.Space.m, endsCard: false) { _, observer in OverviewObserverRow(observer: observer, largest: largest) }
       } else if model.observersError != nil {
         Footnote(L10n.Lab.observersUnavailable, color: Palette.warningText)
       } else if model.observersPending {
@@ -1624,15 +1624,16 @@ private struct OverviewObserverRow: View {
 private struct JournalCard: View {
   @Environment(AppModel.self) private var model
 
-  /// Most recent events shown here; the full journal is in Trades & days.
-  static let shown = 10
+  /// Events the bot added while the card was on screen: each line washes once.
+  @State private var arrived: Set<String> = []
 
   var body: some View {
     // A console on the sunken surface, as in the design; the lines are the shared journal's.
     Card(L10n.Journal.title, fill: Palette.surfaceSunken) {
       Text(L10n.Journal.latestFirst).font(Tokens.Typography.captionMono).foregroundStyle(Palette.textQuaternary)
     } content: {
-      let events = Array(lines.prefix(Self.shown))
+      // The latest lines (at least `journalRows`, more in a tall window), then "Show all N ›".
+      let events = lines
       if events.isEmpty {
         Group {
           if model.isLive || model.events != nil { Text(L10n.Journal.nothingYet) } else { Text(L10n.Journal.seeTrades) }
@@ -1640,8 +1641,11 @@ private struct JournalCard: View {
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)
       } else {
-        JournalLines(events)
-          .textSelection(.enabled)
+        CappedList(events, id: \.id, title: L10n.Journal.title, limit: Tokens.Lists.journalRows,
+          spacing: 0) { _, event in JournalLine(event, arrived: arrived.contains(event.id)) }
+        .textSelection(.enabled)
+        .animation(Tokens.Motion.standard, value: events.map(\.id))
+        .onArrival(of: events.map(\.id)) { arrived = $0 }
       }
     }
   }

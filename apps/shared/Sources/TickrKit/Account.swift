@@ -344,3 +344,8 @@ extension AccountResponseV1 {
       orders: account.orders, matchesRecords: account.matchesRecords, mismatch: account.mismatch, stale: stale)
   }
 }
+
+extension AccountV1 {
+  /// Today's fills latest first, as the cards list them (the wire sends them oldest first).
+  public var fillsLatestFirst: [AccountFillV1] { fills.reversed() }
+}

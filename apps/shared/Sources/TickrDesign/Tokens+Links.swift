@@ -70,3 +70,28 @@ extension Tokens.Motion {
   /// How far a footer link's chevron chip moves on under the pointer.
   public static let linkNudge: CGFloat = 2
 }
+
+extension Tokens {
+  /// A list that grows with the day or the history inside a card (`CappedList`).
+  public enum Lists {
+    /// Least rows a card shows of such a list before "Show all N ›"; a card the window makes
+    /// taller shows more (owner, 2026-11-18: never an ever-longer card, never a scroll inside it).
+    /// Events of the day or of the history: fills, signals not taken, refusals by cause.
+    public static let cappedRows = 5
+    /// Things compared side by side: strategy versions, observers, advisor runs, a symbol's trades.
+    public static let comparedRows = 3
+    /// The broker's positions and open orders: as many as the bot's entry slots.
+    public static let brokerRows = 6
+    /// The journal's lines (one short line each).
+    public static let journalRows = 10
+  }
+}
+
+extension Tokens.Size {
+  #if os(macOS)
+  /// The Mac's "Show all" sheet (`CappedList`): its width and height, in points, before the
+  /// window's own limits.
+  public static let allRowsWidth: CGFloat = 640
+  public static let allRowsHeight: CGFloat = 640
+  #endif
+}

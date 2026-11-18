@@ -121,12 +121,17 @@ struct AdvisorCard: View {
 
   @ViewBuilder private var content: some View {
     if let runs = advisor.runs {
+      // Above the runs, so their "Show all" ends the card.
+      if !runs.unreadable.isEmpty {
+        InfoCaption(AdvisorWords.unreadable(runs.unreadable.count), systemImage: LabView.warningSymbol, tone: .warning)
+      }
       if let lead = runs.lead {
         StepPath(AdvisorLook.steps(lead, settings: model.settings))
         ForEach(lead.changes.prefix(AdvisorLook.cardChanges), id: \.path) { change in
           ChangeLine(change: change)
         }
-        ForEach(runs.runs) { run in
+        // The latest runs, then "Show all N ›" (the sheet opens a run in place).
+        CappedList(runs.runs, id: \.id, title: AdvisorWords.title, limit: Tokens.Lists.comparedRows) { _, run in
           NavigationLink {
             AdvisorProposalView(advisor: advisor, runID: run.id, url: url)
           } label: {
@@ -135,9 +140,6 @@ struct AdvisorCard: View {
         }
       } else {
         InfoCaption(verbatim: runs.causeText ?? String(localized: AdvisorWords.noRuns))
-      }
-      if !runs.unreadable.isEmpty {
-        InfoCaption(AdvisorWords.unreadable(runs.unreadable.count), systemImage: LabView.warningSymbol, tone: .warning)
       }
     } else if let failure = advisor.failure {
       ReadFailureNote(AdvisorWords.failed, detail: failure)

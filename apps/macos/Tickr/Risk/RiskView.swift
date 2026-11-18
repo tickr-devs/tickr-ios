@@ -918,76 +918,114 @@ private struct AccountCard: View {
         balance(L10n.Risk.buyingPower, nil, font: Self.figureFont)
         Footnote(L10n.Risk.balanceNote)
       }
+      // When the broker was read: above the lists, so a list's "Show all" ends the card.
+      Text(L10n.Risk.readAt(Format.marketTime(account.readAt.date), Format.wholeSeconds(response.ageSeconds.value)))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
       SectionHeader(Text(L10n.Risk.brokerPositions)) { note(L10n.Risk.positionsColumns) }
         .padding(.top, Tokens.Space.xs)
       if account.positions.isEmpty {
         empty
       }
-      ForEach(account.positions, id: \.self) { position in
-        HStack(spacing: Tokens.Space.s) {
-          SymbolText(position.symbol).fontWeight(.bold)
-          Spacer()
-          Text(verbatim: position.quantity.text)
-          Text(verbatim: position.avgPrice.map { Money.price($0.value) } ?? Format.missing)
-            .foregroundStyle(Palette.textTertiary)
-          Text(verbatim: position.lastPrice.map { Money.price($0.value) } ?? Format.missing)
-          Text(verbatim: position.unrealizedPlUsd.map { Money.signedUSD($0.value) } ?? Format.missing)
-            .foregroundStyle(position.unrealizedPlUsd.map { Palette.result($0.value) } ?? Palette.textQuaternary)
-        }
-        .font(Tokens.Typography.calloutMono)
-      }
+      // As many as the bot's entry slots (more in a tall window), then "Show all N ›".
+      CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
+        endsCard: false) { _, position in positionRow(position) }
       SectionHeader(Text(L10n.Risk.brokerOrders)) { note(L10n.Risk.ordersOpen) }
         .padding(.top, Tokens.Space.xs)
       if account.orders.isEmpty {
         empty
       }
-      ForEach(account.orders, id: \.self) { order in
-        HStack(spacing: Tokens.Space.s) {
-          SymbolText(order.symbol).fontWeight(.bold)
-          Text(verbatim: ApiText.orderSide(order.side))
-          Text(verbatim: ApiText.orderType(order.type))
-          Text(verbatim: order.quantity.text)
-          Spacer()
-          if let price = order.stopPrice ?? order.limitPrice {
-            Text(verbatim: Money.price(price.value))
-          }
-          Badge(verbatim: ApiText.orderStatus(order.status), color: Palette.profitText)
-          if !order.ours {
-            Badge(L10n.Risk.notOurs, color: Palette.warningText)
-          }
-        }
-        .font(Tokens.Typography.calloutMono)
-      }
+      CappedList(account.orders, id: \.self, title: L10n.Risk.brokerOrders, limit: Tokens.Lists.brokerRows,
+        endsCard: false) { _, order in orderRow(order) }
       SectionHeader(Text(L10n.Risk.fillsToday)) { note(L10n.Risk.fillsColumns) }
         .padding(.top, Tokens.Space.xs)
       if account.fills.isEmpty {
         empty
       }
-      ForEach(account.fills, id: \.self) { fill in
-        HStack(spacing: Tokens.Space.s) {
-          Text(verbatim: Format.marketTime(fill.filledAt?.date))
-            .foregroundStyle(Palette.textTertiary)
-          SymbolText(fill.symbol).fontWeight(.bold)
-          Text(verbatim: ApiText.orderSide(fill.side))
-          Text(verbatim: ApiText.orderType(fill.type))
-          Text(verbatim: fill.quantity.text)
-          Spacer()
-          // The price at its tick (two decimals from $1, four below); the exact fill stays in the
-          // records, the screen shows what a price reads as everywhere else.
-          Text(verbatim: (fill.exactPrice ?? fill.price).map { Money.price($0.value) } ?? Format.missing)
-          Text(verbatim: fill.feesUsd.map { Money.usd($0.value) } ?? Format.missing)
-            .foregroundStyle(Palette.warningText)
-          if !fill.ours {
-            Badge(L10n.Risk.notOurs, color: Palette.warningText)
-          }
-        }
-        .font(Tokens.Typography.calloutMono)
-      }
-      Spacer(minLength: 0)
-      Text(L10n.Risk.readAt(Format.marketTime(account.readAt.date), Format.wholeSeconds(response.ageSeconds.value)))
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
+      // The latest fills, then "Show all N ›" on the card's bottom edge: the list grows all day.
+      CappedList(account.fillsLatestFirst, id: \.self, title: L10n.Risk.fillsToday) { _, fill in fillRow(fill) }
     }
+  }
+
+  /// A broker position: symbol, quantity, average and last price, unrealized result.
+  private func positionRow(_ position: AccountPositionV1) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      SymbolText(position.symbol).fontWeight(.bold)
+      Spacer()
+      Text(verbatim: position.quantity.text)
+      Text(verbatim: position.avgPrice.map { Money.price($0.value) } ?? Format.missing)
+        .foregroundStyle(Palette.textTertiary)
+      Text(verbatim: position.lastPrice.map { Money.price($0.value) } ?? Format.missing)
+      Text(verbatim: position.unrealizedPlUsd.map { Money.signedUSD($0.value) } ?? Format.missing)
+        .foregroundStyle(position.unrealizedPlUsd.map { Palette.result($0.value) } ?? Palette.textQuaternary)
+    }
+    .font(Tokens.Typography.calloutMono)
+  }
+
+  /// An open order at the broker: symbol, side, type, quantity, its price and status.
+  private func orderRow(_ order: AccountOrderV1) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      SymbolText(order.symbol).fontWeight(.bold)
+      Text(verbatim: ApiText.orderSide(order.side))
+      Text(verbatim: ApiText.orderType(order.type))
+      Text(verbatim: order.quantity.text)
+      Spacer()
+      if let price = order.stopPrice ?? order.limitPrice {
+        Text(verbatim: Money.price(price.value))
+      }
+      Badge(verbatim: ApiText.orderStatus(order.status), color: Palette.profitText)
+      if !order.ours {
+        Badge(L10n.Risk.notOurs, color: Palette.warningText)
+      }
+    }
+    .font(Tokens.Typography.calloutMono)
+  }
+
+  /// A fill: its time, symbol, side, type and quantity, then its price and fees. On one line when
+  /// it fits; else the order on the first line and price and fees on the second, each part whole
+  /// (a time or "Stop loss" never breaks inside).
+  private func fillRow(_ fill: AccountFillV1) -> some View {
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: Tokens.Space.s) {
+        fillOrder(fill)
+        Spacer()
+        fillMoney(fill)
+      }
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        fillOrder(fill)
+        HStack(spacing: Tokens.Space.s) {
+          Spacer()
+          fillMoney(fill)
+        }
+      }
+    }
+    .font(Tokens.Typography.calloutMono)
+  }
+
+  private func fillOrder(_ fill: AccountFillV1) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      Text(verbatim: Format.marketTime(fill.filledAt?.date))
+        .foregroundStyle(Palette.textTertiary)
+      SymbolText(fill.symbol).fontWeight(.bold)
+      Text(verbatim: ApiText.orderSide(fill.side))
+      Text(verbatim: ApiText.orderType(fill.type))
+      Text(verbatim: fill.quantity.text)
+    }
+    .fixedSize()
+  }
+
+  /// The price at its tick (two decimals from $1, four below); the exact fill stays in the
+  /// records, the screen shows what a price reads as everywhere else. Then the fees.
+  private func fillMoney(_ fill: AccountFillV1) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      Text(verbatim: (fill.exactPrice ?? fill.price).map { Money.price($0.value) } ?? Format.missing)
+      Text(verbatim: fill.feesUsd.map { Money.usd($0.value) } ?? Format.missing)
+        .foregroundStyle(Palette.warningText)
+      if !fill.ours {
+        Badge(L10n.Risk.notOurs, color: Palette.warningText)
+      }
+    }
+    .fixedSize()
   }
 
   private func note(_ text: LocalizedStringResource) -> some View {

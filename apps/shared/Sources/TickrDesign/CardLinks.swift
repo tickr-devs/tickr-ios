@@ -161,6 +161,9 @@ struct FooterChevronChip: View {
 extension EnvironmentValues {
   /// Whether the pointer is over the footer link around this view (`CardFooterLinkStyle`).
   @Entry var footerLinkHovered = false
+  /// A footer link in the middle of a card (a capped list above another section, `CappedList`):
+  /// it reaches the card's sides but not its bottom edge.
+  @Entry var footerLinkInline = false
 }
 
 /// The look of `CardFooterLink`: the row reaching the card's edges under a hairline, tinted under
@@ -174,6 +177,7 @@ struct CardFooterLinkStyle: ButtonStyle {
   static let cardRadius = Tokens.Radius.large
   #endif
   @State private var hovered = false
+  @Environment(\.footerLinkInline) private var inline
 
   func makeBody(configuration: Configuration) -> some View {
     configuration.label
@@ -184,14 +188,15 @@ struct CardFooterLinkStyle: ButtonStyle {
       .frame(maxWidth: .infinity, minHeight: Tokens.Size.footerLink, alignment: .leading)
       .background(
         Palette.info.opacity(hovered ? Tokens.Opacity.rowHover : 0),
-        in: UnevenRoundedRectangle(bottomLeadingRadius: Self.cardRadius, bottomTrailingRadius: Self.cardRadius))
+        in: UnevenRoundedRectangle(bottomLeadingRadius: inline ? 0 : Self.cardRadius,
+          bottomTrailingRadius: inline ? 0 : Self.cardRadius))
       .overlay(alignment: .top) {
         Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
       }
       .contentShape(Rectangle())
       // The card's padding: the row reaches its edges, as on the board.
       .padding(.horizontal, -Tokens.Space.l)
-      .padding(.bottom, -Tokens.Space.l)
+      .padding(.bottom, inline ? 0 : -Tokens.Space.l)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.rowPressScale : 1)
       .onHover { hovered = $0 }
       .animation(Tokens.Motion.quick, value: hovered)

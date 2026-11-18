@@ -157,41 +157,51 @@ private struct AccountCard: View {
           .foregroundStyle(b.marginCalls > 0 ? Palette.warningText : Palette.textQuaternary)
           .fixedSize(horizontal: false, vertical: true)
       }
-      if let account {
-        CardLabel(L10n.Risk.brokerPositions)
-          .padding(.top, Tokens.Space.xs)
-        if account.positions.isEmpty {
-          none
-        }
-        ForEach(account.positions, id: \.self) { position in
-          let last: String = position.lastPrice.map { Money.price($0.value) } ?? Format.missing
-          let result: String = position.unrealizedPlUsd.map { Money.signedUSD($0.value) } ?? Format.missing
-          row(position.symbol, detail: [position.quantity.text, last].joined(separator: Format.separator),
-            value: result, color: position.unrealizedPlUsd.map { Palette.result($0.value) } ?? Palette.textQuaternary)
-        }
-        CardLabel(L10n.Risk.fillsToday)
-          .padding(.top, Tokens.Space.xs)
-        if account.fills.isEmpty {
-          none
-        }
-        ForEach(account.fills, id: \.self) { fill in
-          let price: String = (fill.exactPrice ?? fill.price).map { Money.price($0.value) } ?? Format.missing
-          let feeAmount: String = fill.feesUsd.map { RiskFormat.amount($0.value) } ?? Format.missing
-          let fees: String = String(localized: L10n.Risk.fees(feeAmount))
-          row(fill.symbol,
-            detail: [Format.timeOrDash(fill.filledAt), ApiText.orderSide(fill.side), fill.quantity.text]
-              .joined(separator: Format.separator),
-            value: [price, fees].joined(separator: Format.separator), color: Palette.textPrimary)
-        }
-      }
+      // Above the lists, so the fills' "Show all" ends the card.
       if account?.balances == nil {
         Text(failure == nil || response != nil ? L10n.Risk.balanceNote : L10n.Risk.accountUnavailable)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
           .fixedSize(horizontal: false, vertical: true)
       }
+      if let account {
+        CardLabel(L10n.Risk.brokerPositions)
+          .padding(.top, Tokens.Space.xs)
+        if account.positions.isEmpty {
+          none
+        }
+        // As many as the bot's entry slots, then "Show all N ›".
+        CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
+          endsCard: false) { _, position in positionRow(position) }
+        CardLabel(L10n.Risk.fillsToday)
+          .padding(.top, Tokens.Space.xs)
+        if account.fills.isEmpty {
+          none
+        }
+        // The latest fills, then "Show all N ›" on the card's bottom edge: the list grows all day.
+        CappedList(account.fillsLatestFirst, id: \.self, title: L10n.Risk.fillsToday) { _, fill in fillRow(fill) }
+      }
     }
     .animation(Tokens.Motion.standard, value: response?.state)
+  }
+
+  /// A broker position: the symbol with quantity and last price under it, and its result.
+  private func positionRow(_ position: AccountPositionV1) -> some View {
+    let last: String = position.lastPrice.map { Money.price($0.value) } ?? Format.missing
+    let result: String = position.unrealizedPlUsd.map { Money.signedUSD($0.value) } ?? Format.missing
+    return row(position.symbol, detail: [position.quantity.text, last].joined(separator: Format.separator),
+      value: result, color: position.unrealizedPlUsd.map { Palette.result($0.value) } ?? Palette.textQuaternary)
+  }
+
+  /// A fill: its symbol, with time, side and quantity under it, and its price and fees.
+  private func fillRow(_ fill: AccountFillV1) -> some View {
+    let price: String = (fill.exactPrice ?? fill.price).map { Money.price($0.value) } ?? Format.missing
+    let feeAmount: String = fill.feesUsd.map { RiskFormat.amount($0.value) } ?? Format.missing
+    let fees: String = String(localized: L10n.Risk.fees(feeAmount))
+    return row(fill.symbol,
+      detail: [Format.timeOrDash(fill.filledAt), ApiText.orderSide(fill.side), fill.quantity.text]
+        .joined(separator: Format.separator),
+      value: [price, fees].joined(separator: Format.separator), color: Palette.textPrimary)
   }
 
   private var none: some View {

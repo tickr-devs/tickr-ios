@@ -594,42 +594,47 @@ private struct DayTrades: View {
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textTertiary)
       }
-      ForEach(trades) { trade in
-        HStack(alignment: .firstTextBaseline) {
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            HStack(spacing: Tokens.Space.xs) {
-              Text(trade.openedAt.date, format: ChartFormat.time)
-              Image(systemName: "arrow.right").imageScale(.small)
-              Text(trade.closedAt.date, format: ChartFormat.time)
-            }
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
-            HStack(spacing: Tokens.Space.xs) {
-              Text(verbatim: Money.price(trade.entryPrice.value))
-              Image(systemName: "arrow.right").imageScale(.small)
-              Text(verbatim: Money.price(trade.exitPrice.value))
-            }
-            .font(Tokens.Typography.bodyMono)
-            .foregroundStyle(Palette.textSecondary)
-          }
-          Spacer()
-          VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
-            Text(Money.signedUSD(trade.resultUsd.value))
-              .font(Tokens.Typography.bodyMono)
-              .foregroundStyle(Palette.result(trade.resultUsd.value))
-            if let r = trade.resultR {
-              Text(Risk.text(r))
-                .font(Tokens.Typography.captionMono)
-                .foregroundStyle(Palette.textTertiary)
-            }
-          }
-        }
-        .accessibilityElement(children: .combine)
-      }
+      // The latest trades, then "Show all N ›": a busy symbol trades many times a day.
+      CappedList(trades.sorted { $0.closedAt.date > $1.closedAt.date }, id: \.id, title: ChartText.trades,
+        limit: Tokens.Lists.comparedRows) { _, trade in tradeRow(trade) }
     }
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard()
+  }
+
+  /// A trade: its times and prices, then its result in dollars and in R.
+  private func tradeRow(_ trade: DayTrade) -> some View {
+    HStack(alignment: .firstTextBaseline) {
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        HStack(spacing: Tokens.Space.xs) {
+          Text(trade.openedAt.date, format: ChartFormat.time)
+          Image(systemName: "arrow.right").imageScale(.small)
+          Text(trade.closedAt.date, format: ChartFormat.time)
+        }
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textTertiary)
+        HStack(spacing: Tokens.Space.xs) {
+          Text(verbatim: Money.price(trade.entryPrice.value))
+          Image(systemName: "arrow.right").imageScale(.small)
+          Text(verbatim: Money.price(trade.exitPrice.value))
+        }
+        .font(Tokens.Typography.bodyMono)
+        .foregroundStyle(Palette.textSecondary)
+      }
+      Spacer()
+      VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
+        Text(Money.signedUSD(trade.resultUsd.value))
+          .font(Tokens.Typography.bodyMono)
+          .foregroundStyle(Palette.result(trade.resultUsd.value))
+        if let r = trade.resultR {
+          Text(Risk.text(r))
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.textTertiary)
+        }
+      }
+    }
+    .accessibilityElement(children: .combine)
   }
 }
 

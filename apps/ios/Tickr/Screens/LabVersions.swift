@@ -84,7 +84,9 @@ struct VersionsCard: View {
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textTertiary)
       }
-      ForEach(curves) { curve in
+      // The active version and the first observers, then "Show all N ›".
+      CappedList(curves, id: \.id, title: live ? L10n.Lab.versions : L10n.Lab.versionsOnDay,
+        limit: Tokens.Lists.comparedRows + 1, spacing: Tokens.Space.m, endsCard: missing.isEmpty) { _, curve in
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
           // The version and what sets it apart ("v3 · rel vol 1.5×"), its role as a `Badge` and the
           // total in one row; at large text sizes each takes its own line, so the name wraps
