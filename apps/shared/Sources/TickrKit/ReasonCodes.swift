@@ -9,11 +9,13 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case ask
   case bid
   case bot
+  case buyingPower = "buying_power"
   case calendarDay = "calendar_day"
   case cap
   case ceiling
   case close
   case code
+  case committed
   case count
   case covered
   case day
@@ -29,6 +31,7 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case file
   case filled
   case folder
+  case free
   case freeMb = "free_mb"
   case held
   case host
@@ -171,4 +174,6 @@ public enum RefusalReason: String, CaseIterable, Sendable {
   case notionalOverCap = "NOTIONAL_OVER_CAP"
   case plannedLossOverLimit = "PLANNED_LOSS_OVER_LIMIT"
   case dailyCeiling = "DAILY_CEILING"
+  case buyingPowerUnknown = "BUYING_POWER_UNKNOWN"
+  case buyingPowerShort = "BUYING_POWER_SHORT"
 }

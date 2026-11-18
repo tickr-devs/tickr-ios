@@ -955,6 +955,40 @@
         }
       }
     },
+    "cause.buyingPowerShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough buying power"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не хватает покупательной способности"
+          }
+        }
+      }
+    },
+    "cause.buyingPowerUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buying power not read"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Покупательная способность не прочитана"
+          }
+        }
+      }
+    },
     "cause.cooldown" : {
       "extractionState" : "manual",
       "localizations" : {

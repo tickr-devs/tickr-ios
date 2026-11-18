@@ -412,6 +412,24 @@ GROUPS = [
                 "{total} USD, больше дневного лимита {ceiling} USD",
                 "total",
             ),
+            (
+                "BUYING_POWER_UNKNOWN",
+                "No balance read yet",
+                "Баланс счёта ещё не прочитан",
+            ),
+            (
+                "BUYING_POWER_UNKNOWN",
+                "Balance read {age} s ago, limit {limit} s",
+                "Баланс прочитан {age} с назад, предел {limit} с",
+                "age",
+            ),
+            (
+                "BUYING_POWER_SHORT",
+                "Order value {value} USD over the free buying power {free} USD "
+                "(buying power {buying_power}, open trades {committed})",
+                "Сумма заявки {value} USD больше свободной покупательной способности {free} USD "
+                "(покупательная способность {buying_power}, открытые сделки {committed})",
+            ),
         ],
         "Reasons",
     ),

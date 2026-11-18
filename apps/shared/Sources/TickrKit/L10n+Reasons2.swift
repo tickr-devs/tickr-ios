@@ -9,4 +9,20 @@ extension L10n {
       // swiftlint:disable:next line_length
       defaultValue: "Realized {realized} + reserved {reserved} + this trade {new} = {total} USD, over the daily limit of {ceiling} USD", bundle: bundle)
   }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. BUYING_POWER_UNKNOWN
+  static var refusalReasonBuyingPowerUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.BUYING_POWER_UNKNOWN",
+      defaultValue: "No balance read yet", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. BUYING_POWER_UNKNOWN age (values: age, limit)
+  static var refusalReasonBuyingPowerUnknownAge: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.BUYING_POWER_UNKNOWN.age",
+      defaultValue: "Balance read {age} s ago, limit {limit} s", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. BUYING_POWER_SHORT (values: value, free, buying_power, committed)
+  static var refusalReasonBuyingPowerShort: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.BUYING_POWER_SHORT",
+      // swiftlint:disable:next line_length
+      defaultValue: "Order value {value} USD over the free buying power {free} USD (buying power {buying_power}, open trades {committed})", bundle: bundle)
+  }
 }

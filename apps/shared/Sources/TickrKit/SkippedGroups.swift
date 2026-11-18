@@ -26,6 +26,8 @@ public enum RefusalCode: String, Sendable, CaseIterable {
   case notionalOverCap = "NOTIONAL_OVER_CAP"
   case plannedLossOver = "PLANNED_LOSS_OVER_LIMIT"
   case dailyCeiling = "DAILY_CEILING"
+  case buyingPowerUnknown = "BUYING_POWER_UNKNOWN"
+  case buyingPowerShort = "BUYING_POWER_SHORT"
   case entryBudget = "ENTRY_BUDGET_UNAVAILABLE"
   case stopBudget = "STOP_BUDGET_UNAVAILABLE"
 
@@ -50,7 +52,7 @@ public enum RefusalCode: String, Sendable, CaseIterable {
   public var symbol: String {
     switch self {
     case .gateClosed, .entryStop: return Self.gateSymbol
-    case .notReconciled, .brokerReadMissing, .brokerReadStale: return Self.brokerSymbol
+    case .notReconciled, .brokerReadMissing, .brokerReadStale, .buyingPowerUnknown: return Self.brokerSymbol
     case .unresolvedExposure, .foreignExposure: return Self.exposureSymbol
     case .halfDay, .outsideSession, .afterLastEntry: return Self.sessionSymbol
     case .ownPosition, .ownOrder, .positionLimit, .workingEntryLimit: return Self.ownSymbol
@@ -58,7 +60,8 @@ public enum RefusalCode: String, Sendable, CaseIterable {
     case .setupInvalidated: return Self.setupSymbol
     case .quoteMissing, .quoteStale: return Self.quoteSymbol
     case .priceOutside: return Self.priceSymbol
-    case .quantityBelowOne, .notionalOverCap, .plannedLossOver, .dailyCeiling: return Self.sizeSymbol
+    case .quantityBelowOne, .notionalOverCap, .plannedLossOver, .dailyCeiling, .buyingPowerShort:
+      return Self.sizeSymbol
     case .entryBudget, .stopBudget: return Self.budgetSymbol
     }
   }

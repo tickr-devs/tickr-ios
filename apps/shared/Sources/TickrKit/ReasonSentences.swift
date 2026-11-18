@@ -116,6 +116,11 @@ extension RefusalReason {
       ReasonSentence(L10n.refusalReasonDailyCeiling, [.room, .minRoom, .ceiling, .realized, .reserved]),
       ReasonSentence(L10n.refusalReasonDailyCeilingTotal, [.realized, .reserved, .new, .total, .ceiling]),
     ]
+    case .buyingPowerUnknown: [
+      ReasonSentence(L10n.refusalReasonBuyingPowerUnknown, []),
+      ReasonSentence(L10n.refusalReasonBuyingPowerUnknownAge, [.age, .limit]),
+    ]
+    case .buyingPowerShort: [ReasonSentence(L10n.refusalReasonBuyingPowerShort, [.value, .free, .buyingPower, .committed])]
     }
   }
 

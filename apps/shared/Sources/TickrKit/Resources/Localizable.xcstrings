@@ -9780,6 +9780,60 @@
         }
       }
     },
+    "kit.refusal.BUYING_POWER_SHORT" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. BUYING_POWER_SHORT",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order value {value} USD over the free buying power {free} USD (buying power {buying_power}, open trades {committed})"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сумма заявки {value} USD больше свободной покупательной способности {free} USD (покупательная способность {buying_power}, открытые сделки {committed})"
+          }
+        }
+      }
+    },
+    "kit.refusal.BUYING_POWER_UNKNOWN" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. BUYING_POWER_UNKNOWN",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No balance read yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баланс счёта ещё не прочитан"
+          }
+        }
+      }
+    },
+    "kit.refusal.BUYING_POWER_UNKNOWN.age" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. BUYING_POWER_UNKNOWN age",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balance read {age} s ago, limit {limit} s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баланс прочитан {age} с назад, предел {limit} с"
+          }
+        }
+      }
+    },
     "kit.refusal.CALENDAR_DAY_MISMATCH" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. CALENDAR_DAY_MISMATCH",
       "extractionState" : "manual",

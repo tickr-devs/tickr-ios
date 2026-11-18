@@ -1140,6 +1140,10 @@ enum L10n {
         defaultValue: "Planned loss over the limit", bundle: L10n.bundle)
       case .dailyCeiling: LocalizedStringResource("cause.dailyCeiling",
         defaultValue: "Daily loss limit reached", bundle: L10n.bundle)
+      case .buyingPowerUnknown: LocalizedStringResource("cause.buyingPowerUnknown",
+        defaultValue: "Buying power not read", bundle: L10n.bundle)
+      case .buyingPowerShort: LocalizedStringResource("cause.buyingPowerShort",
+        defaultValue: "Not enough buying power", bundle: L10n.bundle)
       case .entryBudget: LocalizedStringResource("cause.entryBudget",
         defaultValue: "No request budget for the entry", bundle: L10n.bundle)
       case .stopBudget: LocalizedStringResource("cause.stopBudget",
