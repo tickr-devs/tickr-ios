@@ -101,19 +101,27 @@ jobs:
         env:
           IPHONE_PATTERN: ${{ matrix.iphone.pattern }}
         run: |
-          # By simulator id on the newest iOS runtime, so xcodebuild finds exactly that device.
+          # By simulator id, so xcodebuild finds exactly that device: the first simulator whose name
+          # fits, on the newest iOS that has one. Not "the newest runtime" alone: Xcode also ships
+          # runtimes for one device (2026-11-18: `iOS-27-2-iPhone19-4` sorted as the newest, held no
+          # "iPhone <number>", the list came back empty and xcodebuild fell back to "My Mac").
+          # No fitting simulator anywhere fails this step with the names it saw.
           python3 - <<'PY' >> "$GITHUB_ENV"
-          import json, os, re, subprocess
+          import json, os, re, subprocess, sys
           data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"]))
-          runtimes = [r for r in data["devices"] if ".iOS-" in r and data["devices"][r]]
-          newest = max(runtimes, key=lambda r: [int(x) for x in re.findall(r"\d+", r.split("iOS-")[1])])
-          devices = data["devices"][newest]
-          def pick(pattern):
-              return next((d for d in devices if re.search(pattern, d["name"])), None)
-          chosen = [pick(os.environ["IPHONE_PATTERN"])]
-          ids = " ".join(d["udid"] for d in chosen if d)
-          print(f"SWEEP_DEVICES={ids}")
-          print("picked:", newest, [d["name"] for d in chosen if d], file=__import__("sys").stderr)
+          pattern = os.environ["IPHONE_PATTERN"]
+          def ios_version(runtime):
+              found = re.search(r"\.iOS-(\d+(?:-\d+)*)", runtime)
+              return [int(x) for x in found.group(1).split("-")] if found else None
+          runtimes = sorted((r for r in data["devices"] if ios_version(r)), key=ios_version, reverse=True)
+          chosen = next(((r, d) for r in runtimes for d in data["devices"][r]
+                         if re.search(pattern, d["name"])), None)
+          if chosen is None:
+              seen = {r: [d["name"] for d in data["devices"][r]] for r in runtimes}
+              sys.exit(f"no simulator fits {pattern!r}; available: {seen}")
+          runtime, device = chosen
+          print(f"SWEEP_DEVICES={device['udid']}")
+          print("picked:", runtime, device["name"], file=sys.stderr)
           PY
       - name: Layout sweep
         working-directory: apps/ios
