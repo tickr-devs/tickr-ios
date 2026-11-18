@@ -110,8 +110,19 @@ private struct PositionChips: View {
   static let chipHeight: CGFloat = 40
 
   var body: some View {
+    // A tab never wraps or cuts its symbol or result: the equal row when every tab fits whole,
+    // else the tabs at their own width in a sideways scroll.
+    ViewThatFits(in: .horizontal) {
+      row(stretch: true)
+      ScrollView(.horizontal) { row(stretch: false) }
+    }
+    .animation(Tokens.Motion.standard, value: positions.map(\.symbol))
+  }
+
+  @ViewBuilder
+  private func row(stretch: Bool) -> some View {
     let selected = model.selectedSymbol ?? positions.first?.symbol
-    let empty = max(0, Self.columns - positions.count - freeSlots)
+    let empty = stretch ? max(0, Self.columns - positions.count - freeSlots) : 0
     HStack(spacing: Tokens.Space.s) {
       ForEach(positions, id: \.symbol) { position in
         let isSelected = position.symbol == selected
@@ -126,14 +137,17 @@ private struct PositionChips: View {
               SymbolText(position.symbol)
             }
             .font(.footnote.monospaced().bold())
+            .fixedSize()
             if let unrealized = marks[position.symbol]?.unrealized {
               Text(verbatim: Money.signedUSD(unrealized))
                 .font(Tokens.Typography.annotationBold)
                 .foregroundStyle(Palette.result(unrealized))
                 .contentTransition(.numericText())
+                .fixedSize()
             }
           }
-          .frame(maxWidth: .infinity, minHeight: Self.chipHeight)
+          .padding(.horizontal, Tokens.Space.s)
+          .frame(maxWidth: stretch ? .infinity : nil, minHeight: Self.chipHeight)
           .foregroundStyle(Palette.textPrimary)
           .background(
             RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
@@ -149,10 +163,12 @@ private struct PositionChips: View {
       }
       ForEach(0..<freeSlots, id: \.self) { index in
         VStack(spacing: Tokens.Space.xxs) {
-          Text(L10n.Positions.freeSlot).font(.footnote.monospaced().bold())
+          Text(L10n.Positions.freeSlot).font(.footnote.monospaced().bold()).fixedSize()
           Text(L10n.Positions.slotNumber(positions.count + index + 1)).font(Tokens.Typography.annotationBold)
+            .fixedSize()
         }
-        .frame(maxWidth: .infinity, minHeight: Self.chipHeight)
+        .padding(.horizontal, Tokens.Space.s)
+        .frame(maxWidth: stretch ? .infinity : nil, minHeight: Self.chipHeight)
         .foregroundStyle(Palette.textQuaternary)
         .overlay(
           RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
@@ -164,7 +180,6 @@ private struct PositionChips: View {
       }
     }
     .fixedSize(horizontal: false, vertical: true)
-    .animation(Tokens.Motion.standard, value: positions.map(\.symbol))
   }
 }
 
