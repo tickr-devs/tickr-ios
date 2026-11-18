@@ -93,6 +93,41 @@ extension L10n {
     LocalizedStringResource("kit.prose.simulation_refused",
       defaultValue: "Simulation refused: {detail}", bundle: bundle)
   }
+  /// A cause the API writes itself (`<field>_codes`). replay_before_open
+  static var proseReasonReplayBeforeOpen: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_before_open",
+      defaultValue: "The signal came before the regular open", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). replay_after_last_entry
+  static var proseReasonReplayAfterLastEntry: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_after_last_entry",
+      defaultValue: "The last entry time had passed", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). replay_half_day
+  static var proseReasonReplayHalfDay: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_half_day",
+      defaultValue: "Half day: the bot does not trade half days", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). replay_price_outside
+  static var proseReasonReplayPriceOutside: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_price_outside",
+      defaultValue: "The price left the entry window before a fill", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). replay_no_further_bars
+  static var proseReasonReplayNoFurtherBars: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_no_further_bars",
+      defaultValue: "No later bars to fill the entry", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). replay_position_open
+  static var proseReasonReplayPositionOpen: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_position_open",
+      defaultValue: "A simulated position on this symbol was still open", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). replay_entry_pending
+  static var proseReasonReplayEntryPending: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.replay_entry_pending",
+      defaultValue: "An earlier simulated entry on this symbol was still waiting", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). skipped_overlap (values: symbol)
   static var proseReasonSkippedOverlap: LocalizedStringResource {
     LocalizedStringResource("kit.prose.skipped_overlap",
@@ -349,40 +384,5 @@ extension L10n {
   static var proseReasonModuleListedTwice: LocalizedStringResource {
     LocalizedStringResource("kit.prose.module_listed_twice",
       defaultValue: "The strategy module list names {strategy} twice", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). no_module (values: strategy)
-  static var proseReasonNoModule: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_module",
-      defaultValue: "No module builds strategy {strategy}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). backtest_refused (values: detail)
-  static var proseReasonBacktestRefused: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.backtest_refused",
-      defaultValue: "The replay refused: {detail}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). run_without_report
-  static var proseReasonRunWithoutReport: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.run_without_report",
-      defaultValue: "The run ended without a report", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). version_never_started
-  static var proseReasonVersionNeverStarted: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.version_never_started",
-      defaultValue: "The API stopped before this version started", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). run_file_unreadable (values: file, error)
-  static var proseReasonRunFileUnreadable: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.run_file_unreadable",
-      defaultValue: "The replay's {file}.json cannot be read ({error})", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). no_account_file
-  static var proseReasonNoAccountFile: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_account_file",
-      defaultValue: "The bot has not written an account file yet", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). no_quotes_file
-  static var proseReasonNoQuotesFile: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_quotes_file",
-      defaultValue: "The bot has not written a quotes file yet", bundle: bundle)
   }
 }

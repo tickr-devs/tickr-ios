@@ -5481,6 +5481,23 @@
         }
       }
     },
+    "lab.explainShowAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All checks"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все проверки"
+          }
+        }
+      }
+    },
     "lab.explainSymbol" : {
       "extractionState" : "manual",
       "localizations" : {

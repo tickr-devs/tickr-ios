@@ -953,7 +953,13 @@ private struct ExplainCard: View {
   @Environment(AppModel.self) private var model
   @State private var symbol = ""
   @State private var explain = ExplainModel()
+  /// Whether the list of all the decision's checks is open (the card shows as many as fit).
+  @State private var allChecksOpen = false
 
+  /// Checks shown before the card's height is measured (the first layout pass).
+  static let fallbackLines = 4
+  /// Width of the list of all checks, in points.
+  static let allChecksWidth: CGFloat = 340
   /// Width of the symbol field, in points.
   static let fieldWidth: CGFloat = 110
   /// Size of a check's mark, in points.
@@ -1002,8 +1008,6 @@ private struct ExplainCard: View {
           .inFlight(explain.loading ? Text(L10n.Lab.explainReading) : nil)
         }
         content
-        Spacer(minLength: 0)
-        PlannedLine(text: L10n.Lab.explainBacklog)
       }
     }
     // A new day reads the typed symbol again; the read for the old day is cancelled.
@@ -1027,20 +1031,57 @@ private struct ExplainCard: View {
         .font(Tokens.Typography.calloutMono)
         .foregroundStyle(Palette.textSecondary)
         .fixedSize(horizontal: false, vertical: true)
-      // The checks rise one after another as a decision is shown; another decision rises afresh.
-      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        ForEach(Array(decision.checks.enumerated()), id: \.offset) { index, check in
-          checkRow(check).rise(step: index)
-        }
-        admissionRow(decision.admission).rise(step: decision.checks.count)
+      // As many checks as fill the card's cell (a long list never stretches the row's other
+      // cards), then the footer on its bottom edge. The checks rise one after another as a
+      // decision is shown; another decision rises afresh.
+      let lines = Self.lines(decision)
+      FittingRows(lines, id: \.self, spacing: Tokens.Space.xs, fallback: Self.fallbackLines) { index, line in
+        lineRow(line, of: decision).rise(step: index)
+      } footer: { shown in
+        footer(decision, total: lines.count, shown: shown)
       }
       .id(decision)
-    } else if explain.loading {
-      Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.manyLines, leadingValue: true) }
-    } else if decisions != nil {
-      Footnote(L10n.Lab.explainNone)
-    } else if symbol.isEmpty {
-      Footnote(L10n.Lab.explainHint)
+    } else {
+      if explain.loading {
+        Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.manyLines, leadingValue: true) }
+      } else if decisions != nil {
+        Footnote(L10n.Lab.explainNone)
+      } else if symbol.isEmpty {
+        Footnote(L10n.Lab.explainHint)
+      }
+      Spacer(minLength: 0)
+      PlannedLine(text: L10n.Lab.explainBacklog)
+    }
+  }
+
+  /// The decision's lines: each check by its position, then the admission (`checks.count`).
+  private static func lines(_ decision: DecisionV1) -> [Int] { Array(0...decision.checks.count) }
+
+  @ViewBuilder
+  private func lineRow(_ line: Int, of decision: DecisionV1) -> some View {
+    if decision.checks.indices.contains(line) {
+      checkRow(decision.checks[line])
+    } else {
+      admissionRow(decision.admission)
+    }
+  }
+
+  /// The backlog line, then "All checks N ›" when the card shows only some of them; the link
+  /// opens every check in a popover.
+  @ViewBuilder
+  private func footer(_ decision: DecisionV1, total: Int, shown: Int) -> some View {
+    PlannedLine(text: L10n.Lab.explainBacklog)
+    if shown < total {
+      CardFooterLink(L10n.Lab.explainShowAll, count: total) { allChecksOpen = true }
+        .popover(isPresented: $allChecksOpen, arrowEdge: .bottom) {
+          ScrollView {
+            VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+              ForEach(Self.lines(decision), id: \.self) { line in lineRow(line, of: decision) }
+            }
+            .padding(Tokens.Space.l)
+          }
+          .frame(width: Self.allChecksWidth)
+        }
     }
   }
 

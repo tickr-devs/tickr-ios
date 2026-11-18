@@ -483,6 +483,41 @@ GROUPS = [
             ),
             ("simulation_refused", "Simulation refused: {detail}", "Симуляция отклонена: {detail}"),
             (
+                "replay_before_open",
+                "The signal came before the regular open",
+                "Сигнал пришёл до открытия основной сессии",
+            ),
+            (
+                "replay_after_last_entry",
+                "The last entry time had passed",
+                "Время последнего входа уже прошло",
+            ),
+            (
+                "replay_half_day",
+                "Half day: the bot does not trade half days",
+                "Сокращённый день: бот в такие дни не торгует",
+            ),
+            (
+                "replay_price_outside",
+                "The price left the entry window before a fill",
+                "Цена ушла из окна входа до исполнения",
+            ),
+            (
+                "replay_no_further_bars",
+                "No later bars to fill the entry",
+                "Нет более поздних баров для исполнения входа",
+            ),
+            (
+                "replay_position_open",
+                "A simulated position on this symbol was still open",
+                "Симулированная позиция по этому тикеру ещё была открыта",
+            ),
+            (
+                "replay_entry_pending",
+                "An earlier simulated entry on this symbol was still waiting",
+                "Предыдущий симулированный вход по этому тикеру ещё ждал исполнения",
+            ),
+            (
                 "skipped_overlap",
                 "An earlier simulated trade of {symbol} was still open",
                 "Предыдущая симулированная сделка по {symbol} ещё была открыта",

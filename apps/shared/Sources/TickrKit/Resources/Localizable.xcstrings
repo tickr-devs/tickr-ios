@@ -8683,6 +8683,132 @@
         }
       }
     },
+    "kit.prose.replay_after_last_entry" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_after_last_entry",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last entry time had passed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время последнего входа уже прошло"
+          }
+        }
+      }
+    },
+    "kit.prose.replay_before_open" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_before_open",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The signal came before the regular open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сигнал пришёл до открытия основной сессии"
+          }
+        }
+      }
+    },
+    "kit.prose.replay_entry_pending" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_entry_pending",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An earlier simulated entry on this symbol was still waiting"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущий симулированный вход по этому тикеру ещё ждал исполнения"
+          }
+        }
+      }
+    },
+    "kit.prose.replay_half_day" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_half_day",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Half day: the bot does not trade half days"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сокращённый день: бот в такие дни не торгует"
+          }
+        }
+      }
+    },
+    "kit.prose.replay_no_further_bars" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_no_further_bars",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No later bars to fill the entry"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет более поздних баров для исполнения входа"
+          }
+        }
+      }
+    },
+    "kit.prose.replay_position_open" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_position_open",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A simulated position on this symbol was still open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Симулированная позиция по этому тикеру ещё была открыта"
+          }
+        }
+      }
+    },
+    "kit.prose.replay_price_outside" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). replay_price_outside",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The price left the entry window before a fill"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цена ушла из окна входа до исполнения"
+          }
+        }
+      }
+    },
     "kit.prose.replay_running" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). replay_running",
       "extractionState" : "manual",

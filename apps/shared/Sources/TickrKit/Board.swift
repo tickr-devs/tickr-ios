@@ -16,6 +16,8 @@ public enum Board {
 
     /// Wins as a share of closed trades, 0 when there were none.
     public var winShare: Double { trades == 0 ? 0 : Double(wins) / Double(trades) }
+    /// Losses as a share of closed trades, 0 when there were none.
+    public var lossShare: Double { trades == 0 ? 0 : Double(losses) / Double(trades) }
   }
 
   public static func dayStats(_ status: StatusV1) -> DayStats {

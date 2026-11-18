@@ -3227,6 +3227,10 @@ enum L10n {
     static var explainRun: LocalizedStringResource {
       LocalizedStringResource("lab.explainRun", defaultValue: "Explain", bundle: L10n.bundle)
     }
+    /// Footer link of Explain a symbol when its card shows only some of the decision's checks.
+    static var explainShowAll: LocalizedStringResource {
+      LocalizedStringResource("lab.explainShowAll", defaultValue: "All checks", bundle: L10n.bundle)
+    }
     /// The Explain button while the decisions are read (its spinner beside it).
     static var explainReading: LocalizedStringResource {
       LocalizedStringResource("lab.explainReading", defaultValue: "Reading decisions", bundle: L10n.bundle)

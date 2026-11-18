@@ -126,26 +126,34 @@ private struct Figure: View {
   }
 }
 
-/// Cumulative R at the end of each day with trades, as a filled area without axes.
+/// Cumulative R at the end of each day with trades, as a filled area without axes: the area
+/// fills from the chart's floor (the lowest value) up to the line, as the Chart screen's line
+/// does, so a run below zero never fills upward from a zero line; green while the latest total is
+/// a gain, pink for a loss.
 private struct Curve: View {
   let days: [PerformanceDayV1]
 
   var body: some View {
     let name = String(localized: L10n.Trades.cumulativeR)
     let day = String(localized: L10n.Trades.day)
+    let values = days.map { NSDecimalNumber(decimal: $0.cumulativeGrossR.value).doubleValue }
+    let floor = values.min() ?? 0
+    let top = values.max() ?? 0
+    let tint = (days.last?.cumulativeGrossR.value ?? 0) < 0 ? Palette.seriesATR : Palette.accent
     Chart {
-      ForEach(days, id: \.day) { item in
-        let value = NSDecimalNumber(decimal: item.cumulativeGrossR.value).doubleValue
-        AreaMark(x: .value(day, item.day.noonInNewYork), y: .value(name, value))
+      ForEach(Array(zip(days, values)), id: \.0.day) { item, value in
+        AreaMark(x: .value(day, item.day.noonInNewYork), yStart: .value(name, floor), yEnd: .value(name, value))
           .foregroundStyle(
             LinearGradient(
-              colors: [Palette.accent.opacity(Tokens.Opacity.faint), Palette.accent.opacity(Tokens.Opacity.wash)],
+              colors: [tint.opacity(Tokens.Opacity.faint), tint.opacity(Tokens.Opacity.wash)],
               startPoint: .top, endPoint: .bottom))
         LineMark(x: .value(day, item.day.noonInNewYork), y: .value(name, value))
-          .foregroundStyle(Palette.accent)
+          .foregroundStyle(tint)
           .lineStyle(StrokeStyle(lineWidth: Tokens.Stroke.bold))
       }
     }
+    // The values' own range: the floor is the chart's bottom edge, never a zero it does not reach.
+    .chartYScale(domain: floor...max(top, floor + 1))
     .chartXAxis(.hidden)
     .chartYAxis(.hidden)
   }

@@ -366,8 +366,11 @@ private struct Summary: View {
 
   /// The day's result in its ring.
   private func ring(stats: Board.DayStats?, result: Decimal) -> some View {
-    ResultRing(fraction: stats?.winShare ?? 0, color: result < 0 ? Palette.seriesATR : Palette.accent,
-      lineWidth: Self.ringLine) {
+    // Wins in the accent, then losses in the money-loss pink: a day of losses only is a pink
+    // ring, not an empty one.
+    ResultRing(fraction: stats?.winShare ?? 0, color: Palette.accent,
+      trailing: stats?.lossShare ?? 0, trailingColor: Palette.seriesATR,
+      halo: result < 0 ? Palette.seriesATR : Palette.accent, lineWidth: Self.ringLine) {
       VStack(spacing: Tokens.Space.xxs) {
         CardLabel(L10n.Home.day)
         // Counts up from zero as the ring appears and on to each new result (the board's count).

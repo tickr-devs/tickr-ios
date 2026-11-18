@@ -3,6 +3,41 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). no_module (values: strategy)
+  static var proseReasonNoModule: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_module",
+      defaultValue: "No module builds strategy {strategy}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). backtest_refused (values: detail)
+  static var proseReasonBacktestRefused: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.backtest_refused",
+      defaultValue: "The replay refused: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). run_without_report
+  static var proseReasonRunWithoutReport: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.run_without_report",
+      defaultValue: "The run ended without a report", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). version_never_started
+  static var proseReasonVersionNeverStarted: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.version_never_started",
+      defaultValue: "The API stopped before this version started", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). run_file_unreadable (values: file, error)
+  static var proseReasonRunFileUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.run_file_unreadable",
+      defaultValue: "The replay's {file}.json cannot be read ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_account_file
+  static var proseReasonNoAccountFile: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_account_file",
+      defaultValue: "The bot has not written an account file yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_quotes_file
+  static var proseReasonNoQuotesFile: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_quotes_file",
+      defaultValue: "The bot has not written a quotes file yet", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). no_start_command
   static var proseReasonNoStartCommand: LocalizedStringResource {
     LocalizedStringResource("kit.prose.no_start_command",
@@ -347,40 +382,5 @@ extension L10n {
   static var proseReasonPriceNotNumber: LocalizedStringResource {
     LocalizedStringResource("kit.prose.price_not_number",
       defaultValue: "The captured price is not a number: {value}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). pre_close_not_number (values: value)
-  static var proseReasonPreCloseNotNumber: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.pre_close_not_number",
-      defaultValue: "The captured previous close is not a number: {value}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). pre_close_not_positive (values: value)
-  static var proseReasonPreCloseNotPositive: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.pre_close_not_positive",
-      defaultValue: "The captured previous close is not positive: {value}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). universe_conflicting_rows
-  static var proseReasonUniverseConflictingRows: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.universe_conflicting_rows",
-      defaultValue: "Listed with conflicting data", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). universe_exchange (values: measured)
-  static var proseReasonUniverseExchange: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.universe_exchange",
-      defaultValue: "Exchange {measured} is not traded", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). universe_currency (values: measured)
-  static var proseReasonUniverseCurrency: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.universe_currency",
-      defaultValue: "Currency {measured} is not traded", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). universe_type_unknown
-  static var proseReasonUniverseTypeUnknown: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.universe_type_unknown",
-      defaultValue: "Security type unknown", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). universe_type (values: measured)
-  static var proseReasonUniverseType: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.universe_type",
-      defaultValue: "Security type {measured} is not traded", bundle: bundle)
   }
 }

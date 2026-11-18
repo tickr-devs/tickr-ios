@@ -3,6 +3,41 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). pre_close_not_number (values: value)
+  static var proseReasonPreCloseNotNumber: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.pre_close_not_number",
+      defaultValue: "The captured previous close is not a number: {value}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). pre_close_not_positive (values: value)
+  static var proseReasonPreCloseNotPositive: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.pre_close_not_positive",
+      defaultValue: "The captured previous close is not positive: {value}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). universe_conflicting_rows
+  static var proseReasonUniverseConflictingRows: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.universe_conflicting_rows",
+      defaultValue: "Listed with conflicting data", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). universe_exchange (values: measured)
+  static var proseReasonUniverseExchange: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.universe_exchange",
+      defaultValue: "Exchange {measured} is not traded", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). universe_currency (values: measured)
+  static var proseReasonUniverseCurrency: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.universe_currency",
+      defaultValue: "Currency {measured} is not traded", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). universe_type_unknown
+  static var proseReasonUniverseTypeUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.universe_type_unknown",
+      defaultValue: "Security type unknown", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). universe_type (values: measured)
+  static var proseReasonUniverseType: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.universe_type",
+      defaultValue: "Security type {measured} is not traded", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). binding_not_proven
   static var proseReasonBindingNotProven: LocalizedStringResource {
     LocalizedStringResource("kit.prose.binding_not_proven",
@@ -351,20 +386,5 @@ extension L10n {
   static var proseReasonCommandFileUnreadable: LocalizedStringResource {
     LocalizedStringResource("kit.prose.command_file_unreadable",
       defaultValue: "The command file cannot be read: {detail}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). command_file_misnamed
-  static var proseReasonCommandFileMisnamed: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.command_file_misnamed",
-      defaultValue: "The command file's name does not match the command", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). command_from_future (values: seconds)
-  static var proseReasonCommandFromFuture: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.command_from_future",
-      defaultValue: "Requested {seconds} s in the future", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). command_expired (values: seconds, limit)
-  static var proseReasonCommandExpired: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.command_expired",
-      defaultValue: "Expired: requested {seconds} s ago (limit {limit} s)", bundle: bundle)
   }
 }
