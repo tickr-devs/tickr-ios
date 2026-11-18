@@ -13,14 +13,17 @@ public struct WarmChart: Sendable {
   public let warmupCount: Int
 
   /// `warmup` counts only when it is the same symbol in the same candles; its candles from the
-  /// range's first one on are replaced by the range's own (the newer read).
-  public init(chart: ChartV1, warmup: ChartV1?) {
+  /// range's first one on are replaced by the range's own (the newer read). `through`: a recorded
+  /// day the range ends on; its later candles (market data always reaches today) are left out, so
+  /// a past day never shows the days after it.
+  public init(chart: ChartV1, warmup: ChartV1?, through day: WireDate? = nil) {
+    let bars = day.map { last in chart.bars.filter { WireDate(newYorkDateOf: $0.start.date) <= last } } ?? chart.bars
     var earlier: [ChartBarV1] = []
     if let warmup, warmup.symbol == chart.symbol, warmup.interval == chart.interval,
-      let first = chart.bars.first?.start.date {
+      let first = bars.first?.start.date {
       earlier = warmup.bars.filter { $0.start.date < first }
     }
-    let full = ChartSeries(chartBars: earlier + chart.bars, interval: chart.interval)
+    let full = ChartSeries(chartBars: earlier + bars, interval: chart.interval)
     warmupCount = earlier.count
     series = full.dropping(earlier.count)
     studies = CandleStudies(candles: full.candles).dropping(earlier.count)

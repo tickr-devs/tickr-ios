@@ -194,6 +194,17 @@ struct ChartSeriesRangeTests {
     #expect(ChartRange.oneYear.warmup(for: .d1) == nil)
   }
 
+  @Test("On a recorded day a range ends on that day: the later days market data reaches are left out")
+  func endsOnThePastDay() throws {
+    let month = try chart("1d", "1m", [
+      ("2026-11-13T14:30:00.000Z", "10", "100"), ("2026-11-16T14:30:00.000Z", "11", "100"),
+      ("2026-11-17T14:30:00.000Z", "12", "100"), ("2026-11-18T14:30:00.000Z", "13", "100"),
+    ])
+    let past = WarmChart(chart: month, warmup: nil, through: try WireDate("2026-11-16"))
+    #expect(past.series.candles.map(\.close) == [10, 11])
+    #expect(WarmChart(chart: month, warmup: nil).series.candles.count == 4)
+  }
+
   /// A chart-v1 answer in `interval` over `range` with one bar per [start, close, volume, session].
   func sessions(_ interval: String, _ range: String, _ bars: [[String]]) throws -> ChartV1 {
     let items = bars.map { bar in

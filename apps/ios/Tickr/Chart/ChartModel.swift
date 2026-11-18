@@ -374,7 +374,8 @@ final class ChartModel {
       times = ChartTimes(real: real, drawn: drawn, range: .oneDay, today: dayChart != nil ? todaySession : nil,
         afterSlots: dayChart?.previousAfterCandles)
     } else if let rangeChart, rangeChart.symbol == symbol, rangeChart.range == range, rangeChart.interval == timeframe {
-      let warm = WarmChart(chart: rangeChart, warmup: rangeWarmup)
+      // On a recorded day the range ends on that day, not today.
+      let warm = WarmChart(chart: rangeChart, warmup: rangeWarmup, through: isToday ? nil : selectedDay)
       let drawn = warm.series.gapless()
       series = drawn
       atr = warm.atr

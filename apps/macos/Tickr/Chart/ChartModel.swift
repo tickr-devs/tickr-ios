@@ -35,13 +35,18 @@ final class ChartModel {
   @ObservationIgnored private(set) var revision = 0
   /// The last plot built, reused while the bars and the timeframe stay the same.
   @ObservationIgnored private var cachedPlot: ChartPlot?
+  /// The recorded day `cachedPlot` ends on.
+  @ObservationIgnored private var cachedThrough: WireDate?
 
   /// Candles, lines and ATR of the shown day's bars in `timeframe`, or over `range` of the
   /// candles read from GET /chart; nil while there are none. Built once per new read, range or
-  /// timeframe; every redraw in between reuses it.
-  func plot(timeframe: Timeframe, range: ChartRange = .oneDay, today: SessionSpan? = nil) -> ChartPlot? {
+  /// timeframe; every redraw in between reuses it. `through`: the recorded day a range beyond one
+  /// day ends on (market data always reaches today); nil on today.
+  func plot(
+    timeframe: Timeframe, range: ChartRange = .oneDay, today: SessionSpan? = nil, through: WireDate? = nil
+  ) -> ChartPlot? {
     if let cachedPlot, cachedPlot.revision == revision, cachedPlot.timeframe == timeframe, cachedPlot.range == range,
-      cachedPlot.today == (range == .oneDay && dayChart != nil ? today : nil) {
+      cachedPlot.today == (range == .oneDay && dayChart != nil ? today : nil), cachedThrough == through {
       return cachedPlot
     }
     let plot: ChartPlot
@@ -55,9 +60,10 @@ final class ChartModel {
       guard let rangeChart, rangeChart.range == range, rangeChart.interval == timeframe, !rangeChart.bars.isEmpty else {
         return nil
       }
-      plot = ChartPlot(chart: rangeChart, warmup: rangeWarmup, revision: revision)
+      plot = ChartPlot(chart: rangeChart, warmup: rangeWarmup, through: through, revision: revision)
     }
     cachedPlot = plot
+    cachedThrough = through
     return plot
   }
 

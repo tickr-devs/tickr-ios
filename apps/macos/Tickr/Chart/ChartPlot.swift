@@ -61,9 +61,9 @@ struct ChartPlot: Sendable {
 
   /// Candles of a GET /chart answer, their lines and studies warmed up on the earlier candles of
   /// `warmup` (`WarmChart`). `today`: the calendar's session of today, on today's Day chart, whose
-  /// rest is reserved up to the extended close.
-  init(chart: ChartV1, warmup: ChartV1? = nil, today: SessionSpan? = nil, revision: Int) {
-    let warm = WarmChart(chart: chart, warmup: warmup)
+  /// rest is reserved up to the extended close. `through`: the recorded day the range ends on.
+  init(chart: ChartV1, warmup: ChartV1? = nil, today: SessionSpan? = nil, through: WireDate? = nil, revision: Int) {
+    let warm = WarmChart(chart: chart, warmup: warmup, through: through)
     self.init(
       real: warm.series, atr: warm.atr, studies: warm.studies, range: chart.range,
       today: chart.range == .oneDay ? today : nil, afterSlots: chart.previousAfterCandles, revision: revision)
