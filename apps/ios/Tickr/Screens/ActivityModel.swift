@@ -104,10 +104,13 @@ final class ActivityModel {
   /// A different address than before drops the past day chosen on the other Mac.
   func loadDays(_ url: URL) async {
     if url != source {
+      // Only a real switch to another bot drops the chosen day: the first load (no source yet)
+      // must keep the day another tab picked, or opening Activity sends every tab back to today.
+      let switched = source != nil
       source = url
       days = []
       pastDays = PastDays()
-      showToday()
+      if switched { showToday() }
     }
     latestDaysRequest += 1
     let request = latestDaysRequest
