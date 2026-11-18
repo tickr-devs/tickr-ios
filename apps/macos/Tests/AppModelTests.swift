@@ -347,16 +347,16 @@ struct AppModelTests {
     #expect(model.confirming == nil)
   }
 
-  @Test("A question closes on a failed status read")
+  @Test("A question closes once status reads keep failing")
   func questionClosesOnFailedRead() async throws {
     let model = try await Self.modelAsking()
     RouteProtocol.routes.withLock { $0.bodies["/status"] = nil }
-    await model.refreshStatus()
+    for _ in 0..<ReadFailures.shownAfter { await model.refreshStatus() }
     #expect(model.fetchError != nil)
     #expect(model.confirming == nil)
   }
 
-  @Test("A failed read keeps the last known status under a banner, with commands off")
+  @Test("Failed reads in a row keep the last known status under a banner, with commands off")
   func failedReadKeepsLastKnownData() async throws {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)
     await model.refreshStatus()
@@ -364,6 +364,9 @@ struct AppModelTests {
     #expect(model.commandsEnabled)
     RouteProtocol.routes.withLock { $0.bodies["/status"] = nil }
     await model.refreshStatus()
+    #expect(model.connectionState == .connected, "one failed poll between answers is no outage")
+    #expect(model.headline.severity != .alarm)
+    for _ in 1..<ReadFailures.shownAfter { await model.refreshStatus() }
     #expect(model.connectionState.isLastKnown, "the last good read is kept and named as last known")
     #expect(model.status != nil, "the screens keep the last known data")
     #expect(!model.commandsEnabled, "commands that need a live bot stay off")

@@ -383,9 +383,9 @@ enum L10n {
     static func statePaused(_ state: String) -> LocalizedStringResource {
       LocalizedStringResource("root.statePaused", defaultValue: "\(state) · entries paused", bundle: L10n.bundle)
     }
-    /// The bot card's time since the bot started ("uptime 01:42:20").
+    /// The bot card's time since the bot started ("running for 15h 54m").
     static func uptime(_ duration: String) -> LocalizedStringResource {
-      LocalizedStringResource("root.uptime", defaultValue: "uptime \(duration)", bundle: L10n.bundle)
+      LocalizedStringResource("root.uptime", defaultValue: "running for \(duration)", bundle: L10n.bundle)
     }
     /// The bot card's run: the start of the run's id ("run f17747de").
     static func run(_ id: String) -> LocalizedStringResource {

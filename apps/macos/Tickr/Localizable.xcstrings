@@ -9528,7 +9528,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "uptime %@"
+            "value" : "running for %@"
           }
         },
         "ru" : {

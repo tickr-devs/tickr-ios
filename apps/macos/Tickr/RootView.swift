@@ -385,10 +385,6 @@ private struct BotStateCard: View {
 
   /// Gap between the card's lines, in points.
   static let lineGap: CGFloat = 6
-  /// Characters of the run id shown (the whole id is in the tooltip).
-  static let runIdShown = 8
-  /// Digits of the uptime's hours ("01:42:20").
-  static let hourDigits = 2
 
   var body: some View {
     VStack(alignment: .leading, spacing: Self.lineGap) {
@@ -401,18 +397,15 @@ private struct BotStateCard: View {
       }
       if let started = startedAt {
         TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
-          Text(L10n.Root.uptime(uptime(since: started, now: model.botTime(context.date))))
+          Text(L10n.Root.uptime(Self.uptime(since: started, now: model.botTime(context.date))))
         }
-        .font(Tokens.Typography.calloutMono)
-        .foregroundStyle(Palette.textQuaternary)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textTertiary)
       }
-      if let run = model.status?.runId {
-        Text(L10n.Root.run(String(run.prefix(Self.runIdShown))))
-          .font(Tokens.Typography.calloutMono)
-          .foregroundStyle(Palette.textQuaternary)
-          .help(Text(verbatim: run))
-      }
+      // The run's id is a code for the logs, not for reading here (owner, 2026-11-18): it stays
+      // on hover only.
     }
+    .help(model.status?.runId.map { Text(L10n.Root.run($0)) } ?? Text(verbatim: String()))
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard(radius: Tokens.Radius.large)
@@ -427,9 +420,10 @@ private struct BotStateCard: View {
     return model.jobs?.botStartedAt?.date
   }
 
-  private func uptime(since start: Date, now: Date) -> String {
+  /// "15h 54m" in the person's language: hours and minutes, never a clock reading ("15:54:21").
+  static func uptime(since start: Date, now: Date) -> String {
     let seconds = max(0, Int(now.timeIntervalSince(start)))
-    return Duration.seconds(seconds).formatted(.time(pattern: .hourMinuteSecond(padHourToLength: Self.hourDigits)))
+    return Duration.seconds(seconds).formatted(.units(allowed: [.days, .hours, .minutes], width: .narrow))
   }
 
   private var stateText: String { Self.stateText(model) }

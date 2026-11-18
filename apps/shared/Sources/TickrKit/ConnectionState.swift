@@ -18,6 +18,41 @@ public struct ReadFailure: Equatable, Sendable {
   }
 }
 
+/// The failures of the /status reads in a row, and the one the apps show. A single read that
+/// fails between answered ones (a Wi-Fi hiccup, the API busy for a moment) says nothing about the
+/// link, and showing it flashed "Can't reach the bot" over a running bot: the failure is shown
+/// once `shownAfter` reads in a row failed, or at once when no read has answered yet. Both apps
+/// keep their failure here, so both say the same.
+public struct ReadFailures: Equatable, Sendable {
+  /// Failed reads in a row before the apps say the bot can't be reached: one more poll (a few
+  /// seconds) to tell a hiccup from an outage.
+  public static let shownAfter = 2
+  /// The failure the apps show, or nil while the link is taken as up.
+  public private(set) var shown: ReadFailure?
+  /// Reads failed since the last answer.
+  public private(set) var inRow = 0
+
+  public init() {}
+
+  /// A read answered: the link is up.
+  public mutating func answered() {
+    shown = nil
+    inRow = 0
+  }
+
+  /// A read failed with `error`; `hadAnswer`: an earlier read answered, so there is last known
+  /// data to keep showing meanwhile. A cancelled read counts for nothing.
+  public mutating func failed(_ error: Error, hadAnswer: Bool) {
+    guard let failure = ReadFailure(error) else { return }
+    failed(failure, hadAnswer: hadAnswer)
+  }
+
+  public mutating func failed(_ failure: ReadFailure, hadAnswer: Bool) {
+    inRow += 1
+    if !hadAnswer || inRow >= Self.shownAfter { shown = failure }
+  }
+}
+
 /// What the apps say about their link to the bot's API, from the last /status read. Every screen
 /// takes it from here, so all of them say the same: never a screen replaced by an error, but the
 /// last known data under a banner that names it as such, or a designed empty state when nothing

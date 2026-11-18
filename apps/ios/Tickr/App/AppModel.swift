@@ -31,8 +31,10 @@ final class AppModel {
     }
   }
   private(set) var response: StatusResponseV1?
-  /// Why the last read of /status failed; nil after an answer.
-  private(set) var readFailure: ReadFailure?
+  /// The /status reads that failed in a row since the last answer (`ReadFailures`).
+  private(set) var reads = ReadFailures()
+  /// Why /status can't be read, once that is more than one passing failure; nil after an answer.
+  var readFailure: ReadFailure? { reads.shown }
   /// When /status last answered, on this phone's clock; nil until it answers at this address.
   private(set) var lastReadAt: Date?
   /// The last failure's technical text (Settings, preflight); screens say `connection` instead.
@@ -222,7 +224,7 @@ final class AppModel {
   private func restart() {
     stop()
     response = nil
-    readFailure = nil
+    reads = ReadFailures()
     lastReadAt = nil
     botClockOffset = 0
     settings = nil
@@ -267,18 +269,18 @@ final class AppModel {
   func refresh() async {
     guard let url = connection.url else {
       response = nil
-      readFailure = nil
+      reads = ReadFailures()
       return
     }
     do {
       let fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
       response = fresh
-      readFailure = nil
+      reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
       resolveAwaited(fresh)
     } catch {
-      readFailure = ReadFailure(error) ?? readFailure
+      reads.failed(error, hadAnswer: lastReadAt != nil)
       return
     }
     if response?.needsSettings(settings, readFor: settingsReadFor) ?? (settings == nil) { await refreshSettings(url) }

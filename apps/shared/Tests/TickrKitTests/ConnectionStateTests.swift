@@ -97,4 +97,29 @@ struct ConnectionStateTests {
   func lastSuccessTime() {
     #expect(ConnectionState.time(now) == ClockText.seconds(now))
   }
+
+  @Test("One failed read between answers shows nothing; the second in a row shows the failure")
+  func oneFailedPollIsNoOutage() {
+    let failure = ReadFailure(detail: "offline")
+    var reads = ReadFailures()
+    reads.failed(failure, hadAnswer: true)
+    #expect(reads.shown == nil)
+    reads.answered()
+    reads.failed(failure, hadAnswer: true)
+    #expect(reads.shown == nil)
+    reads.failed(failure, hadAnswer: true)
+    #expect(reads.shown == failure)
+    reads.answered()
+    #expect(reads.shown == nil && reads.inRow == 0)
+  }
+
+  @Test("Before any answer the first failure shows at once: there is nothing else to show")
+  func firstFailureWithoutDataShows() {
+    let failure = ReadFailure(detail: "offline")
+    var reads = ReadFailures()
+    reads.failed(failure, hadAnswer: false)
+    #expect(reads.shown == failure)
+    reads.failed(CancellationError(), hadAnswer: false)
+    #expect(reads.inRow == 1)
+  }
 }

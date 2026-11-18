@@ -138,8 +138,10 @@ public final class AppModel {
 
   // Live state.
   public private(set) var response: StatusResponseV1?
-  /// Why the last read of /status failed; nil after an answer.
-  public private(set) var readFailure: ReadFailure?
+  /// The /status reads that failed in a row since the last answer (`ReadFailures`).
+  public private(set) var reads = ReadFailures()
+  /// Why /status can't be read, once that is more than one passing failure; nil after an answer.
+  public var readFailure: ReadFailure? { reads.shown }
   /// When /status last answered, on this Mac's clock; nil until it answers at this address.
   public private(set) var lastReadAt: Date?
   /// The last failure's technical text (Settings); screens say `connectionState` instead.
@@ -527,7 +529,7 @@ public final class AppModel {
     let url = baseURL
     client = Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
     response = nil
-    readFailure = nil
+    reads = ReadFailures()
     lastReadAt = nil
     settings = nil
     quotes.clear()
@@ -568,7 +570,7 @@ public final class AppModel {
       let fresh = try await client.status()
       let dayBefore = today
       response = fresh
-      readFailure = nil
+      reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
       if today != dayBefore {
@@ -601,7 +603,7 @@ public final class AppModel {
         await refreshHistory()
       }
     } catch {
-      readFailure = ReadFailure(error) ?? readFailure
+      reads.failed(error, hadAnswer: lastReadAt != nil)
     }
     // A stale status or a failed read turns commands off: an open question goes with them.
     withdrawIfCommandsOff()
