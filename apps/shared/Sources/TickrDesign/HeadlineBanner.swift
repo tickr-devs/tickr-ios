@@ -10,8 +10,8 @@ import TickrKit
 ///
 /// What fits decides the layout, never a count of characters (`ViewThatFits`): the pill and its
 /// facts on one row; else the facts under the pill; else the pill takes the whole row and wraps,
-/// its corners down to `Tokens.Headline.wrappedRadius`. An alarm always takes the whole row, with
-/// the full tone's border and its title in the tone, and hides the gate badge.
+/// its corners down to `Tokens.Headline.wrappedRadius`. Every tone hugs its text the same way; an
+/// alarm only draws the full tone's border and its title in the tone, and hides the gate badge.
 public struct HeadlineBanner: View {
   /// How the title and the detail share the pill.
   public enum Arrangement: Sendable {
@@ -97,17 +97,17 @@ public struct HeadlineBanner: View {
 
   private func rows(countdown: SessionCountdown?, gate: EntryGate?) -> some View {
     let hasFacts = countdown != nil || gate != nil
+    // Every tone hugs its text while it fits on one line, an alarm too (owner, 2026-11-18: the
+    // red "Can't reach the bot" stretched across the whole window while the green one hugged).
     return ViewThatFits(in: .horizontal) {
-      if !alarm {
-        HStack(spacing: Tokens.Headline.rowGap) {
+      HStack(spacing: Tokens.Headline.rowGap) {
+        pill(wrapped: false)
+        if hasFacts { factsRow(countdown: countdown, gate: gate) }
+      }
+      if hasFacts {
+        VStack(alignment: .leading, spacing: Tokens.Headline.lineGap) {
           pill(wrapped: false)
-          if hasFacts { factsRow(countdown: countdown, gate: gate) }
-        }
-        if hasFacts {
-          VStack(alignment: .leading, spacing: Tokens.Headline.lineGap) {
-            pill(wrapped: false)
-            factsRow(countdown: countdown, gate: gate)
-          }
+          factsRow(countdown: countdown, gate: gate)
         }
       }
       VStack(alignment: .leading, spacing: Tokens.Headline.lineGap) {
