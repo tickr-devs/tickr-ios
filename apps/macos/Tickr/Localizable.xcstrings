@@ -9199,23 +9199,6 @@
         }
       }
     },
-    "riskRoom.bindingDailyRoom" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "daily room"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "дневной запас"
-          }
-        }
-      }
-    },
     "riskRoom.details" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9229,40 +9212,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подробнее"
-          }
-        }
-      }
-    },
-    "riskRoom.latestSize" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "last size: %1$@ %2$@ sh · binding: %3$@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "последний объём: %1$@ %2$@ шт. · ограничил: %3$@"
-          }
-        }
-      }
-    },
-    "riskRoom.left" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "of %@ left"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "из %@ осталось"
           }
         }
       }
@@ -9297,23 +9246,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "чистый результат дня"
-          }
-        }
-      }
-    },
-    "riskRoom.positions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "positions"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "позиции"
           }
         }
       }
@@ -9382,23 +9314,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "записи сходятся"
-          }
-        }
-      }
-    },
-    "riskRoom.reservations" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "open reservations"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "открытые резервы"
           }
         }
       }

@@ -25,6 +25,8 @@ struct RiskView: View {
     }
     .refreshable { await model.refreshAll() }
     .task(id: model.connection.url) { await model.followAccount() }
+    // The records' reconciliation and the latest entry size of the Risk room card.
+    .task(id: model.connection.url) { await model.refreshFlow() }
   }
 }
 
@@ -78,31 +80,13 @@ private struct RiskLine: View {
   }
 }
 
-/// The daily loss limit as a ring: the room the bot says is left, and what used the rest.
+/// The Risk room card both apps share (mockup v115): the room the bot says is left of the daily
+/// loss limit, the net day, the reservations, the positions and the records, then how the last
+/// entry was sized.
 private struct RoomCard: View {
-  /// Side of the ring, in points.
-  static let ringSide: CGFloat = 180
-
   let status: StatusV1
   let risk: RiskSettings?
   @Environment(AppModel.self) private var model
-  /// The ring grows with the figure inside it, up to the card's width.
-  @ScaledMetric(relativeTo: .title2) private var ringSide = RoomCard.ringSide
-
-  private var room: Decimal? { status.dailyRoomUsd?.value }
-  private var limit: Decimal? { risk?.maxDailyLossUsd.value }
-
-  private var share: Double {
-    guard let room, let limit, limit > 0 else { return 0 }
-    return NSDecimalNumber(decimal: room / limit).doubleValue
-  }
-
-  private var color: Color {
-    guard room != nil, limit != nil else { return Palette.textQuaternary }
-    if share < Tokens.Room.alarm { return Palette.loss }
-    if share < Tokens.Room.calm { return Palette.warning }
-    return Palette.profit
-  }
 
   var body: some View {
     RiskCard(title: L10n.Risk.room) {
@@ -111,39 +95,26 @@ private struct RoomCard: View {
         InfoCaption(L10n.Risk.liveOnly(DayText.day(model.shownDay.noonInNewYork)), tone: .highlight)
           .frame(maxWidth: .infinity, alignment: .leading)
       }
-      ResultRing(fraction: share, color: color) {
-        VStack(spacing: Tokens.Space.xxs) {
-          Text(verbatim: RiskFormat.amount(room))
-            .font(Tokens.Typography.metric)
-            .foregroundStyle(Palette.textPrimary)
-            .contentTransition(.numericText())
-            // One line at its full size; the ring is wide enough for it.
-            .fixedSize()
-          CardLabel(L10n.Risk.left)
-        }
-        .padding(Tokens.Space.l)
+      if let risk {
+        let reservations = status.openReservationsUsd?.value
+        let result = status.resultTodayUsd.value
+        let room = status.dailyRoomUsd?.value
+        RiskRoomPanel(room: room, limit: risk.maxDailyLossUsd.value, reserved: reservations, facts: [
+          RiskFact(.netResult, RiskRoomText.netResult, value: Money.signedUSD(result), color: Palette.result(result)),
+          RiskFact(.reservations, RiskRoomText.reservations, value: RiskFormat.amount(reservations),
+            color: reservations.map { Tone.amount($0, .warning).text } ?? Palette.textQuaternary),
+          RiskFact(.positions, RiskRoomText.positions,
+            value: String(localized: L10n.Risk.positionsOf(status.positions.count, risk.maxOpenPositions))),
+          .records(RecordsAgreement(fences: status.fences, latest: model.isLive ? model.flow?.reconcile : nil)),
+        ], sizing: (model.isLive ? model.watching : nil).map { watching in
+          EntrySizing(size: watching.latestSize, configured: SizingLimits(
+            plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
+            dailyRoomUsd: room), text: .money)
+        })
+      } else {
+        RiskLine(label: L10n.Risk.room, value: RiskFormat.amount(status.dailyRoomUsd?.value))
       }
-      .aspectRatio(1, contentMode: .fit)
-      .frame(maxWidth: ringSide)
-      .frame(maxWidth: .infinity)
-      .padding(.vertical, Tokens.Space.s)
-      .accessibilityElement(children: .combine)
-      RiskLine(label: L10n.Risk.limit, value: RiskFormat.amount(limit))
-      // A loss with its minus ("−$1.60"), as on the Mac; "$0.00" neutral, never pink.
-      RiskLine(label: L10n.Risk.realizedLoss,
-        value: status.realizedLossTodayUsd.map { Money.signedUSD(-$0.value) } ?? Format.missing,
-        color: status.realizedLossTodayUsd.map { Tone.loss($0.value).text } ?? Palette.textQuaternary)
-      RiskLine(label: L10n.Risk.reservations, value: RiskFormat.amount(status.openReservationsUsd?.value),
-        color: status.openReservationsUsd.map { Tone.amount($0.value, .warning).text } ?? Palette.textQuaternary)
-      RiskLine(label: L10n.Risk.resultToday, value: Money.signedUSD(status.resultTodayUsd.value),
-        color: Palette.result(status.resultTodayUsd.value))
-      RiskLine(label: L10n.Risk.feesToday, value: RiskFormat.amount(status.feesTodayUsd?.value))
-      Text(L10n.Risk.roomNote(RiskFormat.amount(risk?.minDailyRoomUsd.value)))
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-        .fixedSize(horizontal: false, vertical: true)
     }
-    .animation(Tokens.Motion.fill, value: share)
   }
 }
 

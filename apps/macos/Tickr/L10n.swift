@@ -782,29 +782,11 @@ enum L10n {
     static var details: LocalizedStringResource {
       LocalizedStringResource("riskRoom.details", defaultValue: "Details", bundle: L10n.bundle)
     }
-    static func left(_ limit: String) -> LocalizedStringResource {
-      LocalizedStringResource("riskRoom.left", defaultValue: "of \(limit) left", bundle: L10n.bundle)
-    }
     static var netResult: LocalizedStringResource {
       LocalizedStringResource("riskRoom.netResult", defaultValue: "net day result", bundle: L10n.bundle)
     }
-    static var positions: LocalizedStringResource {
-      LocalizedStringResource("riskRoom.positions", defaultValue: "positions", bundle: L10n.bundle)
-    }
     static var recordsAgree: LocalizedStringResource {
       LocalizedStringResource("riskRoom.recordsAgree", defaultValue: "records agree", bundle: L10n.bundle)
-    }
-    static var reservations: LocalizedStringResource {
-      LocalizedStringResource("riskRoom.reservations", defaultValue: "open reservations", bundle: L10n.bundle)
-    }
-    /// Foot of the risk room: the latest entry size today and what bound it.
-    static func latestSize(_ symbol: String, _ quantity: String, _ binding: String) -> LocalizedStringResource {
-      LocalizedStringResource("riskRoom.latestSize", defaultValue: "last size: \(symbol) \(quantity) sh · binding: \(binding)",
-        bundle: L10n.bundle)
-    }
-    /// What bound the latest size: the room left under the daily loss limit.
-    static var bindingDailyRoom: LocalizedStringResource {
-      LocalizedStringResource("riskRoom.bindingDailyRoom", defaultValue: "daily room", bundle: L10n.bundle)
     }
     static var reading: LocalizedStringResource {
       LocalizedStringResource("riskRoom.reading", defaultValue: "Reading limits…", bundle: L10n.bundle)

@@ -8327,23 +8327,6 @@
         }
       }
     },
-    "risk.feesToday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Broker fees today"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Комиссии брокера за день"
-          }
-        }
-      }
-    },
     "risk.fences" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8459,23 +8442,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Последний вход"
-          }
-        }
-      }
-    },
-    "risk.left" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "left"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "осталось"
           }
         }
       }
@@ -8735,6 +8701,23 @@
         }
       }
     },
+    "risk.positionsOf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld из %2$lld"
+          }
+        }
+      }
+    },
     "risk.positionsValue" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8769,87 +8752,19 @@
         }
       }
     },
-    "risk.realizedLoss" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Realized loss"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Зафиксированный убыток"
-          }
-        }
-      }
-    },
-    "risk.reservations" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reserved by open trades"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Зарезервировано открытыми сделками"
-          }
-        }
-      }
-    },
-    "risk.resultToday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Net result today"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Итог дня"
-          }
-        }
-      }
-    },
     "risk.room" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Daily loss room"
+            "value" : "Risk room today"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Запас дневного лимита"
-          }
-        }
-      }
-    },
-    "risk.roomNote" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The limit counts the net day result: profits offset losses. Open trades reserve their planned loss. Below %@ of room the bot opens nothing new."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Лимит считает чистый итог дня: прибыль гасит убытки. Открытые сделки резервируют свой плановый убыток. Если запас меньше %@, бот не открывает новых сделок."
+            "value" : "Запас риска на сегодня"
           }
         }
       }

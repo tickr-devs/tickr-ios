@@ -20,9 +20,9 @@ struct OverviewView: View {
   /// sit in two columns (MainNarrow v110).
   static let threeColumnsMinWidth: CGFloat = 1040
   /// The design's column widths (CSS fr units): Watching closely, Positions, Safety and the bot;
-  /// then Risk room, Observers, Fast movers, the journal.
+  /// then Risk room, Fast movers above Observers, the journal (Main v115).
   static let middleRowWeights: [CGFloat] = [1, 1.4, 1]
-  static let bottomRowWeights: [CGFloat] = [1, 1, 1.2, 1.4]
+  static let bottomRowWeights: [CGFloat] = [1.15, 1.3, 0.95]
   /// Width of the day's result beside the header on the two-column board, in points
   /// (MainNarrow v110, 1024-point board: `width:250px`).
   static let dayResultNarrowWidth: CGFloat = 250
@@ -34,7 +34,7 @@ struct OverviewView: View {
   /// in points. The row grows to its tallest card, so every safety fact and watched row is in
   /// sight without a scroll inside a card.
   static let middleRowHeight: CGFloat = 298
-  /// Least height of the bottom row (Risk room, Observers, the journal), in points. It takes
+  /// Least height of the bottom row (Risk room, Fast movers and Observers, the journal), in points. It takes
   /// the rest of the window's height as in the design, never less than this.
   static let bottomRowMinHeight: CGFloat = 150
   /// Padding around the cards on each side: the screen's widths above are the grid's plus twice this.
@@ -74,8 +74,9 @@ struct OverviewView: View {
       headerBesideResult(Tokens.Size.dayResultWidth),
       single(.flow),
       weighted(middleRowWeights, [.watching, .positions, .safety], height: .atLeast(middleRowHeight)),
-      weighted(bottomRowWeights, [.riskRoom, .observers, .fastMovers, .journal],
-        height: .fillsRest(atLeast: bottomRowMinHeight)),
+      CardRow(columns: zip(bottomRowWeights, [[Slot.riskRoom], [.fastMovers, .observers], [.journal]]).map {
+        CardColumn(width: .share($0), cards: $1.map(\.rawValue))
+      }, height: .fillsRest(atLeast: bottomRowMinHeight)),
     ]),
     CardArrangement(minWidth: headerBesideNarrowResultMinGridWidth,
       rows: [headerBesideResult(OverviewView.dayResultNarrowWidth)] + twoColumnRows),
@@ -1408,9 +1409,6 @@ private struct BotSection: View {
 
 private struct RiskRoomCard: View {
   @Environment(AppModel.self) private var model
-  @State private var shown: Double = 0
-
-  @State private var shownReserved: Double = 0
 
   var body: some View {
     Card(model.isLive ? L10n.RiskRoom.title : L10n.RiskRoom.recordedTitle) {
@@ -1419,38 +1417,23 @@ private struct RiskRoomCard: View {
       if !model.isLive {
         recorded
       } else if let risk = model.settings?.risk {
-        let limit = risk.maxDailyLossUsd.value
-        // The bot's own room for today; the app never computes one the bot did not report.
-        let room = model.dailyRoom
-        let fraction = room.map { limit > 0 ? NSDecimalNumber(decimal: $0 / limit).doubleValue : 0 } ?? 0
+        // The shared card (mockup v115): the bot's own room, the four facts, then how the last
+        // entry was sized. The app never computes a room the bot did not report.
         let reservations = model.status?.openReservationsUsd?.value
-        let reserved = reservations.map { limit > 0 ? NSDecimalNumber(decimal: $0 / limit).doubleValue : 0 } ?? 0
-        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          if let room {
-            MoneyText(value: room, font: Tokens.Typography.metric, colored: false, signed: false, tint: Palette.accentText)
-          } else {
-            Text(verbatim: Format.missing).font(Tokens.Typography.metric).foregroundStyle(Palette.textQuaternary)
-          }
-          Text(L10n.RiskRoom.left(Money.usd(limit))).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-        }
-        bar(room: fraction, reserved: reserved)
-        VStack(spacing: Tokens.Space.s) {
-          // The design's order: the net day, what open orders hold, the positions, the records.
-          StatLine(L10n.RiskRoom.netResult, value: Money.signedUSD(model.shownResult), color: Palette.result(model.shownResult))
-          StatLine(L10n.RiskRoom.reservations, value: reservations.map(Money.usd) ?? Format.missing,
-            color: reservations.map { Tone.amount($0, .warning).text } ?? Palette.textQuaternary)
-          let count = String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions))
-          StatLine(L10n.RiskRoom.positions, value: count)
-          let records = FlowStages.reconcile(liveFences: model.isLive ? model.status?.fences : nil,
-            latest: model.flow?.reconcile)
-          StatLine(L10n.RiskRoom.recordsAgree, value: records.value ?? Format.missing,
-            color: records.agrees.map { $0 ? Palette.profitText : Palette.warningText } ?? Palette.textQuaternary)
-            .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
-        }
-        if let size = model.watching?.latestSize {
-          Spacer(minLength: 0)
-          LatestSizeLine(size: size)
-        }
+        RiskRoomPanel(room: model.dailyRoom, limit: risk.maxDailyLossUsd.value, reserved: reservations, facts: [
+          RiskFact(.netResult, RiskRoomText.netResult, value: Money.signedUSD(model.shownResult),
+            color: Palette.result(model.shownResult)),
+          RiskFact(.reservations, RiskRoomText.reservations, value: reservations.map(Money.usd) ?? Format.missing,
+            color: reservations.map { Tone.amount($0, .warning).text } ?? Palette.textQuaternary),
+          RiskFact(.positions, RiskRoomText.positions,
+            value: String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions))),
+          .records(RecordsAgreement(fences: model.status?.fences ?? [], latest: model.flow?.reconcile)),
+        ], sizing: model.watching.map { watching in
+          EntrySizing(size: watching.latestSize, configured: SizingLimits(
+            plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
+            dailyRoomUsd: model.dailyRoom), text: .money)
+        })
+        Spacer(minLength: 0)
       } else if let error = model.settingsError {
         ReadFailureNote(L10n.ReadFailed.settings, detail: error)
       } else {
@@ -1459,8 +1442,9 @@ private struct RiskRoomCard: View {
     }
   }
 
-  /// A recorded day: its own net result against the limit and whether its records agreed. The
-  /// room left, the reservations and the positions are today's (Details), never mixed in here.
+  /// A recorded day: its own net result against the limit and whether its records agreed, then
+  /// how its last entry was sized. The room left, the reservations and the positions are today's
+  /// (Details), never mixed in here.
   @ViewBuilder private var recorded: some View {
     if model.dayPending {
       Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.fewLines, leadingValue: true) }
@@ -1473,68 +1457,12 @@ private struct RiskRoomCard: View {
           color: records.agrees.map { $0 ? Palette.profitText : Palette.warningText } ?? Palette.textQuaternary)
           .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
       }
+      if let size = model.watching?.latestSize {
+        EntrySizingSection(sizing: EntrySizing(size: size, configured: nil, text: .money))
+      }
       Spacer(minLength: 0)
       Footnote(L10n.RiskRoom.recordedNote)
     }
-  }
-
-  /// The room left (the bot's own, already net of the open reservations), then the reservations
-  /// themselves, as in the design: the room in the accent colour, the reservations in amber after it.
-  private func bar(room: Double, reserved: Double) -> some View {
-    GeometryReader { proxy in
-      HStack(spacing: 0) {
-        Rectangle().fill(Palette.accent).frame(width: proxy.size.width * shown)
-        Rectangle().fill(Palette.warning).frame(width: proxy.size.width * shownReserved)
-        Spacer(minLength: 0)
-      }
-      .background(Palette.surfaceSunken)
-      .clipShape(Capsule())
-    }
-    .frame(height: Tokens.Size.bar)
-    .onAppear {
-      withAnimation(Tokens.Motion.fill) {
-        shown = Self.share(room)
-        shownReserved = Self.clamped(reserved, after: Self.share(room))
-      }
-    }
-    .onChange(of: [room, reserved]) { _, values in
-      withAnimation(Tokens.Motion.fill) {
-        shown = Self.share(values[0])
-        shownReserved = Self.clamped(values[1], after: Self.share(values[0]))
-      }
-    }
-    .accessibilityHidden(true)
-  }
-
-  /// A share of the bar, 0...1: the bot's room may be negative after a gap through a stop.
-  static func share(_ value: Double) -> Double {
-    min(max(value, 0), 1)
-  }
-
-  /// The reservations' share, never past the end of the bar.
-  static func clamped(_ reserved: Double, after room: Double) -> Double {
-    min(max(reserved, 0), max(1 - room, 0))
-  }
-}
-
-/// The latest entry size the bot worked out today and what bound it, in amber mono at the foot of
-/// the risk room, as in the design: "last size: QRTZ 20 sh · binding: daily room". Without a
-/// binding the bot named it is a dash, with the bot's cause on hover when it gave one.
-private struct LatestSizeLine: View {
-  let size: LatestSizeV1
-
-  var body: some View {
-    // Without a binding the bot named, a dash (its cause, if any, is on hover).
-    let binding = size.binding.map { binding in
-      switch binding {
-      case .dailyRoom: String(localized: L10n.RiskRoom.bindingDailyRoom)
-      }
-    } ?? Format.missing
-    Text(L10n.RiskRoom.latestSize(size.symbol, Format.quantity(size.quantity.value), binding))
-      .font(Tokens.Typography.captionMono)
-      .foregroundStyle(Palette.warningText)
-      .help(Text(verbatim: [String(localized: L10n.Watching.decidedAt(Format.marketMinute(size.at.date))),
-        size.bindingCauseText].compactMap { $0 }.joined(separator: Format.lineSeparator)))
   }
 }
 

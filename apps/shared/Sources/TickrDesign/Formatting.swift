@@ -160,6 +160,33 @@ extension PriceText {
   public static let money = PriceText(price: Money.price, distance: Money.priceDistance)
 }
 
+/// A number of shares, as the Risk room card counts them.
+public enum Shares {
+  /// From this many shares a count is shown in millions ("5.6M"), so a limit that allows a huge
+  /// size never pushes its row's label onto more lines than the design's (mockup v115).
+  public static let millionsFrom: Decimal = 1_000_000
+  /// Decimals of a count in millions.
+  static let millionsDigits = 1
+  /// After a count in millions.
+  static let millionsSign = "M"
+
+  /// "3,521", "24,333", "5.6M": grouped with "," in every language, millions with one decimal
+  /// rounded down (never more than the limit allows).
+  public static func text(_ value: Decimal) -> String {
+    guard abs(value) >= millionsFrom else { return Money.fixed(value, fractionDigits: 0, grouped: true) }
+    var input = value / millionsFrom
+    var output = Decimal()
+    NSDecimalRound(&output, &input, millionsDigits, .down)
+    return Money.fixed(output, fractionDigits: millionsDigits) + millionsSign
+  }
+}
+
+extension SizeText {
+  /// The apps' one money, price and share-count rules for the "Last entry size" block: a price per
+  /// share is an amount here, so it carries the dollar sign ("$0.7100").
+  public static let money = SizeText(usd: Money.usd, price: { Money.dollar + Money.price($0) }, shares: Shares.text)
+}
+
 /// Risk arithmetic shown next to a position. Long positions only (v1 trades long only).
 public enum Risk {
   /// Planned loss if the stop fills exactly: (entry − stop) × quantity. Nil when the stop is

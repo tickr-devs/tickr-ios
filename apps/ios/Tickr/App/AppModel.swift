@@ -76,6 +76,9 @@ final class AppModel {
   private(set) var flowError: String?
   /// Today's skipped signals (GET /skipped), read with the flow: where a refused symbol stopped.
   private(set) var skipped: SkippedV1?
+  /// The shown day's watched symbols and latest entry size (GET /watching), read with the flow;
+  /// nil until read, so the Risk room never says "no entry" for a day it has not read.
+  private(set) var watching: WatchingV1?
   /// Today's symbols by the stage they got to (GET /symbols), read with the flow.
   private(set) var symbols: SymbolsV1?
   /// Why the symbols could not be read, if they could not.
@@ -235,6 +238,7 @@ final class AppModel {
     flow = nil
     flowError = nil
     skipped = nil
+    watching = nil
     symbols = nil
     symbolsError = nil
     movers = nil
@@ -251,6 +255,7 @@ final class AppModel {
     flow = nil
     flowError = nil
     skipped = nil
+    watching = nil
     symbols = nil
     symbolsError = nil
     movers = nil
@@ -382,9 +387,10 @@ final class AppModel {
     let client = Container.shared.apiClient(connection.endpoint(for: url))
     async let flowRead: Void = readFlow(client, url: url, day: day)
     async let skippedRead: Void = readSkipped(client, url: url, day: day)
+    async let watchingRead: Void = readWatching(client, url: url, day: day)
     async let symbolsRead: Void = refreshSymbols(client, url: url, day: day)
     async let moversRead: Void = refreshMovers(client, url: url, day: day)
-    _ = await (flowRead, skippedRead, symbolsRead, moversRead)
+    _ = await (flowRead, skippedRead, watchingRead, symbolsRead, moversRead)
   }
 
   /// Whether an answer read for `day` from `url` is still the one to show.
@@ -414,6 +420,20 @@ final class AppModel {
     let refusals = try? await client.skipped(day: day)
     guard stillShown(url, day) else { return }
     skipped = refusals
+  }
+
+  /// The latest entry size of the Risk room; a failed read leaves it unknown (nil), never empty.
+  private func readWatching(_ client: APIClient, url: URL, day: WireDate) async {
+    do {
+      let read = try await client.watching(day: day)
+      guard stillShown(url, day) else { return }
+      watching = read
+    } catch is CancellationError {
+      return
+    } catch {
+      guard stillShown(url, day) else { return }
+      watching = nil
+    }
   }
 
   /// Today's price line of `symbol` for the Symbols detail, against `previousClose`

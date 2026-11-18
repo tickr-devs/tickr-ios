@@ -274,10 +274,29 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
   public var quoteAgeCauseText: String? { ApiText.prose(quoteAgeCauseCodes, text: quoteAgeCause) }
 }
 
-/// What can hold the size of an entry below what the strategy asked for.
+/// A limit that sizes an entry: the shares it allows are its amount over a price per share.
 public enum SizeBinding: String, Codable, Sendable, CaseIterable {
-  /// Sized down to fit the room left under the daily loss limit.
+  /// The planned loss per trade over the sizing risk per share.
+  case plannedLoss = "planned_loss"
+  /// The notional cap per position over the price per share.
+  case notionalCap = "notional_cap"
+  /// The room left under the daily loss limit over the sizing risk per share.
   case dailyRoom = "daily_room"
+}
+
+/// One sizing limit of the latest sized decision: `limitUsd` over `perShareUsd`, rounded down,
+/// is `shares`, the most that limit allows. The bot works these out from what its strategy recorded.
+public struct SizeLimitV1: Codable, Hashable, Sendable {
+  public let limit: SizeBinding
+  public let limitUsd: DecimalString
+  public let perShareUsd: DecimalString
+  public let shares: DecimalString
+
+  enum CodingKeys: String, CodingKey {
+    case limit, shares
+    case limitUsd = "limit_usd"
+    case perShareUsd = "per_share_usd"
+  }
 }
 
 /// The latest entry size the bot worked out today: for which symbol and decision, the quantity, and
@@ -293,9 +312,13 @@ public struct LatestSizeV1: Codable, Hashable, Sendable {
   public let bindingCause: String?
   /// The codes of `bindingCause` (added after version 1 shipped: empty from an older API).
   public let bindingCauseCodes: [ReasonV1]
+  /// The price per share the size was worked out at; nil when not recorded or from an older API.
+  public let price: DecimalString?
+  /// What each sizing limit allowed, in the bot's order; empty for an older record or API.
+  public let limits: [SizeLimitV1]
 
   enum CodingKeys: String, CodingKey {
-    case symbol, at, strategy, verdict, quantity, binding
+    case symbol, at, strategy, verdict, quantity, binding, price, limits
     case bindingCause = "binding_cause"
     case bindingCauseCodes = "binding_cause_codes"
   }
@@ -310,6 +333,9 @@ public struct LatestSizeV1: Codable, Hashable, Sendable {
     binding = try c.decodeNullable(SizeBinding.self, forKey: .binding)
     bindingCause = try c.decodeNullable(String.self, forKey: .bindingCause)
     bindingCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .bindingCauseCodes) ?? []
+    // Both added after version 1 shipped: absent from an older API.
+    price = try c.decodeIfPresent(DecimalString.self, forKey: .price)
+    limits = try c.decodeIfPresent([SizeLimitV1].self, forKey: .limits) ?? []
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -322,6 +348,8 @@ public struct LatestSizeV1: Codable, Hashable, Sendable {
     try c.encodeNullable(binding, forKey: .binding)
     try c.encodeNullable(bindingCause, forKey: .bindingCause)
     try c.encode(bindingCauseCodes, forKey: .bindingCauseCodes)
+    try c.encodeNullable(price, forKey: .price)
+    try c.encode(limits, forKey: .limits)
   }
 
   /// Why no binding limit is named, in the person's language (the bot's words for an unknown code).

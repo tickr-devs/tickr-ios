@@ -624,7 +624,11 @@ enum L10n {
       LocalizedStringResource("risk.title", defaultValue: "Risk", bundle: L10n.bundle)
     }
     static var room: LocalizedStringResource {
-      LocalizedStringResource("risk.room", defaultValue: "Daily loss room", bundle: L10n.bundle)
+      LocalizedStringResource("risk.room", defaultValue: "Risk room today", bundle: L10n.bundle)
+    }
+    /// Open positions against the most allowed: "2 of 3".
+    static func positionsOf(_ count: Int, _ limit: Int) -> LocalizedStringResource {
+      LocalizedStringResource("risk.positionsOf", defaultValue: "\(count) of \(limit)", bundle: L10n.bundle)
     }
     /// The broker account card.
     static var account: LocalizedStringResource {
@@ -695,30 +699,8 @@ enum L10n {
       LocalizedStringResource("risk.accountUnavailable",
         defaultValue: "The bot's broker read is not available.", bundle: L10n.bundle)
     }
-    static var left: LocalizedStringResource {
-      LocalizedStringResource("risk.left", defaultValue: "left", bundle: L10n.bundle)
-    }
     static var limit: LocalizedStringResource {
       LocalizedStringResource("risk.limit", defaultValue: "Daily loss limit", bundle: L10n.bundle)
-    }
-    static var realizedLoss: LocalizedStringResource {
-      LocalizedStringResource("risk.realizedLoss", defaultValue: "Realized loss", bundle: L10n.bundle)
-    }
-    static var reservations: LocalizedStringResource {
-      LocalizedStringResource("risk.reservations", defaultValue: "Reserved by open trades", bundle: L10n.bundle)
-    }
-    static var resultToday: LocalizedStringResource {
-      LocalizedStringResource("risk.resultToday", defaultValue: "Net result today", bundle: L10n.bundle)
-    }
-    /// The broker's fees on today's fills; a dash until every fill is read.
-    static var feesToday: LocalizedStringResource {
-      LocalizedStringResource("risk.feesToday", defaultValue: "Broker fees today", bundle: L10n.bundle)
-    }
-    static func roomNote(_ amount: String) -> LocalizedStringResource {
-      LocalizedStringResource("risk.roomNote",
-        // swiftlint:disable:next line_length
-        defaultValue: "The limit counts the net day result: profits offset losses. Open trades reserve their planned loss. Below \(amount) of room the bot opens nothing new.",
-        bundle: L10n.bundle)
     }
     static var entries: LocalizedStringResource {
       LocalizedStringResource("risk.entries", defaultValue: "New entries", bundle: L10n.bundle)
