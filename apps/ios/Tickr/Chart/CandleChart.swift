@@ -143,7 +143,20 @@ struct CandleChart: View {
   /// The price pane's plot width, for spacing the time labels.
   @State private var chartWidth: CGFloat = 0
 
-  @State private var selected: Date?
+  /// Where the finger is on the chart while it touches.
+  @State private var touched: Date?
+  /// The candle the finger last rested on, held after it lifts so its values can be read
+  /// (owner, 2026-11-18); a tap lets it go.
+  @State private var held: Date?
+  /// The candle the readout, legends and crosshair show: the touched one, else the held one.
+  private var selected: Date? { touched ?? held }
+  /// The chart's selection: a touch moves it, and lifting the finger holds its last candle.
+  private var touch: Binding<Date?> {
+    Binding(get: { touched }, set: { time in
+      if time == nil, let last = touched { held = last }
+      touched = time
+    })
+  }
   /// Start of the newest candle the chart has taken in. A candle after it, a new minute bar that
   /// just arrived, is left out until it has grown in over the chart (the board's `grow`).
   @State private var grownThrough: Date?
@@ -208,6 +221,8 @@ struct CandleChart: View {
   /// The whole range on screen, today's reserved slots included (mockup v113: Day opens on the
   /// whole session, 5D on its five days); zoom in to read closer.
   private func place() {
+    // Another chart: a candle held on the last one means nothing here.
+    held = nil
     viewport.fit(series, slots: slotCount)
   }
 
@@ -298,7 +313,9 @@ struct CandleChart: View {
     }
     .modifier(Scrolling(window: window, domain: timeDomain, scroll: $viewport.scroll))
     .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { chartWidth = $0 })
-    .chartXSelection(value: $selected)
+    .chartXSelection(value: touch)
+    // A tap lets a held candle go.
+    .simultaneousGesture(TapGesture().onEnded { held = nil })
     .chartPlotStyle { $0.background(Palette.surfaceSunken) }
     .accessibilityLabel(Text(ChartText.title))
   }
