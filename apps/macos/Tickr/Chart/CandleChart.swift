@@ -25,6 +25,8 @@ struct CandleChart: View {
   /// The pointer state, for the shared axis and crosshair of every pane.
   var pointerModel: ChartPointer { pointer }
   @State private var appeared = false
+  /// Keyboard focus, taken while a click holds the crosshair so Esc lets it go.
+  @FocusState private var focused: Bool
   /// The theme on screen: the extended-hours band is stronger in dark (mockup v114).
   @Environment(\.colorScheme) private var colorScheme
   /// How many time labels fit across the price pane, `timeLabelSlot` apart. Kept as a count, not
@@ -124,6 +126,16 @@ struct CandleChart: View {
     .animation(Tokens.Motion.standard, value: lines)
     .animation(Tokens.Motion.quick, value: viewport.visible)
     .gesture(pinch)
+    // Esc lets a held crosshair go: the chart takes the keyboard while it is held.
+    .focusable(pointer.pinned)
+    .focusEffectDisabled()
+    .focused($focused)
+    .onChange(of: pointer.pinned) { _, held in focused = held }
+    .onKeyPress(.escape) {
+      guard pointer.pinned else { return .ignored }
+      pointer.unpin()
+      return .handled
+    }
   }
 
   // MARK: Price pane
@@ -827,6 +839,8 @@ struct CandleChart: View {
     Binding(
       get: { pointer.time },
       set: { time in
+        // Held by a click: the pointer moving away changes nothing.
+        guard !pointer.pinned else { return }
         pointer.time = time
         let index = time.flatMap(plot.index(at:))
         if pointer.index != index { pointer.index = index }
@@ -969,6 +983,8 @@ private struct SharedAxis: ViewModifier {
     let pointer = chart.pointerModel
     scrolling(content)
       .chartXSelection(value: chart.selection)
+      // A click holds the crosshair on its candle; the next click lets it go.
+      .simultaneousGesture(TapGesture().onEnded { pointer.togglePin() })
       .onContinuousHover { phase in
         switch phase {
         case .active(let location): pointer.move(in: pane, to: location)
@@ -1102,9 +1118,10 @@ private struct Crosshair: View {
           if x >= frame.minX, x <= frame.maxX {
             let top = pane == .price ? frame.minY : 0
             let bottom = showsTime ? frame.maxY : geometry.size.height
+            // Held by a click: a firmer line in the accent, so it reads as fixed.
             Rectangle()
-              .fill(Palette.textTertiary.opacity(Tokens.Opacity.medium))
-              .frame(width: Tokens.Stroke.hairline, height: bottom - top)
+              .fill(pointer.pinned ? Palette.accent : Palette.textTertiary.opacity(Tokens.Opacity.medium))
+              .frame(width: pointer.pinned ? Tokens.Stroke.thin : Tokens.Stroke.hairline, height: bottom - top)
               .position(x: x, y: (top + bottom) / 2)
             highlight(marks(index), origin: geometry[plotFrame].origin)
             if showsTime {

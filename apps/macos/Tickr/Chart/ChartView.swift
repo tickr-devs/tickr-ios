@@ -200,6 +200,7 @@ struct ChartView: View {
     chart.clear()
     chart.hasSymbol = symbol != nil
     viewport = Viewport.opening
+    pointer.unpin()
     pointer.index = nil
     guard let symbol else { return }
     let baseURL = model.baseURL

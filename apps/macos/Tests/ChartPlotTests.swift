@@ -107,4 +107,24 @@ struct ChartPlotTests {
     pointer.leave(.rsi)
     #expect(pointer.hover == nil)
   }
+
+  @Test("A click holds the crosshair on its candle while the pointer moves away; the next lets it go")
+  @MainActor
+  func pinHoldsTheCandle() {
+    let pointer = ChartPointer()
+    pointer.togglePin()
+    #expect(!pointer.pinned, "nothing pointed, nothing to hold")
+    pointer.index = 7
+    pointer.move(in: .price, to: CGPoint(x: 10, y: 20))
+    pointer.togglePin()
+    #expect(pointer.pinned)
+    pointer.move(in: .rsi, to: CGPoint(x: 90, y: 5))
+    pointer.leave(.price)
+    #expect(pointer.hover == ChartHover(pane: .price, location: CGPoint(x: 10, y: 20)))
+    #expect(pointer.index == 7)
+    pointer.togglePin()
+    #expect(!pointer.pinned)
+    pointer.unpin()
+    #expect(!pointer.pinned)
+  }
 }

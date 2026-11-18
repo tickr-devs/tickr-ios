@@ -218,15 +218,30 @@ final class ChartPointer {
   @ObservationIgnored var time: Date?
   /// The pane under the pointer and where in it, for the horizontal line and its value tag.
   var hover: ChartHover?
+  /// A click held the crosshair on its candle (owner, 2026-11-18): the pointer may leave to read
+  /// the values, and the crosshair, readout and legend stay on that candle until the next click.
+  private(set) var pinned = false
 
   /// The pointer moved inside `pane`, to `location` in the pane's own coordinates.
   func move(in pane: ChartPane, to location: CGPoint) {
+    guard !pinned else { return }
     hover = ChartHover(pane: pane, location: location)
   }
 
   /// The pointer left `pane`; a move into the next pane may have been reported first.
   func leave(_ pane: ChartPane) {
+    guard !pinned else { return }
     if hover?.pane == pane { hover = nil }
+  }
+
+  /// A click on the chart: holds the crosshair on the pointed candle, or lets it go again.
+  func togglePin() {
+    pinned = index != nil && !pinned
+  }
+
+  /// Lets the crosshair go: a new symbol, range or day.
+  func unpin() {
+    pinned = false
   }
 }
 
