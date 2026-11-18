@@ -774,6 +774,12 @@ private struct ReplayCard: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .accessibilityLabel(Text(L10n.Lab.replayDay))
+      } else if oneDay {
+        // Never a bare switch with the start greyed out: say why there is no day to pick.
+        Text(L10n.Lab.replayNoDays)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textTertiary)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
   }

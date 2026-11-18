@@ -3217,6 +3217,10 @@ enum L10n {
     static var replayDay: LocalizedStringResource {
       LocalizedStringResource("lab.replayDay", defaultValue: "Day", bundle: L10n.bundle)
     }
+    /// Replay on one day while the fetched data holds no day to pick: why there is no day chip.
+    static var replayNoDays: LocalizedStringResource {
+      LocalizedStringResource("lab.replayNoDays", defaultValue: "No fetched day to replay yet.", bundle: L10n.bundle)
+    }
     /// Card: one symbol decision, check by check.
     static var explain: LocalizedStringResource {
       LocalizedStringResource("lab.explain", defaultValue: "Explain a symbol", bundle: L10n.bundle)

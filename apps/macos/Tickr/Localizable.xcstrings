@@ -6008,6 +6008,23 @@
         }
       }
     },
+    "lab.replayNoDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fetched day to replay yet."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет загруженного дня для прогона."
+          }
+        }
+      }
+    },
     "lab.replayNote" : {
       "extractionState" : "manual",
       "localizations" : {

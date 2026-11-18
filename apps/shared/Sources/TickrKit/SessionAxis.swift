@@ -172,15 +172,22 @@ public struct SessionAxis: Equatable, Sendable {
     }
     guard let hourStep, hourStep > 0 else { return labels }
     let step = TimeInterval(hourStep * Timeframe.secondsPerMinute)
-    let starts = Set(segments.map(\.first))
-    for slot in 0..<slots where !starts.contains(slot) {
-      guard let time = realTime(ofSlot: slot, candles: candles) else { continue }
-      let midnight = WireDate.newYork.startOfDay(for: time)
-      if time.timeIntervalSince(midnight).truncatingRemainder(dividingBy: step) == 0 {
-        labels.append(Label(slot: slot, kind: .hour(time), anchor: .centre))
+    for segment in segments {
+      let times = (segment.first...segment.last).dropFirst().compactMap { slot in
+        realTime(ofSlot: slot, candles: candles).map { (slot, $0) }
       }
+      let onClock = times.filter { Self.isRound($0.1, from: WireDate.newYork.startOfDay(for: $0.1), step: step) }
+      // Candles that never open on a round clock time (hourly ones open at 10:30, 11:30 from the
+      // 09:30 open) take their round steps from the segment's start, never no label at all.
+      let round = onClock.isEmpty ? times.filter { Self.isRound($0.1, from: segment.realStart, step: step) } : onClock
+      labels += round.map { Label(slot: $0.0, kind: .hour($0.1), anchor: .centre) }
     }
     return labels
+  }
+
+  /// Whether `time` is a whole number of `step`s after `origin`.
+  static func isRound(_ time: Date, from origin: Date, step: TimeInterval) -> Bool {
+    time.timeIntervalSince(origin).truncatingRemainder(dividingBy: step) == 0
   }
 
   /// The smallest round step (`hourStepMinutes`) that is a whole number of candles and puts at

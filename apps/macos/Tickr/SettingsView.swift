@@ -10,6 +10,8 @@ import TickrKit
 struct SettingsView: View {
   @Environment(AppModel.self) private var model
   @State private var tab: SettingsTab
+  /// Where the pane is scrolled; back to the top on each tab, never the last tab's offset.
+  @State private var scroll = ScrollPosition(edge: .top)
   @State private var contentHeight: CGFloat = 0
   /// Height of the title bar the window still reserves above the content (measured): the tab
   /// strip is drawn into it, so the pane asks for that much less height.
@@ -33,8 +35,10 @@ struct SettingsView: View {
           .padding(Tokens.Space.l)
           .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
       }
+      .scrollPosition($scroll)
       .scrollBounceBehavior(.basedOnSize)
       .frame(height: min(max(contentHeight, 1), Self.maxPaneHeight))
+      .onChange(of: tab) { _, _ in scroll.scrollTo(edge: .top) }
     }
     .frame(width: Self.width)
     .background(Palette.background)
@@ -867,12 +871,18 @@ struct JobsSection: View {
         : jobs.botState?.title.localizedLowercase ?? String(localized: L10n.Settings.notRunning)
       row((tone, running), name: name, when: when, state: Text(verbatim: state)) {
         if running, let started = jobs.botStartedAt {
-          Text(L10n.Settings.since(Format.marketMinute(started.date)))
+          Text(L10n.Settings.since(Self.started(started.date, now: model.botNow)))
         }
       }
     } else {
       row((.info, false), name: name, when: when, state: Text(verbatim: "")) { EmptyView() }
     }
+  }
+
+  /// When the bot started: the time alone on today's New York date, else with its day too
+  /// ("Tue Nov 17 21:29"), so a start of last evening never reads as one of today.
+  static func started(_ date: Date, now: Date) -> String {
+    WireDate(newYorkDateOf: date) == WireDate(newYorkDateOf: now) ? Format.marketMinute(date) : BackupSection.when(date)
   }
 
   /// A launchd job's name in the person's language; a job this app does not know reads as
@@ -1070,7 +1080,7 @@ struct SessionStrip: View {
 /// The bot's database backup (GET /jobs) as the design's "Backups · storage": a green check with
 /// what the backup is and when the last one was made, or the failure when it is newer, with its
 /// error; why neither is known when the bot cannot tell; and how clean-up runs.
-private struct BackupSection: View {
+struct BackupSection: View {
   @Environment(AppModel.self) private var model
 
   /// Symbols of the unknown state and of the clean-up note (verified and failed draw

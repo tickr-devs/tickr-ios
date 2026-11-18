@@ -92,6 +92,24 @@ import Testing
     for pair in zip(events, events.dropFirst()) { #expect(pair.0.time >= pair.1.time) }
   }
 
+  /// The bot lists its latest commands whatever their day: one from an earlier New York day is
+  /// not today's event (a "Stop bot" of last night beside a running bot reads as an alarm).
+  @Test func commandsOfAnEarlierDayAreLeftOut() throws {
+    let today = "\"processed_at\": \"2026-11-16T15:00:00.123Z\""
+    let yesterday = "\"processed_at\": \"2026-11-16T02:00:00.123Z\""
+    let text = try #require(String(data: fixture("status-response-v1.json"), encoding: .utf8))
+    #expect(text.contains(today))
+    let shifted = try #require(Wire.decoder().decode(StatusResponseV1.self,
+      from: Data(text.replacingOccurrences(of: today, with: yesterday).utf8)).status)
+    #expect(Board.events(shifted).allSatisfy { !$0.id.hasPrefix(Board.commandID) })
+    #expect(Board.events(try status("status-response-v1.json")).contains { $0.id.hasPrefix(Board.commandID) })
+  }
+
+  @Test func aRefusedCommandIsAmberNotDanger() {
+    #expect(Board.commandTone(.refused) == .amber)
+    #expect(Board.commandTone(.done) == .blue)
+  }
+
   @Test("A forced close is amber and a protection failure red whatever the result; an ordinary exit by its sign")
   func exitToneFollowsTheReason() {
     let gain = Decimal(string: "12.50")!

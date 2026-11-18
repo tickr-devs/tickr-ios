@@ -98,14 +98,22 @@ public enum Board {
         id: "\(fenceID)\(fence.kind)", time: fence.since.date, tag: String(localized: L10n.tagFence),
         text: fenceText(fence, status: status), tone: .amber))
     }
-    for record in status.recentCommands {
+    // The bot keeps its latest commands across days: only today's belong in today's events.
+    let today = WireDate(newYorkDateOf: status.writtenAt.date)
+    for record in status.recentCommands where WireDate(newYorkDateOf: record.processedAt.date) == today {
       events.append(Event(
         id: "\(commandID)\(record.commandId)", time: record.processedAt.date,
         tag: String(localized: record.outcome == .done ? L10n.tagDone : L10n.tagRefused),
         text: commandTitle(record.kind) + (record.causeText.map { ": \($0)" } ?? ""),
-        tone: record.outcome == .done ? .blue : .red))
+        tone: commandTone(record.outcome)))
     }
     return events.sorted { $0.time == $1.time ? $0.id > $1.id : $0.time > $1.time }
+  }
+
+  /// A command that was done reads blue; a refused one amber: the bot said no and nothing
+  /// changed, which is no danger (red is kept for danger).
+  static func commandTone(_ outcome: CommandOutcome) -> Event.Tone {
+    outcome == .done ? .blue : .amber
   }
 
   /// Joins the parts of a client order id ("<prefix><run>-<trade>-<leg><n>",

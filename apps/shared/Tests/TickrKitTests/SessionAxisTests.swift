@@ -90,6 +90,22 @@ struct SessionAxisTests {
       slot: 26, kind: .hour(try time("2026-11-16T17:00:00.000Z")), anchor: .centre)))
   }
 
+  /// Hourly candles of the regular session are cut from its 09:30 open (src/tickr/api/chart.py),
+  /// so none opens on a round hour: the axis steps from the open instead of showing nothing
+  /// between 09:30 and 16:00.
+  @Test("Hourly regular candles get labels stepped from the open")
+  func hourlyCandlesFromTheOpen() throws {
+    let starts = ["14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30"]
+    let candles = try starts.map { try candle("2026-11-16T\($0):00.000Z", .regular) }
+    let axis = SessionAxis(candles: candles, timeframe: .h1)
+    let labels = axis.labels(range: .oneDay, candles: candles, extendedClose: nil, hourStep: 60)
+    let hours = labels.compactMap { label -> Int? in
+      if case .hour = label.kind { return label.slot }
+      return nil
+    }
+    #expect(hours == Array(1..<starts.count))
+  }
+
   @Test("Today's after-hours reserves as many slots as the session before had, less those already drawn")
   func afterHoursAsYesterday() throws {
     let morning = [try candle("2026-11-16T09:00:00.000Z", .pre), try candle("2026-11-16T14:55:00.000Z", .regular)]
