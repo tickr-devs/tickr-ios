@@ -219,15 +219,15 @@ public struct DeltaTag: View {
           .font(Tokens.Typography.chevron)
           .accessibilityHidden(true)
       }
+      // A live figure that changes every few seconds is replaced at once: a rolling digit was
+      // caught half drawn and blurred at the tag's edge (owner report 2026-11-18, "+$18.4").
       Text(verbatim: text)
         .font(large ? Tokens.Typography.chipValue : Tokens.Typography.chip)
-        .contentTransition(.numericText(value: NSDecimalNumber(decimal: value).doubleValue))
     }
     .foregroundStyle(tone.text)
     .padding(.horizontal, Tokens.Space.s)
     .padding(.vertical, Tokens.Space.xs)
     .background(tone.fill.opacity(Tokens.Opacity.glow), in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
     .fixedSize()
-    .animation(Tokens.Motion.quick, value: value)
   }
 }

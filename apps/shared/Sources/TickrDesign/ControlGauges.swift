@@ -29,6 +29,9 @@ public struct MeterBar: View {
         }
       }
       .frame(height: Tokens.Size.bar)
+      // Only the fill glides; the figures under it change at once (a cross-fade left a ghost of
+      // the old last digit over the new one: owner report 2026-11-18, "38.73").
+      .animation(reduceMotion ? nil : Tokens.Motion.fill, value: fraction)
       if !marks.isEmpty {
         HStack {
           ForEach(marks.indices, id: \.self) { index in
@@ -40,7 +43,6 @@ public struct MeterBar: View {
         }
       }
     }
-    .animation(reduceMotion ? nil : Tokens.Motion.fill, value: fraction)
     .onAppear { withAnimation(reduceMotion ? nil : Tokens.Motion.fill) { drawn = true } }
   }
 }
@@ -89,7 +91,6 @@ public struct MiniRing: View {
     .padding(Tokens.Stroke.gauge / 2)
     // The ring grows with the text size, and never cuts its figure.
     .frame(minWidth: side, minHeight: side)
-    .animation(reduceMotion ? nil : Tokens.Motion.fill, value: fraction)
     .onAppear { withAnimation(reduceMotion ? nil : Tokens.Motion.fill) { drawn = true } }
   }
 }
