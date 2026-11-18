@@ -395,9 +395,10 @@ private struct SymbolsGrid: View {
   static let symbolWidth: CGFloat = 130
   static let lastWidth: CGFloat = 66
   static let changeWidth: CGFloat = 80
-  static let volumeWidth: CGFloat = 48
-  static let atrWidth: CGFloat = 50
-  static let dollarsWidth: CGFloat = 56
+  /// Wide enough for the widest figure on its bold capsule ("40.1×", "-21.2", "51.8×").
+  static let volumeWidth: CGFloat = 60
+  static let atrWidth: CGFloat = 60
+  static let dollarsWidth: CGFloat = 64
   static let screenerWidth: CGFloat = 120
   static let stageWidth: CGFloat = 142
   static let timeWidth: CGFloat = 50

@@ -21,7 +21,8 @@ public struct MoverFigure: View {
       .font(Tokens.Typography.captionMono)
       .fontWeight(fired ? .bold : .regular)
       .foregroundStyle(fired ? Palette.warningText : Palette.textQuaternary)
-      .fixedSize(horizontal: false, vertical: true)
+      // On one line always: a narrow column broke "8.0×" into "8.0" over "×" (owner, 2026-11-18).
+      .fixedSize()
       .padding(.horizontal, Tokens.Space.xs)
       .background(fired ? Palette.warning.opacity(Tokens.Opacity.wash) : .clear, in: Capsule())
       .overlay {
