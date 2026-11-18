@@ -826,15 +826,22 @@ private struct PositionsCard: View {
     Card(title) {
       HStack(spacing: Tokens.Space.s) {
         // One tab per open position with its result, as in the design; a single position needs none.
+        // A tab never wraps or cuts its words (owner report 2026-11-18: five positions stacked
+        // "+$17.42" one character per line): when the results do not fit, the tabs show the
+        // symbols alone, tinted by their result; when even those do not, they scroll sideways.
         if rows.count > 1 {
-          ForEach(rows) { row in
-            PositionTab(row: row, selected: row.id == shown?.id) { selected = row.id }
+          ViewThatFits(in: .horizontal) {
+            tabs(rows, shown: shown, results: true)
+            tabs(rows, shown: shown, results: false)
+            ScrollView(.horizontal) { tabs(rows, shown: shown, results: false) }
+              .scrollIndicators(.never)
           }
         }
         HeaderLink(L10n.Position.openChart, systemImage: AppSection.chartSymbol) {
           if let shown { chartSymbol = shown.position.symbol }
           model.section = .chart
         }
+        .fixedSize()
         .disabled(rows.isEmpty)
       }
     } content: {
@@ -852,6 +859,16 @@ private struct PositionsCard: View {
   /// Scale a position's detail starts from when the selection changes.
   static let switchScale = 0.98
 
+  /// The positions' tabs in one row at their own width, with or without their results.
+  private func tabs(_ rows: [PositionRow], shown: PositionRow?, results: Bool) -> some View {
+    HStack(spacing: Tokens.Space.s) {
+      ForEach(rows) { row in
+        PositionTab(row: row, selected: row.id == shown?.id, showsResult: results) { selected = row.id }
+      }
+    }
+    .fixedSize()
+  }
+
   private var title: LocalizedStringResource {
     let count = model.positions.count
     if let limit = model.settings?.risk.maxOpenPositions {
@@ -865,21 +882,31 @@ private struct PositionsCard: View {
 private struct PositionTab: View {
   let row: PositionRow
   let selected: Bool
+  /// Whether the open result is written beside the symbol; without it the symbol takes its colour.
+  let showsResult: Bool
   let action: () -> Void
 
   var body: some View {
     Button(action: action) {
       HStack(spacing: Tokens.Space.xs) {
         StopDot(row.position.stop.state)
-        SymbolText(row.position.symbol).foregroundStyle(Palette.textPrimary)
-        if let value = row.unrealized {
+        if showsResult || row.unrealized == nil {
+          SymbolText(row.position.symbol).foregroundStyle(Palette.textPrimary)
+        } else if let value = row.unrealized {
+          SymbolText(row.position.symbol).foregroundStyle(Palette.result(value))
+        }
+        if showsResult, let value = row.unrealized {
           Text(verbatim: Money.signedUSD(value)).foregroundStyle(Palette.result(value))
         }
       }
+      .fixedSize()
     }
     .buttonStyle(.chip(selected: selected))
-    // The dot's state in words, as the iPhone's position tab says it.
-    .accessibilityValue(Text(verbatim: Board.stopStateTitle(row.position.stop.state)))
+    // The dot's state in words, as the iPhone's position tab says it; the result too, which the
+    // narrow tab may not write.
+    .accessibilityValue(Text(verbatim: [Board.stopStateTitle(row.position.stop.state),
+      row.unrealized.map(Money.signedUSD)].compactMap { $0 }.joined(separator: Format.itemSeparator)))
+    .help(Text(verbatim: row.unrealized.map(Money.signedUSD) ?? row.position.symbol))
   }
 }
 
