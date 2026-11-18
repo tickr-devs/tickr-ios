@@ -11273,6 +11273,23 @@
         }
       }
     },
+    "settings.job.nightlyFetch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nightly data fetch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ночная загрузка данных"
+          }
+        }
+      }
+    },
     "settings.job.other" : {
       "extractionState" : "manual",
       "localizations" : {

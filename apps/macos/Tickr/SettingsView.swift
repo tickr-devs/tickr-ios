@@ -883,12 +883,14 @@ struct JobsSection: View {
     case .preflight: return String(localized: L10n.Settings.jobPreflight)
     case .bot: return String(localized: L10n.Settings.jobBot)
     case .watchdog: return String(localized: L10n.Settings.jobWatchdog)
+    case .nightlyFetch: return String(localized: L10n.Settings.jobNightlyFetch)
     }
   }
 
   /// The launchd jobs the bot installs on the Mac, by their wire names in jobs-v1.
   enum LaunchdJob: String {
     case preflight, bot, watchdog
+    case nightlyFetch = "nightly-fetch"
   }
 
   /// The next reconcile counting down while the bot runs, else when it last ran (New York time).

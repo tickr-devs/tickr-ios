@@ -1735,6 +1735,10 @@ enum L10n {
     static var jobWatchdog: LocalizedStringResource {
       LocalizedStringResource("settings.job.watchdog", defaultValue: "Watchdog", bundle: L10n.bundle)
     }
+    /// The nightly job that fetches market data for the Lab's replays.
+    static var jobNightlyFetch: LocalizedStringResource {
+      LocalizedStringResource("settings.job.nightlyFetch", defaultValue: "Nightly data fetch", bundle: L10n.bundle)
+    }
     /// A launchd job this app does not know by name.
     static var jobOther: LocalizedStringResource {
       LocalizedStringResource("settings.job.other", defaultValue: "Other job", bundle: L10n.bundle)

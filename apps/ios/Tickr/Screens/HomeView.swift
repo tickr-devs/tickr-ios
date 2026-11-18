@@ -877,21 +877,43 @@ private struct LiveFlowCard: View {
   /// value on a line of its own, then the symbols it dropped today ("−1,243", pink) and a flag
   /// ("blocked", "not now"). A number never wraps inside the narrow tile ("168/2"): each keeps
   /// its line, and the tile grows instead.
+  /// A stage's name on the tile, kept whole.
+  private func stageName(_ stage: Stage) -> some View {
+    Text(stage.name)
+      .font(Tokens.Typography.annotation)
+      .foregroundStyle(Palette.textTertiary)
+      .fixedSize()
+  }
+
+  /// The chevron of the screen a tile opens.
+  private var stageChevron: some View {
+    Image(systemName: Symbols.next)
+      .font(Tokens.Typography.annotationBold)
+      .foregroundStyle(Palette.textQuaternary)
+      .accessibilityHidden(true)
+  }
+
   private func tile(_ stage: Stage) -> some View {
     let lit = stage.value != nil || stage.flag != nil
     let dropped = dropped(stage.id)
     return VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      HStack(spacing: Tokens.Space.xs) {
-        FlowDot(color: stage.color, lit: lit, event: stage.value)
-        Text(stage.name)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textTertiary)
-          .fixedSize(horizontal: false, vertical: true)
-        Spacer(minLength: 0)
-        Image(systemName: Symbols.next)
-          .font(Tokens.Typography.annotationBold)
-          .foregroundStyle(Palette.textQuaternary)
-          .accessibilityHidden(true)
+      // The name never breaks inside a word ("recon-/cile"): when it does not fit beside the dot
+      // and the chevron, it takes a line of its own under them.
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: Tokens.Space.xs) {
+          FlowDot(color: stage.color, lit: lit, event: stage.value)
+          stageName(stage)
+          Spacer(minLength: 0)
+          stageChevron
+        }
+        VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+          HStack(spacing: Tokens.Space.xs) {
+            FlowDot(color: stage.color, lit: lit, event: stage.value)
+            Spacer(minLength: 0)
+            stageChevron
+          }
+          stageName(stage)
+        }
       }
       if stage.value != nil || stage.flag == nil {
         Text(verbatim: stage.value ?? Format.missing)

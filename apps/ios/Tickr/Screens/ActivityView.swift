@@ -816,8 +816,11 @@ private struct TradesList: View {
         value: String(localized: L10n.Risk.seconds(Money.plain(after, fractionDigits: 1))), tone: .profit))
     }
     if let mae = trade.mae, let mfe = trade.mfe {
-      list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signedUSD(mae), tone: .series))
-      list.append(Figure(symbol: Self.mfeSymbol, label: L10n.Activity.hintMfe, value: Money.signedUSD(mfe), tone: .profit))
+      // Coloured by the value shown, so "↓ $0.00" is not pink.
+      list.append(Figure(symbol: Self.maeSymbol, label: L10n.Activity.hintMae, value: Money.signedUSD(mae),
+        tone: Tone.result(mae)))
+      list.append(Figure(symbol: Self.mfeSymbol, label: L10n.Activity.hintMfe, value: Money.signedUSD(mfe),
+        tone: Tone.result(mfe)))
     }
     if let code = trade.codeVersion {
       list.append(Figure(symbol: Self.codeSymbol, label: L10n.Activity.hintCodeVersion, value: code))

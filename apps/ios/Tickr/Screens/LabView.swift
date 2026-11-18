@@ -317,20 +317,36 @@ private struct ObserverRow: View {
 
   let summary: ObserverSummary
 
+  private var name: some View {
+    HStack(spacing: Tokens.Space.s) {
+      StateGlyph(LabView.observerSymbol, tone: .highlight,
+        label: L10n.Common.strategyVersion(summary.name, summary.version), style: .compact)
+      Text(L10n.Common.strategyVersion(summary.name, summary.version))
+        .font(.subheadline.monospaced().weight(.semibold))
+    }
+  }
+
+  @ViewBuilder private var result: some View {
+    if let result = summary.result {
+      DeltaTag(result, text: Money.signedUSD(result))
+    } else {
+      Badge(L10n.Lab.noResult, tone: .neutral)
+    }
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      RowStack(spacing: Tokens.Space.s) {
+      // The name and the result in one row when the name fits whole; otherwise the result goes
+      // under it, so the name never breaks at a hyphen ("v2- / relvol-1.5").
+      ViewThatFits(in: .horizontal) {
         HStack(spacing: Tokens.Space.s) {
-          StateGlyph(LabView.observerSymbol, tone: .highlight,
-            label: L10n.Common.strategyVersion(summary.name, summary.version), style: .compact)
-          Text(L10n.Common.strategyVersion(summary.name, summary.version))
-            .font(.subheadline.monospaced().weight(.semibold))
+          name.fixedSize()
+          Spacer(minLength: 0)
+          result
         }
-        Spacer(minLength: 0)
-        if let result = summary.result {
-          DeltaTag(result, text: Money.signedUSD(result))
-        } else {
-          Badge(L10n.Lab.noResult, tone: .neutral)
+        VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+          name.fixedSize(horizontal: false, vertical: true)
+          result
         }
       }
       if summary.result == nil, let cause = summary.resultCauseText {

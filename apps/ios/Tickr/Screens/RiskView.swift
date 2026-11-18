@@ -239,19 +239,13 @@ private struct GateCard: View {
           .foregroundStyle(allowed ? Palette.profitText : calm ? Palette.textSecondary : Palette.warningText)
           .contentTransition(.opacity)
       }
+      // The cause in words, as on the Mac. The bot's own English detail is not repeated under it
+      // ("Outside the regular session." twice); an unknown cause already reads as that detail.
       if let block = status.entryBlock {
-        let title = ApiText.entryBlock(block)
-        Text(verbatim: title)
+        Text(verbatim: ApiText.entryBlock(block))
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textPrimary)
           .fixedSize(horizontal: false, vertical: true)
-        // The bot's own detail under the translated cause; nothing when the title already is it.
-        if title != block.text, !block.text.isEmpty {
-          Text(verbatim: block.text)
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-            .fixedSize(horizontal: false, vertical: true)
-        }
       }
       RiskLine(label: L10n.Risk.pausedByYou,
         value: String(localized: status.entryStop ? L10n.Risk.yes : L10n.Risk.no),
