@@ -268,13 +268,8 @@ private struct DaysColumn: View {
   var body: some View {
     if model.days.isEmpty {
       Card(L10n.Trades.days) {
-        ContentUnavailableView {
-          Label {
-            Text(model.historyError == nil ? L10n.Trades.noDays : L10n.Trades.daysUnavailable)
-          } icon: {
-            BrandMark.empty(model.historyError == nil ? .brand : .muted)
-          }
-        }
+        EmptyState(model.historyError == nil ? L10n.Trades.noDays : L10n.Trades.daysUnavailable,
+          tone: model.historyError == nil ? .brand : .muted)
       }
     } else {
       MonthCalendar()
@@ -546,15 +541,9 @@ private struct TradesTable: View {
       if rows.isEmpty {
         Group {
           if model.isLive {
-            ContentUnavailableView {
-              Label { Text(L10n.Trades.noTradesToday) } icon: { BrandMark.empty() }
-            }
+            EmptyState(L10n.Trades.noTradesToday)
           } else {
-            ContentUnavailableView {
-              Label { Text(L10n.Trades.noTradesOn(DayText.day(model.shownDay))) } icon: { BrandMark.empty() }
-            } description: {
-              Text(L10n.Trades.noTradesOnDetail)
-            }
+            EmptyState(L10n.Trades.noTradesOn(DayText.day(model.shownDay)), detail: L10n.Trades.noTradesOnDetail)
           }
         }
         .frame(height: Self.emptyHeight)
@@ -1133,10 +1122,7 @@ private struct NotTakenCard: View {
       } else if model.skipped != nil {
         // The apps' empty state, centred in the card beside the trade's detail: a lone line at
         // the top left the card half empty.
-        ContentUnavailableView {
-          Label { Text(L10n.Trades.notTakenEmpty) } icon: { BrandMark.empty() }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        EmptyState(L10n.Trades.notTakenEmpty)
       } else {
         Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.manyRows, badge: true) }
       }

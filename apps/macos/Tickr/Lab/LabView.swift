@@ -836,10 +836,8 @@ private struct ReplayCard: View {
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.warningText)
       case .idle:
-        // The apps' empty state, sized to its content: no run yet is a calm state, not a gap.
-        ContentUnavailableView {
-          Label { Text(L10n.Lab.replayIdle) } icon: { BrandMark.empty() }
-        }
+        // The apps' empty state, centred in the card: no run yet is a calm state, not a gap.
+        EmptyState(L10n.Lab.replayIdle)
       }
     } else if let error = model.labReplayError {
       ReadFailureNote(L10n.ReadFailed.replay, detail: error)

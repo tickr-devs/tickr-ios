@@ -4910,6 +4910,23 @@
         }
       }
     },
+    "kit.journal.notFilled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NOT FILLED"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "НЕ ИСПОЛНЕН"
+          }
+        }
+      }
+    },
     "kit.journal.refusedStart" : {
       "extractionState" : "manual",
       "localizations" : {

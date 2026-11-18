@@ -83,7 +83,9 @@ extension Board {
       return kind == .commandDone ? (L10n.tagDone, title, .blue) : (L10n.tagRefused, joined(title, event.causeText), .red)
     default:
       // A trade closed (the order kinds are `orderParts`').
-      return (L10n.journalClosed, joined(symbol, exitReasonTitle(cause)), closedTone(cause))
+      // An entry that never filled bought nothing: it did not close a position.
+      let notFilled = ExitReason(rawValue: cause).map { [.entryNotFilled, .entryNotFilledInTime].contains($0) } ?? false
+      return (notFilled ? L10n.journalNotFilled : L10n.journalClosed, joined(symbol, exitReasonTitle(cause)), closedTone(cause))
     }
   }
 

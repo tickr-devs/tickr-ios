@@ -36,6 +36,18 @@ import Testing
     #expect(refused.tone == .red && refused.text.hasPrefix(Board.commandTitle(.flatten)))
   }
 
+  /// An entry that never filled bought nothing, so its line never says a position closed.
+  @Test func anUnfilledEntryIsNotAClose() throws {
+    let closed = try #require(try lines().first { $0.id == "journal-746" })
+    #expect(closed.tag == String(localized: L10n.journalClosed))
+    var json = try #require(String(data: fixture("day-events-v1.json"), encoding: .utf8))
+    json = json.replacingOccurrences(of: "\"cause\": \"stopped-out\"", with: "\"cause\": \"entry-not-filled\"")
+    let document = try Wire.decoder().decode(DayEventsV1.self, from: Data(json.utf8))
+    let line = try #require(Board.journal(document, price: { "\($0)" }).first { $0.id == "journal-746" })
+    #expect(line.tag == String(localized: L10n.journalNotFilled))
+    #expect(line.text == "ABCD · " + String(localized: L10n.exitEntryNotFilled))
+  }
+
   @Test func anUnknownKindIsLeftOut() throws {
     var json = try #require(String(data: fixture("day-events-v1.json"), encoding: .utf8))
     json = json.replacingOccurrences(of: "\"bot-started\"", with: "\"something-new\"")

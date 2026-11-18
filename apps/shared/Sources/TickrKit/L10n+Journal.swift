@@ -38,6 +38,10 @@ extension L10n {
   static var journalClosed: LocalizedStringResource {
     LocalizedStringResource("kit.journal.closed", defaultValue: "CLOSED", bundle: bundle)
   }
+  /// Tag: a trade ended because its entry order was never filled (no shares were bought).
+  static var journalNotFilled: LocalizedStringResource {
+    LocalizedStringResource("kit.journal.notFilled", defaultValue: "NOT FILLED", bundle: bundle)
+  }
   /// Tag: a block on new entries was lifted.
   static var journalFenceCleared: LocalizedStringResource {
     LocalizedStringResource("kit.journal.fenceCleared", defaultValue: "CLEARED", bundle: bundle)
