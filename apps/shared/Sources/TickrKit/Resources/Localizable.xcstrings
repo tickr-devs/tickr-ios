@@ -1310,6 +1310,23 @@
         }
       }
     },
+    "kit.api.unreadable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the app and the bot are from different releases: install the app from the bot's release"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "приложение и бот из разных релизов: установите приложение из релиза бота"
+          }
+        }
+      }
+    },
     "kit.block.after_last_entry" : {
       "comment" : "Why entries are blocked: after_last_entry",
       "extractionState" : "manual",

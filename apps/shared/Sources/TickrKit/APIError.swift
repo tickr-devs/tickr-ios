@@ -5,8 +5,12 @@ public enum APIError: Error, LocalizedError, Equatable {
   /// The API answered with a typed refusal (error-v1); `cause` in the person's language when the
   /// bot sent a code this app knows (`ErrorV1.causeText`), else the bot's own words.
   case refused(status: Int, error: String, cause: String)
-  /// The answer does not match contract v1.
+  /// The answer does not match contract v1 (not HTTP, or a refusal without an error-v1 body).
   case contract(String)
+  /// An answer this app cannot read: a field missing, null, of the wrong type or with a value it
+  /// does not know (`Wire.detail`). That is an app and a bot from different releases, so the
+  /// person reads that, never the field path; the detail stays for tests and debugging.
+  case unreadable(String)
   /// The API could not be reached.
   case unreachable(String)
   /// A read the bot has no route for (404 `not_found` on a GET that names no record): a bot
@@ -18,6 +22,7 @@ public enum APIError: Error, LocalizedError, Equatable {
     switch self {
     case .refused(let status, let error, let cause): return String(localized: L10n.apiRefused(status, error, cause))
     case .contract(let detail): return String(localized: L10n.apiContract(detail))
+    case .unreadable: return String(localized: L10n.apiUnreadable)
     case .unreachable(let detail): return String(localized: L10n.apiUnreachable(detail))
     case .notServed(let demo): return String(localized: demo ? L10n.apiNotRecordedDemo : L10n.apiNotServed)
     }

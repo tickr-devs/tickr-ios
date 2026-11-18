@@ -318,13 +318,12 @@ final class StubProtocol: URLProtocol {
     #expect(raw == cause)
   }
 
-  @Test(arguments: [(200, "{\"api_version\": 2}"), (500, "oops")])
-  func nonContractAnswerIsAContractError(status: Int, body: String) async throws {
+  @Test(arguments: [(200, "{\"api_version\": 2}", true), (500, "oops", false)])
+  func badAnswerIsUnreadableOrAContractError(status: Int, body: String, unreadable: Bool) async throws {
     StubProtocol.answer = (status, Data(body.utf8))
     let error = await #expect(throws: APIError.self) { try await client.status() }
-    guard case .contract = error else {
-      Issue.record("expected a contract error, got \(String(describing: error))")
-      return
+    if case .contract? = error { #expect(!unreadable) } else if case .unreadable? = error { #expect(unreadable) } else {
+      Issue.record("expected an unreadable answer or a contract error, got \(String(describing: error))")
     }
   }
 

@@ -3,6 +3,16 @@ import Foundation
 /// Texts of the connection banner and empty state (ConnectionState) and the headline of a failed
 /// read.
 extension L10n {
+  // MARK: A failed read (APIError)
+
+  /// An answer the app cannot read (a field it does not know): the app and the bot come from
+  /// different releases. Says what to do, never the field path or the contract.
+  static var apiUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.api.unreadable",
+      defaultValue: "the app and the bot are from different releases: install the app from the bot's release",
+      bundle: bundle)
+  }
+
   // MARK: Connection (ConnectionState)
 
   /// Title of the banner when nothing answers at the bot's address.
