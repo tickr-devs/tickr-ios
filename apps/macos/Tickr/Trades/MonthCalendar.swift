@@ -3,8 +3,9 @@ import TickrDesign
 import TickrKit
 
 /// A trading month, Monday to Friday: the month and its total result on top, then a tile per
-/// weekday with its gross result, trade count and clean-day dot. Clicking a recorded day (or
-/// today) shows it; the arrows step through the months that hold records.
+/// weekday with its gross result, trade count, wins and losses and clean-day dot. Clicking a
+/// recorded day (or today) shows it; the arrows step through the months that hold records. It is
+/// the screen's only day picker (the separate all-days list duplicated it).
 struct MonthCalendar: View {
   @Environment(AppModel.self) private var model
   @State private var month: DayCalendar.Month?
@@ -92,22 +93,20 @@ struct MonthCalendar: View {
         CardLabel(L10n.Trades.monthLabel(first.formatted(.dateTime.month(.wide).year())))
           .contentTransition(.opacity)
       }
-      // Only with another month to step to; the arrow that leads nowhere is dimmed (its own
-      // colour kept it looking active).
-      if previous != nil || next != nil {
-        HStack(spacing: Tokens.Space.xxs) {
-          Button { month = previous } label: { arrow(Symbols.previous) }
-            .disabled(previous == nil)
-            .help(Text(L10n.Trades.previousMonth))
-            .accessibilityLabel(Text(L10n.Trades.previousMonth))
-          Button { month = next } label: { arrow(Symbols.next) }
-            .disabled(next == nil)
-            .help(Text(L10n.Trades.nextMonth))
-            .accessibilityLabel(Text(L10n.Trades.nextMonth))
-        }
-        .font(Tokens.Typography.chevron)
-        .buttonStyle(.glyph)
+      // Always shown, so earlier months stay reachable; the arrow that leads nowhere is dimmed
+      // (its own colour kept it looking active).
+      HStack(spacing: Tokens.Space.xxs) {
+        Button { month = previous } label: { arrow(Symbols.previous) }
+          .disabled(previous == nil)
+          .help(Text(L10n.Trades.previousMonth))
+          .accessibilityLabel(Text(L10n.Trades.previousMonth))
+        Button { month = next } label: { arrow(Symbols.next) }
+          .disabled(next == nil)
+          .help(Text(L10n.Trades.nextMonth))
+          .accessibilityLabel(Text(L10n.Trades.nextMonth))
       }
+      .font(Tokens.Typography.chevron)
+      .buttonStyle(.glyph)
       Spacer(minLength: Tokens.Space.s)
       if let total {
         Text(L10n.Trades.monthTotal(Money.signedUSD(total)))
@@ -155,8 +154,8 @@ struct CleanDot: View {
 }
 
 /// One weekday tile: its number and clean dot on top, then, when the bot recorded it, its gross
-/// result to the cent and a list glyph with its trade count ("3 trades" is its tooltip and
-/// accessibility value), as the board draws it (MacTrades v106).
+/// result to the cent, a list glyph with its trade count and its wins and losses ("3 trades" is
+/// its tooltip and accessibility value), as the board draws it (MacTrades v106).
 private struct CalendarDay: View {
   /// Least height of a day's tile, in points: the board's 46 (`.cell` min-height); a tile grows
   /// when its text needs more.
@@ -206,9 +205,17 @@ private struct CalendarDay: View {
             }
           }
           .foregroundStyle(Palette.result(result))
-          HStack(spacing: Tokens.Space.xxs) {
-            Image(systemName: Self.countSymbol)
-            Text(verbatim: String(summary.trades))
+          // The count and the wins and losses on one line when they fit, else one under the other.
+          ViewThatFits(in: .horizontal) {
+            HStack(spacing: Tokens.Space.xs) {
+              count(summary)
+              Spacer(minLength: 0)
+              winsLosses(summary)
+            }
+            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+              count(summary)
+              winsLosses(summary)
+            }
           }
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
@@ -245,14 +252,44 @@ private struct CalendarDay: View {
     .buttonStyle(.plain)
     .onHover { hovered = $0 }
     .disabled(!opens)
-    .help(Text(verbatim: summary.map {
-      [DayText.day(cell.day), Money.signedUSD($0.resultUsd.value), String(localized: L10n.Trades.tradeCount($0.trades))]
-        .joined(separator: Format.itemSeparator) + Format.lineSeparator + CleanMark.text($0.clean)
-    } ?? DayText.day(cell.day)))
+    .help(Text(verbatim: summary.map(Self.tooltip) ?? DayText.day(cell.day)))
     .accessibilityLabel(Text(verbatim: DayText.day(cell.day)))
-    .accessibilityValue(Text(verbatim: summary.map {
-      Money.signedUSD($0.resultUsd.value) + Format.itemSeparator + String(localized: L10n.Trades.tradeCount($0.trades))
-    } ?? String(localized: L10n.Trades.noRecords)))
+    .accessibilityValue(Text(verbatim: summary.map(Self.figures) ?? String(localized: L10n.Trades.noRecords)))
     .accessibilityAddTraits(selected ? .isSelected : [])
+  }
+
+  /// A recorded day's result, trade count, wins and losses on one line.
+  private static func figures(_ summary: DaySummary) -> String {
+    [Money.signedUSD(summary.resultUsd.value), String(localized: L10n.Trades.tradeCount(summary.trades)),
+      String(localized: L10n.Trades.winsLosses(summary.wins, summary.losses))]
+      .joined(separator: Format.itemSeparator)
+  }
+
+  /// A recorded day's tooltip: the day and its figures, its clean-day verdict, and a note when it
+  /// has no bars for the Chart.
+  private static func tooltip(_ summary: DaySummary) -> String {
+    let lines = [DayText.day(summary.day) + Format.itemSeparator + figures(summary), CleanMark.text(summary.clean)]
+    return (lines + (summary.hasBars ? [] : [String(localized: L10n.Trades.noBarsHelp)]))
+      .joined(separator: Format.lineSeparator)
+  }
+
+  /// The list glyph and the day's closed-trade count.
+  private func count(_ summary: DaySummary) -> some View {
+    HStack(spacing: Tokens.Space.xxs) {
+      Image(systemName: Self.countSymbol)
+      Text(verbatim: String(summary.trades))
+    }
+    .fixedSize()
+  }
+
+  /// The day's wins and losses ("2W 1L"), the wins green and the losses pink when there are any.
+  private func winsLosses(_ summary: DaySummary) -> some View {
+    HStack(spacing: Tokens.Space.xxs) {
+      Text(L10n.Trades.calendarWins(summary.wins))
+        .foregroundStyle(Tone.result(Decimal(summary.wins)).text)
+      Text(L10n.Trades.calendarLosses(summary.losses))
+        .foregroundStyle(Tone.loss(Decimal(summary.losses)).text)
+    }
+    .fixedSize()
   }
 }

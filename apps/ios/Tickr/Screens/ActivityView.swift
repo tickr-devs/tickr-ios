@@ -313,18 +313,16 @@ private struct DayPicker: View {
   }
 
   private var header: some View {
-    // The month arrows only with another month to step to; the one that leads nowhere is dimmed.
-    let steps = activity.previousMonth != nil || activity.nextMonth != nil
-    return HStack(spacing: Tokens.Space.s) {
-      if steps {
-        Button {
-          if let month = activity.previousMonth { activity.month = month }
-        } label: {
-          monthArrow(Symbols.previous)
-        }
-        .disabled(activity.previousMonth == nil)
-        .accessibilityLabel(Text(L10n.Activity.previousMonth))
+    // The month arrows always, so earlier months stay reachable; the one that leads nowhere is
+    // dimmed.
+    HStack(spacing: Tokens.Space.s) {
+      Button {
+        if let month = activity.previousMonth { activity.month = month }
+      } label: {
+        monthArrow(Symbols.previous)
       }
+      .disabled(activity.previousMonth == nil)
+      .accessibilityLabel(Text(L10n.Activity.previousMonth))
       Spacer(minLength: 0)
       if let first = activity.month.firstDay {
         VStack(spacing: Tokens.Space.xxs) {
@@ -347,15 +345,13 @@ private struct DayPicker: View {
         backToToday
       }
       Spacer(minLength: 0)
-      if steps {
-        Button {
-          if let month = activity.nextMonth { activity.month = month }
-        } label: {
-          monthArrow(Symbols.next)
-        }
-        .disabled(activity.nextMonth == nil)
-        .accessibilityLabel(Text(L10n.Activity.nextMonth))
+      Button {
+        if let month = activity.nextMonth { activity.month = month }
+      } label: {
+        monthArrow(Symbols.next)
       }
+      .disabled(activity.nextMonth == nil)
+      .accessibilityLabel(Text(L10n.Activity.nextMonth))
     }
     .buttonStyle(.glyph)
   }
@@ -377,7 +373,8 @@ private struct DayPicker: View {
   }
 }
 
-/// One weekday of the calendar: its number and, when the bot recorded it, its net result.
+/// One weekday of the calendar: its number and, when the bot recorded it, its net result with its
+/// wins and losses.
 private struct DayCell: View {
   /// Height of a day's cell, in points: a comfortable touch target.
   static let height: CGFloat = 46
@@ -404,10 +401,20 @@ private struct DayCell: View {
           Text(verbatim: Money.signed(result, fractionDigits: 0))
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Tone.result(result, fractionDigits: 0).text)
+          if let summary = cell.summary {
+            // Wins and losses side by side when they fit the cell, else one under the other.
+            ViewThatFits(in: .horizontal) {
+              HStack(spacing: Tokens.Space.xxs) { winsLosses(summary) }
+              VStack(spacing: 0) { winsLosses(summary) }
+            }
+            .font(Tokens.Typography.annotation)
+          }
         } else if isToday {
           PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: todayEvent)
         }
       }
+      // A margin above and below, so a day's last line (its wins and losses) never sits on the edge.
+      .padding(.vertical, Tokens.Space.xxs)
       .frame(maxWidth: .infinity, minHeight: Self.height)
       .foregroundStyle(result == nil && !isToday ? Palette.textQuaternary : Palette.textPrimary)
       .background {
@@ -423,8 +430,23 @@ private struct DayCell: View {
     .buttonStyle(.plain)
     .disabled(result == nil && !isToday)
     .accessibilityLabel(Text(verbatim: DayText.day(cell.day.noonInNewYork)))
-    .accessibilityValue(result.map { Text(verbatim: Money.signedUSD($0)) } ?? Text(L10n.Activity.noRecords))
+    .accessibilityValue(cell.summary.map {
+      Text(verbatim: Money.signedUSD($0.resultUsd.value) + Format.separator
+        + String(localized: L10n.Activity.chipWins($0.wins)) + Format.separator
+        + String(localized: L10n.Activity.chipLosses($0.losses)))
+    } ?? Text(L10n.Activity.noRecords))
     .accessibilityAddTraits(selected ? .isSelected : [])
+  }
+
+  /// The day's wins ("2W") and losses ("1L"), green and pink when there are any.
+  @ViewBuilder
+  private func winsLosses(_ summary: DaySummary) -> some View {
+    Text(L10n.Activity.calendarWins(summary.wins))
+      .foregroundStyle(Tone.result(Decimal(summary.wins)).text)
+      .fixedSize()
+    Text(L10n.Activity.calendarLosses(summary.losses))
+      .foregroundStyle(Tone.loss(Decimal(summary.losses)).text)
+      .fixedSize()
   }
 }
 

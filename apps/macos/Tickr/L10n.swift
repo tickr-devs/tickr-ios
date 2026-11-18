@@ -1930,9 +1930,6 @@ enum L10n {
       LocalizedStringResource("trades.days", defaultValue: "Days", bundle: L10n.bundle)
     }
 
-    static var allDays: LocalizedStringResource {
-      LocalizedStringResource("trades.allDays", defaultValue: "All days", bundle: L10n.bundle)
-    }
     /// Days list is empty.
     static var noDays: LocalizedStringResource {
       LocalizedStringResource("trades.noDays", defaultValue: "No recorded days yet.", bundle: L10n.bundle)
@@ -1951,10 +1948,13 @@ enum L10n {
     static var result: LocalizedStringResource {
       LocalizedStringResource("trades.result", defaultValue: "Result", bundle: L10n.bundle)
     }
-    /// A day in the all-days list: its closed trades with wins and losses.
-    static func closedWinsLosses(_ trades: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
-      LocalizedStringResource("trades.closedWinsLosses",
-        defaultValue: "\(trades) closed · \(wins) W · \(losses) L", bundle: L10n.bundle)
+    /// A calendar tile's wins, compact: "2W".
+    static func calendarWins(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.calendarWins", defaultValue: "\(count)W", bundle: L10n.bundle)
+    }
+    /// A calendar tile's losses, compact: "1L".
+    static func calendarLosses(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.calendarLosses", defaultValue: "\(count)L", bundle: L10n.bundle)
     }
     /// Wins and losses beside the shown day's trade count.
     static func winsLosses(_ wins: Int, _ losses: Int) -> LocalizedStringResource {
@@ -2139,10 +2139,6 @@ enum L10n {
     static var tradesHint: LocalizedStringResource {
       LocalizedStringResource("trades.tradesHint", defaultValue: "click: details · double-click: show on Chart",
         bundle: L10n.bundle)
-    }
-    /// The order of the day list and what clicking a day does.
-    static var allDaysHint: LocalizedStringResource {
-      LocalizedStringResource("trades.allDaysHint", defaultValue: "newest first · click: open day", bundle: L10n.bundle)
     }
     /// What clicking a skipped signal does.
     static var notTakenHint: LocalizedStringResource {

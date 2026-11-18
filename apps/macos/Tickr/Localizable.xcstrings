@@ -13553,40 +13553,6 @@
         }
       }
     },
-    "trades.allDays" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All days"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Все дни"
-          }
-        }
-      }
-    },
-    "trades.allDaysHint" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "newest first · click: open day"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "сначала новые · щелчок: открыть день"
-          }
-        }
-      }
-    },
     "trades.anotherBot" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13757,6 +13723,40 @@
         }
       }
     },
+    "trades.calendarLosses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldL"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldУ"
+          }
+        }
+      }
+    },
+    "trades.calendarWins" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldW"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldП"
+          }
+        }
+      }
+    },
     "trades.cleanBadge" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13838,23 +13838,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Закрыта"
-          }
-        }
-      }
-    },
-    "trades.closedWinsLosses" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld closed · %2$lld W · %3$lld L"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "закрыто: %1$lld · %2$lld приб. · %3$lld убыт."
           }
         }
       }

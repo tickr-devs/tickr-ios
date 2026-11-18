@@ -831,6 +831,14 @@ enum L10n {
     static var hintOpen: LocalizedStringResource {
       LocalizedStringResource("activity.hintOpen", defaultValue: "Open positions", bundle: L10n.bundle)
     }
+    /// A calendar cell's wins, compact: "2W".
+    static func calendarWins(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.calendarWins", defaultValue: "\(count)W", bundle: L10n.bundle)
+    }
+    /// A calendar cell's losses, compact: "1L".
+    static func calendarLosses(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.calendarLosses", defaultValue: "\(count)L", bundle: L10n.bundle)
+    }
     static func chipWins(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("activity.chipWins", defaultValue: "\(count) W", bundle: L10n.bundle)
     }

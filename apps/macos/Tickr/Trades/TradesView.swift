@@ -42,7 +42,7 @@ struct TradesView: View {
 
   /// Entrance order of the screen's parts.
   fileprivate enum Order: Int {
-    case days = 0, performance, dayList, stats, trades, detail, notTaken, whatIf
+    case days = 0, performance, stats, trades, detail, notTaken, whatIf
   }
 
   /// The screen's size, read from its scroll area: whether the days column fits beside the day,
@@ -138,7 +138,7 @@ struct TradesView: View {
   /// selected trade) and the second (the day's detail, Not taken).
   private enum Part: Int { case side = 0, day }
 
-  /// The calendar, the 30-day performance and the day list: beside the day as in the design, or
+  /// The calendar and the 30-day performance: beside the day as in the design, or
   /// after it in a narrow window, so the day's trades are on the first screen.
   private var sideColumn: some View {
     VStack(spacing: Self.columnGap) {
@@ -146,8 +146,6 @@ struct TradesView: View {
         .rise(step: Order.days.rawValue)
       PerformanceCard()
         .rise(step: Order.performance.rawValue)
-      DayListCard()
-        .rise(step: Order.dayList.rawValue)
     }
   }
 
@@ -280,87 +278,6 @@ private struct DaysColumn: View {
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .tickrCard(radius: Tokens.Radius.large)
     }
-  }
-}
-
-/// Every recorded day as a list, newest first, under the performance card: the calendar above
-/// already picks days, so the long list no longer pushes the performance out of sight.
-private struct DayListCard: View {
-  @Environment(AppModel.self) private var model
-
-  var body: some View {
-    if !model.days.isEmpty {
-      Card(L10n.Trades.allDays, trailing: {
-        Text(L10n.Trades.allDaysHint)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }, content: {
-        // The column's scroll area scrolls the list too; a nested one would collapse to nothing.
-        LazyVStack(spacing: Tokens.Space.xxs) {
-          ForEach(model.days) { day in
-            Button { select(day.day) } label: {
-              DayRow(day: day, isShown: day.day == model.shownDay, isToday: day.day == model.today)
-            }
-            .buttonStyle(.plain)
-          }
-        }
-      })
-    }
-  }
-
-  private func select(_ day: WireDate) {
-    if day == model.today {
-      model.showToday()
-    } else {
-      model.selectedDay = day
-    }
-  }
-}
-
-/// A day in the list: date, trades with wins and losses, and its result.
-private struct DayRow: View {
-  let day: DaySummary
-  let isShown: Bool
-  let isToday: Bool
-  /// Under the pointer: the sunken tint of the design's day rows.
-  @State private var hovered = false
-
-  var body: some View {
-    HStack(spacing: Tokens.Space.s) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        HStack(spacing: Tokens.Space.xs) {
-          Text(verbatim: DayText.day(day.day))
-            .font(Tokens.Typography.calloutMono)
-            .foregroundStyle(Palette.textPrimary)
-          if isToday { Badge(L10n.Common.today, color: Palette.accentText) }
-        }
-        Text(L10n.Trades.closedWinsLosses(day.trades, day.wins, day.losses))
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-      Spacer(minLength: Tokens.Space.s)
-      if day.clean.verdict != .unknown {
-        CleanDot(verdict: day.clean.verdict)
-          .help(Text(verbatim: CleanMark.text(day.clean)))
-      }
-      if !day.hasBars {
-        Image(systemName: "chart.bar.xaxis")
-          .foregroundStyle(Palette.textQuaternary)
-          .help(Text(L10n.Trades.noBarsHelp))
-      }
-      MoneyText(value: day.resultUsd.value, font: Tokens.Typography.calloutMono)
-    }
-    .padding(.horizontal, Tokens.Space.s)
-    .padding(.vertical, Tokens.Space.s)
-    .background(isShown ? Palette.selection : hovered ? Palette.surfaceSunken : .clear,
-      in: .rect(cornerRadius: Tokens.Radius.medium))
-    .overlay(
-      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
-        .strokeBorder(isShown ? Palette.separatorStrong : .clear, lineWidth: Tokens.Stroke.thin))
-    .contentShape(.rect)
-    .onHover { hovered = $0 }
-    .animation(Tokens.Motion.quick, value: isShown)
-    .animation(Tokens.Motion.quick, value: hovered)
   }
 }
 
