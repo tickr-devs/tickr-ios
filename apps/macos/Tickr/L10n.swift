@@ -2513,7 +2513,7 @@ enum L10n {
     }
     /// The broker's fees on today's fills; a dash until every fill is read.
     static var feesToday: LocalizedStringResource {
-      LocalizedStringResource("risk.feesToday", defaultValue: "broker fees today", bundle: L10n.bundle)
+      LocalizedStringResource("risk.feesToday", defaultValue: "broker fees today, already in the result", bundle: L10n.bundle)
     }
     /// How the daily limit works.
     static var lossRoomNote: LocalizedStringResource {
@@ -2522,9 +2522,10 @@ enum L10n {
         defaultValue: "Profits offset losses but never raise the room above the limit. Open reservations, the worst case of entries in flight, count against it. Near the limit the bot sizes trades down to the room left; below the minimum room it stops entering.",
         bundle: L10n.bundle)
     }
-    /// Loss counted against the daily limit so far.
+    /// Loss counted against the daily limit so far (net of fees: the same money as the day's
+    /// result when the day is down, so the label says what it is for, not a second total).
     static var realizedLoss: LocalizedStringResource {
-      LocalizedStringResource("risk.realizedLoss", defaultValue: "realized loss", bundle: L10n.bundle)
+      LocalizedStringResource("risk.realizedLoss", defaultValue: "loss counted against the limit", bundle: L10n.bundle)
     }
     /// Worst-case loss reserved by entries in flight.
     static var reservations: LocalizedStringResource {
@@ -2649,9 +2650,10 @@ enum L10n {
     static var unrealized: LocalizedStringResource {
       LocalizedStringResource("risk.unrealized", defaultValue: "Unrealized P&L", bundle: L10n.bundle)
     }
-    /// The broker's profit or loss for today.
+    /// The broker's profit or loss for today, open positions' unrealized P&L included: it can
+    /// differ in sign from the bot's closed-trade result, so the label says so.
     static var dayResult: LocalizedStringResource {
-      LocalizedStringResource("risk.dayResult", defaultValue: "Day P&L · broker", bundle: L10n.bundle)
+      LocalizedStringResource("risk.dayResult", defaultValue: "Broker P&L today, open positions included", bundle: L10n.bundle)
     }
     /// Day trades left when the broker sets no limit.
     static var noLimit: LocalizedStringResource {
@@ -3558,6 +3560,12 @@ enum L10n {
     /// Under the list: every row is shown, never capped.
     static func showingAll(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("symbols.showingAll", defaultValue: "Showing all \(count)", bundle: L10n.bundle)
+    }
+    /// Footer of the Fast movers tab: the flagged symbols, and the positions and watches pinned
+    /// above them that no fast-mover rule flagged.
+    static func showingMovers(_ flagged: Int, _ pinned: Int) -> LocalizedStringResource {
+      // swiftlint:disable:next line_length
+      LocalizedStringResource("symbols.showingMovers", defaultValue: "Showing all \(flagged) fast movers, plus \(pinned) held or watched on top", bundle: L10n.bundle)
     }
     /// The search left no row.
     static func noMatch(_ query: String) -> LocalizedStringResource {

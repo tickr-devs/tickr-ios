@@ -218,7 +218,10 @@ struct SymbolsView: View {
       }
       Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
-        Text(L10n.Symbols.showingAll(shown.count))
+        // Fast movers: the flagged symbols, and apart from them the positions and watches pinned
+        // on top, so the tab's count and this line agree (owner test 2026-11-18: 74 vs 79).
+        let pinned = tab == .fastMovers ? shown.filter { $0.mover == nil }.count : 0
+        Text(pinned > 0 ? L10n.Symbols.showingMovers(shown.count - pinned, pinned) : L10n.Symbols.showingAll(shown.count))
         Spacer(minLength: 0)
         Text(SymbolsText.sortHint)
       }

@@ -1054,8 +1054,8 @@ private struct ExplainCard: View {
     }
   }
 
-  /// The decision's lines: each check by its position, then the admission (`checks.count`).
-  private static func lines(_ decision: DecisionV1) -> [Int] { Array(0...decision.checks.count) }
+  /// The decision's lines, why it was decided first (`DecisionV1.explainLines`).
+  private static func lines(_ decision: DecisionV1) -> [Int] { decision.explainLines }
 
   @ViewBuilder
   private func lineRow(_ line: Int, of decision: DecisionV1) -> some View {

@@ -111,4 +111,20 @@ struct DecisionRunsTests {
       traded: ["BBBB", "ZZZZ", "MVLD"])
     #expect(ordered == ["MVLD", "ZZZZ", "BBBB", "AAAA", "CCCC"])
   }
+
+  @Test("An explanation lists the failed checks first, then the admission, then the passed checks")
+  func explainLinesWhyFirst() throws {
+    let json = """
+      {"at": "2026-11-16T15:00:00.000Z", "action": "IGNORE",
+       "strategy": {"name": "price-action", "version": "1"}, "observer": false,
+       "checks": [
+         {"rule": "bars_consistent", "measured": null, "operator": "is", "threshold": null, "passed": true, "note": ""},
+         {"rule": "close_above_vwap", "measured": null, "operator": "is", "threshold": null, "passed": false, "note": ""},
+         {"rule": "range_in_atr", "measured": null, "operator": "is", "threshold": null, "passed": true, "note": ""}],
+       "entry_price": null, "stop_price": null,
+       "admission": "not_applicable", "refusal_cause": null, "refusal": null}
+      """
+    let decision = try Wire.decoder().decode(DecisionV1.self, from: Data(json.utf8))
+    #expect(decision.explainLines == [1, 3, 0, 2])
+  }
 }

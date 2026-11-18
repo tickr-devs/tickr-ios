@@ -7947,13 +7947,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Day P&L · broker"
+            "value" : "Broker P&L today, open positions included"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "P&L за день · брокер"
+            "value" : "P&L брокера за день, с открытыми позициями"
           }
         }
       }
@@ -8049,13 +8049,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "broker fees today"
+            "value" : "broker fees today, already in the result"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "комиссии брокера за день"
+            "value" : "комиссии брокера, уже в результате"
           }
         }
       }
@@ -8882,13 +8882,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "realized loss"
+            "value" : "loss counted against the limit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "реализованный убыток"
+            "value" : "убыток в счёт лимита"
           }
         }
       }
@@ -12935,6 +12935,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показаны все: %lld"
+          }
+        }
+      }
+    },
+    "symbols.showingMovers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Showing all %1$lld fast movers, plus %2$lld held or watched on top"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все быстрые: %1$lld, и ещё %2$lld в позиции или под наблюдением сверху"
           }
         }
       }
