@@ -477,7 +477,7 @@ enum L10n {
         bundle: L10n.bundle)
     }
     static var dayResult: LocalizedStringResource {
-      LocalizedStringResource("overview.dayResult", defaultValue: "Day result · gross", bundle: L10n.bundle)
+      LocalizedStringResource("overview.dayResult", defaultValue: "Day result", bundle: L10n.bundle)
     }
     static func dayCounts(_ closed: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
       LocalizedStringResource("overview.dayCounts",
@@ -542,6 +542,12 @@ enum L10n {
     static var title: LocalizedStringResource {
       LocalizedStringResource("flow.title",
         defaultValue: "Live flow · screeners → strategy → risk → order → broker stop",
+        bundle: L10n.bundle)
+    }
+    /// The flow card's title on a recorded day: nothing on it is live.
+    static var titleRecorded: LocalizedStringResource {
+      LocalizedStringResource("flow.titleRecorded",
+        defaultValue: "Flow · screeners → strategy → risk → order → broker stop",
         bundle: L10n.bundle)
     }
     static var recorded: LocalizedStringResource {
@@ -1956,9 +1962,9 @@ enum L10n {
         defaultValue: "No bars were recorded on this day, so the Chart has nothing to show.",
         bundle: L10n.bundle)
     }
-    /// Stat card: the day's gross result.
+    /// Stat card: the day's result after the broker's fees (before them while fees are unread).
     static var resultGross: LocalizedStringResource {
-      LocalizedStringResource("trades.resultGross", defaultValue: "Result · gross", bundle: L10n.bundle)
+      LocalizedStringResource("trades.resultGross", defaultValue: "Result", bundle: L10n.bundle)
     }
     /// Stat card: number of trades.
     static var trades: LocalizedStringResource {
@@ -2153,6 +2159,10 @@ enum L10n {
     /// Repeats of one refusal on one symbol: first and last time, and how many.
     static func repeatRange(_ first: String, _ last: String, _ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("trades.repeatRange", defaultValue: "\(first)–\(last) · ×\(count)", bundle: L10n.bundle)
+    }
+    /// Repeats of one refusal on one symbol, all within one minute: the time and how many.
+    static func repeatAt(_ time: String, _ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("trades.repeatAt", defaultValue: "\(time) · ×\(count)", bundle: L10n.bundle)
     }
     /// Tooltip of a clean day's mark.
     static var cleanDay: LocalizedStringResource {
@@ -2356,7 +2366,7 @@ enum L10n {
     }
     /// Planned button: replay with another strategy.
     static var whatIfStrategy: LocalizedStringResource {
-      LocalizedStringResource("trades.whatIfStrategy", defaultValue: "Another Strategy…", bundle: L10n.bundle)
+      LocalizedStringResource("trades.whatIfStrategy", defaultValue: "Another strategy", bundle: L10n.bundle)
     }
     /// Tooltip of the Another Strategy button.
     static var anotherHelp: LocalizedStringResource {
@@ -3271,9 +3281,9 @@ enum L10n {
     static var shownDayTrades: LocalizedStringResource {
       LocalizedStringResource("lab.shownDayTrades", defaultValue: "Trades", bundle: L10n.bundle)
     }
-    /// The shown day gross result of the active version.
+    /// The shown day's result of the active version, after the broker's fees.
     static var shownDayResult: LocalizedStringResource {
-      LocalizedStringResource("lab.shownDayResult", defaultValue: "Result · gross", bundle: L10n.bundle)
+      LocalizedStringResource("lab.shownDayResult", defaultValue: "Result", bundle: L10n.bundle)
     }
   }
   enum MenuBar {

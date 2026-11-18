@@ -86,7 +86,7 @@ struct MonthCalendar: View {
     let index = months.firstIndex(of: shown)
     let previous = index.flatMap { months.indices.contains($0 + 1) ? months[$0 + 1] : nil }
     let next = index.flatMap { $0 > 0 ? months[$0 - 1] : nil }
-    let total = monthTotal(shown)
+    let total = DayCalendar.total(of: shown, days: model.days)
     return HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       if let first = shown.firstDay {
         CardLabel(L10n.Trades.monthLabel(first.formatted(.dateTime.month(.wide).year())))
@@ -118,15 +118,9 @@ struct MonthCalendar: View {
     }
   }
 
-  /// Sum of the month's recorded day results; nil when the month has none.
   /// A month arrow: the chevron in `textQuaternary`, dimmed while it leads nowhere.
   private func arrow(_ symbol: String) -> some View {
     Image(systemName: symbol).foregroundStyle(Palette.textQuaternary).dimmedWhenDisabled()
-  }
-
-  private func monthTotal(_ shown: DayCalendar.Month) -> Decimal? {
-    let results = model.days.filter { DayCalendar.Month($0.day) == shown }.map(\.resultUsd.value)
-    return results.isEmpty ? nil : results.reduce(0, +)
   }
 
   private func select(_ day: WireDate) {

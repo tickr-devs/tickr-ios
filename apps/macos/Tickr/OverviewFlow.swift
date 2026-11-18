@@ -27,6 +27,19 @@ enum FlowStages {
     case nil: return Reconcile(value: nil, note: latest?.agreementCauseText)
     }
   }
+
+  /// A recorded day's reconcile stage, from its clean-day verdict (the bot keeps only the latest
+  /// reconciliation, so the day's flow has none): a mismatch the journal recorded, else a match
+  /// when the day had reconciliation passes; unknown, with the cause, while the verdict is.
+  static func reconcile(recorded clean: CleanDay) -> Reconcile {
+    if clean.causes.contains(where: { $0.kind == .reconcileMismatch }) {
+      return Reconcile(value: String(localized: L10n.Screener.mismatch), note: nil, agrees: false)
+    }
+    guard clean.verdict != .unknown, clean.reconcileRows > 0 else {
+      return Reconcile(value: nil, note: ApiText.prose(clean.causeCodes, text: clean.cause))
+    }
+    return Reconcile(value: String(localized: L10n.Flow.match), note: nil, agrees: true)
+  }
 }
 
 /// The symbols the screeners returned today, scrolling across the top of the live flow as in the
@@ -484,5 +497,16 @@ private struct FastMoverRow: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
     .accessibilityElement(children: .combine)
+  }
+}
+
+extension AppModel {
+  /// The shown day's reconcile stage: live fences and the latest reconciliation today; a
+  /// recorded day's clean-day verdict otherwise (its flow carries no reconciliation).
+  var shownReconcile: FlowStages.Reconcile {
+    if !isLive, let clean = days.first(where: { $0.day == shownDay })?.clean {
+      return FlowStages.reconcile(recorded: clean)
+    }
+    return FlowStages.reconcile(liveFences: isLive ? status?.fences : nil, latest: flow?.reconcile)
   }
 }

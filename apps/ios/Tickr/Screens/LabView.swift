@@ -86,7 +86,8 @@ struct LabView: View {
         .tickrCard()
         .rise(step: Order.active.rawValue)
 
-        VersionsCard(curves: curves(active), missing: missing, end: active.end(now: model.botNow, today: model.today))
+        VersionsCard(curves: curves(active), missing: missing, end: active.end(now: model.botNow, today: model.today),
+          live: model.isLive)
           .rise(step: Order.versions.rawValue)
         LabReplayCard(lab: lab, url: model.connection.url)
           .rise(step: Order.replay.rawValue)

@@ -403,7 +403,7 @@ private struct LiveFlowCard: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
-    Card(L10n.Flow.title) {
+    Card(model.isLive ? L10n.Flow.title : L10n.Flow.titleRecorded) {
       // Live: a green dot and the New York time of the bot's last status write, as in the design.
       if model.isLive, let written = model.status?.writtenAt.date {
         HStack(spacing: Tokens.Space.xs) {
@@ -495,9 +495,7 @@ extension LiveFlowCard {
     model.symbols?.stages.first { $0.stage == stage }.map { String(localized: word($0.count)) }
   }
 
-  fileprivate var reconcile: FlowStages.Reconcile {
-    FlowStages.reconcile(liveFences: model.isLive ? model.status?.fences : nil, latest: model.flow?.reconcile)
-  }
+  fileprivate var reconcile: FlowStages.Reconcile { model.shownReconcile }
 }
 
 extension Board.Event.Tone {
@@ -1452,7 +1450,7 @@ private struct RiskRoomCard: View {
       VStack(spacing: Tokens.Space.s) {
         StatLine(L10n.RiskRoom.netResult, value: Money.signedUSD(model.shownResult), color: Palette.result(model.shownResult))
         StatLine(L10n.RiskRoom.limit, value: model.settings.map { Money.usd($0.risk.maxDailyLossUsd.value) } ?? Format.missing)
-        let records = FlowStages.reconcile(liveFences: nil, latest: model.flow?.reconcile)
+        let records = model.shownReconcile
         StatLine(L10n.RiskRoom.recordsAgree, value: records.value ?? Format.missing,
           color: records.agrees.map { $0 ? Palette.profitText : Palette.warningText } ?? Palette.textQuaternary)
           .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))

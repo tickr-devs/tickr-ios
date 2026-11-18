@@ -35,4 +35,29 @@ struct FlowStagesTests {
     #expect(stage.agrees == nil)
     #expect(FlowStages.reconcile(liveFences: nil, latest: nil) == .init(value: nil, note: nil))
   }
+
+  /// A recorded day's clean-day verdict, with `causes` as JSON.
+  private func clean(_ verdict: String, rows: Int, causes: String = "[]") throws -> CleanDay {
+    let json = """
+      {"verdict": "\(verdict)", "cause": null, "causes": \(causes), "reconcile_rows": \(rows),
+       "first_reconcile_at": null, "last_reconcile_at": null, "day_end_seq": 1}
+      """
+    return try Wire.decoder().decode(CleanDay.self, from: Data(json.utf8))
+  }
+
+  @Test("A recorded clean day with reconciliation passes reads as a match, not a bare dash")
+  func recordedMatch() throws {
+    let stage = FlowStages.reconcile(recorded: try clean("clean", rows: 3))
+    #expect(stage == .init(value: String(localized: L10n.Flow.match), note: nil, agrees: true))
+  }
+
+  @Test("A recorded mismatch reads as a mismatch; a day with no pass or no verdict stays unknown")
+  func recordedOther() throws {
+    let mismatch = """
+      [{"kind": "reconcile_mismatch", "text": "positions differ", "journal_seqs": [7]}]
+      """
+    #expect(FlowStages.reconcile(recorded: try clean("not_clean", rows: 3, causes: mismatch)).agrees == false)
+    #expect(FlowStages.reconcile(recorded: try clean("clean", rows: 0)).value == nil)
+    #expect(FlowStages.reconcile(recorded: try clean("unknown", rows: 3)).agrees == nil)
+  }
 }

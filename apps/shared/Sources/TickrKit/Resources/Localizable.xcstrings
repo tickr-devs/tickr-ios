@@ -10329,6 +10329,24 @@
         }
       }
     },
+    "kit.rule.base_range_atr" : {
+      "comment" : "Strategy check: base_range_atr",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Base range in ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диапазон базы в ATR"
+          }
+        }
+      }
+    },
     "kit.rule.bid_above_invalidation" : {
       "comment" : "Strategy check: bid_above_invalidation",
       "extractionState" : "manual",
@@ -10379,6 +10397,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пробой: уровень отмены ниже триггера"
+          }
+        }
+      }
+    },
+    "kit.rule.breakout_pre_breakout_distance_atr" : {
+      "comment" : "Strategy check: breakout_pre_breakout_distance_atr",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breakout: distance below trigger, ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пробой: расстояние до триггера, ATR"
           }
         }
       }
@@ -10491,6 +10527,24 @@
         }
       }
     },
+    "kit.rule.impulse_atr" : {
+      "comment" : "Strategy check: impulse_atr",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impulse in ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импульс в ATR"
+          }
+        }
+      }
+    },
     "kit.rule.position_open" : {
       "comment" : "Strategy check: position_open",
       "extractionState" : "manual",
@@ -10505,6 +10559,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Позиция открыта"
+          }
+        }
+      }
+    },
+    "kit.rule.pre_breakout_distance_atr" : {
+      "comment" : "Strategy check: pre_breakout_distance_atr",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Distance below base high, ATR"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расстояние до максимума базы, ATR"
+          }
+        }
+      }
+    },
+    "kit.rule.quantity" : {
+      "comment" : "Strategy check: quantity",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantity"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество"
           }
         }
       }
@@ -10541,6 +10631,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Относительный объём"
+          }
+        }
+      }
+    },
+    "kit.rule.relative_volume_available" : {
+      "comment" : "Strategy check: relative_volume_available",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relative volume available"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Относительный объём доступен"
           }
         }
       }
@@ -10595,6 +10703,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VWAP сессии доступен"
+          }
+        }
+      }
+    },
+    "kit.rule.sizing_risk_per_share" : {
+      "comment" : "Strategy check: sizing_risk_per_share",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk per share for sizing"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Риск на акцию для размера"
           }
         }
       }

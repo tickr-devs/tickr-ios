@@ -813,7 +813,7 @@ private struct TradeDetailCard: View {
 
   /// Accessibility id of the card, for the UI tests.
   static let id = "trades-detail"
-  /// Symbol of the "Another Strategy…" button.
+  /// Symbol of the "Another strategy" button.
   static let anotherSymbol = "arrow.triangle.branch"
 
   var body: some View {
@@ -827,6 +827,8 @@ private struct TradeDetailCard: View {
           }
           // The design's outlined button in the card's header.
           .buttonStyle(.chip(selected: true))
+          // Full label in either language, never cut.
+          .fixedSize()
           .help(Text(L10n.Trades.anotherHelp))
           .popover(isPresented: $anotherShown, arrowEdge: .bottom) {
             AnotherStrategyView(trade: trade)
@@ -939,7 +941,7 @@ private struct TradeDetailCard: View {
   }
 }
 
-/// "Another Strategy…" on one closed trade: a strategy version picked here, replayed by the API
+/// "Another strategy" on one closed trade: a strategy version picked here, replayed by the API
 /// on the trade's symbol and day (GET /trades/whatif), next to what the bot did. Simulated; the
 /// API refuses it during the session, and that reason is shown as it is.
 private struct AnotherStrategyView: View {
@@ -1142,11 +1144,14 @@ private struct SkippedRow: View {
   let group: SkippedGroup
   let showOnChart: (String) -> Void
 
-  /// "16:27" or, for repeats, "16:27–16:29 · ×3".
+  /// "16:27" or, for repeats, "16:27–16:29 · ×3"; repeats within one minute (or on one bar)
+  /// read "16:27 · ×3", never "16:27–16:27".
   private var when: String {
     let first = Format.marketMinute(group.first.at.date)
     guard group.count > 1 else { return first }
-    return String(localized: L10n.Trades.repeatRange(first, Format.marketMinute(group.latest.at.date), group.count))
+    let last = Format.marketMinute(group.latest.at.date)
+    guard last != first else { return String(localized: L10n.Trades.repeatAt(first, group.count)) }
+    return String(localized: L10n.Trades.repeatRange(first, last, group.count))
   }
 
   var body: some View {

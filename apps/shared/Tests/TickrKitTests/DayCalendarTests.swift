@@ -55,4 +55,15 @@ struct DayCalendarTests {
       DayCalendar.Month(year: 2026, month: 9),
     ])
   }
+
+  @Test("A month's total adds its recorded days only; a month with none has no total")
+  func total() throws {
+    let days = [
+      try summary("2026-11-17", result: "-19.17"),
+      try summary("2026-11-16", result: "-44.22"),
+      try summary("2026-10-30", result: "7"),
+    ]
+    #expect(DayCalendar.total(of: DayCalendar.Month(year: 2026, month: 11), days: days) == Decimal(string: "-63.39"))
+    #expect(DayCalendar.total(of: DayCalendar.Month(year: 2026, month: 12), days: days) == nil)
+  }
 }

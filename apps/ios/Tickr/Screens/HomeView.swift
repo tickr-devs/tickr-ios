@@ -739,7 +739,7 @@ private struct LiveFlowCard: View {
       // long ago the broker was read). At large text sizes the inputs take the line under the label.
       RowStack {
         HStack(spacing: Tokens.Space.s) {
-          CardLabel(L10n.Flow.title)
+          CardLabel(recorded ? L10n.Flow.titleRecorded : L10n.Flow.title)
           NavigationLink {
             RiskView()
           } label: {

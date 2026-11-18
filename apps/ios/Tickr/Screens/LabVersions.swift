@@ -21,6 +21,8 @@ struct VersionsCard: View {
   let missing: [String]
   /// Where every line ends: now on a live day, the last close on a past one.
   let end: Date
+  /// Today, as it trades: the title says "Today" and the note "live"; a recorded day says neither.
+  let live: Bool
 
   private func color(_ curve: VersionCurve) -> Color {
     guard curve.observer, let index = curves.filter(\.observer).firstIndex(of: curve) else { return Palette.accent }
@@ -34,9 +36,9 @@ struct VersionsCard: View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       // The label, then its note; the note goes under it at large text sizes.
       RowStack {
-        CardLabel(L10n.Lab.versions)
+        CardLabel(live ? L10n.Lab.versions : L10n.Lab.versionsOnDay)
         Spacer()
-        Text(L10n.Lab.noOrders)
+        Text(live ? L10n.Lab.noOrders : L10n.Lab.noOrdersOnDay)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }

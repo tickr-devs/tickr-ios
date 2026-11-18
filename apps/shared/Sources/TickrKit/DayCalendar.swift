@@ -45,6 +45,13 @@ public enum DayCalendar {
     public var id: WireDate { day }
   }
 
+  /// The sum of `month`'s recorded day results (each day's `resultUsd`); nil when the bot
+  /// recorded no day of it. Both apps show it beside the calendar's month.
+  public static func total(of month: Month, days: [DaySummary]) -> Decimal? {
+    let results = days.filter { Month($0.day) == month }.map(\.resultUsd.value)
+    return results.isEmpty ? nil : results.reduce(0, +)
+  }
+
   /// The weeks of `month`, Monday to Friday. A week starts on its Monday; the slots before the
   /// month's first weekday and after its last are nil.
   public static func weeks(of month: Month, days: [DaySummary]) -> [[Cell?]] {

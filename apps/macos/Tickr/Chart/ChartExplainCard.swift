@@ -133,9 +133,11 @@ private struct CheckRow: View {
         .foregroundStyle(Palette.textSecondary)
         .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: Tokens.Space.xs)
+      // A number is never broken over two lines ("120,226,776.1" / "3"): the rule's words wrap.
       Text(verbatim: check.measured.map { CheckValue.text($0.value) } ?? Format.missing)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
+        .fixedSize()
     }
     .help(Text(verbatim: help))
     .accessibilityElement(children: .combine)
