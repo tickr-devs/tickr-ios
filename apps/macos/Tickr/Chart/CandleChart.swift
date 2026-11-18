@@ -25,6 +25,9 @@ struct CandleChart: View {
   /// The pointer state, for the shared axis and crosshair of every pane.
   var pointerModel: ChartPointer { pointer }
   @State private var appeared = false
+  /// The stretch of time the price pane really draws across its plot, read from its own chart
+  /// (`ShownWindow`); every pane below takes this as its time scale.
+  @State var shown = ChartShownWindow()
   /// Keyboard focus, taken while a click holds the crosshair so Esc lets it go.
   @FocusState private var focused: Bool
   /// The theme on screen: the extended-hours band is stronger in dark (mockup v114).
@@ -580,7 +583,7 @@ struct CandleChart: View {
   /// month or quarter.
   @AxisContentBuilder private func rangeTimeAxis(labels: Bool) -> some AxisContent {
     let marks = rangeMarks
-    let shown = windowDomain
+    let shown = paneDomain
     let byMiddle = Dictionary(marks.compactMap { mark in plot.index(at: mark.time).map { (candles[$0].middle, mark) } },
       uniquingKeysWith: { first, _ in first })
     if labels {
@@ -633,9 +636,10 @@ struct CandleChart: View {
   /// The session axis's labels on screen, placed in order (sessions, the end, round times) so
   /// none overlaps another; a session label too wide for its room takes its short form.
   private var sessionMarks: [ChartAxisMark] {
-    guard let sessions = plot.sessions, plotWidth > 0, visibleLength > 0 else { return [] }
-    let shown = windowDomain
-    let perSecond = Double(plotWidth) / visibleLength
+    let shown = paneDomain
+    let length = shown.upperBound.timeIntervalSince(shown.lowerBound)
+    guard let sessions = plot.sessions, plotWidth > 0, length > 0 else { return [] }
+    let perSecond = Double(plotWidth) / length
     let step = SessionAxis.hourStep(
       timeframe: series.timeframe, pointsPerSlot: series.timeframe.seconds * perSecond,
       least: Double(Tokens.Chart.hourLabelSpacing))
@@ -721,7 +725,7 @@ struct CandleChart: View {
   /// The range's labels in the window, none closer than `timeLabelSlot`; where a year begins
   /// wins over the month before it.
   private var rangeMarks: [ChartAxisMark] {
-    let shown = windowDomain
+    let shown = paneDomain
     let inside = plot.axisMarks.filter { shown.contains($0.time) }
     guard labelSlots > 0 else { return inside }
     let gap = visibleLength / Double(labelSlots)
@@ -828,6 +832,12 @@ struct CandleChart: View {
     return windowStart...windowStart.addingTimeInterval(visibleLength)
   }
   var zoomed: Bool { viewport.shown(total: candles.count) != nil }
+  /// The time scale of every pane below the price pane and of the time axis: what the price pane
+  /// draws, measured on its plot, so a minute (its candle, gridline and the crosshair on it) sits
+  /// at the same x in every pane. Computing the window here as well (`windowDomain`) and handing
+  /// it to the lower panes while the price pane scrolled by its own reckoning put them apart
+  /// (owner, 2026-11-18). `windowDomain` only until the price pane has been drawn once.
+  var paneDomain: ClosedRange<Date> { shown.domain ?? windowDomain }
 
   var scrollPosition: Binding<Date> {
     Binding(get: { windowStart }, set: { viewport.position = $0 })
@@ -1017,14 +1027,52 @@ extension SharedAxis {
         .chartXVisibleDomain(length: chart.visibleLength)
         .chartScrollPosition(x: chart.scrollPosition)
         .chartPlotStyle { $0.clipped() }
+        // What it really draws becomes the lower panes' time scale.
+        .chartBackground { proxy in ShownWindow(proxy: proxy, window: chart.shown) }
     } else {
       content
-        .chartXScale(domain: chart.windowDomain)
+        .chartXScale(domain: chart.paneDomain)
         .chartPlotStyle { plotArea in
           plotArea.clipped()
             .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { plotHeight?($0) })
         }
     }
+  }
+}
+
+/// The stretch of time the price pane draws across its plot, as measured there.
+@MainActor @Observable
+final class ChartShownWindow {
+  var domain: ClosedRange<Date>?
+}
+
+/// Measures the price pane's drawn time at the left and right edges of its visible plot and
+/// keeps it in `window`. A scrolling chart's plot frame is its whole scrolled content, so the
+/// visible part is where that frame meets the pane.
+struct ShownWindow: View {
+  let proxy: ChartProxy
+  let window: ChartShownWindow
+
+  var body: some View {
+    GeometryReader { geometry in
+      let measured = proxy.plotFrame.flatMap { frame in
+        Self.domain(plot: geometry[frame], bounds: geometry.size) { proxy.value(atX: $0, as: Date.self) }
+      }
+      Color.clear.onChange(of: measured, initial: true) { _, domain in
+        if let domain { window.domain = domain }
+      }
+    }
+    .allowsHitTesting(false)
+  }
+
+  /// The times at the visible plot's left and right edges; `value` reads a time at an x from the
+  /// plot frame's own left edge. Nil while nothing of the plot shows.
+  nonisolated static func domain(plot: CGRect, bounds: CGSize, value: (CGFloat) -> Date?) -> ClosedRange<Date>? {
+    let visible = plot.intersection(CGRect(origin: .zero, size: bounds))
+    guard !visible.isNull, visible.width > 0,
+      let start = value(visible.minX - plot.minX), let end = value(visible.maxX - plot.minX), start < end
+    else { return nil }
+    return start...end
   }
 }
 
