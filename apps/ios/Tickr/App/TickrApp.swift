@@ -14,6 +14,7 @@ struct TickrApp: App {
   var body: some Scene {
     WindowGroup {
       RootView()
+        .withoutScrollIndicators()
         .environment(\.risesHeld, !landed)
         .overlay {
           if opening { LaunchHandoff { landed = true } finished: { opening = false } }

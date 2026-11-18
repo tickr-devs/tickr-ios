@@ -26,6 +26,7 @@ struct ChartTab: View {
       .padding(.bottom, Tokens.Space.xl)
       .animation(Tokens.Motion.standard, value: chart.phase)
     }
+    .scrollEdgeHints()
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
     // The design starts with the symbol: no title row, the tab's name stays for VoiceOver.
@@ -447,7 +448,6 @@ private struct SymbolChips: View {
         }
       }
     }
-    .scrollIndicators(.hidden)
   }
 }
 

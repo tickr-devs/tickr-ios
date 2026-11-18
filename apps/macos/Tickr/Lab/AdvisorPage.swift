@@ -276,6 +276,7 @@ struct AdvisorPage: View {
       }
       .padding(Tokens.Space.m)
     }
+    .scrollEdgeHints()
   }
 
   private func detail(_ run: AdvisorRunV1) -> some View {
@@ -312,6 +313,7 @@ struct AdvisorPage: View {
       .padding(Tokens.Space.xl)
       .frame(maxWidth: Tokens.Size.contentMaxWidth, alignment: .leading)
     }
+    .scrollEdgeHints()
   }
 
   /// The run's state with what happened to the decision on its own line, then the buttons, so

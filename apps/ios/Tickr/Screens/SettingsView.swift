@@ -80,6 +80,7 @@ struct SettingsView: View {
       }
       .cardRise(step: Order.about.rawValue)
     }
+    .scrollEdgeFades()
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
     .listSectionSpacing(Tokens.Space.m)
@@ -266,6 +267,7 @@ private struct PairingSheet: View {
           }
         }
       }
+      .scrollEdgeFades()
       .navigationTitle(Text(L10n.Pair.title))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

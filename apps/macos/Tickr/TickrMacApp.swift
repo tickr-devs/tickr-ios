@@ -93,6 +93,7 @@ struct TickrMacApp: App {
   var body: some Scene {
     Window(String(localized: L10n.App.name), id: WindowID.main) {
       MainWindow(model: model, chart: Container.shared.chartModel())
+        .withoutScrollIndicators()
     }
     .defaultSize(width: Self.defaultWidth, height: Self.defaultHeight)
     // The design's low title bar (about 40 points) with one line in it.
@@ -106,6 +107,7 @@ struct TickrMacApp: App {
 
     Settings {
       SettingsView()
+        .withoutScrollIndicators()
         .hintHost()
         .readFailureContext(model)
         .environment(model)
@@ -114,6 +116,7 @@ struct TickrMacApp: App {
 
     MenuBarExtra(isInserted: $showMenuBarExtra) {
       MenuBarPanel()
+        .withoutScrollIndicators()
         .hintHost()
         .readFailureContext(model)
         .environment(model)

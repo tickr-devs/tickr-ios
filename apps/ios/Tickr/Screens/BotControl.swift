@@ -91,6 +91,7 @@ struct BotControl: ViewModifier {
       }
       .padding(Tokens.Space.l)
     }
+    .scrollEdgeHints()
     .background(Palette.background)
   }
 

@@ -79,6 +79,7 @@ struct ConfigView: View {
         Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.manyLines) }
       }
     }
+    .scrollEdgeFades()
     .contentMargins(.top, 0, for: .scrollContent)
     .pushedScreen(L10n.Settings.configuration)
     .task(id: model.connection.url) { await model.refreshConfig() }

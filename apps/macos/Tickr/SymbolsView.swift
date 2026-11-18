@@ -34,6 +34,7 @@ struct SymbolsView: View {
       HStack(alignment: .top, spacing: Tokens.Space.m) {
         table.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         ScrollView(.vertical) { detail }
+          .scrollEdgeHints()
           .scrollBounceBehavior(.basedOnSize)
           .frame(width: Self.detailWidth)
       }
@@ -207,6 +208,7 @@ struct SymbolsView: View {
           // One list per tab: rows of one tab never stay on screen under another tab's columns.
           .id(tab)
         }
+        .scrollEdgeHints()
         .scrollBounceBehavior(.basedOnSize)
         .focusable()
         .focusEffectDisabled()

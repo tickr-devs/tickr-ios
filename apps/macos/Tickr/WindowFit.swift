@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import TickrDesign
 
 /// The main window fits the screen it is on (owner decision 2026-11-16, option A "Окно под экран").
 ///
@@ -154,6 +155,7 @@ struct ScreenRoomFrame: ViewModifier {
           .frame(width: max(room.size.width, least.width), height: max(room.size.height, least.height),
             alignment: .topLeading)
       }
+      .scrollEdgeHints()
       // A screen that fits its room neither scrolls nor bounces here.
       .scrollBounceBehavior(.basedOnSize, axes: [.horizontal, .vertical])
     }

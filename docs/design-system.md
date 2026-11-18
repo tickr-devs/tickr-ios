@@ -454,6 +454,27 @@ profit factor with 2 decimals, win rate and confidence in whole percents.
 | Pulse dot | `PulseDot` | `Size.dot`; while `pulsing`, one ring of `pulseSeconds` each time its `event` changes (a new status read, a fill). Still without an event: nothing on screen moves except on real events |
 | Headline pill | `HeadlineBanner` (`Tokens.Headline`) | See "One meaning, one look": the pill and, beside it, the countdown and the gate badge (mockup v108) |
 
+## Scrolling
+
+No scroll indicators anywhere, on the Mac or the phone (owner, 2026-11-18). Each scene's root
+(Mac main window, Settings and menu bar panel; iPhone window) applies TickrDesign's
+`withoutScrollIndicators()` once, which hides them in every scroll view, list and form below it,
+sheets and popovers included, even with the Mac's "Always show scroll bars" setting. The
+`scrollbars` rule of `check_swift_rules.py` rejects indicators set view by view in the apps and a
+scene that does not hide them.
+
+In their place every vertical scroll view, form and list shows `scrollEdgeHints()` (owner's pick,
+variant B of the 2026-11-18 mockups, `Tokens.Scroll`): an edge with more content beyond it fades
+the content out over `fade` (72 pt iPhone, 56 pt Mac; above a bar such as the iPhone's tab bar,
+the content under the bar is hidden while more is below), and while more is below, a `surface`
+capsule with `Symbols.scrollMore` sits on the bottom edge; a click or tap scrolls 80% of the
+visible height. At the top and the end the hints fade away in 0.2 s (none with Reduce Motion).
+A screen that drives its scroll position itself passes it: `scrollEdgeHints(position:)`. A `Form`
+or `List` gets `scrollEdgeFades()`, the fades without the chevron: a scroll position cannot move a
+form (checked on the iPhone simulator), and a chevron that does nothing would be a dead control.
+The same rule rejects a file with fewer `scrollEdgeHints` calls than vertical scroll views, or
+fewer `scrollEdgeFades` calls than forms and lists.
+
 ## Loading (`Tokens.Loading`, mockup v102)
 
 Loading uses a skeleton or a spinner, never a radar: the radar is only the empty "no positions"

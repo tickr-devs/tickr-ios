@@ -42,6 +42,7 @@ struct WatchingSheet: View {
         .animation(Tokens.Motion.standard, value: rows.map(\.symbol))
         .padding(.bottom, Tokens.Space.xl)
       }
+      .scrollEdgeHints()
       .scrollBounceBehavior(.basedOnSize)
     }
     .padding([.horizontal, .top], Tokens.Space.l)

@@ -36,7 +36,7 @@ struct ChartRail: View {
         }
       }
     }
-    .scrollIndicators(.never)
+    .scrollEdgeHints()
     // A fixed least and largest size, whatever the content: a pane that reported the size of its
     // rows (wrapped texts, a spinner, then the list) resized the window's columns inside AppKit's
     // layout pass, and on macOS 27 AppKit threw ("needs another Update Constraints in Window

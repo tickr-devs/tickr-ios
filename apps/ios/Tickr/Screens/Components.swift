@@ -160,6 +160,7 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
       .padding(.horizontal, Tokens.Space.l)
       .padding(.bottom, Tokens.Space.xl)
     }
+    .scrollEdgeHints()
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
     if let tab {

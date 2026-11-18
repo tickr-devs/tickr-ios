@@ -39,6 +39,7 @@ struct AnotherStrategySheet: View {
         }
         .padding(Tokens.Space.l)
       }
+      .scrollEdgeHints()
       .background(Palette.background)
       .navigationTitle(Text(L10n.Activity.anotherTitle(symbol)))
       .navigationBarTitleDisplayMode(.inline)

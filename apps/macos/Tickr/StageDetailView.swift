@@ -26,6 +26,7 @@ struct StageDetailView: View {
         ScrollView {
           content
         }
+        .scrollEdgeHints()
         .scrollBounceBehavior(.basedOnSize)
         .frame(maxHeight: Self.maxHeight)
         .fixedSize(horizontal: false, vertical: true)

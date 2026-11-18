@@ -149,6 +149,7 @@ struct OverviewView: View {
           .environment(\.overviewLayout,
             Self.layout(gridWidth: viewport.size.width - Self.padding * CardArrangement.paddedEdges))
         }
+        .scrollEdgeHints()
         // Also when the cards below grow: until they load, the page can be too short to bring the
         // card to the top.
         .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, _ in
@@ -834,7 +835,6 @@ private struct PositionsCard: View {
             tabs(rows, shown: shown, results: true)
             tabs(rows, shown: shown, results: false)
             ScrollView(.horizontal) { tabs(rows, shown: shown, results: false) }
-              .scrollIndicators(.never)
           }
         }
         HeaderLink(L10n.Position.openChart, systemImage: AppSection.chartSymbol) {

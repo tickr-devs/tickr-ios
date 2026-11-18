@@ -119,7 +119,6 @@ struct SymbolsView: View {
         }
         .frame(height: UnderlineTab.phoneHeight)
       }
-      .scrollIndicators(.hidden)
       .overlay(alignment: .bottom) { Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin) }
       .onAppear { proxy.scrollTo(tab.id, anchor: .center) }
     }

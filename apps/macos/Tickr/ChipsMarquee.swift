@@ -51,7 +51,7 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
       if moving && !reduceMotion {
         marquee
       } else {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
           // Lazy: only the chips in view are built.
           LazyHStack(spacing: Self.spacing) {
             ForEach(items, id: \.self) { item in

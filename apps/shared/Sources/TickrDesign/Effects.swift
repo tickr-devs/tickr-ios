@@ -278,7 +278,7 @@ public struct Marquee<Row: View>: View {
         .clipped()
         .task(id: pictureKey) { draw() }
       } else {
-        ScrollView(.horizontal, showsIndicators: false) { row }
+        ScrollView(.horizontal) { row }
       }
     }
     .mask(LinearGradient(

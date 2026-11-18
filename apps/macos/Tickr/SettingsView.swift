@@ -35,7 +35,7 @@ struct SettingsView: View {
           .padding(Tokens.Space.l)
           .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
       }
-      .scrollPosition($scroll)
+      .scrollEdgeHints(position: $scroll)
       .scrollBounceBehavior(.basedOnSize)
       .frame(height: min(max(contentHeight, 1), Self.maxPaneHeight))
       .onChange(of: tab) { _, _ in scroll.scrollTo(edge: .top) }

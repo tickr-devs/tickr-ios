@@ -29,6 +29,7 @@ struct StageDetailView: View {
     ViewThatFits(in: .vertical) {
       content
       ScrollView { content }
+        .scrollEdgeHints()
     }
     // Its content's width up to the token, narrower where the screen is: it wraps, never clips.
     .frame(idealWidth: Tokens.Size.popover, maxWidth: Tokens.Size.popover)
