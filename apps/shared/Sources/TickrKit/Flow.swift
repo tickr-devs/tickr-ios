@@ -84,26 +84,6 @@ public struct FlowStageV1: Codable, Hashable, Sendable {
   public let symbols: [String]
 }
 
-/// What the flow knows about a trade's broker-side stop: confirmed by the broker, waiting for
-/// confirmation, never confirmed before the trade ended, or not known.
-public enum FlowStopState: String, Codable, Sendable {
-  case verified, pending
-  case neverVerified = "never_verified"
-  case unknown
-}
-
-/// One trade of the day and the state of its broker-side stop.
-public struct FlowStopV1: Codable, Hashable, Sendable {
-  public let tradeId: String
-  public let symbol: String
-  public let state: FlowStopState
-
-  enum CodingKeys: String, CodingKey {
-    case symbol, state
-    case tradeId = "trade_id"
-  }
-}
-
 public enum Agreement: String, Codable, Sendable {
   case match, mismatch
 }
