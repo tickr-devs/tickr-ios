@@ -198,7 +198,8 @@ struct SymbolsView: View {
     return VStack(alignment: .leading, spacing: 0) {
       LazyVStack(alignment: .leading, spacing: 0) {
         if loading {
-          // Two-line rows in the rows' own columns and padding (mockup v102).
+          // Two-line rows in the rows' own columns and padding (mockup v102); the rows take
+          // their place at once (`loadsInPlace` below).
           Skeleton(L10n.Common.loading) {
             VStack(alignment: .leading, spacing: 0) {
               ForEach(0..<SymbolsSkeleton.rows, id: \.self) { index in
@@ -234,6 +235,7 @@ struct SymbolsView: View {
         .overlay(alignment: .top) { Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin) }
     }
     .tickrCard()
+    .loadsInPlace(!loading)
     .accessibilityElement(children: .contain)
   }
 
@@ -470,6 +472,7 @@ struct FastMoversCard: View {
         CardFooterLink(L10n.FastMovers.showAll, count: movers.movers.count) { showsAll = true }
       }
     }
+    .loadsInPlace(movers != nil || failure != nil)
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard()

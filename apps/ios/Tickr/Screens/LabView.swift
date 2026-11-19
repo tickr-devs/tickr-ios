@@ -101,6 +101,8 @@ struct LabView: View {
           .rise(step: Order.later.rawValue)
       }
     }
+    // A recorded day's cards take its skeleton's place without rising (design-system "Loading").
+    .loadsInPlace(model.isLive || lab.pastDay?.day == model.shownDay || lab.pastDayFailure != nil)
     .task(id: sessionKey) { await load() }
     .refreshable {
       await model.refresh()

@@ -59,7 +59,8 @@ private struct RiskCard<Content: View>: View {
 /// A label with its value on the right.
 private struct RiskLine: View {
   let label: LocalizedStringResource
-  let value: String
+  /// The value; nil while it is read, when a sample of its length stands as skeleton.
+  let value: String?
   var color: Color = Palette.textPrimary
 
   var body: some View {
@@ -70,11 +71,12 @@ private struct RiskLine: View {
         .foregroundStyle(Palette.textTertiary)
         .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: Tokens.Space.s)
-      Text(verbatim: value)
+      Text(verbatim: value ?? Money.price(SkeletonSample.price))
         .font(Tokens.Typography.calloutMono)
         .foregroundStyle(color)
         .contentTransition(.numericText())
         .fixedSize(horizontal: false, vertical: true)
+        .skeleton(value == nil)
     }
     .accessibilityElement(children: .combine)
   }
@@ -125,6 +127,8 @@ private struct AccountCard: View {
   let failure: String?
 
   private var account: AccountV1? { response?.account }
+  /// The account is being read for the first time.
+  private var loading: Bool { response == nil && failure == nil }
 
   var body: some View {
     RiskCard(title: L10n.Risk.account, tint: response?.stale == true ? Palette.warning : nil) {
@@ -156,9 +160,18 @@ private struct AccountCard: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(b.marginCalls > 0 ? Palette.warningText : Palette.textQuaternary)
           .fixedSize(horizontal: false, vertical: true)
+      } else if loading {
+        // The equity and the lines in their places while the account is read, values as skeleton.
+        Text(verbatim: RiskFormat.amount(Decimal(SkeletonSample.price)))
+          .font(Tokens.Typography.metric)
+          .skeleton(true, .value)
+        ForEach([L10n.Risk.cash, L10n.Risk.buyingPower, L10n.Risk.overnightBuyingPower, L10n.Risk.positionsValue,
+          L10n.Risk.unrealized, L10n.Risk.dayResult], id: \.key) { label in
+          RiskLine(label: label, value: nil)
+        }
       }
       // Above the lists, so the fills' "Show all" ends the card.
-      if account?.balances == nil {
+      if account?.balances == nil, !loading {
         Text(failure == nil || response != nil ? L10n.Risk.balanceNote : L10n.Risk.accountUnavailable)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
@@ -313,18 +326,18 @@ private struct LimitsCard: View {
 
   var body: some View {
     RiskCard(title: L10n.Risk.limits) {
-      if let risk {
-        RiskLine(label: L10n.Risk.plannedLoss, value: RiskFormat.amount(risk.plannedLossUsd.value))
-        RiskLine(label: L10n.Risk.notionalCap, value: RiskFormat.amount(risk.positionNotionalCapUsd.value))
-        RiskLine(label: L10n.Risk.limit, value: RiskFormat.amount(risk.maxDailyLossUsd.value))
-        RiskLine(label: L10n.Risk.minRoom, value: RiskFormat.amount(risk.minDailyRoomUsd.value))
-        RiskLine(label: L10n.Risk.openPositions, value: String(risk.maxOpenPositions))
-        RiskLine(label: L10n.Risk.quoteAge,
-          value: String(localized: L10n.Risk.seconds(Money.plain(risk.maxQuoteAgeSeconds.value, fractionDigits: 0))))
-      } else if let failure {
+      if risk == nil, let failure {
         ReadFailureNote(L10n.Risk.settingsFailed, detail: failure)
       } else {
-        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.manyRows) }
+        // The lines in their places from the start, each value as skeleton until it is read.
+        RiskLine(label: L10n.Risk.plannedLoss, value: risk.map { RiskFormat.amount($0.plannedLossUsd.value) })
+        RiskLine(label: L10n.Risk.notionalCap, value: risk.map { RiskFormat.amount($0.positionNotionalCapUsd.value) })
+        RiskLine(label: L10n.Risk.limit, value: risk.map { RiskFormat.amount($0.maxDailyLossUsd.value) })
+        RiskLine(label: L10n.Risk.minRoom, value: risk.map { RiskFormat.amount($0.minDailyRoomUsd.value) })
+        RiskLine(label: L10n.Risk.openPositions, value: risk.map { String($0.maxOpenPositions) })
+        RiskLine(label: L10n.Risk.quoteAge, value: risk.map {
+          String(localized: L10n.Risk.seconds(Money.plain($0.maxQuoteAgeSeconds.value, fractionDigits: 0)))
+        })
       }
     }
   }

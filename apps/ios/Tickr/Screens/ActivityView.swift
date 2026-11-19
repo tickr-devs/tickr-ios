@@ -60,9 +60,10 @@ struct ActivityView: View {
       }
     }
     // Another pane or day replaces the one shown at once: a crossfade laid one pane's words over
-    // the other's. The calendar still slides and a loaded day still fades in over its skeleton.
+    // the other's. The calendar still slides; a loaded day takes its skeleton's place at once,
+    // without fading or rising (design-system "Loading").
     .animation(Tokens.Motion.standard, value: showsCalendar)
-    .animation(Tokens.Motion.standard, value: activity.phase)
+    .loadsInPlace(activity.selectedDay == nil || activity.day != nil)
     .jumps(on: section)
     .jumps(on: activity.selectedDay)
     .task(id: model.connection.url) {
@@ -978,6 +979,15 @@ private struct NotTaken: View {
   @State private var arrived: Set<String> = []
 
   var body: some View {
+    // One view, so the rows remember that a skeleton stood there (`loadsInPlace`).
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      list
+    }
+    .loadsInPlace(groups != nil || failure != nil)
+  }
+
+  @ViewBuilder
+  private var list: some View {
     if let groups {
       // A failed refresh after a good read: the rows stay, marked as the last read.
       if let failure {

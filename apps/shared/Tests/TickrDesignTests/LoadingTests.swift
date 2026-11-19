@@ -21,7 +21,33 @@ import Testing
     #expect(SkeletonBlock(.pill).height == Tokens.Loading.pillHeight)
     #expect(SkeletonBlock(.pill).radius == Tokens.Loading.pillRadius)
     #expect(SkeletonBlock(.block(height: 4)).radius == 2)
+    #expect(SkeletonBlock(.fill).height == nil)
+    #expect(SkeletonBlock(.fill).radius == Tokens.Loading.pillRadius)
   }
+
+  #if canImport(AppKit)
+  @Test("A view standing for itself as skeleton keeps its own size")
+  func skeletonKeepsSize() {
+    let text = Text(verbatim: Money.price(SkeletonSample.price)).font(Tokens.Typography.quote)
+    let shown = NSHostingView(rootView: text).fittingSize
+    let loading = NSHostingView(rootView: text.skeleton(true, .value)).fittingSize
+    #expect(loading == shown)
+  }
+
+  @Test("A loading slot's swap keeps the place's size when the skeleton is the content's size")
+  func slotKeepsSize() {
+    let size = CGSize(width: 120, height: 48)
+    func slot(_ value: Int?) -> some View {
+      LoadingSlot(value) { _ in
+        Color.clear.frame(width: size.width, height: size.height)
+      } placeholder: {
+        Skeleton(nil) { SkeletonBlock(.fill) }.frame(width: size.width, height: size.height)
+      }
+    }
+    #expect(NSHostingView(rootView: slot(nil)).fittingSize == size)
+    #expect(NSHostingView(rootView: slot(1)).fittingSize == size)
+  }
+  #endif
 
   @Test("The band sweeps as CSS background-position 120% to -20% over a 250% image")
   func shimmerOffsets() {

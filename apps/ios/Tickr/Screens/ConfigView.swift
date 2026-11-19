@@ -79,6 +79,8 @@ struct ConfigView: View {
         Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.manyLines) }
       }
     }
+    // The tables take the skeleton's place without rising in (design-system "Loading").
+    .loadsInPlace(model.config != nil || model.configError != nil)
     .scrollEdgeFades()
     .contentMargins(.top, 0, for: .scrollContent)
     .pushedScreen(L10n.Settings.configuration)

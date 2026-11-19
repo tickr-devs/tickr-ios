@@ -236,6 +236,8 @@ struct WatchingCard: View {
         Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows, badge: true) }
       }
     }
+    // The rows take the skeleton's place without rising (design-system "Loading").
+    .loadsInPlace(model.watching != nil || model.watchingError != nil)
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
   }
@@ -458,6 +460,7 @@ struct FastMoversCard: View {
         Skeleton(L10n.Common.loading) { SkeletonRows(Self.rowCap) }
       }
     }
+    .loadsInPlace(model.movers != nil || model.moversError != nil)
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
   }

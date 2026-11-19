@@ -94,6 +94,9 @@ public struct SkeletonBlock: View {
     case pill
     /// A block of its own height (a glyph, a sparkline, a candle), radius `Loading.blockRadius`.
     case block(height: CGFloat)
+    /// A block as tall as the view it stands for (a chip, a button), radius `Loading.pillRadius`;
+    /// used with `View.skeleton(_:_:)`.
+    case fill
   }
 
   let kind: Kind
@@ -112,15 +115,18 @@ public struct SkeletonBlock: View {
     RoundedRectangle(cornerRadius: radius, style: .continuous)
       .fill(Self.fill)
       .frame(width: width, height: height)
-      .frame(maxWidth: width == nil ? .infinity : nil, alignment: .leading)
+      .frame(maxWidth: width == nil ? .infinity : nil, maxHeight: height == nil ? .infinity : nil,
+        alignment: .leading)
   }
 
-  var height: CGFloat {
+  /// The block's height; nil fills the height it is offered (`fill`).
+  var height: CGFloat? {
     switch kind {
     case .line: Tokens.Loading.lineHeight
     case .value: Tokens.Loading.valueHeight
     case .pill: Tokens.Loading.pillHeight
     case .block(let height): height
+    case .fill: nil
     }
   }
 
@@ -128,7 +134,7 @@ public struct SkeletonBlock: View {
     switch kind {
     case .line: Tokens.Loading.lineRadius
     case .value: Tokens.Loading.blockRadius
-    case .pill: Tokens.Loading.pillRadius
+    case .pill, .fill: Tokens.Loading.pillRadius
     case .block(let height): min(Tokens.Loading.blockRadius, height / 2)
     }
   }

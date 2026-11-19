@@ -61,12 +61,15 @@ extension View {
 public struct Rise: ViewModifier {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.risesHeld) private var held
+  @Environment(\.arrivesInPlace) private var inPlace
   @State private var shown = false
   let delay: Double
 
   public func body(content: Content) -> some View {
-    let isShown = shown
-    let still = reduceMotion
+    // Content that takes a skeleton's place (`LoadingSlot`) shows at once, where the skeleton
+    // was: a rise there read as the loader jumping (owner, 2026-11-19).
+    let isShown = shown || inPlace
+    let still = reduceMotion || inPlace
     // Applied when drawing, not in layout: animated as plain opacity and offset, each frame of the
     // entrance laid out the whole screen again (Risk's six cards: 19 to 27 hitches on the first
     // open, Instruments 2026-11-15).
@@ -90,6 +93,10 @@ public extension EnvironmentValues {
   /// Holds every `rise` below it until cleared: the macOS opening sets it while its mark covers
   /// the screen, so the cards rise as the mark flies off, as the design times them.
   @Entry var risesHeld = false
+
+  /// Set by `LoadingSlot` on the content that replaces its skeleton: every `rise` inside shows at
+  /// once, in place, instead of fading in and rising.
+  @Entry var arrivesInPlace = false
 }
 
 public extension View {

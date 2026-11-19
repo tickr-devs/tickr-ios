@@ -244,24 +244,16 @@ struct ChartView: View {
   private var header: some View {
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
       symbolMenu
+      // While the bars load the price, change and readout keep their places and sizes: sample
+      // values in the real fonts, drawn as skeleton blocks (`View.skeleton`), so nothing in the
+      // header moves when the bars arrive (owner, 2026-11-19).
       if loadingBars {
-        // Nothing real until the bars are read: the price, change and readout as skeleton blocks.
-        Skeleton(nil) {
-          HStack(spacing: Tokens.Space.s) {
-            SkeletonBlock(.pill, width: Self.skeletonQuote)
-            SkeletonBlock(.line, width: Self.skeletonChange)
-          }
-        }
-        .fixedSize()
-        Spacer(minLength: Tokens.Space.m)
-        Skeleton(nil) {
-          HStack(spacing: Tokens.Space.m) {
-            ForEach(Array(Self.skeletonReadout.enumerated()), id: \.offset) { _, width in
-              SkeletonBlock(.line, width: width)
-            }
-          }
-        }
-        .fixedSize()
+        Text(verbatim: Money.price(SkeletonSample.price))
+          .font(Tokens.Typography.quote)
+          .skeleton(true, .value)
+        Text(verbatim: Percent.signed(fraction: SkeletonSample.change))
+          .font(Tokens.Typography.calloutMono)
+          .skeleton(true)
       }
       if !loadingBars, let last = plot?.candles.last {
         // The live bid where the bot's quotes have one, else the last closed candle's close.
@@ -284,15 +276,19 @@ struct ChartView: View {
       if let plot {
         ChartReadout(plot: plot, pointer: pointer)
           .layoutPriority(-1)
+      } else if loadingBars {
+        // The readout's figures (time, open, high, low, close, volume) in its font.
+        HStack(spacing: Tokens.Space.m) {
+          ForEach(0..<SkeletonSample.readoutFigures, id: \.self) { _ in
+            Text(verbatim: Money.price(SkeletonSample.price))
+              .skeleton(true)
+          }
+        }
+        .font(Tokens.Typography.annotation)
+        .fixedSize()
       }
     }
   }
-
-  /// Widths of the header's skeleton blocks while the bars load, in points: the last price, the
-  /// day's change and the readout's figures (time, open, high, low, close, volume), as the board.
-  static let skeletonQuote: CGFloat = 68
-  static let skeletonChange: CGFloat = 58
-  static let skeletonReadout: [CGFloat] = [36, 52, 52, 52, 52, 44]
 
   /// Whether the shown symbol's bars are being read (nothing of them is on screen yet).
   private var loadingBars: Bool {
@@ -621,7 +617,6 @@ struct ChartView: View {
             PendingLine(pending: pending)
           }
         }
-        .transition(.opacity)
     } else if symbol == nil && model.connectionState.isNeverConnected {
       // Nothing was ever read: not "nothing to chart", which says the day is empty.
       OfflineOutline(Tokens.Loading.manyLines)

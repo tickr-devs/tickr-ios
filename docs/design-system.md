@@ -483,10 +483,23 @@ rule of `check_swift_rules.py` rejects anything else in the apps: `ProgressView`
 (removed), `.redacted(reason: .placeholder)`, a `…Shimmer…`, `…Spinner…` or `…Loader…` type of
 an app's own, and a radar outside the empty-positions state.
 
+**Nothing moves when data arrives** (owner, 2026-11-19, after jerky loaders on the iPhone Chart).
+A skeleton sits in the same place of the screen's layout as the content it stands for and has
+its size: the same cards, rows, row heights and pane heights, never a separate layout of its own
+that the content then replaces. Where a value or a line of text loads inside a laid-out view,
+the view stands for itself: `.skeleton(_:_:)` lays it out with a sample value (`SkeletonSample`)
+and draws a skeleton block in its place, so labels stay real and only the values shimmer. The
+swap is instant: no cross-fade, no `rise`, no slide. `LoadingSlot` holds one place (skeleton,
+then content); `.loadsInPlace(_:)` marks a screen, card or `Form` whose content replaces a
+skeleton, so its `rise`s show at once once the skeleton has been on screen. A re-read keeps the
+content on screen and never goes back to the skeleton; controls around the loading content
+(toolbars, pickers) stay in place and live.
+
 | Piece | Component | Rule |
 |---|---|---|
+| Where it loads | `LoadingSlot`, `.skeleton(_:_:)`, `.loadsInPlace(_:)` | See the rule above: the skeleton in the content's place and size, the swap instant, a re-read never back to skeleton |
 | Content loading | `Skeleton` + `SkeletonBlock`, `SkeletonGridLine`, and the shapes `SkeletonLines`, `SkeletonRows`, `SkeletonTiles`, `SkeletonCandles`, `SkeletonPane`, `SkeletonTimeAxis` | The shape of the real layout, in its own frame and column grid; nothing real is shown until the data is ready. Blocks: `separatorStrong` mixed 60% into `surfaceSunken`, radius 5; a text line 9 high (radius 4), a value 16, a pill 20 (radius 6). Grid lines `separator` at 45%. Shimmer: a 110° band, clear → `textPrimary` at 5% → clear (stops 35/50/65%) over 250% of the width, sweeping from 120% to −20% in 1.6 s ease-in-out, again and again. Reduce Motion: no sweep; the skeleton pulses 1 → 0.6 → 1 over 2.4 s. One VoiceOver element, "Loading…" (or the Chart's caption) |
-| Chart loading (both apps) | `LoadingChart` of each app | The axis grid, a faint candle silhouette, the price and time axes, every enabled study pane, and the header's price, change and OHLC (Mac) or day's high, low and volume (iOS) as skeleton; the toolbar stays live; "Loading ABCD · 1 min bars" in the plot's top left |
+| Chart loading (both apps) | `LoadingChart` of each app | The axis grid, a faint candle silhouette, the price and time axes and every enabled study pane, in the chart's own card and pane heights; the header's price, change and OHLC (Mac) or the bar's symbol, price, change and day's high, low and volume (iOS) as `.skeleton` of themselves in their places; the toolbar (Mac) and the controls under the chart (iOS) stay live; "Loading ABCD · 1 min bars" in the plot's top left (Mac) or on the readout's line (iOS) |
 | Symbols loading | each app's `SymbolsSkeleton` | Mac: 18 skeleton rows in the rows' column grid and a skeleton detail card; iOS: 9 two-line rows |
 | Command in flight | `.inFlight(_:)` on a `.command` or `.action` button | `Spinner` in the glyph's place (Mac 16 pt / 2 pt stroke, iOS 20 pt / 2.5 pt; track `textTertiary` at 22%, a quarter arc in `textTertiary`, one turn in 0.9 s, linear; Reduce Motion: still, pulsing), the label becomes the in-progress words ("Closing ABCD position", `OperatorCommand.inFlightTitle`, `InFlightText`); the button is not dimmed, a second click does nothing, VoiceOver reads the words |
 | Known length | `ProgressLine` | 2 pt, radius 2, track `info` at 18%, fill `info`, its width easing to a new value in 0.3 s (at once under Reduce Motion); the caller writes the caption ("Replay · 12 of 30 days · 40%"). Not wired yet: the Lab replay API reports no share done |

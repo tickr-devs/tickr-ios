@@ -180,6 +180,8 @@ struct TradesView: View {
           .rise(step: Order.whatIf.rawValue)
       }
     }
+    // A picked day's cards take its skeleton's place without rising (design-system "Loading").
+    .loadsInPlace(model.shownDayState != .loading)
   }
 
   /// Scroll id of the shown day's title: a picked day scrolls it into view, so the change is

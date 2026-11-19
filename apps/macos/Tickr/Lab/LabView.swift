@@ -1031,6 +1031,8 @@ private struct ExplainCard: View {
         content
       }
     }
+    // The checks take the skeleton's place without rising (design-system "Loading").
+    .loadsInPlace(!explain.loading)
     // A new day reads the typed symbol again; the read for the old day is cancelled.
     .task(id: model.shownDay) {
       if symbol.isEmpty, let latest = model.shownTrades.last?.symbol {

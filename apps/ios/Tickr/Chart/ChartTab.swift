@@ -24,7 +24,6 @@ struct ChartTab: View {
       .padding(.top, Tokens.Space.m)
       .padding(.horizontal, Tokens.Space.l)
       .padding(.bottom, Tokens.Space.xl)
-      .animation(Tokens.Motion.standard, value: chart.phase)
     }
     .scrollEdgeHints()
     .scrollContentBackground(.hidden)
@@ -35,7 +34,7 @@ struct ChartTab: View {
     // (`StatusBarBackdrop`) sits inside this bar's safe area, so it covers the status bar and the
     // bar's own strip: the chart scrolled up never draws under the clock or behind the glass.
     .safeAreaBar(edge: .top) {
-      if let url = app.connection.url, !chart.days.isEmpty, showsContent {
+      if let url = app.connection.url, showsBoard {
         DayBar(chart: chart, url: url)
           .padding(.horizontal, Tokens.Space.m)
           .padding(.vertical, Tokens.Space.s)
@@ -62,27 +61,12 @@ struct ChartTab: View {
     }
   }
 
+  /// One layout from the first read on (owner, 2026-11-19: no jerky loaders): the bar, the symbol
+  /// chips, the chart, its controls and the day's cards keep their places while the days, the
+  /// day and its bars load, each piece as skeleton in its own size until it is read; nothing
+  /// moves or blinks when the data arrives, and a re-read keeps what is shown.
   @ViewBuilder
   private func content(_ url: URL) -> some View {
-    // One placeholder in one place while nothing is drawn yet: two branches showing it would
-    // cross-fade two copies, one of them squeezed while it grows in.
-    if isLoading {
-      loadingView
-    } else {
-      loaded(url)
-    }
-  }
-
-  private var isLoading: Bool {
-    switch chart.phase {
-    case .idle: true
-    case .loading: chart.series == nil
-    default: false
-    }
-  }
-
-  @ViewBuilder
-  private func loaded(_ url: URL) -> some View {
     switch chart.phase {
     case .failed(let cause):
       // Plain words, the cause behind Details; while the link is down the card waits calmly and
@@ -97,93 +81,115 @@ struct ChartTab: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(Tokens.Space.l)
       .tickrCard()
-      .rise()
+    case .loaded where chart.days.isEmpty:
+      ContentUnavailableView {
+        Label { Text(ChartText.noDaysTitle) } icon: { Image(systemName: "calendar.badge.clock") }
+      } description: {
+        Text(ChartText.noDaysBody)
+      }
     default:
-      if chart.days.isEmpty {
-        ContentUnavailableView {
-          Label { Text(ChartText.noDaysTitle) } icon: { Image(systemName: "calendar.badge.clock") }
-        } description: {
-          Text(ChartText.noDaysBody)
-        }
-        .rise()
-      } else {
-        VStack(alignment: .leading, spacing: Tokens.Space.m) {
-          SymbolChips(chart: chart, url: url)
-          if let series = chart.series, !series.candles.isEmpty {
-            // As on the design: the chart right under the symbols, then its range, timeframe,
-            // zoom and lines, then why the bot acted.
-            // The bot's trades, position and strategy marks belong to the chosen day: on a longer
-            // range they stay off it.
-            let oneDay = chart.range == .oneDay
-            CandleChart(series: series, times: chart.times, studies: chart.studies, atr: chart.atr,
-              trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
-              events: oneDay ? chart.events : [], lines: lines, rangeTitle: RangePicker.title(chart.range),
-              pending: chart.pending, livePrice: oneDay ? chart.livePrice : nil, viewport: $viewport)
-              // Its panes have a fixed height: past this size the scale's tags and legends would
-              // cover each other and the candles.
-              .dynamicTypeSize(...CandleChart.largestText)
-            ChartControls(chart: chart, series: series, lines: $lines, viewport: $viewport)
-            DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
-            DayTrades(trades: chart.trades)
-          } else if chart.range != .oneDay {
-            RangePicker(chart: chart)
-            if let failure = chart.rangeFailure {
-              UnavailableState(ChartText.barsUnavailable, message: ChartText.candlesUnavailable, cause: failure)
-                .rise()
-            } else if let answer = chart.rangeChart, answer.symbol == chart.symbol, answer.range == chart.range,
-              answer.interval == chart.timeframe, answer.pending == nil {
-              // Only a finished answer can say there are no candles: a pending one (the chart's
-              // budget still filling the range) shows loading, never an empty state.
-              ContentUnavailableView {
-                Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
-              } description: {
-                if let cause = answer.causeText {
-                  Text(ChartText.noCandles(cause))
-                } else {
-                  Text(ChartText.noCandlesPlain)
-                }
-              }
-              .rise()
-            } else {
-              loadingView
-            }
-          } else if chart.pending != nil || chart.needsTodayRead {
-            // Today's market data on its way: the chart's budget, or another interval being read.
-            loadingView
-          } else {
-            ContentUnavailableView {
-              Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
-            } description: {
-              Text(ChartText.noBarsBody)
-            }
-            .rise()
-          }
-        }
-        .rise()
+      board(url)
+    }
+  }
+
+  /// The chart and everything around it, loading or read.
+  private func board(_ url: URL) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      SymbolChips(chart: chart, url: url, loading: chart.day == nil && showsBoard)
+      // As on the design: the chart right under the symbols, then its range, timeframe, zoom and
+      // lines, then why the bot acted. The skeleton stands in the chart's own card, its size.
+      LoadingSlot(drawn) { series in
+        // The bot's trades, position and strategy marks belong to the chosen day: on a longer
+        // range they stay off it.
+        let oneDay = chart.range == .oneDay
+        CandleChart(series: series, times: chart.times, studies: chart.studies, atr: chart.atr,
+          trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
+          events: oneDay ? chart.events : [], lines: lines, rangeTitle: RangePicker.title(chart.range),
+          pending: chart.pending, livePrice: oneDay ? chart.livePrice : nil, viewport: $viewport)
+          // Its panes have a fixed height: past this size the scale's tags and legends would
+          // cover each other and the candles.
+          .dynamicTypeSize(...CandleChart.largestText)
+      } placeholder: {
+        notDrawn
+      }
+      // The controls stay live while the bars load, as on the Mac: another range or interval
+      // never takes them away and back.
+      ChartControls(chart: chart, series: drawn, lines: $lines, viewport: $viewport)
+      if chart.symbol != nil {
+        DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
+      }
+      if chart.day != nil {
+        DayTrades(trades: chart.trades)
       }
     }
   }
 
-  /// The chart's days are read: neither loading for the first time nor failed.
-  private var showsContent: Bool {
-    switch chart.phase {
-    case .idle, .failed: return false
-    case .loading where chart.series == nil: return false
-    default: return true
+  /// The candles on screen, nil while there are none to draw.
+  private var drawn: ChartSeries? {
+    guard let series = chart.series, !series.candles.isEmpty else { return nil }
+    return series
+  }
+
+  /// What stands in the chart's place while no candle is drawn: the loading chart while bars are
+  /// on their way, else why there are none, in the same place.
+  @ViewBuilder
+  private var notDrawn: some View {
+    if chart.range != .oneDay, let failure = chart.rangeFailure {
+      UnavailableState(ChartText.barsUnavailable, message: ChartText.candlesUnavailable, cause: failure)
+    } else if chart.range != .oneDay, let answer = chart.rangeChart, answer.symbol == chart.symbol,
+      answer.range == chart.range, answer.interval == chart.timeframe, answer.pending == nil {
+      // Only a finished answer can say there are no candles: a pending one (the chart's budget
+      // still filling the range) shows loading, never an empty state.
+      ContentUnavailableView {
+        Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
+      } description: {
+        if let cause = answer.causeText {
+          Text(ChartText.noCandles(cause))
+        } else {
+          Text(ChartText.noCandlesPlain)
+        }
+      }
+    } else if chart.range == .oneDay, !barsAwaited {
+      ContentUnavailableView {
+        Label { Text(ChartText.noBarsTitle) } icon: { Image(systemName: "chart.bar.xaxis") }
+      } description: {
+        Text(ChartText.noBarsBody)
+      }
+    } else {
+      loadingView
     }
   }
 
-  /// The chart while its bars load (mockup v102): the price, change and day's high, low and
-  /// volume as skeleton blocks, the price pane's grid, a faint candle silhouette with its volume,
-  /// the price and time axes, and every enabled study pane, as skeleton in the chart's own sizes;
-  /// "Loading ABCD · 1 min bars" in its top left. Nothing real until the bars are read.
+  /// One day's bars are still on their way: the days or the day are being read, the chart's
+  /// budget fills today, or today was read in another interval.
+  private var barsAwaited: Bool {
+    switch chart.phase {
+    case .idle, .loading: true
+    case .failed: false
+    case .loaded: chart.pending != nil || chart.needsTodayRead
+    }
+  }
+
+  /// Whether the board (bar, chips, chart) is on screen: from the first read on, unless it
+  /// failed or no day is recorded.
+  private var showsBoard: Bool {
+    switch chart.phase {
+    case .failed: false
+    case .loaded: !chart.days.isEmpty
+    case .idle, .loading: true
+    }
+  }
+
+  /// The chart while its bars load (mockup v102): the chart's own card with the price pane's
+  /// grid, a faint candle silhouette with its volume, the price and time axes, and every enabled
+  /// study pane, as skeleton in the chart's own sizes; "Loading ABCD · 1 min bars" on the
+  /// readout's line. Nothing real until the bars are read.
   private var loadingView: some View {
     LoadingChart(
       caption: chart.pending.map(PendingText.caption) ?? chart.symbol.map {
         ChartText.loadingBars($0, interval: String(localized: ChartFormat.title(chart.timeframe)))
       } ?? L10n.Common.loading,
-      lines: lines, pending: chart.pending)
-      .transition(.opacity)
+      lines: lines, rangeTitle: RangePicker.title(chart.range), timeframe: chart.timeframe, pending: chart.pending)
   }
 
   /// Changes whenever a different chart is on screen, restarting the reload loop.
@@ -248,21 +254,24 @@ private struct DayBar: View {
     HStack(alignment: .center, spacing: Tokens.Space.s) {
       VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
         RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          if let symbol = chart.symbol {
-            Text(symbol)
-              .font(Tokens.Typography.metric)
-              .foregroundStyle(Palette.textPrimary)
-              .fixedSize()
-          }
+          // While the day loads every piece stands as skeleton in its own size (sample values
+          // laid out, not drawn), so the bar never changes height when the bars arrive.
+          Text(verbatim: chart.symbol ?? SkeletonSample.symbol)
+            .font(Tokens.Typography.metric)
+            .foregroundStyle(Palette.textPrimary)
+            .fixedSize()
+            .skeleton(chart.symbol == nil, .value)
           quote
         }
         dayMenu
+          .skeleton(chart.selectedDay == nil)
       }
       Spacer(minLength: 0)
       if !typeSize.stacksRows { dayStats }
       // The demo day is the only day, and a single recorded day has no neighbour: no arrows
-      // then. Otherwise the arrow that leads nowhere is dimmed and refuses taps.
-      if arrows.visible {
+      // then. Otherwise the arrow that leads nowhere is dimmed and refuses taps; while the days
+      // are read they wait dimmed in their places.
+      if arrows.visible || (chart.days.isEmpty && !chart.dayLocked) {
         Button {
           if let day = chart.previousDay { Task { await chart.show(day, from: url) } }
         } label: {
@@ -291,34 +300,41 @@ private struct DayBar: View {
   }
 
   /// The shown candles' high, low and volume, small and dim beside the arrows, as on the design.
-  @ViewBuilder
   private var dayStats: some View {
-    if let candles = chart.series?.candles, !candles.isEmpty {
-      let high = candles.map(\.high).max() ?? 0
-      let low = candles.map(\.low).min() ?? 0
-      let volume = candles.map(\.volume).reduce(0, +)
-      let rows: [(LocalizedStringResource, String)] = [(ChartText.highShort, Money.price(high)),
-        (ChartText.lowShort, Money.price(low)), (ChartText.volumeShort, Volume.compact(volume))]
-      Grid(alignment: .trailing, horizontalSpacing: Tokens.Space.xs, verticalSpacing: 0) {
-        ForEach(rows.indices, id: \.self) { index in
-          GridRow {
-            Text(rows[index].0).foregroundStyle(Palette.textQuaternary)
-            Text(verbatim: rows[index].1).foregroundStyle(Palette.textSecondary)
-          }
+    let candles = drawnCandles ?? []
+    let loading = drawnCandles == nil
+    // Sample figures while loading: laid out for their size, drawn as skeleton lines.
+    let high = candles.map(\.high).max() ?? SkeletonSample.price
+    let low = candles.map(\.low).min() ?? SkeletonSample.price
+    let volume = loading ? SkeletonSample.volume : candles.map(\.volume).reduce(0, +)
+    let rows: [(LocalizedStringResource, String)] = [(ChartText.highShort, Money.price(high)),
+      (ChartText.lowShort, Money.price(low)), (ChartText.volumeShort, Volume.compact(volume))]
+    return Grid(alignment: .trailing, horizontalSpacing: Tokens.Space.xs, verticalSpacing: 0) {
+      ForEach(rows.indices, id: \.self) { index in
+        GridRow {
+          Text(rows[index].0).foregroundStyle(Palette.textQuaternary).skeleton(loading)
+          Text(verbatim: rows[index].1).foregroundStyle(Palette.textSecondary).skeleton(loading)
         }
       }
-      .font(Tokens.Typography.annotation)
-      .fixedSize()
-      .accessibilityElement(children: .ignore)
-      .accessibilityLabel(Text(ChartText.dayStats(rows[0].1, rows[1].1, rows[2].1)))
     }
+    .font(Tokens.Typography.annotation)
+    .fixedSize()
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text(ChartText.dayStats(rows[0].1, rows[1].1, rows[2].1)))
+    .accessibilityHidden(loading)
+  }
+
+  /// The candles on screen, nil while none are drawn yet.
+  private var drawnCandles: [Candle]? {
+    guard let candles = chart.series?.candles, !candles.isEmpty else { return nil }
+    return candles
   }
 
   /// The last price and its change: on today's one-day chart from the previous close
   /// (`DayChange`, as Webull shows a day's change), else from the shown range's first open.
   @ViewBuilder
   private var quote: some View {
-    if let candles = chart.series?.candles, let first = candles.first, let last = candles.last {
+    if let candles = drawnCandles, let first = candles.first, let last = candles.last {
       // The live bid where the bot's quotes have one (today, one day shown), else the last close.
       let price = (chart.range == .oneDay ? chart.livePrice : nil) ?? last.close
       let day = chart.range == .oneDay
@@ -334,14 +350,23 @@ private struct DayBar: View {
       }
       .foregroundStyle(Palette.result(change))
       .accessibilityElement(children: .combine)
+    } else {
+      // The price and change in their own fonts, as skeleton: the same height and place.
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+        Text(verbatim: Money.price(SkeletonSample.price))
+          .font(.headline.monospaced().bold())
+          .skeleton(true, .value)
+        Text(verbatim: Percent.signed(fraction: SkeletonSample.change))
+          .font(Tokens.Typography.captionMono)
+          .skeleton(true)
+      }
     }
   }
 
   private func dayLabel(live: Bool) -> some View {
     HStack(spacing: Tokens.Space.xs) {
-      if let day = chart.selectedDay {
-        Text(verbatim: DayText.day(day.noonInNewYork))
-      }
+      // Before the day is known, a date of the same length stands as skeleton (`dayMenu`).
+      Text(verbatim: DayText.day(chart.selectedDay?.noonInNewYork ?? .now))
       if live {
         Text(verbatim: Format.separator.trimmingCharacters(in: .whitespaces))
         Text(ChartText.todayLive)
@@ -390,8 +415,29 @@ private struct SymbolChips: View {
   @Environment(AppModel.self) private var app
   let chart: ChartModel
   let url: URL
+  /// The day is being read: chips of the real size stand as skeleton pills.
+  var loading = false
+
+  /// Skeleton chips while the day loads.
+  static let skeletonChips = 4
 
   var body: some View {
+    if loading {
+      HStack(spacing: Tokens.Space.s) {
+        ForEach(0..<Self.skeletonChips, id: \.self) { _ in
+          // A real chip with a sample symbol, laid out for its size and drawn as a pill.
+          Text(verbatim: SkeletonSample.symbol)
+            .chipFace(selected: false)
+            .skeleton(true, .fill)
+        }
+      }
+      .accessibilityHidden(true)
+    } else {
+      chipRow
+    }
+  }
+
+  private var chipRow: some View {
     // The chosen symbol stays in view: when the chart opens, and when the symbol or the range
     // changes (the row was left scrolled to its start, the chosen chip off screen).
     ScrollViewReader { proxy in
@@ -455,7 +501,8 @@ private struct SymbolChips: View {
 /// chart draws.
 private struct ChartControls: View {
   let chart: ChartModel
-  let series: ChartSeries
+  /// The drawn candles; nil while they load, when zoom and LIVE wait dimmed.
+  let series: ChartSeries?
   @Binding var lines: CandleChart.Lines
   @Binding var viewport: ChartViewport
 
@@ -535,22 +582,24 @@ private struct ChartControls: View {
       Group {
         // Dimmed at the zoom's limit: the explicit colour below kept them looking tappable.
         Button { zoom(by: Tokens.Chart.zoomStep) } label: { HeaderIcon(symbol: "minus").dimmedWhenDisabled() }
-          .disabled(!viewport.canZoomOut(series))
+          .disabled(series.map { !viewport.canZoomOut($0) } ?? true)
           .accessibilityLabel(Text(ChartText.zoomOut))
         Button { zoom(by: 1 / Tokens.Chart.zoomStep) } label: { HeaderIcon(symbol: "plus").dimmedWhenDisabled() }
-          .disabled(!viewport.canZoomIn)
+          .disabled(series == nil || !viewport.canZoomIn)
           .accessibilityLabel(Text(ChartText.zoomIn))
       }
       .foregroundStyle(Palette.textPrimary)
       .buttonStyle(.glyph)
       if chart.isToday {
-        let following = viewport.showsEnd(series)
+        let following = series.map { viewport.showsEnd($0) } ?? true
         Button {
+          guard let series else { return }
           withAnimation(Tokens.Motion.quick) { viewport.followEnd(series) }
         } label: {
           Text(ChartText.live).textCase(.uppercase)
         }
         .buttonStyle(.chip(selected: following, tone: .accent))
+        .disabled(series == nil)
         .accessibilityHint(Text(ChartText.liveHint))
       }
     }
@@ -578,6 +627,7 @@ private struct ChartControls: View {
   }
 
   private func zoom(by factor: Double) {
+    guard let series else { return }
     withAnimation(Tokens.Motion.quick) { viewport.zoom(by: factor, series) }
   }
 }
@@ -661,65 +711,63 @@ private struct RangePicker: View {
   }
 }
 
-/// The Chart tab while its bars load (see `ChartTab.loadingView`).
+/// The Chart tab while its bars load (see `ChartTab.loadingView`): the chart's own card in the
+/// chart's own sizes (`CandleChart`): the readout's line with the caption, the legend's line when
+/// the chart draws one, the price pane and every enabled study pane, so the chart takes its place
+/// without a jump.
 private struct LoadingChart: View {
   let caption: LocalizedStringResource
   let lines: CandleChart.Lines
+  /// The chosen range and interval, which the chart's caption names.
+  let rangeTitle: LocalizedStringResource
+  let timeframe: Timeframe
   /// How far a read the chart's request budget holds back has got, shown as a progress line.
   var pending: ChartPendingV1?
 
+  /// Bars the caption is laid out with: a count of the usual length.
+  static let sampleBars = 100
   /// The silhouette's candles and the price pane's grid lines across and down, as the board's.
   static let candles = 34
   static let rows = 5
   static let columns = 4
-  /// Widths of the header's blocks, in points: the price, its change, and the day's high, low
-  /// and volume figures (the board's).
-  static let price: CGFloat = 54
-  static let priceHeight: CGFloat = 18
-  static let change: CGFloat = 48
-  static let dayFigure: CGFloat = 34
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      // The readout's line: "Loading ABCD · 1 min bars" over the chart's own caption, laid out
+      // but not drawn, so the line is as tall as the readout it gives way to.
+      ZStack(alignment: .topLeading) {
+        Text(ChartText.caption(String(localized: rangeTitle), String(localized: ChartFormat.title(timeframe)),
+          String(localized: ChartText.bars(Self.sampleBars))))
+          .hidden()
+        Text(caption)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      .font(Tokens.Typography.captionMono)
+      .fixedSize(horizontal: false, vertical: true)
+      // The legend's names in their own row, values to come, as skeleton of their own size.
+      CandleChart.legend(CandleChart.priceLegend(lines, intraday: timeframe.isIntraday))
+        .skeleton(true)
       Skeleton(nil) {
-        HStack(alignment: .center, spacing: Tokens.Space.s) {
-          SkeletonBlock(.block(height: Self.priceHeight), width: Self.price)
-          SkeletonBlock(.line, width: Self.change)
-          Spacer(minLength: Tokens.Space.s)
-          VStack(alignment: .trailing, spacing: Tokens.Space.xs) {
-            ForEach(0..<Tokens.Loading.lines, id: \.self) { _ in
-              SkeletonBlock(.line, width: Self.dayFigure)
-            }
+        VStack(spacing: 0) {
+          SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns,
+            axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume)
+            .frame(height: CandleChart.priceHeight)
+          ForEach(lines.panes, id: \.self) { _ in
+            SkeletonPane(axisWidth: CandleChart.axisLabelWidth)
+              .frame(height: CandleChart.paneHeight)
+              .overlay(alignment: .top) { SkeletonGridLine() }
           }
         }
       }
-      Skeleton(nil) {
-        SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns,
-          axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume)
-          .padding(Tokens.Space.s)
-          .frame(height: CandleChart.priceHeight)
-      }
-      .overlay(alignment: .topLeading) {
-        Text(caption)
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
-          .padding(Tokens.Space.s)
-      }
-      .overlay(alignment: .top) {
-        if let pending {
-          ProgressLine(fraction: pending.fraction, label: PendingText.caption(pending))
-        }
-      }
-      .tickrCard()
-      ForEach(lines.panes, id: \.self) { _ in
-        Skeleton(nil) {
-          SkeletonPane(axisWidth: CandleChart.axisLabelWidth)
-            .frame(height: CandleChart.paneHeight)
-        }
-        .tickrCard()
+    }
+    .padding(Tokens.Space.l)
+    .tickrCard()
+    .overlay(alignment: .top) {
+      if let pending {
+        ProgressLine(fraction: pending.fraction, label: PendingText.caption(pending))
       }
     }
+    .dynamicTypeSize(...CandleChart.largestText)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(Text(caption))
     .accessibilityAddTraits(.updatesFrequently)
