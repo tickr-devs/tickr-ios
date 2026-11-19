@@ -489,6 +489,11 @@ struct TickrTabBar: View {
         button(tab).frame(maxWidth: .infinity)
       }
     }
+    // The bar is as tall as its tallest tab, never taller: each tab's pill fills that height
+    // (`maxHeight: .infinity` below), but the bar takes its own height, not the height
+    // `safeAreaInset` offers. Without this the bar grew to the whole screen at large text sizes,
+    // and the screen above it went wide, pushing the first tab off the left edge (layout sweep).
+    .fixedSize(horizontal: false, vertical: true)
     // Only the bar animates a switch (the pill slides); the screens change at once.
     .animation(Tokens.Motion.standard, value: model.selectedTab)
     // The pill keeps this margin from the bar's edge on every side.

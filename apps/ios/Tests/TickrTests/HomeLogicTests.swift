@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 @testable import Tickr
 import TickrDesign
@@ -62,5 +63,31 @@ import TickrKit
     #expect(ConnectionFreshness.color(response: current, fetchError: "offline") == Palette.textQuaternary)
     #expect(ConnectionFreshness.color(response: nil, fetchError: "offline") == Palette.textQuaternary)
     #expect(ConnectionFreshness.color(response: nil, fetchError: nil) == Palette.loss)
+  }
+}
+
+/// The tab bar takes its own height whatever height it is offered, and fits the screen's width:
+/// at large text sizes it once grew to the whole screen and pushed the first tab off the left
+/// edge (layout sweep, 2026-11-19).
+@MainActor
+@Suite struct TabBarLayoutTests {
+  /// A standard iPhone's width, in points.
+  static let screenWidth: CGFloat = 402
+  /// Two heights offered to the bar, in points: a phone screen's and far more.
+  static let screenHeight: CGFloat = 874
+  static let tallHeight: CGFloat = 4000
+
+  private func size(offered height: CGFloat, text: DynamicTypeSize) -> CGSize {
+    let bar = TickrTabBar().environment(AppModel()).environment(\.dynamicTypeSize, text)
+    return UIHostingController(rootView: bar).sizeThatFits(in: CGSize(width: Self.screenWidth, height: height))
+  }
+
+  @Test(arguments: [DynamicTypeSize.large, .xxxLarge, .accessibility5])
+  func theBarKeepsItsHeightAndFitsTheWidth(text: DynamicTypeSize) {
+    let onScreen = size(offered: Self.screenHeight, text: text)
+    let offeredMore = size(offered: Self.tallHeight, text: text)
+    #expect(onScreen.height == offeredMore.height)
+    #expect(onScreen.height < Self.screenHeight)
+    #expect(onScreen.width <= Self.screenWidth)
   }
 }
