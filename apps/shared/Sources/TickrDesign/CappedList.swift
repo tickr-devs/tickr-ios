@@ -160,6 +160,8 @@ struct AllRowsSheet<Rows: View>: View {
           .padding(.bottom, Tokens.Space.xl)
       }
       .scrollBounceBehavior(.basedOnSize)
+      // No scroll bar (#676): the edge fades and the down chevron say there is more.
+      .scrollEdgeHints()
     }
     .padding([.horizontal, .top], Tokens.Space.l)
     .accessibilityElement(children: .contain)
