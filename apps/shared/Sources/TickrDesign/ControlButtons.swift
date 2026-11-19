@@ -204,10 +204,16 @@ private struct IconButtonBody: View {
 /// (`.toggleStyle(.chip)`), a menu's label (`.chipFace(selected:)`) and a chip showing data
 /// (`.chipFace(selected: false, small: true)`). On iOS a regular chip is at least `minHeight`
 /// (32 pt) tall and answers taps over `Size.touchTarget` (`touchTarget()`).
+///
+/// Under the Mac's pointer an enabled regular chip lights its outline in its full tone
+/// (`.u-chip:hover`), its words in `textPrimary`; the fill and size stay, so the chosen chip (the
+/// same outline plus the tone's wash) still reads apart and nothing moves (owner 2026-11-19: a
+/// softer outline did not read as lit). A small chip shows data and does not answer the pointer.
 public struct ChipFace: ViewModifier {
+  @Environment(\.isEnabled) private var enabled
+  @State private var hovered = false
   let selected: Bool
   let tone: Tone
-  let hovered: Bool
   let small: Bool
 
   /// Side padding of a small chip, in points (`.u-chip.sm`).
@@ -220,11 +226,17 @@ public struct ChipFace: ViewModifier {
   public static let minHeight: CGFloat = 0
   #endif
 
-  public init(selected: Bool, tone: Tone = .info, hovered: Bool = false, small: Bool = false) {
+  public init(selected: Bool, tone: Tone = .info, small: Bool = false) {
     self.selected = selected
     self.tone = tone
-    self.hovered = hovered
     self.small = small
+  }
+
+  /// Under the pointer: only a regular, enabled chip answers it.
+  private var lit: Bool { hovered && enabled && !small }
+
+  private var outline: Color {
+    selected || lit ? tone.fill : Palette.separatorStrong
   }
 
   @ViewBuilder public func body(content: Content) -> some View {
@@ -232,13 +244,15 @@ public struct ChipFace: ViewModifier {
     let face = content
       .labelStyle(ControlLabelStyle())
       .font(small ? Tokens.Typography.chipSmallTitle : Tokens.Typography.chipTitle)
-      .foregroundStyle(selected || hovered ? Palette.textPrimary : Palette.textSecondary)
+      .foregroundStyle(selected || lit ? Palette.textPrimary : Palette.textSecondary)
       .padding(.horizontal, small ? Self.smallSide : Tokens.Space.s)
       .padding(.vertical, small ? Tokens.Space.xxs : Tokens.Space.xs)
       .frame(minHeight: small ? nil : Self.minHeight)
       .background(selected ? tone.fill.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
-      .overlay(shape.strokeBorder(selected ? tone.fill : Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
+      .overlay(shape.strokeBorder(outline, lineWidth: Tokens.Stroke.thin))
       .animation(Tokens.Motion.quick, value: selected)
+      .animation(Tokens.Motion.quick, value: lit)
+      .onHover { hovered = $0 }
     if small {
       face
     } else {
@@ -256,10 +270,9 @@ public extension View {
 }
 
 /// A selectable chip: one of a few choices shown side by side (a position's tab, a range, an
-/// interval). The `ChipFace`, pressed and hovered.
+/// interval). The `ChipFace` (which lights under the pointer), pressed.
 public struct ChipButtonStyle: ButtonStyle {
   @Environment(\.isEnabled) private var enabled
-  @State private var hovered = false
   let selected: Bool
   let tone: Tone
 
@@ -270,12 +283,10 @@ public struct ChipButtonStyle: ButtonStyle {
 
   public func makeBody(configuration: Configuration) -> some View {
     configuration.label
-      .modifier(ChipFace(selected: selected, tone: tone, hovered: hovered))
+      .modifier(ChipFace(selected: selected, tone: tone))
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
-      .animation(Tokens.Motion.quick, value: hovered)
-      .onHover { hovered = $0 }
       .accessibilityAddTraits(selected ? .isSelected : [])
   }
 }
