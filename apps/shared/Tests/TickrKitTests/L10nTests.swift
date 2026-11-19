@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import TickrKit
 
-/// Entries read through the package's String Catalog, with their arguments filled in. The Russian
+/// Entries read through the package's String Catalog, with their arguments filled in. The Spanish
 /// translations are checked by apps/scripts/check_swift_rules.py (rule `catalog`): `swift build`
 /// copies a String Catalog into the bundle instead of compiling it, so a `swift test` run can
 /// only read the English default values.

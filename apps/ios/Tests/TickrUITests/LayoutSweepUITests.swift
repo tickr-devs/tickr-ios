@@ -1,7 +1,7 @@
 import XCTest
 
 /// Layout sweep: every tab, Risk, Settings and Activity's panes, scrolled to their end, in
-/// English and Russian at the default and at large Dynamic Type sizes, for checking that nothing
+/// English and Spanish at the default and at large Dynamic Type sizes, for checking that nothing
 /// slides under the bars, overlaps or gets clipped. CI reads every picture for truncated text
 /// (apps/scripts/find_truncated_text.swift). Run on each iPhone size (CI: .github/workflows/layout-sweep.yml runs it
 /// on an iPhone SE, a standard and a Pro Max against `tickr demo`):
@@ -12,8 +12,8 @@ import XCTest
 /// Skipped unless SWEEP_API is set (the demo's API, http://127.0.0.1:8776). Sends no command.
 @MainActor
 final class LayoutSweepUITests: XCTestCase {
-  /// Languages of the sweep: English, and Russian, whose texts are the longest.
-  private static let languages = ["en", "ru"]
+  /// Languages of the sweep: English, and Spanish, whose texts are the longest.
+  private static let languages = ["en", "es"]
   /// Dynamic Type sizes (UIContentSizeCategory raw values): the default, the largest standard one
   /// and the largest accessibility size, where text is likeliest to be cut.
   private static let textSizes = [

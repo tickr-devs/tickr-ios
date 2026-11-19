@@ -1,6 +1,6 @@
 import Foundation
 
-/// Every text of TickrKit that a person reads, in English, with its Russian translation in
+/// Every text of TickrKit that a person reads, in English, with its Spanish translation in
 /// Resources/Localizable.xcstrings (docs/design-system.md, rule 2). Read with `String(localized:)`.
 enum L10n {
   /// The package's resource bundle, which holds the String Catalog, in the language given at
@@ -163,7 +163,7 @@ enum L10n {
     LocalizedStringResource("kit.headline.holdingOne", defaultValue: "Holding 1 position", bundle: bundle)
   }
   /// Headline: the bot holds several open positions, every one with a verified broker stop;
-  /// argument: how many (Russian writes "Позиции: N", which needs no plural forms).
+  /// argument: how many (Spanish writes "Posiciones: N", which needs no plural forms).
   static func headlineHolding(_ count: Int) -> LocalizedStringResource {
     LocalizedStringResource("kit.headline.holding", defaultValue: "Holding \(count) positions", bundle: bundle)
   }
@@ -306,19 +306,19 @@ enum L10n {
 
   // MARK: Environments (ApiText.environment)
 
-  /// Where the bot trades: the broker's test environment.
+  /// Where the bot trades: the broker's test environment (Webull "Sandbox"), shown as paper trading.
   static var environmentSandbox: LocalizedStringResource {
-    LocalizedStringResource("kit.environment.sandbox", defaultValue: "Sandbox", bundle: bundle)
+    LocalizedStringResource("kit.environment.sandbox", defaultValue: "Paper trading", bundle: bundle)
   }
   /// Where the bot runs: `tickr demo`, a made-up day with no broker.
   static var environmentDemo: LocalizedStringResource {
     LocalizedStringResource("kit.environment.demo", defaultValue: "Demo", bundle: bundle)
   }
-  /// Where the bot trades: the real account.
+  /// Where the bot trades: the real account (Webull "Production"), shown as live trading.
   static var environmentProduction: LocalizedStringResource {
-    LocalizedStringResource("kit.environment.production", defaultValue: "Production", bundle: bundle)
+    LocalizedStringResource("kit.environment.production", defaultValue: "Live trading", bundle: bundle)
   }
-  /// The environment badge as VoiceOver reads it, on every screen of both apps: "Environment: Sandbox".
+  /// The environment badge as VoiceOver reads it, on every screen of both apps: "Environment: Paper trading".
   static func environmentLabel(_ name: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.environment.label", defaultValue: "Environment: \(name)", bundle: bundle)
   }

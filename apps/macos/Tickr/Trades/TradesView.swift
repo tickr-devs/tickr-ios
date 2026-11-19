@@ -379,7 +379,7 @@ private struct TradesTable: View {
   let showOnChart: (String) -> Void
 
   /// Least and preferred widths of the table's columns, in points. Each least width holds the
-  /// column's widest content and its heading whole, in English and Russian (measured in the
+  /// column's widest content and its heading whole, in English and Spanish (measured in the
   /// table's fonts: values in 12-point mono, headings and badges in 10-point mono; a heading cell
   /// keeps a few points of inset, a value cell none); the preferred widths are the board's
   /// (MacTrades: 76 · 56 · 34 · 56 · 72 · 68 · reason · 66 · 72), never under the least.
@@ -391,8 +391,8 @@ private struct TradesTable: View {
     /// read "SYMB…"); a five-letter symbol such as "BRK.B" takes 37.1.
     static let symbolMin: CGFloat = 46
     static let symbol: CGFloat = 56
-    /// The Russian heading "КОЛ-ВО" (37.1, and the header cell's own inset: at 38 it read
-    /// "КОЛ-…"); a four-digit quantity takes 29.7.
+    /// A six-letter heading (37.1, and the header cell's own inset: at 38 its last letters were
+    /// cut); the English "QTY" and Spanish "CANT." are shorter; a four-digit quantity takes 29.7.
     static let quantityMin: CGFloat = 46
     static let quantity: CGFloat = 48
     /// A four-digit price "1234.56" (51.9); the board gives entry, exit and stop their own widths.
@@ -400,8 +400,8 @@ private struct TradesTable: View {
     static let entry: CGFloat = 56
     static let exit: CGFloat = 72
     static let stop: CGFloat = 68
-    /// The reason badge with the widest exit reason, the Russian "ВРЕМЯ УДЕРЖАНИЯ ВЫШЛО" (129.8
-    /// and the badge's padding, 146).
+    /// The reason badge with the widest exit reason, 21 characters (129.8 and the badge's padding,
+    /// 146): the Spanish "MUCHO TIEMPO SIN STOP", "COTIZACIONES PERDIDAS", "SE ACABARON LAS VELAS".
     static let reasonMin: CGFloat = 148
     static let reason: CGFloat = 152
     /// "−10.0 R" (51.9).

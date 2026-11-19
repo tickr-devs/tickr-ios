@@ -1,7 +1,7 @@
 import Foundation
 
 /// What a command button says while its command is in flight (mockup v102: the spinner in the
-/// button, "Closing ABCD position"), in English with their Russian translation in
+/// button, "Closing ABCD position"), in English with their Spanish translation in
 /// Resources/Localizable.xcstrings. Both apps show the same words.
 extension L10n {
   static var inFlightPauseEntries: LocalizedStringResource {

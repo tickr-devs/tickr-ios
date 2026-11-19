@@ -76,8 +76,9 @@ import Testing
     #expect(countdown.kind == .opensOn)
     #expect(countdown.label == "Opens")
     #expect(countdown.value(locale: Locale(identifier: "en_US")) == "Mon 09:30")
-    // As the v111 boards write it: «Откроется Пн 09:30».
-    #expect(countdown.value(locale: Locale(identifier: "ru_RU")) == "Пн 09:30")
+    // Spanish: the language's own weekday abbreviation ("lun" or "lun."), then the time.
+    let spanish = countdown.value(locale: Locale(identifier: "es_US"))
+    #expect(spanish.lowercased().hasPrefix("lun") && spanish.hasSuffix(" 09:30"), "\(spanish)")
     // 23 h 59 m is still a countdown.
     let almost = SessionCountdown.make(session: nil, next: monday, now: try at("2026-11-22T14:31:00Z"))
     #expect(almost?.kind == .opens)
@@ -94,17 +95,17 @@ import Testing
     #expect(SessionCountdown.make(session: try session(), next: nil, now: try at("2026-11-16T14:00:00Z"))?.kind == .opens)
   }
 
-  /// `swift test` reads the English defaults only; the Russian texts are read from the catalog
+  /// `swift test` reads the English defaults only; the Spanish texts are read from the catalog
   /// and filled in as the app fills them.
-  @Test("Russian: «Откроется через 9 ч 25 м», «Закроется через 42 м»")
-  func russian() throws {
+  @Test("Spanish: «Abre en 9 h 25 m», «Cierra en 42 m»")
+  func spanish() throws {
     let url = URL(filePath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
       .deletingLastPathComponent().appending(path: "Sources/TickrKit/Resources/Localizable.xcstrings")
     let catalog = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
     let strings = try #require(catalog["strings"] as? [String: [String: Any]])
-    func russian(_ key: String) throws -> String {
+    func spanish(_ key: String) throws -> String {
       let localizations = try #require(strings[key]?["localizations"] as? [String: [String: [String: String]]])
-      return try #require(localizations["ru"]?["stringUnit"]?["value"])
+      return try #require(localizations["es"]?["stringUnit"]?["value"])
     }
     func filled(_ format: String, _ values: Int...) -> String {
       values.reduce(format) { text, value in
@@ -112,18 +113,18 @@ import Testing
         return text.replacingCharacters(in: range, with: String(value))
       }
     }
-    #expect(try russian("kit.countdown.opensIn") + " " + filled(try russian("kit.countdown.hoursMinutes"), 9, 25)
-      == "Откроется через 9 ч 25 м")
-    #expect(try russian("kit.countdown.closesIn") + " " + filled(try russian("kit.countdown.minutes"), 42)
-      == "Закроется через 42 м")
-    #expect(try russian("kit.countdown.opensOn") == "Откроется")
-    // Mockup v111: «Позиции: 2 · стопы подтверждены» beside a closed gate's badge.
-    #expect(filled(try russian("kit.headline.holding"), 2) + " · " + (try russian("kit.headline.stopsVerified"))
-      == "Позиции: 2 · стопы подтверждены")
+    #expect(try spanish("kit.countdown.opensIn") + " " + filled(try spanish("kit.countdown.hoursMinutes"), 9, 25)
+      == "Abre en 9 h 25 m")
+    #expect(try spanish("kit.countdown.closesIn") + " " + filled(try spanish("kit.countdown.minutes"), 42)
+      == "Cierra en 42 m")
+    #expect(try spanish("kit.countdown.opensOn") == "Abre")
+    // Beside a closed gate's badge, as the English "Holding 2 positions · stops verified".
+    #expect(filled(try spanish("kit.headline.holding"), 2) + " · " + (try spanish("kit.headline.stopsVerified"))
+      == "Posiciones: 2 · stops verificados")
     #expect(String(localized: L10n.headlineHolding(2)) + " · " + String(localized: L10n.headlineStopsVerified)
       == "Holding 2 positions · stops verified")
-    #expect(try russian("kit.entryGate.open") == "Шлюз открыт")
-    #expect(try russian("kit.entryGate.paused") == "Входы на паузе")
+    #expect(try spanish("kit.entryGate.open") == "Puerta abierta")
+    #expect(try spanish("kit.entryGate.paused") == "Entradas en pausa")
   }
 
   // MARK: gate

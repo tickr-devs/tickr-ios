@@ -117,7 +117,7 @@ public enum ApiText {
     return raw.isEmpty ? String(localized: L10n.environmentUnknown) : raw
   }
 
-  /// The environment badge's spoken name ("Environment: Sandbox"), the same on every screen.
+  /// The environment badge's spoken name ("Environment: Paper trading"), the same on every screen.
   public static func environmentLabel(_ raw: String) -> String {
     String(localized: L10n.environmentLabel(environment(raw)))
   }

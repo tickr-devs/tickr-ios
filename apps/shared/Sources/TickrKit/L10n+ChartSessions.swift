@@ -1,7 +1,7 @@
 import Foundation
 
 /// Words of the continuous all-session chart (mockup v113), shared by both apps, in English with
-/// their Russian translation in Resources/Localizable.xcstrings (docs/design-system.md, rule 2).
+/// their Spanish translation in Resources/Localizable.xcstrings (docs/design-system.md, rule 2).
 public enum ChartSessionWords {
   /// The caption on the pre-market band.
   public static var preBand: LocalizedStringResource {

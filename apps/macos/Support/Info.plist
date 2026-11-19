@@ -7,11 +7,11 @@
 	<string>Tickr</string>
 	<!-- Languages the String Catalogs translate (app and shared package). Required for the
 	     `make-app.sh` build, whose catalogs live in SwiftPM resource bundles, not the main bundle:
-	     without it macOS opens the app in English on a Russian system. -->
+	     without it macOS opens the app in English on a Spanish system. -->
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
-		<string>ru</string>
+		<string>es</string>
 	</array>
 	<!-- The bot's alerts stay on screen until dismissed (System Settings can still change it). -->
 	<key>NSUserNotificationAlertStyle</key>

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Every text of the AI advisor screens, shared by both apps, in English with its Russian
+/// Every text of the AI advisor screens, shared by both apps, in English with its Spanish
 /// translation in Resources/Localizable.xcstrings (docs/design-system.md, rule 2).
 public enum AdvisorWords {
   public static var title: LocalizedStringResource {

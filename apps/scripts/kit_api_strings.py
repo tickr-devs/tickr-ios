@@ -1,4 +1,4 @@
-"""TickrKit strings for the bot's codes (ApiText), in English and Russian.
+"""TickrKit strings for the bot's codes (ApiText), in English and Spanish.
 
 `python3 apps/scripts/kit_api_strings.py` writes ApiCodes.swift, L10n+Codes.swift and
 L10n+Rules.swift (parts of the kit's L10n) and the kit's catalog entries; run
@@ -14,212 +14,232 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 KIT = ROOT / "apps/shared/Sources/TickrKit"
 
-# (swift name, key, english, russian, doc)
+# (swift name, key, english, spanish, doc)
 S = []
 
 
-def add(name, key, en, ru, doc):
-    S.append((name, key, en, ru, doc))
+def add(name, key, en, es, doc):
+    S.append((name, key, en, es, doc))
 
 
 # entry_block.cause
 B = "Why entries are blocked: "
-for code, en, ru in [
-    ("bot_starting", "The bot is starting.", "Бот запускается."),
-    ("bot_stopping", "The bot is stopping.", "Бот останавливается."),
-    ("bot_stopped", "The bot is stopped.", "Бот остановлен."),
-    ("trading_gate_closed", "The trading gate is closed.", "Торговый шлюз закрыт."),
-    ("entry_stop", "Entries stopped by the operator.", "Входы остановлены оператором."),
+for code, en, es in [
+    ("bot_starting", "The bot is starting.", "El bot está iniciando."),
+    ("bot_stopping", "The bot is stopping.", "El bot se está deteniendo."),
+    ("bot_stopped", "The bot is stopped.", "El bot está detenido."),
+    ("trading_gate_closed", "The trading gate is closed.", "La puerta de trading está cerrada."),
+    ("entry_stop", "Entries stopped by the operator.", "Entradas detenidas por el operador."),
     (
         "strategy_not_loaded",
         "The active strategy is not loaded.",
-        "Активная стратегия не загружена.",
+        "La estrategia activa no está cargada.",
     ),
     (
         "entries_not_wired",
         "This build does not open trades on its own yet.",
-        "Эта сборка пока не открывает сделки сама.",
+        "Esta compilación aún no abre operaciones por sí sola.",
     ),
-    ("own_trade_open", "The bot already has a trade open.", "У бота уже открыта сделка."),
-    ("no_session_today", "No regular session today.", "Сегодня нет основной сессии."),
+    (
+        "own_trade_open",
+        "The bot already has a trade open.",
+        "El bot ya tiene una operación abierta.",
+    ),
+    ("no_session_today", "No regular session today.", "Hoy no hay sesión regular."),
     (
         "calendar_unknown",
         "The trading calendar cannot say whether the market is open.",
-        "Торговый календарь не может сказать, открыт ли рынок.",
+        "El calendario bursátil no puede decir si el mercado está abierto.",
     ),
-    ("outside_regular_session", "Outside the regular session.", "Вне основной сессии."),
-    ("after_last_entry", "Past the last entry time.", "Время последнего входа прошло."),
+    ("outside_regular_session", "Outside the regular session.", "Fuera de la sesión regular."),
+    ("after_last_entry", "Past the last entry time.", "Pasada la hora de la última entrada."),
     (
         "daily_money_unknown",
         "A trade closed today has fills without a known price.",
-        "У сделки, закрытой сегодня, есть исполнения без известной цены.",
+        "Una operación cerrada hoy tiene ejecuciones sin precio conocido.",
     ),
     (
         "daily_ceiling",
         "Too little room left under the daily loss limit.",
-        "Под дневным лимитом убытка осталось слишком мало места.",
+        "Queda muy poco margen bajo el límite de pérdida diaria.",
     ),
 ]:
-    add("block_" + code, "kit.block." + code, en, ru, B + code)
+    add("block_" + code, "kit.block." + code, en, es, B + code)
 
 # fence kinds (entry_block.cause uses them with "_" for "-")
 F = "A fence (a block on new entries): "
-for code, en, ru in [
-    ("startup_reconcile", "Startup reconciliation not finished", "Сверка при запуске не завершена"),
-    ("broker_read_failed", "Broker read failed", "Чтение брокера не удалось"),
+for code, en, es in [
+    (
+        "startup_reconcile",
+        "Startup reconciliation not finished",
+        "Conciliación de inicio sin terminar",
+    ),
+    ("broker_read_failed", "Broker read failed", "Falló la lectura del bróker"),
     (
         "detail_budget",
         "Order detail request budget used up",
-        "Лимит запросов деталей ордеров исчерпан",
+        "Cupo de solicitudes de detalle de órdenes agotado",
     ),
-    ("unknown_order", "An order's outcome is unknown", "Исход ордера неизвестен"),
-    ("order_missing", "An order is missing at the broker", "Ордера нет у брокера"),
+    ("unknown_order", "An order's outcome is unknown", "Se desconoce el resultado de una orden"),
+    ("order_missing", "An order is missing at the broker", "Falta una orden en el bróker"),
     (
         "detail_unreadable",
         "An order's detail cannot be read",
-        "Детали ордера не читаются",
+        "No se puede leer el detalle de una orden",
     ),
-    ("status_unknown", "An order's status is unknown", "Статус ордера неизвестен"),
-    ("unprotected", "A position has no verified stop", "У позиции нет подтверждённого стопа"),
-    ("over_protected", "A position has more than one stop", "У позиции больше одного стопа"),
+    ("status_unknown", "An order's status is unknown", "Se desconoce el estado de una orden"),
+    ("unprotected", "A position has no verified stop", "Una posición no tiene stop verificado"),
+    ("over_protected", "A position has more than one stop", "Una posición tiene más de un stop"),
     (
         "unprotected_timeout",
         "A position stayed unprotected too long",
-        "Позиция слишком долго без защиты",
+        "Una posición estuvo sin protección demasiado tiempo",
     ),
-    ("stop_rejected", "The broker rejected a stop", "Брокер отклонил стоп"),
-    ("exit_refused", "An exit was refused", "Выход отклонён"),
-    ("cancel_unknown", "A cancel's outcome is unknown", "Исход отмены неизвестен"),
-    ("cancel_failed", "A cancel failed", "Отмена не удалась"),
+    ("stop_rejected", "The broker rejected a stop", "El bróker rechazó un stop"),
+    ("exit_refused", "An exit was refused", "Se rechazó una salida"),
+    (
+        "cancel_unknown",
+        "A cancel's outcome is unknown",
+        "Se desconoce el resultado de una cancelación",
+    ),
+    ("cancel_failed", "A cancel failed", "Falló una cancelación"),
     (
         "cancel_not_sent",
         "Cancels held back by the request budget",
-        "Отмены задержаны лимитом запросов",
+        "Cancelaciones retenidas por el cupo de solicitudes",
     ),
-    ("resurrected", "A closed order came back", "Закрытый ордер вернулся"),
-    ("foreign_position", "A position the bot did not open", "Позиция, которую бот не открывал"),
-    ("foreign_order", "An order the bot did not send", "Ордер, который бот не отправлял"),
+    ("resurrected", "A closed order came back", "Una orden cerrada volvió"),
+    ("foreign_position", "A position the bot did not open", "Una posición que el bot no abrió"),
+    ("foreign_order", "An order the bot did not send", "Una orden que el bot no envió"),
     (
         "quantity_mismatch",
         "Quantities differ from the broker's",
-        "Количество расходится с брокером",
+        "Las cantidades difieren de las del bróker",
     ),
-    ("shutting_down", "The bot is shutting down", "Бот завершает работу"),
-    ("entry_stop", "Entries stopped by the operator", "Входы остановлены оператором"),
-    ("replace_unresolved", "A stop change is not confirmed", "Изменение стопа не подтверждено"),
-    ("stop_held", "No stop and no close sent", "Нет ни стопа, ни отправленного закрытия"),
+    ("shutting_down", "The bot is shutting down", "El bot se está apagando"),
+    ("entry_stop", "Entries stopped by the operator", "Entradas detenidas por el operador"),
+    (
+        "replace_unresolved",
+        "A stop change is not confirmed",
+        "Un cambio de stop no está confirmado",
+    ),
+    ("stop_held", "No stop and no close sent", "Sin stop y sin cierre enviado"),
     (
         "exit_not_filled",
         "A closing order is not filled in time",
-        "Закрывающий ордер не исполнен вовремя",
+        "Una orden de cierre no se ejecuta a tiempo",
     ),
-    ("market_closed", "The market is closed", "Рынок закрыт"),
+    ("market_closed", "The market is closed", "Mercado cerrado"),
     (
         "watchdog_started",
         "Started by the watchdog: entries wait for you",
-        "Запущен сторожем: входы ждут вашего решения",
+        "Iniciado por el vigilante: las entradas te esperan",
     ),
 ]:
-    add("fence_" + code, "kit.fence." + code, en, ru, F + code)
+    add("fence_" + code, "kit.fence." + code, en, es, F + code)
 
 ORDER = "Order "
-for name, en, ru in [
-    ("side_BUY", "Buy", "Покупка"),
-    ("side_SELL", "Sell", "Продажа"),
-    ("type_MARKET", "Market", "Рыночный"),
-    ("type_LIMIT", "Limit", "Лимитный"),
-    ("type_STOP_LOSS", "Stop loss", "Стоп-лосс"),
-    ("type_STOP_LOSS_LIMIT", "Stop limit", "Стоп-лимит"),
-    ("type_TRAILING_STOP_LOSS", "Trailing stop", "Трейлинг-стоп"),
-    ("status_ACCEPTED", "Accepted", "Принят"),
-    ("status_PARTIALLY_FILLED", "Partly filled", "Частично исполнен"),
-    ("status_FILLED", "Filled", "Исполнен"),
-    ("status_CANCELLED", "Cancelled", "Отменён"),
-    ("status_REJECTED", "Rejected", "Отклонён"),
-    ("status_EXPIRED", "Expired", "Истёк"),
-    ("status_UNKNOWN", "Unknown", "Неизвестно"),
+for name, en, es in [
+    ("side_BUY", "Buy", "Compra"),
+    ("side_SELL", "Sell", "Venta"),
+    ("type_MARKET", "Market", "Mercado"),
+    ("type_LIMIT", "Limit", "Límite"),
+    ("type_STOP_LOSS", "Stop loss", "Stop loss"),
+    ("type_STOP_LOSS_LIMIT", "Stop limit", "Stop límite"),
+    ("type_TRAILING_STOP_LOSS", "Trailing stop", "Trailing stop"),
+    ("status_ACCEPTED", "Accepted", "Aceptada"),
+    ("status_PARTIALLY_FILLED", "Partly filled", "Ejecutada en parte"),
+    ("status_FILLED", "Filled", "Ejecutada"),
+    ("status_CANCELLED", "Cancelled", "Cancelada"),
+    ("status_REJECTED", "Rejected", "Rechazada"),
+    ("status_EXPIRED", "Expired", "Vencida"),
+    ("status_UNKNOWN", "Unknown", "Desconocido"),
 ]:
-    add("order_" + name, "kit.order." + name, en, ru, ORDER + name.replace("_", " ", 1).lower())
+    add("order_" + name, "kit.order." + name, en, es, ORDER + name.replace("_", " ", 1).lower())
 
 R = "Strategy check: "
-for code, en, ru in [
-    ("position_open", "Position open", "Позиция открыта"),
-    ("bars_consistent", "Bars consistent", "Бары согласованы"),
-    ("history_bars", "History bars", "Бары истории"),
-    ("relative_volume", "Relative volume", "Относительный объём"),
-    ("dollar_volume_usd", "Dollar volume, USD", "Объём в долларах, USD"),
-    ("session_vwap_available", "Session VWAP available", "VWAP сессии доступен"),
-    ("close_above_vwap", "Close above VWAP", "Закрытие выше VWAP"),
-    ("fast_ema_above_slow_ema", "Fast EMA above slow EMA", "Быстрая EMA выше медленной"),
+for code, en, es in [
+    ("position_open", "Position open", "Posición abierta"),
+    ("bars_consistent", "Bars consistent", "Velas coherentes"),
+    ("history_bars", "History bars", "Velas de historial"),
+    ("relative_volume", "Relative volume", "Volumen relativo"),
+    ("dollar_volume_usd", "Dollar volume, USD", "Volumen en dólares, USD"),
+    ("session_vwap_available", "Session VWAP available", "VWAP de la sesión disponible"),
+    ("close_above_vwap", "Close above VWAP", "Cierre por encima del VWAP"),
+    ("fast_ema_above_slow_ema", "Fast EMA above slow EMA", "EMA rápida por encima de la EMA lenta"),
     ("atr", "ATR", "ATR"),
-    ("quote_valid", "Quote valid", "Котировка годна"),
-    ("spread_ratio", "Spread ratio", "Доля спреда"),
-    ("bid_above_invalidation", "Bid above invalidation", "Бид выше уровня отмены"),
-    ("ask_above_trigger", "Ask above trigger", "Аск выше триггера"),
-    ("ask_within_price_window", "Ask within price window", "Аск в ценовом окне"),
-    ("stop_distance", "Stop distance", "Расстояние до стопа"),
-    ("round_trip_atr_ratio", "Round trip / ATR", "Круг / ATR"),
-    ("round_trip_risk_ratio", "Round trip / risk", "Круг / риск"),
-    ("daily_loss_budget_usd", "Daily loss budget, USD", "Дневной бюджет убытка, USD"),
+    ("quote_valid", "Quote valid", "Cotización válida"),
+    ("spread_ratio", "Spread ratio", "Ratio del spread"),
+    ("bid_above_invalidation", "Bid above invalidation", "Bid por encima de la invalidación"),
+    ("ask_above_trigger", "Ask above trigger", "Ask por encima del disparador"),
+    ("ask_within_price_window", "Ask within price window", "Ask dentro de la ventana de precio"),
+    ("stop_distance", "Stop distance", "Distancia del stop"),
+    ("round_trip_atr_ratio", "Round trip / ATR", "Ida y vuelta / ATR"),
+    ("round_trip_risk_ratio", "Round trip / risk", "Ida y vuelta / riesgo"),
+    ("daily_loss_budget_usd", "Daily loss budget, USD", "Presupuesto de pérdida diaria, USD"),
     (
         "breakout_close_above_trigger",
         "Breakout: close above trigger",
-        "Пробой: закрытие выше триггера",
+        "Ruptura: cierre por encima del disparador",
     ),
     (
         "breakout_invalidation_below_trigger",
         "Breakout: invalidation below trigger",
-        "Пробой: уровень отмены ниже триггера",
+        "Ruptura: invalidación por debajo del disparador",
     ),
     (
         "continuation_invalidation_below_trigger",
         "Continuation: invalidation below trigger",
-        "Продолжение: уровень отмены ниже триггера",
+        "Continuación: invalidación por debajo del disparador",
     ),
-    ("spike_volume_ratio", "Spike: volume × average", "Всплеск: объём × средний"),
-    ("spike_move_atr", "Spike: move in ATR", "Всплеск: движение в ATR"),
+    ("spike_volume_ratio", "Spike: volume × average", "Pico: volumen × promedio"),
+    ("spike_move_atr", "Spike: move in ATR", "Pico: movimiento en ATR"),
     (
         "spike_invalidation_below_trigger",
         "Spike: invalidation below trigger",
-        "Всплеск: уровень отмены ниже триггера",
+        "Pico: invalidación por debajo del disparador",
     ),
-    ("spike_age_bars", "Spike: bars since it", "Всплеск: баров после него"),
-    ("spike_low_held", "Spike: its low held", "Всплеск: минимум удержан"),
-    ("relative_volume_available", "Relative volume available", "Относительный объём доступен"),
-    ("impulse_atr", "Impulse in ATR", "Импульс в ATR"),
-    ("base_range_atr", "Base range in ATR", "Диапазон базы в ATR"),
+    ("spike_age_bars", "Spike: bars since it", "Pico: velas desde él"),
+    ("spike_low_held", "Spike: its low held", "Pico: su mínimo se mantuvo"),
+    ("relative_volume_available", "Relative volume available", "Volumen relativo disponible"),
+    ("impulse_atr", "Impulse in ATR", "Impulso en ATR"),
+    ("base_range_atr", "Base range in ATR", "Rango de la base en ATR"),
     (
         "pre_breakout_distance_atr",
         "Distance below base high, ATR",
-        "Расстояние до максимума базы, ATR",
+        "Distancia bajo el máximo de la base, ATR",
     ),
     (
         "breakout_pre_breakout_distance_atr",
         "Breakout: distance below trigger, ATR",
-        "Пробой: расстояние до триггера, ATR",
+        "Ruptura: distancia bajo el disparador, ATR",
     ),
-    ("sizing_risk_per_share", "Risk per share for sizing", "Риск на акцию для размера"),
-    ("quantity", "Quantity", "Количество"),
+    ("sizing_risk_per_share", "Risk per share for sizing", "Riesgo por acción para el tamaño"),
+    ("quantity", "Quantity", "Cantidad"),
 ]:
-    add("rule_" + code, "kit.rule." + code, en, ru, R + code)
+    add("rule_" + code, "kit.rule." + code, en, es, R + code)
 
 # discovery refusal causes (data.discovery.Cause, symbols-v1 row cause)
 DC = "Why discovery dropped a symbol: "
-for code, en, ru in [
-    ("CONFLICTING_ROWS", "Screeners disagree on it", "Скринеры расходятся по нему"),
-    ("EXCHANGE_NOT_ALLOWED", "Exchange not allowed", "Биржа не разрешена"),
-    ("CURRENCY_NOT_ALLOWED", "Currency not allowed", "Валюта не разрешена"),
-    ("SECURITY_TYPE_UNKNOWN", "Security type unknown", "Тип бумаги неизвестен"),
-    ("SECURITY_TYPE_NOT_ALLOWED", "Not a common stock", "Не обыкновенная акция"),
-    ("NO_QUOTE", "No quote", "Нет котировки"),
-    ("QUOTE_STALE", "Quote too old", "Котировка устарела"),
-    ("QUOTE_FROM_FUTURE", "Quote time ahead of the clock", "Время котировки впереди часов"),
-    ("QUOTE_INVALID", "Quote invalid", "Котировка негодна"),
-    ("NO_BARS", "No minute bars", "Нет минутных баров"),
-    ("SYMBOL_REFUSED", "Refused by the data provider", "Отклонён поставщиком данных"),
-    ("STRATEGY_LIQUIDITY", "Strategy liquidity rule", "Правило ликвидности стратегии"),
+for code, en, es in [
+    ("CONFLICTING_ROWS", "Screeners disagree on it", "Los filtros no coinciden en él"),
+    ("EXCHANGE_NOT_ALLOWED", "Exchange not allowed", "Bolsa no permitida"),
+    ("CURRENCY_NOT_ALLOWED", "Currency not allowed", "Moneda no permitida"),
+    ("SECURITY_TYPE_UNKNOWN", "Security type unknown", "Tipo de valor desconocido"),
+    ("SECURITY_TYPE_NOT_ALLOWED", "Not a common stock", "No es una acción común"),
+    ("NO_QUOTE", "No quote", "Sin cotización"),
+    ("QUOTE_STALE", "Quote too old", "Cotización vieja"),
+    (
+        "QUOTE_FROM_FUTURE",
+        "Quote time ahead of the clock",
+        "Hora de cotización adelantada al reloj",
+    ),
+    ("QUOTE_INVALID", "Quote invalid", "Cotización no válida"),
+    ("NO_BARS", "No minute bars", "Sin velas de un minuto"),
+    ("SYMBOL_REFUSED", "Refused by the data provider", "Rechazado por el proveedor de datos"),
+    ("STRATEGY_LIQUIDITY", "Strategy liquidity rule", "Regla de liquidez de la estrategia"),
 ]:
-    add("discovery_" + code, "kit.discovery." + code, en, ru, DC + code)
+    add("discovery_" + code, "kit.discovery." + code, en, es, DC + code)
 
 BEGIN, END = (
     "  // MARK: Bot codes (ApiCodes.swift): generated by apps/scripts/kit_api_strings.py",
@@ -294,13 +314,13 @@ def codes_swift():
     return "\n".join(out).rstrip() + "\n"
 
 
-def catalog_entry(key, en, ru, doc):
+def catalog_entry(key, en, es, doc):
     return {
         "comment": doc,
         "extractionState": "manual",
         "localizations": {
             "en": {"stringUnit": {"state": "translated", "value": en}},
-            "ru": {"stringUnit": {"state": "translated", "value": ru}},
+            "es": {"stringUnit": {"state": "translated", "value": es}},
         },
     }
 
@@ -321,8 +341,8 @@ def check():
         if not path.exists() or path.read_text() != l10n_swift(keep):
             problems.append(f"{file} differs from the generator")
     strings = json.loads((KIT / "Resources/Localizable.xcstrings").read_text())["strings"]
-    for _name, key, en, ru, doc in S:
-        if strings.get(key) != catalog_entry(key, en, ru, doc):
+    for _name, key, en, es, doc in S:
+        if strings.get(key) != catalog_entry(key, en, es, doc):
             problems.append(f"catalog entry {key} differs from the generator")
     return problems
 
@@ -350,8 +370,8 @@ def write():
     (KIT / "ApiCodes.swift").write_text(codes_swift())
     cpath = KIT / "Resources/Localizable.xcstrings"
     cat = json.loads(cpath.read_text())
-    for _name, key, en, ru, doc in S:
-        cat["strings"][key] = catalog_entry(key, en, ru, doc)
+    for _name, key, en, es, doc in S:
+        cat["strings"][key] = catalog_entry(key, en, es, doc)
     cat["strings"] = dict(sorted(cat["strings"].items()))
     cpath.write_text(json.dumps(cat, ensure_ascii=False, indent=2) + "\n")
 

@@ -631,9 +631,9 @@ struct DayControls: View {
   @Environment(AppModel.self) private var model
 
   /// Least width of the day label, in points, so the arrows keep their place from day to day:
-  /// holds the widest live-day label in 11.5-point mono (`Typography.dayStepper`), the Russian
-  /// "Сб, 28 февр. · сегодня" (157 points; "сент." and "февр." are the longest month
-  /// abbreviations), as well as the English "Wed Jan 28 · today" (128).
+  /// holds the widest live-day label in 11.5-point mono (`Typography.dayStepper`): 22 characters
+  /// (157 points), more than the English "Wed Jan 28 · today" (128) and the Spanish
+  /// "mié 30 sept · hoy" (at most 20 characters with the abbreviation dots).
   static let dayMinWidth: CGFloat = 158
   /// The stepper's arrows (‹ and ›), and its items `s` apart: ‹, the day, › and Today.
   static let arrowCount = 2
@@ -749,8 +749,8 @@ struct ConnectionStatus: View {
   static let id = "toolbar-connection"
   /// Width of the item, in points: fixed, so the age ticking from "9 s" to "10 s" or to "1 min"
   /// never changes the toolbar's width, which AppKit would answer with a new layout of the whole
-  /// window every second. Holds "127.0.0.1 · age 59 min" in English and "127.0.0.1 · возраст 59
-  /// мин" in Russian (11-point mono, with the dot), right-aligned so the text keeps to the
+  /// window every second. Holds 26 characters of 11-point mono with the dot, more than "127.0.0.1 · age 59
+  /// min" in English and "127.0.0.1 · hace 59 min" in Spanish, right-aligned so the text keeps to the
   /// stepper; a longer address is shortened in the middle (the whole line is in the tooltip).
   static let width: CGFloat = 196
   /// Gap between the dot and the text, in points.

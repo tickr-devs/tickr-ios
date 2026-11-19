@@ -1,7 +1,7 @@
 import Foundation
 
 /// Words of a capped list (`CappedList` in TickrDesign: a card's latest rows, then "Show all N ›"
-/// opening every row in a sheet), shared by both apps, in English with their Russian translation in
+/// opening every row in a sheet), shared by both apps, in English with their Spanish translation in
 /// Resources/Localizable.xcstrings (docs/design-system.md, rule 2).
 public enum ListWords {
   /// The footer link under a capped list: "Show all 23 ›" (the count is its own chip).

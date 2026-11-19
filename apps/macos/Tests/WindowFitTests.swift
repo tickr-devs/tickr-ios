@@ -136,7 +136,7 @@ struct WindowFitTests {
   func stageCellWidth() {
     let short = StageRows.leastCellWidth(names: ["A"], values: [])
     #expect(short == Tokens.Size.stage + Tokens.Space.xs * CardArrangement.paddedEdges)
-    let long = StageRows.leastCellWidth(names: ["broker stop", "reconcile"], values: ["котировкой: 141"])
+    let long = StageRows.leastCellWidth(names: ["broker stop", "reconcile"], values: ["141 cotizados"])
     #expect(long > short)
     #expect(StageRows.leastCellWidth(names: ["reconcile reconcile"], values: [])
       == StageRows.leastCellWidth(names: ["reconcile"], values: []))

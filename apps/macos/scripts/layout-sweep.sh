@@ -1,6 +1,6 @@
 #!/bin/sh
 # Layout sweep of the macOS app (Tickr/Previews/LayoutSweep.swift): every screen at several
-# window sizes, Chart inspector closed and open, in English and Russian, on the fixture data.
+# window sizes, Chart inspector closed and open, in English and Spanish, on the fixture data.
 # Fails when the app crashes or hangs (for example AppKit's "Update Constraints in Window" loop
 # while the window is resized), and when a picture shows a truncated text (a text ending in an
 # ellipsis the String Catalogs do not have: apps/scripts/find_truncated_text.swift).
@@ -15,7 +15,7 @@ OUT="$(cd "$OUT" && pwd)"
 # Seconds one language may take before the run counts as hung.
 LIMIT=420
 swift build --product TickrMac
-# A bare executable has no bundle that declares Russian, so macOS would show it in English
+# A bare executable has no bundle that declares Spanish, so macOS would show it in English
 # whatever -AppleLanguages says. Wrap the debug build in a minimal app that declares both
 # languages, with its own bundle id, so its settings never touch the real app's.
 # The String Catalogs are SwiftPM resource bundles, copied into the app's Resources.
@@ -35,14 +35,14 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
   <key>CFBundleExecutable</key><string>TickrMac</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
-  <key>CFBundleLocalizations</key><array><string>en</string><string>ru</string></array>
+  <key>CFBundleLocalizations</key><array><string>en</string><string>es</string></array>
   <key>NSHighResolutionCapable</key><true/>
 </dict>
 </plist>
 PLIST
 BIN="$APP/Contents/MacOS/TickrMac"
 status=0
-for lang in en ru; do
+for lang in en es; do
   rm -rf "${OUT:?}/$lang"
   mkdir -p "$OUT/$lang"
   TICKR_FIXTURES=1 TICKR_LAYOUT_SWEEP="$OUT/$lang" \

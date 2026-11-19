@@ -25,13 +25,13 @@ legacy   The current Apple stack only (CLAUDE.md, "Swift code rules"): no XCTest
          (Observation instead); no Combine, DispatchQueue, OperationQueue or Thread.sleep
          (async/await instead); no NavigationView, PreviewProvider or NSLocalizedString; no
          deprecated SwiftUI, UIKit and AppKit calls (see LEGACY). Checked in tests too.
-catalog  Every key of an `L10n.swift` has a Russian translation in the target's String Catalog
-         (`*.xcstrings` next to it), and every user-facing Info.plist text (`NS…UsageDescription`)
-         has one in an `InfoPlist.xcstrings` of the same app. Every String Catalog is committed
-         in the exact form Xcode writes (format_xcstrings.py), so a build leaves no diff. Every
-         app Info.plist lists in `CFBundleLocalizations` each language the app's and the shared
-         package's String Catalogs translate (the app follows the system language; without the
-         list the SwiftPM-built Mac app opens in English).
+catalog  Every key of an `L10n.swift` has a Spanish (`es`) translation in the target's String
+         Catalog (`*.xcstrings` next to it), and every user-facing Info.plist text
+         (`NS…UsageDescription`) has one in an `InfoPlist.xcstrings` of the same app. Every String
+         Catalog is committed in the exact form Xcode writes (format_xcstrings.py), so a build
+         leaves no diff. Every app Info.plist lists in `CFBundleLocalizations` each language the
+         app's and the shared package's String Catalogs translate (the app follows the system
+         language; without the list the SwiftPM-built Mac app opens in English).
 result   (apps/macos, apps/ios) A money result's colour comes only from the shared map
          (`Palette.result` / `Tone.result`, zero neutral): no hand-written
          `>= 0 ? … profit : … loss`.
@@ -298,9 +298,13 @@ def indent_violations(path: Path) -> list[tuple[int, str]]:
 
 # MARK: - String Catalog
 
+# The apps' second language beside English: Spanish for the US market, written as plain `es` so
+# every Spanish system language (es-US, es-419, es-MX, es-ES) falls back to it.
+TRANSLATION = "es"
+
 
 def catalog_violations(path: Path) -> list[tuple[int, str]]:
-    """Keys of an L10n.swift without a Russian translation in the String Catalog beside it."""
+    """Keys of an L10n.swift without a Spanish translation in the String Catalog beside it."""
     if not is_l10n(path):
         return []
     catalogs = sorted(path.parent.rglob("*.xcstrings"))
@@ -313,15 +317,16 @@ def catalog_violations(path: Path) -> list[tuple[int, str]]:
         strings.update(json.loads(catalog.read_text(encoding="utf-8")).get("strings", {}))
     found = []
     for number, key in keys:
-        unit = strings.get(key, {}).get("localizations", {}).get("ru", {}).get("stringUnit", {})
-        variations = strings.get(key, {}).get("localizations", {}).get("ru", {}).get("variations")
+        translation = strings.get(key, {}).get("localizations", {}).get(TRANSLATION, {})
+        unit = translation.get("stringUnit", {})
+        variations = translation.get("variations")
         if not variations and (unit.get("state") != "translated" or not unit.get("value")):
             found.append((number, key))
     return found
 
 
 def plist_violations(path: Path) -> list[tuple[int, str]]:
-    """Info.plist texts a person reads, without a Russian translation in InfoPlist.xcstrings."""
+    """Info.plist texts a person reads, without a Spanish translation in InfoPlist.xcstrings."""
     texts = [key for key, value in plistlib.loads(path.read_bytes()).items()
              if USAGE_KEY.match(key) and isinstance(value, str)]
     if not texts:
@@ -332,7 +337,8 @@ def plist_violations(path: Path) -> list[tuple[int, str]]:
         strings.update(json.loads(catalog.read_text(encoding="utf-8")).get("strings", {}))
     found = []
     for key in texts:
-        unit = strings.get(key, {}).get("localizations", {}).get("ru", {}).get("stringUnit", {})
+        translation = strings.get(key, {}).get("localizations", {}).get(TRANSLATION, {})
+        unit = translation.get("stringUnit", {})
         if unit.get("state") != "translated" or not unit.get("value"):
             found.append((1, key))
     return found
@@ -901,11 +907,11 @@ def scrollbar_violations(path: Path) -> list[tuple[int, str]]:
     return found
 
 RULES = {
-    "text": (text_violations, "words in code; define them in L10n.swift, translated to Russian"),
+    "text": (text_violations, "words in code; define them in L10n.swift, translated to Spanish"),
     "numbers": (number_violations, "magic number; use a token or a documented constant"),
     "indent": (indent_violations, "indent with 2 spaces"),
     "catalog": (catalog_violations,
-      "text without a Russian translation, or a language missing from an Info.plist"),
+      "text without a Spanish translation, or a language missing from an Info.plist"),
     "legacy": (legacy_violations, "outdated API: use the current Apple stack (CLAUDE.md)"),
     "truncation": (truncation_violations,
       "text may be cut or shrunk; let it wrap or give it room (docs/design-system.md)"),

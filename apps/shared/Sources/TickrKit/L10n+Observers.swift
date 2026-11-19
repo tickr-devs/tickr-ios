@@ -1,6 +1,6 @@
 import Foundation
 
-/// The observer rows' texts (ObserverLabel), with their Russian translations in
+/// The observer rows' texts (ObserverLabel), with their Spanish translations in
 /// Resources/Localizable.xcstrings.
 extension L10n {
   /// The trading strategy's row: "v3 · active".

@@ -932,7 +932,7 @@ private struct ReplayCard: View {
     colored: Bool = true, format: (Decimal) -> String, delta: (Decimal) -> String
   ) -> some View {
     GridRow {
-      // A name longer than its column ("доля прибыльных") wraps onto a second line, never cut.
+      // A name longer than its column ("% de acierto" in a narrow column) wraps onto a second line, never cut.
       Text(title)
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textTertiary)

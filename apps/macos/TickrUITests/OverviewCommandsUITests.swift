@@ -5,7 +5,7 @@ import XCTest
 /// so every command must still lie inside the card, be hittable, and (except pausing, which acts
 /// at once and is never pressed here) open its confirmation; the emergency stop only after a held
 /// press. Escape withdraws every confirmation, and nothing is sent: no command toast ever shows.
-/// Run in English and in Russian, whose labels are the longest; the macOS app has one text size
+/// Run in English and in Spanish, whose labels are the longest; the macOS app has one text size
 /// (no Dynamic Type on the Mac, Tokens.Typography). The app reads the contract fixtures.
 ///
 /// Small displays (owner decision 2026-11-16, option A: the window fits the screen, so the
@@ -20,7 +20,7 @@ final class OverviewCommandsUITests: XCTestCase {
   static let fixturesOn = "1"
   /// Launch arguments of each language, without restoring windows saved by an earlier run.
   static let english = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-ApplePersistenceIgnoreState", "YES"]
-  static let russian = ["-AppleLanguages", "(ru)", "-AppleLocale", "ru_RU", "-ApplePersistenceIgnoreState", "YES"]
+  static let spanish = ["-AppleLanguages", "(es)", "-AppleLocale", "es_US", "-ApplePersistenceIgnoreState", "YES"]
   /// The Overview's sidebar row and screen (AppSection ids), and the Safety · bot card
   /// (SafetyCard.id).
   static let overviewRow = "sidebar-overview"
@@ -43,10 +43,11 @@ final class OverviewCommandsUITests: XCTestCase {
   /// The narrowest window on the fixtures, in points: TickrMacApp.leastWidth, which this test
   /// target cannot read from the app. The title bar's need is wider than the screens' (1086): the
   /// sidebar's widest 260, AppKit's insets 4 + 4 and gap 8, the fixtures' longest line (Overview,
-  /// 572 points in English, 535 in Russian) and the right-hand group (512 and 528, Today and
-  /// Сегодня), each item 8.5 wider than its content.
-  static let minWidthEnglish: CGFloat = 1377
-  static let minWidthRussian: CGFloat = 1356
+  /// "tickr — paper trading — …") and the right-hand group (Today), each item 8.5 wider than its
+  /// content. Measured by this test on CI (#695, 2026-11-19): 1421 in English, 1446 in Spanish,
+  /// whose line and group are the longer.
+  static let minWidthEnglish: CGFloat = 1421
+  static let minWidthSpanish: CGFloat = 1446
   /// Environment variable that opens the window at its least size (LayoutSweep.smallestKey).
   static let smallestKey = "TICKR_SMALLEST_WINDOW"
   /// Environment variable that opens Overview with the Safety · bot card at its top
@@ -86,8 +87,8 @@ final class OverviewCommandsUITests: XCTestCase {
   }
 
   @MainActor
-  func testEveryCommandFitsAndAsksInTheNarrowestWindowInRussian() {
-    check(Self.russian, minWidth: Self.minWidthRussian)
+  func testEveryCommandFitsAndAsksInTheNarrowestWindowInSpanish() {
+    check(Self.spanish, minWidth: Self.minWidthSpanish)
   }
 
   @MainActor
@@ -96,8 +97,8 @@ final class OverviewCommandsUITests: XCTestCase {
   }
 
   @MainActor
-  func testEveryCommandIsReachableOnA1280x800DisplayInRussian() {
-    checkOnDisplay(Self.russian, Self.laptop)
+  func testEveryCommandIsReachableOnA1280x800DisplayInSpanish() {
+    checkOnDisplay(Self.spanish, Self.laptop)
   }
 
   @MainActor
@@ -106,8 +107,8 @@ final class OverviewCommandsUITests: XCTestCase {
   }
 
   @MainActor
-  func testEveryCommandIsReachableOnA1024x768DisplayInRussian() {
-    checkOnDisplay(Self.russian, Self.smallDisplay)
+  func testEveryCommandIsReachableOnA1024x768DisplayInSpanish() {
+    checkOnDisplay(Self.spanish, Self.smallDisplay)
   }
 
   @MainActor
@@ -116,8 +117,8 @@ final class OverviewCommandsUITests: XCTestCase {
   }
 
   @MainActor
-  func testSafetyComesFirstAndEveryCommandIsReachable640PointsWideInRussian() {
-    checkOnDisplay(Self.russian, Self.narrowest, safetyBeforeFlow: true)
+  func testSafetyComesFirstAndEveryCommandIsReachable640PointsWideInSpanish() {
+    checkOnDisplay(Self.spanish, Self.narrowest, safetyBeforeFlow: true)
   }
 
   /// The narrowest window on the pretended display: never larger than it (its least size is

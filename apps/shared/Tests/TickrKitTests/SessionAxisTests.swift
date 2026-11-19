@@ -151,12 +151,12 @@ struct SessionAxisTests {
     let tight = AxisLabelPlacer.place(crowded, width: 300, gap: 2, inset: 0)
     #expect(tight.map(\.text) == [0, 0])
     #expect(AxisLabelPlacer.place(crowded, width: 300, gap: 8, inset: 0).map(\.item) == [0])
-    // "Премаркет 04:00" would leave no room for "09:30": every label takes its short form.
-    let russian = [
+    // A long pre-market label would leave no room for "09:30": every label takes its short form.
+    let long = [
       AxisLabelPlacer.Item(x: 0, widths: [90, 30], anchor: .leading, required: true),
       AxisLabelPlacer.Item(x: 80, widths: [30], anchor: .centre, required: true),
     ]
-    let both = AxisLabelPlacer.place(russian, width: 300, gap: 6, inset: 0)
+    let both = AxisLabelPlacer.place(long, width: 300, gap: 6, inset: 0)
     #expect(both.map(\.item) == [0, 1])
     #expect(both.map(\.text) == [1, 0])
     let edge = [AxisLabelPlacer.Item(x: 0, widths: [30], anchor: .centre)]

@@ -337,7 +337,7 @@ private struct DayPicker: View {
               .foregroundStyle(Palette.result(total))
           }
         }
-        // The month and year wrap ("Ноябрь 2026 г." at large text sizes), never shrink or get cut.
+        // The month and year wrap ("noviembre de 2026" at large text sizes), never shrink or get cut.
         .multilineTextAlignment(.center)
         .contentTransition(.opacity)
       }

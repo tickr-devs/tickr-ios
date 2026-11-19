@@ -51,7 +51,7 @@ public struct StatusPill: View {
         .textCase(.uppercase)
         .font(Tokens.Typography.badge)
         .tracking(Tokens.Typography.badgeTracking)
-        // At the largest text sizes a long state ("НЕ ЗАПУСКАЛСЯ") wraps inside the pill
+        // At the largest text sizes a long state ("SIN EJECUTAR") wraps inside the pill
         // instead of widening it past the screen; it is never cut or shrunk.
     }
     .foregroundStyle(tone.text)

@@ -1,7 +1,7 @@
 import Foundation
 import TickrKit
 
-/// Every text of the macOS app that a person reads, in English, with its Russian translation in
+/// Every text of the macOS app that a person reads, in English, with its Spanish translation in
 /// Localizable.xcstrings beside this file (docs/design-system.md, rule 2). Views pass these to
 /// `Text` and the components, or read them with `String(localized:)`. Generated keys are
 /// `<namespace>.<name>`.

@@ -11,7 +11,7 @@
             "value" : "Tickr"
           }
         },
-        "ru" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tickr"
@@ -29,7 +29,7 @@
             "value" : "Tickr"
           }
         },
-        "ru" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tickr"
@@ -47,10 +47,10 @@
             "value" : "Confirms commands that cancel orders or close positions."
           }
         },
-        "ru" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Подтверждает команды, которые отменяют заявки или закрывают позиции."
+            "value" : "Confirma los comandos que cancelan órdenes o cierran posiciones."
           }
         }
       }

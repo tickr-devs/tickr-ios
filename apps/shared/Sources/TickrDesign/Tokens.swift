@@ -76,8 +76,8 @@ public enum Tokens {
     /// Figures in compact tiles and stat rows (Trades' day figures, performance figures).
     public static let figureSize: CGFloat = 18
     /// Tab names under the tab glyphs in the iPhone tab bar: the system tab bar's 10 pt (Apple HIG,
-    /// and the IOSHome board's `.tab`), so the longest Russian name ("Лаборатория") fits its tab on
-    /// one line.
+    /// and the IOSHome board's `.tab`), so the longest name ("Posiciones" in Spanish) fits its tab
+    /// on one line.
     public static let tabLabelSize: CGFloat = 10
 
     #if os(iOS)

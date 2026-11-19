@@ -63,8 +63,8 @@ struct TitleBarFit: Equatable {
   @MainActor
   static func make(width: CGFloat, lead: CGFloat, model: AppModel, chart: ChartModel) -> TitleBarFit {
     if width >= TitleBarWidth.need(model: model, chart: chart) { return .whole }
-    // A margin of one more gap: at exactly its need (1024 points, the Russian line with the code
-    // version beside the full status) AppKit moved the status into the overflow menu.
+    // A margin of one more gap: at exactly its need (1024 points, a long translated line with the
+    // code version beside the full status) AppKit moved the status into the overflow menu.
     for tier in tiers.dropFirst()
     where width >= TitleBarWidth.need(tier, lead: lead, model: model, chart: chart) + TitleBarWidth.itemGap {
       return tier
@@ -151,7 +151,7 @@ struct StageRows: Layout {
 
   /// Least width of a stage's cell, in points: its ring, or the longest word of any stage's name
   /// as it is drawn (upper case, `annotationBold`, `labelTracking`) or of its value
-  /// (`annotation`: "котировкой: 141"), with the column's padding.
+  /// (`annotation`: "141 cotizados"), with the column's padding.
   static func leastCellWidth(names: [String], values: [String]) -> CGFloat {
     let bold = NSFont.monospacedSystemFont(ofSize: Tokens.Typography.annotationSize, weight: .bold)
     let regular = NSFont.monospacedSystemFont(ofSize: Tokens.Typography.annotationSize, weight: .regular)

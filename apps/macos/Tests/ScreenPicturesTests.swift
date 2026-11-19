@@ -12,10 +12,10 @@ import TickrKit
 /// shown, in the light and the dark appearance (`<folder>/<language>/<appearance>/`).
 /// `apps/scripts/find_truncated_text.swift` then reads them for an ellipsis
 /// (.github/workflows/ui-tests.yml, job `no-truncated-text`). Runs only with
-/// `TICKR_SCREEN_PICTURES=<folder>`; `TICKR_SCREEN_PICTURES_LANGUAGE` (en, ru) picks the language
+/// `TICKR_SCREEN_PICTURES=<folder>`; `TICKR_SCREEN_PICTURES_LANGUAGE` (en, es) picks the language
 /// and the locale, given to the process as a launch argument would be (the argument domain, which
 /// `StringsBundle` reads at the first text), so run it once per language, each in its own process:
-///   TICKR_SCREEN_PICTURES=/tmp/pictures TICKR_SCREEN_PICTURES_LANGUAGE=ru \
+///   TICKR_SCREEN_PICTURES=/tmp/pictures TICKR_SCREEN_PICTURES_LANGUAGE=es \
 ///     swift test --filter ScreenPicturesTests
 @MainActor
 @Suite(.serialized)
@@ -27,8 +27,8 @@ struct ScreenPicturesTests {
   static let languagesKey = "AppleLanguages"
   static let localeKey = "AppleLocale"
   /// One text in every language the pictures are drawn in: the pass fails when the catalogs
-  /// answer in another language (a Russian pass that draws English checks nothing).
-  static let quitText = ["en": "Quit", "ru": "Выйти"]
+  /// answer in another language (a Spanish pass that draws English checks nothing).
+  static let quitText = ["en": "Quit", "es": "Salir"]
   /// The appearances every screen is drawn in, with the folder each one's pictures go to.
   static let appearances: [(folder: String, name: NSAppearance.Name)] = [
     ("light", .aqua), ("dark", .darkAqua),

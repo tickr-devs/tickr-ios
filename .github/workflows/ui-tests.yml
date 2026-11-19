@@ -35,7 +35,7 @@ jobs:
       # Builds the app as the owner does in Xcode and runs its UI tests against the contract
       # fixtures; ad-hoc signed, because a UI test runner must be signed.
       # The runner's display starts at 1024 x 768 points, smaller than the app's least window
-      # (1377 x 810 in English on the fixtures): every control right of x 1024 would be off screen.
+      # (1421 x 810 in English on the fixtures): every control right of x 1024 would be off screen.
       - name: Largest display mode
         run: swift apps/scripts/largest-display-mode.swift
       - name: Xcode workspace builds the macOS app and runs its UI tests
@@ -44,7 +44,7 @@ jobs:
             -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
             CODE_SIGN_IDENTITY=- test
   # No text is ever cut (owner rule 2026-11-16): every screen, Settings pane and the menu-bar panel
-  # drawn offscreen at the window's least and first sizes on the fixtures, in English and Russian,
+  # drawn offscreen at the window's least and first sizes on the fixtures, in English and Spanish,
   # each in the light and the dark appearance (Tests/ScreenPicturesTests.swift), then read for a
   # text ending in an ellipsis the String Catalogs do not have (apps/scripts/find_truncated_text.swift).
   # The pictures are kept.
@@ -76,11 +76,11 @@ jobs:
             apps/macos/.build
           key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
           restore-keys: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-
-      - name: Draw every screen in English and Russian, light and dark
+      - name: Draw every screen in English and Spanish, light and dark
         working-directory: apps/macos
         run: |
           swift build --build-tests
-          for language in en ru; do
+          for language in en es; do
             TICKR_FIXTURES=1 TICKR_SCREEN_PICTURES="$RUNNER_TEMP/screens" TICKR_SCREEN_PICTURES_LANGUAGE="$language" \
               swift test --skip-build --filter ScreenPicturesTests
           done

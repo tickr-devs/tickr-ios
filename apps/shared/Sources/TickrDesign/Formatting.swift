@@ -267,7 +267,7 @@ public enum Volume {
 }
 
 /// A trading day as both apps write it: weekday, then the date, no comma ("Fri Nov 13",
-/// "пт 13 нояб."), the New York day whatever the device's time zone (noon in New York is already
+/// "vie 13 nov"), the New York day whatever the device's time zone (noon in New York is already
 /// the next day from UTC+7 eastward).
 public enum DayText {
   /// Between a day's weekday and its date.

@@ -9,7 +9,7 @@ import TickrKit
 /// through every size between the largest and the smallest on every screen, and exits 0. A layout
 /// that cannot settle (AppKit's "Update Constraints in Window" loop) crashes the app instead, so
 /// a non-zero exit fails the run. `apps/macos/scripts/layout-sweep.sh` runs it in English and
-/// Russian; CI keeps the pictures. Debug builds only.
+/// Spanish; CI keeps the pictures. Debug builds only.
 ///
 /// The pictures are drawn by the window itself (`cacheDisplay`), so the sweep needs no Screen
 /// Recording permission and works on a window larger than the display.

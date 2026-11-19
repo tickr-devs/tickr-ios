@@ -219,7 +219,7 @@ private struct DayLine: View {
     day
       .frame(maxWidth: .infinity)
       .multilineTextAlignment(.center)
-      // Wraps as far as it needs ("Пт 13 нояб. · сегодня" at large sizes), never cut.
+      // Wraps as far as it needs ("vie 13 nov · hoy" at large sizes), never cut.
       .fixedSize(horizontal: false, vertical: true)
   }
 
@@ -425,7 +425,7 @@ private struct Summary: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
         .multilineTextAlignment(.center)
-        // "1 в плюс · 5 в минусе" wraps in Russian, never cut.
+        // "1 G · 5 P" and longer translations wrap, never cut.
         .fixedSize(horizontal: false, vertical: true)
       }
       // Inside the ring's opening at every text size ("4 W · 7 L" ran past it).

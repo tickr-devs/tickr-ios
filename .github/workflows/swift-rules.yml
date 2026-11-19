@@ -1,6 +1,6 @@
 name: swift-rules
 # The apps' Swift code rules (CLAUDE.md, "Swift code rules"): no words in code outside L10n.swift,
-# no magic numbers, 2-space indentation, Russian translation for every key, and SwiftLint. Also the
+# no magic numbers, 2-space indentation, Spanish translation for every key, and SwiftLint. Also the
 # check for git conflict markers in any tracked file. Runs on every pull request, whatever it
 # touches, so it can be a required check.
 on:

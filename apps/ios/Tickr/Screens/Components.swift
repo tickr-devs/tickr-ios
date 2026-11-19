@@ -92,7 +92,7 @@ enum Format {
 
 extension DynamicTypeSize {
   /// Rows of several parts (a symbol, figures, a tag) stack their parts from XXL up, so words and
-  /// figures stay whole instead of breaking letter by letter (Russian names need it from XXL).
+  /// figures stay whole instead of breaking letter by letter (longer Spanish names need it from XXL).
   var stacksRows: Bool { self >= .xxLarge }
 }
 
@@ -525,8 +525,8 @@ struct TickrTabBar: View {
       }
       .foregroundStyle(selected ? Palette.textPrimary : Palette.textSecondary)
       .padding(.vertical, Tokens.Space.xs)
-      // The name gets the tab's whole width (no side padding inside it), so the longest Russian
-      // name ("Лаборатория") stays on one line; the pill spans the tab, at least `tabWidth` wide,
+      // The name gets the tab's whole width (no side padding inside it), so the longest name
+      // ("Posiciones" in Spanish) stays on one line; the pill spans the tab, at least `tabWidth` wide,
       // and the bar's own padding keeps it inside the bar.
       .frame(minWidth: Self.tabWidth, maxWidth: .infinity, maxHeight: .infinity)
       .background {

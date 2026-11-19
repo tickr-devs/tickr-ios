@@ -1,7 +1,7 @@
 import Foundation
 import TickrKit
 
-/// Every text of the iOS app that a person reads, in English, with its Russian translation in
+/// Every text of the iOS app that a person reads, in English, with its Spanish translation in
 /// Localizable.xcstrings beside this file (docs/design-system.md, rule 2). The Chart tab's texts are
 /// `ChartText` at the end of this file.
 /// Views pass these to `Text` and the components, or read them with `String(localized:)`. Keys are
@@ -1768,7 +1768,7 @@ enum L10n {
       LocalizedStringResource("settings.backupFailed", defaultValue: "Failed \(time)", bundle: L10n.bundle)
     }
     static var environmentFooter: LocalizedStringResource {
-      LocalizedStringResource("settings.environmentFooter", defaultValue: "Production is enabled only on the Mac",
+      LocalizedStringResource("settings.environmentFooter", defaultValue: "Live trading is enabled only on the Mac",
         bundle: L10n.bundle)
     }
     static var session: LocalizedStringResource {
@@ -1883,7 +1883,7 @@ enum L10n {
     }
     /// The environment card's backlog tag: the Production gate's readiness is not shown yet.
     static var productionGateBacklog: LocalizedStringResource {
-      LocalizedStringResource("settings.productionGateBacklog", defaultValue: "Production gate · backlog",
+      LocalizedStringResource("settings.productionGateBacklog", defaultValue: "Live trading gate · backlog",
         bundle: L10n.bundle)
     }
     /// The notifications card's label (IOSGateAlerts).

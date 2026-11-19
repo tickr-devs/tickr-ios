@@ -48,7 +48,7 @@ func d(_ text: String) -> Decimal { Decimal(string: text, locale: Locale(identif
     #expect(Money.priceDistance(d("0"), at: d("12")) == "0.00")
   }
 
-  // Every number below is the same in English and Russian: `Money`, `Percent` and `Volume` take
+  // Every number below is the same in English and Spanish: `Money`, `Percent` and `Volume` take
   // no locale (a "." separator and the U+2212 minus whatever the person's language), so a figure
   // reads alike on both apps and in both languages. Only `DayText` follows the language.
 
@@ -136,12 +136,12 @@ func d(_ text: String) -> Decimal { Decimal(string: text, locale: Locale(identif
   func dayText() throws {
     let day = try WireDate("2026-11-16")
     #expect(DayText.day(day, locale: Locale(identifier: "en_US")) == "Mon Nov 16")
-    let russian = DayText.day(day, locale: Locale(identifier: "ru_RU"))
-    // The weekday's case is the language's own (ICU may capitalise a standalone "Пн").
-    #expect(russian.lowercased().hasPrefix("пн "), "\(russian)")
-    #expect(russian.contains("16"))
-    #expect(russian.contains("нояб"))
-    #expect(!russian.contains(","))
+    let spanish = DayText.day(day, locale: Locale(identifier: "es_US"))
+    // The weekday's case and any abbreviation dot are the language's own (ICU may write "lun.").
+    #expect(spanish.lowercased().hasPrefix("lun"), "\(spanish)")
+    #expect(spanish.contains("16"))
+    #expect(spanish.lowercased().contains("nov"))
+    #expect(!spanish.contains(","))
   }
 
   @Test func risk() {

@@ -81,7 +81,7 @@ private struct TodayResult: View {
             .font(Tokens.Typography.panelFigure)
             .foregroundStyle(Palette.result(result))
             .tracking(Tokens.Typography.panelFigureTracking)
-          // Wraps rather than being cut short (Russian runs longer).
+          // Wraps rather than being cut short (Spanish runs longer).
           Text(summary(status))
             .font(Tokens.Typography.subheadlineMono)
             .foregroundStyle(Palette.textQuaternary)
@@ -325,7 +325,7 @@ private struct FlowDots: View {
 
 /// One row as designed: open the window, the environment badge, how fresh the broker read is (a
 /// bank symbol and its short age in the read's colour, named in its hint), settings and quit.
-/// When the row does not fit (longer Russian), it splits into two.
+/// When the row does not fit (longer Spanish), it splits into two.
 private struct MenuFooter: View {
   @Environment(AppModel.self) private var model
   @Environment(\.openWindow) private var openWindow

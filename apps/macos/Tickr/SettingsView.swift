@@ -773,7 +773,7 @@ struct JobsSection: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   /// Widths of the name and "when" columns, in points (the design's 86 and 130, the name widened
-  /// for the Russian names).
+  /// for the longer translated names).
   static let nameWidth: CGFloat = 180
   static let whenWidth: CGFloat = 112
   /// Days in a week; launchd numbers them 0 (or 7) Sunday, 1 Monday … 6 Saturday.

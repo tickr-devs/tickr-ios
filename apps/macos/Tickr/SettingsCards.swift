@@ -61,8 +61,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 struct SettingsTabBar: View {
   @Binding var selection: SettingsTab
 
-  /// Narrowest a tab button gets, in points (the design's compact 64); a longer title (Russian
-  /// "Дополнительно") makes its tab wider rather than being cut.
+  /// Narrowest a tab button gets, in points (the design's compact 64); a longer translated
+  /// title makes its tab wider rather than being cut.
   static let tabMinWidth: CGFloat = 64
   /// Height of a tab's symbol row, in points, so every symbol sits on one line.
   static let symbolSize: CGFloat = 16

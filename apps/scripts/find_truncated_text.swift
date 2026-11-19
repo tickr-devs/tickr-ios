@@ -1,5 +1,5 @@
 // Finds truncated text in the layout sweep's pictures (owner rule 2026-11-16: no truncated or
-// clipped text anywhere in the apps, in English and Russian). SwiftUI ends a text that does not
+// clipped text anywhere in the apps, in English and Spanish). SwiftUI ends a text that does not
 // fit with an ellipsis, so every picture is read with Vision's text recognition and every line
 // with an ellipsis is a failure, unless the ellipsis is part of the text itself: a string of the
 // apps' String Catalogs that has one ("mean R · %@%: %@ … %@"), or one a control adds after a whole
@@ -27,8 +27,9 @@ let dots = "..."
 /// Fewest letters of a whole catalog text that may stand before an ellipsis: shorter ones ("OK")
 /// would excuse too many cut words.
 let shortest = 4
-/// Languages the pictures are read in (the apps' two).
-let languages = ["en-US", "ru-RU"]
+/// Languages the pictures are read in (the apps' two; Vision reads Spanish as es-ES, which covers
+/// the apps' US Spanish).
+let languages = ["en-US", "es-ES"]
 
 /// Catalog texts with an ellipsis of their own, as patterns that match them with their
 /// placeholders filled in, as recognition reads them; and every whole catalog text without
@@ -161,7 +162,7 @@ func normalized(_ text: String) -> String {
 }
 
 /// Whether a line read as ending in an ellipsis ends with a whole catalog text and an ellipsis,
-/// allowing one letter misread (recognition reads "стратегия" as "стратетия").
+/// allowing one letter misread (recognition reads "estrategia" as "estratejia").
 func ownEnding(_ plain: String) -> Bool {
   let read = Array(plain.dropLast())
   return wholeTexts.contains { whole in
@@ -237,7 +238,7 @@ let selfTestCases: [(line: String, truncated: Bool)] = [
   ("mean R · 95%: -0.21 R … +0.57 R", false),
   ("• 95%: -0.21 R ... +0.57 R", false),
   ("R · 95%: -0.21 R … +0.57 R", false),
-  ("средний R · 95%: -0.21 R … +0.57 R", false),
+  ("R media · 95%: -0.21 R … +0.57 R", false),
   // The same ending, but nothing after its ellipsis: cut.
   ("• 95%: -0.21 R ...", true),
   // Its ellipsis followed by text, but the rest is not the catalog text's ("%:" missing, or no
@@ -247,7 +248,7 @@ let selfTestCases: [(line: String, truncated: Bool)] = [
   ("max drawdown … +1.10 R", true),
   // Texts that are not in a catalog, ending in an ellipsis: cut.
   ("max drawdo...", true),
-  ("профит-фак…", true),
+  ("factor de benef…", true),
   ("Some words of a title that did not fit…", true),
   // A whole catalog text with an ellipsis a control added ("Stop Bot…"): not cut.
   ("Stop Bot…", false),

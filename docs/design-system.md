@@ -17,8 +17,9 @@ the approved design canvas. Code follows it one to one:
    - The rules check covers `apps/shared`, `apps/macos` and `apps/ios` in the `swift-rules` workflow on every pull request. It has no baseline: every violation fails. The `python-tests` job also runs the check (`tests/test_swift_rules.py`). SwiftLint runs in the same workflow and covers `apps/shared`, `apps/macos` and `apps/ios`; an app's own `.swiftlint.yml` may relax SwiftLint's size limits only, until its long files are split.
 2. **No user-facing text in code.** Every string a person reads is defined once, in the target's `L10n.swift`, as `LocalizedStringResource("key", defaultValue: "English")`, and translated in the String Catalog (`Localizable.xcstrings`) beside it. A catalog is committed exactly as Xcode writes it (`apps/scripts/format_xcstrings.py` rewrites it so), and a key's `table:` is a string literal or left out: Xcode's extraction cannot follow a constant, so it would copy the keys into `Localizable.xcstrings` on every build.
    - Views use `L10n` entries. `Text("…")`, `Button("…")`, `Text(verbatim: "…")` and computed properties returning English all fail CI (rule `text`). Other string literals may only be SF Symbol names, documented `static let` identifiers and enum raw values; the one capitalised protocol token allowed in a documented constant is the HTTP scheme `Bearer`.
-   - CI fails when an `L10n` key has no Russian translation in the catalog (rule `catalog`).
-   - English is the development language, with a Russian translation, and the app follows the system language.
+   - CI fails when an `L10n` key has no Spanish (`es`) translation in the catalog (rule `catalog`).
+   - English is the development language, with a Spanish translation for the US market (owner, 2026-11-19), and the app follows the system language. The catalog language is plain `es`, written in US and Latin American usage, so every Spanish system language (es-US, es-419, es-MX, es-ES) gets it.
+   - The user-facing names of the broker environments are "Paper trading" (Webull Sandbox) and "Live trading" (Webull Production), in Spanish "Trading simulado" and "Trading real" (owner, 2026-11-19). Code, config and the bot keep the words sandbox and production.
    - Protocol values from the bot (`exit_reason`, fence `kind`) are shown through a localized title and never translated in place.
 3. **System appearance only.** Light and dark follow macOS/iOS; there is no theme switch. Light is designed on its own (soft glows and a tinted shadow), not as an inverted dark.
 4. **Components carry the spacing.** Cards, rows, section labels, badges and tags come from shared components. A screen arranges components; it does not restyle them.
@@ -99,7 +100,7 @@ pick these colours, symbols or number formats themselves.
 
 **Numbers** come only from `Formatting.swift` (rule `format`): locale-independent, a "." separator
 and the U+2212 minus in every language, so a figure reads the same on both apps in English and
-Russian.
+Spanish.
 
 | API | Output | Use |
 |---|---|---|
@@ -114,7 +115,7 @@ Russian.
 | `Percent.signed(fraction:)` / `(points:)` | "+6.21%", "−0.40%" | A price change: `changeDigits` 2 (the Chart's day change and readout, both apps); a screener's change `moverDigits` 1 |
 | `Percent.plain` | "52%" | A share or win rate (`StatDigits.percent`) |
 | `Volume.compact` | "950", "23.4K", "1.2M" | A share volume (en_US short names in every language) |
-| `DayText.day` | "Mon Nov 16", "пн 16 нояб." | A trading day: weekday, then the date, no comma, the New York day, in the person's language |
+| `DayText.day` | "Mon Nov 16", "lun 16 nov" | A trading day: weekday, then the date, no comma, the New York day, in the person's language |
 
 Money is always in dollars: the `format` rule of `check_swift_rules.py` fails a `Money.signed`,
 `Money.plain` or `Money.number` call at the cents default (an amount without its "$"), the bot's raw
@@ -224,7 +225,7 @@ and `display` → `.largeTitle`; `heading` → `.title2`; `quote` → `.title3`;
 
 ## Text is never cut
 
-Owner rule (2026-11-16): no truncated or clipped text anywhere in the apps, in English and Russian.
+Owner rule (2026-11-16): no truncated or clipped text anywhere in the apps, in English and Spanish.
 A text that does not fit wraps, or its layout adapts (a row stacks, a column widens, a card grows
 or its pane scrolls); a font never shrinks below its token, and nothing is hidden to make room.
 A text that must stay on one line (a chip, a badge, a figure) takes its whole width with

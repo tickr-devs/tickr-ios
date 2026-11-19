@@ -44,10 +44,10 @@ public struct EnvironmentBadge: View {
   let label: String
 
   /// - Parameters:
-  ///   - name: The environment's localized name ("Sandbox"); drawn in capitals.
+  ///   - name: The environment's localized name ("Paper trading"); drawn in capitals.
   ///   - raw: The bot's status value ("sandbox"), which picks the colour.
   ///   - accessibilityLabel: What VoiceOver reads, the same on every screen
-  ///     ("Environment: Sandbox", TickrKit's `ApiText.environmentLabel`).
+  ///     ("Environment: Paper trading", TickrKit's `ApiText.environmentLabel`).
   public init(_ name: String, raw: String, accessibilityLabel: String) {
     self.name = name
     self.kind = Kind(raw: raw)

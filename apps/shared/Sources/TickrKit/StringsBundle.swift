@@ -5,8 +5,8 @@ import Foundation
 /// Foundation picks a resource bundle's language from the main bundle's languages: in the apps
 /// that is the person's language, but in a process whose main bundle lists none (`swift test`'s
 /// runner, `swift run`) every package bundle stays English, even when the process was given a
-/// language at launch (`-AppleLanguages (ru)`). A language given that way (the argument domain)
-/// is honoured here by reading its folder (`ru.lproj`) directly; without one Foundation decides,
+/// language at launch (`-AppleLanguages (es)`). A language given that way (the argument domain)
+/// is honoured here by reading its folder (`es.lproj`) directly; without one Foundation decides,
 /// as before.
 public enum StringsBundle {
   /// Foundation's preference key of the process's languages.

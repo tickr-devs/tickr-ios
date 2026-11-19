@@ -1,5 +1,5 @@
 name: layout-sweep
-# Every screen of both apps at several sizes, in English and Russian (macOS: window sizes and a
+# Every screen of both apps at several sizes, in English and Spanish (macOS: window sizes and a
 # resize drag that fails on a layout loop; iOS: three iPhones and three Dynamic Type sizes). Both
 # jobs fail on a truncated text in any picture (apps/scripts/find_truncated_text.swift; the code
 # rule `truncation` of check_swift_rules.py keeps the cutting modifiers out on every PR). Costly
@@ -21,7 +21,7 @@ concurrency:
 permissions:
   contents: read
 jobs:
-  # Every screen at several window sizes, Chart inspector closed and open, in English and Russian
+  # Every screen at several window sizes, Chart inspector closed and open, in English and Spanish
   # (apps/macos/scripts/layout-sweep.sh). Fails when a resize crashes or hangs the app or a
   # picture shows a truncated text; the pictures are kept as the run's artifact for checking
   # overlaps.
@@ -56,7 +56,7 @@ jobs:
           name: macos-layout-sweep
           path: ${{ runner.temp }}/layout-sweep
           if-no-files-found: ignore
-  # Every tab, scrolled through, in English and Russian at three Dynamic Type sizes, on the
+  # Every tab, scrolled through, in English and Spanish at three Dynamic Type sizes, on the
   # smallest, a standard and the largest iPhone, against `tickr demo`
   # (apps/ios/Tests/TickrUITests/LayoutSweepUITests.swift). The pictures are kept as the run's artifact.
   ios-layout-sweep:
@@ -152,7 +152,7 @@ jobs:
           for test in json.load(open(os.path.join(exported, "manifest.json"))):
               for attachment in test.get("attachments", []):
                   name = attachment.get("suggestedHumanReadableName", "")
-                  if name.startswith(("en-", "ru-")):
+                  if name.startswith(("en-", "es-")):
                       shutil.copy(os.path.join(exported, attachment["exportedFileName"]),
                                   os.path.join(pictures, name.split("_0_")[0] + ".png"))
           PY

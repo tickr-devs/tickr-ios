@@ -115,7 +115,7 @@ private struct Figure: View {
           .foregroundStyle(Palette.textQuaternary)
           .help(figure.cause.map { Text(verbatim: $0) } ?? Text(verbatim: Format.missing))
       }
-      // A name longer than its quarter ("Доля прибыльных") wraps onto a second line, never cut.
+      // A name longer than its quarter ("% de acierto") wraps onto a second line, never cut.
       Text(title)
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textQuaternary)

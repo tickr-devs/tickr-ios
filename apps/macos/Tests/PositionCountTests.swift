@@ -15,8 +15,8 @@ import Testing
     #expect(BotControls.detail(.flatten(symbol: "ABCD"), positions: 2) == nil)
   }
 
-  /// The String Catalog counts in each language's plural forms: English one and other, Russian
-  /// one, few, many and other ("1 позиция", "2 позиции", "5 позиций").
+  /// The String Catalog counts in each language's plural forms: English and Spanish one and other
+  /// ("1 posición", "2 posiciones").
   @Test func catalogHasEveryPluralForm() throws {
     let url = URL(filePath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
       .appending(path: "Tickr/Localizable.xcstrings")
@@ -31,7 +31,6 @@ import Testing
       return plural.compactMapValues { $0["stringUnit"]?["value"] }
     }
     #expect(try forms("en") == ["one": "%lld position", "other": "%lld positions"])
-    #expect(try forms("ru") == ["one": "%lld позиция", "few": "%lld позиции", "many": "%lld позиций",
-      "other": "%lld позиции"])
+    #expect(try forms("es") == ["one": "%lld posición", "other": "%lld posiciones"])
   }
 }

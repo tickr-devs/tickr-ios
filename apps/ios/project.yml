@@ -51,7 +51,7 @@ targets:
         CFBundleDisplayName: Tickr
         # Languages the String Catalogs translate (app and shared package); the app follows the
         # system language (docs/design-system.md). check_swift_rules.py keeps it complete.
-        CFBundleLocalizations: [en, ru]
+        CFBundleLocalizations: [en, es]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         # Launch screen: the window background with the mark (Assets.xcassets, made by

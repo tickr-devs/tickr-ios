@@ -75,7 +75,8 @@ struct ChartView: View {
   /// wrapped onto two rows (the controls' narrow form) and the study chips in one. At the window's
   /// least width, with the sidebar at its widest and the rail open (the narrowest the chart
   /// column gets), the chips took one row in English (ending 1 point short of the column's edge)
-  /// and in Russian, and the study chips one (both read with Accessibility, 2026-11-16).
+  /// and in Russian (the second language then), and the study chips one (both read with
+  /// Accessibility, 2026-11-16).
   static let leastControlRows = 3
   /// Height of the history scroller's small slider, in points: AppKit's small slider, read with
   /// Accessibility (2026-11-16).

@@ -35,7 +35,7 @@ final class TickrUITests: XCTestCase {
   /// The Overview header's one environment badge for the fixtures' environment (sandbox in
   /// status-response-v1.json), as its English text reads (environmentLabel, upper-cased as every
   /// badge is).
-  static let environmentBadge = "ENVIRONMENT: SANDBOX"
+  static let environmentBadge = "ENVIRONMENT: PAPER TRADING"
   /// The toolbar's connection status (ConnectionStatus.id).
   static let connectionItem = "toolbar-connection"
   /// The refusal detail of the first signal in skipped-v1.json, as the English app words it

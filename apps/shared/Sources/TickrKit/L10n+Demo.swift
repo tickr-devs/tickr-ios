@@ -1,6 +1,6 @@
 import Foundation
 
-/// Texts of the demo day the apps carry (DemoSource), in English with their Russian translation in
+/// Texts of the demo day the apps carry (DemoSource), in English with their Spanish translation in
 /// Resources/Localizable.xcstrings.
 extension L10n {
   /// The demo day's recording is not in the app (a broken build).

@@ -54,7 +54,7 @@ extension L10n {
     LocalizedStringResource("kit.countdown.weekdayTime", defaultValue: "\(weekday) \(time)", bundle: bundle)
   }
   /// The time left, an hour or more; arguments: whole hours, then minutes. Abbreviated units take
-  /// no plural forms in either language ("ч", "м"), so any count reads right.
+  /// no plural forms in either language ("h", "m"), so any count reads right.
   static func countdownHoursMinutes(_ hours: Int, _ minutes: Int) -> LocalizedStringResource {
     LocalizedStringResource("kit.countdown.hoursMinutes", defaultValue: "\(hours) h \(minutes) m", bundle: bundle)
   }
