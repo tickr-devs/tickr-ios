@@ -3,6 +3,66 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). no_status_file
+  static var proseReasonNoStatusFile: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_status_file",
+      defaultValue: "The bot has not written its status yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). status_file_invalid (values: detail)
+  static var proseReasonStatusFileInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.status_file_invalid",
+      defaultValue: "The bot's status file is invalid: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). status_from_future
+  static var proseReasonStatusFromFuture: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.status_from_future",
+      defaultValue: "The bot's status is dated in the future", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). account_file_invalid (values: detail)
+  static var proseReasonAccountFileInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.account_file_invalid",
+      defaultValue: "The bot's account file is invalid: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). quotes_file_invalid (values: detail)
+  static var proseReasonQuotesFileInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.quotes_file_invalid",
+      defaultValue: "The bot's quotes file is invalid: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). past_day_reconciliation
+  static var proseReasonPastDayReconciliation: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.past_day_reconciliation",
+      defaultValue: "Only the latest reconciliation is kept, not one per day", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). past_day_status
+  static var proseReasonPastDayStatus: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.past_day_status",
+      defaultValue: "Only the latest status is kept, not one per day", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). broker_read_other_day (values: day)
+  static var proseReasonBrokerReadOtherDay: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.broker_read_other_day",
+      defaultValue: "The latest broker read was on {day}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). status_other_day (values: day)
+  static var proseReasonStatusOtherDay: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.status_other_day",
+      defaultValue: "The latest status was written on {day}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). row_without_price
+  static var proseReasonRowWithoutPrice: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.row_without_price",
+      defaultValue: "The captured row has no price", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). row_without_pre_close
+  static var proseReasonRowWithoutPreClose: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.row_without_pre_close",
+      defaultValue: "The captured row has no previous close", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). price_not_number (values: value)
+  static var proseReasonPriceNotNumber: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.price_not_number",
+      defaultValue: "The captured price is not a number: {value}", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). pre_close_not_number (values: value)
   static var proseReasonPreCloseNotNumber: LocalizedStringResource {
     LocalizedStringResource("kit.prose.pre_close_not_number",
@@ -324,67 +384,5 @@ extension L10n {
   static var proseReasonCloseInProgress: LocalizedStringResource {
     LocalizedStringResource("kit.prose.close_in_progress",
       defaultValue: "A close is in progress; stop the bot again after it completes", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). trades_still_open (values: count)
-  static var proseReasonTradesStillOpen: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.trades_still_open",
-      // swiftlint:disable:next line_length
-      defaultValue: "{count} trade(s) open or entering: close them first (or send the emergency command), then stop the bot", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). no_open_position (values: symbol)
-  static var proseReasonNoOpenPosition: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_open_position",
-      defaultValue: "No open position in {symbol}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). close_refused_before
-  static var proseReasonCloseRefusedBefore: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.close_refused_before",
-      defaultValue: "The closing order was refused before: look in the Webull app, then clear the block", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). close_held_outside_session
-  static var proseReasonCloseHeldOutsideSession: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.close_held_outside_session",
-      // swiftlint:disable:next line_length
-      defaultValue: "A close was due outside the regular session and was not sent; the stop stays. Close it in the Webull app, or clear the block in the regular session", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). close_not_sent_now
-  static var proseReasonCloseNotSentNow: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.close_not_sent_now",
-      defaultValue: "No closing order can be sent now; the stops stay. Close the position in the Webull app", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). nothing_open
-  static var proseReasonNothingOpen: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.nothing_open",
-      defaultValue: "Nothing open", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). entry_cancels_requested (values: count)
-  static var proseReasonEntryCancelsRequested: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.entry_cancels_requested",
-      defaultValue: "{count} entry cancel(s) requested", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). step_done
-  static var proseReasonStepDone: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.step_done",
-      defaultValue: "Done", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). steps_done (values: steps)
-  static var proseReasonStepsDone: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.steps_done",
-      defaultValue: "Steps done: {steps}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). every_step_ran
-  static var proseReasonEveryStepRan: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.every_step_ran",
-      defaultValue: "Every step ran", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). steps_not_run (values: steps)
-  static var proseReasonStepsNotRun: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.steps_not_run",
-      defaultValue: "Not run: {steps}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). command_file_unreadable (values: detail)
-  static var proseReasonCommandFileUnreadable: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.command_file_unreadable",
-      defaultValue: "The command file cannot be read: {detail}", bundle: bundle)
   }
 }

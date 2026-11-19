@@ -81,6 +81,7 @@ public struct APIClient: Sendable {
   static let accountPath = "/account"
   static let quotesPath = "/quotes"
   static let jobsPath = "/jobs"
+  static let systemPath = "/system"
   static let journalPath = "/journal"
   static let eventsPath = "/events"
   static let advisorPath = "/advisor"
@@ -209,6 +210,11 @@ public struct APIClient: Sendable {
   /// What runs on its own on the Mac (reconcile, backup, launchd jobs) and today's session times.
   public func jobs() async throws -> JobsV1 {
     try await perform(request(path: Self.jobsPath, body: nil), expect: Self.ok)
+  }
+
+  /// The System card: the Webull link, the latest preflight, training and the Mac's services.
+  public func system() async throws -> SystemV1 {
+    try await perform(request(path: Self.systemPath, body: nil), expect: Self.ok)
   }
 
   /// The latest rows of the bot's journal with their numbers, newest last.

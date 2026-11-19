@@ -1086,6 +1086,66 @@ GROUPS = [
                 "No se puede leer el resultado de la actualización nocturna ({error})",
             ),
             (
+                "no_broker_read",
+                "No broker read recorded yet",
+                "Aún no hay lecturas del bróker",
+            ),
+            (
+                "no_preflight_record",
+                "No morning check recorded yet",
+                "Aún no hay verificación matinal registrada",
+            ),
+            (
+                "preflight_record_unreadable",
+                "The morning check's record cannot be read ({error})",
+                "El registro de la verificación matinal no se puede leer ({error})",
+            ),
+            (
+                "no_training_job",
+                "No training job is reporting",
+                "Ningún entrenamiento está informando",
+            ),
+            (
+                "training_progress_unreadable",
+                "The training progress cannot be read ({error})",
+                "El progreso del entrenamiento no se puede leer ({error})",
+            ),
+            (
+                "no_host_services",
+                "This machine has no watchdog or sleep services to show",
+                "Esta máquina no tiene watchdog ni control de reposo que mostrar",
+            ),
+            (
+                "watchdog_journal_unreadable",
+                "The watchdog's journal cannot be read ({error})",
+                "El registro del watchdog no se puede leer ({error})",
+            ),
+            (
+                "sleep_check_failed",
+                "The sleep check could not run ({error})",
+                "No se pudo comprobar el reposo ({error})",
+            ),
+            (
+                "sleep_check_exited",
+                "The sleep check ended with code {code}",
+                "La comprobación del reposo terminó con el código {code}",
+            ),
+            (
+                "restart_command_exited",
+                "The start command ended with code {code}",
+                "El comando de inicio terminó con el código {code}",
+            ),
+            (
+                "restart_command_failed",
+                "The start command failed ({error})",
+                "El comando de inicio falló ({error})",
+            ),
+            (
+                "restart_refused_operator_stop",
+                "You had stopped the bot: the watchdog never starts it then",
+                "Usted había detenido el bot: el watchdog nunca lo inicia entonces",
+            ),
+            (
                 "nightly_in_session",
                 "Refused during the regular session",
                 "Rechazado durante la sesión regular",

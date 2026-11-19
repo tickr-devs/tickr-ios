@@ -282,6 +282,66 @@ extension L10n {
     LocalizedStringResource("kit.prose.nightly_file_unreadable",
       defaultValue: "The nightly refresh's result cannot be read ({error})", bundle: bundle)
   }
+  /// A cause the API writes itself (`<field>_codes`). no_broker_read
+  static var proseReasonNoBrokerRead: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_broker_read",
+      defaultValue: "No broker read recorded yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_preflight_record
+  static var proseReasonNoPreflightRecord: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_preflight_record",
+      defaultValue: "No morning check recorded yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). preflight_record_unreadable (values: error)
+  static var proseReasonPreflightRecordUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.preflight_record_unreadable",
+      defaultValue: "The morning check's record cannot be read ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_training_job
+  static var proseReasonNoTrainingJob: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_training_job",
+      defaultValue: "No training job is reporting", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). training_progress_unreadable (values: error)
+  static var proseReasonTrainingProgressUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.training_progress_unreadable",
+      defaultValue: "The training progress cannot be read ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_host_services
+  static var proseReasonNoHostServices: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_host_services",
+      defaultValue: "This machine has no watchdog or sleep services to show", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). watchdog_journal_unreadable (values: error)
+  static var proseReasonWatchdogJournalUnreadable: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.watchdog_journal_unreadable",
+      defaultValue: "The watchdog's journal cannot be read ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). sleep_check_failed (values: error)
+  static var proseReasonSleepCheckFailed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.sleep_check_failed",
+      defaultValue: "The sleep check could not run ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). sleep_check_exited (values: code)
+  static var proseReasonSleepCheckExited: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.sleep_check_exited",
+      defaultValue: "The sleep check ended with code {code}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). restart_command_exited (values: code)
+  static var proseReasonRestartCommandExited: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.restart_command_exited",
+      defaultValue: "The start command ended with code {code}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). restart_command_failed (values: error)
+  static var proseReasonRestartCommandFailed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.restart_command_failed",
+      defaultValue: "The start command failed ({error})", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). restart_refused_operator_stop
+  static var proseReasonRestartRefusedOperatorStop: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.restart_refused_operator_stop",
+      defaultValue: "You had stopped the bot: the watchdog never starts it then", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). nightly_in_session
   static var proseReasonNightlyInSession: LocalizedStringResource {
     LocalizedStringResource("kit.prose.nightly_in_session",
@@ -322,65 +382,5 @@ extension L10n {
   static var proseReasonNightlyRefused: LocalizedStringResource {
     LocalizedStringResource("kit.prose.nightly_refused",
       defaultValue: "The nightly data refresh stopped: {detail}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). no_status_file
-  static var proseReasonNoStatusFile: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_status_file",
-      defaultValue: "The bot has not written its status yet", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). status_file_invalid (values: detail)
-  static var proseReasonStatusFileInvalid: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.status_file_invalid",
-      defaultValue: "The bot's status file is invalid: {detail}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). status_from_future
-  static var proseReasonStatusFromFuture: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.status_from_future",
-      defaultValue: "The bot's status is dated in the future", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). account_file_invalid (values: detail)
-  static var proseReasonAccountFileInvalid: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.account_file_invalid",
-      defaultValue: "The bot's account file is invalid: {detail}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). quotes_file_invalid (values: detail)
-  static var proseReasonQuotesFileInvalid: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.quotes_file_invalid",
-      defaultValue: "The bot's quotes file is invalid: {detail}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). past_day_reconciliation
-  static var proseReasonPastDayReconciliation: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.past_day_reconciliation",
-      defaultValue: "Only the latest reconciliation is kept, not one per day", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). past_day_status
-  static var proseReasonPastDayStatus: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.past_day_status",
-      defaultValue: "Only the latest status is kept, not one per day", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). broker_read_other_day (values: day)
-  static var proseReasonBrokerReadOtherDay: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.broker_read_other_day",
-      defaultValue: "The latest broker read was on {day}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). status_other_day (values: day)
-  static var proseReasonStatusOtherDay: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.status_other_day",
-      defaultValue: "The latest status was written on {day}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). row_without_price
-  static var proseReasonRowWithoutPrice: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.row_without_price",
-      defaultValue: "The captured row has no price", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). row_without_pre_close
-  static var proseReasonRowWithoutPreClose: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.row_without_pre_close",
-      defaultValue: "The captured row has no previous close", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). price_not_number (values: value)
-  static var proseReasonPriceNotNumber: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.price_not_number",
-      defaultValue: "The captured price is not a number: {value}", bundle: bundle)
   }
 }

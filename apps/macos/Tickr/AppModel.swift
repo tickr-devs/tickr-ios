@@ -169,6 +169,10 @@ public final class AppModel {
   public private(set) var jobs: JobsV1?
   /// Why the jobs could not be read, if they could not.
   public private(set) var jobsError: String?
+  /// The System card (GET /system), read with the jobs while Settings is open.
+  public private(set) var system: SystemV1?
+  /// Why the System card could not be read, if it could not.
+  public private(set) var systemError: String?
   /// The bot day whose jobs were read for the headline's countdown (today's session); nil until
   /// they are, so a failed read is tried again at the next status.
   private var jobsReadDay: WireDate?
@@ -542,6 +546,8 @@ public final class AppModel {
     jobs = nil
     jobsError = nil
     jobsReadDay = nil
+    system = nil
+    systemError = nil
     config = nil
     configError = nil
     botStart = nil
@@ -726,6 +732,23 @@ public final class AppModel {
     }
   }
 
+  /// Reads the System card; a failed read clears it, so an old state never reads as current.
+  public func refreshSystem() async {
+    let url = baseURL
+    do {
+      let read = try await client.system()
+      guard url == baseURL else { return }
+      system = read
+      systemError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      guard url == baseURL else { return }
+      system = nil
+      systemError = Self.describe(error) ?? systemError
+    }
+  }
+
   public func refreshConfig() async {
     let url = baseURL
     do {
@@ -740,10 +763,12 @@ public final class AppModel {
     }
   }
 
-  /// Reads the jobs at the status poll rate until cancelled; used while Settings is open.
+  /// Reads the jobs and the System card at the status poll rate until cancelled; used while
+  /// Settings is open.
   public func followJobs() async {
     while !Task.isCancelled {
       await refreshJobs()
+      await refreshSystem()
       let seconds = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
         ?? Pace.initialPollSeconds
       try? await Task.sleep(for: .seconds(max(seconds, 1)))

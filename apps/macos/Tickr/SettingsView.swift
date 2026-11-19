@@ -113,6 +113,7 @@ private struct GeneralSettings: View {
       .fixedSize(horizontal: false, vertical: true)
       DemoDaySection()
       JobsSection()
+      SystemSection()
     }
     .onAppear { draft = model.address.absoluteString }
     .alert(String(localized: L10n.Settings.invalidAddress), isPresented: $invalid) {

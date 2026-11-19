@@ -22,7 +22,7 @@ struct SettingsView: View {
 
   /// Order in which the cards rise in (`cardRise(step:)`), as on the design.
   private enum Order: Int {
-    case connection = 1, bot, demo, notifications, environment, session, preflight, jobs, about
+    case connection = 1, bot, demo, notifications, environment, session, preflight, jobs, system, about
   }
 
   @Environment(AppModel.self) private var model
@@ -67,6 +67,7 @@ struct SettingsView: View {
           .cardRise(step: Order.session.rawValue)
         PreflightSection().cardRise(step: Order.preflight.rawValue)
         JobsSection().cardRise(step: Order.jobs.rawValue)
+        SystemSection().cardRise(step: Order.system.rawValue)
       }
 
       SettingsCard(L10n.Settings.about) {

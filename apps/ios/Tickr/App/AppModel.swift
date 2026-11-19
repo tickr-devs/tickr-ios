@@ -53,6 +53,10 @@ final class AppModel {
   private(set) var jobs: JobsV1?
   /// Why the jobs could not be read, if they could not.
   private(set) var jobsError: String?
+  /// The System card (GET /system), read with the jobs while Settings is on screen.
+  private(set) var system: SystemV1?
+  /// Why the System card could not be read, if it could not.
+  private(set) var systemError: String?
   /// The bot day whose jobs were read for the headline's countdown (today's session); nil until
   /// they are, so a failed read is tried again at the next status.
   @ObservationIgnored private var jobsReadDay: WireDate?
@@ -235,6 +239,8 @@ final class AppModel {
     jobs = nil
     jobsError = nil
     jobsReadDay = nil
+    system = nil
+    systemError = nil
     config = nil
     configError = nil
     flow = nil
@@ -355,6 +361,24 @@ final class AppModel {
     }
   }
 
+  /// Reads the System card; a failed read clears it, so an old state never reads as current.
+  func refreshSystem() async {
+    guard let url = connection.url else { return }
+    do {
+      let read = try await Container.shared.apiClient(connection.endpoint(for: url)).system()
+      guard connection.url == url else { return }
+      system = read
+      systemError = nil
+    } catch is CancellationError {
+      return
+    } catch {
+      if connection.url == url {
+        system = nil
+        systemError = Self.describe(error) ?? systemError
+      }
+    }
+  }
+
   func refreshConfig() async {
     guard let url = connection.url else { return }
     do {
@@ -371,10 +395,12 @@ final class AppModel {
     }
   }
 
-  /// Reads the jobs at the status poll rate until cancelled; used while Settings is open.
+  /// Reads the jobs and the System card at the status poll rate until cancelled; used while
+  /// Settings is open.
   func followJobs() async {
     while !Task.isCancelled {
       await refreshJobs()
+      await refreshSystem()
       let seconds = response.map { NSDecimalNumber(decimal: $0.pollSeconds.value).doubleValue }
         ?? Self.initialPollSeconds
       try? await Task.sleep(for: .seconds(max(seconds, Self.minimumPollSeconds)))
