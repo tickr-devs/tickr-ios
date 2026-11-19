@@ -25,7 +25,7 @@ public struct Spinner: View {
 
   public var body: some View {
     SpinnerRing(
-      motion: Skeleton<EmptyView>.motion(reduceMotion: reduceMotion), color: Palette.textTertiary,
+      motion: reduceMotion ? .pulse : .sweep, color: Palette.textTertiary,
       active: scenePhase == .active)
       .frame(width: side, height: side)
       .accessibilityHidden(true)

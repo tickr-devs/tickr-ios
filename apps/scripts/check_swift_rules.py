@@ -52,6 +52,8 @@ format   (apps/macos, apps/ios) Numbers are formatted only by TickrDesign (`Mone
 stopsymbol  (apps/macos, apps/ios) A stop's symbols (every SF Symbol with "shield") come only
          from TickrDesign's `StopState` constants, one symbol per meaning. A shield that means
          something else is marked `// symbol: <meaning>` on its line or the line above.
+breath   A skeleton breathes in place (owner 2026-11-19, mockup v121): no sweeping shimmer
+         band anywhere, TickrDesign included (no identifier holding "shimmer").
 truncation  No text is ever cut (owner rule 2026-11-16, docs/design-system.md "Text is never
          cut"): no `.lineLimit`, `.truncationMode`, `.minimumScaleFactor` or
          `.allowsTightening`. A text that does not fit wraps or its layout adapts; one that must
@@ -530,6 +532,20 @@ LOOP = re.compile(
 DECORATIVE = "// decorative:"
 
 
+# A sweeping shimmer band, the loader the owner had replaced (2026-11-19).
+SHIMMER = re.compile(r"[Ss]himmer")
+
+
+def breath_violations(path: Path) -> list[tuple[int, str]]:
+    """A shimmer band in code (comments ignored): skeletons breathe in place instead."""
+    found, in_block = [], False
+    for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        code, in_block = check_swift_literals.strip(raw, in_block)
+        if SHIMMER.search(code):
+            found.append((number, code.strip()))
+    return found
+
+
 def loop_violations(path: Path) -> list[tuple[int, str]]:
     """Self-running motion without a decorative marker (comments ignored)."""
     found, in_block, previous = [], False, ""
@@ -913,6 +929,8 @@ RULES = {
     "catalog": (catalog_violations,
       "text without a Spanish translation, or a language missing from an Info.plist"),
     "legacy": (legacy_violations, "outdated API: use the current Apple stack (CLAUDE.md)"),
+    "breath": (breath_violations,
+      "a shimmer band; a skeleton breathes in place (Skeleton, docs/design-system.md Loading)"),
     "truncation": (truncation_violations,
       "text may be cut or shrunk; let it wrap or give it room (docs/design-system.md)"),
     "loop": (loop_violations,

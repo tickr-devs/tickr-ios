@@ -2,7 +2,7 @@ import SwiftUI
 
 // Skeleton shapes both apps lay their loading states out of (mockup v102): text lines, list rows,
 // stat tiles, and the chart's candles and study panes. Each stands for the content it replaces;
-// put them inside a `Skeleton`, which sweeps the shimmer across them.
+// put them inside a `Skeleton`, which makes them breathe in place.
 
 /// Lines of text: a card's paragraphs or a short list. The first line can be a value (a figure).
 public struct SkeletonLines: View {

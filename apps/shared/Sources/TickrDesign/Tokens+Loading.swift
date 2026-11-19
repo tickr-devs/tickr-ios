@@ -1,7 +1,7 @@
 import SwiftUI
 
-// Tokens of the three loading pieces (mockup v102, docs/design-system.md "Loading"): the skeleton
-// shimmer while content loads (`Skeleton`, `SkeletonBlock`), the spinner in a command's button
+// Tokens of the three loading pieces (mockup v102, v121, docs/design-system.md "Loading"): the
+// breathing skeleton while content loads (`Skeleton`, `SkeletonBlock`), the spinner in a command's button
 // while it is in flight (`Spinner`), and the progress line of an operation of known length
 // (`ProgressLine`). The same on the Mac and the phone, except the spinner's size.
 
@@ -47,21 +47,19 @@ public extension Tokens {
     public static let manyRows = 5
     public static let tiles = 3
 
-    // MARK: Shimmer
+    // MARK: Breath
 
-    /// Seconds of one sweep of the shimmer across a skeleton (the board's 1.6 s, ease-in-out).
-    public static let shimmerSeconds = 1.6
-    /// The shimmer band: its gradient's angle in degrees (CSS: 0 points up, 90 to the right) and
-    /// the band image's width as a multiple of the skeleton's. It sweeps from wholly off the
-    /// skeleton on the left to wholly off it on the right (`ShimmerBandView.travel`).
-    public static let shimmerAngle = 110.0
-    public static let shimmerWidth = 2.5
-    /// The band's gradient stops, as shares of its width: clear, `textPrimary` at
-    /// `shimmerOpacity`, clear.
-    public static let shimmerStops = [0.35, 0.5, 0.65]
-    public static let shimmerOpacity = 0.05
-    /// Under Reduce Motion nothing sweeps: the blocks pulse from full to this opacity and back
-    /// once every `pulseSeconds` (ease-in-out). The spinner pulses alike in place of turning.
+    /// Seconds of one breath of a skeleton: full, `breathLow` and full again (the board's 2.4 s,
+    /// eased like a cosine; `Skeleton.breath(at:)`).
+    public static let breathSeconds = 2.4
+    /// A skeleton's opacity at the bottom of a breath: the board's block mix going from 60% to
+    /// 25%, so the blocks keep 25/60 of their contrast.
+    public static let breathLow = 0.42
+    /// Shortest time between two frames of the breath, in seconds (30 a second: an opacity this
+    /// slow needs no more).
+    public static let breathFrameSeconds = 1.0 / 30
+    /// Under Reduce Motion the spinner pulses from full to this opacity and back once every
+    /// `pulseSeconds` (ease-in-out) in place of turning.
     public static let pulseLow = 0.6
     public static let pulseSeconds = 2.4
 

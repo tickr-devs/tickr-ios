@@ -3,13 +3,35 @@ import SwiftUI
 import Testing
 @testable import TickrDesign
 
-/// Loading (mockup v102): the skeleton's shimmer, the button spinner, the progress line.
+/// Loading (mockup v102, v121): the skeleton's breath, the button spinner, the progress line.
 @MainActor
 @Suite struct LoadingTests {
-  @Test("Reduce Motion turns the sweep into a pulse")
-  func reduceMotionPulses() {
-    #expect(Skeleton<EmptyView>.motion(reduceMotion: false) == .sweep)
-    #expect(Skeleton<EmptyView>.motion(reduceMotion: true) == .pulse)
+  @Test("A breath goes from full to breathLow and back, smoothly, with no jump at its end")
+  func breathIsSmooth() {
+    let seconds = Tokens.Loading.breathSeconds
+    let start = Date(timeIntervalSinceReferenceDate: 1_000 * seconds)
+    #expect(abs(Skeleton<EmptyView>.breath(at: start) - 1) < 1e-9)
+    let middle = start.addingTimeInterval(seconds / 2)
+    #expect(abs(Skeleton<EmptyView>.breath(at: middle) - Tokens.Loading.breathLow) < 1e-9)
+    // Sampled finely across three breaths: always within [breathLow, 1], and no step between two
+    // samples bigger than the curve's own slope allows, so it never jumps (the old band did).
+    let steps = 3_000
+    let step = 3 * seconds / Double(steps)
+    let slope = (1 - Tokens.Loading.breathLow) * .pi / seconds
+    var previous = Skeleton<EmptyView>.breath(at: start)
+    for index in 1...steps {
+      let value = Skeleton<EmptyView>.breath(at: start.addingTimeInterval(Double(index) * step))
+      #expect(value >= Tokens.Loading.breathLow - 1e-9 && value <= 1 + 1e-9)
+      #expect(abs(value - previous) <= slope * step + 1e-9)
+      previous = value
+    }
+  }
+
+  @Test("Every skeleton breathes on one clock: built apart, they are at the same point")
+  func sharedBreathClock() {
+    let date = Date(timeIntervalSinceReferenceDate: 1_000.25)
+    let later = date.addingTimeInterval(7 * Tokens.Loading.breathSeconds)
+    #expect(abs(Skeleton<EmptyView>.breath(at: date) - Skeleton<EmptyView>.breath(at: later)) < 1e-9)
   }
 
   @Test("Skeleton blocks take the board's heights and radii")
@@ -48,54 +70,6 @@ import Testing
     #expect(NSHostingView(rootView: slot(1)).fittingSize == size)
   }
   #endif
-
-  // Skeleton sizes: a line, a card, the phone's tall Chart skeleton, a wide Mac pane.
-  @Test("The light is wholly off the skeleton when a sweep starts and when it ends, at any height",
-    arguments: [CGSize(width: 120, height: 9), CGSize(width: 340, height: 120),
-      CGSize(width: 330, height: 372), CGSize(width: 900, height: 600)])
-  func sweepStartsAndEndsOffSkeleton(size: CGSize) {
-    // The light where the band draws it: points of the band image whose place on the gradient
-    // (from the layer's own start and end points) is between the outer stops.
-    let band = CGSize(width: size.width * Tokens.Loading.shimmerWidth, height: size.height)
-    let points = ShimmerBandView.gradientPoints(size: band, degrees: Tokens.Loading.shimmerAngle)
-    let start = CGPoint(x: points.start.x * band.width, y: points.start.y * band.height)
-    let line = CGPoint(x: points.end.x * band.width - start.x, y: points.end.y * band.height - start.y)
-    let squared = line.x * line.x + line.y * line.y
-    let stops = Tokens.Loading.shimmerStops
-    let steps = 200
-    var lit: [CGFloat] = []
-    for column in 0...steps {
-      for row in 0...steps {
-        let x = band.width * CGFloat(column) / CGFloat(steps)
-        let y = band.height * CGFloat(row) / CGFloat(steps)
-        let share = ((x - start.x) * line.x + (y - start.y) * line.y) / squared
-        if share > stops[0], share < stops[2] { lit.append(x) }
-      }
-    }
-    let travel = ShimmerBandView.travel(size: size)
-    #expect(!lit.isEmpty)
-    #expect((lit.max() ?? 0) + travel.from <= 0.5)
-    #expect((lit.min() ?? 0) + travel.to >= size.width - 0.5)
-  }
-
-  @Test("Every skeleton sweeps on one clock: two started apart are at the same point of the sweep")
-  func sharedSweepClock() {
-    let seconds = Tokens.Loading.shimmerSeconds
-    let first = ShimmerBandView.sweepPhase(at: 1_000.25)
-    let later = ShimmerBandView.sweepPhase(at: 1_000.25 + 3 * seconds)
-    #expect(abs(first - later) < 1e-6)
-    #expect(first >= 0 && first < seconds)
-  }
-
-  @Test("A 90° gradient runs left to right across the middle; 110° leans down to the right")
-  func gradientPoints() {
-    let flat = ShimmerBandView.gradientPoints(size: CGSize(width: 200, height: 50), degrees: 90)
-    #expect(abs(flat.start.x) < 1e-9 && abs(flat.end.x - 1) < 1e-9)
-    #expect(abs(flat.start.y - 0.5) < 1e-9 && abs(flat.end.y - 0.5) < 1e-9)
-    let leaning = ShimmerBandView.gradientPoints(size: CGSize(width: 200, height: 50), degrees: 110)
-    #expect(leaning.end.x > leaning.start.x)
-    #expect(leaning.end.y > leaning.start.y)
-  }
 
   @Test("The spinner turns once every 0.9 s at an even pace; under Reduce Motion it pulses")
   func spinnerMotion() {

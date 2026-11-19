@@ -287,7 +287,8 @@ public struct SystemPanelLoading: View {
 
   public init() {}
 
-  public var body: some View { SkeletonRows(Self.rows) }
+  // Breathing like every skeleton; the card's title names what loads.
+  public var body: some View { Skeleton(nil) { SkeletonRows(Self.rows) } }
 }
 
 /// A row of the card: a tile with the row's symbol in its tone, the title with a note under it,
