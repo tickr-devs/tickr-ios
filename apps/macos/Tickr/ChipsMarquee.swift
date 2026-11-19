@@ -21,9 +21,13 @@ import TickrDesign
 ///   screen exist: two pages (`MarqueePages`) side by side, and when the first has scrolled out
 ///   it is drawn again as the page after the second. The row looks and moves as one long row.
 /// - Pointer events do not reach SwiftUI views inside a hosting view nested in the screen
-///   (no hover, no tracking), so the moving row takes no events at all. The strip itself, which
-///   never moves, takes the hover and the click in the screen's own hierarchy. Paused, it knows
-///   where each chip is drawn, so it outlines and opens the chip that is under the pointer.
+///   (no hover, no tracking), so the moving row takes no clicks. The strip's own AppKit view
+///   (`ChipsMarqueeView`) tracks the pointer in its own coordinates, the very ones it draws the
+///   row in. SwiftUI hover on the strip did not: the pages' nested hosting views keep tracking
+///   areas at their frames, not where Core Animation draws them, so the hover went stale or never
+///   began over parts of the strip and the outline lit a chip beside the pointer (owner,
+///   2026-11-19). Paused, the view knows which slots each page draws and where each chip is, so
+///   the strip outlines and opens the chip that is under the pointer.
 struct ChipsMarquee<Item: Hashable, Chip: View>: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   let items: [Item]
@@ -40,10 +44,6 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
   let open: (Item) -> Void
   let chip: (Item) -> Chip
 
-  /// Whether the pointer holds the row still.
-  @State private var held = false
-  /// The pointer's place along the strip, in points from its leading edge.
-  @State private var pointer: CGFloat = 0
   @State private var handle = ChipsMarqueeHandle()
 
   var body: some View {
@@ -73,6 +73,7 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
   }
 
   private var marquee: some View {
+    let pointer = handle.pointer.x
     let pointed = spot(at: pointer)
     return ChipsMarqueeHost(
       page: { AnyView(page($0, pointed: pointed?.slot)) },
@@ -80,21 +81,9 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
       count: items.count, leastChipWidth: leastChipWidth + Self.spacing,
       speed: Tokens.Motion.tickerSpeed, handle: handle)
       .contentShape(Rectangle())
-      .onContinuousHover(coordinateSpace: .local) { phase in
-        switch phase {
-        case .active(let location):
-          if !held {
-            handle.hold()
-            held = true
-          }
-          pointer = location.x
-        case .ended:
-          held = false
-          handle.release()
-        }
-      }
-      .onTapGesture(coordinateSpace: .local) { location in
-        if let item = spot(at: location.x)?.item, opens(item) { open(item) }
+      // Opens the chip that is outlined: the one under the pointer as the strip's view tracks it.
+      .onTapGesture {
+        if let item = spot(at: handle.pointer.x)?.item, opens(item) { open(item) }
       }
       .help(spot(at: pointer).map { help($0.item) } ?? Text(verbatim: String()))
       // The moving row takes no events, so VoiceOver gets the chips as buttons here; lazy, so
@@ -136,10 +125,10 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
     .fixedSize()
   }
 
-  /// The chip drawn at `point` points from the strip's leading edge while the row is held, and its
-  /// slot; nil while the row moves or over a gap.
-  private func spot(at point: CGFloat) -> (item: Item, slot: Int)? {
-    guard held, !items.isEmpty, let shown = handle.shown else { return nil }
+  /// The chip drawn at `point` points from the strip's leading edge while the pointer holds the
+  /// row, and its slot; nil off the strip, while the row moves or over a gap.
+  private func spot(at point: CGFloat?) -> (item: Item, slot: Int)? {
+    guard let point, !items.isEmpty, let shown = handle.shown else { return nil }
     let along = point + shown.shift
     guard along >= 0 else { return nil }
     var start: CGFloat = 0
@@ -217,23 +206,31 @@ struct MarqueeClock: Equatable {
   }
 }
 
-/// Lets the strip hold the moving row and find the chip under the pointer. Not observed: its
-/// values change as pages scroll by, and nothing redraws for them.
+/// Where the pointer is over the strip, as the strip's AppKit view tracks it. Observed: the strip
+/// outlines the chip under it.
+@MainActor
+@Observable
+final class MarqueePointer {
+  /// Points from the strip's leading edge; nil while the pointer is off the strip.
+  var x: CGFloat?
+}
+
+/// Lets the strip find the chip under the pointer. Not observed: its values change as pages
+/// scroll by, and nothing redraws for them (only `pointer` is observed).
 @MainActor
 final class ChipsMarqueeHandle {
   weak var view: ChipsMarqueeView?
+  let pointer = MarqueePointer()
+
   /// Width of each drawn chip by its slot, in points, as the pages laid them out.
-  var widths: [Int: CGFloat] = [:]
+  var widths: [Int: CGFloat] {
+    get { view?.widths ?? [:] }
+    set { view?.widths = newValue }
+  }
 
   /// The slots drawn, first to last, and how far the first is shifted to the left, in points;
   /// nil when nothing is drawn.
-  var shown: (slots: Range<Int>, shift: CGFloat)? { view?.shown }
-
-  /// Stops the row where it is drawn.
-  func hold() { view?.hold() }
-
-  /// Lets the row scroll on from where it was held.
-  func release() { view?.release() }
+  var shown: (slots: [Int], shift: CGFloat)? { view?.shown }
 }
 
 /// The strip as an AppKit view: two pages of the row, each in a hosting view of its own.
@@ -252,7 +249,7 @@ private struct ChipsMarqueeHost: NSViewRepresentable {
   let handle: ChipsMarqueeHandle
 
   func makeNSView(context: Context) -> ChipsMarqueeView {
-    let view = ChipsMarqueeView()
+    let view = ChipsMarqueeView(pointer: handle.pointer)
     handle.view = view
     return view
   }
@@ -272,15 +269,14 @@ private struct ChipsMarqueeHost: NSViewRepresentable {
 /// from where the row is to there. When the animation ends the lead page is drawn again as the
 /// page after `next` and the two swap, so the row scrolls on without a seam. Held, the animation
 /// is taken off and the mover's frame is put where the row was drawn; released, the scroll goes
-/// on from there. It takes no pointer events: the strip around it does (`ChipsMarquee`).
+/// on from there. It tracks the pointer itself (`pointer`) and holds the row while the pointer is
+/// over it; clicks go to the strip around it (`ChipsMarquee`).
 final class ChipsMarqueeView: NSView {
   /// Key of the scroll animation, and the key path it drives (the mover's horizontal shift).
   static let animationKey = "chips-marquee"
   static let keyPath = "transform.translation.x"
   /// Share of the strip's width that fades out at each end.
   static let fadeEdge = 0.06
-  /// Pages drawn side by side: the lead one scrolling out and the next one.
-  static let pagesDrawn = 2
 
   private let mover = NSView()
   private var lead = ChipsMarqueeView.host()
@@ -292,8 +288,17 @@ final class ChipsMarqueeView: NSView {
   private var chipCount = 0
   private var leastChipWidth: CGFloat = 0
   private var pages = MarqueePages(stripWidth: 0, leastChipWidth: 0)
-  /// Slot of the lead page's first chip, below `chipCount`.
+  /// Slot of the lead page's first chip. It only grows as pages turn (a slot's chip is its slot
+  /// modulo the count), so the slots a page drew are never renumbered under it.
   private var first = 0
+  /// The slots each page draws now.
+  private var leadSlots = 0..<0
+  private var nextSlots = 0..<0
+  /// Where the pointer is over the strip; the strip reads it.
+  private let pointer: MarqueePointer
+  /// Width of each chip the pages draw, by its slot, in points, as the pages laid them out; only
+  /// the slots drawn now are kept.
+  var widths: [Int: CGFloat] = [:]
   private var speed = 0.0
   private var held = false
   /// Counts the scrolls started: a scroll that ends after another one started turns no page.
@@ -301,7 +306,8 @@ final class ChipsMarqueeView: NSView {
   /// Where the row is along the lead page (`MarqueeClock`).
   private var clock = MarqueeClock()
 
-  init() {
+  init(pointer: MarqueePointer) {
+    self.pointer = pointer
     super.init(frame: .zero)
     wantsLayer = true
     layer?.masksToBounds = true
@@ -322,17 +328,51 @@ final class ChipsMarqueeView: NSView {
     return host
   }
 
-  // The strip around this view takes the pointer: hover and clicks go to it.
+  // Clicks go to the strip around this view; the pointer is tracked below, in this view's bounds.
   override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+  override func updateTrackingAreas() {
+    super.updateTrackingAreas()
+    for area in trackingAreas where area.owner === self { removeTrackingArea(area) }
+    addTrackingArea(NSTrackingArea(
+      rect: .zero, options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect],
+      owner: self))
+  }
+
+  override func mouseEntered(with event: NSEvent) { point(at: event) }
+
+  override func mouseMoved(with event: NSEvent) { point(at: event) }
+
+  override func mouseExited(with event: NSEvent) {
+    pointer.x = nil
+    release()
+  }
+
+  override func viewDidMoveToWindow() {
+    super.viewDidMoveToWindow()
+    if window == nil { pointer.x = nil }
+  }
+
+  /// Holds the row and tells the strip where the pointer is along it.
+  private func point(at event: NSEvent) {
+    let location = convert(event.locationInWindow, from: nil)
+    guard bounds.contains(location) else {
+      mouseExited(with: event)
+      return
+    }
+    hold()
+    pointer.x = location.x
+  }
 
   /// Width of the lead page, in points: how far the row scrolls before the pages swap.
   var pageWidth: CGFloat { lead.frame.width }
   /// Height of the row, in points.
   private(set) var rowHeight: CGFloat = 0
 
-  /// The slots drawn and how far the lead page is shifted to the left, in points.
-  var shown: (slots: Range<Int>, shift: CGFloat)? {
-    chipCount > 0 ? (first..<(first + pages.size * Self.pagesDrawn), current) : nil
+  /// The slots the pages draw, first to last, and how far the lead page is shifted to the left,
+  /// in points.
+  var shown: (slots: [Int], shift: CGFloat)? {
+    chipCount > 0 ? (Array(leadSlots) + Array(nextSlots), current) : nil
   }
 
   func show(
@@ -341,7 +381,6 @@ final class ChipsMarqueeView: NSView {
     self.page = page
     chipCount = count
     self.leastChipWidth = leastChipWidth
-    first = chipCount > 0 ? first % chipCount : 0
     let restart = speed != self.speed
     self.speed = speed
     if shows != self.shows {
@@ -367,10 +406,18 @@ final class ChipsMarqueeView: NSView {
 
   /// Draws both pages anew from `first`, measures them and scrolls on from `shift`.
   private func draw(keeping shift: CGFloat) {
-    lead.rootView = page(pages.slots(from: first))
-    next.rootView = page(pages.slots(from: first + pages.size))
+    leadSlots = pages.slots(from: first)
+    nextSlots = pages.slots(from: first + pages.size)
+    keepWidthsDrawn()
+    lead.rootView = page(leadSlots)
+    next.rootView = page(nextSlots)
     place()
     turnOrScroll(from: shift)
+  }
+
+  /// Forgets the widths of slots no page draws any more.
+  private func keepWidthsDrawn() {
+    widths = widths.filter { leadSlots.contains($0.key) || nextSlots.contains($0.key) }
   }
 
   /// Puts the pages side by side at their own sizes.
@@ -392,8 +439,12 @@ final class ChipsMarqueeView: NSView {
       return
     }
     swap(&lead, &next)
-    first = (first + pages.size) % chipCount
-    next.rootView = page(pages.slots(from: first + pages.size))
+    // The old next page leads with the slots it drew; the new next page follows them.
+    leadSlots = nextSlots
+    first = leadSlots.lowerBound
+    nextSlots = pages.slots(from: leadSlots.upperBound)
+    keepWidthsDrawn()
+    next.rootView = page(nextSlots)
     place()
     scroll(from: shift - width)
   }
