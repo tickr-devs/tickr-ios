@@ -51,13 +51,11 @@ public extension Tokens {
 
     /// Seconds of one sweep of the shimmer across a skeleton (the board's 1.6 s, ease-in-out).
     public static let shimmerSeconds = 1.6
-    /// The shimmer band: its gradient's angle in degrees (CSS: 0 points up, 90 to the right),
-    /// the band image's width as a multiple of the skeleton's, and where the band sweeps from and
-    /// to (CSS `background-position` x, as shares: 120% to −20%).
+    /// The shimmer band: its gradient's angle in degrees (CSS: 0 points up, 90 to the right) and
+    /// the band image's width as a multiple of the skeleton's. It sweeps from wholly off the
+    /// skeleton on the left to wholly off it on the right (`ShimmerBandView.travel`).
     public static let shimmerAngle = 110.0
     public static let shimmerWidth = 2.5
-    public static let shimmerFrom = 1.2
-    public static let shimmerTo = -0.2
     /// The band's gradient stops, as shares of its width: clear, `textPrimary` at
     /// `shimmerOpacity`, clear.
     public static let shimmerStops = [0.35, 0.5, 0.65]

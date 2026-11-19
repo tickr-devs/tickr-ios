@@ -275,24 +275,43 @@ final class ShimmerBandView: PlatformView {
     return (unit(-1), unit(1))
   }
 
-  /// Where the band sits at a CSS `background-position` of `share`: the image is wider than the
-  /// skeleton, so it moves by the difference times the share.
-  static func offset(width: CGFloat, share: Double) -> CGFloat {
-    (width - width * Tokens.Loading.shimmerWidth) * share
+  /// Where the band starts and ends its sweep, as translations of the band image (which is
+  /// `shimmerWidth` times the skeleton's width): its light, the gradient between its outer stops,
+  /// leaning at `shimmerAngle`, wholly off the skeleton on the left at the start and on the right
+  /// at the end, whatever the skeleton's height. The board's fixed 120% → −20% left the leaning
+  /// light's corners on a tall skeleton (the Chart's), so every sweep ended with light still at
+  /// the right edge that then jumped back to the left: the "boom" the owner saw (2026-11-19).
+  static func travel(size: CGSize) -> (from: CGFloat, to: CGFloat) {
+    let bandWidth = size.width * Tokens.Loading.shimmerWidth
+    let angle = Tokens.Loading.shimmerAngle * .pi / halfTurnDegrees
+    let across = abs(sin(angle))
+    let down = abs(cos(angle))
+    guard across > 0, let first = Tokens.Loading.shimmerStops.first, let last = Tokens.Loading.shimmerStops.last else {
+      return (-bandWidth, size.width)
+    }
+    // The gradient line's length over the band box, and the light's half-width along it.
+    let length = bandWidth * across + size.height * down
+    let light = length * (last - first) * half
+    // How far right of the band's centre line the light reaches, at the skeleton's top or bottom
+    // edge, where the lean carries it furthest.
+    let reach = (light + size.height * half * down) / across
+    let centre = bandWidth * half
+    return (-(centre + reach), size.width - centre + reach)
   }
 
-  /// The band sweeps from `shimmerFrom` to `shimmerTo`, ease-in-out, again and again. Every
-  /// skeleton sweeps on one clock (`sweepPhase`): the cards of a screen shimmer together, and a
-  /// skeleton laid out again (another size) goes on where the sweep is instead of jumping back to
-  /// its start, which read as a jerky loader (owner report 2026-11-17).
+  /// The band sweeps left to right, ease-in-out, again and again, its light off the skeleton at
+  /// both ends (`travel`), so a new sweep never shows the light jumping back. Every skeleton
+  /// sweeps on one clock (`sweepPhase`): the cards of a screen shimmer together, and a skeleton
+  /// laid out again (another size) goes on where the sweep is instead of jumping back to its
+  /// start, which read as a jerky loader (owner report 2026-11-17).
   private func startSweep() {
-    let width = bounds.width
-    guard width > 0 else { return }
+    guard bounds.width > 0 else { return }
     let now = CACurrentMediaTime()
+    let travel = Self.travel(size: bounds.size)
     let sweep = CABasicAnimation(keyPath: Self.translationPath)
     sweep.beginTime = band.convertTime(now, from: nil) - Self.sweepPhase(at: now)
-    sweep.fromValue = Self.offset(width: width, share: Tokens.Loading.shimmerFrom)
-    sweep.toValue = Self.offset(width: width, share: Tokens.Loading.shimmerTo)
+    sweep.fromValue = travel.from
+    sweep.toValue = travel.to
     sweep.duration = Tokens.Loading.shimmerSeconds
     sweep.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
     // decorative: the skeleton's shimmer while a read is in flight, only while it shows (mockup v102, rule 5).

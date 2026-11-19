@@ -49,11 +49,33 @@ import Testing
   }
   #endif
 
-  @Test("The band sweeps as CSS background-position 120% to -20% over a 250% image")
-  func shimmerOffsets() {
-    // (width - 2.5 × width) × share: −1.8 × width at 120%, +0.3 × width at −20%.
-    #expect(abs(ShimmerBandView.offset(width: 100, share: Tokens.Loading.shimmerFrom) - -180) < 1e-9)
-    #expect(abs(ShimmerBandView.offset(width: 100, share: Tokens.Loading.shimmerTo) - 30) < 1e-9)
+  // Skeleton sizes: a line, a card, the phone's tall Chart skeleton, a wide Mac pane.
+  @Test("The light is wholly off the skeleton when a sweep starts and when it ends, at any height",
+    arguments: [CGSize(width: 120, height: 9), CGSize(width: 340, height: 120),
+      CGSize(width: 330, height: 372), CGSize(width: 900, height: 600)])
+  func sweepStartsAndEndsOffSkeleton(size: CGSize) {
+    // The light where the band draws it: points of the band image whose place on the gradient
+    // (from the layer's own start and end points) is between the outer stops.
+    let band = CGSize(width: size.width * Tokens.Loading.shimmerWidth, height: size.height)
+    let points = ShimmerBandView.gradientPoints(size: band, degrees: Tokens.Loading.shimmerAngle)
+    let start = CGPoint(x: points.start.x * band.width, y: points.start.y * band.height)
+    let line = CGPoint(x: points.end.x * band.width - start.x, y: points.end.y * band.height - start.y)
+    let squared = line.x * line.x + line.y * line.y
+    let stops = Tokens.Loading.shimmerStops
+    let steps = 200
+    var lit: [CGFloat] = []
+    for column in 0...steps {
+      for row in 0...steps {
+        let x = band.width * CGFloat(column) / CGFloat(steps)
+        let y = band.height * CGFloat(row) / CGFloat(steps)
+        let share = ((x - start.x) * line.x + (y - start.y) * line.y) / squared
+        if share > stops[0], share < stops[2] { lit.append(x) }
+      }
+    }
+    let travel = ShimmerBandView.travel(size: size)
+    #expect(!lit.isEmpty)
+    #expect((lit.max() ?? 0) + travel.from <= 0.5)
+    #expect((lit.min() ?? 0) + travel.to >= size.width - 0.5)
   }
 
   @Test("Every skeleton sweeps on one clock: two started apart are at the same point of the sweep")
