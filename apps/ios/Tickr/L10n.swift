@@ -315,10 +315,6 @@ enum L10n {
     static var recordedDay: LocalizedStringResource {
       LocalizedStringResource("home.recordedDay", defaultValue: "Recorded day", bundle: L10n.bundle)
     }
-    /// Headline while the bot has never answered: the card above already says why, once.
-    static var statusUnknown: LocalizedStringResource {
-      LocalizedStringResource("home.statusUnknown", defaultValue: "Entry status unknown", bundle: L10n.bundle)
-    }
     /// Clean-day badge: the journal, the broker and the bot's records agreed (as the Mac's).
     static var cleanBadge: LocalizedStringResource {
       LocalizedStringResource("home.cleanBadge", defaultValue: "Clean day", bundle: L10n.bundle)

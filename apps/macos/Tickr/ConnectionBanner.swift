@@ -10,6 +10,8 @@ import TickrKit
 /// (`commandsEnabled`).
 struct ConnectionBanner: View {
   @Environment(AppModel.self) private var model
+  /// The address Settings shows and the app reads at launch; the one-click fix writes it too.
+  @AppStorage(Defaults.apiBaseURL) private var apiBaseURL = APIClient.defaultBaseURL.absoluteString
   /// A Retry is on its way: the button waits for it.
   @State private var retrying = false
 
@@ -21,7 +23,7 @@ struct ConnectionBanner: View {
           // The bot refuses this address (a Host or token it does not accept): reading it again
           // never helps, going back to this Mac's own address does.
           Button {
-            UserDefaults.standard.set(APIClient.defaultBaseURL.absoluteString, forKey: Defaults.apiBaseURL)
+            apiBaseURL = APIClient.defaultBaseURL.absoluteString
             model.connect(to: APIClient.defaultBaseURL)
           } label: { Text(ConnectionMessage.useAddress(Self.defaultAddress)) }
             .buttonStyle(.action(.primary, size: .compact))

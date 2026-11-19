@@ -25,7 +25,9 @@ struct HomeView: View {
   var body: some View {
     Screen(L10n.App.name, tab: .home) {
       // The mark the opening animation flies into (LaunchHandoff); it pulses while data is current.
-      BrandMark(size: Tokens.Size.glyph, live: ornamentMoves)
+      // Muted while the link is down: the mark says nothing about a bot it cannot hear.
+      BrandMark(size: Tokens.Size.glyph, live: ornamentMoves && model.fetchError == nil,
+        tone: model.fetchError == nil ? .brand : .muted)
         .onGeometryChange(for: CGPoint.self) { proxy in
           let frame = proxy.frame(in: .global)
           return CGPoint(x: frame.midX, y: frame.midY)
@@ -61,7 +63,12 @@ struct HomeView: View {
       }
       DayLine(days: dayModel).rise(step: Order.day.rawValue)
       Summary(past: dayModel.shown).rise(step: Order.summary.rawValue)
-      if !model.isLive, let status = model.status {
+      if model.status == nil && model.connectionState.isNeverConnected {
+        // Nothing was ever read: the cards keep their titles over a quiet outline, never a
+        // "no position" or zero we do not know (mockup "no connection" v2).
+        OfflineCard(L10n.App.positions).rise(step: Order.positions.rawValue)
+        OfflineCard(L10n.Watching.title).rise(step: Order.flow.rawValue)
+      } else if !model.isLive, let status = model.status {
         // A recorded day: its result above, then what it recorded (the flow, its fast movers);
         // nothing live (no positions, quotes or fences of today).
         Text(L10n.Home.pastDayNote(DayText.day(model.shownDay.noonInNewYork)))
@@ -252,12 +259,33 @@ private struct AgeLine: View {
   }
 }
 
+/// A Home card while nothing was ever read and the link is down: its title over the still grey
+/// outline (`OfflineOutline`), as the Mac's outlined cards.
+private struct OfflineCard: View {
+  let title: LocalizedStringResource
+
+  init(_ title: LocalizedStringResource) {
+    self.title = title
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.m) {
+      CardLabel(title)
+      OfflineOutline()
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(Tokens.Space.l)
+    .tickrCard()
+  }
+}
+
 /// The colour of Home's connection dot.
 enum ConnectionFreshness {
-  /// Red without an answer or after a failed read, amber while the status is stale, green while it
-  /// is current.
+  /// Grey after a failed read (no connection is not danger; the banner says why), red with no
+  /// status, amber while the status is stale, green while it is current.
   static func color(response: StatusResponseV1?, fetchError: String?) -> Color {
-    guard let response, fetchError == nil else { return Palette.loss }
+    guard fetchError == nil else { return Palette.textQuaternary }
+    guard let response else { return Palette.loss }
     return response.stale ? Palette.warning : Palette.profit
   }
 }
@@ -301,20 +329,21 @@ private struct Summary: View {
     let result = stats?.resultUsd ?? 0
     let headline = model.headline
     // A recorded day says so, in the highlight colour and without a pulse; the live headline is about today.
-    // Without any status the connection card above shows the failure; the headline does not repeat it.
-    let unreachable = model.status == nil && model.fetchError != nil
-    let text = past != nil ? String(localized: L10n.Home.recordedDay)
-      : unreachable ? String(localized: L10n.Home.statusUnknown) : headline.text
-    let detail = past != nil ? String(localized: L10n.Home.recordedNote) : unreachable ? nil : headline.detail
+    // While the link is down the banner above speaks; no headline about a bot we cannot hear.
+    let linkDown = past == nil && model.fetchError != nil
+    let text = past != nil ? String(localized: L10n.Home.recordedDay) : headline.text
+    let detail = past != nil ? String(localized: L10n.Home.recordedNote) : headline.detail
     let tone = past == nil ? headline.tone : Tone.highlight
     // A stale status's text counts its age; read again it is no new event.
     let pulse: Headline.Pulse = past == nil ? headline.pulse : .text(text)
     VStack(alignment: .leading, spacing: Tokens.Space.l) {
       // As IOSHome draws it (mockup v108): the shared headline on its own row above the ring, the
       // title over its detail, with the session countdown and the gate badge on the live day.
-      HeadlineBanner(text, detail: detail, tone: tone, alarm: past == nil && headline.severity == .alarm,
-        pulse: past == nil && (headline.severity != .ok || model.response?.stale == false) ? AnyHashable(pulse) : nil,
-        arrangement: .stacked, facts: past == nil ? facts : nil)
+      if !linkDown {
+        HeadlineBanner(text, detail: detail, tone: tone, alarm: past == nil && headline.severity == .alarm,
+          pulse: past == nil && (headline.severity != .ok || model.response?.stale == false) ? AnyHashable(pulse) : nil,
+          arrangement: .stacked, facts: past == nil ? facts : nil)
+      }
       RowStack(spacing: Tokens.Space.l) {
         ring(stats: stats, result: result)
         VStack(alignment: .leading, spacing: Tokens.Space.s) {
@@ -373,12 +402,19 @@ private struct Summary: View {
       halo: result < 0 ? Palette.seriesATR : Palette.accent, lineWidth: Self.ringLine) {
       VStack(spacing: Tokens.Space.xxs) {
         CardLabel(L10n.Home.day)
-        // Counts up from zero as the ring appears and on to each new result (the board's count).
-        CountingText(NSDecimalNumber(decimal: result).doubleValue, period: model.shownDay) { Money.signedUSD(Decimal($0)) }
-          .font(Tokens.Typography.metric)
-          .foregroundStyle(Palette.result(result))
-          // One line at its full size; the ring grows around it.
-          .fixedSize()
+        if stats == nil {
+          // No day was read: a dash, never a $0.00 we do not know.
+          Text(verbatim: Format.missing)
+            .font(Tokens.Typography.metric)
+            .foregroundStyle(Palette.textQuaternary)
+        } else {
+          // Counts up from zero as the ring appears and on to each new result (the board's count).
+          CountingText(NSDecimalNumber(decimal: result).doubleValue, period: model.shownDay) { Money.signedUSD(Decimal($0)) }
+            .font(Tokens.Typography.metric)
+            .foregroundStyle(Palette.result(result))
+            // One line at its full size; the ring grows around it.
+            .fixedSize()
+        }
         Group {
           if let stats {
             Text(L10n.Common.winsLosses(stats.wins, stats.losses))

@@ -5717,23 +5717,6 @@
         }
       }
     },
-    "home.statusUnknown" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entry status unknown"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Разрешены ли входы, неизвестно"
-          }
-        }
-      }
-    },
     "home.stopIs" : {
       "extractionState" : "manual",
       "localizations" : {

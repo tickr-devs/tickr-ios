@@ -554,9 +554,13 @@ struct ConnectionPrompt: View {
   var body: some View {
     let state = model.connectionState
     if let message = model.connectionMessage {
-      ConnectionNotice(state.hasNoData ? .empty : .banner, title: message.title, subtitle: message.subtitle,
+      // A lost link is a banner over the cards (drawn as quiet outlines when nothing was read,
+      // mockup "no connection" v2); only a bot not set up or silent fills the card area.
+      ConnectionNotice(state.hasNoData && !state.isNeverConnected ? .empty : .banner,
+        title: message.title, subtitle: message.subtitle,
         detailsLabel: ConnectionMessage.detailsLabel, details: details(message)) {
-        if state != .notConfigured {
+        // A refused address is fixed in Settings; reading it again never helps.
+        if state != .notConfigured && !message.refused {
           Button {
             Task {
               retrying = true
@@ -568,7 +572,7 @@ struct ConnectionPrompt: View {
             .disabled(retrying)
         }
         NavigationLink { SettingsView() } label: { Text(ConnectionMessage.settings) }
-          .buttonStyle(.action(state == .notConfigured ? .primary : .ghost, size: .compact))
+          .buttonStyle(.action(state == .notConfigured || message.refused ? .primary : .ghost, size: .compact))
       }
       .rise()
     }
@@ -795,7 +799,9 @@ extension View {
   /// Sets what every `ReadFailureNote` below says: while the link to the bot is down, cards wait
   /// calmly and leave the failure to the connection banner.
   func readFailureContext(_ model: AppModel) -> some View {
-    environment(\.readFailureContext, ReadFailureContext(connectionDown: model.connectionState.failure != nil,
+    environment(\.readFailureContext, ReadFailureContext(
+      connectionDown: model.connectionState.failure != nil,
+      noData: model.connectionState.isNeverConnected,
       detailsLabel: ConnectionMessage.detailsLabel, waiting: ConnectionMessage.waiting))
   }
 }

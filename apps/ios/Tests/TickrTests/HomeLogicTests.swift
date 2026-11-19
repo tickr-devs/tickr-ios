@@ -59,7 +59,8 @@ import TickrKit
     let stale = try fixture(StatusResponseV1.self, "status-response-v1.stale.json")
     #expect(ConnectionFreshness.color(response: current, fetchError: nil) == Palette.profit)
     #expect(ConnectionFreshness.color(response: stale, fetchError: nil) == Palette.warning)
-    #expect(ConnectionFreshness.color(response: current, fetchError: "offline") == Palette.loss)
+    #expect(ConnectionFreshness.color(response: current, fetchError: "offline") == Palette.textQuaternary)
+    #expect(ConnectionFreshness.color(response: nil, fetchError: "offline") == Palette.textQuaternary)
     #expect(ConnectionFreshness.color(response: nil, fetchError: nil) == Palette.loss)
   }
 }
