@@ -998,7 +998,7 @@ struct CandleChart: View {
       let time = times.slotTime(label.slot) ?? shown.lowerBound
       items.append(AxisLabelPlacer.Item(
         x: time.timeIntervalSince(shown.lowerBound) * perSecond,
-        widths: forms.map { Double(($0 as NSString).size(withAttributes: [.font: font]).width) }, anchor: label.anchor,
+        widths: forms.map { Double(TextMeasure.width($0, font: font)) }, anchor: label.anchor,
         required: SessionAxisText.isSession(label.kind)))
     }
     return AxisLabelPlacer.place(
@@ -1059,9 +1059,7 @@ struct CandleChart: View {
     let plot = Double(chartWidth - axisWidth)
     guard plot > 0, window > 0 else { return false }
     let font = UIFont.monospacedSystemFont(ofSize: Tokens.Chart.bandCaptionSize, weight: .semibold)
-    let width = (caption as NSString).size(withAttributes: [
-      .font: font, .kern: Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking,
-    ]).width
+    let width = TextMeasure.width(caption, font: font, kern: Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking)
     let room = width + Tokens.Chart.bandCaptionInset + Tokens.Chart.bandCaptionInset
     return plot * end.timeIntervalSince(start) / window >= Double(room)
   }

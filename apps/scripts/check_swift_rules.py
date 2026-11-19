@@ -24,7 +24,10 @@ legacy   The current Apple stack only (CLAUDE.md, "Swift code rules"): no XCTest
          tests (Swift Testing instead); no ObservableObject or Combine-era property wrappers
          (Observation instead); no Combine, DispatchQueue, OperationQueue or Thread.sleep
          (async/await instead); no NavigationView, PreviewProvider or NSLocalizedString; no
-         deprecated SwiftUI, UIKit and AppKit calls (see LEGACY). Checked in tests too.
+         deprecated SwiftUI, UIKit and AppKit calls (see LEGACY); no text measured through the
+         string-drawing engine (`size(withAttributes:)`, `NSAttributedString(…).size()`,
+         `boundingRect(with:…)`), which threw while another thread measured text (2026-11-19):
+         TickrDesign's `TextMeasure` measures with Core Text. Checked in tests too.
 catalog  Every key of an `L10n.swift` has a Spanish (`es`) translation in the target's String
          Catalog (`*.xcstrings` next to it), and every user-facing Info.plist text
          (`NS…UsageDescription`) has one in an `InfoPlist.xcstrings` of the same app. Every String
@@ -444,6 +447,8 @@ LEGACY = [
      "tabItem is the old TabView form: use Tab(value:) { } label: { }"),
     (re.compile(r"\bUIApplication\.shared\.(?:windows|keyWindow)\b"),
      "UIApplication.windows and keyWindow are deprecated: use the view's window scene"),
+    (re.compile(r"\.size\(\s*withAttributes:|\bNSAttributedString\(.*\)\.size\(\)|\.boundingRect\(\s*with:"),
+     "string-drawing measurement crashes while another thread measures text: use TextMeasure"),
 ]
 # `.onChange(of: value, perform: action)` spread over several lines.
 ON_CHANGE = ".onChange("
