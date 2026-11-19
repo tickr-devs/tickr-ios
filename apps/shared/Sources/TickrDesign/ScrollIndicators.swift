@@ -60,21 +60,45 @@ struct ScrollEdges: Equatable {
   }
 }
 
+/// Where the chevron takes the scroll view next: one more page, or the very bottom.
+enum ScrollStep: Equatable {
+  /// The scroll position's y (0 = the content's top at the top of the visible area).
+  case offset(CGFloat)
+  /// The end of the content: what is left is no more than a page.
+  case bottom
+}
+
 /// Where the next page starts: kept out of view state, so following the scroll every frame
-/// redraws nothing.
+/// redraws nothing. Measured like `ScrollEdges`, from the content's top shown below the top
+/// inset, because that is how a scroll position's y counts (owner, 2026-11-19: with the phone's
+/// 62 pt top inset counted in, the last tap stopped that much short of the end, the chevron
+/// stayed, and the next tap did nothing).
 @MainActor final class ScrollPage {
-  var offset: CGFloat = 0
+  /// How far the content's top is above the visible area's top.
+  var shown: CGFloat = 0
+  /// The visible height between the insets.
   var visible: CGFloat = 0
+  /// The largest `shown`: the content's end at the visible area's bottom.
   var end: CGFloat = 0
 
   func follow(_ geometry: ScrollGeometry) {
-    offset = geometry.contentOffset.y
-    visible = geometry.containerSize.height
-    end = geometry.contentSize.height - geometry.containerSize.height - geometry.contentInsets.top
+    follow(offset: geometry.contentOffset.y, insetTop: geometry.contentInsets.top,
+      content: geometry.contentSize.height, container: geometry.containerSize.height)
   }
 
-  /// One page further down, never past the end.
-  var next: CGFloat { min(offset + visible * Tokens.Scroll.pageShare, end) }
+  func follow(offset: CGFloat, insetTop: CGFloat, content: CGFloat, container: CGFloat) {
+    shown = offset + insetTop
+    visible = container
+    end = content - container
+  }
+
+  /// One page further down; when no more than a page is left (or a page would leave less than
+  /// the edge tolerance, which a scroll position may not move by), the bottom itself, so a tap
+  /// always ends with the end in view and the chevron gone.
+  var next: ScrollStep {
+    let target = shown + visible * Tokens.Scroll.pageShare
+    return target >= end - Tokens.Scroll.edgeTolerance ? .bottom : .offset(target)
+  }
 }
 
 struct ScrollEdgeHints: ViewModifier {
@@ -128,7 +152,10 @@ struct ScrollEdgeHints: ViewModifier {
   private var chevron: some View {
     Button {
       withAnimation(reduceMotion ? nil : Tokens.Motion.standard) {
-        position.wrappedValue.scrollTo(y: page.next)
+        switch page.next {
+        case .offset(let y): position.wrappedValue.scrollTo(y: y)
+        case .bottom: position.wrappedValue.scrollTo(edge: .bottom)
+        }
       }
     } label: {
       Image(systemName: Symbols.scrollMore)
