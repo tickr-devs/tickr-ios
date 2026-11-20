@@ -46,6 +46,15 @@ struct MenuBarPanel: View {
     .background(Palette.surface)
     // The panel's commands ask here, on the panel that lives while it is open.
     .botCommandQuestions(in: .menuBar)
+    // Esc closes it, as every transient panel of the system.
+    .onExitCommand { Self.close() }
+  }
+
+  /// Closes the panel, as the system's menu-bar panels do on any action that takes the person
+  /// elsewhere (a window, Settings). Called from the panel's own controls, so its window is the
+  /// key one. The bot commands keep it open: their questions and results show on it.
+  static func close() {
+    NSApplication.shared.keyWindow?.close()
   }
 }
 
@@ -329,6 +338,7 @@ private struct FlowDots: View {
 private struct MenuFooter: View {
   @Environment(AppModel.self) private var model
   @Environment(\.openWindow) private var openWindow
+  @Environment(\.openSettings) private var openSettings
 
   /// Symbols of the footer's actions and of the broker read.
   static let openSymbol = "macwindow"
@@ -363,6 +373,7 @@ private struct MenuFooter: View {
 
   private var open: some View {
     Button {
+      MenuBarPanel.close()
       openWindow(id: WindowID.main)
       NSApplication.shared.activate()
     } label: {
@@ -412,7 +423,12 @@ private struct MenuFooter: View {
 
   private var icons: some View {
     HStack(spacing: Tokens.Space.xs + Tokens.Space.xxs) {
-      SettingsLink {
+      // A button rather than `SettingsLink`, which cannot close the panel as it opens Settings.
+      Button {
+        MenuBarPanel.close()
+        openSettings()
+        NSApplication.shared.activate()
+      } label: {
         Label { Text(L10n.App.settings) } icon: {
           DesignGlyphView(.settings, side: Tokens.Size.menuGlyph, gridStroke: Tokens.Stroke.glyphHeavy)
         }
