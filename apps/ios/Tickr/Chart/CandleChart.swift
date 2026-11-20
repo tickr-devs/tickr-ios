@@ -69,12 +69,18 @@ struct CandleChart: View {
   /// one teal (the swap keeps the fast line apart from the rising candles' green).
   static var fastEMAColour: Color { Palette.highlight }
   static var slowEMAColour: Color { Palette.accent }
-  /// Side of an entry or exit marker, a filled circle with its direction inside, and of a
-  /// watch, entry or refused mark, a plain filled circle, in points.
+  /// Side of an entry or exit marker, a filled circle with its direction inside, in points; every
+  /// mark keeps this much room clear of the others.
   static let markerSide: CGFloat = 16
   /// How far a marker that would cover another one is moved at a time, in points: one side
   /// and a small gap, so stacked markers on the same or neighbouring candles never touch.
   static let markerStep: CGFloat = 18
+  /// Most steps a strategy mark moves clear of the others; one that would move further is left
+  /// out, so a busy day never piles dots off their candles (`ChartMarkerLayout.Scale.reach`).
+  static let markerReach = 1
+  /// Side of the strategy's watch, entry and refused dots, in points: smaller than a trade's
+  /// marker, which carries its direction inside.
+  static let eventSide: CGFloat = 10
 
   /// Height of the price pane, in points.
   static let priceHeight: CGFloat = 300
@@ -858,7 +864,7 @@ struct CandleChart: View {
       prices: scale.domain,
       pointsPerSecond: window > 0 ? Double(plot) / window : 0,
       pointsPerPrice: span > 0 ? Double(Self.priceHeight) / span : 0,
-      side: Double(Self.markerSide), step: Double(Self.markerStep))
+      side: Double(Self.markerSide), step: Double(Self.markerStep), reach: Self.markerReach)
     return ChartMarkerLayout.place(markers, scale: layout)
   }
 
@@ -890,7 +896,7 @@ struct CandleChart: View {
       .symbol {
         Circle()
           .fill(Self.colour(event.kind))
-          .frame(width: Self.markerSide, height: Self.markerSide)
+          .frame(width: Self.eventSide, height: Self.eventSide)
           .offset(y: -CGFloat(lift) * Self.markerStep)
       }
       .annotation(position: .top, spacing: Self.plateSpacing(lift), overflowResolution: Self.keepInside) {

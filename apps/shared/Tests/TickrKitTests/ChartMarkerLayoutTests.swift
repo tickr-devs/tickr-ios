@@ -78,4 +78,18 @@ struct ChartMarkerLayoutTests {
     let lifts = ChartMarkerLayout.place([decision, entry], scale: Self.scale)
     #expect(lifts == ["entry": 0, "decision": 1])
   }
+
+  @Test("A strategy mark that would move past the reach is left out; a pinned one never is")
+  func reach() {
+    let near = ChartMarkerLayout.Scale(
+      shown: Self.scale.shown, prices: Self.scale.prices, pointsPerSecond: Self.scale.pointsPerSecond,
+      pointsPerPrice: Self.scale.pointsPerPrice, side: Self.scale.side, step: Self.scale.step, reach: 1)
+    let exit = ChartMarkerLayout.Marker(id: "exit", time: Self.base.addingTimeInterval(12.5 * Self.minute),
+      price: 10, pinned: true)
+    let lifts = ChartMarkerLayout.place([
+      marker("watch", 12, 10), marker("enter", 12, 10), marker("watch2", 12.5, 10), exit,
+    ], scale: near)
+    // The pinned exit sits on its price; the watch moves one step; the rest would need more.
+    #expect(lifts == ["exit": 0, "watch": 1])
+  }
 }

@@ -69,6 +69,19 @@ struct ChartEventsTests {
     #expect(events[0].candle == Self.base.addingTimeInterval(Self.minute))
   }
 
+  /// The owner's ABX day (2026-11-17): WATCH bars broken by IGNORE and HOLD, and WATCH bars whose
+  /// checks changed, drew dozens of watch dots. One watch is one mark until something else.
+  @Test("IGNORE and HOLD between WATCH bars do not start a new watch; an EXIT does")
+  func watchThroughIgnore() throws {
+    let events = ChartEvent.make([
+      try decision(1, "WATCH"), try decision(2, "IGNORE"), try decision(3, "WATCH"), try decision(4, "HOLD"),
+      try decision(5, "WATCH"), try decision(6, "ENTER", admission: "taken"), try decision(7, "EXIT"),
+      try decision(8, "WATCH"), try decision(9, "IGNORE"), try decision(9, "WATCH"),
+    ], candles: candles(12))
+    #expect(events.map(\.kind) == [.watch, .enter, .watch])
+    #expect(events.map(\.price) == [11, 16, 18])
+  }
+
   @Test("Observers are left out, and so is a decision outside every candle")
   func outside() throws {
     let events = ChartEvent.make([

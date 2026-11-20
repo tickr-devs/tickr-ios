@@ -20,9 +20,11 @@ public struct ChartEvent: Hashable, Sendable, Identifiable {
 
   public var id: ChartEvent { self }
 
-  /// Marks for `decisions` as the bot serves them (oldest first) on `candles`. A run of the same
-  /// WATCH or ENTER bar after bar is marked once, at its first decision; one candle carries at most
-  /// one mark of each kind; a decision outside every candle is not marked.
+  /// Marks for `decisions` as the bot serves them (oldest first) on `candles`. The strategy's own
+  /// decisions that change something count (an IGNORE or HOLD between two WATCH bars, or a WATCH
+  /// whose checks changed, does not start a new watch, as on the Mac's chart): a WATCH is marked
+  /// where a watch starts, an ENTER where a run of the same admission starts; one candle carries
+  /// at most one mark of each kind; a decision outside every candle is not marked.
   public static func make(_ decisions: [DecisionV1], candles: [Candle]) -> [ChartEvent] {
     make(decisions, candles: candles, drawn: candles)
   }
@@ -30,11 +32,14 @@ public struct ChartEvent: Hashable, Sendable, Identifiable {
   /// The same marks on candles drawn back to back (`ChartSeries.gapless`): a decision is found in
   /// its real candle (`candles`) and marked at the drawn candle of the same index (`drawn`).
   public static func make(_ decisions: [DecisionV1], candles: [Candle], drawn: [Candle]) -> [ChartEvent] {
-    let runs = DecisionRun.merge(decisions.reversed().filter { !$0.observer }).reversed()
+    let strategy = decisions.filter { !$0.observer && $0.action != .ignore && $0.action != .hold }
     var events: [ChartEvent] = []
-    for run in runs {
-      let decision = run.earliest
-      guard let kind = kind(decision),
+    var previous: Kind?
+    for decision in strategy {
+      let kind = kind(decision)
+      defer { previous = kind }
+      // A WATCH, ENTER or refused ENTER right after one of its own kind continues it.
+      guard let kind, kind != previous,
         let index = candles.firstIndex(where: { $0.start <= decision.at.date && decision.at.date < $0.end }),
         drawn.indices.contains(index)
       else { continue }

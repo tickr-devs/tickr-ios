@@ -38,10 +38,14 @@ public enum ChartMarkerLayout {
     public let side: Double
     /// How far one step moves a marker, in points.
     public let step: Double
+    /// Most steps a marker that is not pinned (a strategy mark) may move; one that would have to
+    /// move further is not drawn, so a busy day never piles marks far off their price (owner,
+    /// 2026-11-20: dozens of watch dots over the ABX chart, down to a dollar under its candles).
+    public let reach: Int
 
     public init(
       shown: ClosedRange<Date>, prices: ClosedRange<Double>, pointsPerSecond: Double, pointsPerPrice: Double,
-      side: Double, step: Double
+      side: Double, step: Double, reach: Int = .max
     ) {
       self.shown = shown
       self.prices = prices
@@ -49,12 +53,13 @@ public enum ChartMarkerLayout {
       self.pointsPerPrice = pointsPerPrice
       self.side = side
       self.step = step
+      self.reach = reach
     }
   }
 
   /// How far each marker on screen is moved, in steps, by its id: 0 where it belongs, positive
   /// up, negative down. A marker missing from the result does not fit whole in the stretch on
-  /// screen and is not drawn. Pinned markers are placed first, then the others; within each,
+  /// screen, or is a strategy mark that would move past `reach`, and is not drawn. Pinned markers are placed first, then the others; within each,
   /// oldest first, and equal times keep the order given.
   public static func place<ID>(_ markers: [Marker<ID>], scale: Scale) -> [ID: Int] {
     // Half a marker in time: a centre closer than this to either edge would be cut.
@@ -81,6 +86,7 @@ public enum ChartMarkerLayout {
       while scale.step > 0, placed.contains(where: { covers($0, (x, y - Double(lift) * scale.step), scale.side) }) {
         lift += direction
       }
+      if !marker.pinned && abs(lift) > scale.reach { continue }
       placed.append((x, y - Double(lift) * scale.step))
       lifts[marker.id] = lift
     }
