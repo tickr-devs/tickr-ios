@@ -115,6 +115,7 @@ private struct PositionChips: View {
     ViewThatFits(in: .horizontal) {
       row(stretch: true)
       ScrollView(.horizontal) { row(stretch: false) }
+        .withoutScrollIndicators()
     }
     .animation(Tokens.Motion.standard, value: positions.map(\.symbol))
   }

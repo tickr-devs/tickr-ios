@@ -4,11 +4,13 @@ import TickrKit
 // MARK: - scroll indicators
 
 public extension View {
-  /// Hides the scroll indicators of every scroll view, list and form below this view (owner,
-  /// 2026-11-18: no scroll bars anywhere, on the Mac or the phone). `.never` also overrides the
-  /// Mac's "Always show scroll bars" setting. Each scene's root applies it once; sheets and
-  /// popovers inherit it. The `scrollbars` rule of `check_swift_rules.py` keeps the apps from
-  /// setting indicators view by view, so this stays the one place.
+  /// Hides the scroll indicators of the scroll view, table, list, form or scrolling chart it is
+  /// applied to (owner, 2026-11-18 and again 2026-11-19: no scroll bars anywhere, on the Mac or
+  /// the phone). `.never` also overrides the Mac's "Always show scroll bars" and the scroll bars
+  /// a connected mouse brings. Set on a scene's root it reaches only part of the window: on the
+  /// Mac the screens' scroll views still showed bars (Overview, Trades, 2026-11-19), so every
+  /// scroll applies it itself (`scrollEdgeHints()` and `scrollEdgeFades()` do), and the
+  /// `scrollbars` rule of `check_swift_rules.py` checks each one.
   func withoutScrollIndicators() -> some View {
     scrollIndicators(.never, axes: [.horizontal, .vertical])
   }
@@ -115,6 +117,7 @@ struct ScrollEdgeHints: ViewModifier {
 
   func body(content: Content) -> some View {
     content
+      .withoutScrollIndicators()
       .scrollPosition(position)
       .onScrollGeometryChange(for: ScrollEdges.self) { ScrollEdges($0) } action: { _, new in
         edges = new

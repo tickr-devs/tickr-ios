@@ -64,6 +64,7 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
             }
           }
         }
+        .withoutScrollIndicators()
       }
     }
     .mask(LinearGradient(
@@ -101,6 +102,7 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
             }
           }
         }
+        .withoutScrollIndicators()
       }
   }
 

@@ -457,12 +457,15 @@ profit factor with 2 decimals, win rate and confidence in whole percents.
 
 ## Scrolling
 
-No scroll indicators anywhere, on the Mac or the phone (owner, 2026-11-18). Each scene's root
-(Mac main window, Settings and menu bar panel; iPhone window) applies TickrDesign's
-`withoutScrollIndicators()` once, which hides them in every scroll view, list and form below it,
-sheets and popovers included, even with the Mac's "Always show scroll bars" setting. The
-`scrollbars` rule of `check_swift_rules.py` rejects indicators set view by view in the apps and a
-scene that does not hide them.
+No scroll indicators anywhere, on the Mac or the phone (owner, 2026-11-18, repeated 2026-11-19).
+Every scroll hides its own indicators with TickrDesign's `withoutScrollIndicators()`
+(`scrollIndicators(.never)`, which also beats the Mac's "Always show scroll bars" and the bars a
+connected mouse brings): `scrollEdgeHints()` and `scrollEdgeFades()` apply it to the vertical
+scroll views, forms and lists, and each sideways scroll view and `Table` applies it itself. A
+scrolling chart does not: on the Mac chart with every study it kept the chart screen from
+appearing in the UI tests (#711). Each scene's root applies it too, but that alone did not reach the Mac screens' scroll
+views (bars on Overview and Trades, 2026-11-19). The `scrollbars` rule of `check_swift_rules.py`
+rejects indicators set by hand and any of these scrolls without its modifier.
 
 In their place every vertical scroll view, form and list shows `scrollEdgeHints()` (owner's pick,
 variant B of the 2026-11-18 mockups, `Tokens.Scroll`): an edge with more content beyond it fades

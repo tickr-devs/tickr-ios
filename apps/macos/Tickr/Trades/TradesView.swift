@@ -575,6 +575,7 @@ private struct TradesTable: View {
       }
       .width(min: Column.moneyMin, ideal: Column.money)
     }
+    .withoutScrollIndicators()
     .contextMenu(forSelectionType: TradeRow.ID.self) { ids in
       if let row = row(ids) {
         Button { showOnChart(row.symbol) } label: {

@@ -494,6 +494,7 @@ private struct SymbolChips: View {
         }
       }
     }
+    .withoutScrollIndicators()
   }
 }
 
