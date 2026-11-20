@@ -13,6 +13,14 @@ import Testing
     }
   }
 
+  @Test("Each glyph's path is parsed once and is the one its data parses into")
+  func parsedOnceMatchesTheData() {
+    #expect(DesignGlyph.parsed.count == DesignGlyph.allCases.count)
+    for glyph in DesignGlyph.allCases {
+      #expect(glyph.path == SVGPath.parse(glyph.pathData), "\(glyph)")
+    }
+  }
+
   @Test("Horizontal, vertical and relative commands land where the design's SVG puts them")
   func homePanelsMatchTheDesign() {
     // M4+13h6V4H4z: the tall left panel spans x 4...10, y 4...13; the short right one ends at 20.

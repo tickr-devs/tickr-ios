@@ -109,6 +109,16 @@ public enum DesignGlyph: Sendable, CaseIterable {
   static let reconcilePath = "M4+12a8+8+0+0+1+14-5.3M20+3v4h-4M20+12a8+8+0+0+1-14+5.3M4+21v-4h4"
 }
 
+extension DesignGlyph {
+  /// Every glyph's path on its grid, parsed once: parsed on each draw, the live flow's stage
+  /// glyphs took 5% of the main thread while Overview scrolled (Time Profiler, 2026-11-19).
+  static let parsed: [DesignGlyph: Path] = Dictionary(
+    uniqueKeysWithValues: allCases.map { ($0, SVGPath.parse($0.pathData)) })
+
+  /// The glyph's path on its 24-point grid.
+  var path: Path { Self.parsed[self] ?? SVGPath.parse(pathData) }
+}
+
 /// A `DesignGlyph` as a shape filling its rectangle (the 24-point grid scaled to fit).
 public struct DesignGlyphShape: Shape {
   /// Side of the grid the design's paths are drawn on.
@@ -123,7 +133,7 @@ public struct DesignGlyphShape: Shape {
   public func path(in rect: CGRect) -> Path {
     let scale = min(rect.width, rect.height) / Self.grid
     let side = Self.grid * scale
-    return SVGPath.parse(glyph.pathData)
+    return glyph.path
       .applying(CGAffineTransform(translationX: rect.midX - side / 2, y: rect.midY - side / 2)
         .scaledBy(x: scale, y: scale))
   }
