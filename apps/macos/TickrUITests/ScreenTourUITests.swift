@@ -46,10 +46,8 @@ final class ScreenTourUITests: XCTestCase {
   private static let explainCard = "chart-decisions-list"
   /// Prefix of a flatten button id (BotAction.flattenPrefix).
   private static let flattenPrefix = "flatten-"
-  /// English texts of the standard menus and buttons the tour uses.
+  /// English texts of the standard buttons the tour uses.
   private enum Label {
-    static let windowMenu = "Window"
-    static let zoom = "Zoom"
     static let showSidebar = "Show Sidebar"
     static let cancel = "Cancel"
   }
@@ -82,9 +80,13 @@ final class ScreenTourUITests: XCTestCase {
       "-AppleLanguages", "(\(Self.language))", "-ApplePersistenceIgnoreState", "YES",
     ]
     app.launch()
-    XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.wait), "no window")
-    app.menuBars.menuBarItems[Label.windowMenu].click()
-    app.menuItems[Label.zoom].click()
+    let window = app.windows.firstMatch
+    XCTAssertTrue(window.waitForExistence(timeout: Self.wait), "no window")
+    // Option-click on the green button zooms with no menu, so no menu is left open to swallow
+    // the next click (TickrUITests.launch).
+    let zoom = window.buttons[XCUIIdentifierFullScreenWindow]
+    XCTAssertTrue(zoom.waitForExistence(timeout: Self.wait), "no zoom button")
+    XCUIElement.perform(withKeyModifiers: .option) { zoom.click() }
     let showSidebar = app.toolbars.buttons[Label.showSidebar]
     if showSidebar.exists { showSidebar.click() }
     sleep(Self.settle)

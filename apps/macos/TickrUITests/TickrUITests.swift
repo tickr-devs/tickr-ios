@@ -70,9 +70,6 @@ final class TickrUITests: XCTestCase {
   /// (ask_above_trigger), as the English app shows it (ApiText.rule).
   static let decisionsToggle = "chart-decisions"
   static let decisionRule = "Ask above trigger"
-  /// English titles of the standard Window menu and its Zoom item.
-  static let windowMenu = "Window"
-  static let zoomItem = "Zoom"
   /// English label of the toolbar's sidebar button while the sidebar is hidden.
   static let showSidebar = "Show Sidebar"
   /// Chart settings (ChartView.Keys) passed as launch arguments: the decisions inspector open
@@ -110,11 +107,18 @@ final class TickrUITests: XCTestCase {
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
     app.launchEnvironment.merge(environment) { _, given in given }
     app.launch()
-    XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.timeout), "no window after launch")
-    // The first window size can be larger than a small display; Zoom fits it to the screen so
-    // every control is on screen and hittable.
-    app.menuBars.menuBarItems[Self.windowMenu].click()
-    app.menuItems[Self.zoomItem].click()
+    let window = app.windows.firstMatch
+    XCTAssertTrue(window.waitForExistence(timeout: Self.timeout), "no window after launch")
+    // The first window size can be larger than a small display; zooming fits it to the screen so
+    // every control is on screen and hittable. Option-click on the title bar's green button
+    // zooms, with no menu: through Window > Zoom, XCUITest's pointer sometimes hovered another
+    // item and the menu was still open after the click, so the test's next click only closed it
+    // and was lost (a sidebar row clicked once and its screen never came; clicked again, it came:
+    // CI 2026-11-20, two of 37 launches).
+    let zoom = window.buttons[XCUIIdentifierFullScreenWindow]
+    XCTAssertTrue(zoom.waitForExistence(timeout: Self.timeout), "no zoom button\n\(app.debugDescription)")
+    XCUIElement.perform(withKeyModifiers: .option) { zoom.click() }
+    waitUntilStill(window, "zoomed window", in: app)
     // A window as narrow as a small display can start with the sidebar collapsed.
     let showSidebar = app.toolbars.buttons[Self.showSidebar]
     if showSidebar.exists {
@@ -130,7 +134,7 @@ final class TickrUITests: XCTestCase {
     XCTAssertTrue(row.waitForExistence(timeout: Self.timeout), "sidebar row \(section)\n\(app.debugDescription)")
     row.click()
     let screen = app.descendants(matching: .any)[Self.screenPrefix + section].firstMatch
-    XCTAssertTrue(screen.waitForExistence(timeout: Self.timeout), "screen \(section)")
+    XCTAssertTrue(screen.waitForExistence(timeout: Self.timeout), "screen \(section)\n\(app.debugDescription)")
   }
 
   /// Waits until `element` exists and has kept the same frame for `settleQuiet` seconds, so a
