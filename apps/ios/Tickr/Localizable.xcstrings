@@ -2388,6 +2388,23 @@
         }
       }
     },
+    "chart.captionShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ · %3$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ · %3$@"
+          }
+        }
+      }
+    },
     "chart.day" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3483,19 +3500,87 @@
         }
       }
     },
-    "chart.readout" : {
+    "chart.readout.close" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O %1$@  H %2$@  L %3$@  C %4$@  V %5$@"
+            "value" : "C"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O %1$@  H %2$@  L %3$@  C %4$@  V %5$@"
+            "value" : "C"
+          }
+        }
+      }
+    },
+    "chart.readout.high" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "H"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "H"
+          }
+        }
+      }
+    },
+    "chart.readout.low" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L"
+          }
+        }
+      }
+    },
+    "chart.readout.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O"
+          }
+        }
+      }
+    },
+    "chart.readout.volume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V"
           }
         }
       }

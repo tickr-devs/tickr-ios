@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import TickrDesign
 import TickrKit
 
 /// Candles, lines, ATR and studies of one day's bars, or of a longer range read from GET /chart,
@@ -47,6 +48,11 @@ struct ChartPlot: Sendable {
   /// Mean volume of the last `volumeAveragePeriod` candles, for the volume pane's average line
   /// and relative volume.
   let volumeAverage: [Double?]
+  /// The shapes of the readout's figures over all the candles, so each keeps one width while the
+  /// pointer moves (`ChartReadout`).
+  let readoutShapes: ReadoutShapes
+  /// The shapes of the readout's time over all the candles (`timeText`).
+  private(set) var timeShapes: [String] = []
 
   /// Candles the volume average spans.
   static let volumeAveragePeriod = 20
@@ -99,6 +105,24 @@ struct ChartPlot: Sendable {
     stochasticK = studies.stochastic.map { $0?.k }
     stochasticD = studies.stochastic.map { $0?.d }
     volumeAverage = Studies.sma(series.candles.map(\.volume), period: Self.volumeAveragePeriod)
+    readoutShapes = ReadoutShapes(series.candles)
+    timeShapes = FigureShapes.shapes(Self.runEnds(real.candles, timeframe: real.timeframe).map { timeText($0) })
+  }
+
+  /// The first and last candle of each run of one part of the day without a gap: the times that
+  /// stand for every time's shape in `timeText` (a part's name, a day's name over several days).
+  static func runEnds(_ candles: [Candle], timeframe: Timeframe) -> [Int] {
+    var ends: [Int] = []
+    for index in candles.indices {
+      let first = index == candles.startIndex || candles[index].session != candles[index - 1].session
+        || candles[index].start > candles[index - 1].start.addingTimeInterval(timeframe.seconds)
+      if first {
+        if index > candles.startIndex { ends.append(index - 1) }
+        ends.append(index)
+      }
+    }
+    if let last = candles.indices.last { ends.append(last) }
+    return ends
   }
 
   /// The drawn start of slot `slot` (a candle's, or a reserved one's after the last candle).

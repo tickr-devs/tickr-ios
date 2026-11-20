@@ -1264,26 +1264,35 @@ struct ChartReadout: View {
     let pointed = pointer.index.flatMap { series.candles.indices.contains($0) ? $0 : nil }
     if let index = pointed ?? series.candles.indices.last {
       let candle = series.candles[index]
-      // As many values as fit on a line, the rest on the next: none is cut in a narrow window.
-      // (The screen's least size is fixed, so a readout that changes height moves no window.)
-      ChipFlow(spacing: Tokens.Space.m) {
-        Text(verbatim: plot.timeText(index))
-          .foregroundStyle(Palette.textSecondary)
-        value(L10n.Chart.open, Money.price(candle.open))
-        value(L10n.Chart.high, Money.price(candle.high))
-        value(L10n.Chart.low, Money.price(candle.low))
-        value(L10n.Chart.close, Money.price(candle.close))
-        if let change = series.candles.change(at: index) {
-          Text(verbatim: Self.changeText(change))
-            .foregroundStyle(Palette.result(Money.decimal(change.amount)))
+      let shapes = plot.readoutShapes
+      // Always one line at one width while the pointer moves (owner, 2026-11-20, as on the
+      // iPhone): each figure keeps the width of the widest of its column on the whole chart
+      // (`SteadyFigure`); where the line does not fit across, its gaps tighten. Nothing is cut.
+      OneLineFit(font: Tokens.Typography.annotation, compactFont: Tokens.Typography.annotation,
+        spacing: Tokens.Space.m, tightSpacing: Tokens.Space.s, alignment: .trailing) { spacing in
+        HStack(spacing: spacing) {
+          SteadyFigure(plot.timeText(index), shapes: plot.timeShapes)
+            .foregroundStyle(Palette.textSecondary)
+          value(L10n.Chart.open, Money.price(candle.open), shapes.price)
+          value(L10n.Chart.high, Money.price(candle.high), shapes.price)
+          value(L10n.Chart.low, Money.price(candle.low), shapes.price)
+          value(L10n.Chart.close, Money.price(candle.close), shapes.price)
+          if let change = series.candles.change(at: index) {
+            SteadyFigure(Self.changeText(change), shapes: [Self.widestChange(shapes)])
+              .foregroundStyle(Palette.result(Money.decimal(change.amount)))
+          }
+          value(L10n.Chart.volumeShort, CandleChart.volumeText(candle.volume), shapes.volume)
         }
-        value(L10n.Chart.volumeShort, CandleChart.volumeText(candle.volume))
+        .monospacedDigit()
+        .contentTransition(.numericText())
       }
-      .font(Tokens.Typography.annotation)
-      .monospacedDigit()
-      .contentTransition(.numericText())
-      .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
     }
+  }
+
+  /// The widest change text of the chart: its longest price change and longest percentage in
+  /// the change's own words (the readout's font is monospaced).
+  static func widestChange(_ shapes: ReadoutShapes) -> String {
+    String(localized: L10n.Chart.change(FigureShapes.longest(shapes.priceChange), FigureShapes.longest(shapes.change)))
   }
 
   /// "+0.21 (+6.21%)": the change in price and as a percentage, signed (zero unsigned).
@@ -1292,10 +1301,10 @@ struct ChartReadout: View {
       Percent.signed(fraction: change.fraction)))
   }
 
-  private func value(_ name: LocalizedStringResource, _ text: String) -> some View {
+  private func value(_ name: LocalizedStringResource, _ text: String, _ shapes: [String]) -> some View {
     HStack(spacing: Tokens.Space.xs) {
       Text(name).foregroundStyle(Palette.textQuaternary)
-      Text(verbatim: text).foregroundStyle(Palette.textTertiary)
+      SteadyFigure(text, shapes: shapes).foregroundStyle(Palette.textTertiary)
     }
   }
 }
@@ -1340,33 +1349,37 @@ private struct ChartLegend: View {
 
   private func entries(_ index: Int) -> [ReadoutEntry] {
     var items: [ReadoutEntry] = []
-    func add(_ name: LocalizedStringResource, _ value: Double?, _ color: Color, study: Bool = false) {
-      if let value { items.append(ReadoutEntry(name: name, value: value, color: color, study: study)) }
+    // Each value keeps the width of the widest of its line on the whole chart (`SteadyFigure`),
+    // so the legend never reflows while the pointer moves (owner, 2026-11-20).
+    func add(_ name: LocalizedStringResource, _ values: [Double?], _ color: Color, study: Bool = false) {
+      guard values.indices.contains(index), let value = values[index] else { return }
+      items.append(ReadoutEntry(name: name, value: value, color: color, study: study,
+        shapes: FigureShapes.of(values.lazy.compactMap { $0 }, Money.value)))
     }
-    if lines.vwap { add(L10n.Chart.vwap, series.vwap[index], Palette.seriesVWAP) }
-    if lines.fastEMA { add(L10n.Chart.ema(Indicators.fastEMAPeriod), series.fastEMA[index], Palette.seriesFastEMA) }
-    if lines.slowEMA { add(L10n.Chart.ema(Indicators.slowEMAPeriod), series.slowEMA[index], Palette.seriesSlowEMA) }
+    if lines.vwap { add(L10n.Chart.vwap, series.vwap, Palette.seriesVWAP) }
+    if lines.fastEMA { add(L10n.Chart.ema(Indicators.fastEMAPeriod), series.fastEMA, Palette.seriesFastEMA) }
+    if lines.slowEMA { add(L10n.Chart.ema(Indicators.slowEMAPeriod), series.slowEMA, Palette.seriesSlowEMA) }
     if lines.movingAverages {
       for (offset, period) in Studies.movingAveragePeriods.enumerated() {
-        add(L10n.Chart.movingAverage(period), plot.movingAverages[offset][index], CandleChart.movingAverageColors[offset])
+        add(L10n.Chart.movingAverage(period), plot.movingAverages[offset], CandleChart.movingAverageColors[offset])
       }
     }
     if lines.bollinger {
-      add(L10n.Chart.bollingerUpper, plot.bollingerUpper[index], Palette.accent.opacity(Tokens.Opacity.medium))
-      add(L10n.Chart.bollingerMiddle, plot.bollingerMiddle[index], Palette.accent)
-      add(L10n.Chart.bollingerLower, plot.bollingerLower[index], Palette.accent.opacity(Tokens.Opacity.medium))
+      add(L10n.Chart.bollingerUpper, plot.bollingerUpper, Palette.accent.opacity(Tokens.Opacity.medium))
+      add(L10n.Chart.bollingerMiddle, plot.bollingerMiddle, Palette.accent)
+      add(L10n.Chart.bollingerLower, plot.bollingerLower, Palette.accent.opacity(Tokens.Opacity.medium))
     }
     if lines.macd {
-      add(L10n.Chart.macd, plot.macd[index], Palette.info, study: true)
-      add(L10n.Chart.macdSignal, plot.macdSignal[index], Palette.warning, study: true)
-      add(L10n.Chart.macdHistogram, plot.macdHistogram[index], Palette.textSecondary, study: true)
+      add(L10n.Chart.macd, plot.macd, Palette.info, study: true)
+      add(L10n.Chart.macdSignal, plot.macdSignal, Palette.warning, study: true)
+      add(L10n.Chart.macdHistogram, plot.macdHistogram, Palette.textSecondary, study: true)
     }
-    if lines.rsi { add(L10n.Chart.rsi(Studies.rsiPeriod), plot.rsi[index], Palette.info, study: true) }
+    if lines.rsi { add(L10n.Chart.rsi(Studies.rsiPeriod), plot.rsi, Palette.info, study: true) }
     if lines.stochastic {
-      add(L10n.Chart.stochasticK, plot.stochasticK[index], Palette.info, study: true)
-      add(L10n.Chart.stochasticD, plot.stochasticD[index], Palette.warning, study: true)
+      add(L10n.Chart.stochasticK, plot.stochasticK, Palette.info, study: true)
+      add(L10n.Chart.stochasticD, plot.stochasticD, Palette.warning, study: true)
     }
-    if lines.atr { add(L10n.Chart.atr(Indicators.atrPeriod), plot.atr[index], Palette.seriesATR, study: true) }
+    if lines.atr { add(L10n.Chart.atr(Indicators.atrPeriod), plot.atr, Palette.seriesATR, study: true) }
     return items
   }
 }
@@ -1398,6 +1411,8 @@ private struct ReadoutEntry {
   let color: Color
   /// A study's value (MACD, RSI, stochastic, ATR) rather than a line on the price pane.
   let study: Bool
+  /// The shapes of the line's values on the whole chart (`FigureShapes`).
+  let shapes: [String]
 }
 
 /// One legend item: the line's colour as a short stroke, its name muted, its value prominent.
@@ -1414,7 +1429,7 @@ private struct LegendItem: View {
         .frame(width: Self.swatchLength, height: Tokens.Stroke.bold)
       Text(entry.name)
         .foregroundStyle(Palette.textTertiary)
-      Text(verbatim: Money.price(entry.value))
+      SteadyFigure(Money.value(entry.value), shapes: entry.shapes)
         .fontWeight(.semibold)
         .foregroundStyle(Palette.textPrimary)
     }

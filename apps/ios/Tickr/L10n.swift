@@ -2161,11 +2161,15 @@ enum ChartText {
     LocalizedStringResource("chart.bars", defaultValue: "\(count) bars")
   }
 
-  /// The crosshair readout of one candle: open, high, low, close, volume (already formatted).
-  static func readout(_ open: String, _ high: String, _ low: String, _ close: String, _ volume: String)
-    -> LocalizedStringResource {
-    LocalizedStringResource("chart.readout",
-      defaultValue: "O \(open)  H \(high)  L \(low)  C \(close)  V \(volume)")
+  /// The crosshair readout's letters before a candle's open, high, low, close and volume.
+  static let readoutOpen = LocalizedStringResource("chart.readout.open", defaultValue: "O")
+  static let readoutHigh = LocalizedStringResource("chart.readout.high", defaultValue: "H")
+  static let readoutLow = LocalizedStringResource("chart.readout.low", defaultValue: "L")
+  static let readoutClose = LocalizedStringResource("chart.readout.close", defaultValue: "C")
+  static let readoutVolume = LocalizedStringResource("chart.readout.volume", defaultValue: "V")
+  /// The caption where the full one does not fit on its line: range, interval, bars on screen.
+  static func captionShort(_ range: String, _ timeframe: String, _ bars: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.captionShort", defaultValue: "\(range) · \(timeframe) · \(bars)")
   }
   static let decisions = LocalizedStringResource("chart.decisions",
     defaultValue: "Why the bot acted")

@@ -116,6 +116,8 @@ struct CandleChart: View {
   var times = ChartTimes.day
   /// Moving averages, Bollinger, MACD, RSI and stochastic of `series`' candles.
   let studies: CandleStudies
+  /// The shapes of the readout's figures over all of `series`' candles (`ChartModel`).
+  let readoutShapes: ReadoutShapes
   /// The ATR line, one value per candle of `series`.
   let atr: [Double?]
   let trades: [DayTrade]
@@ -585,6 +587,15 @@ struct CandleChart: View {
     let name: LocalizedStringResource
     let value: Double?
     let colour: Color
+    /// The shapes of the line's values on the whole chart (`FigureShapes`): the value keeps one
+    /// width while the finger moves across the candles, so the row never shifts.
+    var shapes: [String] = []
+  }
+
+  /// `FigureShapes` of a line's values as its legend writes them.
+  static func legendShapes(_ values: [Double?]?) -> [String] {
+    guard let values else { return [] }
+    return FigureShapes.of(values.lazy.compactMap { $0 }, Money.value)
   }
 
   /// The touched candle, or the newest while nothing is touched: the candle legends read.
@@ -613,26 +624,31 @@ struct CandleChart: View {
     let band = index.flatMap { index in studies.flatMap { $0.bollinger.indices.contains(index) ? $0.bollinger[index] : nil } }
     var items: [LegendItem] = []
     if lines.vwap && intraday {
-      items.append(LegendItem(name: ChartText.vwap, value: value(series?.vwap), colour: Palette.seriesVWAP))
+      items.append(LegendItem(name: ChartText.vwap, value: value(series?.vwap), colour: Palette.seriesVWAP,
+        shapes: legendShapes(series?.vwap)))
     }
     if lines.fastEMA {
       items.append(LegendItem(name: ChartText.ema(Indicators.fastEMAPeriod), value: value(series?.fastEMA),
-        colour: CandleChart.fastEMAColour))
+        colour: CandleChart.fastEMAColour, shapes: legendShapes(series?.fastEMA)))
     }
     if lines.slowEMA {
       items.append(LegendItem(name: ChartText.ema(Indicators.slowEMAPeriod), value: value(series?.slowEMA),
-        colour: CandleChart.slowEMAColour))
+        colour: CandleChart.slowEMAColour, shapes: legendShapes(series?.slowEMA)))
     }
     if lines.movingAverages {
       for (offset, period) in Studies.movingAveragePeriods.enumerated() {
         items.append(LegendItem(name: ChartText.movingAverage(period), value: value(studies?.movingAverages[offset]),
-          colour: Self.averageColours[offset]))
+          colour: Self.averageColours[offset], shapes: legendShapes(studies?.movingAverages[offset])))
       }
     }
     if lines.bollinger {
-      items.append(LegendItem(name: ChartText.bollingerUpper, value: band?.upper, colour: Palette.accentText))
-      items.append(LegendItem(name: ChartText.bollingerMiddle, value: band?.middle, colour: Palette.accentText))
-      items.append(LegendItem(name: ChartText.bollingerLower, value: band?.lower, colour: Palette.accentText))
+      let bands = studies?.bollinger
+      items.append(LegendItem(name: ChartText.bollingerUpper, value: band?.upper, colour: Palette.accentText,
+        shapes: legendShapes(bands?.map { $0?.upper })))
+      items.append(LegendItem(name: ChartText.bollingerMiddle, value: band?.middle, colour: Palette.accentText,
+        shapes: legendShapes(bands?.map { $0?.middle })))
+      items.append(LegendItem(name: ChartText.bollingerLower, value: band?.lower, colour: Palette.accentText,
+        shapes: legendShapes(bands?.map { $0?.lower })))
     }
     return items
   }
@@ -644,21 +660,26 @@ struct CandleChart: View {
       let point = studies.macd[index]
       return [
         LegendItem(name: ChartText.macd(Studies.macdFast, Studies.macdSlow, Studies.macdSignal), value: point?.macd,
-          colour: Palette.infoText),
-        LegendItem(name: ChartText.macdSignal, value: point?.signal, colour: Palette.warningText),
-        LegendItem(name: ChartText.macdHistogram, value: point?.histogram, colour: Palette.highlightText),
+          colour: Palette.infoText, shapes: Self.legendShapes(studies.macd.map { $0?.macd })),
+        LegendItem(name: ChartText.macdSignal, value: point?.signal, colour: Palette.warningText,
+          shapes: Self.legendShapes(studies.macd.map { $0?.signal })),
+        LegendItem(name: ChartText.macdHistogram, value: point?.histogram, colour: Palette.highlightText,
+          shapes: Self.legendShapes(studies.macd.map { $0?.histogram })),
       ]
     case .stochastic:
       let point = studies.stochastic[index]
       return [
         LegendItem(name: ChartText.stochasticK(Studies.stochasticPeriod, Studies.stochasticSmoothing), value: point?.k,
-          colour: Palette.infoText),
-        LegendItem(name: ChartText.stochasticD, value: point?.d, colour: Palette.warningText),
+          colour: Palette.infoText, shapes: Self.legendShapes(studies.stochastic.map { $0?.k })),
+        LegendItem(name: ChartText.stochasticD, value: point?.d, colour: Palette.warningText,
+          shapes: Self.legendShapes(studies.stochastic.map { $0?.d })),
       ]
     case .rsi:
-      return [LegendItem(name: ChartText.rsi(Studies.rsiPeriod), value: studies.rsi[index], colour: Palette.infoText)]
+      return [LegendItem(name: ChartText.rsi(Studies.rsiPeriod), value: studies.rsi[index], colour: Palette.infoText,
+        shapes: Self.legendShapes(studies.rsi))]
     case .atr:
-      return [LegendItem(name: ChartText.atr(Indicators.atrPeriod), value: atr[index], colour: Palette.seriesATRText)]
+      return [LegendItem(name: ChartText.atr(Indicators.atrPeriod), value: atr[index], colour: Palette.seriesATRText,
+        shapes: Self.legendShapes(atr))]
     }
   }
 
@@ -674,7 +695,7 @@ struct CandleChart: View {
           // A clear gap between a name ending in a number and its value ("EMA9  28.84").
           HStack(spacing: Tokens.Space.xs) {
             Text(item.name)
-            Text(verbatim: item.value.map(Money.value) ?? ChartFormat.missing)
+            SteadyFigure(item.value.map(Money.value) ?? ChartFormat.missing, shapes: item.shapes)
           }
           .foregroundStyle(item.colour)
         }
@@ -1096,21 +1117,51 @@ struct CandleChart: View {
       .onEnded { _ in pinchStart = nil }
   }
 
+  /// The touched candle's open, high, low, close, volume and change, or the chart's caption: always
+  /// one line at one height (owner, 2026-11-20: the line broke in two and back while scrubbing,
+  /// as the volume grew a digit, and the chart jumped). Each figure keeps the width of the widest
+  /// of its column on the whole chart (`SteadyFigure`), so the line's width holds while the
+  /// finger moves; where it does not fit across, its gaps tighten, then its text steps down a size.
   @ViewBuilder
   private var readout: some View {
-    if let candle = selectedCandle {
-      HStack(spacing: Tokens.Space.s) {
-        Text(ChartText.readout(
-          Money.price(candle.open), Money.price(candle.high), Money.price(candle.low), Money.price(candle.close),
-          Volume.compact(candle.volume)))
-        if let index = legendIndex, let change = series.candles.change(at: index) {
-          Text(verbatim: Percent.signed(fraction: change.fraction))
-            .foregroundStyle(Palette.result(Money.decimal(change.amount)))
+    if let candle = selectedCandle, let index = legendIndex {
+      let shapes = readoutShapes
+      OneLineFit(font: Tokens.Typography.captionMono, compactFont: Tokens.Typography.annotation,
+        spacing: Tokens.Space.s, tightSpacing: Tokens.Space.xs) { spacing in
+        HStack(spacing: spacing) {
+          readoutFigure(ChartText.readoutOpen, Money.price(candle.open), shapes.price)
+          readoutFigure(ChartText.readoutHigh, Money.price(candle.high), shapes.price)
+          readoutFigure(ChartText.readoutLow, Money.price(candle.low), shapes.price)
+          readoutFigure(ChartText.readoutClose, Money.price(candle.close), shapes.price)
+          readoutFigure(ChartText.readoutVolume, Volume.compact(candle.volume), shapes.volume)
+          if let change = series.candles.change(at: index) {
+            SteadyFigure(Percent.signed(fraction: change.fraction), shapes: shapes.change)
+              .foregroundStyle(Palette.result(Money.decimal(change.amount)))
+          }
         }
       }
     } else {
-      Text(ChartText.caption(String(localized: rangeTitle), String(localized: ChartFormat.title(series.timeframe)),
-        String(localized: ChartText.bars(viewport.barsShown(series)))))
+      Self.caption(rangeTitle, series.timeframe, bars: viewport.barsShown(series))
+    }
+  }
+
+  /// One readout figure: its letter, then the value in its steady slot.
+  private func readoutFigure(_ name: LocalizedStringResource, _ value: String, _ shapes: [String]) -> some View {
+    HStack(spacing: Tokens.Space.xs) {
+      Text(name)
+      SteadyFigure(value, shapes: shapes)
+    }
+  }
+
+  /// The chart's caption on one line: with how to move and read the chart where that fits
+  /// across, else the range, interval and bars alone. The loading chart lays its line out with it.
+  static func caption(_ range: LocalizedStringResource, _ timeframe: Timeframe, bars: Int) -> some View {
+    let range = String(localized: range)
+    let interval = String(localized: ChartFormat.title(timeframe))
+    let count = String(localized: ChartText.bars(bars))
+    return ViewThatFits(in: .horizontal) {
+      Text(ChartText.caption(range, interval, count)).fixedSize()
+      Text(ChartText.captionShort(range, interval, count)).fixedSize()
     }
   }
 

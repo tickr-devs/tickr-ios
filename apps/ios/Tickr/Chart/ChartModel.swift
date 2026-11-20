@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import TickrDesign
 import TickrKit
 
 /// What the Chart tab shows: the recorded days, the chosen day's trades and symbols, and the
@@ -44,7 +45,13 @@ final class ChartModel {
   /// Why the last GET /chart read failed, if it did (a 503 while market data is off): the
   /// refusal's cause alone, in the person's language.
   private(set) var rangeFailure: String?
-  private(set) var series: ChartSeries?
+  private(set) var series: ChartSeries? {
+    // The readout's slot widths follow the candles: worked out once per new series, not on every
+    // frame of a scrub (`ReadoutShapes` formats every volume).
+    didSet { if series != oldValue { readoutShapes = ReadoutShapes(series?.candles ?? []) } }
+  }
+  /// The shapes of the readout's figures over all of `series`' candles.
+  private(set) var readoutShapes = ReadoutShapes([])
   /// Real times of `series`' candles and the time axis labels beyond one day.
   private(set) var times = ChartTimes.day
   /// What the trading strategy and the observers decided on the chosen symbol that day.
