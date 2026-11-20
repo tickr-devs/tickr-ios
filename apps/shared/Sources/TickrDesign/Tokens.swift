@@ -392,5 +392,8 @@ public enum Tokens {
     public static let volumeShare = 0.22
     /// Each zoom step shows this many times fewer (or more) candles.
     public static let zoomStep = 1.5
+    /// Most trade and decision marks on screen that carry their label (`ChartMarkPlate`); with
+    /// more, only the marks are drawn, and the labels no longer pile up over the candles.
+    public static let markLabelLimit = 3
   }
 }

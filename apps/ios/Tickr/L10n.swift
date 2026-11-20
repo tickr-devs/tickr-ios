@@ -2088,6 +2088,14 @@ enum ChartText {
   static let noTrades = LocalizedStringResource("chart.noTrades",
     defaultValue: "No closed trades on this symbol this day.")
   static let entry = LocalizedStringResource("chart.entry", defaultValue: "Entry")
+  /// A trade's entry mark's label on the chart: "Buy 10 @ 97.52" (as on the Mac).
+  static func buyMark(_ quantity: String, _ price: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.buyMark", defaultValue: "Buy \(quantity) @ \(price)")
+  }
+  /// A trade's exit mark's label on the chart: "Exit +$4.20" (as on the Mac).
+  static func exitMark(_ result: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.exitMark", defaultValue: "Exit \(result)")
+  }
   static let exit = LocalizedStringResource("chart.exit", defaultValue: "Exit")
   static let stop = LocalizedStringResource("chart.stop", defaultValue: "Stop")
   static let axisTime = LocalizedStringResource("chart.axis.time", defaultValue: "Time")

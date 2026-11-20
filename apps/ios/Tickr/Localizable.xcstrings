@@ -2354,6 +2354,23 @@
         }
       }
     },
+    "chart.buyMark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buy %1$@ @ %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compra %1$@ @ %2$@"
+          }
+        }
+      }
+    },
     "chart.candlesUnavailable" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2731,6 +2748,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Salida"
+          }
+        }
+      }
+    },
+    "chart.exitMark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salida %@"
           }
         }
       }

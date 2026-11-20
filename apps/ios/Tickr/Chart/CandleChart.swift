@@ -329,8 +329,11 @@ struct CandleChart: View {
     .modifier(Scrolling(window: window, domain: timeDomain, scroll: $viewport.scroll))
     .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { chartWidth = $0 })
     .chartXSelection(value: touch)
-    // A tap lets a held candle go.
-    .simultaneousGesture(TapGesture().onEnded { held = nil })
+    // A tap on a mark holds its candle, so its label and the readout say what it is (owner,
+    // 2026-11-20: the dots could not be tapped); any other tap lets a held candle go.
+    .simultaneousGesture(SpatialTapGesture().onEnded { tap in
+      held = markedCandle(atX: tap.location.x).map(middle)
+    })
     .chartPlotStyle { $0.background(Palette.surfaceSunken) }
     .accessibilityLabel(Text(ChartText.title))
   }
@@ -376,15 +379,20 @@ struct CandleChart: View {
   @ChartContentBuilder
   private func markerMarks(_ scale: PriceScale) -> some ChartContent {
     let lifts = markerLifts(scale)
+    // Every mark on screen carries its label while they are few, as on the Mac; with more, only
+    // the marks of the held or touched candle do.
+    let labelsAll = lifts.count <= Tokens.Chart.markLabelLimit
+    let pointed = selectedCandle
+    let labelled = { (time: Date) in labelsAll || pointed.map { $0.start <= time && time < $0.end } == true }
     ForEach(trades) { trade in
-      tradeMarks(trade, lifts)
+      tradeMarks(trade, lifts, labelled: labelled)
     }
     if let position {
-      positionMarks(position, lifts)
+      positionMarks(position, lifts, labelled: labelled)
     }
     ForEach(events) { event in
       if let lift = lifts[.event(event)] {
-        eventMark(event, lift: lift)
+        eventMark(event, lift: lift, labelled: labelled(eventTime(event)))
       }
     }
   }
@@ -754,37 +762,60 @@ struct CandleChart: View {
   }
   /// A trade's entry and stop lines, and its entry and exit markers where they are on screen.
   @ChartContentBuilder
-  private func tradeMarks(_ trade: DayTrade, _ lifts: [MarkerID: Int]) -> some ChartContent {
+  private func tradeMarks(
+    _ trade: DayTrade, _ lifts: [MarkerID: Int], labelled: (Date) -> Bool
+  ) -> some ChartContent {
     let entry = ChartFormat.double(trade.entryPrice)
     let exit = ChartFormat.double(trade.exitPrice)
+    let opened = times.drawn(trade.openedAt.date) ?? trade.openedAt.date
+    let closed = times.drawn(trade.closedAt.date) ?? trade.closedAt.date
+    let result = Tone.result(trade.resultUsd.value)
+    let labelsEntry = labelled(opened)
+    let labelsExit = labelled(closed)
     levelLines(entry: entry, stop: trade.stopPrice.map(ChartFormat.double))
     if let lift = lifts[.entry(trade.tradeId)] {
-      PointMark(
-        x: .value(Plot.time, times.drawn(trade.openedAt.date) ?? trade.openedAt.date),
-        y: .value(Plot.entry, entry))
+      PointMark(x: .value(Plot.time, opened), y: .value(Plot.entry, entry))
         .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info, lift: lift) }
+        .annotation(position: .top, spacing: Self.plateSpacing(lift), overflowResolution: Self.keepInside) {
+          if labelsEntry {
+            ChartMarkPlate(ChartText.buyMark(trade.quantity.text, Money.price(trade.entryPrice.value)),
+              color: Palette.info, textColor: Palette.infoText)
+          }
+        }
     }
     if let lift = lifts[.exit(trade.tradeId)] {
-      PointMark(
-        x: .value(Plot.time, times.drawn(trade.closedAt.date) ?? trade.closedAt.date),
-        y: .value(Plot.exit, exit))
+      PointMark(x: .value(Plot.time, closed), y: .value(Plot.exit, exit))
         .symbol {
           marker(Image(systemName: "arrowtriangle.down.fill"), Palette.result(trade.resultUsd.value), lift: lift)
+        }
+        .annotation(position: .top, spacing: Self.plateSpacing(lift), overflowResolution: Self.keepInside) {
+          if labelsExit {
+            ChartMarkPlate(ChartText.exitMark(Money.signedUSD(trade.resultUsd.value)),
+              color: result.fill, textColor: result.text)
+          }
         }
     }
   }
 
   /// The open position's entry and stop, with the entry marked at its time when it is on screen.
   @ChartContentBuilder
-  private func positionMarks(_ position: Position, _ lifts: [MarkerID: Int]) -> some ChartContent {
+  private func positionMarks(
+    _ position: Position, _ lifts: [MarkerID: Int], labelled: (Date) -> Bool
+  ) -> some ChartContent {
     let entry = ChartFormat.double(position.entryPrice)
+    let opened = times.drawn(position.openedAt.date) ?? position.openedAt.date
+    let labelsEntry = labelled(opened)
     levelLines(entry: entry, stop: position.stop.price.map(ChartFormat.double),
       protected: position.stop.state.isProtected)
     if let lift = lifts[.position] {
-      PointMark(
-        x: .value(Plot.time, times.drawn(position.openedAt.date) ?? position.openedAt.date),
-        y: .value(Plot.entry, entry))
+      PointMark(x: .value(Plot.time, opened), y: .value(Plot.entry, entry))
         .symbol { marker(Image(systemName: "arrowtriangle.up.fill"), Palette.info, lift: lift) }
+        .annotation(position: .top, spacing: Self.plateSpacing(lift), overflowResolution: Self.keepInside) {
+          if labelsEntry {
+            ChartMarkPlate(ChartText.buyMark(position.quantity.text, Money.price(position.entryPrice.value)),
+              color: Palette.info, textColor: Palette.infoText)
+          }
+        }
     }
   }
 
@@ -852,7 +883,7 @@ struct CandleChart: View {
 
   /// A dot on the candle where the strategy began watching (amber), said enter (blue) or was
   /// refused an entry (grey), moved `lift` steps (up when positive) clear of the markers before it.
-  private func eventMark(_ event: ChartEvent, lift: Int) -> some ChartContent {
+  private func eventMark(_ event: ChartEvent, lift: Int, labelled: Bool) -> some ChartContent {
     PointMark(
       x: .value(Plot.time, eventTime(event)),
       y: .value(Plot.price, event.price))
@@ -862,7 +893,39 @@ struct CandleChart: View {
           .frame(width: Self.markerSide, height: Self.markerSide)
           .offset(y: -CGFloat(lift) * Self.markerStep)
       }
+      .annotation(position: .top, spacing: Self.plateSpacing(lift), overflowResolution: Self.keepInside) {
+        if labelled {
+          ChartMarkPlate(Self.title(event.kind), color: Self.colour(event.kind), textColor: Self.textColour(event.kind))
+        }
+      }
       .accessibilityLabel(Text(Self.title(event.kind)))
+  }
+
+  /// Room between a mark's plain place and its label: the steps the mark was moved up.
+  static func plateSpacing(_ lift: Int) -> CGFloat {
+    CGFloat(max(lift, 0)) * markerStep
+  }
+
+  /// The times of the marks drawn on the price pane, at their drawn times.
+  private var markTimes: [Date] {
+    var marks = events.map(eventTime)
+    for trade in trades {
+      marks += [trade.openedAt.date, trade.closedAt.date].compactMap { times.drawn($0) }
+    }
+    if let position, let at = times.drawn(position.openedAt.date) { marks.append(at) }
+    return marks
+  }
+
+  /// The candle of the mark nearest a tap at `x` on the price pane, within a mark's side of it.
+  private func markedCandle(atX x: CGFloat) -> Candle? {
+    let plot = chartWidth - axisWidth
+    guard plot > 0, window > 0 else { return nil }
+    let secondsPerPoint = window / Double(plot)
+    let at = shownStretch.lowerBound.addingTimeInterval(Double(x) * secondsPerPoint)
+    let reach = Double(Self.markerSide) * secondsPerPoint
+    guard let nearest = markTimes.min(by: { abs($0.timeIntervalSince(at)) < abs($1.timeIntervalSince(at)) }),
+      abs(nearest.timeIntervalSince(at)) <= reach else { return nil }
+    return series.candles.first { $0.start <= nearest && nearest < $0.end }
   }
 
   static func stopColour(protected: Bool) -> Color {
@@ -874,6 +937,15 @@ struct CandleChart: View {
     case .watch: Palette.warning
     case .enter: Palette.info
     case .refused: Palette.textQuaternary
+    }
+  }
+
+  /// A mark's label text in its colour, readable on the plate.
+  static func textColour(_ kind: ChartEvent.Kind) -> Color {
+    switch kind {
+    case .watch: Palette.warningText
+    case .enter: Palette.infoText
+    case .refused: Palette.textTertiary
     }
   }
 

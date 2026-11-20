@@ -46,9 +46,6 @@ struct CandleChart: View {
   /// Each band pane's plot height, in points (RSI, stochastic): whether its band labels fit.
   @State private var bandHeights: [ChartPane: CGFloat] = [:]
 
-  /// Most decisions on screen that are labelled; with more, only their diamonds are drawn, and
-  /// the labels no longer pile up over the candles.
-  static let decisionLabelLimit = 3
   /// Share of a candle's slot its body fills; the rest is the gap between candles.
   static let bodyShare = 0.66
   /// Smallest price range drawn, as a share of the price, so a flat stretch is not a line.
@@ -205,7 +202,7 @@ struct CandleChart: View {
           }
           .annotation(position: .top, overflowResolution: Self.keepInside) {
             if labelsDecisions {
-              MarkPlate(text: mark.label, color: mark.color, textColor: mark.color)
+              ChartMarkPlate(mark.label, color: mark.color, textColor: mark.color)
             }
           }
       }
@@ -219,7 +216,7 @@ struct CandleChart: View {
               .foregroundStyle(mark.color)
           }
           .annotation(position: mark.kind == .entry ? .bottom : .top, overflowResolution: Self.keepInside) {
-            MarkPlate(text: mark.label, color: mark.color, textColor: mark.textColor)
+            ChartMarkPlate(mark.label, color: mark.color, textColor: mark.textColor)
           }
       }
       if let last = candles.last {
@@ -408,7 +405,7 @@ struct CandleChart: View {
   /// Whether the decisions on screen are few enough to label.
   private var labelsDecisions: Bool {
     let shown = windowStart...windowStart.addingTimeInterval(visibleLength)
-    return decisions.filter { shown.contains($0.time) }.count <= Self.decisionLabelLimit
+    return decisions.filter { shown.contains($0.time) }.count <= Tokens.Chart.markLabelLimit
   }
 
   /// The pane's name in its top left corner; the volume pane adds the newest candle's volume,
@@ -1381,25 +1378,6 @@ private struct ChartLegend: View {
     }
     if lines.atr { add(L10n.Chart.atr(Indicators.atrPeriod), plot.atr, Palette.seriesATR, study: true) }
     return items
-  }
-}
-
-/// A trade's or a decision's label on the price pane: bold mono on a plate washed in its colour.
-private struct MarkPlate: View {
-  let text: LocalizedStringResource
-  let color: Color
-  let textColor: Color
-
-  var body: some View {
-    Text(text)
-      .textCase(.uppercase)
-      .font(Tokens.Typography.annotationBold)
-      .foregroundStyle(textColor)
-      .padding(.horizontal, Tokens.Space.xs)
-      .padding(.vertical, Tokens.Space.xxs)
-      .background(color.opacity(Tokens.Opacity.wash), in: .rect(cornerRadius: Tokens.Radius.small))
-      .background(Palette.surface.opacity(Tokens.Opacity.overlay), in: .rect(cornerRadius: Tokens.Radius.small))
-      .fixedSize()
   }
 }
 
