@@ -270,6 +270,18 @@ GROUPS = [
                 "(¿suspensión de cotización? ¿sin compradores?)",
             ),
             (
+                "disk_low",
+                "Less than {mb} MB free on the data disk; no new entry until there is room",
+                "Menos de {mb} MB libres en el disco de datos; sin nuevas entradas hasta que "
+                "haya espacio",
+            ),
+            (
+                "disk_unknown",
+                "Free space on the data disk unreadable ({error}); no new entry until it reads",
+                "Espacio libre del disco de datos ilegible ({error}); sin nuevas entradas hasta "
+                "que se pueda leer",
+            ),
+            (
                 "watchdog_started",
                 "The watchdog started the bot at {time} for a resting entry; no new entry "
                 "until you clear this (tickr clear-fence watchdog-started)",

@@ -65,6 +65,8 @@ extension FenceReason {
     case .heldAfterReplace: [ReasonSentence(L10n.fenceReasonHeldAfterReplace, [])]
     case .heldUntrackedSell: [ReasonSentence(L10n.fenceReasonHeldUntrackedSell, [.orders, .symbol])]
     case .exitNotFilled: [ReasonSentence(L10n.fenceReasonExitNotFilled, [.order, .quantity, .symbol, .seconds, .filled, .state])]
+    case .diskLow: [ReasonSentence(L10n.fenceReasonDiskLow, [.mb])]
+    case .diskUnknown: [ReasonSentence(L10n.fenceReasonDiskUnknown, [.error])]
     case .watchdogStarted: [ReasonSentence(L10n.fenceReasonWatchdogStarted, [.time])]
     case .watchdogRecordUnreadable: [ReasonSentence(L10n.fenceReasonWatchdogRecordUnreadable, [.error])]
     case .closeNotSent: [ReasonSentence(L10n.fenceReasonCloseNotSent, [.quantity, .expected, .symbol])]

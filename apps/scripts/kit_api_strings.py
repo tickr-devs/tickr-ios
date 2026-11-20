@@ -135,6 +135,7 @@ for code, en, es in [
         "Started by the watchdog: entries wait for you",
         "Iniciado por el vigilante: las entradas te esperan",
     ),
+    ("disk_low", "The data disk is nearly full", "El disco de datos está casi lleno"),
 ]:
     add("fence_" + code, "kit.fence." + code, en, es, F + code)
 

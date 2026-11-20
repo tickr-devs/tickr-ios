@@ -42,6 +42,7 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case max
   case maxGap = "max_gap"
   case maximum
+  case mb
   case measured
   case minMb = "min_mb"
   case minRoom = "min_room"
@@ -140,6 +141,8 @@ public enum FenceReason: String, CaseIterable, Sendable {
   case heldAfterReplace = "held_after_replace"
   case heldUntrackedSell = "held_untracked_sell"
   case exitNotFilled = "exit_not_filled"
+  case diskLow = "disk_low"
+  case diskUnknown = "disk_unknown"
   case watchdogStarted = "watchdog_started"
   case watchdogRecordUnreadable = "watchdog_record_unreadable"
   case closeNotSent = "close_not_sent"

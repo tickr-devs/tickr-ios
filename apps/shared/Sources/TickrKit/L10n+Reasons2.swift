@@ -3,6 +3,12 @@
 import Foundation
 
 extension L10n {
+  /// A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING (values: room, min_room, ceiling, realized, reserved)
+  static var refusalReasonDailyCeiling: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.DAILY_CEILING",
+      // swiftlint:disable:next line_length
+      defaultValue: "Room {room} USD is under the minimum {min_room} USD (limit {ceiling}, realized {realized}, reserved {reserved})", bundle: bundle)
+  }
   /// A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING total (values: realized, reserved, new, total, ceiling)
   static var refusalReasonDailyCeilingTotal: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.DAILY_CEILING.total",

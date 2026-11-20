@@ -3144,6 +3144,24 @@
         }
       }
     },
+    "kit.fence.disk_low" : {
+      "comment" : "A fence (a block on new entries): disk_low",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The data disk is nearly full"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El disco de datos está casi lleno"
+          }
+        }
+      }
+    },
     "kit.fence.entry_stop" : {
       "comment" : "A fence (a block on new entries): entry_stop",
       "extractionState" : "manual",
@@ -3661,6 +3679,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El detalle de la orden lleva {seconds} s ilegible; su estado es desconocido: revísala en la app de Webull"
+          }
+        }
+      }
+    },
+    "kit.fenceReason.disk_low" : {
+      "comment" : "A fence's cause (`Fence.code`). disk_low",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Less than {mb} MB free on the data disk; no new entry until there is room"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menos de {mb} MB libres en el disco de datos; sin nuevas entradas hasta que haya espacio"
+          }
+        }
+      }
+    },
+    "kit.fenceReason.disk_unknown" : {
+      "comment" : "A fence's cause (`Fence.code`). disk_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free space on the data disk unreadable ({error}); no new entry until it reads"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espacio libre del disco de datos ilegible ({error}); sin nuevas entradas hasta que se pueda leer"
           }
         }
       }

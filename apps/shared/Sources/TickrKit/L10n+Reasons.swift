@@ -224,6 +224,16 @@ extension L10n {
       // swiftlint:disable:next line_length
       defaultValue: "Closing order {order} for {quantity} {symbol} not filled in {seconds} s (filled {filled}, {state}); nothing more is sent: check the Webull app (trading halt? no buyers?)", bundle: bundle)
   }
+  /// A fence's cause (`Fence.code`). disk_low (values: mb)
+  static var fenceReasonDiskLow: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.disk_low",
+      defaultValue: "Less than {mb} MB free on the data disk; no new entry until there is room", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). disk_unknown (values: error)
+  static var fenceReasonDiskUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.disk_unknown",
+      defaultValue: "Free space on the data disk unreadable ({error}); no new entry until it reads", bundle: bundle)
+  }
   /// A fence's cause (`Fence.code`). watchdog_started (values: time)
   static var fenceReasonWatchdogStarted: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.watchdog_started",
@@ -376,11 +386,5 @@ extension L10n {
   static var refusalReasonPlannedLossOverLimit: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.PLANNED_LOSS_OVER_LIMIT",
       defaultValue: "Planned loss {planned_loss} USD over the limit of {limit} USD", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING (values: room, min_room, ceiling, realized, reserved)
-  static var refusalReasonDailyCeiling: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.DAILY_CEILING",
-      // swiftlint:disable:next line_length
-      defaultValue: "Room {room} USD is under the minimum {min_room} USD (limit {ceiling}, realized {realized}, reserved {reserved})", bundle: bundle)
   }
 }

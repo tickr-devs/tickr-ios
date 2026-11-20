@@ -184,6 +184,10 @@ extension L10n {
     LocalizedStringResource("kit.fence.watchdog_started",
       defaultValue: "Started by the watchdog: entries wait for you", bundle: bundle)
   }
+  /// A fence (a block on new entries): disk_low
+  static var fenceDiskLow: LocalizedStringResource {
+    LocalizedStringResource("kit.fence.disk_low", defaultValue: "The data disk is nearly full", bundle: bundle)
+  }
   /// Order side buy
   static var orderSideBuy: LocalizedStringResource {
     LocalizedStringResource("kit.order.side_BUY", defaultValue: "Buy", bundle: bundle)

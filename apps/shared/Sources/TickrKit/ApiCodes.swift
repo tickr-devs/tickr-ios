@@ -67,6 +67,7 @@ public enum FenceKind: String, CaseIterable, Sendable {
   case exitNotFilled = "exit_not_filled"
   case marketClosed = "market_closed"
   case watchdogStarted = "watchdog_started"
+  case diskLow = "disk_low"
 
   public var title: LocalizedStringResource {
     switch self {
@@ -96,6 +97,7 @@ public enum FenceKind: String, CaseIterable, Sendable {
     case .exitNotFilled: L10n.fenceExitNotFilled
     case .marketClosed: L10n.fenceMarketClosed
     case .watchdogStarted: L10n.fenceWatchdogStarted
+    case .diskLow: L10n.fenceDiskLow
     }
   }
 }
