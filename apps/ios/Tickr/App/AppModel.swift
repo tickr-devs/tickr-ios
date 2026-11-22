@@ -407,60 +407,85 @@ final class AppModel {
     }
   }
 
-  /// Reads the shown day's flow, skipped signals, symbols and fast movers, all at once; an answer
-  /// is dropped when the address or the shown day changed meanwhile.
+  /// Reads the shown day's flow, skipped signals, watched symbols, symbols and fast movers, all at
+  /// once, and shows them together once every read has answered (owner 2026-11-22: what cannot
+  /// show at once shows its loader, then all of it at once, never cards popping in one by one);
+  /// the API keeps a past day's answers (api/settled.py), so they normally answer within
+  /// milliseconds. The answers are dropped when the address or the shown day changed meanwhile,
+  /// and a cancelled read changes nothing.
   func refreshFlow() async {
     guard let url = connection.url else { return }
     let day = shownDay
     let client = Container.shared.apiClient(connection.endpoint(for: url))
-    async let flowRead: Void = readFlow(client, url: url, day: day)
-    async let skippedRead: Void = readSkipped(client, url: url, day: day)
-    async let watchingRead: Void = readWatching(client, url: url, day: day)
-    async let symbolsRead: Void = refreshSymbols(client, url: url, day: day)
-    async let moversRead: Void = refreshMovers(client, url: url, day: day)
-    _ = await (flowRead, skippedRead, watchingRead, symbolsRead, moversRead)
+    async let flow = Self.outcome { try await client.flow(day: day) }
+    async let skipped = Self.outcome { try await client.skipped(day: day) }
+    async let watching = Self.outcome { try await client.watching(day: day) }
+    async let symbols = Self.outcome { try await client.symbols(day: day) }
+    async let movers = Self.outcome { try await client.movers(day: day) }
+    let read = await (flow, skipped, watching, symbols, movers)
+    guard stillShown(url, day), !Task.isCancelled else { return }
+    showFlow(read.0, day: day)
+    showSkipped(read.1)
+    showWatching(read.2)
+    showSymbols(read.3)
+    showMovers(read.4)
+  }
+
+  /// One read's document, or why it failed; read off the main actor, shown on it.
+  nonisolated static func outcome<Document: Sendable>(
+    _ read: @Sendable () async throws -> Document
+  ) async -> Result<Document, any Error> {
+    do { return .success(try await read()) } catch { return .failure(error) }
   }
 
   /// Whether an answer read for `day` from `url` is still the one to show.
   private func stillShown(_ url: URL, _ day: WireDate) -> Bool { connection.url == url && day == shownDay }
 
-  private func readFlow(_ client: APIClient, url: URL, day: WireDate) async {
-    do {
-      let read = try await client.flow(day: day)
-      guard stillShown(url, day) else { return }
-      flow = read
+  private func showFlow(_ read: Result<FlowV1, any Error>, day: WireDate) {
+    switch read {
+    case .success(let document):
+      flow = document
       flowError = nil
-      flowAnsweredDay = day
-    } catch is CancellationError {
-      return
-    } catch {
+    case .failure(let error):
       // Old counts prove nothing about the day now.
-      guard stillShown(url, day) else { return }
       flow = nil
       flowError = Self.describe(error) ?? flowError
-      flowAnsweredDay = day
     }
+    flowAnsweredDay = day
   }
 
   /// The refusals only place refused symbols on the board; without them they stay where they
   /// stopped, so a failed read is not an error of its own.
-  private func readSkipped(_ client: APIClient, url: URL, day: WireDate) async {
-    let refusals = try? await client.skipped(day: day)
-    guard stillShown(url, day) else { return }
-    skipped = refusals
+  private func showSkipped(_ read: Result<SkippedV1, any Error>) {
+    skipped = try? read.get()
   }
 
   /// The latest entry size of the Risk room; a failed read leaves it unknown (nil), never empty.
-  private func readWatching(_ client: APIClient, url: URL, day: WireDate) async {
-    do {
-      let read = try await client.watching(day: day)
-      guard stillShown(url, day) else { return }
-      watching = read
-    } catch is CancellationError {
-      return
-    } catch {
-      guard stillShown(url, day) else { return }
-      watching = nil
+  private func showWatching(_ read: Result<WatchingV1, any Error>) {
+    watching = try? read.get()
+  }
+
+  /// The shown day's symbols (the funnel's Quote and Bars, the Symbols screen).
+  private func showSymbols(_ read: Result<SymbolsV1, any Error>) {
+    switch read {
+    case .success(let document):
+      symbols = document
+      symbolsError = nil
+    case .failure(let error):
+      symbols = nil
+      symbolsError = Self.describe(error) ?? symbolsError
+    }
+  }
+
+  /// The shown day's fast movers (the Fast movers card), likewise.
+  private func showMovers(_ read: Result<MoversV1, any Error>) {
+    switch read {
+    case .success(let document):
+      movers = document
+      moversError = nil
+    case .failure(let error):
+      movers = nil
+      moversError = Self.describe(error) ?? moversError
     }
   }
 
@@ -471,39 +496,6 @@ final class AppModel {
     let client = Container.shared.apiClient(connection.endpoint(for: url))
     return await SymbolDayLine.read(symbol, day: symbols?.day ?? shownDay, today: today,
       previousClose: previousClose, client: client)
-  }
-
-  /// Reads the shown day's symbols (the funnel's Quote and Bars, the Symbols screen); an answer is
-  /// dropped when the address or the shown day changed meanwhile.
-  private func refreshSymbols(_ client: APIClient, url: URL, day: WireDate) async {
-    do {
-      let read = try await client.symbols(day: day)
-      guard stillShown(url, day) else { return }
-      symbols = read
-      symbolsError = nil
-    } catch is CancellationError {
-      return
-    } catch {
-      guard stillShown(url, day) else { return }
-      symbols = nil
-      symbolsError = Self.describe(error) ?? symbolsError
-    }
-  }
-
-  /// Reads the shown day's fast movers (the Fast movers card), likewise.
-  private func refreshMovers(_ client: APIClient, url: URL, day: WireDate) async {
-    do {
-      let read = try await client.movers(day: day)
-      guard stillShown(url, day) else { return }
-      movers = read
-      moversError = nil
-    } catch is CancellationError {
-      return
-    } catch {
-      guard stillShown(url, day) else { return }
-      movers = nil
-      moversError = Self.describe(error) ?? moversError
-    }
   }
 
   /// The first /flow answer for the shown day has not come yet (a new address, a new day).

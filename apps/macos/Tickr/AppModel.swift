@@ -228,6 +228,11 @@ public final class AppModel {
   public private(set) var dayError: String?
   /// The read of the picked day that is under way; a newer pick cancels it.
   @ObservationIgnored private var dayLoad: Task<Void, Never>?
+  /// The day whose cards `readDayCards` is reading together; nil when none is. The periodic
+  /// reads leave that day's cards alone meanwhile.
+  @ObservationIgnored private var cardsDay: WireDate?
+  /// Number of the newest `readDayCards`; only it lifts `cardsDay` when it ends.
+  @ObservationIgnored private var cardsRead = 0
   /// What was read of the past days shown last: a day picked again shows at once, then is read
   /// again behind it (`PastDays`).
   @ObservationIgnored private var pastDays = PastDays<DayParts>()
@@ -789,132 +794,119 @@ public final class AppModel {
   /// Observers of the shown day. An answer for a day no longer shown is dropped.
   public func refreshObservers() async {
     let day = shownDay
-    do {
-      let document = try await client.observers(day: day)
-      guard day == shownDay else { return }
-      observers = document
-      observersError = nil
-      keep(day) { $0.observers = document }
-    } catch {
-      guard day == shownDay else { return }
-      observers = nil
-      observersError = Self.describe(error) ?? observersError
-    }
+    let read = await Self.outcome { [client] in try await client.observers(day: day) }
+    guard shows(day) else { return }
+    apply(read, of: day, \.observers, \.observersError, kept: \.observers)
   }
 
   /// Reads the shown day's skipped ENTERs. An answer for a day no longer shown is dropped; a
   /// failed read clears the list, so an old one never reads as current.
   public func refreshSkipped() async {
     let day = shownDay
-    do {
-      let document = try await client.skipped(day: day)
-      guard day == shownDay else { return }
-      skipped = document
-      skippedError = nil
-      keep(day) { $0.skipped = document }
-    } catch {
-      guard day == shownDay else { return }
-      skipped = nil
-      skippedError = Self.describe(error) ?? skippedError
-    }
+    let read = await Self.outcome { [client] in try await client.skipped(day: day) }
+    guard shows(day) else { return }
+    apply(read, of: day, \.skipped, \.skippedError, kept: \.skipped)
   }
 
   /// Reads performance over the days that end on the shown day. An answer for a day no longer
   /// shown is dropped; a failed read clears it, so old figures never read as current.
   public func refreshPerformance() async {
     let day = shownDay
-    do {
-      let document = try await client.performance(from: day.adding(days: 1 - Self.performanceDays), to: day)
-      guard day == shownDay else { return }
-      performance = document
-      performanceError = nil
-      keep(day) { $0.performance = document }
-    } catch {
-      guard day == shownDay else { return }
-      performance = nil
-      performanceError = Self.describe(error) ?? performanceError
+    let read = await Self.outcome { [client] in
+      try await client.performance(from: day.adding(days: 1 - Self.performanceDays), to: day)
     }
+    guard shows(day) else { return }
+    apply(read, of: day, \.performance, \.performanceError, kept: \.performance)
   }
 
-  /// Reads the shown day's flow, watched symbols, symbols and fast movers, all at once. An answer
-  /// for a day no longer shown is dropped; a failed read clears its part, so an old one never
-  /// reads as current.
+  /// Reads the shown day's flow, watched symbols, symbols, fast movers and journal, all at once.
+  /// An answer for a day no longer shown is dropped; a failed read clears its part, so an old one
+  /// never reads as current.
   public func refreshFlow() async {
-    async let flowRead: Void = refreshFlowOnly()
-    async let watchingRead: Void = refreshWatching()
-    async let symbolsRead: Void = refreshSymbols()
-    async let moversRead: Void = refreshMovers()
-    async let eventsRead: Void = refreshEvents()
-    _ = await (flowRead, watchingRead, symbolsRead, moversRead, eventsRead)
+    let day = shownDay
+    async let flow = Self.outcome { [client] in try await client.flow(day: day) }
+    async let watching = Self.outcome { [client] in try await client.watching(day: day) }
+    async let symbols = Self.outcome { [client] in try await client.symbols(day: day) }
+    async let movers = Self.outcome { [client] in try await client.movers(day: day) }
+    async let events = Self.outcome { [client] in try await client.events(day: day) }
+    let read = await (flow, watching, symbols, movers, events)
+    guard shows(day) else { return }
+    apply(read.0, of: day, \.flow, \.flowError, kept: \.flow)
+    apply(read.1, of: day, \.watching, \.watchingError, kept: \.watching)
+    apply(read.2, of: day, \.symbols, \.symbolsError, kept: \.symbols)
+    apply(read.3, of: day, \.movers, \.moversError, kept: \.movers)
+    applyEvents(read.4, of: day)
   }
 
-  /// Reads the shown day's journal. A failed read clears it, so an old one never reads as current.
-  private func refreshEvents() async {
+  /// Reads every card of the picked day at once (flow, watched symbols, symbols, fast movers,
+  /// journal, observers, Not taken, performance) and shows them together once all have answered,
+  /// each with its document or its own cause (owner 2026-11-22: what cannot show at once shows
+  /// its loader, then all of it at once, never cards popping in one by one). The API keeps a
+  /// past day's answers once built (api/settled.py), so they normally all answer within
+  /// milliseconds; a day it has not built yet it builds in one pass for all of them, so they
+  /// answer together anyway, and a deadline after which some cards show alone would buy
+  /// nothing. Until then each card shows what was kept of the day, else its loader. A newer
+  /// pick cancels the reads; the periodic reads of the same day leave the cards alone meanwhile.
+  func readDayCards() async {
     let day = shownDay
-    let read = try? await client.events(day: day)
-    guard day == shownDay else { return }
-    events = read?.day == day ? read : nil
+    let from = day.adding(days: 1 - Self.performanceDays)
+    cardsRead += 1
+    let read = cardsRead
+    cardsDay = day
+    defer { if cardsRead == read { cardsDay = nil } }
+    async let flow = Self.outcome { [client] in try await client.flow(day: day) }
+    async let watching = Self.outcome { [client] in try await client.watching(day: day) }
+    async let symbols = Self.outcome { [client] in try await client.symbols(day: day) }
+    async let movers = Self.outcome { [client] in try await client.movers(day: day) }
+    async let events = Self.outcome { [client] in try await client.events(day: day) }
+    async let observers = Self.outcome { [client] in try await client.observers(day: day) }
+    async let skipped = Self.outcome { [client] in try await client.skipped(day: day) }
+    async let performance = Self.outcome { [client] in try await client.performance(from: from, to: day) }
+    let cards = await (flow, watching, symbols, movers, events, observers, skipped, performance)
+    guard day == shownDay, !Task.isCancelled else { return }
+    apply(cards.0, of: day, \.flow, \.flowError, kept: \.flow)
+    apply(cards.1, of: day, \.watching, \.watchingError, kept: \.watching)
+    apply(cards.2, of: day, \.symbols, \.symbolsError, kept: \.symbols)
+    apply(cards.3, of: day, \.movers, \.moversError, kept: \.movers)
+    applyEvents(cards.4, of: day)
+    apply(cards.5, of: day, \.observers, \.observersError, kept: \.observers)
+    apply(cards.6, of: day, \.skipped, \.skippedError, kept: \.skipped)
+    apply(cards.7, of: day, \.performance, \.performanceError, kept: \.performance)
+  }
+
+  /// Whether a single read's answer for `day` may be shown now: `day` is still shown and its
+  /// cards are not being read together (`readDayCards` shows them all at once).
+  private func shows(_ day: WireDate) -> Bool { day == shownDay && cardsDay != day }
+
+  /// One read's document, or why it failed; read off the main actor, shown on it.
+  nonisolated static func outcome<Document: Sendable>(
+    _ read: @Sendable () async throws -> Document
+  ) async -> Result<Document, any Error> {
+    do { return .success(try await read()) } catch { return .failure(error) }
+  }
+
+  /// Shows one read of `day`: its document (kept for the day too), or no document and its cause
+  /// (a cause without words keeps the earlier one), so an old document never reads as current.
+  private func apply<Document>(
+    _ read: Result<Document, any Error>, of day: WireDate,
+    _ document: ReferenceWritableKeyPath<AppModel, Document?>,
+    _ cause: ReferenceWritableKeyPath<AppModel, String?>, kept: WritableKeyPath<DayParts, Document?>
+  ) {
+    switch read {
+    case .success(let value):
+      self[keyPath: document] = value
+      self[keyPath: cause] = nil
+      keep(day) { $0[keyPath: kept] = value }
+    case .failure(let error):
+      self[keyPath: document] = nil
+      self[keyPath: cause] = Self.describe(error) ?? self[keyPath: cause]
+    }
+  }
+
+  /// Shows the read journal of `day`; a failed read, or another day's, clears it.
+  private func applyEvents(_ read: Result<DayEventsV1, any Error>, of day: WireDate) {
+    events = (try? read.get()).flatMap { $0.day == day ? $0 : nil }
     if let read = events { keep(day) { $0.events = read } }
-  }
-
-  private func refreshFlowOnly() async {
-    let day = shownDay
-    do {
-      let document = try await client.flow(day: day)
-      guard day == shownDay else { return }
-      flow = document
-      flowError = nil
-      keep(day) { $0.flow = document }
-    } catch {
-      guard day == shownDay else { return }
-      flow = nil
-      flowError = Self.describe(error) ?? flowError
-    }
-  }
-
-  private func refreshWatching() async {
-    let day = shownDay
-    do {
-      let document = try await client.watching(day: day)
-      guard day == shownDay else { return }
-      watching = document
-      watchingError = nil
-      keep(day) { $0.watching = document }
-    } catch {
-      guard day == shownDay else { return }
-      watching = nil
-      watchingError = Self.describe(error) ?? watchingError
-    }
-  }
-
-  private func refreshSymbols() async {
-    let day = shownDay
-    do {
-      let document = try await client.symbols(day: day)
-      guard day == shownDay else { return }
-      symbols = document
-      symbolsError = nil
-      keep(day) { $0.symbols = document }
-    } catch {
-      guard day == shownDay else { return }
-      symbols = nil
-      symbolsError = Self.describe(error) ?? symbolsError
-    }
-  }
-
-  private func refreshMovers() async {
-    let day = shownDay
-    do {
-      let document = try await client.movers(day: day)
-      guard day == shownDay else { return }
-      movers = document
-      moversError = nil
-      keep(day) { $0.movers = document }
-    } catch {
-      guard day == shownDay else { return }
-      movers = nil
-      moversError = Self.describe(error) ?? moversError
-    }
   }
 
   /// Starts reading the picked day. What was shown for the earlier pick goes at once, so the
@@ -958,17 +950,14 @@ public final class AppModel {
     performanceError = nil
   }
 
-  /// Reads every part of the picked day at once: its trades, flow, watched symbols, symbols,
-  /// movers, observers, skipped signals and performance. One after another, each waited for the
-  /// ones before it, and the last (Not taken, performance) came seconds after the trades (owner
-  /// report 2026-11-17).
+  /// Reads every part of the picked day at once: its trades, shown as soon as they come (the
+  /// document every screen of a past day shows), and its cards, shown together
+  /// (`readDayCards`). One after another, each waited for the ones before it, and the last (Not
+  /// taken, performance) came seconds after the trades (owner report 2026-11-17).
   private func loadSelectedDay() async {
     async let documentRead: Void = readSelectedDayDocument()
-    async let flowRead: Void = refreshFlow()
-    async let observersRead: Void = refreshObservers()
-    async let skippedRead: Void = refreshSkipped()
-    async let performanceRead: Void = refreshPerformance()
-    _ = await (documentRead, flowRead, observersRead, skippedRead, performanceRead)
+    async let cardsRead: Void = readDayCards()
+    _ = await (documentRead, cardsRead)
   }
 
   /// Keeps `update` applied to what is kept of `day`, when it is a past day.
