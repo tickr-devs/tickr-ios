@@ -120,8 +120,9 @@ public struct ListCap: Equatable, Sendable {
 }
 
 /// Every row of a capped list: the card's title, how many rows, the close button, then the rows,
-/// scrolling when they are many. A large sheet on the iPhone (with its own navigation, for rows
-/// that open a page), a sheet of `Size.allRowsWidth` on the Mac; Esc closes it.
+/// scrolling when they are many. On the iPhone a sheet as tall as the rows (full height when they
+/// are more than a screen), with its own navigation for rows that open a page; a sheet of
+/// `Size.allRowsWidth` on the Mac; Esc closes it.
 struct AllRowsSheet<Rows: View>: View {
   let title: LocalizedStringResource
   let count: Int
@@ -141,8 +142,7 @@ struct AllRowsSheet<Rows: View>: View {
   var body: some View {
     #if os(iOS)
     NavigationStack { content.toolbar(.hidden, for: .navigationBar) }
-      .presentationDetents([.large])
-      .presentationDragIndicator(.visible)
+      .sheetFitsContent()
       .presentationBackground(Palette.surface)
     #else
     content

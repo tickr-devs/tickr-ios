@@ -60,6 +60,20 @@ struct ScrollEdges: Equatable {
     above = shownTop > tolerance
     below = geometry.contentSize.height - shownTop - geometry.containerSize.height > tolerance
   }
+
+  /// Whether the scroll view should follow its end down: it was scrolled to the end, and the end
+  /// moved away while nobody scrolled, because content grew under it (owner, 2026-11-20: at the
+  /// bottom of Positions the chevron came back when the first bars widened the tiles; measured on
+  /// the simulator, +51 pt below with the offset unchanged). A person scrolling up from the end
+  /// is not followed: the scroll is not idle then.
+  static func keepsEnd(old: ScrollEdges, new: ScrollEdges, idle: Bool) -> Bool {
+    idle && old.above && !old.below && new.below
+  }
+
+  /// How far the content runs past the visible height (negative when it is shorter).
+  static func overflow(_ geometry: ScrollGeometry) -> CGFloat {
+    geometry.contentSize.height - geometry.containerSize.height
+  }
 }
 
 /// Where the chevron takes the scroll view next: one more page, or the very bottom.
@@ -110,6 +124,13 @@ struct ScrollEdgeHints: ViewModifier {
   @State private var own = ScrollPosition(edge: .top)
   @State private var edges = ScrollEdges()
   @State private var page = ScrollPage()
+  /// Whether nobody is scrolling it (no finger, no fling, no animated scroll).
+  @State private var idle = true
+  /// The sheet this scroll view fills, when it is as tall as its content (`sheetFitsContent()`).
+  @Environment(SheetFitting.self) private var sheet: SheetFitting?
+  /// The sheet height this scroll view last needed, told to the sheet again when its page shows
+  /// again (back from a page pushed inside the sheet, which told the sheet its own).
+  @State private var needed: CGFloat?
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   private var position: Binding<ScrollPosition> { external ?? $own }
@@ -119,11 +140,30 @@ struct ScrollEdgeHints: ViewModifier {
     content
       .withoutScrollIndicators()
       .scrollPosition(position)
-      .onScrollGeometryChange(for: ScrollEdges.self) { ScrollEdges($0) } action: { _, new in
-        edges = new
+      .onScrollPhaseChange { _, phase in idle = phase == .idle }
+      .onScrollGeometryChange(for: ScrollEdges.self) { ScrollEdges($0) } action: { old, new in
+        // A form or list cannot be moved by a scroll position (`scrollEdgeFades()`): it only fades.
+        if pages && ScrollEdges.keepsEnd(old: old, new: new, idle: idle) {
+          // At the end before the content grew: stays at the end, and the chevron stays away.
+          position.wrappedValue.scrollTo(edge: .bottom)
+        } else {
+          edges = new
+        }
       }
       .onScrollGeometryChange(for: ScrollGeometry.self) { $0 } action: { _, new in
         page.follow(new)
+      }
+      .onScrollGeometryChange(for: CGFloat.self) { ScrollEdges.overflow($0) } action: { _, new in
+        guard let sheet else { return }
+        sheet.overflow = new
+        needed = sheet.needed
+      }
+      .onAppear {
+        // Back on this page: its height as it was, until its own scroll view measures again.
+        if let sheet, let needed {
+          sheet.needed = needed
+          sheet.overflow = nil
+        }
       }
       // The scroll view's frame stops at the insets while its content runs on under the bars:
       // the mask reaches under them too, so content there shows as before unless more is beyond.

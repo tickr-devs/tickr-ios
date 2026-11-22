@@ -10,7 +10,6 @@ struct BotControl: ViewModifier {
   @State private var severe: OperatorCommand?
   /// The action chosen in the sheet, run once the sheet has gone so its alert can show.
   @State private var chosen: (() -> Void)?
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   func body(content: Content) -> some View {
     content
@@ -27,11 +26,10 @@ struct BotControl: ViewModifier {
         chosen?()
         chosen = nil
       }, content: {
-        // At accessibility text sizes the actions no longer fit half a screen: the sheet opens
-        // full height, so none of them waits below the fold.
+        // As tall as the state, the actions and Cancel: nothing waits below the fold, and only at
+        // accessibility text sizes, taller than the screen, does it scroll.
         sheet
-          .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium, .large])
-          .presentationDragIndicator(.visible)
+          .sheetFitsContent()
           .presentationCornerRadius(Self.sheetRadius)
       })
   }

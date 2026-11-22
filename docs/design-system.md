@@ -473,11 +473,23 @@ the content out over `fade` (72 pt iPhone, 56 pt Mac; above a bar such as the iP
 the content under the bar is hidden while more is below), and while more is below, a `surface`
 capsule with `Symbols.scrollMore` sits on the bottom edge; a click or tap scrolls 80% of the
 visible height. At the top and the end the hints fade away in 0.2 s (none with Reduce Motion).
-A screen that drives its scroll position itself passes it: `scrollEdgeHints(position:)`. A `Form`
+A scroll view at its end stays at its end when content grows under it while nobody scrolls
+(the first bars widening the Positions tiles brought the chevron back, owner 2026-11-20); at the
+top, growth leaves the top in view and the chevron appears. A screen that drives its scroll position itself passes it: `scrollEdgeHints(position:)`. A `Form`
 or `List` gets `scrollEdgeFades()`, the fades without the chevron: a scroll position cannot move a
 form (checked on the iPhone simulator), and a chevron that does nothing would be a dead control.
 The same rule rejects a file with fewer `scrollEdgeHints` calls than vertical scroll views, or
 fewer `scrollEdgeFades` calls than forms and lists.
+
+## Sheets
+
+A sheet is as tall as its content (owner, 2026-11-20: the bot actions opened at half height,
+scrolled, and the chevron sat on Cancel): its root applies TickrDesign's `sheetFitsContent()`.
+The sheet's scroll view (with `scrollEdgeHints()` or `scrollEdgeFades()`) reports how far its
+content runs past its visible height, and the sheet takes its own height plus that as its one
+detent. Only content taller than the screen stops at full height and scrolls, with the edge hints.
+On the Mac a sheet already takes its content's size. The `sheets` rule of `check_swift_rules.py`
+rejects a `presentationDetents` of an app's own.
 
 ## Loading (`Tokens.Loading`, mockup v102)
 

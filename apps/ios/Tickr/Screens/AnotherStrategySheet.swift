@@ -49,8 +49,7 @@ struct AnotherStrategySheet: View {
         }
       }
     }
-    .presentationDetents([.medium, .large])
-    .presentationDragIndicator(.visible)
+    .sheetFitsContent()
     .task { versions = await activity.replayableVersions(url) }
     .task(id: chosen) { await load() }
   }

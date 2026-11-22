@@ -286,5 +286,6 @@ private struct PairingSheet: View {
         }
       }
     }
+    .sheetFitsContent()
   }
 }

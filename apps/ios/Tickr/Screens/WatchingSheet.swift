@@ -46,8 +46,7 @@ struct WatchingSheet: View {
       .scrollBounceBehavior(.basedOnSize)
     }
     .padding([.horizontal, .top], Tokens.Space.l)
-    .presentationDetents([.large])
-    .presentationDragIndicator(.visible)
+    .sheetFitsContent()
     .presentationBackground(Palette.surface)
   }
 

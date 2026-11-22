@@ -933,6 +933,18 @@ def scrollbar_violations(path: Path) -> list[tuple[int, str]]:
         found.extend(plain)
     return found
 
+# A sheet's height (owner, 2026-11-20: the bot actions opened at half height, scrolled, and the
+# chevron sat on Cancel): every sheet is as tall as its content through TickrDesign's
+# `sheetFitsContent()`; an app never picks a detent of its own.
+OWN_DETENT = re.compile(r"\.presentationDetents\s*\(")
+
+
+def sheet_violations(path: Path) -> list[tuple[int, str]]:
+    """A sheet height picked by an app's own view instead of `sheetFitsContent()`."""
+    lines = _code_lines(path)
+    return [(number, code.strip()) for number, code, _ in lines if OWN_DETENT.search(code)]
+
+
 RULES = {
     "text": (text_violations, "words in code; define them in L10n.swift, translated to Spanish"),
     "numbers": (number_violations, "magic number; use a token or a documented constant"),
@@ -970,6 +982,8 @@ RULES = {
       "scroll indicators set by hand, a vertical scroll without scrollEdgeHints() (a Form or "
       "List: scrollEdgeFades()), or a scene, sideways scroll or Table without "
       "withoutScrollIndicators(); docs/design-system.md, Scrolling"),
+  "sheets": (sheet_violations,
+      "a sheet height of the app's own; use sheetFitsContent() (docs/design-system.md, Sheets)"),
   "cause": (cause_violations,
       "a cause shown in the bot's words; use its `…Text` accessor (the person's language)"),
 }
@@ -977,7 +991,7 @@ RULES = {
 # are defined.
 APP_RULES = {
     "styles", "system-buttons", "controls", "symbols", "result", "format", "stopsymbol", "loaders",
-    "scrollbars",
+    "scrollbars", "sheets",
 }
 
 
