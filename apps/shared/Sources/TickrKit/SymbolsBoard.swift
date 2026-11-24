@@ -202,6 +202,11 @@ public enum SymbolsBoard {
     default:
       break
     }
+    if row.state == .notReached {
+      // Why the pass stopped, in words; the bot keeps the route's own text out of the row.
+      guard let cause = row.cause else { return ApiText.missing }
+      return NotReachedCause(rawValue: cause).map { String(localized: $0.title) } ?? cause
+    }
     let cause = row.cause.map { DiscoveryCause(rawValue: $0).map { String(localized: $0.title) } ?? $0 }
     let parts = [cause, row.detail].compactMap { $0 }.filter { !$0.isEmpty }
     return parts.isEmpty ? ApiText.missing : parts.joined(separator: separator)

@@ -296,5 +296,13 @@ extension L10n {
   static var discoveryStrategyLiquidity: LocalizedStringResource {
     LocalizedStringResource("kit.discovery.STRATEGY_LIQUIDITY", defaultValue: "Strategy liquidity rule", bundle: bundle)
   }
+  /// Why the latest pass stopped before deciding a symbol: REQUEST_BUDGET
+  static var notReachedRequestBudget: LocalizedStringResource {
+    LocalizedStringResource("kit.notReached.REQUEST_BUDGET", defaultValue: "Data request limit reached", bundle: bundle)
+  }
+  /// Why the latest pass stopped before deciding a symbol: DELAYED_DATA
+  static var notReachedDelayedData: LocalizedStringResource {
+    LocalizedStringResource("kit.notReached.DELAYED_DATA", defaultValue: "Market data delayed", bundle: bundle)
+  }
   // END Bot codes
 }

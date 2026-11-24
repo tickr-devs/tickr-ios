@@ -5355,6 +5355,42 @@
         }
       }
     },
+    "kit.notReached.DELAYED_DATA" : {
+      "comment" : "Why the latest pass stopped before deciding a symbol: DELAYED_DATA",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market data delayed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datos de mercado con retraso"
+          }
+        }
+      }
+    },
+    "kit.notReached.REQUEST_BUDGET" : {
+      "comment" : "Why the latest pass stopped before deciding a symbol: REQUEST_BUDGET",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data request limit reached"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límite de solicitudes de datos alcanzado"
+          }
+        }
+      }
+    },
     "kit.observer.active" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -114,7 +114,7 @@ public struct SymbolsLine: Identifiable, Hashable, Sendable {
 }
 
 /// What a line's outcome badge says.
-public enum SymbolsOutcome: Hashable, Sendable {
+public enum SymbolsOutcome: Hashable, Sendable, CaseIterable {
   case passed, waiting, dropped, notReached
 
   public init(_ state: SymbolState) {

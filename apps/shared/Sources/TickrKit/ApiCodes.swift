@@ -264,3 +264,16 @@ public enum DiscoveryCause: String, CaseIterable, Sendable {
     }
   }
 }
+
+/// Why the latest pass stopped before deciding a symbol (`SymbolRowV1.cause`). An unknown code has no case; show the bot's own text then.
+public enum NotReachedCause: String, CaseIterable, Sendable {
+  case requestBudget = "REQUEST_BUDGET"
+  case delayedData = "DELAYED_DATA"
+
+  public var title: LocalizedStringResource {
+    switch self {
+    case .requestBudget: L10n.notReachedRequestBudget
+    case .delayedData: L10n.notReachedDelayedData
+    }
+  }
+}

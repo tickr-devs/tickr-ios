@@ -73,7 +73,8 @@ struct SymbolsBoardTests {
       == "\(String(localized: L10n.discoverySecurityTypeNotAllowed)) · ETF (needs COMMON_STOCK)")
     let slow = try #require(rows["SLOW"])
     #expect(SymbolsBoard.outcome(slow).tone == .notReached)
-    #expect(SymbolsBoard.reason(slow) == "bars budget · bars route window full")
+    // Why the pass stopped, in words: never the broker route's text.
+    #expect(SymbolsBoard.reason(slow) == String(localized: L10n.notReachedRequestBudget))
   }
 
   @Test("The path passes every stage before where it stands, then marks it, then the rest ahead")

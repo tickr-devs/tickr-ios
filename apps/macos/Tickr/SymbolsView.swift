@@ -403,7 +403,9 @@ private struct SymbolsGrid: View {
   static let dollarsWidth: CGFloat = 64
   static let screenerWidth: CGFloat = 120
   static let stageWidth: CGFloat = 142
-  static let timeWidth: CGFloat = 50
+  /// The time column is as wide as its clock ("09:32:01") in the lines' font, never a set width:
+  /// a time on two lines read "09:32" over ":01" (owner, 2026-11-23).
+  static let timeShapes = FigureShapes.shapes([ClockText.seconds(.distantPast)])
   /// Every second line is striped.
   static let stripeEvery = 2
 
@@ -417,26 +419,34 @@ private struct SymbolsGrid: View {
     case .dollars: dollarsWidth
     case .screener: screenerWidth
     case .stage: stageWidth
-    case .outcome: nil
-    case .time: timeWidth
+    case .outcome, .time: nil
     }
   }
 
   /// Heights of the title row and the least height of a line, in points (the design's).
   static let headerHeight: CGFloat = 30
   static let rowHeight: CGFloat = 32
-  /// Width of the outcome badge's slot, in points (the design's).
-  static let badgeSlot: CGFloat = 72
   /// Opacity of the zebra stripe (the design's 2.2 %).
   static let zebraOpacity = 0.022
 
-  /// A column's frame: its width, or the rest for the outcome, figures to the right.
+  /// A column's frame: its width, the clock's for the time, or the rest for the outcome, figures
+  /// to the right.
   struct Cell: ViewModifier {
     let column: SymbolsColumn
 
     func body(content: Content) -> some View {
       let alignment: Alignment = column.isFigure ? .trailing : .leading
-      if let width = SymbolsGrid.width(column) {
+      if column == .time {
+        // The clock's room in the lines' font under the title and every line alike.
+        ZStack(alignment: alignment) {
+          SteadyFigure("", shapes: SymbolsGrid.timeShapes)
+            .font(Tokens.Typography.captionMono)
+            .hidden()
+          content
+        }
+        .fixedSize()
+        .padding(.horizontal, Tokens.Space.s)
+      } else if let width = SymbolsGrid.width(column) {
         content.padding(.horizontal, Tokens.Space.s).frame(width: width, alignment: alignment)
       } else {
         content.padding(.horizontal, Tokens.Space.s).frame(maxWidth: .infinity, alignment: alignment)
@@ -524,8 +534,7 @@ private struct SymbolsGrid: View {
     case .outcome:
       if let row {
         HStack(alignment: .center, spacing: Tokens.Space.s) {
-          SymbolsOutcomeBadge(outcome: SymbolsOutcome(row.state))
-            .frame(width: Self.badgeSlot, alignment: .leading)
+          SymbolsOutcomeBadge.slot(SymbolsOutcome(row.state))
           if let why = SymbolsBoard.why(row) {
             Text(verbatim: why)
               .foregroundStyle(Palette.textSecondary)
@@ -599,6 +608,16 @@ private struct SymbolsOutcomeBadge: View {
   let outcome: SymbolsOutcome
 
   var body: some View { Badge(outcome.title, color: outcome.color) }
+
+  /// The badge in a slot as wide as the widest outcome badge in the shown language, so the words
+  /// after it line up on every line and never run under a long badge ("NOT REACHED", "NO ALCANZADO").
+  static func slot(_ outcome: SymbolsOutcome) -> some View {
+    ZStack(alignment: .leading) {
+      ForEach(SymbolsOutcome.allCases, id: \.self) { SymbolsOutcomeBadge(outcome: $0).hidden() }
+      SymbolsOutcomeBadge(outcome: outcome)
+    }
+    .fixedSize()
+  }
 }
 
 // MARK: - detail

@@ -277,9 +277,10 @@ private struct SymbolListRow: View {
   /// The line's price and change: live where the bot's quotes hold the symbol.
   private var shown: SymbolsPrice { SymbolsBoard.shown(line, live: model.livePrice(line.symbol)) }
 
-  /// Widths of the change and the time on the first line, in points (the design's).
+  /// Width of the change on the first line, in points (the design's).
   static let changeWidth: CGFloat = 66
-  static let timeWidth: CGFloat = 34
+  /// The time is as wide as its clock ("09:32") in its font, on one line, never a set width.
+  static let timeShapes = FigureShapes.shapes([ClockText.minutes(.distantPast)])
 
   var body: some View {
     let row = line.row
@@ -298,10 +299,10 @@ private struct SymbolListRow: View {
             .font(Tokens.Typography.annotation)
             .foregroundStyle((shown.changePct ?? 0) < 0 ? Palette.droppedText : Palette.profitText)
             .frame(width: Self.changeWidth, alignment: .trailing)
-          Text(verbatim: time.map(Format.time) ?? Format.missing)
+          SteadyFigure(time.map(Format.time) ?? Format.missing, shapes: Self.timeShapes, alignment: .trailing)
             .font(Tokens.Typography.annotation)
+            .monospacedDigit()
             .foregroundStyle(Palette.textQuaternary)
-            .frame(width: Self.timeWidth, alignment: .trailing)
         }
         if let row {
           HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
@@ -370,7 +371,11 @@ private enum SymbolsSkeleton {
           Spacer(minLength: 0)
           SkeletonBlock(.block(height: priceHeight), width: pick(prices))
           SkeletonBlock(.line, width: change).frame(width: SymbolListRow.changeWidth, alignment: .trailing)
-          SkeletonBlock(.line, width: SymbolListRow.timeWidth)
+          SteadyFigure("", shapes: SymbolListRow.timeShapes)
+            .font(Tokens.Typography.annotation)
+            .monospacedDigit()
+            .hidden()
+            .overlay { SkeletonBlock(.line) }
         }
         HStack(spacing: Tokens.Space.s) {
           SkeletonBlock(.block(height: trackHeight), width: track)
