@@ -53,6 +53,50 @@ import Testing
   }
 }
 
+/// Saving a connection deletes the token only when it has none to keep: a write the Keychain
+/// refuses leaves the earlier pairing whole.
+@Suite(.serialized) struct ConnectionSaveTests {
+  private static let mac = "https://mac.tailnet.ts.net"
+  private static let earlier = "token-earlier"
+  private static let later = "token-later"
+  /// UserDefaults suite of these tests only.
+  private static let suite = "ConnectionSaveTests"
+
+  private func defaults() throws -> UserDefaults {
+    let defaults = try #require(UserDefaults(suiteName: Self.suite))
+    defaults.removePersistentDomain(forName: Self.suite)
+    defaults.set(Self.mac, forKey: Connection.pairedKey)
+    return defaults
+  }
+
+  @Test func aRefusedWriteKeepsTheEarlierPairing() throws {
+    let items = MemoryItems(stored: Self.earlier, updateStatus: errSecInteractionNotAllowed)
+    let defaults = try defaults()
+    Connection(paired: try #require(URL(string: Self.mac)), token: Self.later)
+      .save(defaults, keychain: Keychain(items: items))
+    #expect(Keychain(items: items).readToken() == Self.earlier)
+    #expect(defaults.string(forKey: Connection.pairedKey) == Self.mac)
+    #expect(!items.calls.contains(.delete))
+  }
+
+  @Test func aSavedTokenKeepsItsPairing() throws {
+    let items = MemoryItems(stored: Self.earlier)
+    let defaults = try defaults()
+    Connection(paired: try #require(URL(string: Self.mac)), token: Self.later)
+      .save(defaults, keychain: Keychain(items: items))
+    #expect(Keychain(items: items).readToken() == Self.later)
+    #expect(defaults.string(forKey: Connection.pairedKey) == Self.mac)
+  }
+
+  @Test func noTokenToKeepDeletesThePairing() throws {
+    let items = MemoryItems(stored: Self.earlier)
+    let defaults = try defaults()
+    Connection(address: Self.mac).save(defaults, keychain: Keychain(items: items))
+    #expect(Keychain(items: items).readToken() == nil)
+    #expect(defaults.string(forKey: Connection.pairedKey) == nil)
+  }
+}
+
 /// One generic-password item in memory, with the status each write answers.
 private final class MemoryItems: KeychainItems {
   enum Call: Equatable { case update, add, delete }

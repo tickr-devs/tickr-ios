@@ -154,16 +154,20 @@ struct Connection: Equatable {
     return address
   }
 
-  func save(_ defaults: UserDefaults = .standard) {
+  /// Stores the address, the demo switch and the pairing. The token and its paired address are
+  /// deleted only when this connection has no token to keep; a write the Keychain refuses (a
+  /// locked phone) leaves the earlier token and paired address as they were, never deletes them.
+  func save(_ defaults: UserDefaults = .standard, keychain: Keychain = Container.shared.keychain()) {
     defaults.set(address, forKey: Self.defaultsKey)
     defaults.set(demo, forKey: Self.demoKey)
-    let keychain = Container.shared.keychain()
-    // The paired address is kept only when the token really is in the Keychain.
-    if let token, let pairedAddress, keychain.saveToken(token) {
-      defaults.set(pairedAddress, forKey: Self.pairedKey)
-    } else {
+    guard let token, let pairedAddress else {
       keychain.deleteToken()
       defaults.removeObject(forKey: Self.pairedKey)
+      return
+    }
+    // The paired address is written only when the token really is in the Keychain.
+    if keychain.saveToken(token) {
+      defaults.set(pairedAddress, forKey: Self.pairedKey)
     }
   }
 }
