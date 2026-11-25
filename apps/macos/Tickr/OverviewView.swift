@@ -133,6 +133,11 @@ struct OverviewView: View {
             WatchingCard().filling().rise(step: Order.watching.rawValue)
             PositionsCard().filling().rise(step: Order.positions.rawValue)
             SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
+              // Also when a card above it changes height while the page's height stays the same
+              // (the bottom row fills the rest), which moves it without a content-size change.
+              .onGeometryChange(for: CGFloat.self) { $0.frame(in: .scrollView).minY } action: { _ in
+                showSafetyFirstIfAsked(proxy)
+              }
             Group {
               RiskRoomCard().filling()
               FastMoversCard().filling()
