@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0053F15DE4FC863E9C8EE886 /* LabReplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */; };
+		1705B6E6B9DB3B544EB8482D /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C246950A083E7740FFC9B3 /* KeychainTests.swift */; };
 		23E6F8CDFC60B4C7E7A3392A /* DemoDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB52AFE460A1850034F6D918 /* DemoDayTests.swift */; };
 		27CEFA4A2D48B4F273E8B0A2 /* TickrKit in Frameworks */ = {isa = PBXBuildFile; productRef = 86B51C088C14AA5D96ACD6BA /* TickrKit */; };
 		3F866FEB0A2FA91E6E8B686C /* TickrDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 4AA495158B683614736F354B /* TickrDesign */; };
@@ -45,6 +46,7 @@
 		60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLogicTests.swift; sourceTree = "<group>"; };
 		758BF8CBBECA63FAAA6441C5 /* TickrTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TickrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0E977B53CF21942EADDAD4F /* OrnamentGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrnamentGateTests.swift; sourceTree = "<group>"; };
+		A8C246950A083E7740FFC9B3 /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
 		AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabReplayTests.swift; sourceTree = "<group>"; };
 		B5E62E73C277781A649F0A49 /* shared */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shared; path = ../shared; sourceTree = SOURCE_ROOT; };
 		BA7D9B1FCD415F0FA14ABDCB /* Fixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixtures.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 				CB52AFE460A1850034F6D918 /* DemoDayTests.swift */,
 				BA7D9B1FCD415F0FA14ABDCB /* Fixtures.swift */,
 				F2A0BE654C494944100CB943 /* HomeLogicTests.swift */,
+				A8C246950A083E7740FFC9B3 /* KeychainTests.swift */,
 				AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */,
 				A0E977B53CF21942EADDAD4F /* OrnamentGateTests.swift */,
 				60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */,
@@ -296,6 +299,7 @@
 				23E6F8CDFC60B4C7E7A3392A /* DemoDayTests.swift in Sources */,
 				7B4BF5774D5729ECC3B60380 /* Fixtures.swift in Sources */,
 				EF0B7AF46ABFCBFE7F693157 /* HomeLogicTests.swift in Sources */,
+				1705B6E6B9DB3B544EB8482D /* KeychainTests.swift in Sources */,
 				0053F15DE4FC863E9C8EE886 /* LabReplayTests.swift in Sources */,
 				7CB084A02679E090C7142A0C /* OrnamentGateTests.swift in Sources */,
 				A5A0D3F103F66BB6EA29091C /* SettingsLogicTests.swift in Sources */,

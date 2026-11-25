@@ -9,6 +9,13 @@ struct Keychain: Sendable {
   static let service = "local.tickr.ios.api"
   static let account = "bearer-token"
 
+  /// The Security calls the token goes through (`SecItems` on the phone; tests give their own).
+  let items: any KeychainItems
+
+  init(items: any KeychainItems = SecItems()) {
+    self.items = items
+  }
+
   private var query: [String: Any] {
     [kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: Self.service,
@@ -16,26 +23,71 @@ struct Keychain: Sendable {
   }
 
   func readToken() -> String? {
-    var item: CFTypeRef?
     var search = query
     search[kSecReturnData as String] = true
     search[kSecMatchLimit as String] = kSecMatchLimitOne
-    guard SecItemCopyMatching(search as CFDictionary, &item) == errSecSuccess,
-      let data = item as? Data else { return nil }
+    guard let data = items.copy(search) else { return nil }
     return String(data: data, encoding: .utf8)
   }
 
-  /// Replaces any earlier token, so pairing again leaves exactly one.
+  /// Puts `token` in place of any earlier one in one Keychain write (an update of the item, an add
+  /// only when there is none), then reads it back. True only when the Keychain holds exactly
+  /// `token` afterwards: a failed write never deletes the earlier token first, so it can neither
+  /// report a pairing that a restart would lose nor lose the pairing that worked before. Nothing
+  /// is written when the Keychain already holds `token`.
   @discardableResult
   func saveToken(_ token: String) -> Bool {
-    deleteToken()
-    var add = query
-    add[kSecValueData as String] = Data(token.utf8)
-    add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-    return SecItemAdd(add as CFDictionary, nil) == errSecSuccess
+    if readToken() == token { return true }
+    let value = Data(token.utf8)
+    let attributes: [String: Any] = [
+      kSecValueData as String: value,
+      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+    ]
+    var status = items.update(query, attributes)
+    if status == errSecItemNotFound {
+      var add = query
+      add.merge(attributes) { _, new in new }
+      status = items.add(add)
+    }
+    return status == errSecSuccess && readToken() == token
   }
 
   func deleteToken() {
+    items.delete(query)
+  }
+}
+
+/// The four Keychain calls the token needs, so tests can run them in memory and make one fail.
+protocol KeychainItems: Sendable {
+  /// The data of the item `query` finds, or nil when there is none or it cannot be read.
+  func copy(_ query: [String: Any]) -> Data?
+  /// `SecItemUpdate`: the item `query` finds takes `attributes`.
+  func update(_ query: [String: Any], _ attributes: [String: Any]) -> OSStatus
+  /// `SecItemAdd` of a new item.
+  func add(_ item: [String: Any]) -> OSStatus
+  /// `SecItemDelete`.
+  @discardableResult
+  func delete(_ query: [String: Any]) -> OSStatus
+}
+
+/// This phone's Keychain.
+struct SecItems: KeychainItems {
+  func copy(_ query: [String: Any]) -> Data? {
+    var item: CFTypeRef?
+    guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess else { return nil }
+    return item as? Data
+  }
+
+  func update(_ query: [String: Any], _ attributes: [String: Any]) -> OSStatus {
+    SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+  }
+
+  func add(_ item: [String: Any]) -> OSStatus {
+    SecItemAdd(item as CFDictionary, nil)
+  }
+
+  @discardableResult
+  func delete(_ query: [String: Any]) -> OSStatus {
     SecItemDelete(query as CFDictionary)
   }
 }
