@@ -23,56 +23,58 @@ func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
   return (try JSONSerialization.jsonObject(with: data), try JSONSerialization.jsonObject(with: encoded))
 }
 
+/// The Swift model of each fixture schema, by schema name.
+let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
+  "status-v1": { try roundTrip(StatusV1.self, $0) },
+  "status-response-v1": { try roundTrip(StatusResponseV1.self, $0) },
+  "command-v1": { try roundTrip(CommandV1.self, $0) },
+  "command-accepted-v1": { try roundTrip(CommandAcceptedV1.self, $0) },
+  "command-receipt-v1": { try roundTrip(CommandReceiptV1.self, $0) },
+  "bot-start-v1": { try roundTrip(BotStartV1.self, $0) },
+  "paired-v1": { try roundTrip(PairedV1.self, $0) },
+  "pending-commands-v1": { try roundTrip(PendingCommandsV1.self, $0) },
+  "error-v1": { try roundTrip(ErrorV1.self, $0) },
+  "days-v1": { try roundTrip(DaysV1.self, $0) },
+  "day-v1": { try roundTrip(DayV1.self, $0) },
+  "bars-v1": { try roundTrip(BarsV1.self, $0) },
+  "settings-v1": { try roundTrip(SettingsV1.self, $0) },
+  "config-v1": { try roundTrip(ConfigV1.self, $0) },
+  "settings-schema-v1": { try roundTrip(SettingsSchemaV1.self, $0) },
+  "settings-values-v1": { try roundTrip(SettingsValuesV1.self, $0) },
+  "settings-draft-v1": { try roundTrip(SettingsDraftV1.self, $0) },
+  "explain-v1": { try roundTrip(ExplainV1.self, $0) },
+  "observers-v1": { try roundTrip(ObserversV1.self, $0) },
+  "decisions-v1": { try roundTrip(DecisionsV1.self, $0) },
+  "skipped-v1": { try roundTrip(SkippedV1.self, $0) },
+  "performance-v1": { try roundTrip(PerformanceV1.self, $0) },
+  "flow-v1": { try roundTrip(FlowV1.self, $0) },
+  "watching-v1": { try roundTrip(WatchingV1.self, $0) },
+  "symbols-v1": { try roundTrip(SymbolsV1.self, $0) },
+  "movers-v1": { try roundTrip(MoversV1.self, $0) },
+  "account-v1": { try roundTrip(AccountV1.self, $0) },
+  "account-response-v1": { try roundTrip(AccountResponseV1.self, $0) },
+  "chart-v1": { try roundTrip(ChartV1.self, $0) },
+  "jobs-v1": { try roundTrip(JobsV1.self, $0) },
+  "journal-v1": { try roundTrip(JournalV1.self, $0) },
+  "system-v1": { try roundTrip(SystemV1.self, $0) },
+  "alerts-v1": { try roundTrip(AlertsV1.self, $0) },
+  "day-events-v1": { try roundTrip(DayEventsV1.self, $0) },
+  "advisor-runs-v1": { try roundTrip(AdvisorRunsV1.self, $0) },
+  "lab-replay-v1": { try roundTrip(LabReplayV1.self, $0) },
+  "trade-whatif-v1": { try roundTrip(TradeWhatIfV1.self, $0) },
+  "quotes-v1": { try roundTrip(QuotesV1.self, $0) },
+  "quotes-response-v1": { try roundTrip(QuotesResponseV1.self, $0) },
+]
+
 @Suite struct ContractTests {
   @Test func everyFixtureRoundTrips() throws {
     let names = try FileManager.default.contentsOfDirectory(atPath: fixturesDir.path)
       .filter { $0.hasSuffix(".json") }
       .sorted()
     #expect(!names.isEmpty, "no fixtures found in \(fixturesDir.path)")
-    let types: [String: (Data) throws -> (Any, Any)] = [
-      "status-v1": { try roundTrip(StatusV1.self, $0) },
-      "status-response-v1": { try roundTrip(StatusResponseV1.self, $0) },
-      "command-v1": { try roundTrip(CommandV1.self, $0) },
-      "command-accepted-v1": { try roundTrip(CommandAcceptedV1.self, $0) },
-      "command-receipt-v1": { try roundTrip(CommandReceiptV1.self, $0) },
-      "bot-start-v1": { try roundTrip(BotStartV1.self, $0) },
-      "paired-v1": { try roundTrip(PairedV1.self, $0) },
-      "pending-commands-v1": { try roundTrip(PendingCommandsV1.self, $0) },
-      "error-v1": { try roundTrip(ErrorV1.self, $0) },
-      "days-v1": { try roundTrip(DaysV1.self, $0) },
-      "day-v1": { try roundTrip(DayV1.self, $0) },
-      "bars-v1": { try roundTrip(BarsV1.self, $0) },
-      "settings-v1": { try roundTrip(SettingsV1.self, $0) },
-      "config-v1": { try roundTrip(ConfigV1.self, $0) },
-      "settings-schema-v1": { try roundTrip(SettingsSchemaV1.self, $0) },
-      "settings-values-v1": { try roundTrip(SettingsValuesV1.self, $0) },
-      "settings-draft-v1": { try roundTrip(SettingsDraftV1.self, $0) },
-      "explain-v1": { try roundTrip(ExplainV1.self, $0) },
-      "observers-v1": { try roundTrip(ObserversV1.self, $0) },
-      "decisions-v1": { try roundTrip(DecisionsV1.self, $0) },
-      "skipped-v1": { try roundTrip(SkippedV1.self, $0) },
-      "performance-v1": { try roundTrip(PerformanceV1.self, $0) },
-      "flow-v1": { try roundTrip(FlowV1.self, $0) },
-      "watching-v1": { try roundTrip(WatchingV1.self, $0) },
-      "symbols-v1": { try roundTrip(SymbolsV1.self, $0) },
-      "movers-v1": { try roundTrip(MoversV1.self, $0) },
-      "account-v1": { try roundTrip(AccountV1.self, $0) },
-      "account-response-v1": { try roundTrip(AccountResponseV1.self, $0) },
-      "chart-v1": { try roundTrip(ChartV1.self, $0) },
-      "jobs-v1": { try roundTrip(JobsV1.self, $0) },
-      "journal-v1": { try roundTrip(JournalV1.self, $0) },
-      "system-v1": { try roundTrip(SystemV1.self, $0) },
-      "alerts-v1": { try roundTrip(AlertsV1.self, $0) },
-      "day-events-v1": { try roundTrip(DayEventsV1.self, $0) },
-      "advisor-runs-v1": { try roundTrip(AdvisorRunsV1.self, $0) },
-      "lab-replay-v1": { try roundTrip(LabReplayV1.self, $0) },
-      "trade-whatif-v1": { try roundTrip(TradeWhatIfV1.self, $0) },
-      "quotes-v1": { try roundTrip(QuotesV1.self, $0) },
-      "quotes-response-v1": { try roundTrip(QuotesResponseV1.self, $0) },
-    ]
     for name in names {
       let schema = String(name.prefix { $0 != "." })
-      let check = try #require(types[schema], "\(name): no Swift model for schema \(schema)")
+      let check = try #require(fixtureRoundTrips[schema], "\(name): no Swift model for schema \(schema)")
       let (original, again) = try check(try fixture(name))
       #expect(original as? NSDictionary == again as? NSDictionary, "\(name)")
     }
