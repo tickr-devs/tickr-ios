@@ -57,6 +57,9 @@ final class AppModel {
   private(set) var system: SystemV1?
   /// Why the System card could not be read, if it could not.
   private(set) var systemError: String?
+  /// The notification settings (GET /alerts) and the owner's changes on their way, read while
+  /// Settings is on screen.
+  let alertRouting = AlertRouting()
   /// The bot day whose jobs were read for the headline's countdown (today's session); nil until
   /// they are, so a failed read is tried again at the next status.
   @ObservationIgnored private var jobsReadDay: WireDate?
@@ -251,6 +254,7 @@ final class AppModel {
     jobsReadDay = nil
     system = nil
     systemError = nil
+    alertRouting.clear()
     config = nil
     configError = nil
     flow = nil
@@ -400,6 +404,19 @@ final class AppModel {
         systemError = Self.describe(error) ?? systemError
       }
     }
+  }
+
+  /// Reads the notification settings.
+  func refreshAlerts() async {
+    guard let url = connection.url else { return }
+    await alertRouting.refresh(Container.shared.apiClient(connection.endpoint(for: url)))
+  }
+
+  /// Turns one alert kind on or off on one channel (PUT /alerts/routing): sent once, the answer
+  /// shown; a refusal is kept in `alertRouting.changeError`.
+  func setAlertRoute(_ cell: AlertCell, on: Bool) async {
+    guard let url = connection.url else { return }
+    await alertRouting.set(cell, on: on, client: Container.shared.apiClient(connection.endpoint(for: url)))
   }
 
   func refreshConfig() async {
