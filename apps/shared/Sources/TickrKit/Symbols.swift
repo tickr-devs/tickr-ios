@@ -75,6 +75,9 @@ public struct SymbolRowV1: Codable, Hashable, Sendable {
   public let strategy: String?
   /// That decision's checks, in the strategy's order.
   public let checks: [CheckV1]
+  /// When a discovery pass last decided it past the screeners this session (nil: none has); how
+  /// stale a `not_reached` row's last check is while the request budget stops passes early.
+  public let checkedAt: WireTime?
 
   enum CodingKeys: String, CodingKey {
     case symbol, sources, furthest, stage, state, cause, check, detail, verdict, setup, at
@@ -82,6 +85,7 @@ public struct SymbolRowV1: Codable, Hashable, Sendable {
     case changePct = "change_pct"
     case firstSeen = "first_seen"
     case decidedAt = "decided_at"
+    case checkedAt = "checked_at"
   }
 
   public init(from decoder: Decoder) throws {
@@ -104,6 +108,7 @@ public struct SymbolRowV1: Codable, Hashable, Sendable {
     decidedAt = try c.decodeIfPresent(WireTime.self, forKey: .decidedAt)
     strategy = try c.decodeIfPresent(String.self, forKey: .strategy)
     checks = try c.decodeIfPresent([CheckV1].self, forKey: .checks) ?? []
+    checkedAt = try c.decodeIfPresent(WireTime.self, forKey: .checkedAt)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -126,6 +131,7 @@ public struct SymbolRowV1: Codable, Hashable, Sendable {
     try c.encodeNullable(decidedAt, forKey: .decidedAt)
     try c.encodeNullable(strategy, forKey: .strategy)
     try c.encode(checks, forKey: .checks)
+    try c.encodeNullable(checkedAt, forKey: .checkedAt)
   }
 }
 
