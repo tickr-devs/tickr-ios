@@ -78,15 +78,11 @@ private final class AlertsAnswers: APITransport {
     }
   }
 
-  @Test func aChannelNotBuiltIsNoChoice() throws {
+  @Test func aChannelNotBuiltIsNoChoiceOneNotSetUpIs() throws {
     let alerts = try alerts()
     #expect(alerts.channel(.push)?.cause == .notBuilt)
     #expect(!alerts.canChange(.push))
-    #expect(alerts.canChange(.mac))
-    // A channel that failed the morning check stays a choice: the routing is a preference.
-    #expect(alerts.channel(.imessage)?.configured == false)
-    #expect(alerts.canChange(.imessage))
-    // So does one the owner has not set up yet: switching it on waits for its settings.
+    // A channel the owner has not set up yet stays a choice: the routing is a preference.
     #expect(alerts.channel(.telegram)?.cause == .notConfigured)
     #expect(alerts.canChange(.telegram))
   }
@@ -97,9 +93,9 @@ private final class AlertsAnswers: APITransport {
     // A bot that retires a channel loses its column, never shows a stale one.
     var object = try #require(try JSONSerialization.jsonObject(with: fixture("alerts-v1.json")) as? [String: Any])
     let channels = try #require(object["channels"] as? [[String: Any]])
-    object["channels"] = channels.filter { $0["channel"] as? String != "imessage" }
+    object["channels"] = channels.filter { $0["channel"] as? String != "telegram" }
     let fewer = try Wire.decoder().decode(AlertsV1.self, from: try JSONSerialization.data(withJSONObject: object))
-    #expect(!fewer.columns.contains(.imessage))
+    #expect(!fewer.columns.contains(.telegram))
     #expect(fewer.columns.count == alerts.columns.count - 1)
   }
 
@@ -114,20 +110,20 @@ private final class AlertsAnswers: APITransport {
     let kind = try #require(try alerts().kinds.first { !$0.locked })
     let transport = AlertsAnswers(
       read: (200, try fixture("alerts-v1.json")),
-      write: (200, try answer(kind: kind.kind, channel: .mac, on: !kind.channels.mac)))
+      write: (200, try answer(kind: kind.kind, channel: .telegram, on: !kind.channels.telegram)))
     let routing = AlertRouting()
     await routing.refresh(try client(transport))
-    await routing.set(AlertCell(kind: kind.kind, channel: .mac), on: !kind.channels.mac, client: try client(transport))
+    await routing.set(AlertCell(kind: kind.kind, channel: .telegram), on: !kind.channels.telegram, client: try client(transport))
     let puts = transport.requests.filter { $0.httpMethod == APIClient.put }
     #expect(puts.count == 1)
     #expect(puts.first?.url?.path == APIClient.alertRoutingPath)
     let body = try #require(puts.first?.httpBody)
     let sent = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
     #expect(sent["kind"] as? String == kind.kind)
-    #expect(sent["channel"] as? String == "mac")
-    #expect(sent["on"] as? Bool == !kind.channels.mac)
+    #expect(sent["channel"] as? String == "telegram")
+    #expect(sent["on"] as? Bool == !kind.channels.telegram)
     let shown = try #require(routing.alerts?.kinds.first { $0.kind == kind.kind })
-    #expect(routing.isOn(shown, .mac) == !kind.channels.mac)
+    #expect(routing.isOn(shown, .telegram) == !kind.channels.telegram)
     #expect(routing.pending.isEmpty && routing.changeError == nil)
   }
 
@@ -135,11 +131,11 @@ private final class AlertsAnswers: APITransport {
     let kind = try #require(try alerts().kinds.first { !$0.locked })
     let transport = AlertsAnswers(read: (200, try fixture("alerts-v1.json")), write: (409, try refusal()))
     let routing = AlertRouting()
-    await routing.set(AlertCell(kind: kind.kind, channel: .mac), on: !kind.channels.mac, client: try client(transport))
+    await routing.set(AlertCell(kind: kind.kind, channel: .telegram), on: !kind.channels.telegram, client: try client(transport))
     let error = try #require(routing.changeError)
     #expect(!error.contains("409") && !error.contains("conflict"))
     let shown = try #require(routing.alerts?.kinds.first { $0.kind == kind.kind })
-    #expect(routing.isOn(shown, .mac) == kind.channels.mac)
+    #expect(routing.isOn(shown, .telegram) == kind.channels.telegram)
     #expect(transport.requests.filter { $0.httpMethod == APIClient.put }.count == 1)
   }
 

@@ -1763,40 +1763,6 @@
         }
       }
     },
-    "kit.alerts.channel.imessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iMessage"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iMessage"
-          }
-        }
-      }
-    },
-    "kit.alerts.channel.mac" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mac notification"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notificación del Mac"
-          }
-        }
-      }
-    },
     "kit.alerts.channel.push" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1861,40 +1827,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Falló en la verificación matutina"
-          }
-        }
-      }
-    },
-    "kit.alerts.column.imessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iMessage"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iMessage"
-          }
-        }
-      }
-    },
-    "kit.alerts.column.mac" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mac"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mac"
           }
         }
       }
@@ -2082,40 +2014,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sin configurar en los ajustes del bot"
-          }
-        }
-      }
-    },
-    "kit.alerts.note.imessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To the recipient in the bot's settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Al destinatario de la configuración del bot"
-          }
-        }
-      }
-    },
-    "kit.alerts.note.mac" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "On the Mac that runs the bot"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En el Mac que ejecuta el bot"
           }
         }
       }
@@ -15364,23 +15262,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Canal de alertas"
-          }
-        }
-      }
-    },
-    "kit.system.check.alertRecipient" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alert recipient"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Destinatario de alertas"
           }
         }
       }

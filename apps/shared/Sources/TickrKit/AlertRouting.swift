@@ -51,8 +51,6 @@ extension AlertRoutesV1 {
   /// Whether the kind goes to `channel`.
   public subscript(_ channel: AlertChannel) -> Bool {
     switch channel {
-    case .mac: mac
-    case .imessage: imessage
     case .telegram: telegram
     case .push: push
     }

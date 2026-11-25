@@ -120,7 +120,7 @@ public enum SystemText {
     case .credentials:
       return LocalizedStringResource("kit.system.check.credentials", defaultValue: "Broker credentials", bundle: bundle)
     case .database: return LocalizedStringResource("kit.system.check.database", defaultValue: "Database", bundle: bundle)
-    case .alertChannel, .alertRecipient, .tokenDir, .token, .strategy, .stopMarker: return nil
+    case .alertChannel, .tokenDir, .token, .strategy, .stopMarker: return nil
     }
   }
 
@@ -129,8 +129,6 @@ public enum SystemText {
     switch check {
     case .alertChannel:
       return LocalizedStringResource("kit.system.check.alertChannel", defaultValue: "Alert channel", bundle: bundle)
-    case .alertRecipient:
-      return LocalizedStringResource("kit.system.check.alertRecipient", defaultValue: "Alert recipient", bundle: bundle)
     case .tokenDir: return LocalizedStringResource("kit.system.check.tokenDir", defaultValue: "Token folder", bundle: bundle)
     case .token: return LocalizedStringResource("kit.system.check.token", defaultValue: "Webull token", bundle: bundle)
     case .strategy: return LocalizedStringResource("kit.system.check.strategy", defaultValue: "Strategy", bundle: bundle)
