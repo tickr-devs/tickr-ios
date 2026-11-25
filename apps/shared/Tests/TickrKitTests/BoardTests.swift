@@ -130,6 +130,8 @@ import Testing
   @Test func knownExitReasonsGetTitlesUnknownStayRaw() {
     #expect(Board.exitReasonTitle("stopped-out") == "stopped out")
     #expect(Board.exitReasonTitle("something-new") == "something-new")
+    #expect(Board.exitReasonTitle("order-resolved-by-operator") == "resolved by the operator")
+    #expect(Board.exitKind("order-resolved-by-operator") == .forced)
   }
 
   /// A replay's trade (an observer's, a what-if) carries the replay's words: the same map reads

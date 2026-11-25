@@ -2934,6 +2934,23 @@
         }
       }
     },
+    "kit.exit.orderResolved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "resolved by the operator"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "resuelta por el operador"
+          }
+        }
+      }
+    },
     "kit.exit.sessionEnd" : {
       "extractionState" : "manual",
       "localizations" : {

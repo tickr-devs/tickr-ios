@@ -208,7 +208,8 @@ public enum Board {
     guard let reason = ExitReason(rawValue: raw) else { return .forced }
     switch reason {
     case .stopRejected, .unprotectedTooLong: return .protectionFailure
-    case .streamLost, .sessionFlatten, .operatorFlatten, .operatorInterrupt, .replayFlatten: return .forced
+    case .streamLost, .sessionFlatten, .operatorFlatten, .operatorInterrupt, .replayFlatten, .orderResolvedByOperator:
+      return .forced
     case .stoppedOut, .strategyExit, .operatorExit, .entryNotFilled, .entryNotFilledInTime, .holdElapsed, .closed,
       .replayStop, .replayStrategyExit, .replayEndOfData:
       return .ordinary
@@ -278,6 +279,8 @@ enum ExitReason: String {
   case entryNotFilledInTime = "entry-not-filled-in-time"
   case holdElapsed = "hold-elapsed"
   case closed
+  /// The operator ended an order no broker read could settle (`tickr resolve-order`).
+  case orderResolvedByOperator = "order-resolved-by-operator"
   /// A replay's trade (an observer's, a what-if): its stop was hit.
   case replayStop = "stop"
   /// A replay's trade: the strategy's own exit.
@@ -301,6 +304,7 @@ enum ExitReason: String {
     case .entryNotFilled, .entryNotFilledInTime: return L10n.exitEntryNotFilled
     case .holdElapsed: return L10n.exitHoldElapsed
     case .closed: return L10n.exitClosed
+    case .orderResolvedByOperator: return L10n.exitOrderResolved
     case .replayEndOfData: return L10n.exitEndOfData
     }
   }
