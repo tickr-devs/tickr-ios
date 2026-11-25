@@ -21,6 +21,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "6.0"
+    # The version people see, and the build number: the one place for the app and its widget
+    # extension. Raise CURRENT_PROJECT_VERSION for every TestFlight upload (README.md, TestFlight).
     MARKETING_VERSION: "0.1"
     CURRENT_PROJECT_VERSION: "1"
     # Settings Xcode recommends for current projects.
@@ -66,6 +68,9 @@ targets:
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
         # The bot starts, updates and ends the trading day's Live Activity by push (TickrWidgets).
         NSSupportsLiveActivities: true
+        # Only HTTPS and the system's own encryption: exempt, so App Store Connect asks nothing
+        # at each TestFlight upload.
+        ITSAppUsesNonExemptEncryption: false
         # The API address the app starts with before pairing: the Simulator's or the iPhone's,
         # set per destination in Config/Signing.xcconfig.
         TickrAPIAddress: $(TICKR_API_ADDRESS)
