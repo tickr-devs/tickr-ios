@@ -479,6 +479,11 @@ enum L10n {
     static var dayResult: LocalizedStringResource {
       LocalizedStringResource("overview.dayResult", defaultValue: "Day result", bundle: L10n.bundle)
     }
+    /// VoiceOver's day result while it is not known (shown as a dash): no zeros it does not know.
+    static var dayResultUnavailable: LocalizedStringResource {
+      LocalizedStringResource("overview.dayResultUnavailable", defaultValue: "Day result: no data yet",
+        bundle: L10n.bundle)
+    }
     static func dayCounts(_ closed: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
       LocalizedStringResource("overview.dayCounts",
         defaultValue: "\(closed) trades · \(wins) W · \(losses) L",

@@ -190,7 +190,8 @@ public enum SymbolsBoard {
   }
 
   /// Why the row stopped where it is: the failed check as "rule measured op threshold", else the
-  /// discovery cause in words with what was measured, else the bot's recorded text.
+  /// discovery cause in words with what was measured, else the bot's recorded text. A cause code
+  /// this app does not know (a bot of another release) reads as "Other reason", never as the code.
   public static func reason(_ row: SymbolRowV1) -> String {
     if let check = row.check { return checkText(check) }
     switch row.stage {
@@ -198,16 +199,19 @@ public enum SymbolsBoard {
       // The admission's recorded "CODE: detail", as the flow's refusals read.
       return row.detail.map(FlowBoard.recordedRefusal) ?? ApiText.missing
     case .stop:
-      return row.cause.flatMap(FlowStopState.init(rawValue:)).map(StageDetail.title) ?? row.cause ?? ApiText.missing
+      guard let cause = row.cause else { return ApiText.missing }
+      return FlowStopState(rawValue: cause).map(StageDetail.title) ?? ApiText.otherReason(cause)
     default:
       break
     }
     if row.state == .notReached {
       // Why the pass stopped, in words; the bot keeps the route's own text out of the row.
       guard let cause = row.cause else { return ApiText.missing }
-      return NotReachedCause(rawValue: cause).map { String(localized: $0.title) } ?? cause
+      return NotReachedCause(rawValue: cause).map { String(localized: $0.title) } ?? ApiText.otherReason(cause)
     }
-    let cause = row.cause.map { DiscoveryCause(rawValue: $0).map { String(localized: $0.title) } ?? $0 }
+    let cause = row.cause.map { code in
+      DiscoveryCause(rawValue: code).map { String(localized: $0.title) } ?? ApiText.otherReason(code)
+    }
     let parts = [cause, row.detail].compactMap { $0 }.filter { !$0.isEmpty }
     return parts.isEmpty ? ApiText.missing : parts.joined(separator: separator)
   }

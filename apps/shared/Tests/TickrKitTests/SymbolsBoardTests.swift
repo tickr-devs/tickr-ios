@@ -77,6 +77,33 @@ struct SymbolsBoardTests {
     #expect(SymbolsBoard.reason(slow) == String(localized: L10n.notReachedRequestBudget))
   }
 
+  @Test("A cause code this app does not know reads as Other reason, never as the code")
+  func unknownCauses() throws {
+    let other = String(localized: L10n.reasonOther)
+    // An older bot's not-reached cause, a newer discovery cause, a stop state from another release.
+    let slow = try row("SLOW", cause: "BARS_BUDGET")
+    #expect(SymbolsBoard.reason(slow) == other)
+    let spy = try row("SPY", cause: "NEW_DISCOVERY_CAUSE")
+    #expect(SymbolsBoard.reason(spy) == "\(other) · ETF (needs COMMON_STOCK)")
+    let abcd = try row("ABCD", cause: "replaced_elsewhere")
+    #expect(SymbolsBoard.reason(abcd) == other)
+    for reason in [slow, spy, abcd].map(SymbolsBoard.reason) {
+      #expect(!reason.contains("BARS_BUDGET") && !reason.contains("NEW_DISCOVERY_CAUSE")
+        && !reason.contains("replaced_elsewhere"))
+    }
+  }
+
+  /// `symbol` from the fixture with its cause set to `cause`.
+  func row(_ symbol: String, cause: String) throws -> SymbolRowV1 {
+    var document = try #require(try JSONSerialization.jsonObject(with: fixture("symbols-v1.json")) as? [String: Any])
+    var rows = try #require(document["rows"] as? [[String: Any]])
+    let index = try #require(rows.firstIndex { $0["symbol"] as? String == symbol })
+    rows[index]["cause"] = cause
+    document["rows"] = rows
+    let data = try JSONSerialization.data(withJSONObject: document)
+    return try #require(try Wire.decoder().decode(SymbolsV1.self, from: data).rows.first { $0.symbol == symbol })
+  }
+
   @Test("The path passes every stage before where it stands, then marks it, then the rest ahead")
   func path() throws {
     let wxyz = try #require(symbols.rows.first { $0.symbol == "WXYZ" })

@@ -99,6 +99,7 @@ private struct TodayResult: View {
           Text(verbatim: Format.missing)
             .font(Tokens.Typography.panelFigure)
             .foregroundStyle(Palette.textQuaternary)
+            .accessibilityLabel(Text(L10n.Overview.dayResultUnavailable))
         }
       }
       Spacer(minLength: 0)

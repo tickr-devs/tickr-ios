@@ -10294,6 +10294,23 @@
         }
       }
     },
+    "kit.reasonOther" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other reason (update the app to see it)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otro motivo (actualiza la app para verlo)"
+          }
+        }
+      }
+    },
     "kit.refusal.AFTER_LAST_ENTRY" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. AFTER_LAST_ENTRY",
       "extractionState" : "manual",

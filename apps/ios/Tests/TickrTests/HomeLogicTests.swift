@@ -64,6 +64,15 @@ import TickrKit
     #expect(ConnectionFreshness.color(response: nil, fetchError: "offline") == Palette.textQuaternary)
     #expect(ConnectionFreshness.color(response: nil, fetchError: nil) == Palette.loss)
   }
+
+  /// VoiceOver reads "no data yet" before the day is read, never a $0.00 day with 0 wins.
+  @Test func dayResultBeforeTheDayIsReadSaysNoData() throws {
+    let unread = String(localized: HomeView.dayResultLabel(stats: nil, result: 0))
+    #expect(unread == String(localized: L10n.Home.dayResultUnavailable))
+    let stats = Board.dayStats(try decode(StatusV1.self, try fixtureObject("status-v1.example.json")))
+    let read = String(localized: HomeView.dayResultLabel(stats: stats, result: stats.resultUsd))
+    #expect(read == String(localized: L10n.Home.dayResult(Money.signedUSD(stats.resultUsd), stats.wins, stats.losses)))
+  }
 }
 
 /// The tab bar takes its own height whatever height it is offered, and fits the screen's width:

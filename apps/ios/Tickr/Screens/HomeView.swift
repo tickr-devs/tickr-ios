@@ -141,6 +141,13 @@ struct HomeView: View {
 }
 
 extension HomeView {
+  /// What VoiceOver says for the day's ring: the result and counts once the day is read, else
+  /// that there is no data yet.
+  static func dayResultLabel(stats: Board.DayStats?, result: Decimal) -> LocalizedStringResource {
+    guard let stats else { return L10n.Home.dayResultUnavailable }
+    return L10n.Home.dayResult(Money.signedUSD(result), stats.wins, stats.losses)
+  }
+
   /// The power glyph in the bot's state, as on the design: green running, amber with entries paused
   /// or while it starts or stops, red stopped.
   fileprivate var powerTint: Color {
@@ -439,7 +446,8 @@ private struct Summary: View {
     .aspectRatio(1, contentMode: .fit)
     .frame(maxWidth: ringSide)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(Text(L10n.Home.dayResult(Money.signedUSD(result), stats?.wins ?? 0, stats?.losses ?? 0)))
+    // Before the day is read the ring shows dashes; VoiceOver says so, never "$0.00, 0 wins".
+    .accessibilityLabel(Text(HomeView.dayResultLabel(stats: stats, result: result)))
   }
 
   private func subline(_ status: StatusV1) -> String {

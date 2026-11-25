@@ -336,8 +336,9 @@ private struct DayResult: View {
 
   var body: some View {
     Group {
-      if model.connectionState.isNeverConnected {
-        // Nothing was ever read: the result is unknown, never "$0.00" (mockup "no connection" v2).
+      if model.connectionState.isNeverConnected || (model.isLive && model.status == nil) {
+        // Nothing was ever read, or the bot has written no status: the result is unknown, never
+        // "$0.00" (mockup "no connection" v2), on screen and to VoiceOver.
         VStack(alignment: layout.resultInline ? .leading : .trailing, spacing: Tokens.Space.xxs) {
           CardLabel(L10n.Overview.dayResult)
           Text(verbatim: ApiText.missing)
@@ -345,6 +346,8 @@ private struct DayResult: View {
             .foregroundStyle(Palette.textQuaternary)
         }
         .frame(maxWidth: .infinity, alignment: layout.resultInline ? .leading : .trailing)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(L10n.Overview.dayResultUnavailable))
       } else if model.dayPending {
         // The picked day's result is still being read: a skeleton, never "$0.00".
         VStack(alignment: layout.resultInline ? .leading : .trailing, spacing: Tokens.Space.xxs) {

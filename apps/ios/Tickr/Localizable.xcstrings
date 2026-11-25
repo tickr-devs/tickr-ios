@@ -5472,6 +5472,23 @@
         }
       }
     },
+    "home.dayResultUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day result: no data yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultado del día: aún no hay datos"
+          }
+        }
+      }
+    },
     "home.demoDetail" : {
       "extractionState" : "manual",
       "localizations" : {

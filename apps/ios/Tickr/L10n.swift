@@ -355,6 +355,11 @@ enum L10n {
         defaultValue: "Day result \(result), wins: \(wins), losses: \(losses)",
         bundle: L10n.bundle)
     }
+    /// VoiceOver's day result before the day's figures are read: no zeros it does not know.
+    static var dayResultUnavailable: LocalizedStringResource {
+      LocalizedStringResource("home.dayResultUnavailable", defaultValue: "Day result: no data yet",
+        bundle: L10n.bundle)
+    }
     static func protected(_ symbol: String) -> LocalizedStringResource {
       LocalizedStringResource("home.protected",
         defaultValue: "\(symbol) protected by a broker stop.",

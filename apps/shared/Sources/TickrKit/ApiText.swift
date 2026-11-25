@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// The bot's codes in the person's language (ApiCodes.swift, with the catalog of this package):
 /// a known code reads translated, an unknown one falls back to the bot's own English text, so a
@@ -126,6 +127,19 @@ public enum ApiText {
   /// "Other check", never as the strategy's key.
   public static func rule(_ raw: String) -> String {
     String(localized: CheckRule(rawValue: raw)?.title ?? L10n.ruleOther)
+  }
+
+  /// Where a code this app does not know is kept for diagnostics: the unified log (Console,
+  /// subsystem and category below, debug level), never the screen.
+  static let diagnosticsSubsystem = "local.tickr.kit"
+  static let diagnosticsCategory = "unknown-code"
+
+  /// A cause code this app does not know (why a symbol stopped, from a bot of another release):
+  /// "Other reason" in the person's language; the code itself goes to the diagnostics log.
+  public static func otherReason(_ code: String) -> String {
+    Logger(subsystem: diagnosticsSubsystem, category: diagnosticsCategory)
+      .debug("\(code, privacy: .public)")
+    return String(localized: L10n.reasonOther)
   }
 }
 
