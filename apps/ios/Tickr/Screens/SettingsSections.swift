@@ -272,90 +272,25 @@ struct PreflightSection: View {
   }
 }
 
-/// What this iPhone is to be told about, as the iOS Settings board's "Notify this iPhone" card
-/// (IOSGateAlerts): three alarms that are always on (a position without a stop, a stop or exit the
-/// broker refused, a broker mismatch), each with a lock, then four the owner will choose (fills,
-/// a trailing stop tightened, the daily loss ceiling, an advisor proposal).
-///
-/// Delivery needs push notifications, and push needs an Apple Developer Program membership (APNs);
-/// until then the phone has no notification path at all. So, as the board tags the card
-/// ("PUSH · needs Apple Developer"), the switches are drawn disabled at the board's defaults: none
-/// looks like a choice that would change anything today.
+/// Which alerts go where (GET /alerts, PUT /alerts/routing): the shared `AlertRoutingPanel`, the
+/// Mac's Notifications pane, in this app's card. Each switch is one change sent to the bot at once.
 struct NotificationsSection: View {
-  /// The events the phone may be told about, in the board's order.
-  enum Event: CaseIterable {
-    case unprotected, refused, mismatch, filled, trailing, ceiling, advisor
-
-    var title: LocalizedStringResource {
-      switch self {
-      case .unprotected: L10n.Settings.alertUnprotected
-      case .refused: L10n.Settings.alertRefused
-      case .mismatch: L10n.Settings.alertMismatch
-      case .filled: L10n.Settings.alertFilled
-      case .trailing: L10n.Settings.alertTrailing
-      case .ceiling: L10n.Settings.alertCeiling
-      case .advisor: L10n.Settings.alertAdvisor
-      }
-    }
-
-    var systemImage: String {
-      switch self {
-      case .unprotected: StopState.missingSymbol
-      case .refused: Symbols.failed
-      case .mismatch: NotificationsSection.mismatchSymbol
-      case .filled: NotificationsSection.fillSymbol
-      case .trailing: NotificationsSection.trailSymbol
-      case .ceiling: NotificationsSection.ceilingSymbol
-      case .advisor: NotificationsSection.advisorSymbol
-      }
-    }
-
-    var tone: Tone {
-      switch self {
-      case .unprotected, .refused, .mismatch: .loss
-      case .filled: .info
-      case .trailing, .advisor: .highlight
-      case .ceiling: .warning
-      }
-    }
-
-    /// Always on: an alarm the owner cannot turn off.
-    var locked: Bool { self == .unprotected || self == .refused || self == .mismatch }
-
-    /// The board's state of the switch: the alarms, fills and the loss ceiling on.
-    var on: Bool { locked || self == .filled || self == .ceiling }
-  }
-
-  /// Symbols of the rows, one per event.
-  static let mismatchSymbol = "arrow.left.arrow.right"
-  static let fillSymbol = "arrow.right.to.line"
-  static let trailSymbol = "chart.line.uptrend.xyaxis"
-  static let ceilingSymbol = "chart.line.downtrend.xyaxis"
-  static let advisorSymbol = "star.fill"
-  /// Symbol beside an always-on switch.
-  static let lockSymbol = "lock.fill"
+  @Environment(AppModel.self) private var model
 
   var body: some View {
-    SettingsCard(L10n.Settings.notifyPhone, note: L10n.Settings.notificationsFooter) {
-      // The board's backlog tag, on its own line: beside the label it squeezed the label into
-      // three hyphenated lines.
-      Badge(L10n.Settings.pushNeedsDeveloper, tone: .highlight, planned: true)
-      ForEach(Event.allCases, id: \.self) { event in
-        Toggle(isOn: .constant(event.on)) {
-          HStack(spacing: Tokens.Space.s) {
-            Label { Text(event.title) } icon: { SettingsIcon(event.systemImage, tone: event.tone) }
-            if event.locked {
-              Spacer(minLength: 0)
-              Image(systemName: Self.lockSymbol)
-                .font(Tokens.Typography.caption)
-                .foregroundStyle(Palette.textTertiary)
-                .accessibilityLabel(Text(L10n.Settings.alwaysOn))
-            }
-          }
+    let routing = model.alertRouting
+    SettingsCard(AlertText.title) {
+      if let alerts = routing.alerts {
+        AlertRoutingPanel(alerts, routing: routing) { cell, on in
+          Task { await model.setAlertRoute(cell, on: on) }
         }
-        .disabled(true)
+      } else if let error = routing.readError {
+        ReadFailureNote(AlertText.readFailed, detail: error)
+      } else {
+        AlertRoutingPanelLoading()
       }
     }
+    .task(id: model.connection.url) { await model.refreshAlerts() }
   }
 }
 

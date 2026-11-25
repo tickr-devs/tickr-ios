@@ -370,92 +370,25 @@ private struct FeaturesCard: View {
 
 // MARK: - Notifications
 
-/// The alerts the bot sends (runtime/alerts.py `AlertKind`, grouped), one row per group with a dot
-/// of its weight and the kinds it covers under it; every one is on and goes out as a Mac
-/// notification and, with a recipient in the bot's env file, as an iMessage. Nothing here is a
-/// switch, because the bot decides; phone push waits for the iOS app.
+/// Which alerts go where (GET /alerts, PUT /alerts/routing): the shared `AlertRoutingPanel` in
+/// this app's settings card. Each switch is one change sent to the bot at once.
 private struct NotificationSettings: View {
-  /// One group: how loud it is, its title and the kinds it covers.
-  struct AlertGroup: Identifiable {
-    let tone: Tone
-    let title: LocalizedStringResource
-    let kinds: LocalizedStringResource
-    var id: String { title.key }
-  }
-
-  /// The groups, loudest first, as the design lists them.
-  static var groups: [AlertGroup] {
-    [
-      AlertGroup(tone: .loss, title: L10n.Settings.alertUnprotected, kinds: L10n.Settings.alertUnprotectedKinds),
-      AlertGroup(tone: .loss, title: L10n.Settings.alertExit, kinds: L10n.Settings.alertExitKinds),
-      AlertGroup(tone: .loss, title: L10n.Settings.alertBot, kinds: L10n.Settings.alertBotKinds),
-      AlertGroup(tone: .loss, title: L10n.Settings.alertWatchdog, kinds: L10n.Settings.alertWatchdogKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertBroker, kinds: L10n.Settings.alertBrokerKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertLossLimit, kinds: L10n.Settings.alertLossLimitKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertMorning, kinds: L10n.Settings.alertMorningKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertToken, kinds: L10n.Settings.alertTokenKinds),
-      AlertGroup(tone: .info, title: L10n.Settings.alertObservers, kinds: L10n.Settings.alertObserversKinds),
-    ]
-  }
+  @Environment(AppModel.self) private var model
 
   var body: some View {
-    SettingsCard(L10n.Settings.alerts) {
-      ForEach(Self.groups) { group in
-        HStack(spacing: Tokens.Space.s) {
-          PulseDot(group.tone.fill, size: Tokens.Size.dotSmall, pulsing: false)
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            Text(group.title)
-              .font(Tokens.Typography.callout)
-              .foregroundStyle(Palette.textSecondary)
-            Text(group.kinds)
-              .font(Tokens.Typography.captionMono)
-              .foregroundStyle(Palette.textQuaternary)
-              .fixedSize(horizontal: false, vertical: true)
-          }
-          Spacer(minLength: Tokens.Space.s)
-          MacDot()
-          PhoneDot()
+    let routing = model.alertRouting
+    SettingsCard(AlertText.title) {
+      if let alerts = routing.alerts {
+        AlertRoutingPanel(alerts, routing: routing) { cell, on in
+          Task { await model.setAlertRoute(cell, on: on) }
         }
-        .accessibilityElement(children: .combine)
+      } else if let error = routing.readError {
+        ReadFailureNote(AlertText.readFailed, detail: error)
+      } else {
+        AlertRoutingPanelLoading()
       }
-      HStack(spacing: Tokens.Space.xs) {
-        MacDot()
-        Text(L10n.Settings.legendOn)
-        PhoneDot()
-        Text(L10n.Settings.legendPhone)
-      }
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(Palette.textQuaternary)
-      .padding(.top, Tokens.Space.xxs)
-      Text(L10n.Settings.alertsNote)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-        .fixedSize(horizontal: false, vertical: true)
-    } trailing: {
-      Text(L10n.Settings.alertColumns)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
     }
-  }
-}
-
-/// A Mac column dot: on.
-private struct MacDot: View {
-  var body: some View {
-    Circle().fill(Palette.profit)
-      .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-      .frame(width: Tokens.Size.rowSymbol)
-      .accessibilityHidden(true)
-  }
-}
-
-/// A phone column dot: an empty ring, phone push is planned.
-private struct PhoneDot: View {
-  var body: some View {
-    Circle().strokeBorder(Palette.highlight, lineWidth: Tokens.Stroke.thin)
-      .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-      .frame(width: Tokens.Size.rowSymbol)
-      .accessibilityHidden(true)
+    .task(id: model.baseURL) { await model.refreshAlerts() }
   }
 }
 

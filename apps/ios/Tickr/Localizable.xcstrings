@@ -9301,125 +9301,6 @@
         }
       }
     },
-    "settings.alertAdvisor" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advisor proposal"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Propuesta del asesor"
-          }
-        }
-      }
-    },
-    "settings.alertCeiling" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daily loss ceiling"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tope de pérdida diaria"
-          }
-        }
-      }
-    },
-    "settings.alertFilled" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entry and exit filled"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrada y salida ejecutadas"
-          }
-        }
-      }
-    },
-    "settings.alertMismatch" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Broker mismatch"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Discrepancia con el bróker"
-          }
-        }
-      }
-    },
-    "settings.alertRefused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop or exit refused"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop o salida rechazados"
-          }
-        }
-      }
-    },
-    "settings.alertTrailing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trailing stop tightened"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trailing stop ajustado"
-          }
-        }
-      }
-    },
-    "settings.alertUnprotected" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Position without a stop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posición sin stop"
-          }
-        }
-      }
-    },
     "settings.allPassed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9433,23 +9314,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "todo aprobado"
-          }
-        }
-      }
-    },
-    "settings.alwaysOn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "always on"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "siempre activo"
           }
         }
       }
@@ -10270,40 +10134,6 @@
         }
       }
     },
-    "settings.notificationsFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alerts reach this iPhone once push notifications are set up, which needs an Apple Developer membership. Until then the switches show the planned choice and cannot be changed; the three alarms with a lock are always on."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las alertas llegan a este iPhone cuando se configuren las notificaciones push, lo que requiere una membresía de Apple Developer. Hasta entonces los interruptores muestran la elección prevista y no se pueden cambiar; las tres alarmas con candado están siempre activas."
-          }
-        }
-      }
-    },
-    "settings.notifyPhone" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notify this iPhone"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notificar a este iPhone"
-          }
-        }
-      }
-    },
     "settings.notNeeded" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10436,23 +10266,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Puerta de trading real · pendiente"
-          }
-        }
-      }
-    },
-    "settings.pushNeedsDeveloper" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Push · needs Apple Developer"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Push · requiere Apple Developer"
           }
         }
       }
