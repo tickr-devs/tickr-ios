@@ -95,15 +95,24 @@ public struct AlertsV1: Codable, Hashable, Sendable {
 // Swift mirror of push-token-v1 (POST and DELETE /push-token) in src/tickr/api/contract.py: this
 // device's APNs registration as the bot stored it. The device token itself is never echoed.
 
+/// What an APNs token is for: alerts, or a Live Activity's push-to-start or update token.
+public enum PushTokenKind: String, Codable, Sendable, CaseIterable {
+  case alert
+  case activityStart = "activity_start"
+  case activityUpdate = "activity_update"
+}
+
 /// The platform of the app that registered a push token.
 public enum PushPlatform: String, Codable, Sendable {
   case ios, macos
 }
 
-/// This device's push registration. `registered` false (after DELETE) has every other key null.
+/// This device's push registration of one kind. `registered` false (after DELETE) has every key
+/// but `kind` null.
 /// `environment` is the build's aps-environment ("development" or "production").
 public struct PushTokenV1: Codable, Hashable, Sendable {
   public let registered: Bool
+  public let kind: PushTokenKind
   public let environment: String?
   public let bundleId: String?
   public let platform: PushPlatform?
@@ -111,7 +120,7 @@ public struct PushTokenV1: Codable, Hashable, Sendable {
   public let apiVersion: Int
 
   enum CodingKeys: String, CodingKey {
-    case registered, environment, platform
+    case registered, kind, environment, platform
     case bundleId = "bundle_id"
     case registeredAt = "registered_at"
     case apiVersion = "api_version"
@@ -121,6 +130,7 @@ public struct PushTokenV1: Codable, Hashable, Sendable {
     let c = try decoder.container(keyedBy: CodingKeys.self)
     apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
     registered = try c.decode(Bool.self, forKey: .registered)
+    kind = try c.decode(PushTokenKind.self, forKey: .kind)
     environment = try c.decodeNullable(String.self, forKey: .environment)
     bundleId = try c.decodeNullable(String.self, forKey: .bundleId)
     platform = try c.decodeNullable(PushPlatform.self, forKey: .platform)
@@ -130,6 +140,7 @@ public struct PushTokenV1: Codable, Hashable, Sendable {
   public func encode(to encoder: Encoder) throws {
     var c = encoder.container(keyedBy: CodingKeys.self)
     try c.encode(registered, forKey: .registered)
+    try c.encode(kind, forKey: .kind)
     try c.encodeNullable(environment, forKey: .environment)
     try c.encodeNullable(bundleId, forKey: .bundleId)
     try c.encodeNullable(platform, forKey: .platform)
