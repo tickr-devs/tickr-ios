@@ -271,7 +271,7 @@ private struct DaysColumn: View {
     if model.days.isEmpty {
       Card(L10n.Trades.days) {
         EmptyState(model.historyError == nil ? L10n.Trades.noDays : L10n.Trades.daysUnavailable,
-          tone: model.historyError == nil ? .brand : .muted)
+          symbol: model.historyError == nil ? EmptyState.nothingSymbol : EmptyState.unavailableSymbol)
       }
     } else {
       MonthCalendar()

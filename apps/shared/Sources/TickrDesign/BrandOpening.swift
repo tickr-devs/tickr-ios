@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The macOS app's opening (macOS has no launch screen): the first window of a launch opens on the
-/// plain background with the mark in its centre, the line draws itself, then the mark flies to the
+/// plain background with the mark in its centre, the letter fades in, then the mark flies to the
 /// header's mark (`target`, on screen) while the background fades and the screen shows through
 /// under it; as it lands the header's own mark (hidden until then) takes its place. The mark
 /// follows the header's mark wherever it moves until the opening is over, so it never lands
@@ -49,7 +49,7 @@ public struct BrandOpening: View {
       let landing = target.map { CGPoint(x: $0.x - origin.x, y: $0.y - origin.y) }
       ZStack {
         if started {
-          // The spark pops in as the line nearly ends, as the design times it.
+          // The level slides in as the letter nearly shows, as the design times it.
           BrandMark(size: Tokens.Size.openingMark, live: false, tone: .brand,
             drawing: .easeOut(duration: Tokens.Motion.openingDrawSeconds).delay(Tokens.Motion.openingDelaySeconds),
             sparkPop: Tokens.Motion.openingSpark.delay(Tokens.Motion.openingSparkDelaySeconds))

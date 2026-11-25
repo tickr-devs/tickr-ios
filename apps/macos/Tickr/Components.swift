@@ -6,18 +6,34 @@ import TickrKit
 // (docs/design-system.md); screens compose these and do not restyle them.
 
 extension Severity {
-  /// SF Symbols of the menu-bar extra for each severity.
-  static let okSymbol = "chart.line.uptrend.xyaxis"
+  /// SF Symbols of the menu-bar extra when the bot needs a look; calm shows the brand glyph.
   static let attentionSymbol = "pause.circle"
   static let alarmSymbol = "exclamationmark.triangle.fill"
 
-  var menuBarSymbol: String {
+  /// The menu-bar extra's image: the brand glyph while all is calm, else the severity's symbol.
+  @MainActor var menuBarImage: Image {
     switch self {
-    case .ok: return Self.okSymbol
-    case .attention: return Self.attentionSymbol
-    case .alarm: return Self.alarmSymbol
+    case .ok: return Image(nsImage: MenuBarMark.image)
+    case .attention: return Image(systemName: Self.attentionSymbol)
+    case .alarm: return Image(systemName: Self.alarmSymbol)
     }
   }
+}
+
+/// The brand glyph as a template image, so the menu bar tints it like the system's own items.
+/// Drawn on demand, so it is sharp at every display's scale.
+@MainActor
+enum MenuBarMark {
+  static let image: NSImage = {
+    let side = BrandGlyph.menuBarSide
+    let image = NSImage(size: NSSize(width: side, height: side), flipped: true) { rect in
+      guard let context = NSGraphicsContext.current?.cgContext else { return false }
+      BrandGlyph.draw(in: context, rect: rect)
+      return true
+    }
+    image.isTemplate = true
+    return image
+  }()
 }
 
 extension Badge {

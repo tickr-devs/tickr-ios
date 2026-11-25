@@ -122,7 +122,7 @@ struct TickrMacApp: App {
         .environment(model)
         .tint(Palette.info)
     } label: {
-      Image(systemName: model.headline.severity.menuBarSymbol)
+      model.headline.severity.menuBarImage
     }
     .menuBarExtraStyle(.window)
   }
