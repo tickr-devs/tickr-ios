@@ -241,46 +241,6 @@ struct MenuPosition: View {
   }
 }
 
-/// A track from the stop up the R scale with a knob at the last price that glides as it moves.
-private struct StopTargetBar: View {
-  let progress: Double?
-  /// The position is as of an older bar: greyed like its figure.
-  var muted = false
-
-  /// Diameter of the knob, and of the knob with its 4-point accent ring, in points.
-  static let knob: CGFloat = 15
-  static let knobWithRing: CGFloat = 23
-
-  var body: some View {
-    GeometryReader { proxy in
-      let filled = proxy.size.width * (progress ?? 0)
-      ZStack(alignment: .leading) {
-        Capsule()
-          .fill(Palette.separator)
-          .frame(height: Tokens.Size.bar)
-        if progress != nil {
-          Capsule()
-            .fill(LinearGradient(colors: [Palette.loss, Palette.warning, Palette.accent], startPoint: .leading,
-              endPoint: .trailing))
-            .frame(width: filled, height: Tokens.Size.bar)
-          Circle()
-            .fill(Palette.textPrimary)
-            .frame(width: Self.knob, height: Self.knob)
-            .background(Circle()
-              .fill(Palette.accent.opacity(Tokens.Opacity.faint))
-              .frame(width: Self.knobWithRing, height: Self.knobWithRing))
-            .offset(x: filled - Self.knob / 2)
-        }
-      }
-      .frame(maxHeight: .infinity)
-      .saturation(muted ? 0 : 1)
-      .opacity(muted ? Tokens.Opacity.medium : 1)
-    }
-    .frame(height: Self.knobWithRing)
-    .animation(Tokens.Motion.fill, value: progress)
-  }
-}
-
 /// The stages a setup passes, as glowing dots over one-word names: bright while the bot runs,
 /// dim otherwise. They move only when the bot's state changes (one pulse), never on a timer.
 private struct FlowDots: View {

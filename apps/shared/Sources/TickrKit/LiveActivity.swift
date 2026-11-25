@@ -14,7 +14,7 @@ public struct TickrActivityAttributes: Codable, Hashable, Sendable {
   /// A state this app does not know fails to decode, so the activity keeps what it showed rather
   /// than guess.
   public struct ContentState: Codable, Hashable, Sendable {
-    public let state: ActivityState
+    public let state: LiveActivityState
     /// The day's result as the apps show it, in cents.
     public let dayPnlCents: Int
     public let positions: [ActivityPosition]
@@ -34,7 +34,7 @@ public struct TickrActivityAttributes: Codable, Hashable, Sendable {
     }
 
     public init(
-      state: ActivityState, dayPnlCents: Int, positions: [ActivityPosition], stopsConfirmedAt: Int?,
+      state: LiveActivityState, dayPnlCents: Int, positions: [ActivityPosition], stopsConfirmedAt: Int?,
       reasonCode: String?, alarmSymbol: String?
     ) {
       self.state = state
@@ -47,7 +47,7 @@ public struct TickrActivityAttributes: Codable, Hashable, Sendable {
 
     public init(from decoder: Decoder) throws {
       let c = try decoder.container(keyedBy: CodingKeys.self)
-      state = try c.decode(ActivityState.self, forKey: .state)
+      state = try c.decode(LiveActivityState.self, forKey: .state)
       dayPnlCents = try c.decode(Int.self, forKey: .dayPnlCents)
       positions = try c.decode([ActivityPosition].self, forKey: .positions)
       stopsConfirmedAt = try c.decodeNullable(Int.self, forKey: .stopsConfirmedAt)
@@ -83,7 +83,7 @@ public struct TickrActivityAttributes: Codable, Hashable, Sendable {
 
 /// What the activity says about the bot: open with every stop verified, entries paused, a stop
 /// not verified (the one alarm), or flat at the end.
-public enum ActivityState: String, Codable, Sendable, CaseIterable {
+public enum LiveActivityState: String, Codable, Sendable, CaseIterable {
   case open, paused, alarm, flat
 }
 

@@ -2,9 +2,10 @@
 // apps/macos/TickrMac.xcodeproj) and for apps/macos/scripts/make-app.sh.
 //
 // Every bundle identifier is this prefix plus a fixed suffix per target: .ios and .mac for the
-// apps, .ios.tests, .ios.uitests and .mac.uitests for their test bundles. The prefix is the
-// tickr.bot domain reversed. An identifier registered on App Store Connect can never change, so
-// never edit the prefix once an app is uploaded there.
+// apps, .ios.widgets for the iPhone app's Live Activity extension, .ios.tests, .ios.uitests and
+// .mac.uitests for their test bundles. The prefix is the tickr.bot domain reversed. An identifier
+// registered on App Store Connect can never change, so never edit the prefix once an app is
+// uploaded there.
 TICKR_BUNDLE_ID_PREFIX = bot.tickr
 
 // The APNs environment the apps' push tokens belong to, which they tell the bot (Info.plist

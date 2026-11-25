@@ -44,6 +44,8 @@ targets:
         product: TickrKit
       - package: TickrShared
         product: TickrDesign
+      # The Live Activity's widget extension, embedded in the app.
+      - target: TickrWidgets
     info:
       path: Support/Info.plist
       properties:
@@ -62,6 +64,8 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
+        # The bot starts, updates and ends the trading day's Live Activity by push (TickrWidgets).
+        NSSupportsLiveActivities: true
         # The API address the app starts with before pairing: the Simulator's or the iPhone's,
         # set per destination in Config/Signing.xcconfig.
         TickrAPIAddress: $(TICKR_API_ADDRESS)
@@ -99,6 +103,43 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
         ENABLE_PREVIEWS: YES
+  # The trading day's Live Activity (Lock Screen and Dynamic Island, mockup v138), drawn from the
+  # content-state the bot pushes (TickrKit TickrActivityAttributes). Its own texts and String
+  # Catalog (Widgets/Sources/L10n.swift); the versions are the app's (project settings above).
+  TickrWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widgets/Sources
+        type: syncedFolder
+    dependencies:
+      - package: TickrShared
+        product: TickrKit
+      - package: TickrShared
+        product: TickrDesign
+    info:
+      path: Widgets/Support/Info.plist
+      properties:
+        CFBundleDisplayName: Tickr
+        # The extension's String Catalog and the shared package's (check_swift_rules.py).
+        CFBundleLocalizations: [en, es]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    # The bundle id prefix (apps/Config/Identity.xcconfig, through Config/Signing.xcconfig).
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(TICKR_BUNDLE_ID_PREFIX).ios.widgets
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
+        ENABLE_PREVIEWS: YES
+        # Archived inside the app only, so an archive stays an iOS app for TestFlight.
+        SKIP_INSTALL: YES
   # Swift Testing tests of the screens' logic (Tests/TickrTests), hosted in the app so they can
   # reach its internal types with @testable import.
   TickrTests:

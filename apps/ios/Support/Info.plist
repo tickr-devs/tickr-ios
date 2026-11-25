@@ -43,6 +43,8 @@
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Confirms commands that cancel orders or close positions.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>TickrAPIAddress</key>
 	<string>$(TICKR_API_ADDRESS)</string>
 	<key>TickrApsEnvironment</key>
