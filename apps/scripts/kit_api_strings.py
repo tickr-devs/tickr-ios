@@ -283,7 +283,11 @@ for code, en, es in [
         "The Webull token waits for your confirmation",
         "El token de Webull espera tu confirmación",
     ),
-    ("observers-stopped", "Observers stopped for the day", "Los observadores se detuvieron por hoy"),
+    (
+        "observers-stopped",
+        "Observers stopped for the day",
+        "Los observadores se detuvieron por hoy",
+    ),
     (
         "not-flat-after-flatten",
         "Positions still open after closing everything",
@@ -327,7 +331,11 @@ for code, en, es in [
         "A close was due after the session: close by hand",
         "Un cierre llegó tras la sesión: cierra a mano",
     ),
-    ("fees-unknown", "Fees of a filled order unknown", "Comisiones de una orden ejecutada desconocidas"),
+    (
+        "fees-unknown",
+        "Fees of a filled order unknown",
+        "Comisiones de una orden ejecutada desconocidas",
+    ),
     ("fees-corrected", "Recorded fees corrected", "Comisiones registradas corregidas"),
     (
         "api-credentials-unexpected",
