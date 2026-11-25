@@ -43,7 +43,6 @@ enum AppSection: String, CaseIterable, Identifiable {
 
 struct RootView: View {
   @Environment(AppModel.self) private var model
-  @Environment(AdvisorModel.self) private var advisor
   @Environment(ChartModel.self) private var chart
 
   /// Sidebar width: least, preferred and most, in points. The design's sidebar is 237 wide: a
@@ -126,8 +125,6 @@ struct RootView: View {
     .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
       if width >= WindowWidthFit.leastMeasured { windowWidth = width }
     }
-    // The advisor's runs for the Overview's advisor row and the Lab, read again now and then.
-    .task(id: model.baseURL) { await advisor.follow(model.baseURL) }
     // The window's bot command questions (Overview's Safety card), on the view that lives as long
     // as the window: never on the card, which a layout change or a section switch rebuilds.
     .botCommandQuestions(in: .window)
@@ -918,7 +915,6 @@ struct CommandToast: View {
   RootView()
     .environment(PreviewAPI.model())
     .environment(ChartModel())
-    .environment(PreviewAPI.advisor())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif

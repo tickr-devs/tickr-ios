@@ -1,6 +1,6 @@
 import Foundation
 
-/// Repeats of one decision in a row: the same strategy (or observer) reaching the same outcome bar
+/// Repeats of one decision in a row: the same strategy reaching the same outcome bar
 /// after bar, shown as one line with a count. `decisions` are newest first.
 public struct DecisionRun: Hashable, Sendable {
   public let decisions: [DecisionV1]
@@ -27,21 +27,19 @@ public struct DecisionRun: Hashable, Sendable {
   }
 
   static func sameOutcome(_ a: DecisionV1, _ b: DecisionV1) -> Bool {
-    a.strategy == b.strategy && a.observer == b.observer && a.action == b.action
+    a.strategy == b.strategy && a.action == b.action
       && (a.entryPrice == nil) == (b.entryPrice == nil) && (a.stopPrice == nil) == (b.stopPrice == nil)
       && a.checks.map(\.rule) == b.checks.map(\.rule) && a.checks.map(\.passed) == b.checks.map(\.passed)
   }
 }
 
-/// What the chart lists under "why the bot acted": the trading strategy's decisions first, then
-/// each observer's, newest first, with repeats merged into runs. Only entries and exits unless
-/// `everything` is asked for.
+/// What the chart lists under "why the bot acted": the trading strategy's decisions, newest first,
+/// with repeats merged into runs. Only entries and exits unless `everything` is asked for. A
+/// shadow strategy's decisions (`observer`, from a bot configured with one) are left out.
 public struct DecisionList: Hashable, Sendable {
   /// The trading strategy's runs.
   public let strategy: [DecisionRun]
-  /// Each observer's runs, the observer with the newest decision first.
-  public let observers: [[DecisionRun]]
-  /// Decisions of every verdict, before any filter.
+  /// The trading strategy's decisions of every verdict, before any filter.
   public let total: Int
   /// Entries and exits, before merging.
   public let key: Int
@@ -51,25 +49,18 @@ public struct DecisionList: Hashable, Sendable {
     decision.action == .enter || decision.action == .exit
   }
 
-  /// `decisions` as the bot serves them (oldest first). Runs are merged over every decision of a
+  /// `decisions` as the bot serves them (oldest first). Runs are merged over every decision of the
   /// strategy before the filter, so two entries an hour apart with holding between them stay two.
   public init(_ decisions: [DecisionV1], everything: Bool) {
-    let newest = Array(decisions.reversed())
+    let trading = decisions.filter { !$0.observer }
     let keep: (DecisionRun) -> Bool = { everything || Self.isKey($0.latest) }
-    strategy = DecisionRun.merge(newest.filter { !$0.observer }).filter(keep)
-    var order: [StrategyRefV1] = []
-    for decision in newest where decision.observer && !order.contains(decision.strategy) {
-      order.append(decision.strategy)
-    }
-    observers = order
-      .map { ref in DecisionRun.merge(newest.filter { $0.observer && $0.strategy == ref }).filter(keep) }
-      .filter { !$0.isEmpty }
-    total = decisions.count
-    key = decisions.filter(Self.isKey).count
+    strategy = DecisionRun.merge(trading.reversed()).filter(keep)
+    total = trading.count
+    key = trading.filter(Self.isKey).count
   }
 
   /// Nothing to list under the current filter.
-  public var isEmpty: Bool { strategy.isEmpty && observers.isEmpty }
+  public var isEmpty: Bool { strategy.isEmpty }
 }
 
 /// The order of the chart's symbol chips: open positions first, then symbols traded that day

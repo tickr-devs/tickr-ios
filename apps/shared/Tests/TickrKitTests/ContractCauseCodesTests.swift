@@ -9,15 +9,6 @@ struct ContractCauseCodesTests {
     #expect(performance.exclusions.first?.causeCodes.first?.code == "planned_loss_not_positive_r")
   }
 
-  @Test("A cause and its codes come together: none without a cause")
-  func observers() throws {
-    let observers = try Wire.decoder().decode(ObserversV1.self, from: fixture("observers-v1.json")).observers
-    for observer in observers {
-      #expect(observer.resultCause == nil ? observer.resultCauseCodes.isEmpty : !observer.resultCauseCodes.isEmpty)
-      #expect(observer.tradesCause == nil ? observer.tradesCauseCodes.isEmpty : !observer.tradesCauseCodes.isEmpty)
-    }
-  }
-
   /// A version the Lab cannot replay, and a failed run, read in the person's words.
   @Test func labReplay() throws {
     let idle = try Wire.decoder().decode(LabReplayV1.self, from: fixture("lab-replay-v1.idle.json"))
@@ -61,18 +52,6 @@ struct ContractCauseCodesTests {
     let watching = try Wire.decoder().decode(WatchingV1.self, from: fixture("watching-v1.json"))
     let size = try #require(watching.latestSize)
     #expect(size.bindingCauseText == ProseReason.bindingNotProven.text([:]))
-  }
-
-  @Test func advisor() throws {
-    let advisor = try Wire.decoder().decode(AdvisorRunsV1.self, from: fixture("advisor-runs-v1.json"))
-    let refused = try #require(advisor.runs.first { $0.status == .refused })
-    #expect(refused.refusalText == ProseReason.tooManyChanges.text(["count": "4", "max": "3"]))
-    #expect(advisor.runs.filter { $0.status != .refused }.allSatisfy { $0.refusalText.isEmpty })
-    let unreadable = try #require(advisor.unreadable.first)
-    #expect(unreadable.causeCodes.first?.code == "run_file_missing")
-    #expect(unreadable.causeText != unreadable.cause)
-    let empty = try Wire.decoder().decode(AdvisorRunsV1.self, from: fixture("advisor-runs-v1.empty.json"))
-    #expect(empty.causeText == ProseReason.noAdvisorRuns.text([:]))
   }
 
   /// An emergency's steps read as the commands' titles with what each did.

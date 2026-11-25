@@ -278,15 +278,6 @@ private struct TradingSettings: View {
           SettingsRow(L10n.Settings.activeStrategy) {
             Text(verbatim: settings.activeStrategy).foregroundStyle(Palette.accentText)
           }
-          SettingsRow(L10n.Settings.observers, value: "\(settings.observers.count)")
-          ForEach(settings.observers, id: \.self) { observer in
-            HStack(spacing: Tokens.Space.s) {
-              PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: false)
-              Text(verbatim: observer)
-                .font(Tokens.Typography.annotation)
-                .foregroundStyle(Palette.textTertiary)
-            }
-          }
         }
         SettingsCard(L10n.Common.risk) {
           SettingsRow(L10n.Settings.plannedLoss, value: Money.usd(settings.risk.plannedLossUsd.value))
@@ -329,8 +320,8 @@ private struct TradingSettings: View {
 }
 
 /// The design's "Features · from config": what the configuration turns on, each a status dot,
-/// never a switch (the app edits none of it). Half days and live observers are real values; the
-/// rest are planned and marked so.
+/// never a switch (the app edits none of it). Half days are a real value; the rest are planned
+/// and marked so.
 private struct FeaturesCard: View {
   let settings: SettingsV1
 
@@ -342,9 +333,6 @@ private struct FeaturesCard: View {
       row(L10n.Settings.featureChase, on: false) { Badge.backlog }
       row(L10n.Settings.featureHalfDays, on: settings.session.halfDaysEnabled) {
         Text(settings.session.halfDaysEnabled ? L10n.Settings.traded : L10n.Settings.notTraded)
-      }
-      row(L10n.Settings.liveObservers, on: !settings.observers.isEmpty) {
-        Text(verbatim: settings.observers.isEmpty ? String(localized: L10n.Common.none) : "\(settings.observers.count)")
       }
     }
   }
@@ -394,7 +382,6 @@ private struct NotificationSettings: View {
       AlertGroup(tone: .warning, title: L10n.Settings.alertLossLimit, kinds: L10n.Settings.alertLossLimitKinds),
       AlertGroup(tone: .warning, title: L10n.Settings.alertMorning, kinds: L10n.Settings.alertMorningKinds),
       AlertGroup(tone: .warning, title: L10n.Settings.alertToken, kinds: L10n.Settings.alertTokenKinds),
-      AlertGroup(tone: .info, title: L10n.Settings.alertObservers, kinds: L10n.Settings.alertObserversKinds),
     ]
   }
 

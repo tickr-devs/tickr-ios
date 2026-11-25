@@ -101,12 +101,6 @@ extension View {
     environment(\.cardFills, true)
   }
 
-  /// Cards in this view hug their content even inside a filling grid: a card whose content is
-  /// short stays short instead of growing to its row's height with an empty lower half.
-  func hugsContent() -> some View {
-    environment(\.cardFills, false)
-  }
-
   /// Cards in this view label themselves plainly, without the tone tick.
   func plainCardLabels() -> some View {
     environment(\.cardTicks, false)
@@ -178,7 +172,6 @@ struct Card<Trailing: View, Content: View>: View {
         }
       }
       // A card sharing a row of a set height scrolls under its header when its content is taller.
-      // Only the card's own title shines (`titleShines`), never a header inside its content.
       Group {
         if outlined {
           EmptyView()
@@ -190,7 +183,6 @@ struct Card<Trailing: View, Content: View>: View {
           content
         }
       }
-      .environment(\.titleShines, false)
     }
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, maxHeight: fills ? .infinity : nil, alignment: .topLeading)

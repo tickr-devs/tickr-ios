@@ -44,9 +44,6 @@ enum L10n {
     static var cancel: LocalizedStringResource {
       LocalizedStringResource("common.cancel", defaultValue: "Cancel", bundle: L10n.bundle)
     }
-    static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
-      LocalizedStringResource("common.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
-    }
     /// A strategy version on its own, as on Home's badge: "v1".
     static func version(_ version: String) -> LocalizedStringResource {
       LocalizedStringResource("common.version", defaultValue: "v\(version)", bundle: L10n.bundle)
@@ -1400,42 +1397,6 @@ enum L10n {
     static var noCause: LocalizedStringResource {
       LocalizedStringResource("lab.noCause", defaultValue: "No cause recorded", bundle: L10n.bundle)
     }
-    static func noTrades(_ name: String, _ version: String, _ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.noTrades", defaultValue: "\(name) v\(version): no simulated trades (\(cause))",
-        bundle: L10n.bundle)
-    }
-    static var versions: LocalizedStringResource {
-      LocalizedStringResource("lab.versions", defaultValue: "Today if each version traded", bundle: L10n.bundle)
-    }
-    /// The versions card on a recorded day: no "Today".
-    static var versionsOnDay: LocalizedStringResource {
-      LocalizedStringResource("lab.versionsOnDay", defaultValue: "If each version traded", bundle: L10n.bundle)
-    }
-    /// The versions card's note on a recorded day: no "live".
-    static var noOrdersOnDay: LocalizedStringResource {
-      LocalizedStringResource("lab.noOrdersOnDay", defaultValue: "no orders", bundle: L10n.bundle)
-    }
-    static var noOrders: LocalizedStringResource {
-      LocalizedStringResource("lab.noOrders", defaultValue: "live · no orders", bundle: L10n.bundle)
-    }
-    static var result: LocalizedStringResource {
-      LocalizedStringResource("lab.result", defaultValue: "Result", bundle: L10n.bundle)
-    }
-    static var time: LocalizedStringResource {
-      LocalizedStringResource("lab.time", defaultValue: "Time", bundle: L10n.bundle)
-    }
-    static var version: LocalizedStringResource {
-      LocalizedStringResource("lab.version", defaultValue: "Version", bundle: L10n.bundle)
-    }
-    static var noClosed: LocalizedStringResource {
-      LocalizedStringResource("lab.noClosed", defaultValue: "No version has closed a trade yet.", bundle: L10n.bundle)
-    }
-    static var observerRole: LocalizedStringResource {
-      LocalizedStringResource("lab.observerRole", defaultValue: "observer", bundle: L10n.bundle)
-    }
-    static var partial: LocalizedStringResource {
-      LocalizedStringResource("lab.partial", defaultValue: "incomplete", bundle: L10n.bundle)
-    }
     static var refusals: LocalizedStringResource {
       LocalizedStringResource("lab.refusals", defaultValue: "Why signals were refused today", bundle: L10n.bundle)
     }
@@ -1458,18 +1419,6 @@ enum L10n {
     }
     static var trades: LocalizedStringResource {
       LocalizedStringResource("lab.trades", defaultValue: "trades", bundle: L10n.bundle)
-    }
-    static var board: LocalizedStringResource {
-      LocalizedStringResource("lab.board", defaultValue: "Observers · never trade", bundle: L10n.bundle)
-    }
-    static var noObservers: LocalizedStringResource {
-      LocalizedStringResource("lab.noObservers", defaultValue: "No observers configured.", bundle: L10n.bundle)
-    }
-    static var noEntries: LocalizedStringResource {
-      LocalizedStringResource("lab.noEntries", defaultValue: "would not have entered", bundle: L10n.bundle)
-    }
-    static var noResult: LocalizedStringResource {
-      LocalizedStringResource("lab.noResult", defaultValue: "no simulated P&L", bundle: L10n.bundle)
     }
     /// Replay card title with the number of recent sessions it covers.
     static func replayLast(_ sessions: Int) -> LocalizedStringResource {
@@ -1561,17 +1510,8 @@ enum L10n {
         bundle: L10n.bundle)
     }
     static var later: LocalizedStringResource {
-      LocalizedStringResource("lab.later",
-        // swiftlint:disable:next line_length
-        defaultValue: "Results are simulated from the captured bars; observers never trade. Approving a new version stays on the Mac.",
+      LocalizedStringResource("lab.later", defaultValue: "Replay results are simulated from the captured bars.",
         bundle: L10n.bundle)
-    }
-    static func agreement(_ shared: Int, _ entered: Int, _ symbols: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.agreement",
-        defaultValue: "bot also traded \(shared) of \(entered): \(symbols)", bundle: L10n.bundle)
-    }
-    static var failed: LocalizedStringResource {
-      LocalizedStringResource("lab.failed", defaultValue: "Couldn't read the observers", bundle: L10n.bundle)
     }
     /// Button that starts a replay of two versions.
     static var replayStartCompare: LocalizedStringResource {
@@ -1941,9 +1881,6 @@ enum L10n {
     static var alertCeiling: LocalizedStringResource {
       LocalizedStringResource("settings.alertCeiling", defaultValue: "Daily loss ceiling", bundle: L10n.bundle)
     }
-    static var alertAdvisor: LocalizedStringResource {
-      LocalizedStringResource("settings.alertAdvisor", defaultValue: "Advisor proposal", bundle: L10n.bundle)
-    }
     static var notificationsFooter: LocalizedStringResource {
       LocalizedStringResource("settings.notificationsFooter",
         // swiftlint:disable:next line_length
@@ -2211,14 +2148,10 @@ enum ChartText {
     defaultValue: "No entries or exits; the strategy only watched.")
   static let keyDecisions = LocalizedStringResource("chart.decisions.key",
     defaultValue: "Entries and exits only")
-  static let observer = LocalizedStringResource("chart.decisions.observer",
-    defaultValue: "observer")
   static let tradingStrategy = LocalizedStringResource("chart.decisions.strategyLabel",
     defaultValue: "Trading strategy")
   static let noStrategyDecisions = LocalizedStringResource("chart.decisions.noStrategy",
     defaultValue: "The trading strategy recorded nothing on this symbol that day.")
-  static let observers = LocalizedStringResource("chart.decisions.observers",
-    defaultValue: "Observers · never trade")
   static let openPosition = LocalizedStringResource("chart.symbol.open",
     defaultValue: "open position")
   static let traded = LocalizedStringResource("chart.symbol.traded",

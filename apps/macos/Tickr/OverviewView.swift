@@ -13,14 +13,14 @@ struct OverviewView: View {
 
   /// Positions of the cards in the screen's `CardGrid`.
   private enum Slot: Int {
-    case header = 0, result, flow, watching, positions, safety, riskRoom, observers, fastMovers, journal
+    case header = 0, result, flow, watching, positions, safety, riskRoom, fastMovers, journal
   }
 
   /// Narrowest screen, in points, with the design's three columns of cards; below it the cards
   /// sit in two columns (MainNarrow v110).
   static let threeColumnsMinWidth: CGFloat = 1040
   /// The design's column widths (CSS fr units): Watching closely, Positions, Safety and the bot;
-  /// then Risk room, Fast movers above Observers, the journal (Main v115).
+  /// then Risk room, Fast movers, the journal (Main v115).
   static let middleRowWeights: [CGFloat] = [1, 1.4, 1]
   static let bottomRowWeights: [CGFloat] = [1.15, 1.3, 0.95]
   /// Width of the day's result beside the header on the two-column board, in points
@@ -34,7 +34,7 @@ struct OverviewView: View {
   /// in points. The row grows to its tallest card, so every safety fact and watched row is in
   /// sight without a scroll inside a card.
   static let middleRowHeight: CGFloat = 298
-  /// Least height of the bottom row (Risk room, Fast movers and Observers, the journal), in points. It takes
+  /// Least height of the bottom row (Risk room, Fast movers, the journal), in points. It takes
   /// the rest of the window's height as in the design, never less than this.
   static let bottomRowMinHeight: CGFloat = 150
   /// Padding around the cards on each side: the screen's widths above are the grid's plus twice this.
@@ -74,16 +74,14 @@ struct OverviewView: View {
       headerBesideResult(Tokens.Size.dayResultWidth),
       single(.flow),
       weighted(middleRowWeights, [.watching, .positions, .safety], height: .atLeast(middleRowHeight)),
-      CardRow(columns: zip(bottomRowWeights, [[Slot.riskRoom], [.fastMovers, .observers], [.journal]]).map {
-        CardColumn(width: .share($0), cards: $1.map(\.rawValue))
-      }, height: .fillsRest(atLeast: bottomRowMinHeight)),
+      weighted(bottomRowWeights, [.riskRoom, .fastMovers, .journal], height: .fillsRest(atLeast: bottomRowMinHeight)),
     ]),
     CardArrangement(minWidth: headerBesideNarrowResultMinGridWidth,
       rows: [headerBesideResult(OverviewView.dayResultNarrowWidth)] + twoColumnRows),
     CardArrangement(minWidth: twoColumnsMinGridWidth, rows: [single(.header), single(.result)] + twoColumnRows),
     CardArrangement(minWidth: 0, rows: [
       single(.header), single(.result), single(.safety), single(.flow), single(.positions), single(.watching),
-      single(.riskRoom), single(.observers), single(.fastMovers), single(.journal),
+      single(.riskRoom), single(.fastMovers), single(.journal),
     ]),
   ]
 
@@ -92,8 +90,8 @@ struct OverviewView: View {
     single(.flow),
     sized(positionsSafetyWeights, [.positions, .safety]),
     single(.watching),
-    sized(twoColumnWeights, [.riskRoom, .observers]),
-    sized(twoColumnWeights, [.fastMovers, .journal]),
+    sized(twoColumnWeights, [.riskRoom, .fastMovers]),
+    single(.journal),
   ]
 
   /// The day's result in its own column `width` points wide beside the header, each at its own
@@ -137,7 +135,6 @@ struct OverviewView: View {
             SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
             Group {
               RiskRoomCard().filling()
-              ObserversCard().filling()
               FastMoversCard().filling()
               JournalCard().filling()
             }
@@ -1506,149 +1503,6 @@ private struct RiskRoomCard: View {
   }
 }
 
-private struct ObserversCard: View {
-  @Environment(AppModel.self) private var model
-  @Environment(AdvisorModel.self) private var advisor
-
-  var body: some View {
-    Card(L10n.Observers.title) {
-      HeaderLink(L10n.Observers.lab) {
-        // The Lab's cards, where the observers are, not the advisor page left open earlier.
-        advisor.pageOpen = false
-        model.section = .lab
-      }
-    } content: {
-      if let observers = model.observers?.observers {
-        if observers.isEmpty {
-          Text(L10n.Observers.none).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-        }
-        // The design's compact rows: name and result, then a bar of the result against the
-        // largest; the decisions are in the Lab and on hover.
-        let largest = observers.compactMap { $0.resultGrossUSD.map { abs($0.value) } }.max() ?? 0
-        // The first observers (more in a tall window), then "Show all N ›" above the advisor.
-        CappedList(observers, id: \.id, title: L10n.Observers.title, limit: Tokens.Lists.comparedRows,
-          spacing: Tokens.Space.m, endsCard: false) { _, observer in OverviewObserverRow(observer: observer, largest: largest) }
-      } else if model.observersError != nil {
-        ReadFailureNote(L10n.Lab.observersUnavailable, detail: nil)
-      } else if model.observersPending {
-        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows) }
-      }
-      Spacer(minLength: 0)
-      AdvisorRow()
-    }
-  }
-}
-
-/// The AI advisor under the observers: its leading run and how many wait for the owner, and
-/// Review, which opens the run in the Lab.
-private struct AdvisorRow: View {
-  @Environment(AppModel.self) private var model
-  @Environment(AdvisorModel.self) private var advisor
-
-  var body: some View {
-    // On one line while everything fits whole; in a narrow column the pill and the link go on
-    // a line of their own, and in the narrowest one each on its own line, so no word is broken
-    // or cut. The last arrangement is the narrowest: a `ViewThatFits` keeps its last child even
-    // when it is wider than the column, which pushed the card over its neighbour (Fast movers).
-    ViewThatFits(in: .horizontal) {
-      HStack(spacing: Tokens.Space.s) {
-        words.fixedSize()
-        Spacer(minLength: Tokens.Space.s)
-        HStack(spacing: Tokens.Space.s) { actions }
-      }
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        words
-        HStack(spacing: Tokens.Space.s) { actions }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        words
-        actions
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    // The design's violet strip at the foot of the card; all of it opens the Lab.
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.medium))
-    .onTapGesture(perform: open)
-    .background(Palette.highlight.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
-        .strokeBorder(Palette.highlight.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin)
-    }
-  }
-
-  private var words: some View {
-    HStack(spacing: Tokens.Space.s) {
-      Image(systemName: AdvisorLook.symbol).foregroundStyle(Palette.highlightText)
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        Text(L10n.Observers.advisor).font(Tokens.Typography.callout)
-        if let lead = advisor.runs?.lead {
-          Text(verbatim: lead.title)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textQuaternary)
-        }
-      }
-    }
-  }
-
-  /// The pill and the link, laid out by the stack around them (a row, or one under the other).
-  @ViewBuilder private var actions: some View {
-    if let count = advisor.runs?.awaitingReview, count > 0 {
-      StatusPill(AdvisorWords.awaiting(count), tone: .highlight).fixedSize()
-    }
-    HeaderLink(advisor.runs?.lead == nil ? L10n.Observers.lab : AdvisorWords.review, tone: .highlight, action: open)
-      .fixedSize()
-  }
-
-  /// Opens the Lab, on the latest proposal when there is one.
-  private func open() {
-    if let lead = advisor.runs?.lead { advisor.open(lead.id) }
-    model.section = .lab
-  }
-}
-
-/// An observer on the Overview as the design draws it: its version and what sets it apart from
-/// the active strategy ("v3 · rel vol 1.5×", ObserverLabel), its result, and a
-/// bar of the result's size against the largest observer's, violet for a gain, amber for a loss.
-private struct OverviewObserverRow: View {
-  let observer: ObserverV1
-  /// The largest absolute result among the observers, in USD.
-  let largest: Decimal
-
-  var body: some View {
-    let result = observer.resultGrossUSD?.value
-    let share = result.map { largest > 0 ? NSDecimalNumber(decimal: abs($0) / largest).doubleValue : 0 } ?? 0
-    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      HStack(spacing: Tokens.Space.s) {
-        Text(verbatim: ObserverLabel.observer(observer))
-        Spacer(minLength: Tokens.Space.s)
-        if let result {
-          Text(verbatim: Money.signedUSD(result)).foregroundStyle(Palette.result(result))
-        } else {
-          Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
-        }
-      }
-      .font(Tokens.Typography.calloutMono)
-      GeometryReader { proxy in
-        Capsule().fill(Palette.surfaceSunken)
-          .overlay(alignment: .leading) {
-            Capsule().fill((result ?? 0) >= 0 ? Palette.highlight : Palette.warning)
-              .frame(width: proxy.size.width * share)
-              // Grows in, then moves only when the observer's result changes.
-              .grows(with: share)
-          }
-      }
-      .frame(height: Tokens.Size.barThin)
-    }
-    .help(Text(verbatim: [String(localized: L10n.Lab.decisionCount(observer.decisions.count)),
-      ApiText.prose(observer.resultCauseCodes, text: observer.resultCause)].compactMap { $0 }
-      .joined(separator: Format.lineSeparator)))
-    .accessibilityElement(children: .combine)
-  }
-}
-
 private struct JournalCard: View {
   @Environment(AppModel.self) private var model
 
@@ -1689,7 +1543,6 @@ private struct JournalCard: View {
 #Preview {
   OverviewView()
     .environment(PreviewAPI.model())
-    .environment(PreviewAPI.advisor())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif

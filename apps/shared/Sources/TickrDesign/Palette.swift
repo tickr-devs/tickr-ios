@@ -74,7 +74,7 @@ public enum Palette {
   /// Information and orders: entries, commands in flight, reconciliation.
   public static let info = Color(Swatch.info)
   public static let infoText = Color(Swatch.infoText)
-  /// Context that is not live: environment, recorded days, planned (BACKLOG) features, observers.
+  /// Context that is not live: environment, recorded days, planned (BACKLOG) features.
   public static let highlight = Color(light: 0x8B5CF6, dark: 0xA78BFA)
   public static let highlightText = Color(Swatch.highlightText)
 

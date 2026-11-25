@@ -2616,40 +2616,6 @@
         }
       }
     },
-    "chart.decisions.observer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "observer"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "observador"
-          }
-        }
-      }
-    },
-    "chart.decisions.observers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Observers · never trade"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Observadores · nunca operan"
-          }
-        }
-      }
-    },
     "chart.decisions.repeats" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4125,23 +4091,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ @ %@"
-          }
-        }
-      }
-    },
-    "common.strategyVersion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ v%@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ v%@"
           }
         }
       }
@@ -5948,40 +5897,6 @@
         }
       }
     },
-    "lab.agreement" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bot also traded %1$lld of %2$lld: %3$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "el bot también operó %1$lld de %2$lld: %3$@"
-          }
-        }
-      }
-    },
-    "lab.board" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Observers · never trade"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Observadores · nunca operan"
-          }
-        }
-      }
-    },
     "lab.dayFailed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6016,36 +5931,19 @@
         }
       }
     },
-    "lab.failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't read the observers"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudieron leer los observadores"
-          }
-        }
-      }
-    },
     "lab.later" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Results are simulated from the captured bars; observers never trade. Approving a new version stays on the Mac."
+            "value" : "Replay results are simulated from the captured bars."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los resultados se simulan con las velas capturadas; los observadores nunca operan. Aprobar una nueva versión se hace en la Mac."
+            "value" : "Los resultados de la repetición se simulan con las velas capturadas."
           }
         }
       }
@@ -6084,91 +5982,6 @@
         }
       }
     },
-    "lab.noClosed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No version has closed a trade yet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ninguna versión ha cerrado una operación todavía."
-          }
-        }
-      }
-    },
-    "lab.noEntries" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "would not have entered"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no habría entrado"
-          }
-        }
-      }
-    },
-    "lab.noObservers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No observers configured."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hay observadores configurados."
-          }
-        }
-      }
-    },
-    "lab.noOrders" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "live · no orders"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "en vivo · sin órdenes"
-          }
-        }
-      }
-    },
-    "lab.noOrdersOnDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no orders"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "sin órdenes"
-          }
-        }
-      }
-    },
     "lab.noRefusals" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6182,74 +5995,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se rechazó ninguna señal."
-          }
-        }
-      }
-    },
-    "lab.noResult" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no simulated P&L"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "sin G/P simulada"
-          }
-        }
-      }
-    },
-    "lab.noTrades" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ v%@: no simulated trades (%@)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ v%@: sin operaciones simuladas (%@)"
-          }
-        }
-      }
-    },
-    "lab.observerRole" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "observer"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "observador"
-          }
-        }
-      }
-    },
-    "lab.partial" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "incomplete"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "incompleto"
           }
         }
       }
@@ -6999,23 +6744,6 @@
         }
       }
     },
-    "lab.result" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Result"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resultado"
-          }
-        }
-      }
-    },
     "lab.roleActive" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7067,23 +6795,6 @@
         }
       }
     },
-    "lab.time" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Time"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hora"
-          }
-        }
-      }
-    },
     "lab.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7118,23 +6829,6 @@
         }
       }
     },
-    "lab.version" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Versión"
-          }
-        }
-      }
-    },
     "lab.versionName" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7148,40 +6842,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ v%2$@"
-          }
-        }
-      }
-    },
-    "lab.versions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today if each version traded"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hoy si cada versión hubiera operado"
-          }
-        }
-      }
-    },
-    "lab.versionsOnDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "If each version traded"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si cada versión hubiera operado"
           }
         }
       }
@@ -9297,23 +8957,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "posmercado"
-          }
-        }
-      }
-    },
-    "settings.alertAdvisor" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advisor proposal"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Propuesta del asesor"
           }
         }
       }

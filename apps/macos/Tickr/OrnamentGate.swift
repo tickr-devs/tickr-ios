@@ -1,7 +1,7 @@
 import TickrKit
 
 /// When the Mac's looping ornaments move: the empty-positions radar, the event strip's and the
-/// screeners' scroll, the brand mark's halo and the AI advisor title's shine. They are ornament,
+/// screeners' scroll and the brand mark's halo. They are ornament,
 /// but a moving one reads as "the bot is at work", so each moves only while that is true: the bot
 /// runs and its status is live and fresh. Stopped, stale, unreachable or on a recorded day they
 /// stand still, as with Reduce Motion. The same rule as iOS Home's `OrnamentGate`.

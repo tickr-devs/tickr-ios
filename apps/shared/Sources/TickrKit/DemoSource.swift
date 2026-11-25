@@ -181,7 +181,7 @@ public struct DemoRecording: Sendable {
 /// Answers the API client from the demo day's recording on a looping clock: frame
 /// `(now - started) / frameSeconds`, wrapping after the last frame. Nothing goes to the network.
 /// A GET is answered with the frame's recorded answer; a read the recording does not hold is 404
-/// `not_found`. A POST (a command, Start, a Lab replay, an advisor note) is answered as the demo's
+/// `not_found`. A POST (a command, Start, a Lab replay) is answered as the demo's
 /// API answered it, and nothing is sent or queued anywhere. A command the bot acted on when it
 /// was recorded gets a fresh id, and the bot's recorded outcome of it, under that id and at the
 /// frame's time, joins the recent commands of every later status, as the bot's own would.

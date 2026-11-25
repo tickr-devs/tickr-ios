@@ -221,7 +221,6 @@ private struct MainWindow: View {
         .readFailureContext(model)
         .environment(model)
         .environment(chart)
-        .environment(Container.shared.advisorModel())
         // The design's accent for links, selection and controls (as on iOS), not the system blue.
         .tint(Palette.info)
     }

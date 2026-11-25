@@ -2,7 +2,7 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// The rail's explain card: what the strategy (or an observer) decided about the shown symbol at
+/// The rail's explain card: what the trading strategy decided about the shown symbol at
 /// the pointed candle, or its latest decision while the pointer is off the chart, with every check
 /// that led to it.
 struct ChartExplainCard: View {
@@ -34,9 +34,6 @@ struct ChartExplainCard: View {
       HStack(spacing: Tokens.Space.s) {
         CardLabel(label(decision))
         Spacer(minLength: 0)
-        if decision.observer {
-          Badge(L10n.Chart.observerTag, color: Palette.highlightText)
-        }
         Badge(decision.action.title, color: decision.action.color)
       }
       summary(decision)
@@ -69,15 +66,15 @@ struct ChartExplainCard: View {
   }
 
   /// The decision made inside the pointed candle (the last one, when a candle of several minutes
-  /// holds several), else with the pointer off the chart the latest; the trading strategy's own
-  /// before an observer's. A pointed candle without a decision shows none, never an older one.
+  /// holds several), else with the pointer off the chart the latest; a shadow strategy's are left
+  /// out. A pointed candle without a decision shows none, never an older one.
   private var shown: DecisionV1? {
     guard showsDay, let all = decisions?.decisions, !all.isEmpty else { return nil }
     var made = all
     if let candle = pointed {
       made = all.filter { $0.at.date >= candle.start && $0.at.date < candle.end }
     }
-    return made.last { !$0.observer } ?? made.last
+    return made.last { !$0.observer }
   }
 
   /// "Explain ABCD · 12:54", and in a candle of several minutes which candle it is the last

@@ -829,22 +829,6 @@ enum L10n {
     }
   }
 
-  enum Observers {
-    static var title: LocalizedStringResource {
-      LocalizedStringResource("observers.title", defaultValue: "Observers", bundle: L10n.bundle)
-    }
-    static var none: LocalizedStringResource {
-      LocalizedStringResource("observers.none", defaultValue: "No observer strategies configured.", bundle: L10n.bundle)
-    }
-    /// The observers card's link to the Strategy lab.
-    static var lab: LocalizedStringResource {
-      LocalizedStringResource("observers.lab", defaultValue: "Lab", bundle: L10n.bundle)
-    }
-    static var advisor: LocalizedStringResource {
-      LocalizedStringResource("observers.advisor", defaultValue: "AI advisor proposals", bundle: L10n.bundle)
-    }
-  }
-
   enum Journal {
     static var title: LocalizedStringResource {
       LocalizedStringResource("journal.title", defaultValue: "$ tail -f journal", bundle: L10n.bundle)
@@ -1045,9 +1029,6 @@ enum L10n {
     static var activeStrategy: LocalizedStringResource {
       LocalizedStringResource("settings.activeStrategy", defaultValue: "Active strategy", bundle: L10n.bundle)
     }
-    static var observers: LocalizedStringResource {
-      LocalizedStringResource("settings.observers", defaultValue: "Observers", bundle: L10n.bundle)
-    }
     static var plannedLoss: LocalizedStringResource {
       LocalizedStringResource("settings.plannedLoss", defaultValue: "Planned loss per trade", bundle: L10n.bundle)
     }
@@ -1144,14 +1125,6 @@ enum L10n {
     static var alertMorningKinds: LocalizedStringResource {
       LocalizedStringResource("settings.alertMorningKinds",
         defaultValue: "Preflight failed",
-        bundle: L10n.bundle)
-    }
-    static var alertObservers: LocalizedStringResource {
-      LocalizedStringResource("settings.alertObservers", defaultValue: "Observers stopped", bundle: L10n.bundle)
-    }
-    static var alertObserversKinds: LocalizedStringResource {
-      LocalizedStringResource("settings.alertObserversKinds",
-        defaultValue: "Too much to evaluate: observers are off for the run, trading goes on",
         bundle: L10n.bundle)
     }
     static var jobs: LocalizedStringResource {
@@ -1278,9 +1251,6 @@ enum L10n {
     }
     static var featureHalfDays: LocalizedStringResource {
       LocalizedStringResource("settings.featureHalfDays", defaultValue: "Trade half days", bundle: L10n.bundle)
-    }
-    static var liveObservers: LocalizedStringResource {
-      LocalizedStringResource("settings.liveObservers", defaultValue: "Live observers", bundle: L10n.bundle)
     }
     static var alerts: LocalizedStringResource {
       LocalizedStringResource("settings.alerts", defaultValue: "Alerts", bundle: L10n.bundle)
@@ -1910,10 +1880,6 @@ enum L10n {
         defaultValue: "Show why the strategies entered, watched or skipped this symbol, and mark their entries and exits on the candles (⌥⌘I)",
         bundle: L10n.bundle)
     }
-    /// Chart mark of an observer's (shadow strategy's) decision.
-    static func observerMark(_ action: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.observerMark", defaultValue: "\(action) · observer", bundle: L10n.bundle)
-    }
     /// Chart mark of the strategy's ENTER that was not taken (refused by risk or the gate).
     static func skippedMark(_ action: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.skippedMark", defaultValue: "\(action) · skipped", bundle: L10n.bundle)
@@ -1933,15 +1899,11 @@ enum L10n {
       LocalizedStringResource("chart.decisionsUnavailable", defaultValue: "The bot's API did not return decisions",
         bundle: L10n.bundle)
     }
-    /// Badge: an observer (shadow strategy, never trades) made the decision.
-    static var observerTag: LocalizedStringResource {
-      LocalizedStringResource("chart.observerTag", defaultValue: "Observer", bundle: L10n.bundle)
-    }
     /// A strategy name with its version.
     static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
     }
-    /// What-if entry and stop of an ENTER that was not taken (refused, or an observer's).
+    /// What-if entry and stop of an ENTER that was not taken (refused by the platform).
     static func entryStop(_ entry: String, _ stop: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.entryStop", defaultValue: "Skipped entry \(entry) · stop \(stop)", bundle: L10n.bundle)
     }
@@ -2937,14 +2899,6 @@ enum L10n {
     static var noCause: LocalizedStringResource {
       LocalizedStringResource("lab.noCause", defaultValue: "No cause recorded", bundle: L10n.bundle)
     }
-    /// An observer's entries the bot also took.
-    static func agreement(_ shared: Int, _ entered: Int, _ symbols: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.agreement",
-        defaultValue: "bot also traded \(shared) of \(entered): \(symbols)", bundle: L10n.bundle)
-    }
-    static var noEntries: LocalizedStringResource {
-      LocalizedStringResource("lab.noEntries", defaultValue: "would not have entered", bundle: L10n.bundle)
-    }
     /// Trades with wins and losses.
     static func closedWinsLosses(_ trades: Int, _ wins: Int, _ losses: Int) -> LocalizedStringResource {
       LocalizedStringResource("lab.closedWinsLosses", defaultValue: "\(trades) · \(wins) W · \(losses) L", bundle: L10n.bundle)
@@ -2955,28 +2909,6 @@ enum L10n {
         // swiftlint:disable:next line_length
         defaultValue: "Strategies are swappable modules: the active one is set in the bot's config and never loosens platform risk.",
         bundle: L10n.bundle)
-    }
-    /// No observers in the config.
-    static var observersEmpty: LocalizedStringResource {
-      LocalizedStringResource("lab.observersEmpty", defaultValue: "No observer strategies configured.", bundle: L10n.bundle)
-    }
-    /// The observers read failed.
-    static var observersUnavailable: LocalizedStringResource {
-      LocalizedStringResource("lab.observersUnavailable",
-        defaultValue: "Observers are unavailable; the bot's API did not answer.",
-        bundle: L10n.bundle)
-    }
-    /// How many decisions an observer recorded on the shown day.
-    static func decisionCount(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("lab.decisionCount", defaultValue: "\(count) decisions", bundle: L10n.bundle)
-    }
-    /// An observer's latest decision (New York time).
-    static func lastDecision(_ action: String, _ symbol: String, _ time: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.lastDecision", defaultValue: "Last: \(action) \(symbol) at \(time)", bundle: L10n.bundle)
-    }
-    /// An observer's hypothetical result is not served yet.
-    static var resultPending: LocalizedStringResource {
-      LocalizedStringResource("lab.resultPending", defaultValue: "Result not computed yet", bundle: L10n.bundle)
     }
     /// Decision: ignore the symbol.
     static var verdictIgnore: LocalizedStringResource {
@@ -2997,37 +2929,6 @@ enum L10n {
     /// Decision: exit.
     static var verdictExit: LocalizedStringResource {
       LocalizedStringResource("lab.verdictExit", defaultValue: "exit", bundle: L10n.bundle)
-    }
-    /// Name of the Lab chart: each version's gross result through the day.
-    static var curves: LocalizedStringResource {
-      LocalizedStringResource("lab.curves", defaultValue: "Today if each version traded", bundle: L10n.bundle)
-    }
-    /// Footnote of the Lab chart.
-    static var curvesNote: LocalizedStringResource {
-      LocalizedStringResource("lab.curvesNote",
-        // swiftlint:disable:next line_length
-        defaultValue: "Gross USD by trade close · each line ends at the version's reported result · dashed: trade list incomplete · no line: the reason",
-        bundle: L10n.bundle)
-    }
-    /// Chart axis: time of day.
-    static var curveTime: LocalizedStringResource {
-      LocalizedStringResource("lab.curveTime", defaultValue: "Time", bundle: L10n.bundle)
-    }
-    /// Chart axis: gross result in USD.
-    static var curveResult: LocalizedStringResource {
-      LocalizedStringResource("lab.curveResult", defaultValue: "Result", bundle: L10n.bundle)
-    }
-    /// Chart series: a strategy version.
-    static var curveVersion: LocalizedStringResource {
-      LocalizedStringResource("lab.curveVersion", defaultValue: "Version", bundle: L10n.bundle)
-    }
-    /// Observer row: why its line is dashed.
-    static func tradesIncomplete(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("lab.tradesIncomplete", defaultValue: "Trade list incomplete: \(cause)", bundle: L10n.bundle)
-    }
-    /// Cause of an incomplete trade list: the server cut it short.
-    static var tradesTruncated: LocalizedStringResource {
-      LocalizedStringResource("lab.tradesTruncated", defaultValue: "the bot listed only part of the trades", bundle: L10n.bundle)
     }
     /// Card title: replaying recorded days.
     static var replay: LocalizedStringResource {
@@ -3172,23 +3073,9 @@ enum L10n {
     static var tagActive: LocalizedStringResource {
       LocalizedStringResource("lab.tagActive", defaultValue: "Active", bundle: L10n.bundle)
     }
-    /// Role tag: a version that decides live without trading.
-    static var tagObserver: LocalizedStringResource {
-      LocalizedStringResource("lab.tagObserver", defaultValue: "Observer", bundle: L10n.bundle)
-    }
     /// Role tag: a version only the replay runs.
     static var tagCandidate: LocalizedStringResource {
       LocalizedStringResource("lab.tagCandidate", defaultValue: "Candidate", bundle: L10n.bundle)
-    }
-    /// Observer version: its decisions on the shown day.
-    static func observerNote(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("lab.observerNote", defaultValue: "observer · decisions: \(count)", bundle: L10n.bundle)
-    }
-    /// Observer version before its decisions are read.
-    static var observerNoteUnread: LocalizedStringResource {
-      LocalizedStringResource("lab.observerNoteUnread",
-        defaultValue: "observer · decisions not read",
-        bundle: L10n.bundle)
     }
     /// Candidate version: only the replay runs it.
     static var candidateNote: LocalizedStringResource {
@@ -3197,18 +3084,6 @@ enum L10n {
     /// After a version name: its version.
     static func versionSuffix(_ version: String) -> LocalizedStringResource {
       LocalizedStringResource("lab.versionSuffix", defaultValue: " · v\(version)", bundle: L10n.bundle)
-    }
-    /// Card title on a recorded day.
-    static var curvesOnDay: LocalizedStringResource {
-      LocalizedStringResource("lab.curvesOnDay", defaultValue: "If each version traded", bundle: L10n.bundle)
-    }
-    /// The chart is live: the bot runs.
-    static var curvesRunning: LocalizedStringResource {
-      LocalizedStringResource("lab.curvesRunning", defaultValue: "running", bundle: L10n.bundle)
-    }
-    /// Observer legend: entries the bot also traded.
-    static func alsoTraded(_ shared: Int, _ entered: Int) -> LocalizedStringResource {
-      LocalizedStringResource("lab.alsoTraded", defaultValue: "\(shared)/\(entered) also traded", bundle: L10n.bundle)
     }
     /// Card: refused signals of today, counted by cause.
     static var refusalsToday: LocalizedStringResource {
