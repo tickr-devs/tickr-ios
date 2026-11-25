@@ -33,7 +33,9 @@ The workspace holds the macOS app (`apps/macos/TickrMac.xcodeproj`) and the shar
 (`apps/shared`); the iOS app's project joins it when it is committed. Pick the scheme `Tickr macOS` and
 "My Mac", then Run (⌘R). Signing is automatic: without `apps/Config/Team.xcconfig` it signs to run
 on this Mac only; with it (copy `Team.xcconfig.example`, see `apps/Config/Identity.xcconfig`) the
-team's Apple Development certificate signs it as `bot.tickr.mac`. New Swift files dropped into `apps/macos/Tickr/` are picked up without
+team's Apple Development certificate signs it as `bot.tickr.mac`, with the push entitlement
+(`TICKR_MAC_ENTITLEMENTS` in that file; add the line from the example to an older copy), and the
+app registers its APNs token with the bot once notifications are allowed. New Swift files dropped into `apps/macos/Tickr/` are picked up without
 editing the project. Start the API first (below), or the app shows "unavailable".
 
 ## Run without Xcode

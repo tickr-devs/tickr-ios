@@ -45,6 +45,8 @@ struct TickrMacApp: App {
   static let defaultWidth: CGFloat = 1440
   static let defaultHeight: CGFloat = 920
 
+  /// Receives the push token the system gives this Mac (MacAppDelegate.swift).
+  @NSApplicationDelegateAdaptor(MacAppDelegate.self) private var appDelegate
   @State private var model: AppModel
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
 
@@ -65,7 +67,11 @@ struct TickrMacApp: App {
     asksForNotifications = asksForNotifications && !PreviewAPI.servesFixtures
     #endif
     if asksForNotifications {
-      Task { await AlertPoster().requestPermission() }
+      Task {
+        // Allowed, the app also takes the bot's push (APNs); its token goes to the bot through
+        // MacAppDelegate and PushRegistrar.
+        if await AlertPoster().requestPermission() { NSApplication.shared.registerForRemoteNotifications() }
+      }
     }
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.

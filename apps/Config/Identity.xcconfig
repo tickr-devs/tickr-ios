@@ -7,6 +7,18 @@
 // never edit the prefix once an app is uploaded there.
 TICKR_BUNDLE_ID_PREFIX = bot.tickr
 
+// The APNs environment the apps' push tokens belong to, which they tell the bot (Info.plist
+// TickrApsEnvironment, read by TickrKit's PushIdentity): development for Debug builds run from
+// Xcode, production for Release, the configuration of an archive for TestFlight and the App Store.
+// The aps-environment entitlement itself stays "development": exporting an archive for TestFlight
+// or the App Store sets it to production from the distribution profile.
+TICKR_APS_ENVIRONMENT = development
+TICKR_APS_ENVIRONMENT[config=Release] = production
+
+// The Mac app's entitlements (push): none by default, since an app signed for this Mac only
+// cannot carry them (it would not launch); Team.xcconfig names the file along with the team.
+TICKR_MAC_ENTITLEMENTS =
+
 // Without a team the Mac app is signed to run on this Mac only; Team.xcconfig switches it to the
 // team's Apple Development certificate (needed for push and TestFlight).
 CODE_SIGN_IDENTITY[sdk=macosx*] = -

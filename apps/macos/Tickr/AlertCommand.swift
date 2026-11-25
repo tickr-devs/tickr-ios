@@ -60,9 +60,10 @@ struct AlertPoster {
   static var available: Bool { Bundle.main.bundleURL.pathExtension == appExtension }
 
   /// Asks once to show notifications; the app does this at launch, so the notify mode (which
-  /// cannot show the question) finds the answer already given.
-  func requestPermission() async {
-    _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
+  /// cannot show the question) finds the answer already given. True when they are allowed.
+  @discardableResult
+  func requestPermission() async -> Bool {
+    (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])) ?? false
   }
 
   func post(_ request: AlertRequest) async -> AlertExit {

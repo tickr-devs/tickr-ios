@@ -47,7 +47,8 @@ final class ScreenTourUITests: XCTestCase {
     continueAfterFailure = true
     let api = Self.variable("TOUR_API") ?? Self.defaultAPI
     let language = Self.variable("TOUR_LANGUAGE") ?? Self.defaultLanguage
-    app.launchArguments = ["-apiBaseURL", api, "-AppleLanguages", "(\(language))"]
+    // No notification question over the screens (PhoneAppDelegate.asksKey).
+    app.launchArguments = ["-apiBaseURL", api, "-AppleLanguages", "(\(language))", "-askForNotifications", "NO"]
     app.launch()
     sleep(Self.settle)
   }

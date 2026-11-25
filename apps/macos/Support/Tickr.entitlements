@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The bot's push alerts (APNs). Used only when the app is signed with a team
+	     (TICKR_MAC_ENTITLEMENTS in apps/Config/Team.xcconfig). Exporting for distribution sets
+	     production from the profile; the token's environment comes from TICKR_APS_ENVIRONMENT. -->
+	<key>com.apple.developer.aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>

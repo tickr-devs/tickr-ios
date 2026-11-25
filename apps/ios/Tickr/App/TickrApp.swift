@@ -4,6 +4,8 @@ import TickrKit
 
 @main
 struct TickrApp: App {
+  /// Registers for the bot's push and reports the tokens (PhoneAppDelegate.swift).
+  @UIApplicationDelegateAdaptor(PhoneAppDelegate.self) private var appDelegate
   @State private var model = Container.shared.appModel()
   @Environment(\.scenePhase) private var scenePhase
   /// Until the opening animation has handed the launch screen over to Home.

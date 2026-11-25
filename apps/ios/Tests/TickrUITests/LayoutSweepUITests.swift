@@ -49,6 +49,8 @@ final class LayoutSweepUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = [
           "-apiBaseURL", api, "-AppleLanguages", "(\(language))", "-UIPreferredContentSizeCategoryName", size,
+          // No notification question over the screens (PhoneAppDelegate.asksKey).
+          "-askForNotifications", "NO",
         ]
         app.launch()
         let tabs = Self.tabs.map { app.buttons[$0] }
