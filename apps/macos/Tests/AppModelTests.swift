@@ -16,6 +16,12 @@ final class RouteProtocol: URLProtocol {
     var idempotencyKeys: [String?] = []
     /// Every path asked for, in the order asked.
     var paths: [String] = []
+    /// Paths whose request gets no answer: the connection drops.
+    var failing: Set<String> = []
+    /// Bodies of one host only, by host then path; checked before `bodies`.
+    var byHost: [String: [String: Data]] = [:]
+    /// Paths answered with this HTTP status instead of the usual one (an error body in `bodies`).
+    var statuses: [String: Int] = [:]
   }
 
   static let routes = Mutex(Routes())
@@ -44,10 +50,18 @@ final class RouteProtocol: URLProtocol {
       .queryItems?.first(where: { $0.name == "symbol" })?.value {
       if path == "/chart" { Self.routes.withLock { $0.chartSymbols.append(symbol) } }
     }
-    let body = Self.routes.withLock { $0.bodies[path] }
+    let host = url.host()
+    let (failing, hostBody) = Self.routes.withLock { routes in
+      (routes.failing.contains(path), host.flatMap { routes.byHost[$0]?[path] })
+    }
+    if failing {
+      client?.urlProtocol(self, didFailWithError: URLError(.networkConnectionLost))
+      return
+    }
+    let (body, status) = Self.routes.withLock { (hostBody ?? $0.bodies[path], $0.statuses[path]) }
     // A queued command answers 202 Accepted, a read 200 OK (docs/api.md).
     let success = request.httpMethod == "POST" ? 202 : 200
-    let response = HTTPURLResponse(url: url, statusCode: body == nil ? 404 : success, httpVersion: "HTTP/1.1",
+    let response = HTTPURLResponse(url: url, statusCode: status ?? (body == nil ? 404 : success), httpVersion: "HTTP/1.1",
       headerFields: ["Content-Type": "application/json"])
     if let response {
       client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
@@ -57,6 +71,18 @@ final class RouteProtocol: URLProtocol {
   }
 
   override func stopLoading() {}
+}
+
+/// Answers through `session`, every answer of `host` after `seconds`: a slow server.
+struct SlowHost: APITransport {
+  let host: String
+  let seconds: Double
+  let session: URLSession
+
+  func response(to request: URLRequest) async throws -> (Data, URLResponse) {
+    if request.url?.host() == host { try await Task.sleep(for: .seconds(seconds)) }
+    return try await session.data(for: request)
+  }
 }
 
 @MainActor
@@ -277,6 +303,130 @@ struct AppModelTests {
     let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
     #expect(keys.count == 2 && Set(keys).count == 2)
   }
+
+  @Test("A send whose answer was lost keeps its key until the receipt settles it, never a second command")
+  func lostAnswerKeepsItsKey() async throws {
+    let file = { (name: String) in try Data(contentsOf: fixturesDir.appendingPathComponent(name)) }
+    RouteProtocol.routes.withLock { $0.failing = ["/commands/flatten"] }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    await model.send(.flattenSymbol("ABCD"), title: "Close ABCD position")
+    #expect(model.toast?.unknown == true, "a lost answer is unknown, not refused")
+    // Pressed again while unknown: the same key, so the API answers the first send.
+    await model.send(.flattenSymbol("ABCD"), title: "Close ABCD position")
+    var keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
+    #expect(keys.count == 2 && Set(keys).count == 1)
+    // The receipt says it was queued: it is awaited as any queued command.
+    let receipt = try file("command-receipt-v1.json")
+    RouteProtocol.routes.withLock { $0.bodies["/commands/receipt"] = receipt }
+    await model.refreshStatus()
+    let queued = try Wire.decoder().decode(CommandReceiptV1.self, from: receipt).accepted
+    #expect(model.sent.first?.id == queued?.command.commandId)
+    #expect(model.toast?.unknown == false)
+    // Settled: the next press is a new decision with a new key.
+    let accepted = try file("command-accepted-v1.json")
+    RouteProtocol.routes.withLock {
+      $0.failing = []
+      $0.bodies["/commands/flatten"] = accepted
+    }
+    await model.send(.flattenSymbol("ABCD"), title: "Close ABCD position")
+    keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
+    #expect(keys.count == 3 && Set(keys).count == 2)
+  }
+
+  @Test("A receipt that says not queued drops the key and says so")
+  func lostAnswerNotQueued() async throws {
+    let notQueued = try Data(contentsOf: fixturesDir.appendingPathComponent("command-receipt-v1.not-queued.json"))
+    RouteProtocol.routes.withLock {
+      $0.failing = ["/commands/stop-bot"]
+      $0.bodies["/commands/receipt"] = notQueued
+    }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    await model.send(.stopBot, title: "Stop bot")
+    await model.refreshStatus()
+    #expect(model.toast?.outcome == .refused && model.toast?.unknown == false)
+    #expect(model.toast?.cause == String(localized: L10n.Bot.notQueued))
+  }
+
+  @Test("An API that serves no receipts drops a lost send's key and says the outcome is not known")
+  func lostAnswerUnservedReceipt() async throws {
+    var notFound = try #require(try JSONSerialization.jsonObject(with:
+      Data(contentsOf: fixturesDir.appendingPathComponent("error-v1.json"))) as? [String: Any])
+    notFound["error"] = "not_found"
+    notFound["cause_codes"] = [Any]()
+    let body = try JSONSerialization.data(withJSONObject: notFound)
+    RouteProtocol.routes.withLock {
+      $0.failing = ["/commands/stop-bot"]
+      $0.bodies["/commands/receipt"] = body
+      $0.statuses["/commands/receipt"] = 404
+    }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    await model.send(.stopBot, title: "Stop bot")
+    await model.refreshStatus()
+    #expect(model.toast?.cause == String(localized: L10n.Bot.outcomeNotKnown))
+    // The key went with it: the next press is a new decision with a new key.
+    await model.send(.stopBot, title: "Stop bot")
+    let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
+    #expect(keys.count == 2 && Set(keys).count == 2)
+  }
+
+  /// This Mac's clock in the age test, moved by hand.
+  nonisolated static let clock = Mutex(Date.now)
+
+  @Test("A lost send's key is never kept past the bot's command age (settings), so a later press is sent anew")
+  func lostAnswerKeyAgesOut() async throws {
+    Self.clock.withLock { $0 = .now }
+    Container.shared.now.register { { Self.clock.withLock { $0 } } }
+    RouteProtocol.routes.withLock { $0.failing = ["/commands/emergency"] }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    let keep = try #require(model.settings?.commandMaxAgeSeconds?.value)
+    await model.send(.emergency, title: "Emergency")
+    #expect(model.toast?.unknown == true)
+    // Past the age the bot refuses the first send anyway: its old answer must not stand for a new press.
+    Self.clock.withLock { $0 += NSDecimalNumber(decimal: keep).doubleValue + 1 }
+    await model.send(.emergency, title: "Emergency")
+    let keys = RouteProtocol.routes.withLock { $0.idempotencyKeys }.compactMap { $0 }
+    #expect(keys.count == 2 && Set(keys).count == 2)
+    // And a key that ages out between presses is shown as not known.
+    Self.clock.withLock { $0 += NSDecimalNumber(decimal: keep).doubleValue + 1 }
+    await model.refreshStatus()
+    #expect(model.toast?.cause == String(localized: L10n.Bot.outcomeNotKnown))
+  }
+
+  @Test("Nothing is sent when the status read right before the send fails, even once")
+  func sendNeedsAFreshRead() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    #expect(model.commandsEnabled)
+    // One failed read is still hidden as a passing blip; the command must not ride on it.
+    RouteProtocol.routes.withLock { $0.failing = ["/status"] }
+    await model.send(.entryStop(on: true), title: "Pause entries")
+    #expect(Self.sentCount() == 0)
+    #expect(model.toast?.outcome == .refused)
+  }
+
+  @Test("A late answer from the server before a switch never shows as the new server's")
+  func lateAnswerFromTheOldServerIsDropped() async throws {
+    let stale = try Self.status(botState: "running", stale: true)
+    RouteProtocol.routes.withLock { $0.byHost[Self.slowHost] = ["/status": stale] }
+    Container.shared.apiClient.register { endpoint in
+      APIClient(baseURL: endpoint.baseURL, token: endpoint.token,
+        transport: SlowHost(host: Self.slowHost, seconds: Self.slowAnswerSeconds, session: RouteProtocol.session()))
+    }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    let late = Task { await model.refreshStatus() }
+    try await Task.sleep(for: .seconds(Self.slowAnswerSeconds / 2))
+    model.connect(to: try #require(URL(string: "http://localhost:8766")))
+    #expect(await late.value == false)
+    #expect(model.response?.stale != true, "the old server's stale status replaced the new one's")
+  }
+
+  /// The old server of the switch test, and how long its answers take, in seconds.
+  static let slowHost = "127.0.0.1"
+  static let slowAnswerSeconds = 0.4
 
   /// Commands sent so far (each POST carries one idempotency key).
   static func sentCount() -> Int { RouteProtocol.routes.withLock { $0.idempotencyKeys.count } }

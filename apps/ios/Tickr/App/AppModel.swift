@@ -122,6 +122,12 @@ final class AppModel {
   @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
   @ObservationIgnored private var awaited: [String: CommandKind] = [:]
+  /// The idempotency key of each command whose send lost its answer (backlog A3): kept until the
+  /// API's receipt says whether it was queued, and used again if the owner presses it again.
+  @ObservationIgnored private var keys = CommandKeys()
+  /// Counts connections: every answer is applied only while the connection it was asked on is
+  /// still this one (backlog A4), so a late answer from the address before never shows as this one's.
+  @ObservationIgnored private var link = 0
   /// Seconds between reads until the first answer gives the server's poll_seconds.
   static let initialPollSeconds = 3.0
   /// Shortest wait between two reads, whatever the server asks for.
@@ -227,6 +233,10 @@ final class AppModel {
 
   private func restart() {
     stop()
+    link += 1
+    // Keys and queued commands of the address before mean nothing at this one.
+    keys.clear()
+    awaited = [:]
     response = nil
     reads = ReadFailures()
     lastReadAt = nil
@@ -273,22 +283,34 @@ final class AppModel {
   }
 
   func refresh() async {
+    await readStatus()
+  }
+
+  /// Reads /status once. True only when this very read answered, on the connection still shown,
+  /// with a current status: what a command needs right before it is sent (backlog A4). A failed
+  /// read is false even while `ReadFailures` still hides it as a passing blip.
+  @discardableResult
+  private func readStatus() async -> Bool {
     guard let url = connection.url else {
       response = nil
       reads = ReadFailures()
-      return
+      return false
     }
+    let asked = link
+    let fresh: StatusResponseV1
     do {
-      let fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
+      fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
+      guard asked == link else { return false }
       response = fresh
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
       resolveAwaited(fresh)
     } catch {
-      reads.failed(error, hadAnswer: lastReadAt != nil)
-      return
+      if asked == link { reads.failed(error, hadAnswer: lastReadAt != nil) }
+      return false
     }
+    await settleLost(url)
     if response?.needsSettings(settings, readFor: settingsReadFor) ?? (settings == nil) { await refreshSettings(url) }
     // Today's session and the next one for the headline's countdown: read once per bot day, and
     // again once the next session has opened (it then names the one after).
@@ -297,6 +319,7 @@ final class AppModel {
       await refreshJobs()
       if jobs == nil { jobsReadDay = nil }
     }
+    return asked == link && !fresh.stale && fresh.status != nil
   }
 
   /// Takes the bot's clock from a status served at `servedAt`. Network delay moves the offset by
@@ -525,8 +548,11 @@ final class AppModel {
 
   /// Queues a command once. Refused unless the status is fresh when tapped; `confirmOwner`
   /// (Face ID or passcode) runs first when given. Right before the send the status is read again
-  /// from the bot (not the last poll), and the command is refused unless that read is current, so
-  /// a bot that went stale during the dialog or Face ID never gets the command.
+  /// from the bot (not the last poll), and the command is refused unless that very read answered,
+  /// from the same address, with a current status (backlog A4): a bot that went stale during the
+  /// dialog or Face ID, or a read that failed, never gets the command. The send carries one
+  /// idempotency key per decision; a lost answer keeps it, says the outcome is unknown and is
+  /// settled by the API's receipt, never by a send under a new key (backlog A3).
   func send(_ command: OperatorCommand, confirmOwner: (() async -> Biometrics.Outcome)? = nil) async {
     let title = Board.commandTitle(command.kind)
     guard !sending else {
@@ -537,6 +563,7 @@ final class AppModel {
       notice = Notice(L10n.Notice.notCurrent(title), tone: .failure)
       return
     }
+    let asked = link
     sending = true
     inFlight = command
     defer {
@@ -552,25 +579,72 @@ final class AppModel {
         return
       }
     }
-    await refresh()
-    guard isFresh, connection.url == url else {
+    guard asked == link, await readStatus(), asked == link, connection.url == url else {
       notice = Notice(L10n.Notice.wentStale(title), tone: .failure)
       return
     }
-    do {
-      // One key per decision: should this very request ever reach the bot twice, it queues once.
-      let accepted = try await Container.shared.apiClient(connection.endpoint(for: url))
-        .send(command, idempotencyKey: UUID().uuidString)
-      awaited[accepted.command.commandId] = command.kind
-      if let warning = accepted.warning {
-        notice = Notice(L10n.Notice.queuedWarning(title, warning), tone: .failure)
-      } else {
-        notice = Notice(L10n.Notice.queued(title), tone: .info)
-      }
-    } catch {
-      notice = Notice(L10n.Notice.failed(title, ErrorText.text(error)), tone: .failure)
+    let key = keys.key(for: command, now: now(), keepSeconds: keepSeconds)
+    let sentAt = now()
+    let outcome = await CommandSend.send(command, key: key,
+      client: Container.shared.apiClient(connection.endpoint(for: url)))
+    guard asked == link else { return }
+    switch outcome {
+    case .queued(let accepted):
+      keys.settled(command)
+      queued(accepted, title: title)
+    case .refused(let cause):
+      keys.settled(command)
+      notice = Notice(L10n.Notice.failed(title, cause), tone: .failure)
+    case .unknown(let cause):
+      keys.lost(command, key: key, at: sentAt)
+      notice = Notice(L10n.Notice.outcomeUnknown(title, cause), tone: .failure)
     }
     await refresh()
+  }
+
+  /// A queued command: awaited in recent_commands, and said so.
+  private func queued(_ accepted: CommandAcceptedV1, title: String) {
+    awaited[accepted.command.commandId] = accepted.command.kind
+    if let warning = accepted.warning {
+      notice = Notice(L10n.Notice.queuedWarning(title, warning), tone: .failure)
+    } else {
+      notice = Notice(L10n.Notice.queued(title), tone: .info)
+    }
+  }
+
+  /// How long a lost send's key is kept: the bot's command age limit, nil while it is not known.
+  private var keepSeconds: Decimal? { settings?.commandMaxAgeSeconds?.value }
+
+  /// Reads the receipt of every send whose answer was lost, after a good status read at `url`:
+  /// queued goes on as any queued command, not queued is said so and its key dropped; a receipt
+  /// that cannot be read leaves it unknown until the next read. A key past the bot's command age,
+  /// or one whose receipt the API cannot serve, is dropped with a notice to check the status
+  /// before sending again. Not while a send is under way, which settles its own command.
+  private func settleLost(_ url: URL) async {
+    guard !sending else { return }
+    for command in keys.expire(now: now(), keepSeconds: keepSeconds) {
+      notice = Notice(L10n.Notice.outcomeNotKnown(Board.commandTitle(command.kind)), tone: .failure)
+    }
+    let asked = link
+    for (command, kept) in keys.unknown {
+      let outcome = await CommandSend.receipt(key: kept.key,
+        client: Container.shared.apiClient(connection.endpoint(for: url)))
+      guard asked == link, keys.unknown[command] == kept else { return }
+      let title = Board.commandTitle(command.kind)
+      switch outcome {
+      case .queued(let accepted):
+        keys.settled(command)
+        queued(accepted, title: title)
+      case .notQueued:
+        keys.settled(command)
+        notice = Notice(L10n.Notice.notQueued(title), tone: .failure)
+      case .unserved:
+        keys.settled(command)
+        notice = Notice(L10n.Notice.outcomeNotKnown(title), tone: .failure)
+      case .unknown:
+        continue
+      }
+    }
   }
 
   /// Start makes sense when the Mac answers and no current status says the bot is alive (a stale

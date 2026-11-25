@@ -344,6 +344,18 @@ enum L10n {
     static func notSent(_ reason: String) -> LocalizedStringResource {
       LocalizedStringResource("bot.notSent", defaultValue: "not sent: \(reason)", bundle: L10n.bundle)
     }
+    /// The receipt of a send whose answer was lost says it never reached the queue.
+    static var notQueued: LocalizedStringResource {
+      LocalizedStringResource("bot.notQueued",
+        defaultValue: "not queued: the bot's API never received it. Send it again if you still want it.",
+        bundle: L10n.bundle)
+    }
+    /// A send whose answer was lost and whose outcome can no longer be read (too old, or no receipts).
+    static var outcomeNotKnown: LocalizedStringResource {
+      LocalizedStringResource("bot.outcomeNotKnown",
+        defaultValue: "whether it was queued is not known. Check the bot's status before sending it again.",
+        bundle: L10n.bundle)
+    }
   }
 
   enum Menu {
@@ -458,6 +470,15 @@ enum L10n {
     }
     static func warning(_ warning: String) -> LocalizedStringResource {
       LocalizedStringResource("toast.warning", defaultValue: "Warning: \(warning)", bundle: L10n.bundle)
+    }
+    /// A send whose answer was lost (backlog A3).
+    static func unknown(_ title: String) -> LocalizedStringResource {
+      LocalizedStringResource("toast.unknown", defaultValue: "\(title): no answer from the bot's API", bundle: L10n.bundle)
+    }
+    static func unknownDetail(_ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("toast.unknownDetail",
+        defaultValue: "\(cause). Checking whether it was queued; pressing it again cannot queue it twice.",
+        bundle: L10n.bundle)
     }
     static var resultLater: LocalizedStringResource {
       LocalizedStringResource("toast.resultLater",

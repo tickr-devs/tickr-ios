@@ -185,6 +185,25 @@ enum L10n {
     static var noCause: LocalizedStringResource {
       LocalizedStringResource("notice.noCause", defaultValue: "no cause given", bundle: L10n.bundle)
     }
+    /// A send whose answer was lost: its key is kept, so pressing it again cannot queue it twice.
+    static func outcomeUnknown(_ command: String, _ cause: String) -> LocalizedStringResource {
+      LocalizedStringResource("notice.outcomeUnknown",
+        // swiftlint:disable:next line_length
+        defaultValue: "\(command): no answer from the Mac (\(cause)). Checking whether it was queued; pressing it again cannot queue it twice.",
+        bundle: L10n.bundle)
+    }
+    /// The receipt of a lost send says it never reached the queue.
+    static func notQueued(_ command: String) -> LocalizedStringResource {
+      LocalizedStringResource("notice.notQueued",
+        defaultValue: "\(command) was not queued: the Mac never received it. Send it again if you still want it.",
+        bundle: L10n.bundle)
+    }
+    /// A lost send whose outcome can no longer be read: too old to check, or the Mac keeps no receipts.
+    static func outcomeNotKnown(_ command: String) -> LocalizedStringResource {
+      LocalizedStringResource("notice.outcomeNotKnown",
+        defaultValue: "\(command): whether it was queued is not known. Check the bot's status before sending it again.",
+        bundle: L10n.bundle)
+    }
   }
 
   enum Control {

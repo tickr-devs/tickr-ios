@@ -54,6 +54,10 @@ public struct SettingsV1: Codable, Hashable, Sendable {
   public let liveQuoteMaxAgeSeconds: DecimalString?
   /// Seconds between two reads of GET /quotes; nil from an older API, which has none.
   public let quotesPollSeconds: DecimalString?
+  /// Age, in seconds, past which the bot refuses a command as expired: how long the apps keep the
+  /// idempotency key of a send whose answer was lost (`CommandKeys`); nil from an older API, and
+  /// then they keep none.
+  public let commandMaxAgeSeconds: DecimalString?
   public let apiVersion: Int
 
   enum CodingKeys: String, CodingKey {
@@ -65,6 +69,7 @@ public struct SettingsV1: Codable, Hashable, Sendable {
     case brokerReadWarnSeconds = "broker_read_warn_seconds"
     case liveQuoteMaxAgeSeconds = "live_quote_max_age_seconds"
     case quotesPollSeconds = "quotes_poll_seconds"
+    case commandMaxAgeSeconds = "command_max_age_seconds"
     case apiVersion = "api_version"
   }
 
@@ -82,6 +87,7 @@ public struct SettingsV1: Codable, Hashable, Sendable {
     brokerReadWarnSeconds = try c.decode(DecimalString.self, forKey: .brokerReadWarnSeconds)
     liveQuoteMaxAgeSeconds = try c.decodeIfPresent(DecimalString.self, forKey: .liveQuoteMaxAgeSeconds)
     quotesPollSeconds = try c.decodeIfPresent(DecimalString.self, forKey: .quotesPollSeconds)
+    commandMaxAgeSeconds = try c.decodeIfPresent(DecimalString.self, forKey: .commandMaxAgeSeconds)
   }
 }
 

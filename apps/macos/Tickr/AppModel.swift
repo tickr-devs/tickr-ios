@@ -43,6 +43,8 @@ public struct SentCommand: Identifiable, Equatable, Sendable {
   public var outcome: CommandOutcome?
   public var cause: String?
   public var warning: String?
+  /// The send's answer was lost: whether it was queued is not known yet (`AppModel.settleLost`).
+  public var unknown = false
 }
 
 /// One open position as the app shows it, one row per position in the bot's status.
@@ -284,6 +286,15 @@ public final class AppModel {
   private(set) var confirming: PendingConfirmation?
 
   private var tasks: [Task<Void, Never>] = []
+  /// Counts connections (`reconnect`): an answer is applied only while the connection it was
+  /// asked on is still this one (backlog A4), so a late answer from server A never replaces what
+  /// the app shows of server B after a switch, even when B is A again.
+  @ObservationIgnored private var link = 0
+  /// The idempotency key of each command whose send lost its answer (backlog A3): kept until the
+  /// API's receipt says whether it was queued, and used again if the operator presses it again.
+  @ObservationIgnored private var keys = CommandKeys()
+  /// The title each lost send was pressed under ("Close ABCD position"), by its key.
+  @ObservationIgnored private var lostTitles: [String: String] = [:]
 
   public init(baseURL: URL, demoDay: Bool = false) {
     self.address = baseURL
@@ -535,6 +546,10 @@ public final class AppModel {
     // A question asked of the other address (or the other side of the demo switch) is never
     // answered here: it names a command for where the app no longer points.
     confirming = nil
+    link += 1
+    // Keys of the server before mean nothing at this one.
+    keys.clear()
+    lostTitles = [:]
     let url = baseURL
     client = Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
     response = nil
@@ -576,9 +591,17 @@ public final class AppModel {
 
   // MARK: reads
 
-  public func refreshStatus() async {
+  /// Reads /status once. True only when this very read answered, on the connection still shown,
+  /// with a current status: what a command needs right before it is sent (backlog A4). A failed
+  /// read is false even while `ReadFailures` still hides it as a passing blip.
+  @discardableResult
+  public func refreshStatus() async -> Bool {
+    let asked = link
+    var current = false
     do {
       let fresh = try await client.status()
+      guard asked == link else { return false }
+      current = !fresh.stale && fresh.status != nil
       let dayBefore = today
       response = fresh
       reads.answered()
@@ -592,6 +615,7 @@ public final class AppModel {
         await refreshHistory()
       }
       resolveSentCommands()
+      await settleLost()
       // Today's session and the next one for the headline's countdown: read once per bot day,
       // and again once the next session has opened (it then names the one after).
       if jobsReadDay != today || jobs?.nextSession.map({ $0.regularOpen.date <= botNow }) == true {
@@ -614,11 +638,13 @@ public final class AppModel {
         await refreshHistory()
       }
     } catch {
+      guard asked == link else { return false }
       reads.failed(error, hadAnswer: lastReadAt != nil)
     }
     // A stale status or a failed read turns commands off: an open question goes with them.
     withdrawIfCommandsOff()
     if response?.needsSettings(settings, readFor: settingsReadFor) ?? (settings == nil) { await refreshSettings() }
+    return current && asked == link
   }
 
   /// Takes the bot's clock from a status served at `servedAt`. Network delay moves the offset by
@@ -630,21 +656,31 @@ public final class AppModel {
 
   public func refreshSettings() async {
     let startedAt = response?.apiStartedAt
+    let asked = link
     do {
-      settings = try await client.settings()
+      let read = try await client.settings()
+      guard asked == link else { return }
+      settings = read
       settingsReadFor = startedAt
       settingsError = nil
     } catch {
+      guard asked == link else { return }
       settingsError = Self.describe(error) ?? settingsError
     }
   }
 
   public func refreshHistory() async {
+    let asked = link
     do {
-      days = try await client.days().days
-      todayDocument = try await client.day(today)
+      let read = try await client.days().days
+      guard asked == link else { return }
+      days = read
+      let document = try await client.day(today)
+      guard asked == link else { return }
+      todayDocument = document
       historyError = nil
     } catch {
+      guard asked == link else { return }
       historyError = Self.describe(error) ?? historyError
     }
     async let observersRead: Void = refreshObservers()
@@ -655,10 +691,10 @@ public final class AppModel {
 
   /// Reads the Lab's replay; a failed read clears it, so an old result never reads as current.
   public func refreshLabReplay() async {
-    let url = baseURL
+    let asked = link
     do {
       let read = try await client.labReplay()
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       labReplay = read
       labReplayError = nil
       if let refused = labReplayRefusedAt, refused.state != read.state || refused.runId != read.runId
@@ -669,7 +705,7 @@ public final class AppModel {
     } catch is CancellationError {
       return
     } catch {
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       labReplay = nil
       labReplayError = Self.describe(error) ?? labReplayError
     }
@@ -679,22 +715,22 @@ public final class AppModel {
   /// `compare` over the same days, over the last sessions or `day` only; a refusal (a run going,
   /// the session open, no data) is kept as the reason, never retried.
   public func startLabReplay(version: String? = nil, compare: String? = nil, day: WireDate? = nil) async {
-    let url = baseURL
+    let asked = link
     labReplayStarting = true
     defer { labReplayStarting = false }
     do {
       let started = try await client.startLabReplay(version: version, compare: compare, day: day)
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       labReplay = started
       labReplayRefusal = nil
       labReplayRefusedAt = nil
       labReplayError = nil
     } catch APIError.refused(_, _, let cause) {
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       labReplayRefusal = cause
       labReplayRefusedAt = (labReplay?.state, labReplay?.runId, .now)
     } catch {
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       labReplayError = Self.describe(error) ?? labReplayError
     }
   }
@@ -722,16 +758,16 @@ public final class AppModel {
 
   /// Reads the jobs; a failed read clears them, so old times never read as current.
   public func refreshJobs() async {
-    let url = baseURL
+    let asked = link
     do {
       let read = try await client.jobs()
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       jobs = read
       jobsError = nil
     } catch is CancellationError {
       return
     } catch {
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       jobs = nil
       jobsError = Self.describe(error) ?? jobsError
     }
@@ -739,30 +775,30 @@ public final class AppModel {
 
   /// Reads the System card; a failed read clears it, so an old state never reads as current.
   public func refreshSystem() async {
-    let url = baseURL
+    let asked = link
     do {
       let read = try await client.system()
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       system = read
       systemError = nil
     } catch is CancellationError {
       return
     } catch {
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       system = nil
       systemError = Self.describe(error) ?? systemError
     }
   }
 
   public func refreshConfig() async {
-    let url = baseURL
+    let asked = link
     do {
       let read = try await client.config()
-      guard url == baseURL else { return }
+      guard asked == link else { return }
       config = read
       configError = nil
     } catch {
-      guard !Task.isCancelled, url == baseURL else { return }
+      guard !Task.isCancelled, asked == link else { return }
       config = nil
       configError = Self.describe(error)
     }
@@ -781,10 +817,14 @@ public final class AppModel {
   }
 
   public func refreshAccount() async {
+    let asked = link
     do {
-      account = try await client.account()
+      let read = try await client.account()
+      guard asked == link else { return }
+      account = read
       accountError = nil
     } catch {
+      guard asked == link else { return }
       // A failed read never shows an older answer as current.
       account = nil
       accountError = Self.describe(error) ?? accountError
@@ -794,8 +834,9 @@ public final class AppModel {
   /// Observers of the shown day. An answer for a day no longer shown is dropped.
   public func refreshObservers() async {
     let day = shownDay
+    let asked = link
     let read = await Self.outcome { [client] in try await client.observers(day: day) }
-    guard shows(day) else { return }
+    guard shows(day, asked: asked) else { return }
     apply(read, of: day, \.observers, \.observersError, kept: \.observers)
   }
 
@@ -803,8 +844,9 @@ public final class AppModel {
   /// failed read clears the list, so an old one never reads as current.
   public func refreshSkipped() async {
     let day = shownDay
+    let asked = link
     let read = await Self.outcome { [client] in try await client.skipped(day: day) }
-    guard shows(day) else { return }
+    guard shows(day, asked: asked) else { return }
     apply(read, of: day, \.skipped, \.skippedError, kept: \.skipped)
   }
 
@@ -812,10 +854,11 @@ public final class AppModel {
   /// shown is dropped; a failed read clears it, so old figures never read as current.
   public func refreshPerformance() async {
     let day = shownDay
+    let asked = link
     let read = await Self.outcome { [client] in
       try await client.performance(from: day.adding(days: 1 - Self.performanceDays), to: day)
     }
-    guard shows(day) else { return }
+    guard shows(day, asked: asked) else { return }
     apply(read, of: day, \.performance, \.performanceError, kept: \.performance)
   }
 
@@ -824,13 +867,14 @@ public final class AppModel {
   /// never reads as current.
   public func refreshFlow() async {
     let day = shownDay
+    let asked = link
     async let flow = Self.outcome { [client] in try await client.flow(day: day) }
     async let watching = Self.outcome { [client] in try await client.watching(day: day) }
     async let symbols = Self.outcome { [client] in try await client.symbols(day: day) }
     async let movers = Self.outcome { [client] in try await client.movers(day: day) }
     async let events = Self.outcome { [client] in try await client.events(day: day) }
     let read = await (flow, watching, symbols, movers, events)
-    guard shows(day) else { return }
+    guard shows(day, asked: asked) else { return }
     apply(read.0, of: day, \.flow, \.flowError, kept: \.flow)
     apply(read.1, of: day, \.watching, \.watchingError, kept: \.watching)
     apply(read.2, of: day, \.symbols, \.symbolsError, kept: \.symbols)
@@ -853,6 +897,7 @@ public final class AppModel {
     cardsRead += 1
     let read = cardsRead
     cardsDay = day
+    let asked = link
     defer { if cardsRead == read { cardsDay = nil } }
     async let flow = Self.outcome { [client] in try await client.flow(day: day) }
     async let watching = Self.outcome { [client] in try await client.watching(day: day) }
@@ -863,7 +908,7 @@ public final class AppModel {
     async let skipped = Self.outcome { [client] in try await client.skipped(day: day) }
     async let performance = Self.outcome { [client] in try await client.performance(from: from, to: day) }
     let cards = await (flow, watching, symbols, movers, events, observers, skipped, performance)
-    guard day == shownDay, !Task.isCancelled else { return }
+    guard asked == link, day == shownDay, !Task.isCancelled else { return }
     apply(cards.0, of: day, \.flow, \.flowError, kept: \.flow)
     apply(cards.1, of: day, \.watching, \.watchingError, kept: \.watching)
     apply(cards.2, of: day, \.symbols, \.symbolsError, kept: \.symbols)
@@ -876,7 +921,7 @@ public final class AppModel {
 
   /// Whether a single read's answer for `day` may be shown now: `day` is still shown and its
   /// cards are not being read together (`readDayCards` shows them all at once).
-  private func shows(_ day: WireDate) -> Bool { day == shownDay && cardsDay != day }
+  private func shows(_ day: WireDate, asked: Int) -> Bool { asked == link && day == shownDay && cardsDay != day }
 
   /// One read's document, or why it failed; read off the main actor, shown on it.
   nonisolated static func outcome<Document: Sendable>(
@@ -973,9 +1018,10 @@ public final class AppModel {
       dayError = nil
       return
     }
+    let asked = link
     do {
       let document = try await client.day(day)
-      guard day == selectedDay, !Task.isCancelled else { return }
+      guard asked == link, day == selectedDay, !Task.isCancelled else { return }
       guard document.day == day else {
         dayDocument = nil
         dayError = String(localized: L10n.Trades.otherDayAnswered(day.text, document.day.text))
@@ -985,7 +1031,7 @@ public final class AppModel {
       dayError = nil
       keep(day) { $0.document = document }
     } catch {
-      guard day == selectedDay, !Task.isCancelled else { return }
+      guard asked == link, day == selectedDay, !Task.isCancelled else { return }
       dayDocument = nil
       dayError = Self.describe(error) ?? String(localized: L10n.Common.unavailable)
     }
@@ -1023,12 +1069,15 @@ public final class AppModel {
     let symbols = status?.positions.map(\.symbol) ?? []
     barsReadFor = symbols
     barsDay = today
+    let asked = link
     for symbol in symbols {
       do {
         let fresh = try await DayBars.read(client, symbol: symbol, day: today, today: today)
+        guard asked == link else { return }
         // An answer the chart's budget left empty, or an older one, never replaces newer bars.
         if !Self.isOlder(fresh, than: barsBySymbol[symbol]) { barsBySymbol[symbol] = fresh }
       } catch {
+        guard asked == link else { return }
         // The position still shows its entry and stop; only "last" stays empty.
         barsBySymbol[symbol] = nil
       }
@@ -1079,10 +1128,13 @@ public final class AppModel {
     guard canStartBot else { return }
     botStarting = true
     defer { botStarting = false }
+    let asked = link
     do {
       let answer = try await client.startBot()
+      guard asked == link else { return }
       botStart = .accepted(stopCleared: answer.stopMarkerCleared)
     } catch {
+      guard asked == link else { return }
       botStart = .refused(ErrorText.text(error))
     }
     await refreshStatus()
@@ -1128,6 +1180,11 @@ public final class AppModel {
     if !commandsEnabled { confirming = nil }
   }
 
+  /// Sends `command` once. Right before the send the status is read again (not the last poll),
+  /// and nothing is sent unless that very read answered, on this connection, with a current
+  /// status (backlog A4). The send carries one idempotency key per decision; a lost answer keeps
+  /// it, says the outcome is unknown and is settled by the API's receipt, never by a send under a
+  /// new key (backlog A3).
   public func send(_ command: OperatorCommand, title: String) async {
     // A confirmation alert can stay open while the status goes stale or the day changes:
     // check again at the moment of sending, never trust the state the alert was opened in.
@@ -1136,6 +1193,7 @@ public final class AppModel {
         cause: String(localized: L10n.Bot.notSentUntrusted), warning: nil))
       return
     }
+    let asked = link
     sending = true
     inFlight = command
     withdrawIfCommandsOff()
@@ -1143,18 +1201,88 @@ public final class AppModel {
       sending = false
       inFlight = nil
     }
-    do {
-      // One key per operator action: a repeat of this exact send answers the first, never queues twice.
-      let accepted = try await client.send(command, idempotencyKey: UUID().uuidString)
-      let record = SentCommand(id: accepted.command.commandId, kind: command.kind, title: title,
-        outcome: nil, cause: nil, warning: accepted.warning)
-      sent.insert(record, at: 0)
-      show(record)
-    } catch {
+    guard await refreshStatus(), asked == link else {
       show(SentCommand(id: UUID().uuidString, kind: command.kind, title: title, outcome: .refused,
-        cause: String(localized: L10n.Bot.notSent(ErrorText.text(error))), warning: nil))
+        cause: String(localized: L10n.Bot.notSentUntrusted), warning: nil))
+      return
+    }
+    let key = keys.key(for: command, now: now(), keepSeconds: keepSeconds)
+    // A kept key too old to reuse is left behind: this press is a new decision.
+    if let old = keys.unknown[command]?.key, old != key { lostTitles[old] = nil }
+    let sentAt = now()
+    let outcome = await CommandSend.send(command, key: key, client: client)
+    guard asked == link else { return }
+    switch outcome {
+    case .queued(let accepted):
+      keys.settled(command)
+      lostTitles[key] = nil
+      queued(accepted, title: title)
+    case .refused(let cause):
+      keys.settled(command)
+      lostTitles[key] = nil
+      show(SentCommand(id: UUID().uuidString, kind: command.kind, title: title, outcome: .refused,
+        cause: String(localized: L10n.Bot.notSent(cause)), warning: nil))
+    case .unknown(let cause):
+      keys.lost(command, key: key, at: sentAt)
+      lostTitles[key] = title
+      show(SentCommand(id: key, kind: command.kind, title: title, outcome: nil, cause: cause, warning: nil,
+        unknown: true))
     }
     await refreshStatus()
+  }
+
+  /// A queued command: kept until its outcome appears in the status, and shown.
+  private func queued(_ accepted: CommandAcceptedV1, title: String) {
+    let record = SentCommand(id: accepted.command.commandId, kind: accepted.command.kind, title: title,
+      outcome: nil, cause: nil, warning: accepted.warning)
+    sent.insert(record, at: 0)
+    show(record)
+  }
+
+  /// How long a lost send's key is kept: the bot's command age limit, nil while it is not known.
+  private var keepSeconds: Decimal? { settings?.commandMaxAgeSeconds?.value }
+
+  /// Reads the receipt of every send whose answer was lost, after a good status read: queued goes
+  /// on as any queued command, not queued is shown and its key dropped; a receipt that cannot be
+  /// read leaves it unknown until the next read. A key past the bot's command age, or one whose
+  /// receipt the API cannot serve, is dropped and shown as not known, to check the status before
+  /// sending again. Not while a send is under way, which settles its own command.
+  private func settleLost() async {
+    guard !sending else { return }
+    let before = keys.unknown
+    for command in keys.expire(now: now(), keepSeconds: keepSeconds) {
+      if let key = before[command]?.key { notKnown(command, key: key) }
+    }
+    let asked = link
+    for (command, kept) in keys.unknown {
+      let key = kept.key
+      let outcome = await CommandSend.receipt(key: key, client: client)
+      guard asked == link, keys.unknown[command] == kept else { return }
+      let title = lostTitles[key] ?? Board.commandTitle(command.kind)
+      switch outcome {
+      case .queued(let accepted):
+        keys.settled(command)
+        lostTitles[key] = nil
+        queued(accepted, title: title)
+      case .notQueued:
+        keys.settled(command)
+        lostTitles[key] = nil
+        show(SentCommand(id: key, kind: command.kind, title: title, outcome: .refused,
+          cause: String(localized: L10n.Bot.notQueued), warning: nil))
+      case .unserved:
+        keys.settled(command)
+        notKnown(command, key: key)
+      case .unknown:
+        continue
+      }
+    }
+  }
+
+  /// A lost send whose outcome can no longer be read: shown so, its key already dropped.
+  private func notKnown(_ command: OperatorCommand, key: String) {
+    let title = lostTitles.removeValue(forKey: key) ?? Board.commandTitle(command.kind)
+    show(SentCommand(id: key, kind: command.kind, title: title, outcome: .refused,
+      cause: String(localized: L10n.Bot.outcomeNotKnown), warning: nil))
   }
 
   private func resolveSentCommands() {

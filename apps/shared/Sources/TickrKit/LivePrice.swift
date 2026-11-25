@@ -60,13 +60,19 @@ public final class LiveQuotes {
   public private(set) var bySymbol: [String: LiveQuoteV1] = [:]
   /// When the bot's stream last delivered any quote and last came up (GET /quotes).
   public private(set) var stream = StreamTimes()
+  /// Counts `clear()` calls: a read that started before one is dropped when it answers, so a late
+  /// answer from the server the app left never shows as the new one's quotes.
+  @ObservationIgnored private var epoch = 0
 
   public init() {}
 
   /// Read GET /quotes once with `client`.
   public func refresh(_ client: APIClient) async {
+    let epoch = self.epoch
     do {
       let read = try await client.quotes()
+      // Cleared meanwhile (another server): this answer belongs to the one before.
+      guard epoch == self.epoch else { return }
       let fresh = Dictionary(read.quotes.quotes.map { ($0.symbol, $0) }, uniquingKeysWith: { _, newer in newer })
       // Unchanged quotes redraw nothing.
       if fresh != bySymbol { bySymbol = fresh }
@@ -75,6 +81,7 @@ public final class LiveQuotes {
     } catch is CancellationError {
       return
     } catch {
+      guard epoch == self.epoch else { return }
       if !bySymbol.isEmpty { bySymbol = [:] }
       if stream != StreamTimes() { stream = StreamTimes() }
     }
@@ -82,6 +89,7 @@ public final class LiveQuotes {
 
   /// Forget every quote (another bot address, a stopped app).
   public func clear() {
+    epoch += 1
     bySymbol = [:]
     stream = StreamTimes()
   }

@@ -873,6 +873,7 @@ struct CommandToast: View {
   }
 
   private var headline: String {
+    if command.unknown { return String(localized: L10n.Toast.unknown(command.title)) }
     switch command.outcome {
     case nil: return String(localized: L10n.Toast.queued(command.title))
     case .done: return String(localized: L10n.Toast.done(command.title))
@@ -881,6 +882,7 @@ struct CommandToast: View {
   }
 
   private var detail: String? {
+    if command.unknown { return String(localized: L10n.Toast.unknownDetail(command.cause ?? ApiText.missing)) }
     if let cause = command.cause { return cause }
     if let warning = command.warning { return String(localized: L10n.Toast.warning(warning)) }
     return command.outcome == nil ? String(localized: L10n.Toast.resultLater) : nil
@@ -889,7 +891,11 @@ struct CommandToast: View {
   /// SF Symbol of a queued command (a done one draws `Symbols.passed`, a refused one `Symbols.failed`).
   static let queuedSymbol = "clock.arrow.circlepath"
 
+  /// SF Symbol of a send whose answer was lost.
+  static let unknownSymbol = "questionmark.circle.fill"
+
   private var symbol: String {
+    if command.unknown { return Self.unknownSymbol }
     switch command.outcome {
     case nil: return Self.queuedSymbol
     case .done: return Symbols.passed
@@ -898,6 +904,7 @@ struct CommandToast: View {
   }
 
   private var color: Color {
+    if command.unknown { return Palette.warningText }
     switch command.outcome {
     case nil: return Palette.infoText
     case .done: return Palette.profitText

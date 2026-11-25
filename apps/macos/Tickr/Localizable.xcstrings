@@ -528,6 +528,23 @@
         }
       }
     },
+    "bot.notQueued" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not queued: the bot's API never received it. Send it again if you still want it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no quedó en cola: la API del bot no lo recibió. Envíalo otra vez si aún lo quieres."
+          }
+        }
+      }
+    },
     "bot.notSent" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -558,6 +575,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "no enviado: la app no puede confiar ahora en el estado del bot"
+          }
+        }
+      }
+    },
+    "bot.outcomeNotKnown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "whether it was queued is not known. Check the bot's status before sending it again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no se sabe si se puso en cola. Revisa el estado del bot antes de enviarlo de nuevo."
           }
         }
       }
@@ -13197,6 +13231,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El resultado aparece aquí cuando el bot lo haya procesado."
+          }
+        }
+      }
+    },
+    "toast.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: no answer from the bot's API"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: sin respuesta de la API del bot"
+          }
+        }
+      }
+    },
+    "toast.unknownDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@. Checking whether it was queued; pressing it again cannot queue it twice."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@. Comprobando si quedó en cola; pulsarlo de nuevo no lo pondrá en cola dos veces."
           }
         }
       }
