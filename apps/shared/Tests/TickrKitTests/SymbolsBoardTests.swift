@@ -149,6 +149,26 @@ struct SymbolsBoardTests {
     #expect(!SymbolsBoard.rules(try #require(movers.rules)).isEmpty)
   }
 
+  @Test("A fast mover's row names the fired signal furthest past its rule, the first fired one without rules")
+  func moverMainReason() throws {
+    let klmn = try #require(movers.movers.first)
+    let efgh = try #require(movers.movers.last)
+    // The fixture's rules (5×, 2 ATR, 5×): KLMN 13.3 / 5 leads 4.8 / 2 and 9.1 / 5; EFGH 6.4 / 5 leads 2.1 / 2.
+    #expect(SymbolsBoard.mainSignal(klmn, rules: movers.rules) == .volume)
+    #expect(SymbolsBoard.mainSignal(efgh, rules: movers.rules) == .volume)
+    #expect(SymbolsBoard.mainReason(klmn, rules: movers.rules) == SymbolsBoard.volume(klmn))
+    // A stricter volume rule: the move leads, also a falling one (|−2.1| / 2).
+    let strict = try Wire.decoder().decode(FastMoverRulesV1.self, from: Data("""
+      {"lookback_bars": 10, "min_volume_ratio": "20", "min_move_atr": "2.0",
+       "min_dollar_volume_ratio": "5.0", "min_bar_dollar_volume_usd": "250000"}
+      """.utf8))
+    #expect(SymbolsBoard.mainSignal(klmn, rules: strict) == .move)
+    #expect(SymbolsBoard.mainSignal(efgh, rules: strict) == .move)
+    #expect(SymbolsBoard.mainReason(efgh, rules: strict) == SymbolsBoard.move(efgh))
+    // Without rules: the first signal the bot says fired.
+    #expect(SymbolsBoard.mainSignal(efgh, rules: nil) == .volume)
+  }
+
   @Test("The table sorts by a clicked column, missing values last; a second click turns it")
   func tableOrder() {
     let standard = SymbolsOrder.standard(.stage(.screeners))

@@ -9765,6 +9765,23 @@
         }
       }
     },
+    "kit.riskRoom.limits" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limits"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límites"
+          }
+        }
+      }
+    },
     "kit.riskRoom.match" : {
       "extractionState" : "manual",
       "localizations" : {

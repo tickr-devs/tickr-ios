@@ -2,8 +2,9 @@ import SwiftUI
 import TickrKit
 
 // The Risk room card's content on both apps (mockup v115): the room left of the daily loss limit
-// and its bar, four facts in a 2 × 2 grid, then the "Last entry size" block. Each app wraps it in
-// its own card with its own title and link; everything inside is this one view.
+// and its bar, the facts two to a row, then the "Last entry size" block (or its one-line summary,
+// mockup Main). Each app wraps it in its own card with its own title and link; everything inside
+// is this one view.
 
 /// One fact of the card's grid: a label over its value, or over a badge (the records' "match").
 public struct RiskFact: Identifiable {
@@ -52,13 +53,19 @@ public struct RiskRoomPanel: View {
   let facts: [RiskFact]
   /// Nil while the day's latest size is not known (GET /watching not read): never "no entry".
   let sizing: EntrySizing?
+  /// The last entry as one line with "Limits ›" opening every limit (`EntrySizingSummary`,
+  /// mockup Main); false lists the limits on the card (`EntrySizingSection`).
+  let summary: Bool
 
-  public init(room: Decimal?, limit: Decimal, reserved: Decimal?, facts: [RiskFact], sizing: EntrySizing?) {
+  public init(
+    room: Decimal?, limit: Decimal, reserved: Decimal?, facts: [RiskFact], sizing: EntrySizing?, summary: Bool = false
+  ) {
     self.room = room
     self.limit = limit
     self.reserved = reserved
     self.facts = facts
     self.sizing = sizing
+    self.summary = summary
   }
 
   public var body: some View {
@@ -77,7 +84,9 @@ public struct RiskRoomPanel: View {
       }
       RoomBar(room: share(room), reserved: share(reserved))
       FactGrid(facts: facts)
-      if let sizing { EntrySizingSection(sizing: sizing) }
+      if let sizing {
+        if summary { EntrySizingSummary(sizing: sizing) } else { EntrySizingSection(sizing: sizing) }
+      }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -198,15 +207,7 @@ public struct EntrySizingSection: View {
         LimitRow(limit: limit, step: step)
       }
       if let caption = sizing.caption {
-        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Circle().fill(captionColor).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-            .accessibilityHidden(true)
-          Text(verbatim: caption)
-            .font(Tokens.Typography.caption)
-            .fontWeight(.semibold)
-            .foregroundStyle(captionColor)
-            .fixedSize(horizontal: false, vertical: true)
-        }
+        SizingCaption(text: caption, color: sizing.captionColor)
       }
     }
     .padding(.top, Tokens.Space.s)
@@ -215,9 +216,13 @@ public struct EntrySizingSection: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
+}
 
-  private var captionColor: Color {
-    switch sizing.tone {
+extension EntrySizing {
+  /// The caption's colour: the accent for the limit that set a real size, amber when the record
+  /// does not prove it, quiet for the example.
+  var captionColor: Color {
+    switch tone {
     case .bound: Palette.accentText
     case .example: Palette.textTertiary
     case .unproven: Palette.warningText
@@ -227,7 +232,7 @@ public struct EntrySizingSection: View {
 
 /// A sizing limit: its figures and the shares it allows, then a thin bar of how much of that the
 /// size used. The limit that set the size is in the accent and bold, its bar full.
-private struct LimitRow: View {
+struct LimitRow: View {
   let limit: EntrySizing.Limit
   let step: Int
 

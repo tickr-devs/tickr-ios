@@ -2,8 +2,8 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-// The Overview's parts read from GET /flow and GET /watching: the latest event above the
-// pipeline, and the symbols the strategy is watching closely.
+// The Overview's parts read from GET /flow, GET /watching and GET /movers: the screeners' chips
+// above the pipeline, the symbols the strategy is watching closely, and the fast movers.
 
 /// Values of the pipeline stages that combine the live status with the day's flow.
 enum FlowStages {
@@ -25,6 +25,16 @@ enum FlowStages {
     case .mismatch: return Reconcile(value: String(localized: L10n.Screener.mismatch), note: nil, agrees: false)
     case .match: return Reconcile(value: String(localized: L10n.Flow.match), note: nil, agrees: true)
     case nil: return Reconcile(value: nil, note: latest?.agreementCauseText)
+    }
+  }
+
+  /// How many symbols each stage of a funnel dropped of the one before it (`counts` in stage
+  /// order): nil for the first, for a stage whose count or whose previous count is not known, and
+  /// where nothing was dropped (a later read can count more than an earlier one).
+  static func dropped(_ counts: [Int?]) -> [Int?] {
+    counts.indices.map { index in
+      guard index > 0, let before = counts[index - 1], let count = counts[index], before > count else { return nil }
+      return before - count
     }
   }
 
@@ -125,62 +135,6 @@ extension ScreenerSource {
     case .gainers: L10n.Flow.chipGainers
     case .losers: L10n.Flow.chipLosers
     case .topActives: L10n.Flow.chipActives
-    }
-  }
-}
-
-/// The live flow's latest event on one still line under the card's title: its New York time,
-/// its tag in its tone and what happened. A new event replaces the line; nothing scrolls. A recorded
-/// day shows its last closed trade.
-struct LatestEvent: View {
-  @Environment(AppModel.self) private var model
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-  /// Accessibility id of the line, for the UI tests.
-  static let id = "overview-latest-event"
-
-  private struct Line: Hashable {
-    let time: Date
-    let tag: String
-    let text: String
-    let color: Color
-  }
-
-  private var line: Line? {
-    if model.isLive {
-      // A risk refusal is an event too: the latest of the two leads.
-      guard let status = model.status, let event = Board.latestEvent(status,
-        skipped: model.skipped?.day == model.today ? model.skipped : nil) else { return nil }
-      return Line(time: event.time, tag: event.tag, text: event.text, color: event.tone.color)
-    }
-    guard let trade = model.shownTrades.max(by: { $0.closedAt.date < $1.closedAt.date }) else { return nil }
-    let result = trade.resultUsd.value
-    return Line(time: trade.closedAt.date, tag: Board.exitReasonTitle(trade.exitReason),
-      text: "\(trade.symbol) \(Money.signedUSD(result))", color: Palette.result(result))
-  }
-
-  var body: some View {
-    // A new event fades in over the old one: one fade per real event, still in between.
-    ZStack(alignment: .leading) {
-      row.id(line).transition(.opacity)
-    }
-    .animation(reduceMotion ? nil : Tokens.Motion.standard, value: line)
-    .font(Tokens.Typography.captionMono)
-    .accessibilityElement(children: .combine)
-    .accessibilityIdentifier(Self.id)
-  }
-
-  private var row: some View {
-    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
-      if let line {
-        Text(L10n.Risk.clock(Format.marketTime(line.time))).foregroundStyle(Palette.textQuaternary)
-        // The tag says what happened: it never gives way; the text wraps instead.
-        Text(verbatim: line.tag).bold().textCase(.uppercase).foregroundStyle(line.color).fixedSize()
-        Text(verbatim: line.text).foregroundStyle(Palette.textSecondary)
-      } else {
-        Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
-        Text(L10n.Flow.nothingYet).foregroundStyle(Palette.textTertiary)
-      }
     }
   }
 }
@@ -402,10 +356,10 @@ extension CheckV1 {
   }
 }
 
-/// The day's fast movers (GET /movers): as many newest rows as fill the card (symbol, its last bar's volume against
-/// the average, its move in ATR, its dollar volume, the time and whether the strategy watches it),
-/// then "Show all N ›" opening the Symbols screen on its Fast movers tab. A new mover rises in as
-/// it arrives, a real event of the bot.
+/// The day's fast movers (GET /movers): as many newest rows as fill the card (symbol, its one main
+/// reason and the time; the rule behind the title's info button), then "Show all N ›" opening the
+/// Symbols screen on its Fast movers tab. A new mover rises in as it arrives, a real event of the
+/// bot.
 struct FastMoversCard: View {
   @Environment(AppModel.self) private var model
   /// On the design's grid the card fills its cell with rows; below it the card is as tall as its
@@ -422,12 +376,9 @@ struct FastMoversCard: View {
 
   var body: some View {
     Card(L10n.FastMovers.title) {
+      // The rule behind an info button (mockup Main): each row names its one main reason.
       if let rules = model.movers?.rules {
-        Text(verbatim: SymbolsBoard.rules(rules))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .multilineTextAlignment(.trailing)
-          .fixedSize(horizontal: false, vertical: true)
+        MoverRuleButton(rule: SymbolsBoard.rules(rules))
       }
     } content: {
       if let movers = model.movers {
@@ -438,7 +389,7 @@ struct FastMoversCard: View {
             // The design's grid: as many of the newest rows as fill the card's cell, then the
             // footer on its bottom edge.
             FittingRows(movers.movers, id: \.symbol, spacing: Self.rowSpacing, fallback: Self.rowCap) { index, mover in
-              ChartLink(mover.symbol) { FastMoverRow(mover: mover) }
+              ChartLink(mover.symbol) { FastMoverRow(mover: mover, rules: movers.rules) }
                 .rise(step: index)
             } footer: { _ in
               footer(movers)
@@ -446,7 +397,7 @@ struct FastMoversCard: View {
           } else {
             VStack(spacing: Self.rowSpacing) {
               ForEach(Array(movers.movers.prefix(Self.rowCap).enumerated()), id: \.element.symbol) { index, mover in
-                ChartLink(mover.symbol) { FastMoverRow(mover: mover) }
+                ChartLink(mover.symbol) { FastMoverRow(mover: mover, rules: movers.rules) }
                   .rise(step: index)
               }
             }
@@ -473,33 +424,62 @@ struct FastMoversCard: View {
   }
 }
 
-/// One fast mover on the Overview: the symbol and the bar's time, then its three figures, each
-/// bright when its signal fired; a WATCH tag when the strategy watches it. Texts wrap, never cut.
+/// One fast mover on the Overview (mockup Main): the symbol, its one main reason (the signal
+/// furthest past its rule, `SymbolsBoard.mainReason`) and the bar's time. Texts wrap, never cut.
 private struct FastMoverRow: View {
   let mover: FastMoverV1
+  let rules: FastMoverRulesV1?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        SymbolText(mover.symbol)
-          .font(Tokens.Typography.chip)
-          .foregroundStyle(Palette.textPrimary)
-        if mover.watching { VerdictTag(verdict: .watch) }
-        Spacer(minLength: 0)
-        Text(verbatim: Format.marketTime(mover.at.date))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-      ChipFlow(spacing: Tokens.Space.s) {
-        MoverFigure(text: SymbolsBoard.volume(mover), fired: mover.fired(.volume))
-        MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move))
-        MoverFigure(text: SymbolsBoard.dollars(mover), fired: mover.fired(.dollars))
-      }
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      SymbolText(mover.symbol)
+        .font(Tokens.Typography.chip)
+        .foregroundStyle(Palette.textPrimary)
+      Text(verbatim: SymbolsBoard.mainReason(mover, rules: rules))
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textSecondary)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: 0)
+      Text(verbatim: Format.marketTime(mover.at.date))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
     }
     .padding(Tokens.Space.s)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
     .accessibilityElement(children: .combine)
+  }
+}
+
+/// The fast movers' rule behind an info button: a click opens it in a popover.
+private struct MoverRuleButton: View {
+  let rule: String
+  @State private var open = false
+
+  var body: some View {
+    Button { open = true } label: {
+      Image(systemName: InfoCaption.infoSymbol)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textTertiary)
+        .frame(minWidth: Tokens.Size.headerLink, minHeight: Tokens.Size.headerLink)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .pointerStyle(.link)
+    .help(Text(L10n.FastMovers.ruleHint))
+    .accessibilityLabel(Text(L10n.FastMovers.ruleHint))
+    .popover(isPresented: $open, arrowEdge: .bottom) {
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        CardLabel(L10n.FastMovers.ruleHint)
+        Text(verbatim: rule)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .padding(Tokens.Space.l)
+      .frame(idealWidth: Tokens.Size.popover, maxWidth: Tokens.Size.popover, alignment: .leading)
+      .background(Palette.surface)
+    }
   }
 }
 

@@ -222,6 +222,108 @@
         }
       }
     },
+    "bot.checksCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checks %lld of %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles %lld de %lld"
+          }
+        }
+      }
+    },
+    "bot.checksCountRead" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checks %lld of %lld · broker read %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles %lld de %lld · bróker leído %@"
+          }
+        }
+      }
+    },
+    "bot.checksHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows every check in plain words"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra cada control en palabras sencillas"
+          }
+        }
+      }
+    },
+    "bot.checksPass" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All checks pass"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo en orden"
+          }
+        }
+      }
+    },
+    "bot.checksTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Safety checks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles de seguridad"
+          }
+        }
+      }
+    },
+    "bot.closeSymbol" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar %@"
+          }
+        }
+      }
+    },
     "bot.confirmToBot" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -511,6 +613,23 @@
         }
       }
     },
+    "bot.noAnswer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no answer · %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sin respuesta · %@"
+          }
+        }
+      }
+    },
     "bot.noPositions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -524,6 +643,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sin posiciones abiertas"
+          }
+        }
+      }
+    },
+    "bot.notAnswering" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot not answering"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot no responde"
           }
         }
       }
@@ -4238,6 +4374,23 @@
         }
       }
     },
+    "fastMovers.ruleHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How a fast mover is picked"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo se elige un movimiento rápido"
+          }
+        }
+      }
+    },
     "fastMovers.showAll" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4442,19 +4595,19 @@
         }
       }
     },
-    "flow.decided" : {
+    "flow.dropped" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld decided"
+            "value" : "−%lld"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld decididos"
+            "value" : "−%lld"
           }
         }
       }
@@ -4472,40 +4625,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "entradas permitidas"
-          }
-        }
-      }
-    },
-    "flow.filled" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld filled"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld ejecutadas"
-          }
-        }
-      }
-    },
-    "flow.liquid" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld liquid"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld líquidos"
           }
         }
       }
@@ -4595,23 +4714,6 @@
         }
       }
     },
-    "flow.passed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld passed"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld aprobados"
-          }
-        }
-      }
-    },
     "flow.quietTag" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4642,23 +4744,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cotización"
-          }
-        }
-      }
-    },
-    "flow.quoted" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld quoted"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld cotizados"
           }
         }
       }
@@ -4697,6 +4782,23 @@
         }
       }
     },
+    "flow.refusedCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld refused"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld rechazadas"
+          }
+        }
+      }
+    },
     "flow.screeners" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4714,23 +4816,6 @@
         }
       }
     },
-    "flow.seen" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld seen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld vistos"
-          }
-        }
-      }
-    },
     "flow.stageDetailsHint" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4744,47 +4829,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Muestra cada símbolo en esta etapa hoy"
-          }
-        }
-      }
-    },
-    "flow.stocks" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld stock"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld stocks"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld acción"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld acciones"
-                }
-              }
-            }
           }
         }
       }
@@ -4823,40 +4867,6 @@
         }
       }
     },
-    "flow.trayExcluded" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "left out"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "excluidos"
-          }
-        }
-      }
-    },
-    "flow.trayRefused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "refused"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rechazada"
-          }
-        }
-      }
-    },
     "flow.universe" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4870,23 +4880,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Universo"
-          }
-        }
-      }
-    },
-    "flow.verified" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld verified"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld verificados"
           }
         }
       }
@@ -6778,23 +6771,6 @@
         }
       }
     },
-    "position.bidAt" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bid · %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bid · %@"
-          }
-        }
-      }
-    },
     "position.chartLabel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6849,23 +6825,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "position.entry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "entry"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "entrada"
           }
         }
       }
@@ -6972,6 +6931,23 @@
         }
       }
     },
+    "position.now" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora"
+          }
+        }
+      }
+    },
     "position.openChart" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6985,23 +6961,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrir gráfico"
-          }
-        }
-      }
-    },
-    "position.opened" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "opened"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "abierta"
           }
         }
       }
@@ -7040,36 +6999,19 @@
         }
       }
     },
-    "position.quantity" : {
+    "position.protected" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "quantity"
+            "value" : "Protected"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "cantidad"
-          }
-        }
-      }
-    },
-    "position.rAt" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "R at %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "R a %@"
+            "value" : "Protegida"
           }
         }
       }
@@ -7091,19 +7033,19 @@
         }
       }
     },
-    "position.rNow" : {
+    "position.sharesAt" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "R now"
+            "value" : "%@ shares at %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "R ahora"
+            "value" : "%@ acciones a %@"
           }
         }
       }
@@ -9222,13 +9164,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Foreign at broker"
+            "value" : "Positions or orders not ours"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajeno en el bróker"
+            "value" : "Posiciones u órdenes ajenas"
           }
         }
       }
@@ -9239,13 +9181,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last broker read"
+            "value" : "Last broker check"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lectura del bróker"
+            "value" : "Última revisión del bróker"
           }
         }
       }
@@ -9301,23 +9243,6 @@
         }
       }
     },
-    "safety.opensRisk" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opens Risk & account"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre Riesgo y cuenta"
-          }
-        }
-      }
-    },
     "safety.present" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9341,13 +9266,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quote stream"
+            "value" : "Live prices"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Flujo de cotizaciones"
+            "value" : "Precios en vivo"
           }
         }
       }
@@ -9358,64 +9283,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reconciliation"
+            "value" : "Broker matches our records"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Conciliación"
-          }
-        }
-      }
-    },
-    "safety.recordedDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "recorded day"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "día registrado"
-          }
-        }
-      }
-    },
-    "safety.status" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Status"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Estado"
-          }
-        }
-      }
-    },
-    "safety.titleWithBot" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Safety · bot"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seguridad · bot"
+            "value" : "El bróker coincide con nuestros registros"
           }
         }
       }
@@ -12803,23 +12677,6 @@
         }
       }
     },
-    "toolbar.connectionAge" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · age %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · hace %2$@"
-          }
-        }
-      }
-    },
     "toolbar.dayDemo" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13024,19 +12881,19 @@
         }
       }
     },
-    "toolbar.windowLine" : {
+    "toolbar.updated" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "tickr — %1$@ — %2$@"
+            "value" : "updated %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "tickr — %1$@ — %2$@"
+            "value" : "actualizado %@"
           }
         }
       }
@@ -13058,43 +12915,19 @@
         }
       }
     },
-    "toolbar.windowLineLimit" : {
+    "toolbar.windowLineEnvironment" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "tickr — %1$@ — %2$@ — up to %3$lld position"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "tickr — %1$@ — %2$@ — up to %3$lld positions"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %@"
           }
         },
         "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "tickr — %1$@ — %2$@ — hasta %3$lld posición"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "tickr — %1$@ — %2$@ — hasta %3$lld posiciones"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr — %@"
           }
         }
       }

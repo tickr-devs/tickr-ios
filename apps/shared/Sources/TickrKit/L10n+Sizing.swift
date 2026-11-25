@@ -101,6 +101,10 @@ public enum RiskRoomText {
   public static var positions: LocalizedStringResource {
     LocalizedStringResource("kit.riskRoom.positions", defaultValue: "Positions", bundle: L10n.bundle)
   }
+  /// The Risk room card's link to every sizing limit of the last entry, and its popover's title.
+  public static var limits: LocalizedStringResource {
+    LocalizedStringResource("kit.riskRoom.limits", defaultValue: "Limits", bundle: L10n.bundle)
+  }
   /// Whether the bot's records agree with the broker.
   public static var recordsAgree: LocalizedStringResource {
     LocalizedStringResource("kit.riskRoom.recordsAgree", defaultValue: "Records agree", bundle: L10n.bundle)

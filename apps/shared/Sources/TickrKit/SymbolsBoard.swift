@@ -295,6 +295,32 @@ public enum SymbolsBoard {
     String(localized: L10n.moverDollars(fixed(mover.dollarVolumeRatio.value, digits: ratioDigits)))
   }
 
+  /// The one signal a row names (mockup Main, Fast movers): the fired signal furthest past its
+  /// threshold, as its value over its rule; the first fired one without rules; the volume when
+  /// the bot names none. The rule itself is behind the card's info button.
+  public static func mainSignal(_ mover: FastMoverV1, rules: FastMoverRulesV1?) -> FastMoverSignal {
+    let fired = FastMoverSignal.allCases.filter { mover.fired($0) }
+    guard let rules else { return fired.first ?? .volume }
+    func share(_ signal: FastMoverSignal) -> Decimal {
+      let (value, rule): (Decimal, Decimal) = switch signal {
+      case .volume: (mover.volumeRatio.value, rules.minVolumeRatio.value)
+      case .move: (abs(mover.moveAtr.value), rules.minMoveAtr.value)
+      case .dollars: (mover.dollarVolumeRatio.value, rules.minDollarVolumeRatio.value)
+      }
+      return rule > 0 ? value / rule : value
+    }
+    return (fired.isEmpty ? FastMoverSignal.allCases : fired).max { share($0) < share($1) } ?? .volume
+  }
+
+  /// The main signal's figure in words ("vol 6.4×", "+2.1 ATR", "$vol 7.2×").
+  public static func mainReason(_ mover: FastMoverV1, rules: FastMoverRulesV1?) -> String {
+    switch mainSignal(mover, rules: rules) {
+    case .volume: volume(mover)
+    case .move: move(mover)
+    case .dollars: dollars(mover)
+    }
+  }
+
   /// "bar ≥ $250K, then any of: vol ≥ 5× · |move| ≥ 2 ATR · $ vol ≥ 5× · vs last 10 bars": the thresholds.
   public static func rules(_ rules: FastMoverRulesV1) -> String {
     let floor = rules.minBarDollarVolumeUsd.value.formatted(
@@ -335,7 +361,7 @@ extension ScreenerSource {
 }
 
 /// The signals named in `FastMoverV1.fired` (protocol constants of the API).
-public enum FastMoverSignal: String, Sendable {
+public enum FastMoverSignal: String, Sendable, CaseIterable {
   case volume = "volume_ratio"
   case move = "move_atr"
   case dollars = "dollar_volume_ratio"

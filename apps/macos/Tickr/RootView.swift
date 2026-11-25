@@ -573,10 +573,8 @@ struct WindowLine: View {
     let sectionTitle = String(localized: section.title).localizedLowercase
     switch section {
     case .overview:
-      guard let limit = model.settings?.risk.maxOpenPositions else {
-        return L10n.Toolbar.windowLine(environment, strategy)
-      }
-      return L10n.Toolbar.windowLineLimit(environment, strategy, limit)
+      // The environment alone (mockup Main): the version and the position limit are on their cards.
+      return L10n.Toolbar.windowLineEnvironment(environment)
     case .chart:
       guard let shown = chart.shown else { return L10n.Toolbar.windowLineSectionOnly(environment, sectionTitle) }
       let range = String(localized: ChartView.title(shown.range))
@@ -734,8 +732,8 @@ struct DayControls: View {
   }
 }
 
-/// The bot's address and how old its status is ("127.0.0.1 · age 3 s"), with a dot in the
-/// connection's colour (green while fresh statuses arrive); the tooltip says what the headline says.
+/// How old the bot's status is ("updated 3 s ago"), with a dot in the connection's colour (green
+/// while fresh statuses arrive); the tooltip says what the headline says.
 struct ConnectionStatus: View {
   @Environment(AppModel.self) private var model
   /// The dot alone, its text in the tooltip and the accessibility label (the narrowest window,
@@ -746,9 +744,9 @@ struct ConnectionStatus: View {
   static let id = "toolbar-connection"
   /// Width of the item, in points: fixed, so the age ticking from "9 s" to "10 s" or to "1 min"
   /// never changes the toolbar's width, which AppKit would answer with a new layout of the whole
-  /// window every second. Holds 26 characters of 11-point mono with the dot, more than "127.0.0.1 · age 59
-  /// min" in English and "127.0.0.1 · hace 59 min" in Spanish, right-aligned so the text keeps to the
-  /// stepper; a longer address is shortened in the middle (the whole line is in the tooltip).
+  /// window every second. Holds 26 characters of 11-point mono with the dot, more than "updated
+  /// 59 min ago" in English and "actualizado hace 59 min" in Spanish, right-aligned so the text
+  /// keeps to the stepper.
   static let width: CGFloat = 196
   /// Gap between the dot and the text, in points.
   static let dotGap: CGFloat = 6
@@ -800,13 +798,10 @@ struct ConnectionStatus: View {
     return stale == false ? Palette.profit : Palette.warning
   }
 
+  /// "updated 3 s ago" (mockup Main: no address); the bot's address until its first status.
   private func text(now: Date) -> String {
-    let host = model.baseURL.host() ?? model.baseURL.absoluteString
-    guard let written = model.status?.writtenAt.date else { return host }
-    let seconds = max(0, Int(now.timeIntervalSince(written)))
-    let age = seconds < Format.secondsShownUpTo
-      ? L10n.Toolbar.ageSeconds(seconds) : L10n.Toolbar.ageMinutes(seconds / Format.secondsPerMinute)
-    return String(localized: L10n.Toolbar.connectionAge(host, String(localized: age)))
+    guard let written = model.status?.writtenAt.date else { return model.baseURL.host() ?? model.baseURL.absoluteString }
+    return String(localized: L10n.Toolbar.updated(Format.age(since: written, now: now)))
   }
 }
 

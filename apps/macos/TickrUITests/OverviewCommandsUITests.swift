@@ -43,11 +43,11 @@ final class OverviewCommandsUITests: XCTestCase {
   /// The narrowest window on the fixtures, in points: TickrMacApp.leastWidth, which this test
   /// target cannot read from the app. The title bar's need is wider than the screens' (1086): the
   /// sidebar's widest 260, AppKit's insets 4 + 4 and gap 8, the fixtures' longest line (Overview,
-  /// "tickr — paper trading — …") and the right-hand group (Today), each item 8.5 wider than its
-  /// content. Measured by this test on CI (#695, 2026-11-19): 1421 in English, 1446 in Spanish,
-  /// whose line and group are the longer.
-  static let minWidthEnglish: CGFloat = 1421
-  static let minWidthSpanish: CGFloat = 1446
+  /// "tickr — paper trading", no strategy since #783) and the right-hand group (Today), each item
+  /// 8.5 wider than its content. Measured by this test on CI (#783, 2026-11-25): 1392 in English,
+  /// 1409 in Spanish, whose line and group are the longer (1421 and 1446 with the strategy, #695).
+  static let minWidthEnglish: CGFloat = 1392
+  static let minWidthSpanish: CGFloat = 1409
   /// Environment variable that opens the window at its least size (LayoutSweep.smallestKey).
   static let smallestKey = "TICKR_SMALLEST_WINDOW"
   /// Environment variable that opens Overview with the Safety · bot card at its top
@@ -62,9 +62,8 @@ final class OverviewCommandsUITests: XCTestCase {
   static let smallDisplay = (value: "1024x768", width: CGFloat(1024), height: CGFloat(768))
   /// The narrowest board (MainNarrow v110, 640 points): one column, the sidebar an icon rail.
   static let narrowest = (value: "640x800", width: CGFloat(640), height: CGFloat(800))
-  /// The live flow's latest event (LatestEvent.id), inside the Live flow card: on the one-column
-  /// board the Safety · bot card comes before it.
-  static let latestEvent = "overview-latest-event"
+  /// The Live flow card (LiveFlowCard.id): on the one-column board the Bot card comes before it.
+  static let liveFlow = "overview-live-flow"
   /// The command toast (CommandToast.id), shown whenever a command is sent; how long it is
   /// watched for after a confirmation is withdrawn, in seconds.
   static let toast = "command-toast"
@@ -137,8 +136,8 @@ final class OverviewCommandsUITests: XCTestCase {
       // One column: the Safety · bot card sits above the Live flow card, first after the header
       // and the day's result.
       let card = app.descendants(matching: .any)[Self.safetyCard].firstMatch
-      let flow = app.descendants(matching: .any)[Self.latestEvent].firstMatch
-      XCTAssertTrue(flow.waitForExistence(timeout: Self.timeout), "latest event\n\(app.debugDescription)")
+      let flow = app.descendants(matching: .any)[Self.liveFlow].firstMatch
+      XCTAssertTrue(flow.waitForExistence(timeout: Self.timeout), "live flow\n\(app.debugDescription)")
       XCTAssertLessThanOrEqual(card.frame.maxY, flow.frame.minY,
         "the Safety card \(card.frame) is not above the flow \(flow.frame)")
     }

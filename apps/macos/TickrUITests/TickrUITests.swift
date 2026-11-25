@@ -46,8 +46,8 @@ final class TickrUITests: XCTestCase {
   /// The performance card (PerformanceCard.id) and the start of its exclusion line.
   static let performanceCard = "trades-performance"
   static let excludedPrefix = "Left out: 1"
-  /// The Overview's latest-event line (LatestEvent.id) and watching card (WatchingCard.id).
-  static let latestEvent = "overview-latest-event"
+  /// The Overview's Live flow card (LiveFlowCard.id) and watching card (WatchingCard.id).
+  static let liveFlow = "overview-live-flow"
   static let watchingCard = "overview-watching"
   /// The month calendar of Trades & days (MonthCalendar.id).
   static let calendar = "trades-calendar"
@@ -272,8 +272,8 @@ final class TickrUITests: XCTestCase {
   @MainActor
   func testOverviewShowsTheFlowAndWatchedSymbols() {
     let app = launch()
-    let event = app.descendants(matching: .any)[Self.latestEvent].firstMatch
-    XCTAssertTrue(event.waitForExistence(timeout: Self.timeout), "latest event\n\(app.debugDescription)")
+    let flow = app.descendants(matching: .any)[Self.liveFlow].firstMatch
+    XCTAssertTrue(flow.waitForExistence(timeout: Self.timeout), "live flow\n\(app.debugDescription)")
     let watching = app.descendants(matching: .any)[Self.watchingCard].firstMatch
     // Each row is a button that opens the Chart, so its texts are read in the button's label.
     let check = watching.buttons.matching(NSPredicate(format: "label CONTAINS %@", Self.decisionRule))
