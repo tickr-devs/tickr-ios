@@ -65,11 +65,17 @@ private final class AlertsAnswers: APITransport {
 
   @Test func lockedKindsAreApartAndTheRestGroupedInOrder() throws {
     let alerts = try alerts()
-    #expect(alerts.lockedKinds.allSatisfy(\.locked))
-    #expect(alerts.lockedKinds.count + alerts.switchableGroups.flatMap(\.kinds).count == alerts.kinds.count)
-    let groups = alerts.switchableGroups.map(\.group)
-    #expect(groups == AlertsV1.groupOrder.filter(groups.contains))
-    #expect(alerts.switchableGroups.allSatisfy { group in group.kinds.allSatisfy { !$0.locked && $0.group == group.group } })
+    let allLocked = alerts.lockedKinds.allSatisfy { $0.locked }
+    #expect(allLocked)
+    let switchable = alerts.switchableGroups.reduce(0) { $0 + $1.kinds.count }
+    #expect(alerts.lockedKinds.count + switchable == alerts.kinds.count)
+    let groups = alerts.switchableGroups.map { $0.group }
+    let ordered = AlertsV1.groupOrder.filter { groups.contains($0) }
+    #expect(groups == ordered)
+    for section in alerts.switchableGroups {
+      let fits = section.kinds.allSatisfy { !$0.locked && $0.group == section.group }
+      #expect(fits)
+    }
   }
 
   @Test func aChannelNotBuiltIsNoChoice() throws {
