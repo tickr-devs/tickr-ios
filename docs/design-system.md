@@ -380,6 +380,17 @@ size unchanged.
 | `calm` | 0.5 | Room below it turns the ring amber |
 | `alarm` | 0.2 | Room below it turns the ring red |
 
+## Entry model pieces (`Tokens.Model`)
+
+| Token | Value | Use |
+|---|---|---|
+| `barHeight` | 6 pt | The confidence meter's track and fill |
+| `tickHeight` | 14 pt | The cutoff tick, taller than the bar; the meter's height |
+| `tickWidth` | `Stroke.bold` | The cutoff tick's width |
+| `barMinWidth` | 80 pt | Least width of the meter's bar |
+| `trackOpacity` | 0.18 | The track: the fill's colour at this opacity |
+| `reasonRows` | 5 | Most reasons a `SignedReasonList` draws |
+
 ## Candle charts (`Tokens.Chart`)
 
 | Token | Value | Use |
@@ -440,6 +451,8 @@ profit factor with 2 decimals, win rate and confidence in whole percents.
 | Footer link | `CardFooterLink` (TickrDesign) | A card's "Show all" (Watching closely on both apps): the card's last row, across its whole width under a `separator` hairline, `Size.footerLink` tall and one button: title in `footerLink` `textPrimary`, a count capsule (`annotationBold`, `surfaceSunken`), an optional hint right-aligned in `annotation` `textQuaternary`, then a `footerChip` circle of `info` at `Opacity.tint` holding the chevron in `infoText`; under the pointer the row tints `info` at `rowHover` and the chip moves on `linkNudge` |
 | Back capsule | `BackCapsule` + `.backCapsule` (TickrDesign) | The way back from a pushed screen (iOS `BackButton`, the Mac Lab's advisor page; available to the Mac's Symbols screen): glass capsule `Size.iconButton` tall, chevron and name both `textPrimary`; pressed ×`backPressScale`, dimmed to `Opacity.medium` |
 | Loading | `Skeleton`, `.inFlight(_:)`, `ProgressLine` (TickrDesign) | See "Loading" below: a skeleton for content, a spinner in the button for a command in flight, a 2 pt line for an operation of known length; never a radar, never the system spinner |
+| Confidence meter | `ConfidenceMeter(confidence:cutoff:)` (TickrDesign) | The entry model's score, 0...1 (outside drawn at the nearest end, not finite shows "—"): a capsule track at `Model.trackOpacity`, the fill to the score, a `textPrimary` tick at the cutoff, the percent after it in `calloutMono` bold. Tone: at or above the cutoff `accent` (as ENTER), below it `info` (as WATCH), no cutoff `neutral`. Percents are whole and rounded down, so a 69.9% never reads "70%" beside a 70% cutoff. VoiceOver: "Confidence", "74%, cutoff 70%" (`ModelText`, TickrKit) |
+| Model reasons | `SignedReasonList` + `SignedReason` (TickrDesign) | A decision's top reasons, strongest first, at most `Model.reasonRows`: a `plus.circle.fill` in `profitText` (helps) or `minus.circle.fill` in `seriesATRText` (hurts), the shape saying the sign, then the caller's localized text in `callout` `textSecondary`, wrapped, never cut. VoiceOver reads "Helps" or "Hurts" before the text |
 | Section label | `CardLabel` | `Typography.label`, uppercase, `textLabel` |
 | Stat row | label … value | label `callout` `textTertiary`, value `bodyMono` |
 | Badge | `Badge` (TickrDesign) | The apps' one badge (`.u-badge`), for a fact (exit reason, version, role, the trading gate, a day's clean verdict, an outcome): `Typography.badge` uppercase, tone text colour, `Opacity.badgeFill` (14 %) fill, `Opacity.border` (45 %) stroke, `Radius.small`, `Space.xs` × `Space.s` padding; words only, but for a leading symbol where a board draws one (`Badge(_:symbol:tone:)`: the closed gate's lock in `Typography.badgeSymbol`); `planned:` draws it dashed; a version keeps its own case (`keepingCase`) |

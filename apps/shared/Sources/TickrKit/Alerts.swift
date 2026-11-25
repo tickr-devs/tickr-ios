@@ -5,7 +5,7 @@ import Foundation
 
 /// An owner-facing alert channel the routing switches.
 public enum AlertChannel: String, Codable, Sendable, CaseIterable {
-  case mac, imessage, push
+  case mac, imessage, telegram, push
 }
 
 /// How the apps group alert kinds.
@@ -19,6 +19,7 @@ public enum AlertChannelCause: String, Codable, Sendable {
   case preflightUnreadable = "preflight-unreadable"
   case checkFailed = "check-failed"
   case notBuilt = "not-built"
+  case notConfigured = "not-configured"
 }
 
 /// One channel: whether the latest preflight proved it works, else why not.
@@ -48,6 +49,7 @@ public struct AlertChannelV1: Codable, Hashable, Sendable {
 public struct AlertRoutesV1: Codable, Hashable, Sendable {
   public let mac: Bool
   public let imessage: Bool
+  public let telegram: Bool
   public let push: Bool
 }
 
