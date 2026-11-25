@@ -180,10 +180,10 @@ struct ChartTab: View {
     }
   }
 
-  /// The chart while its bars load (mockup v102): the chart's own card with the price pane's
-  /// grid, a faint candle silhouette with its volume, the price and time axes, and every enabled
-  /// study pane, as skeleton in the chart's own sizes; "Loading ABCD · 1 min bars" on the
-  /// readout's line. Nothing real until the bars are read.
+  /// The chart while its bars load (mockup v102, loader E): the chart's own card with the price
+  /// pane's grid, a faint candle silhouette that builds in left to right with its volume, the
+  /// price and time axes, and every enabled study pane, as skeleton in the chart's own sizes;
+  /// "Loading ABCD · 1 min bars" on the readout's line. Nothing real until the bars are read.
   private var loadingView: some View {
     LoadingChart(
       caption: chart.pending.map(PendingText.caption) ?? chart.symbol.map {
@@ -751,7 +751,7 @@ private struct LoadingChart: View {
       Skeleton(nil) {
         VStack(spacing: 0) {
           SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns,
-            axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume)
+            axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume, builds: true)
             .frame(height: CandleChart.priceHeight)
           ForEach(lines.panes, id: \.self) { _ in
             SkeletonPane(axisWidth: CandleChart.axisLabelWidth)
