@@ -24,6 +24,10 @@ public enum AlertText {
   public static var imessageChannel: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.channel.imessage", defaultValue: "iMessage", bundle: bundle)
   }
+  /// The Telegram channel.
+  public static var telegramChannel: LocalizedStringResource {
+    LocalizedStringResource("kit.alerts.channel.telegram", defaultValue: "Telegram", bundle: bundle)
+  }
   /// The iPhone app's push channel.
   public static var pushChannel: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.channel.push", defaultValue: "iPhone push", bundle: bundle)
@@ -35,6 +39,10 @@ public enum AlertText {
   /// Column of iMessage (short).
   public static var imessageColumn: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.column.imessage", defaultValue: "iMessage", bundle: bundle)
+  }
+  /// Column of Telegram (short).
+  public static var telegramColumn: LocalizedStringResource {
+    LocalizedStringResource("kit.alerts.column.telegram", defaultValue: "Telegram", bundle: bundle)
   }
   /// Column of iPhone push (short).
   public static var pushColumn: LocalizedStringResource {
@@ -48,6 +56,11 @@ public enum AlertText {
   public static var imessageNote: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.note.imessage",
       defaultValue: "To the recipient in the bot's settings", bundle: bundle)
+  }
+  /// Who the Telegram message goes to.
+  public static var telegramNote: LocalizedStringResource {
+    LocalizedStringResource("kit.alerts.note.telegram",
+      defaultValue: "To the chat in the bot's settings", bundle: bundle)
   }
   /// Why push is not built yet.
   public static var pushNote: LocalizedStringResource {
@@ -72,6 +85,11 @@ public enum AlertText {
   /// The channel does not exist yet.
   public static var notBuilt: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.notBuilt", defaultValue: "Not built yet", bundle: bundle)
+  }
+  /// The owner has not set the channel up in the bot's settings.
+  public static var notConfigured: LocalizedStringResource {
+    LocalizedStringResource("kit.alerts.notConfigured",
+      defaultValue: "Not set up in the bot's settings", bundle: bundle)
   }
   /// Group of alerts that need the owner now.
   public static var critical: LocalizedStringResource {

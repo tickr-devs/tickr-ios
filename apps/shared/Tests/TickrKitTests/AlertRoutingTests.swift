@@ -86,6 +86,21 @@ private final class AlertsAnswers: APITransport {
     // A channel that failed the morning check stays a choice: the routing is a preference.
     #expect(alerts.channel(.imessage)?.configured == false)
     #expect(alerts.canChange(.imessage))
+    // So does one the owner has not set up yet: switching it on waits for its settings.
+    #expect(alerts.channel(.telegram)?.cause == .notConfigured)
+    #expect(alerts.canChange(.telegram))
+  }
+
+  @Test func theColumnsAreTheChannelsTheBotAnswers() throws {
+    let alerts = try alerts()
+    #expect(alerts.columns == alerts.channels.map(\.channel))
+    // A bot that retires a channel loses its column, never shows a stale one.
+    var object = try #require(try JSONSerialization.jsonObject(with: fixture("alerts-v1.json")) as? [String: Any])
+    let channels = try #require(object["channels"] as? [[String: Any]])
+    object["channels"] = channels.filter { $0["channel"] as? String != "imessage" }
+    let fewer = try Wire.decoder().decode(AlertsV1.self, from: try JSONSerialization.data(withJSONObject: object))
+    #expect(!fewer.columns.contains(.imessage))
+    #expect(fewer.columns.count == alerts.columns.count - 1)
   }
 
   @Test func everyKindHasWordsAndAnUnknownOneNoCode() throws {
@@ -131,7 +146,7 @@ private final class AlertsAnswers: APITransport {
   @Test func aLostAnswerIsNeverSentAgainOnlyReadAgain() async throws {
     let transport = AlertsAnswers(read: (200, try fixture("alerts-v1.json")), write: nil)
     let routing = AlertRouting()
-    await routing.set(AlertCell(kind: "daily-ceiling-reached", channel: .imessage), on: false, client: try client(transport))
+    await routing.set(AlertCell(kind: "daily-ceiling-reached", channel: .telegram), on: false, client: try client(transport))
     #expect(routing.changeError != nil)
     #expect(transport.requests.filter { $0.httpMethod == APIClient.put }.count == 1)
     #expect(routing.alerts != nil)

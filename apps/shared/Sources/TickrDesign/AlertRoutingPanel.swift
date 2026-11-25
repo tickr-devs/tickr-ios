@@ -3,7 +3,8 @@ import TickrKit
 
 // The notification settings' content on both apps (GET /alerts, PUT /alerts/routing, backlog
 // T14, mockup MacGateAlerts › Notifications): the channels with what the morning check proved,
-// then a grid of the alert kinds the owner can switch, one column per channel, then the kinds that
+// then a grid of the alert kinds the owner can switch, one column per channel the bot answers
+// (never a fixed list, so the screen follows the bot when channels change), then the kinds that
 // are always on everywhere. Each app wraps it in its own settings card with `AlertText.title`.
 
 extension AlertChannel {
@@ -12,6 +13,7 @@ extension AlertChannel {
     switch self {
     case .mac: AlertText.macChannel
     case .imessage: AlertText.imessageChannel
+    case .telegram: AlertText.telegramChannel
     case .push: AlertText.pushChannel
     }
   }
@@ -20,6 +22,7 @@ extension AlertChannel {
     switch self {
     case .mac: AlertText.macColumn
     case .imessage: AlertText.imessageColumn
+    case .telegram: AlertText.telegramColumn
     case .push: AlertText.pushColumn
     }
   }
@@ -28,6 +31,7 @@ extension AlertChannel {
     switch self {
     case .mac: AlertText.macNote
     case .imessage: AlertText.imessageNote
+    case .telegram: AlertText.telegramNote
     case .push: AlertText.pushNote
     }
   }
@@ -36,6 +40,7 @@ extension AlertChannel {
     switch self {
     case .mac: AlertRoutingPanel.macSymbol
     case .imessage: AlertRoutingPanel.imessageSymbol
+    case .telegram: AlertRoutingPanel.telegramSymbol
     case .push: AlertRoutingPanel.pushSymbol
     }
   }
@@ -60,7 +65,7 @@ extension AlertChannelV1 {
     switch cause {
     case .checkFailed: return .attention
     case .preflightUnreadable: return .unknown
-    case .noPreflight, .notBuilt, nil: return .idle
+    case .noPreflight, .notConfigured, .notBuilt, nil: return .idle
     }
   }
 
@@ -70,6 +75,7 @@ extension AlertChannelV1 {
     case .noPreflight: return AlertText.noPreflight
     case .preflightUnreadable: return AlertText.preflightUnreadable
     case .checkFailed: return AlertText.checkFailed
+    case .notConfigured: return AlertText.notConfigured
     case .notBuilt, nil: return AlertText.notBuilt
     }
   }
@@ -79,6 +85,7 @@ public struct AlertRoutingPanel: View {
   /// Symbols of the channels, the always-on rows and the note under the grid.
   static let macSymbol = "desktopcomputer"
   static let imessageSymbol = "message.fill"
+  static let telegramSymbol = "paperplane.fill"
   static let pushSymbol = "iphone"
   static let lockSymbol = Symbols.gateClosed
   static let feedSymbol = "tray.full"
@@ -121,7 +128,7 @@ public struct AlertRoutingPanel: View {
     Grid(alignment: .leading, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.s) {
       GridRow {
         SectionLabel(AlertText.alerts)
-        ForEach(AlertChannel.allCases, id: \.self) { channel in
+        ForEach(alerts.columns, id: \.self) { channel in
           Text(channel.column)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(alerts.canChange(channel) ? Palette.textTertiary : Palette.textQuaternary)
@@ -134,7 +141,7 @@ public struct AlertRoutingPanel: View {
           Text(section.group.title)
             .font(Tokens.Typography.caption.weight(.semibold))
             .foregroundStyle(Palette.textTertiary)
-            .gridCellColumns(AlertChannel.allCases.count + 1)
+            .gridCellColumns(alerts.columns.count + 1)
             .padding(.top, Tokens.Space.xs)
         }
         ForEach(section.kinds, id: \.kind) { kind in
@@ -144,7 +151,7 @@ public struct AlertRoutingPanel: View {
               .foregroundStyle(Palette.textSecondary)
               .fixedSize(horizontal: false, vertical: true)
               .frame(maxWidth: .infinity, alignment: .leading)
-            ForEach(AlertChannel.allCases, id: \.self) { channel in
+            ForEach(alerts.columns, id: \.self) { channel in
               cell(kind, channel)
             }
           }

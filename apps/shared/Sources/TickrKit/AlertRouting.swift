@@ -31,6 +31,10 @@ extension AlertsV1 {
     }
   }
 
+  /// The channels the bot routes to, in its order: the screen's columns. Only what the bot
+  /// answers is shown, so a channel the bot adds or retires never leaves a stale column.
+  public var columns: [AlertChannel] { channels.map(\.channel) }
+
   /// The channel's state as the latest morning check proved it.
   public func channel(_ channel: AlertChannel) -> AlertChannelV1? {
     channels.first { $0.channel == channel }
@@ -49,6 +53,7 @@ extension AlertRoutesV1 {
     switch channel {
     case .mac: mac
     case .imessage: imessage
+    case .telegram: telegram
     case .push: push
     }
   }

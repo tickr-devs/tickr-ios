@@ -1814,6 +1814,23 @@
         }
       }
     },
+    "kit.alerts.channel.telegram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        }
+      }
+    },
     "kit.alerts.channels" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1895,6 +1912,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Push"
+          }
+        }
+      }
+    },
+    "kit.alerts.column.telegram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
           }
         }
       }
@@ -2035,6 +2069,23 @@
         }
       }
     },
+    "kit.alerts.notConfigured" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not set up in the bot's settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin configurar en los ajustes del bot"
+          }
+        }
+      }
+    },
     "kit.alerts.note.imessage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2082,6 +2133,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Requiere la membresía de Apple Developer"
+          }
+        }
+      }
+    },
+    "kit.alerts.note.telegram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To the chat in the bot's settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al chat de la configuración del bot"
           }
         }
       }
