@@ -112,7 +112,6 @@ public enum ProseReason: String, CaseIterable, Sendable {
   case cachedHistoryRefused = "cached_history_refused"
   case cachedHistoryEmpty = "cached_history_empty"
   case cachedHistoryOverlaps = "cached_history_overlaps"
-  case historySessionsDiffer = "history_sessions_differ"
   case simulationFailed = "simulation_failed"
   case strategyWithoutModule = "strategy_without_module"
   case moduleNotImportable = "module_not_importable"

@@ -115,7 +115,6 @@ extension ProseReason {
     case .cachedHistoryRefused: [ReasonSentence(L10n.proseReasonCachedHistoryRefused, [.detail])]
     case .cachedHistoryEmpty: [ReasonSentence(L10n.proseReasonCachedHistoryEmpty, [.symbol])]
     case .cachedHistoryOverlaps: [ReasonSentence(L10n.proseReasonCachedHistoryOverlaps, [])]
-    case .historySessionsDiffer: [ReasonSentence(L10n.proseReasonHistorySessionsDiffer, [.replay, .bot])]
     case .simulationFailed: [ReasonSentence(L10n.proseReasonSimulationFailed, [.error, .detail])]
     case .strategyWithoutModule: [ReasonSentence(L10n.proseReasonStrategyWithoutModule, [.folder, .strategy])]
     case .moduleNotImportable: [ReasonSentence(L10n.proseReasonModuleNotImportable, [.folder, .module, .detail])]

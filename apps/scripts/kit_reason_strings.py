@@ -1016,13 +1016,6 @@ GROUPS = [
                 "Las sesiones anteriores en caché se solapan con las velas del día",
             ),
             (
-                "history_sessions_differ",
-                "The replay settings use {replay} prior sessions, the bot caches {bot}: the "
-                "version would not see the bot's history",
-                "Los ajustes de repetición usan {replay} sesiones anteriores, el bot guarda {bot} "
-                "en caché: la versión no vería el historial del bot",
-            ),
-            (
                 "simulation_failed",
                 "The simulation failed: {error}: {detail}",
                 "La simulación falló: {error}: {detail}",

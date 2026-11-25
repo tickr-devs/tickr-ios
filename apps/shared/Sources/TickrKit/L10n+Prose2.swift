@@ -166,12 +166,6 @@ extension L10n {
     LocalizedStringResource("kit.prose.cached_history_overlaps",
       defaultValue: "The cached prior sessions overlap the day's bars", bundle: bundle)
   }
-  /// A cause the API writes itself (`<field>_codes`). history_sessions_differ (values: replay, bot)
-  static var proseReasonHistorySessionsDiffer: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.history_sessions_differ",
-      // swiftlint:disable:next line_length
-      defaultValue: "The replay settings use {replay} prior sessions, the bot caches {bot}: the version would not see the bot's history", bundle: bundle)
-  }
   /// A cause the API writes itself (`<field>_codes`). simulation_failed (values: error, detail)
   static var proseReasonSimulationFailed: LocalizedStringResource {
     LocalizedStringResource("kit.prose.simulation_failed",
@@ -382,5 +376,15 @@ extension L10n {
   static var proseReasonNightlyRefused: LocalizedStringResource {
     LocalizedStringResource("kit.prose.nightly_refused",
       defaultValue: "The nightly data refresh stopped: {detail}", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_status_file
+  static var proseReasonNoStatusFile: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_status_file",
+      defaultValue: "The bot has not written its status yet", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). status_file_invalid (values: detail)
+  static var proseReasonStatusFileInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.status_file_invalid",
+      defaultValue: "The bot's status file is invalid: {detail}", bundle: bundle)
   }
 }
