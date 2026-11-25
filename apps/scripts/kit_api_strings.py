@@ -88,6 +88,11 @@ for code, en, es in [
         "No se puede leer el detalle de una orden",
     ),
     ("status_unknown", "An order's status is unknown", "Se desconoce el estado de una orden"),
+    (
+        "order_conflict",
+        "The broker shows an order other than the one sent",
+        "El bróker muestra una orden distinta de la enviada",
+    ),
     ("unprotected", "A position has no verified stop", "Una posición no tiene stop verificado"),
     ("over_protected", "A position has more than one stop", "Una posición tiene más de un stop"),
     (

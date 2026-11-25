@@ -60,6 +60,7 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case origin
   case pid
   case plannedLoss = "planned_loss"
+  case price
   case quantity
   case quoteSymbol = "quote_symbol"
   case range
@@ -70,6 +71,8 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case rule
   case seconds
   case section
+  case sent
+  case sentPrice = "sent_price"
   case setup
   case since
   case state
@@ -117,6 +120,11 @@ public enum FenceReason: String, CaseIterable, Sendable {
   case detailUnreadable = "detail_unreadable"
   case stopCancelUnconfirmed = "stop_cancel_unconfirmed"
   case statusUnmapped = "status_unmapped"
+  case brokerFillContradicts = "broker_fill_contradicts"
+  case stopChangedAtBroker = "stop_changed_at_broker"
+  case limitChangedAtBroker = "limit_changed_at_broker"
+  case quantityChangedAtBroker = "quantity_changed_at_broker"
+  case orderNotListed = "order_not_listed"
   case stopCoversPart = "stop_covers_part"
   case stopsOverPosition = "stops_over_position"
   case unprotectedCloseByHand = "unprotected_close_by_hand"

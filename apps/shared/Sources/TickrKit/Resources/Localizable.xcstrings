@@ -3270,6 +3270,24 @@
         }
       }
     },
+    "kit.fence.order_conflict" : {
+      "comment" : "A fence (a block on new entries): order_conflict",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The broker shows an order other than the one sent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bróker muestra una orden distinta de la enviada"
+          }
+        }
+      }
+    },
     "kit.fence.order_missing" : {
       "comment" : "A fence (a block on new entries): order_missing",
       "extractionState" : "manual",
@@ -3535,6 +3553,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Otro bloqueo"
+          }
+        }
+      }
+    },
+    "kit.fenceReason.broker_fill_contradicts" : {
+      "comment" : "A fence's cause (`Fence.code`). broker_fill_contradicts",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The broker shows {filled} filled of {quantity} for an order of {sent} {symbol}: nothing recorded; shares may be held without a stop: check it in the Webull app"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bróker muestra {filled} ejecutadas de {quantity} para una orden de {sent} {symbol}: no se registra nada; puede haber acciones sin stop: revísala en la app de Webull"
           }
         }
       }
@@ -3863,6 +3899,24 @@
         }
       }
     },
+    "kit.fenceReason.limit_changed_at_broker" : {
+      "comment" : "A fence's cause (`Fence.code`). limit_changed_at_broker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The order was changed at the broker to {quantity} shares at limit {price} (sent {sent} at {sent_price}): it does not count until it matches"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La orden se cambió en el bróker a {quantity} acciones con límite {price} (enviada {sent} a {sent_price}): no cuenta hasta que coincida"
+          }
+        }
+      }
+    },
     "kit.fenceReason.open_orders_read_failed" : {
       "comment" : "A fence's cause (`Fence.code`). open_orders_read_failed",
       "extractionState" : "manual",
@@ -3935,6 +3989,24 @@
         }
       }
     },
+    "kit.fenceReason.order_not_listed" : {
+      "comment" : "A fence's cause (`Fence.code`). order_not_listed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An order last seen working is missing from the broker's open orders: it does not count until its detail is read"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una orden vista activa por última vez no aparece en las órdenes abiertas del bróker: no cuenta hasta leer su detalle"
+          }
+        }
+      }
+    },
     "kit.fenceReason.positions_read_failed" : {
       "comment" : "A fence's cause (`Fence.code`). positions_read_failed",
       "extractionState" : "manual",
@@ -3949,6 +4021,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Falló la lectura de posiciones: {error}"
+          }
+        }
+      }
+    },
+    "kit.fenceReason.quantity_changed_at_broker" : {
+      "comment" : "A fence's cause (`Fence.code`). quantity_changed_at_broker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The order was changed at the broker to {quantity} shares (sent {sent}): it does not count until it matches"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La orden se cambió en el bróker a {quantity} acciones (enviada {sent}): no cuenta hasta que coincida"
           }
         }
       }
@@ -4075,6 +4165,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se envió la cancelación del stop y su detalle lleva {seconds} s ilegible: puede que el stop ya no exista y no se vende nada; revisa la posición en la app de Webull"
+          }
+        }
+      }
+    },
+    "kit.fenceReason.stop_changed_at_broker" : {
+      "comment" : "A fence's cause (`Fence.code`). stop_changed_at_broker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The stop was changed at the broker to {quantity} shares at {price} (sent {sent} at {sent_price}): it does not count as protection until it matches"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El stop se cambió en el bróker a {quantity} acciones a {price} (enviado {sent} a {sent_price}): no cuenta como protección hasta que coincida"
           }
         }
       }

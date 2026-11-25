@@ -3,6 +3,36 @@
 import Foundation
 
 extension L10n {
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_STALE (values: age, limit)
+  static var refusalReasonQuoteStale: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUOTE_STALE",
+      defaultValue: "Quote {age} s old, limit {limit} s", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. PRICE_OUTSIDE_WINDOW (values: ask, entry_low, limit)
+  static var refusalReasonPriceOutsideWindow: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.PRICE_OUTSIDE_WINDOW",
+      defaultValue: "Ask {ask} outside the entry range {entry_low}–{limit}", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_NOT_WHOLE (values: quantity)
+  static var refusalReasonQuantityNotWhole: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUANTITY_NOT_WHOLE",
+      defaultValue: "Quantity {quantity} is not a whole number of shares", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_BELOW_ONE (values: quantity, maximum)
+  static var refusalReasonQuantityBelowOne: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.QUANTITY_BELOW_ONE",
+      defaultValue: "Quantity {quantity} is under 1 (platform maximum {maximum})", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. NOTIONAL_OVER_CAP (values: notional, cap)
+  static var refusalReasonNotionalOverCap: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.NOTIONAL_OVER_CAP",
+      defaultValue: "Value {notional} USD over the cap of {cap} USD", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. PLANNED_LOSS_OVER_LIMIT (values: planned_loss, limit)
+  static var refusalReasonPlannedLossOverLimit: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.PLANNED_LOSS_OVER_LIMIT",
+      defaultValue: "Planned loss {planned_loss} USD over the limit of {limit} USD", bundle: bundle)
+  }
   /// A refused entry's detail (`refusal.params`), after the rule's title. DAILY_CEILING (values: room, min_room, ceiling, realized, reserved)
   static var refusalReasonDailyCeiling: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.DAILY_CEILING",

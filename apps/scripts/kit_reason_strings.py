@@ -140,6 +140,42 @@ GROUPS = [
                 "El bróker reporta un estado de orden que el bot no conoce",
             ),
             (
+                "broker_fill_contradicts",
+                "The broker shows {filled} filled of {quantity} for an order of {sent} {symbol}: "
+                "nothing recorded; shares may be held without a stop: check it in the Webull app",
+                "El bróker muestra {filled} ejecutadas de {quantity} para una orden de {sent} "
+                "{symbol}: no se registra nada; puede haber acciones sin stop: revísala en la app "
+                "de Webull",
+            ),
+            (
+                "stop_changed_at_broker",
+                "The stop was changed at the broker to {quantity} shares at {price} (sent "
+                "{sent} at {sent_price}): it does not count as protection until it matches",
+                "El stop se cambió en el bróker a {quantity} acciones a {price} (enviado "
+                "{sent} a {sent_price}): no cuenta como protección hasta que coincida",
+            ),
+            (
+                "limit_changed_at_broker",
+                "The order was changed at the broker to {quantity} shares at limit {price} "
+                "(sent {sent} at {sent_price}): it does not count until it matches",
+                "La orden se cambió en el bróker a {quantity} acciones con límite {price} "
+                "(enviada {sent} a {sent_price}): no cuenta hasta que coincida",
+            ),
+            (
+                "quantity_changed_at_broker",
+                "The order was changed at the broker to {quantity} shares (sent {sent}): it "
+                "does not count until it matches",
+                "La orden se cambió en el bróker a {quantity} acciones (enviada {sent}): no "
+                "cuenta hasta que coincida",
+            ),
+            (
+                "order_not_listed",
+                "An order last seen working is missing from the broker's open orders: it "
+                "does not count until its detail is read",
+                "Una orden vista activa por última vez no aparece en las órdenes abiertas del "
+                "bróker: no cuenta hasta leer su detalle",
+            ),
+            (
                 "stop_covers_part",
                 "The verified stop covers {verified} of {expected} shares",
                 "El stop verificado cubre {verified} de {expected} acciones",

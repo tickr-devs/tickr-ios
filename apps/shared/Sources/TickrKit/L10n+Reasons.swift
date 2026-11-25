@@ -100,6 +100,36 @@ extension L10n {
     LocalizedStringResource("kit.fenceReason.status_unmapped",
       defaultValue: "The broker reports an order status the bot does not know", bundle: bundle)
   }
+  /// A fence's cause (`Fence.code`). broker_fill_contradicts (values: filled, quantity, sent, symbol)
+  static var fenceReasonBrokerFillContradicts: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.broker_fill_contradicts",
+      // swiftlint:disable:next line_length
+      defaultValue: "The broker shows {filled} filled of {quantity} for an order of {sent} {symbol}: nothing recorded; shares may be held without a stop: check it in the Webull app", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). stop_changed_at_broker (values: quantity, price, sent, sent_price)
+  static var fenceReasonStopChangedAtBroker: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.stop_changed_at_broker",
+      // swiftlint:disable:next line_length
+      defaultValue: "The stop was changed at the broker to {quantity} shares at {price} (sent {sent} at {sent_price}): it does not count as protection until it matches", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). limit_changed_at_broker (values: quantity, price, sent, sent_price)
+  static var fenceReasonLimitChangedAtBroker: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.limit_changed_at_broker",
+      // swiftlint:disable:next line_length
+      defaultValue: "The order was changed at the broker to {quantity} shares at limit {price} (sent {sent} at {sent_price}): it does not count until it matches", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). quantity_changed_at_broker (values: quantity, sent)
+  static var fenceReasonQuantityChangedAtBroker: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.quantity_changed_at_broker",
+      // swiftlint:disable:next line_length
+      defaultValue: "The order was changed at the broker to {quantity} shares (sent {sent}): it does not count until it matches", bundle: bundle)
+  }
+  /// A fence's cause (`Fence.code`). order_not_listed
+  static var fenceReasonOrderNotListed: LocalizedStringResource {
+    LocalizedStringResource("kit.fenceReason.order_not_listed",
+      // swiftlint:disable:next line_length
+      defaultValue: "An order last seen working is missing from the broker's open orders: it does not count until its detail is read", bundle: bundle)
+  }
   /// A fence's cause (`Fence.code`). stop_covers_part (values: verified, expected)
   static var fenceReasonStopCoversPart: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.stop_covers_part",
@@ -356,35 +386,5 @@ extension L10n {
   static var refusalReasonQuoteTimeInvalid: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.QUOTE_TIME_INVALID",
       defaultValue: "Quote time {seconds} s ahead of the clock, limit {limit} s", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_STALE (values: age, limit)
-  static var refusalReasonQuoteStale: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.QUOTE_STALE",
-      defaultValue: "Quote {age} s old, limit {limit} s", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. PRICE_OUTSIDE_WINDOW (values: ask, entry_low, limit)
-  static var refusalReasonPriceOutsideWindow: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.PRICE_OUTSIDE_WINDOW",
-      defaultValue: "Ask {ask} outside the entry range {entry_low}–{limit}", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_NOT_WHOLE (values: quantity)
-  static var refusalReasonQuantityNotWhole: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.QUANTITY_NOT_WHOLE",
-      defaultValue: "Quantity {quantity} is not a whole number of shares", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_BELOW_ONE (values: quantity, maximum)
-  static var refusalReasonQuantityBelowOne: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.QUANTITY_BELOW_ONE",
-      defaultValue: "Quantity {quantity} is under 1 (platform maximum {maximum})", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. NOTIONAL_OVER_CAP (values: notional, cap)
-  static var refusalReasonNotionalOverCap: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.NOTIONAL_OVER_CAP",
-      defaultValue: "Value {notional} USD over the cap of {cap} USD", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. PLANNED_LOSS_OVER_LIMIT (values: planned_loss, limit)
-  static var refusalReasonPlannedLossOverLimit: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.PLANNED_LOSS_OVER_LIMIT",
-      defaultValue: "Planned loss {planned_loss} USD over the limit of {limit} USD", bundle: bundle)
   }
 }

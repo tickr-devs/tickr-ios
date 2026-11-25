@@ -100,6 +100,11 @@ extension L10n {
   static var fenceStatusUnknown: LocalizedStringResource {
     LocalizedStringResource("kit.fence.status_unknown", defaultValue: "An order's status is unknown", bundle: bundle)
   }
+  /// A fence (a block on new entries): order_conflict
+  static var fenceOrderConflict: LocalizedStringResource {
+    LocalizedStringResource("kit.fence.order_conflict",
+      defaultValue: "The broker shows an order other than the one sent", bundle: bundle)
+  }
   /// A fence (a block on new entries): unprotected
   static var fenceUnprotected: LocalizedStringResource {
     LocalizedStringResource("kit.fence.unprotected", defaultValue: "A position has no verified stop", bundle: bundle)
