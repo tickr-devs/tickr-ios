@@ -798,6 +798,9 @@ private struct TradeDetailCard: View {
                 let value = Text(verbatim: sent.text)
                   .font(Tokens.Typography.calloutMono)
                   .foregroundStyle(sent.color)
+                  // "Once · acknowledged" wraps under itself in a narrow card, never cut.
+                  .multilineTextAlignment(.trailing)
+                  .fixedSize(horizontal: false, vertical: true)
                 // A tooltip only when there is something to add (the bot's cause of a missing record).
                 if let help = sent.help {
                   value.help(Text(verbatim: help))
