@@ -50,7 +50,11 @@ public struct EntryRow: Equatable, Sendable, Identifiable {
 ///
 /// Gone means a broker read: the bot drops an entry from the list only when its order reads
 /// terminal at the broker or partly filled. Partly filled makes a position in its symbol, and
-/// that is never called cancelled.
+/// that is never called cancelled. Across a long gap between reads (the app woke from the
+/// background) the entry may have filled and closed: a trade of today's that the read before did
+/// not list in its symbol, or one opened by this very order, means it filled, and a gone entry is
+/// called cancelled only when the two reads are of the same New York day, since a new day's
+/// trades no longer list yesterday's.
 public struct EntryCancelWatch: Equatable, Sendable {
   /// How long a cancelled entry stays on the card, in seconds (the approved mockup shows
   /// "Cancelled at broker" for about this long before the card is empty).
@@ -58,12 +62,27 @@ public struct EntryCancelWatch: Equatable, Sendable {
 
   /// The entries of the last read, by symbol.
   private var seen: [String: WorkingEntry] = [:]
+  /// The New York day of the last read's status.
+  private var seenDay: WireDate?
+  /// Today's trades the last read listed.
+  private var seenTrades: Set<TradeKey> = []
   /// The operator's queued cancels not yet settled: command id → the cancel.
   private var asked: [String: Ask] = [:]
   /// Symbols whose last cancel lapsed unpicked, with the limit it outlived (seconds).
   private var lapsed: [String: Decimal] = [:]
   /// Entries a read showed cancelled, with when it did.
   private var gone: [Gone] = []
+
+  /// A closed trade as two reads of the same day both list it.
+  struct TradeKey: Hashable, Sendable {
+    let symbol: String
+    let openedAt: Date
+
+    init(_ trade: Trade) {
+      symbol = trade.symbol
+      openedAt = trade.openedAt.date
+    }
+  }
 
   struct Ask: Equatable, Sendable {
     let symbol: String
@@ -105,8 +124,10 @@ public struct EntryCancelWatch: Equatable, Sendable {
       }
     }
     let askedSymbols = Set(asked.values.map(\.symbol))
+    let day = WireDate(newYorkDateOf: status.writtenAt.date)
     for (symbol, entry) in seen where current[symbol] == nil {
-      if !held.contains(symbol) && (entry.cancelRequested || askedSymbols.contains(symbol)) {
+      if day == seenDay && !held.contains(symbol) && !filled(entry, status)
+        && (entry.cancelRequested || askedSymbols.contains(symbol)) {
         gone.append(Gone(entry: entry, at: now))
       }
       asked = asked.filter { $0.value.symbol != symbol }
@@ -115,11 +136,25 @@ public struct EntryCancelWatch: Equatable, Sendable {
     gone.removeAll { now.timeIntervalSince($0.at) >= Self.cancelledShownSeconds
       || current[$0.entry.symbol] != nil || held.contains($0.entry.symbol) }
     seen = current
+    seenDay = day
+    seenTrades = Set(status.tradesToday.map(TradeKey.init))
+  }
+
+  /// Whether `status` shows `entry` filled after all: today's trades list one in its symbol that
+  /// the read before did not, or one whose entry is this order.
+  private func filled(_ entry: WorkingEntry, _ status: StatusV1) -> Bool {
+    let order = entry.entry.clientOrderId
+    return status.tradesToday.contains { trade in
+      trade.symbol == entry.symbol
+        && (!seenTrades.contains(TradeKey(trade)) || (order != nil && trade.entry.clientOrderId == order))
+    }
   }
 
   /// Forgets everything followed (the app switched to another bot).
   public mutating func forget() {
     seen = [:]
+    seenDay = nil
+    seenTrades = []
     asked = [:]
     lapsed = [:]
     gone = []

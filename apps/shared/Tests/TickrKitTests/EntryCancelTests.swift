@@ -114,6 +114,34 @@ import Testing
     #expect(watch.rows(filled, inFlight: nil).isEmpty, "a partial fill is a position, shown as one")
   }
 
+  @Test func anEntryThatFilledAndClosedBetweenTwoReadsIsNeverCalledCancelled() throws {
+    var watch = EntryCancelWatch()
+    watch.read(try cancelRequested(), now: Self.start)
+    let closed = try status { status in
+      status["working_entries"] = []
+      var trades = status["trades_today"] as? [[String: Any]] ?? []
+      var trade = trades[0]
+      trade["symbol"] = Self.symbol
+      trade["opened_at"] = "2026-11-16T15:00:05.000Z"
+      trades.append(trade)
+      status["trades_today"] = trades
+    }
+    watch.read(closed, now: Self.start + 1)
+    #expect(watch.rows(closed, inFlight: nil).isEmpty, "a trade of its symbol the read before did not list: it filled")
+  }
+
+  @Test func anEntryGoneOverNightIsNotSaidCancelled() throws {
+    var watch = EntryCancelWatch()
+    watch.read(try cancelRequested(), now: Self.start)
+    let nextDay = try status { status in
+      status["working_entries"] = []
+      status["trades_today"] = []
+      status["written_at"] = "2026-11-17T15:00:00.123Z"
+    }
+    watch.read(nextDay, now: Self.start + 1)
+    #expect(watch.rows(nextDay, inFlight: nil).isEmpty, "a new day's trades no longer show whether it filled")
+  }
+
   @Test func anEntryGoneWithoutAnyCancelIsNotSaidCancelled() throws {
     var watch = EntryCancelWatch()
     watch.read(try status(), now: Self.start)
