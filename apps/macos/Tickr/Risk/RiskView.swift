@@ -615,14 +615,19 @@ private struct ReconciliationCard: View {
   }
 }
 
-/// "Positions · 2 of 3": one tile per slot the config allows (`PositionSlots`).
+/// "Positions · 2 of 3": one tile per slot the config allows (`PositionSlots`); a working entry
+/// holds one, as the engine counts it.
 private struct SlotsCard: View {
   @Environment(AppModel.self) private var model
 
+  /// The working entries, each holding a slot (one just cancelled no longer does).
+  private var entries: [EntryRow] { model.entryRows.filter { $0.phase != .cancelled } }
+
   var body: some View {
-    Card(L10n.Risk.slots(model.positions.count, model.settings.map { String($0.risk.maxOpenPositions) } ?? Format.missing)) {
+    Card(L10n.Risk.slots(model.positions.count + entries.count,
+      model.settings.map { String($0.risk.maxOpenPositions) } ?? Format.missing)) {
       if let risk = model.settings?.risk {
-        PositionSlots(limit: risk.maxOpenPositions, positions: model.positions)
+        PositionSlots(limit: risk.maxOpenPositions, positions: model.positions, entries: entries)
       } else {
         Footnote(model.settingsError == nil ? L10n.Common.unavailable : L10n.Risk.settingsUnavailable)
       }
@@ -672,6 +677,7 @@ private struct LimitsCard: View {
 private struct PositionSlots: View {
   let limit: Int
   let positions: [PositionRow]
+  let entries: [EntryRow]
 
   /// Tiles in a row, as the design draws three slots across the card.
   static let columns = 3
@@ -680,7 +686,7 @@ private struct PositionSlots: View {
   /// Symbol after a confirmed stop.
   static let confirmedSymbol = "checkmark"
 
-  private var free: Int { max(0, limit - positions.count) }
+  private var free: Int { max(0, limit - positions.count - entries.count) }
 
   var body: some View {
     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Tokens.Space.s, alignment: .top),
@@ -688,12 +694,15 @@ private struct PositionSlots: View {
       ForEach(positions) { row in
         taken(row)
       }
+      ForEach(entries) { row in
+        pending(row)
+      }
       ForEach(0..<free, id: \.self) { _ in
         freeTile
       }
     }
     .accessibilityElement(children: .contain)
-    .accessibilityLabel(Text(L10n.Risk.slots(positions.count, String(limit))))
+    .accessibilityLabel(Text(L10n.Risk.slots(positions.count + entries.count, String(limit))))
   }
 
   /// Colours of a stop state: its tone (`StopState.tone`): green verified, amber pending, red missing.
@@ -727,6 +736,20 @@ private struct PositionSlots: View {
     .help(Text(verbatim: state.title))
     .accessibilityElement(children: .combine)
     .accessibilityValue(Text(verbatim: state.title))
+  }
+
+  /// A slot a working entry holds: its symbol and label, framed in the entry's colour.
+  private func pending(_ row: EntryRow) -> some View {
+    tile(frame: EntryLook.color(row.phase)) {
+      HStack(spacing: Tokens.Space.xs) {
+        EntryDot(row.phase)
+        SymbolText(row.symbol)
+          .font(Tokens.Typography.bodyMono.bold())
+          .foregroundStyle(Palette.textPrimary)
+      }
+      EntryBadge(row)
+    }
+    .accessibilityElement(children: .combine)
   }
 
   private var freeTile: some View {

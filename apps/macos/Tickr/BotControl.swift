@@ -306,4 +306,11 @@ extension AppModel {
   /// The bot's working entries on the live day, with where each one's cancel stands, and those
   /// just cancelled (`EntryCancelWatch`).
   var entryRows: [EntryRow] { isLive ? entryWatch.rows(status, inFlight: inFlight) : [] }
+
+  /// The slots in use of `limit`, a working entry holding one as the engine counts it, with how
+  /// many are pending: "2 of 3 · 1 pending".
+  func slotsText(_ limit: Int) -> String {
+    guard isLive, let status else { return String(localized: L10n.Common.countOf(positions.count, limit)) }
+    return Slots.withPending(String(localized: L10n.Common.countOf(Slots.used(status), limit)), status)
+  }
 }

@@ -1420,8 +1420,7 @@ private struct RiskRoomCard: View {
             color: Palette.result(model.shownResult)),
           RiskFact(.reservations, RiskRoomText.reservations, value: reservations.map(Money.usd) ?? Format.missing,
             color: reservations.map { Tone.amount($0, .warning).text } ?? Palette.textQuaternary),
-          RiskFact(.positions, RiskRoomText.positions,
-            value: String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions))),
+          RiskFact(.positions, RiskRoomText.positions, value: model.slotsText(risk.maxOpenPositions)),
         ], sizing: model.watching.map { watching in
           EntrySizing(size: watching.latestSize, configured: SizingLimits(
             plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,

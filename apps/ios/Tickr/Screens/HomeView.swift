@@ -400,7 +400,9 @@ private struct Summary: View {
             CleanLine(clean: past.clean)
           } else if let status = model.status {
             if let limit = model.settings?.risk.maxOpenPositions {
-              Text(L10n.Home.slotsFree(max(0, limit - status.positions.count), limit))
+              // A working entry holds a slot as the engine counts it (mockup v162: "· 1 pending").
+              Text(verbatim: Slots.withPending(String(localized: L10n.Home.slotsFree(Slots.free(status, limit: limit), limit)),
+                status))
                 .font(.subheadline)
                 .foregroundStyle(Palette.textTertiary)
                 .contentTransition(.numericText())

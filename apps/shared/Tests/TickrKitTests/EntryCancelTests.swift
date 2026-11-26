@@ -166,6 +166,16 @@ import Testing
     #expect(Headline.detail(idle) == "No open position")
   }
 
+  @Test func aWorkingEntryHoldsASlotAsTheEngineCountsIt() throws {
+    let status = try status()
+    #expect(Slots.used(status) == 2, "ABCD open, KLMN working")
+    #expect(Slots.free(status, limit: 3) == 1)
+    #expect(Slots.free(status, limit: 1) == 0)
+    #expect(Slots.withPending("1 of 3 slots free", status) == "1 of 3 slots free · 1 pending")
+    let none = try entryGone()
+    #expect(Slots.withPending("2 of 3 slots free", none) == "2 of 3 slots free", "nothing pending, nothing added")
+  }
+
   @Test func forgetDropsWhatWasFollowed() throws {
     var watch = EntryCancelWatch()
     watch.read(try cancelRequested(), now: Self.start)

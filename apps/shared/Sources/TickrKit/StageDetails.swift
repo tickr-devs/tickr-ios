@@ -238,9 +238,10 @@ extension StageDetail {
       facts.append(fact(L10n.stageMaxDailyLoss, String(localized: L10n.stageUSD(risk.maxDailyLossUsd.text))))
     }
     if let status {
-      let used = risk.map { String(localized: L10n.stageCountOf(status.positions.count, $0.maxOpenPositions)) }
-        ?? String(status.positions.count)
-      facts.append(fact(L10n.stagePositionsUsed, used))
+      // Working entries hold slots as the engine counts them.
+      let used = risk.map { String(localized: L10n.stageCountOf(Slots.used(status), $0.maxOpenPositions)) }
+        ?? String(Slots.used(status))
+      facts.append(fact(L10n.stagePositionsUsed, Slots.withPending(used, status)))
     } else if let risk {
       facts.append(fact(L10n.stageMaxPositions, String(risk.maxOpenPositions)))
     }
