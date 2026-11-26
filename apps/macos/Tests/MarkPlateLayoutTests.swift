@@ -81,30 +81,48 @@ struct MarkPlateLayoutTests {
     #expect(centres[1] == nil)
   }
 
-  @Test("A plate moves off the candles under it, above or below them, when there is room")
+  /// The plate drawn at `centre`, and whether it keeps `gap` from `rect`.
+  private func plate(at centre: CGPoint) -> CGRect {
+    CGRect(x: centre.x - size.width / 2, y: centre.y - size.height / 2, width: size.width, height: size.height)
+  }
+
+  private func clear(_ centre: CGPoint, of rect: CGRect) -> Bool {
+    let shared = rect.insetBy(dx: -gap, dy: -gap).intersection(plate(at: centre))
+    return shared.isNull || shared.width * shared.height == 0
+  }
+
+  /// The room between a mark and its plate's nearest point, in plate heights.
+  private func reach(_ centre: CGPoint, from mark: CGPoint) -> CGFloat {
+    let rect = plate(at: centre)
+    let across = max(rect.minX - mark.x, 0, mark.x - rect.maxX)
+    let along = max(rect.minY - mark.y, 0, mark.y - rect.maxY)
+    return (across * across + along * along).squareRoot() / size.height
+  }
+
+  @Test("A plate moves off the candle under its mark to the nearest clear place, within reach")
   func offCandles() throws {
-    // A candle from 120 to 200 under an exit's mark at 150: above its high instead.
-    let candle = CGRect(x: 95, y: 120, width: 10, height: 80)
-    let above = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [candle])
-    #expect(try #require(above[0]).y + size.height / 2 <= candle.minY - gap)
-    // A candle reaching the plot's top: the plate goes below its low.
-    let top = CGRect(x: 95, y: 0, width: 10, height: 170)
-    let below = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [top])
-    #expect(try #require(below[0]).y - size.height / 2 >= top.maxY + gap)
+    let mark = CGPoint(x: 100, y: 150)
+    for candle in [CGRect(x: 95, y: 120, width: 10, height: 80), CGRect(x: 95, y: 0, width: 10, height: 170)] {
+      let centre = try #require(place([.init(id: 0, anchor: mark, size: size, side: .above)], candles: [candle])[0])
+      #expect(clear(centre, of: candle))
+      #expect(reach(centre, from: mark) <= MarkPlateLayout.reach)
+    }
     // Candles filling the whole plot: the plate keeps its own side, over them.
     let full = CGRect(x: 0, y: 0, width: 400, height: 300)
-    let over = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [full])
+    let over = place([.init(id: 0, anchor: mark, size: size, side: .above)], candles: [full])
     #expect(try #require(over[0]) == CGPoint(x: 100, y: 150 - offset - size.height / 2))
   }
 
   @Test("A mark's own glyph is not in its plate's way; another mark's is")
   func glyphs() throws {
+    let mark = CGPoint(x: 100, y: 150)
     let own = CGRect(x: 92, y: 142, width: 16, height: 16)
-    let alone = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], glyphs: [own])
+    let alone = place([.init(id: 0, anchor: mark, size: size, side: .above)], glyphs: [own])
     #expect(try #require(alone[0]) == CGPoint(x: 100, y: 150 - offset - size.height / 2))
     let neighbour = CGRect(x: 112, y: 122, width: 16, height: 16)
-    let moved = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], glyphs: [own, neighbour])
-    #expect(try #require(moved[0]).y > 150)
+    let moved = try #require(place([.init(id: 0, anchor: mark, size: size, side: .above)], glyphs: [own, neighbour])[0])
+    #expect(clear(moved, of: neighbour))
+    #expect(reach(moved, from: mark) <= MarkPlateLayout.reach)
   }
 
   @Test("Where candles fill the height, a plate goes beside its mark at its price, never far off")
