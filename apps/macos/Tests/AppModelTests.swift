@@ -266,12 +266,12 @@ struct AppModelTests {
     let day = try WireDate("2026-11-16")
     RouteProtocol.routes.withLock { $0.bodies["/decisions"] = try? Data(contentsOf:
       fixturesDir.appendingPathComponent("decisions-v1.json")) }
-    await chart.loadDecisions(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.loadDecisions(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.decisions?.decisions.map(\.action) == [.watch, .enter, .enter])
     #expect(chart.decisions?.decisions[1].observer == true)
     #expect(chart.decisions?.decisions.last?.admission == .refused)
     RouteProtocol.routes.withLock { $0.bodies["/decisions"] = nil }
-    await chart.loadDecisions(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.loadDecisions(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.decisions == nil)
     #expect(chart.decisionsError != nil)
   }
@@ -632,15 +632,15 @@ struct AppModelTests {
     let chart = ChartModel()
     let day = try WireDate("2026-11-16")
     #expect(chart.plot(timeframe: .m1) == nil)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     let first = try #require(chart.plot(timeframe: .m1))
     #expect(chart.plot(timeframe: .m1)?.revision == first.revision)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.revision == first.revision, "the same bars read again must not redraw the chart")
     #expect(chart.plot(timeframe: .m5)?.timeframe == .m5)
     chart.clear()
     #expect(chart.plot(timeframe: .m1) == nil)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(try #require(chart.plot(timeframe: .m1)).revision > first.revision)
   }
   @Test("Ornaments move only while the bot runs with fresh live status, and never with Reduce Motion")
@@ -701,9 +701,9 @@ struct AppModelTests {
     let chart = ChartModel()
     let day = try WireDate("2026-11-16")
     #expect(chart.newestBar == nil)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     let first = try #require(chart.newestBar)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.newestBar == first)
   }
 }

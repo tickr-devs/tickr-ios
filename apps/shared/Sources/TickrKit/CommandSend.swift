@@ -120,6 +120,30 @@ public struct CommandKeys: Sendable, Equatable {
   }
 }
 
+/// The one place an app keeps its command keys (`CommandKeys`), shared by every model that sends
+/// commands. On iPad the iPhone screens (compact width) and the Mac screens (regular width) each
+/// have a model, and the person can switch between them by resizing the window: a send lost in
+/// one layout and pressed again in the other must re-send under the same key, never a new one
+/// (hard rule 3: one send per decision). The keys belong to one server: pointing at another one
+/// (`use(_:)`) drops them.
+@MainActor
+public final class CommandKeyStore {
+  /// The keys of sends whose outcome is unknown, on `server`.
+  public var keys = CommandKeys()
+  /// The server the keys were made for; nil before the first send.
+  public private(set) var server: URL?
+
+  public init() {}
+
+  /// The models now talk to `server`: keys made for another server mean nothing there and go.
+  /// The same server again keeps them, so a second model joining it never forgets a lost send.
+  public func use(_ server: URL) {
+    guard server != self.server else { return }
+    keys.clear()
+    self.server = server
+  }
+}
+
 /// Sends an operator command and reads a lost send's receipt, the same way in both apps.
 public enum CommandSend {
   /// The first HTTP status of a server error. The API refuses with a 4xx before it queues

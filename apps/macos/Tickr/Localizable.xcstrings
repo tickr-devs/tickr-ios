@@ -732,6 +732,23 @@
         }
       }
     },
+    "bot.ownerNotConfirmed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not sent: Face ID or the passcode did not confirm the owner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no enviado: Face ID o el código no confirmaron al propietario"
+          }
+        }
+      }
+    },
     "bot.pauseEntries" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12843,6 +12860,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Día de trading anterior (⌘[)"
+          }
+        }
+      }
+    },
+    "toolbar.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
           }
         }
       }

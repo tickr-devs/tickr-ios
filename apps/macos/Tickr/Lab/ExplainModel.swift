@@ -15,7 +15,7 @@ final class ExplainModel {
   }
 
   /// Reads the decisions on a symbol on a day from the bot at a base URL.
-  typealias Fetch = @Sendable (URL, String, WireDate) async throws -> DecisionsV1
+  typealias Fetch = @Sendable (APIClient.Endpoint, String, WireDate) async throws -> DecisionsV1
 
   /// The read asked for last; nil before the first or after `cancel()`.
   private(set) var request: Request?
@@ -34,13 +34,13 @@ final class ExplainModel {
   }
 
   /// The bot's own read, through the app's API client.
-  static let read: Fetch = { baseURL, symbol, day in
-    try await Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL)).decisions(symbol: symbol, day: day)
+  static let read: Fetch = { endpoint, symbol, day in
+    try await Container.shared.apiClient(endpoint).decisions(symbol: symbol, day: day)
   }
 
   /// Reads `symbol` on `day`, cancelling a read still running for another symbol or day. The same
   /// request again while it runs changes nothing.
-  func load(symbol: String, day: WireDate, baseURL: URL) {
+  func load(symbol: String, day: WireDate, endpoint: APIClient.Endpoint) {
     let wanted = Request(symbol: symbol, day: day)
     guard wanted != request || !loading else { return }
     task?.cancel()
@@ -52,7 +52,7 @@ final class ExplainModel {
     task = Task { [weak self] in
       let result: Result<DecisionsV1, Error>
       do {
-        result = .success(try await fetch(baseURL, symbol, day))
+        result = .success(try await fetch(endpoint, symbol, day))
       } catch {
         result = .failure(error)
       }

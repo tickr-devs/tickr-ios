@@ -130,9 +130,19 @@ struct RootView: View {
     .botCommandQuestions(in: .window)
   }
 
-  /// The shown screen under the event strip and the connection banner, with the unattended
-  /// banner and the command toast over it.
-  private var screen: some View {
+  /// The shown screen (`ScreenColumn`).
+  private var screen: some View { ScreenColumn() }
+}
+
+/// The shown section's screen under the event strip and the connection banner, with the
+/// unattended banner and the command toast over it: the Mac window's detail column, and the
+/// iPad's (`RegularScreens`).
+struct ScreenColumn: View {
+  @Environment(AppModel.self) private var model
+
+  private var section: AppSection { model.section }
+
+  var body: some View {
     ZStack(alignment: .bottom) {
       TickrBackground()
       // The strip stacked above the screen rather than a top safe-area inset whose content
@@ -186,7 +196,7 @@ struct RootView: View {
   /// included, needs the screens' least size (`screenMinWidth`, `screenMinHeight`).
   private var screenLeast: CGSize {
     if section == .overview && model.symbolsTab == nil { return OverviewView.leastSize }
-    return CGSize(width: Self.screenMinWidth, height: Self.screenMinHeight)
+    return CGSize(width: RootView.screenMinWidth, height: RootView.screenMinHeight)
   }
 
   @ViewBuilder private var detail: some View {
@@ -208,7 +218,7 @@ struct RootView: View {
 
 /// The sidebar as the design draws it: the "OPERATOR" label, the sections and the bot's state at
 /// the bottom, on the sidebar's own fill. Settings opens the standard way (⌘, and the app menu).
-private struct Sidebar: View {
+struct Sidebar: View {
   @Environment(AppModel.self) private var model
   @Binding var selection: AppSection
   /// Whether the section rows have the keyboard focus (the arrow keys then move the selection).

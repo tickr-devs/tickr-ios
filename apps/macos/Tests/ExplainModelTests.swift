@@ -7,7 +7,7 @@ import Testing
 @MainActor
 @Suite("Explain a symbol")
 struct ExplainModelTests {
-  static let base = URL(string: "http://127.0.0.1:8776")!
+  static let base = APIClient.Endpoint(baseURL: URL(string: "http://127.0.0.1:8776")!)
   /// How long the slow first read takes, ignoring cancellation, in milliseconds.
   static let slowMilliseconds = 200
   /// Longer than the slow read, so its late answer has arrived before the checks.
@@ -34,8 +34,8 @@ struct ExplainModelTests {
       }
       return new
     }
-    model.load(symbol: old.symbol, day: old.day, baseURL: Self.base)
-    model.load(symbol: new.symbol, day: new.day, baseURL: Self.base)
+    model.load(symbol: old.symbol, day: old.day, endpoint: Self.base)
+    model.load(symbol: new.symbol, day: new.day, endpoint: Self.base)
     await model.settle()
     try await Task.sleep(for: .milliseconds(Self.settleMilliseconds))
     #expect(model.request == ExplainModel.Request(symbol: new.symbol, day: new.day))
@@ -48,7 +48,7 @@ struct ExplainModelTests {
     let asked = try Self.decisions(day: "2026-11-16")
     let other = try Self.decisions(day: "2026-11-16", symbol: "WXYZ")
     let model = ExplainModel { _, _, _ in other }
-    model.load(symbol: asked.symbol, day: asked.day, baseURL: Self.base)
+    model.load(symbol: asked.symbol, day: asked.day, endpoint: Self.base)
     await model.settle()
     #expect(model.decisions == nil)
   }
@@ -60,7 +60,7 @@ struct ExplainModelTests {
       try? await Task.sleep(for: .milliseconds(Self.slowMilliseconds))
       return answer
     }
-    model.load(symbol: answer.symbol, day: answer.day, baseURL: Self.base)
+    model.load(symbol: answer.symbol, day: answer.day, endpoint: Self.base)
     model.cancel()
     try await Task.sleep(for: .milliseconds(Self.settleMilliseconds))
     #expect(model.request == nil)

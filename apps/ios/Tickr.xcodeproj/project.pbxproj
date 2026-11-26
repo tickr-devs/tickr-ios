@@ -20,6 +20,7 @@
 		A5A0D3F103F66BB6EA29091C /* SettingsLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */; };
 		BCF5F0DD9CD326D009134257 /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */; };
 		C546EC1D46CDFFB3EFDFA9AB /* ActivityDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F64E02FE4CCE52C70E1FFC /* ActivityDayTests.swift */; };
+		E514DEA6B04F48F81C1734E9 /* ScreenLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BB995A57154ACACE515962 /* ScreenLayoutTests.swift */; };
 		EF0B7AF46ABFCBFE7F693157 /* HomeLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A0BE654C494944100CB943 /* HomeLogicTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		18BB995A57154ACACE515962 /* ScreenLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenLayoutTests.swift; sourceTree = "<group>"; };
 		305EC8E6FFF84288AEEE3CA6 /* AfterLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AfterLineTests.swift; sourceTree = "<group>"; };
 		445FB381029F292DF0F650AC /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		57F64E02FE4CCE52C70E1FFC /* ActivityDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityDayTests.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				A8C246950A083E7740FFC9B3 /* KeychainTests.swift */,
 				AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */,
 				A0E977B53CF21942EADDAD4F /* OrnamentGateTests.swift */,
+				18BB995A57154ACACE515962 /* ScreenLayoutTests.swift */,
 				60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */,
 			);
 			path = TickrTests;
@@ -308,6 +311,7 @@
 				1705B6E6B9DB3B544EB8482D /* KeychainTests.swift in Sources */,
 				0053F15DE4FC863E9C8EE886 /* LabReplayTests.swift in Sources */,
 				7CB084A02679E090C7142A0C /* OrnamentGateTests.swift in Sources */,
+				E514DEA6B04F48F81C1734E9 /* ScreenLayoutTests.swift in Sources */,
 				A5A0D3F103F66BB6EA29091C /* SettingsLogicTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -379,7 +383,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -500,7 +504,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

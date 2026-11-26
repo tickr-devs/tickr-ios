@@ -127,6 +127,16 @@ public final class AppModel {
   public private(set) var demoDay: Bool
   /// The address the app talks to: `address`, or the demo day's (`DemoDay.address`).
   public var baseURL: URL { DemoDay.address(address, demo: demoDay) }
+  /// The paired token of a remote address (iPad: from the pairing in its Settings); nil on the
+  /// Mac, whose API is this machine's own.
+  public private(set) var token: String?
+  /// Proves the owner is the one pressing (Face ID or the passcode on iPad) before a command is
+  /// sent, `nil` for starting the bot, with the command's title as the reason; false refuses the
+  /// command and sends nothing. Set by the iPad; nil on the Mac, which asks nothing more than the
+  /// screens' own questions.
+  @ObservationIgnored public var ownerCheck: (@MainActor (OperatorCommand?, String) async -> Bool)?
+  /// Where every read and command of the screens goes: the address with its token.
+  public var endpoint: APIClient.Endpoint { APIClient.Endpoint(baseURL: baseURL, token: token) }
   @ObservationIgnored private var client: APIClient
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
@@ -287,9 +297,15 @@ public final class AppModel {
   /// asked on is still this one (backlog A4), so a late answer from server A never replaces what
   /// the app shows of server B after a switch, even when B is A again.
   @ObservationIgnored private var link = 0
-  /// The idempotency key of each command whose send lost its answer (backlog A3): kept until the
-  /// API's receipt says whether it was queued, and used again if the operator presses it again.
-  @ObservationIgnored private var keys = CommandKeys()
+  /// The idempotency key of each command whose send lost its answer (backlog A3), kept until the
+  /// API's receipt says whether it was queued and used again if the operator presses it again. In
+  /// the app's one store (`CommandKeyStore`): on iPad the iPhone screens' model sends from the
+  /// same keys, so a press after a lost send is never a second send under a new key.
+  @ObservationIgnored @Injected(\.commandKeys) private var keyStore
+  private var keys: CommandKeys {
+    get { keyStore.keys }
+    set { keyStore.keys = newValue }
+  }
   /// The title each lost send was pressed under ("Close ABCD position"), by its key.
   @ObservationIgnored private var lostTitles: [String: String] = [:]
 
@@ -528,6 +544,17 @@ public final class AppModel {
     reconnect()
   }
 
+  /// Point the screens at `endpoint` as it is, address and token (the iPad's connection after a
+  /// pairing or a change in its Settings). The same endpoint again changes nothing.
+  public func connect(to endpoint: APIClient.Endpoint) {
+    guard endpoint != self.endpoint else { return }
+    address = endpoint.baseURL
+    token = endpoint.token
+    demoDay = false
+    selectedDay = nil
+    reconnect()
+  }
+
   /// Turn the demo day on or off (Settings › General). On: the demo day, and the day picker
   /// stays on it. Off: back to the bot at `address`, on today.
   public func setDemoDay(_ on: Bool) {
@@ -544,10 +571,10 @@ public final class AppModel {
     confirming = nil
     link += 1
     // Keys of the server before mean nothing at this one.
-    keys.clear()
-    lostTitles = [:]
     let url = baseURL
-    client = Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
+    keyStore.use(url)
+    lostTitles = [:]
+    client = Container.shared.apiClient(endpoint)
     response = nil
     reads = ReadFailures()
     lastReadAt = nil
@@ -1107,6 +1134,13 @@ public final class AppModel {
   /// Asks the API to start the bot job through launchd (POST /commands/start-bot), once.
   public func startBot() async {
     guard canStartBot else { return }
+    if let ownerCheck {
+      guard await ownerCheck(nil, String(localized: L10n.Settings.startBotAction)) else {
+        botStart = .refused(String(localized: L10n.Bot.ownerNotConfirmed))
+        return
+      }
+      guard canStartBot else { return }
+    }
     botStarting = true
     defer { botStarting = false }
     let asked = link
@@ -1181,6 +1215,15 @@ public final class AppModel {
     defer {
       sending = false
       inFlight = nil
+    }
+    // The owner first (iPad), while the buttons wait; the status read below comes after it, on
+    // the connection the command was pressed on.
+    if let ownerCheck {
+      guard await ownerCheck(command, title) else {
+        show(SentCommand(id: UUID().uuidString, kind: command.kind, title: title, outcome: .refused,
+          cause: String(localized: L10n.Bot.ownerNotConfirmed), warning: nil))
+        return
+      }
     }
     guard await refreshStatus(), asked == link else {
       show(SentCommand(id: UUID().uuidString, kind: command.kind, title: title, outcome: .refused,

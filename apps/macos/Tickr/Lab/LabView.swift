@@ -828,7 +828,7 @@ private struct ExplainCard: View {
   private func load() {
     guard !wanted.isEmpty else { return }
     symbol = wanted
-    explain.load(symbol: wanted, day: model.shownDay, baseURL: model.baseURL)
+    explain.load(symbol: wanted, day: model.shownDay, endpoint: model.endpoint)
   }
 }
 

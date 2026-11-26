@@ -115,7 +115,7 @@ struct ChartView: View {
 
   /// What a read depends on: a change starts a new read and forgets the old bars.
   private struct LoadKey: Equatable {
-    let baseURL: URL
+    let endpoint: APIClient.Endpoint
     let symbol: String?
     let day: WireDate
     let live: Bool
@@ -161,7 +161,7 @@ struct ChartView: View {
     // Mockup v113: a range opens on its own interval (Day 5m, 5D 30m).
     .onChange(of: range) { _, new in timeframe = new.openingInterval }
     .task(id: LoadKey(
-      baseURL: model.baseURL, symbol: symbol, day: model.shownDay, live: model.isLive, range: range,
+      endpoint: model.endpoint, symbol: symbol, day: model.shownDay, live: model.isLive, range: range,
       interval: interval)
     ) {
       await keepLoading()
@@ -204,7 +204,7 @@ struct ChartView: View {
     pointer.unpin()
     pointer.index = nil
     guard let symbol else { return }
-    let baseURL = model.baseURL
+    let endpoint = model.endpoint
     let day = model.shownDay
     let live = model.isLive
     chart.shown = ChartModel.Shown(symbol: symbol, range: range, interval: interval)
@@ -215,7 +215,7 @@ struct ChartView: View {
       // only intraday candles (five sessions) still change during the day. A cold 5D fills as
       // the chart's budget allows: asked again when the bot says (`pending`).
       repeat {
-        let wait = await chart.loadRange(baseURL: baseURL, symbol: symbol, interval: shownInterval, range: shownRange)
+        let wait = await chart.loadRange(endpoint: endpoint, symbol: symbol, interval: shownInterval, range: shownRange)
         guard wait != nil || shownInterval.isIntraday else { return }
         try? await Task.sleep(for: .seconds(wait ?? Pace.chartSeconds))
       } while !Task.isCancelled
@@ -226,11 +226,11 @@ struct ChartView: View {
       // Today's session from market data, every session of it; a recorded day from the capture.
       var wait: TimeInterval?
       if live {
-        wait = await chart.loadToday(baseURL: baseURL, symbol: symbol, interval: shownInterval, day: day)
+        wait = await chart.loadToday(endpoint: endpoint, symbol: symbol, interval: shownInterval, day: day)
       } else {
-        await chart.load(baseURL: baseURL, symbol: symbol, day: day)
+        await chart.load(endpoint: endpoint, symbol: symbol, day: day)
       }
-      await chart.loadDecisions(baseURL: baseURL, symbol: symbol, day: day)
+      await chart.loadDecisions(endpoint: endpoint, symbol: symbol, day: day)
       guard live else { return }
       // Market data is read at the chart's own pace (its request budget); the capture's at the
       // bars' pace.

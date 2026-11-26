@@ -122,9 +122,15 @@ final class AppModel {
   @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
   @ObservationIgnored private var awaited: [String: CommandKind] = [:]
-  /// The idempotency key of each command whose send lost its answer (backlog A3): kept until the
-  /// API's receipt says whether it was queued, and used again if the owner presses it again.
-  @ObservationIgnored private var keys = CommandKeys()
+  /// The idempotency key of each command whose send lost its answer (backlog A3), kept until the
+  /// API's receipt says whether it was queued and used again if the owner presses it again. In
+  /// the app's one store (`CommandKeyStore`): on iPad the Mac screens' model sends from the
+  /// same keys, so a press after a lost send is never a second send under a new key.
+  @ObservationIgnored @Injected(\.commandKeys) private var keyStore
+  private var keys: CommandKeys {
+    get { keyStore.keys }
+    set { keyStore.keys = newValue }
+  }
   /// Counts connections: every answer is applied only while the connection it was asked on is
   /// still this one (backlog A4), so a late answer from the address before never shows as this one's.
   @ObservationIgnored private var link = 0
@@ -235,7 +241,7 @@ final class AppModel {
     stop()
     link += 1
     // Keys and queued commands of the address before mean nothing at this one.
-    keys.clear()
+    if let url = connection.url { keyStore.use(url) }
     awaited = [:]
     response = nil
     reads = ReadFailures()
