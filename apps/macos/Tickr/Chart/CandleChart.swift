@@ -200,26 +200,15 @@ struct CandleChart: View {
               .font(Tokens.Typography.annotation)
               .foregroundStyle(mark.color)
           }
-          .annotation(position: .top, overflowResolution: Self.keepInside) {
-            // An exit's plate that would overlap it on screen takes the space above: the decision
-            // keeps its diamond and its label gives way ("WATCH" on the candle after an exit sat
-            // under "EXIT +$93.38", Duo 2026-11-26).
-            if labelsDecisions && !meetsExitPlate(mark.label, at: mark.time) {
-              ChartMarkPlate(mark.label, color: mark.color, textColor: mark.color)
-            }
-          }
       }
-      // The trades after the decisions: drawn later, their plates ("EXIT −$42.23") sit over a
-      // decision's diamond on the same bar instead of under it.
+      // The trades after the decisions: drawn later, over a decision's diamond on the same bar.
+      // The plates of both are drawn over the chart, placed apart (`ChartMarkPlates`).
       ForEach(marks) { mark in
         PointMark(x: .value(Plot.time, mark.time), y: .value(Plot.price, mark.price))
           .symbol {
             Image(systemName: mark.kind == .entry ? Self.entrySymbol : Self.exitSymbol)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(mark.color)
-          }
-          .annotation(position: mark.kind == .entry ? .bottom : .top, overflowResolution: Self.keepInside) {
-            ChartMarkPlate(mark.label, color: mark.color, textColor: mark.textColor)
           }
       }
       if let last = candles.last {
@@ -405,24 +394,22 @@ struct CandleChart: View {
     }
   }
 
-  /// Whether a decision's label at `time` would overlap, side by side on screen, an exit's plate
-  /// (both sit above their marks): half of each plate's measured width plus the gap between labels.
-  private func meetsExitPlate(_ label: LocalizedStringResource, at time: Date) -> Bool {
-    guard plotWidth > 0, visibleLength > 0 else { return false }
-    let perSecond = Double(plotWidth) / visibleLength
-    let half = plateWidth(label) / 2
-    return marks.contains { exit in
-      guard exit.kind != .entry else { return false }
-      let apart = abs(exit.time.timeIntervalSince(time)) * perSecond
-      return apart < Double(half + plateWidth(exit.label) / 2 + Tokens.Chart.axisLabelGap)
+  /// The price pane's plates, placed apart over the chart: an exit's first, then an entry's,
+  /// then the decisions' while few are on screen. A fill's plate goes under its mark, the others
+  /// above.
+  func markPlates(_ proxy: ChartProxy) -> ChartMarkPlates {
+    let exits = marks.filter { $0.kind != .entry }
+    let entries = marks.filter { $0.kind == .entry }
+    let trades = (exits + entries).map { mark in
+      ChartMarkPlates.Plate(time: mark.time, price: mark.price, label: mark.label, color: mark.color,
+        textColor: mark.textColor, side: mark.kind == .entry ? .below : .above)
     }
-  }
-
-  /// A `ChartMarkPlate`'s width on screen: its upper-case text in the plate's font and padding.
-  private func plateWidth(_ label: LocalizedStringResource) -> CGFloat {
-    let size = TextMeasure.pointSize(mac: Tokens.Typography.annotationSize, ios: .caption2)
-    let font = PlatformFont.monospacedSystemFont(ofSize: size, weight: .bold)
-    return TextMeasure.width(String(localized: label).uppercased(), font: font) + Tokens.Space.xs + Tokens.Space.xs
+    let labelled = labelsDecisions ? decisions : []
+    let verdicts = labelled.map { mark in
+      ChartMarkPlates.Plate(time: mark.time, price: mark.price, label: mark.label, color: mark.color,
+        textColor: mark.color, side: .above)
+    }
+    return ChartMarkPlates(plates: trades + verdicts, proxy: proxy)
   }
 
   /// Whether the decisions on screen are few enough to label.
@@ -1033,6 +1020,7 @@ private struct SharedAxis: ViewModifier {
       }
       .chartOverlay { proxy in
         ZStack {
+          if pane == .price { chart.markPlates(proxy) }
           AxisTags(tags: tags, proxy: proxy)
           Crosshair(pointer: pointer, plot: chart.plot, pane: pane, showsTime: showsTime, proxy: proxy,
             marks: { chart.pointedMarks(pane, $0) })

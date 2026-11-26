@@ -131,6 +131,8 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
   let actions: Actions
   let content: Content
   @Environment(AppModel.self) private var model
+  /// How far the window's controls reach into the screen's top leading corner, in points.
+  @State private var windowControls: CGFloat = 0
 
   init(
     _ title: LocalizedStringResource, tab: AppTab? = nil, back: LocalizedStringResource? = nil,
@@ -155,9 +157,10 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
           }
         }
         // In an iPad window (Stage Manager, a narrow window shows this layout) the window controls
-        // sit in the top leading corner: the header moves past them and narrows to fit. On iPhone
-        // there are no controls and nothing moves.
-        .containerCornerOffset(.leading, sizeToFit: true)
+        // sit in the top leading corner: the header starts past them and narrows to fit. Measured
+        // on the scroll view, outside the scrolled content, which knows no window corner. On
+        // iPhone the corner is empty and nothing moves.
+        .padding(.leading, max(windowControls - Tokens.Space.l, 0))
         // The link to the bot, said the same on every screen: a banner over the last known
         // data (drawn dimmer), or an empty state in the card area when nothing was read.
         ConnectionPrompt()
@@ -169,6 +172,7 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
     .scrollEdgeHints()
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
+    .onGeometryChange(for: CGFloat.self, of: { $0.containerCornerInsets.topLeading.width }, action: { windowControls = $0 })
     if let tab {
       scroll.tabRoot(tab)
     } else {
