@@ -6,10 +6,6 @@ extension L10n {
   static var sizingTitle: LocalizedStringResource {
     LocalizedStringResource("kit.sizing.title", defaultValue: "Last entry size", bundle: bundle)
   }
-  /// The badge beside the latest sized decision's symbol and time.
-  static var sizingBadge: LocalizedStringResource {
-    LocalizedStringResource("kit.sizing.badge", defaultValue: "Size", bundle: bundle)
-  }
   /// The symbol and minute of the latest sized decision: "IQ · 10:31".
   static func sizingMeta(_ symbol: String, _ time: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.sizing.meta", defaultValue: "\(symbol) · \(time)", bundle: bundle)
@@ -81,6 +77,48 @@ extension L10n {
     LocalizedStringResource("kit.sizing.wouldBeSetBy",
       defaultValue: "Would be set by: \(limit) \(amount) · \(shares) sh", bundle: bundle)
   }
+  /// The Risk screens' headline of an entry: "3,521 shares".
+  static func sizingSharesLine(_ shares: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.sharesLine", defaultValue: "\(shares) shares", bundle: bundle)
+  }
+  /// Where and when the entry was sized, on the Risk screens: "IQ at $0.7100 · 10:31 ET".
+  static func sizingPlace(_ symbol: String, _ price: String, _ time: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.place", defaultValue: "\(symbol) at \(price) · \(time) ET", bundle: bundle)
+  }
+  /// The same from a record without a price: "IQ · 10:31 ET".
+  static func sizingPlaceNoPrice(_ symbol: String, _ time: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.placeNoPrice", defaultValue: "\(symbol) · \(time) ET", bundle: bundle)
+  }
+  /// The Risk screens' planned-loss limit, without a formula: the planned loss and how far the
+  /// stop was: "Planned loss $50.00 · stop $0.0120 away".
+  static func sizingPlainPlannedLoss(_ amount: String, _ distance: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.plain.plannedLoss", defaultValue: "Planned loss \(amount) · stop \(distance) away",
+      bundle: bundle)
+  }
+  /// The Risk screens' notional cap: "Position size cap $2,500.00".
+  static func sizingPlainNotionalCap(_ amount: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.plain.notionalCap", defaultValue: "Position size cap \(amount)", bundle: bundle)
+  }
+  /// The Risk screens' daily room: "Room left $292.00".
+  static func sizingPlainDailyRoom(_ amount: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.plain.dailyRoom", defaultValue: "Room left \(amount)", bundle: bundle)
+  }
+  /// The Risk screens' caption when the planned loss sized the entry.
+  static var sizingSetByPlannedLoss: LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.setByPlannedLoss", defaultValue: "Set by the planned loss", bundle: bundle)
+  }
+  /// The Risk screens' caption when another limit held the size down: "Limited by: position size cap".
+  static func sizingLimitedBy(_ limit: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.limitedBy", defaultValue: "Limited by: \(limit)", bundle: bundle)
+  }
+  /// The notional cap inside the Risk screens' caption.
+  static var sizingPlainNameNotionalCap: LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.plainName.notionalCap", defaultValue: "position size cap", bundle: bundle)
+  }
+  /// The daily room inside the Risk screens' caption.
+  static var sizingPlainNameDailyRoom: LocalizedStringResource {
+    LocalizedStringResource("kit.sizing.plainName.dailyRoom", defaultValue: "room left", bundle: bundle)
+  }
 }
 
 /// Texts of the Risk room card both apps share (mockup v115): the room's line and its four facts.
@@ -100,6 +138,10 @@ public enum RiskRoomText {
   /// Open positions against the most allowed.
   public static var positions: LocalizedStringResource {
     LocalizedStringResource("kit.riskRoom.positions", defaultValue: "Positions", bundle: L10n.bundle)
+  }
+  /// The Risk room card's link to every sizing limit of the last entry, and its popover's title.
+  public static var limits: LocalizedStringResource {
+    LocalizedStringResource("kit.riskRoom.limits", defaultValue: "Limits", bundle: L10n.bundle)
   }
   /// Whether the bot's records agree with the broker.
   public static var recordsAgree: LocalizedStringResource {

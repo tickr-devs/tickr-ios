@@ -75,26 +75,24 @@ struct ChartLevel: Identifiable {
 }
 
 /// Where the trading strategy began watching a symbol, or its ENTER or EXIT decision, drawn as a
-/// diamond at its time: filled for one the
-/// trading strategy acted on, hollow for an observer's (a shadow strategy that never trades) or a
-/// skipped ENTER (refused, so never bought), which is also drawn muted.
+/// diamond at its time: filled for one the trading strategy acted on, hollow and muted for a
+/// skipped ENTER (refused, so never bought).
 struct DecisionMark: Identifiable {
   /// Position in the day's decision list.
   let id: Int
   let time: Date
   let price: Double
   let action: Verdict
-  let observer: Bool
   /// An ENTER that was not taken: the API gives an entry price only for those (docs/api.md).
   let skipped: Bool
   let label: LocalizedStringResource
 
   /// What a redraw compares (the label follows from these).
-  var key: [AnyHashable] { [id, time, price, action, observer, skipped] }
+  var key: [AnyHashable] { [id, time, price, action, skipped] }
 
   /// Hollow for anything that did not trade.
-  var hollow: Bool { observer || skipped }
-  var color: Color { observer || !skipped ? action.color : Palette.textTertiary }
+  var hollow: Bool { skipped }
+  var color: Color { skipped ? Palette.textTertiary : action.color }
 }
 
 /// Builds the marks and levels the chart draws from the bot's trades and open position.
@@ -141,10 +139,10 @@ enum ChartMarkers {
   }
 
   /// A mark per ENTER or EXIT decision, and one where the trading strategy began watching (the
-  /// first WATCH since the day began or since its last ENTER or EXIT; observers never trade, so
-  /// their WATCH is left out). A skipped
-  /// ENTER sits at its what-if entry; otherwise a mark sits at the close of the candle it was made
-  /// in. A decision outside every candle has no mark. `real` are the candles at their real times,
+  /// first WATCH since the day began or since its last ENTER or EXIT). A shadow strategy's
+  /// decisions are left out: it never trades. A skipped ENTER sits at its what-if entry; otherwise
+  /// a mark sits at the close of the candle it was made in. A decision outside every candle has no
+  /// mark. `real` are the candles at their real times,
   /// `place` gives a real time's drawn time (the chart's candles sit back to back).
   static func decisionMarks(decisions: [DecisionV1], real: [Candle], place: (Date) -> Date?) -> [DecisionMark] {
     // The strategy's own decisions that change something: an IGNORE or HOLD between two WATCH
@@ -157,7 +155,8 @@ enum ChartMarkers {
       return position > 0 && decisions[strategy[position - 1]].action == .watch ? nil : index
     })
     return decisions.enumerated().compactMap { index, decision in
-      guard decision.action == .enter || decision.action == .exit || watchStarts.contains(index) else { return nil }
+      guard !decision.observer,
+        decision.action == .enter || decision.action == .exit || watchStarts.contains(index) else { return nil }
       let at = decision.at.date
       let candle = real.last { $0.start <= at && at < $0.end }
       guard let price = decision.entryPrice.map({ double($0.value) }) ?? candle?.close, let drawn = place(at) else {
@@ -165,11 +164,8 @@ enum ChartMarkers {
       }
       let title = String(localized: decision.action.title)
       let skipped = decision.entryPrice != nil
-      let label = decision.observer ? L10n.Chart.observerMark(title)
-        : skipped ? L10n.Chart.skippedMark(title) : decision.action.title
-      return DecisionMark(
-        id: index, time: drawn, price: price, action: decision.action, observer: decision.observer,
-        skipped: skipped, label: label)
+      let label = skipped ? L10n.Chart.skippedMark(title) : decision.action.title
+      return DecisionMark(id: index, time: drawn, price: price, action: decision.action, skipped: skipped, label: label)
     }
   }
 

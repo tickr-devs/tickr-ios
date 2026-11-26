@@ -101,7 +101,7 @@ struct WindowFitTests {
     // Every card of the screen is placed in each arrangement.
     for arrangement in OverviewView.arrangements {
       let cards = arrangement.rows.flatMap { $0.columns.flatMap(\.cards) }.sorted()
-      #expect(cards == Array(0..<10))
+      #expect(cards == Array(0..<9))
     }
   }
 

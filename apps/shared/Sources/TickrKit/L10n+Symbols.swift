@@ -4,35 +4,35 @@ import Foundation
 extension L10n {
   /// Funnel stage: the screeners' lists.
   static var symbolStageScreeners: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.screeners", defaultValue: "Screeners", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.screeners", defaultValue: "Found", bundle: bundle)
   }
   /// Funnel stage: the universe filter (common stocks, exchange, type).
   static var symbolStageUniverse: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.universe", defaultValue: "Universe", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.universe", defaultValue: "Stocks", bundle: bundle)
   }
-  /// Funnel stage: a fresh quote and the strategy's spread rule.
+  /// Funnel stage: a fresh quote and a tight spread.
   static var symbolStageQuote: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.quote", defaultValue: "Quote", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.quote", defaultValue: "Price ok", bundle: bundle)
   }
-  /// Funnel stage: minute bars and the strategy's dollar volume rule.
+  /// Funnel stage: minute bars and enough dollar volume.
   static var symbolStageBars: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.bars", defaultValue: "Bars", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.bars", defaultValue: "Volume ok", bundle: bundle)
   }
-  /// Funnel stage: the strategy's decision.
+  /// Funnel stage: the decision to enter or not.
   static var symbolStageStrategy: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.strategy", defaultValue: "Strategy", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.strategy", defaultValue: "Decision", bundle: bundle)
   }
   /// Funnel stage: the platform's risk admission.
   static var symbolStageRisk: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.risk", defaultValue: "Risk", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.risk", defaultValue: "Risk ok", bundle: bundle)
   }
   /// Funnel stage: the entry order.
   static var symbolStageOrder: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.order", defaultValue: "Order", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.order", defaultValue: "Bought", bundle: bundle)
   }
   /// Funnel stage: the broker-side stop.
   static var symbolStageStop: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stage.stop", defaultValue: "Broker stop", bundle: bundle)
+    LocalizedStringResource("kit.symbols.stage.stop", defaultValue: "Stop set", bundle: bundle)
   }
   /// Symbols with a sudden jump against the previous bars.
   static var symbolsFastMovers: LocalizedStringResource {
@@ -72,7 +72,7 @@ extension L10n {
   }
   /// Outcome detail after the Passed badge: its broker stop verified.
   static var symbolsPassedDetail: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.passedDetail", defaultValue: "stop verified", bundle: bundle)
+    LocalizedStringResource("kit.symbols.passedDetail", defaultValue: "Stop verified at broker", bundle: bundle)
   }
   /// Outcome badge: still at a stage, nothing failed; argument: stage.
   static func symbolsAt(_ stage: String) -> LocalizedStringResource {
@@ -137,15 +137,15 @@ extension L10n {
   }
   /// Column title: the fast bar's volume against the bars before.
   static var symbolsColumnVolume: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.column.volume", defaultValue: "Vol ×", bundle: bundle)
+    LocalizedStringResource("kit.symbols.column.volume", defaultValue: "Volume", bundle: bundle)
   }
   /// Column title: the fast bar's move in ATR.
   static var symbolsColumnAtr: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.column.atr", defaultValue: "ATR", bundle: bundle)
+    LocalizedStringResource("kit.symbols.column.atr", defaultValue: "Move", bundle: bundle)
   }
   /// Column title: the fast bar's dollar volume against the bars before.
   static var symbolsColumnDollars: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.column.dollars", defaultValue: "$vol ×", bundle: bundle)
+    LocalizedStringResource("kit.symbols.column.dollars", defaultValue: "$ traded", bundle: bundle)
   }
   /// Column title: the best-ranked screener.
   static var symbolsColumnScreener: LocalizedStringResource {
@@ -157,7 +157,7 @@ extension L10n {
   }
   /// Column title: the outcome and why.
   static var symbolsColumnOutcome: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.column.outcome", defaultValue: "Outcome · reason", bundle: bundle)
+    LocalizedStringResource("kit.symbols.column.outcome", defaultValue: "Result", bundle: bundle)
   }
   /// Column title: when a screener first listed it.
   static var symbolsColumnSeen: LocalizedStringResource {
@@ -169,7 +169,7 @@ extension L10n {
   }
   /// Outcome badge: through the last stage.
   static var symbolsOutcomePassed: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.outcome.passed", defaultValue: "Passed", bundle: bundle)
+    LocalizedStringResource("kit.symbols.outcome.passed", defaultValue: "Entered", bundle: bundle)
   }
   /// Outcome badge: nothing failed, the next stage has not happened yet.
   static var symbolsOutcomeWaiting: LocalizedStringResource {
@@ -195,18 +195,6 @@ extension L10n {
   static func symbolsRatio(_ value: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.symbols.ratio", defaultValue: "\(value)×", bundle: bundle)
   }
-  /// How many other screeners listed the symbol.
-  static func symbolsMore(_ count: Int) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.more", defaultValue: "+\(count)", bundle: bundle)
-  }
-  /// A fast mover figure that reached its threshold.
-  static func symbolsMoverMet(_ threshold: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.mover.met", defaultValue: "met ≥ \(threshold)", bundle: bundle)
-  }
-  /// A fast mover figure below its threshold.
-  static func symbolsMoverUnmet(_ threshold: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.mover.unmet", defaultValue: "< \(threshold)", bundle: bundle)
-  }
   /// A screener's full name.
   static var symbolsScreenerGainers: LocalizedStringResource {
     LocalizedStringResource("kit.symbols.screener.gainers", defaultValue: "Top gainers", bundle: bundle)
@@ -219,13 +207,13 @@ extension L10n {
   static var symbolsScreenerActives: LocalizedStringResource {
     LocalizedStringResource("kit.symbols.screener.actives", defaultValue: "Most active", bundle: bundle)
   }
-  /// Badge of a symbol with an open position.
+  /// Badge of a symbol with an open position ("Open").
   static var symbolsPosition: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.position", defaultValue: "Position", bundle: bundle)
+    LocalizedStringResource("kit.symbols.position", defaultValue: "Open", bundle: bundle)
   }
   /// When a screener first listed the symbol.
   static func symbolsSeen(_ time: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.seen", defaultValue: "seen \(time)", bundle: bundle)
+    LocalizedStringResource("kit.symbols.seen", defaultValue: "first seen \(time)", bundle: bundle)
   }
   /// Beside the price: the change is today's.
   static var symbolsToday: LocalizedStringResource {
@@ -234,54 +222,6 @@ extension L10n {
   /// Where a waiting or dropped symbol stands.
   static func symbolsAtStage(_ stage: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.symbols.atStage", defaultValue: "at \(stage)", bundle: bundle)
-  }
-  /// How far a symbol that passed got.
-  static func symbolsReachedStage(_ stage: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.reachedStage", defaultValue: "reached \(stage)", bundle: bundle)
-  }
-  /// Detail section: the symbol's fast bar.
-  static var symbolsFastMover: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.fastMover", defaultValue: "Fast mover", bundle: bundle)
-  }
-  /// When the fast bar started.
-  static func symbolsFlagged(_ time: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.flagged", defaultValue: "flagged \(time)", bundle: bundle)
-  }
-  /// A symbol without a fast bar today.
-  static var symbolsNotFlagged: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.notFlagged", defaultValue: "not flagged today", bundle: bundle)
-  }
-  /// Fast mover stat: volume against the bars before.
-  static var symbolsStatVolume: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stat.volume", defaultValue: "Vol ×", bundle: bundle)
-  }
-  /// Fast mover stat: the bar's move in ATR.
-  static var symbolsStatMove: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stat.move", defaultValue: "Move ATR", bundle: bundle)
-  }
-  /// Fast mover stat: dollar volume against the bars before.
-  static var symbolsStatDollars: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.stat.dollars", defaultValue: "$ vol ×", bundle: bundle)
-  }
-  /// Detail section: the screeners that listed the symbol.
-  static var symbolsScreeners: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.screeners", defaultValue: "Screeners", bundle: bundle)
-  }
-  /// A rank in a screener's list.
-  static func symbolsRank(_ rank: Int) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.rank", defaultValue: "#\(rank)", bundle: bundle)
-  }
-  /// Detail section: the strategy's latest decision.
-  static var symbolsLastDecision: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.lastDecision", defaultValue: "Last strategy decision", bundle: bundle)
-  }
-  /// When the strategy decided, and which strategy.
-  static func symbolsDecided(_ time: String, _ strategy: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.decided", defaultValue: "\(time) · \(strategy)", bundle: bundle)
-  }
-  /// A symbol the strategy did not decide on.
-  static var symbolsNoDecision: LocalizedStringResource {
-    LocalizedStringResource("kit.symbols.noDecision", defaultValue: "No strategy decision today.", bundle: bundle)
   }
   /// A stage of the path the symbol never got to.
   static var symbolsStepNotReached: LocalizedStringResource {
@@ -294,5 +234,95 @@ extension L10n {
   /// A filter of the table with how many rows it holds.
   static func symbolsFilterCount(_ title: String, _ count: Int) -> LocalizedStringResource {
     LocalizedStringResource("kit.symbols.filterCount", defaultValue: "\(title) \(count)", bundle: bundle)
+  }
+  /// Outcome badge: the decision said not to enter.
+  static var symbolsOutcomeSkipped: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.outcome.skipped", defaultValue: "Skipped", bundle: bundle)
+  }
+  /// Detail headline: chosen to enter, then stopped by risk, the order or the stop.
+  static var symbolsNotEntered: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.notEntered", defaultValue: "Not entered", bundle: bundle)
+  }
+  /// One-line caption of a stage tab: the screeners' lists.
+  static var symbolsCaptionScreeners: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.screeners", defaultValue: "From the screeners", bundle: bundle)
+  }
+  /// One-line caption of a stage tab: the universe filter.
+  static var symbolsCaptionUniverse: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.universe", defaultValue: "Common stocks only", bundle: bundle)
+  }
+  /// One-line caption of a stage tab: a fresh quote and a tight spread.
+  static var symbolsCaptionQuote: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.quote", defaultValue: "Fresh price, tight spread", bundle: bundle)
+  }
+  /// One-line caption of a stage tab: enough dollar volume.
+  static var symbolsCaptionBars: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.bars", defaultValue: "Enough trading", bundle: bundle)
+  }
+  /// One-line caption of the decision tab: how many of the decided symbols were chosen to enter;
+  /// arguments: chosen, decided.
+  static func symbolsCaptionDecision(_ chosen: Int, _ decided: Int) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.strategy", defaultValue: "\(chosen) of \(decided) chosen to enter",
+      bundle: bundle)
+  }
+  /// One-line caption of a stage tab: the platform's risk admission.
+  static var symbolsCaptionRisk: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.risk", defaultValue: "Within risk limits", bundle: bundle)
+  }
+  /// One-line caption of a stage tab: the entry order.
+  static var symbolsCaptionOrder: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.order", defaultValue: "Order filled", bundle: bundle)
+  }
+  /// One-line caption of a stage tab: the broker-side stop.
+  static var symbolsCaptionStop: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.stop", defaultValue: "Stop at broker", bundle: bundle)
+  }
+  /// One-line caption of the Fast movers tab.
+  static var symbolsCaptionFast: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.caption.fast", defaultValue: "Sudden jump since the last bar", bundle: bundle)
+  }
+  /// The fast mover rule in words, behind the "i" button; arguments: the bar's least dollar volume,
+  /// the volume ratio, the move in ATRs, the dollar volume ratio, the bars compared with.
+  static func symbolsFastRule(
+    _ bar: String, _ vol: String, _ atr: String, _ dvol: String, _ n: Int
+  ) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.fastRule",
+      // swiftlint:disable:next line_length
+      defaultValue: "Flagged when a one-minute bar trades at least \(bar) and its volume is \(vol)× the last \(n) bars, or it moves \(atr)× its usual range (ATR), or its dollars traded are \(dvol)×. Open positions and waiting symbols stay on top.",
+      bundle: bundle)
+  }
+  /// Label of the button that shows the fast mover rule.
+  static var symbolsFastRuleLabel: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.fastRuleLabel", defaultValue: "How a fast mover is flagged", bundle: bundle)
+  }
+  /// A fast mover's signal that fired: the bar's volume against the bars before.
+  static func symbolsFiredVolume(_ ratio: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.fired.volume", defaultValue: "Volume \(ratio)", bundle: bundle)
+  }
+  /// A fast mover's signal that fired: the bar's move in ATRs.
+  static func symbolsFiredMove(_ atr: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.fired.move", defaultValue: "Move \(atr)", bundle: bundle)
+  }
+  /// A fast mover's signal that fired: the bar's dollars traded against the bars before.
+  static func symbolsFiredDollars(_ ratio: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.fired.dollars", defaultValue: "$ traded \(ratio)", bundle: bundle)
+  }
+  /// The detail's fast mover line: when the bar started, then its fired signals.
+  static func symbolsFastNote(_ time: String, _ signals: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.fastNote", defaultValue: "Fast mover at \(time) · \(signals)", bundle: bundle)
+  }
+  /// The detail's screeners and when the first listed the symbol; arguments: the screeners with
+  /// their ranks, the time.
+  static func symbolsFoundBy(_ screeners: String, _ time: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.foundBy", defaultValue: "Found by \(screeners) · first seen \(time)",
+      bundle: bundle)
+  }
+  /// The detail's steps disclosure: stages passed of all; arguments: passed, all.
+  static func symbolsStepsPassed(_ passed: Int, _ total: Int) -> LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.stepsPassed", defaultValue: "\(passed) of \(total) passed", bundle: bundle)
+  }
+  /// The detail's steps disclosure title.
+  static var symbolsStepsToday: LocalizedStringResource {
+    LocalizedStringResource("kit.symbols.stepsToday", defaultValue: "Steps today", bundle: bundle)
   }
 }

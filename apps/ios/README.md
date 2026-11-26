@@ -12,7 +12,7 @@ and Apple's Human Interface Guidelines; every animation has a still fallback for
 | Positions | Each open position: risk band, protection chain, max loss, Flatten | Live price line (bars API) |
 | Chart | Placeholder | Candles, indicators, levels, crosshair (bars API) |
 | Activity | Today's result curve, trades, journal | Past days (days API), signals not taken |
-| Lab | Active strategy | Observers, replays, refusal counts |
+| Lab | Active strategy | Replays, refusal counts |
 
 Cancel and Flatten ask for Face ID (or the passcode) first; pausing entries does not. Every command
 is queued once; its result appears as a banner when the bot reports it in `recent_commands`.

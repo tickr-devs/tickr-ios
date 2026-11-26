@@ -1,146 +1,7 @@
 import Foundation
 
-// Swift mirrors of observers-v1, decisions-v1 and skipped-v1 in src/tickr/api/contract.py:
-// what the shadow strategies decided on a day, every decision on one symbol with its checks, and
-// the active strategy's ENTERs that did not become a position.
-
-/// One decision of an observer: when, on which symbol, what, and why.
-public struct ObserverDecisionV1: Codable, Hashable, Sendable {
-  public let at: WireTime
-  public let symbol: String
-  public let action: Verdict
-  public let reasons: [String]
-}
-
-/// One setting where an observer's strategy file differs from the active strategy's: the dotted
-/// key and each file's value as written; nil when that file has no such key. Display only.
-public struct SettingDifferenceV1: Codable, Hashable, Sendable {
-  public let key: String
-  public let value: String?
-  public let activeValue: String?
-
-  public init(key: String, value: String?, activeValue: String?) {
-    self.key = key
-    self.value = value
-    self.activeValue = activeValue
-  }
-
-  enum CodingKeys: String, CodingKey {
-    case key, value
-    case activeValue = "active_value"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    key = try c.decode(String.self, forKey: .key)
-    value = try c.decodeNullable(String.self, forKey: .value)
-    activeValue = try c.decodeNullable(String.self, forKey: .activeValue)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var c = encoder.container(keyedBy: CodingKeys.self)
-    try c.encode(key, forKey: .key)
-    try c.encodeNullable(value, forKey: .value)
-    try c.encodeNullable(activeValue, forKey: .activeValue)
-  }
-}
-
-/// One observer (a shadow strategy version that never trades) and its day.
-public struct ObserverV1: Codable, Hashable, Sendable {
-  public let name: String
-  public let version: String
-  public let decisions: [ObserverDecisionV1]
-  /// Gross result of the observer's simulated trades that day; nil when it cannot be computed.
-  public let resultGrossUSD: DecimalString?
-  /// Why `resultGrossUSD` is nil; nil when there is a result.
-  public let resultCause: String?
-  /// The observer's simulated trades that day, oldest first; nil with `tradesCause` when they
-  /// cannot be simulated.
-  public let trades: [ObserverTradeV1]?
-  public let tradesCause: String?
-  /// Whether the server cut `trades` short (it lists at most a configured number).
-  public let tradesTruncated: Bool
-  /// `result_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
-  public let resultCauseCodes: [ReasonV1]
-  /// `trades_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
-  public let tradesCauseCodes: [ReasonV1]
-  /// When it started watching that day: its first recorded decision; nil without decisions (or
-  /// from a bot that does not report it).
-  public let watchingSince: WireTime?
-  /// The settings where its strategy file differs from the active strategy's (empty: none); nil
-  /// when it is another strategy, its file changed since, or the bot does not report it.
-  public let settingsDifferences: [SettingDifferenceV1]?
-
-  enum CodingKeys: String, CodingKey {
-    case name, version, decisions, trades
-    case resultGrossUSD = "result_gross_usd"
-    case resultCause = "result_cause"
-    case tradesCause = "trades_cause"
-    case tradesTruncated = "trades_truncated"
-    case resultCauseCodes = "result_cause_codes"
-    case tradesCauseCodes = "trades_cause_codes"
-    case watchingSince = "watching_since"
-    case settingsDifferences = "settings_differences"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    name = try c.decode(String.self, forKey: .name)
-    version = try c.decode(String.self, forKey: .version)
-    decisions = try c.decode([ObserverDecisionV1].self, forKey: .decisions)
-    resultGrossUSD = try c.decodeNullable(DecimalString.self, forKey: .resultGrossUSD)
-    resultCause = try c.decodeNullable(String.self, forKey: .resultCause)
-    trades = try c.decodeNullable([ObserverTradeV1].self, forKey: .trades)
-    tradesCause = try c.decodeNullable(String.self, forKey: .tradesCause)
-    tradesTruncated = try c.decode(Bool.self, forKey: .tradesTruncated)
-    resultCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .resultCauseCodes) ?? []
-    tradesCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .tradesCauseCodes) ?? []
-    // Added after version 1 shipped: absent from an older bot's answer.
-    watchingSince = try c.decodeIfPresent(WireTime.self, forKey: .watchingSince)
-    settingsDifferences = try c.decodeIfPresent([SettingDifferenceV1].self, forKey: .settingsDifferences)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var c = encoder.container(keyedBy: CodingKeys.self)
-    try c.encode(name, forKey: .name)
-    try c.encode(version, forKey: .version)
-    try c.encode(decisions, forKey: .decisions)
-    try c.encodeNullable(resultGrossUSD, forKey: .resultGrossUSD)
-    try c.encodeNullable(resultCause, forKey: .resultCause)
-    try c.encodeNullable(trades, forKey: .trades)
-    try c.encodeNullable(tradesCause, forKey: .tradesCause)
-    try c.encode(tradesTruncated, forKey: .tradesTruncated)
-    try c.encode(resultCauseCodes, forKey: .resultCauseCodes)
-    try c.encode(tradesCauseCodes, forKey: .tradesCauseCodes)
-    try c.encodeNullable(watchingSince, forKey: .watchingSince)
-    try c.encodeNullable(settingsDifferences, forKey: .settingsDifferences)
-  }
-}
-
-public struct ObserversV1: Codable, Hashable, Sendable {
-  public let day: WireDate
-  public let observers: [ObserverV1]
-  public let apiVersion: Int
-
-  enum CodingKeys: String, CodingKey {
-    case day, observers
-    case apiVersion = "api_version"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
-    day = try c.decode(WireDate.self, forKey: .day)
-    observers = try c.decode([ObserverV1].self, forKey: .observers)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var c = encoder.container(keyedBy: CodingKeys.self)
-    try c.encode(day, forKey: .day)
-    try c.encode(observers, forKey: .observers)
-    try c.encode(apiVersion, forKey: .apiVersion)
-  }
-}
+// Swift mirrors of decisions-v1 and skipped-v1 in src/tickr/api/contract.py: every decision on
+// one symbol with its checks, and the active strategy's ENTERs that did not become a position.
 
 /// The strategy that made a decision, by name and version.
 public struct StrategyRefV1: Codable, Hashable, Sendable {
@@ -180,19 +41,20 @@ public struct RefusalV1: Codable, Hashable, Sendable {
   }
 }
 
-/// One decision on a symbol, by the trading strategy or an observer, with the checks behind it.
+/// One decision on a symbol, by the trading strategy or a shadow one, with the checks behind it.
 public struct DecisionV1: Codable, Hashable, Sendable {
   public let at: WireTime
   public let action: Verdict
   public let strategy: StrategyRefV1
-  /// True when an observer (shadow strategy) made the decision; it never trades.
+  /// True when a shadow strategy (an "observer" in the bot's config) made the decision; it never
+  /// trades, and the apps leave its decisions out.
   public let observer: Bool
   public let checks: [CheckV1]
   /// What-if entry and stop of an ENTER that was not taken; nil for every other decision.
   public let entryPrice: DecimalString?
   public let stopPrice: DecimalString?
-  /// The recorded admission: `notEvaluated` for every observer ENTER, `notApplicable` for any
-  /// other verdict.
+  /// The recorded admission: `notEvaluated` for every shadow strategy's ENTER, `notApplicable` for
+  /// any other verdict.
   public let admission: Admission
   /// The single "CAUSE: detail" of a refusal; nil otherwise.
   public let refusalCause: String?
@@ -359,11 +221,4 @@ public struct SkippedV1: Codable, Hashable, Sendable {
     try c.encode(signals, forKey: .signals)
     try c.encode(apiVersion, forKey: .apiVersion)
   }
-}
-
-extension ObserverV1: Identifiable {
-  /// An observer is one strategy version: lists key their rows by it, so a row keeps its identity
-  /// when the observer's decisions or trades change (keying by the whole value hashed every
-  /// decision and trade on each redraw and rebuilt the row on any change).
-  public var id: String { "\(name) \(version)" }
 }

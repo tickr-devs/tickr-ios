@@ -3,16 +3,6 @@
 import Foundation
 
 extension L10n {
-  /// A cause the API writes itself (`<field>_codes`). no_status_file
-  static var proseReasonNoStatusFile: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_status_file",
-      defaultValue: "The bot has not written its status yet", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). status_file_invalid (values: detail)
-  static var proseReasonStatusFileInvalid: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.status_file_invalid",
-      defaultValue: "The bot's status file is invalid: {detail}", bundle: bundle)
-  }
   /// A cause the API writes itself (`<field>_codes`). status_from_future
   static var proseReasonStatusFromFuture: LocalizedStringResource {
     LocalizedStringResource("kit.prose.status_from_future",
@@ -384,5 +374,16 @@ extension L10n {
   static var proseReasonCloseInProgress: LocalizedStringResource {
     LocalizedStringResource("kit.prose.close_in_progress",
       defaultValue: "A close is in progress; stop the bot again after it completes", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). trades_still_open (values: count)
+  static var proseReasonTradesStillOpen: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.trades_still_open",
+      // swiftlint:disable:next line_length
+      defaultValue: "{count} trade(s) open or entering: close them first (or send the emergency command), then stop the bot", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_already_running
+  static var proseReasonStopAlreadyRunning: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_already_running",
+      defaultValue: "A close-and-stop is already running", bundle: bundle)
   }
 }

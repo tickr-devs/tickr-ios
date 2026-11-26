@@ -23,7 +23,7 @@ public enum Tone: Sendable, Hashable, CaseIterable {
   case warning
   /// Entries, orders, commands in flight, selection.
   case info
-  /// Recorded days, observers, planned work.
+  /// Recorded days, planned work.
   case highlight
   /// The series pink: a money loss (mockup v100), a stop-out's tag (mockup v99), the ATR line.
   case series
@@ -98,8 +98,6 @@ public enum Tone: Sendable, Hashable, CaseIterable {
 /// A section's heading: a short glowing tick in its tone, the uppercase label, an optional count
 /// in a capsule, and a trailing accessory (a ghost button, a badge).
 public struct SectionHeader<Trailing: View>: View {
-  /// A light passes across the title while set (`Shine`, in the tone's text colour).
-  @Environment(\.titleShines) private var shines
   let title: Text
   let count: String?
   let tone: Tone
@@ -128,7 +126,6 @@ public struct SectionHeader<Trailing: View>: View {
         .font(Tokens.Typography.label)
         .tracking(Tokens.Typography.labelTracking)
         .foregroundStyle(Palette.textLabel)
-        .shine(moving: shines, color: tone.text)
         .accessibilityAddTraits(.isHeader)
       if let count {
         Text(verbatim: count)

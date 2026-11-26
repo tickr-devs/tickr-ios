@@ -61,3 +61,18 @@ struct FlowStagesTests {
     #expect(FlowStages.reconcile(recorded: try clean("unknown", rows: 3)).agrees == nil)
   }
 }
+
+@Suite("What each early stage of the Overview pipeline dropped")
+struct FlowDropsTests {
+  @Test("Each stage drops the difference to the one before; the first drops nothing")
+  func funnel() {
+    #expect(FlowStages.dropped([412, 268, 141, 96]) == [nil, 144, 127, 45])
+  }
+
+  @Test("An unknown count, or one not below the stage before, drops nothing (never a guess or a minus zero)")
+  func unknownOrNoDrop() {
+    #expect(FlowStages.dropped([412, nil, 141, 141]) == [nil, nil, nil, nil])
+    #expect(FlowStages.dropped([100, 120]) == [nil, nil])
+    #expect(FlowStages.dropped([]) == [])
+  }
+}

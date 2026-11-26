@@ -54,7 +54,7 @@ final class ChartModel {
   private(set) var readoutShapes = ReadoutShapes([])
   /// Real times of `series`' candles and the time axis labels beyond one day.
   private(set) var times = ChartTimes.day
-  /// What the trading strategy and the observers decided on the chosen symbol that day.
+  /// What the trading strategy decided on the chosen symbol that day.
   private(set) var decisions: DecisionsV1?
   /// Why the decisions could not be read, if they could not; the chart still shows.
   private(set) var decisionsFailure: String?

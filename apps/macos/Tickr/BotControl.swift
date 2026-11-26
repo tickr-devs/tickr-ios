@@ -243,20 +243,25 @@ struct BotStopButton: View {
 }
 
 /// One bot command (not the emergency stop) in its tier, with the "DEMO" pill while commands go to
-/// the demo day. A close command is off without an open position, and says so.
-private struct BotCommandButton: View {
+/// the demo day. A close command is off without an open position, and says so. Every press goes
+/// through `AppModel.press`, so it asks first exactly as the Bot card's own buttons do.
+struct BotCommandButton: View {
   @Environment(AppModel.self) private var model
   let action: BotAction
   let place: CommandPlace
   let size: CommandButtonStyle.Size
   /// A few words after the title (`BotControls.detail`).
   var detail: LocalizedStringResource?
+  /// A shorter title in place of the action's own (the position panel's "Close ABCD").
+  var title: LocalizedStringResource?
+  /// Accessibility id in place of the action's, for a second button of the same command.
+  var identifier: String?
 
   var body: some View {
     Button(role: action.isDestructive ? .destructive : nil) {
       model.press(action, in: place)
     } label: {
-      Label { Text(action.label) } icon: { Image(systemName: action.symbol) }
+      Label { Text(title ?? action.label) } icon: { Image(systemName: action.symbol) }
     }
     .buttonStyle(.command(action.tier, size: size, detail: detail.map { Text($0) },
       tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
@@ -264,7 +269,7 @@ private struct BotCommandButton: View {
     .inFlight(model.inFlight == action.command ? Text(action.command.inFlightTitle) : nil)
     // An off close command says why; the rest say what they do.
     .hint(verbatim: applicable ? action.explanation : String(localized: L10n.Bot.noPositions))
-    .accessibilityIdentifier(action.id)
+    .accessibilityIdentifier(identifier ?? action.id)
   }
 
   private var applicable: Bool {

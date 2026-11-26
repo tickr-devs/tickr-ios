@@ -47,7 +47,7 @@ import TickrKit
   }
 }
 
-/// The Lab's active strategy follows the shown day: a recorded day's line comes from its own
+/// The Lab's active strategy follows the shown day: a recorded day's figures come from its own
 /// record, never from the status's session.
 @Suite struct LabActiveDayTests {
   @Test func aRecordedDayIsDrawnFromItsRecord() throws {
@@ -57,11 +57,7 @@ import TickrKit
     #expect(active.recordedDay == day.day)
     #expect(active.total == day.resultUsd.value)
     #expect(active.open == 0)
-    #expect(active.traded == Set(day.trades.map(\.symbol)))
     #expect(active.closes.count == day.trades.count)
-    // Its lines end at its last close, whatever the clock says.
-    let last = try #require(day.trades.map(\.closedAt.date).max())
-    #expect(active.end(now: .now, today: WireDate(newYorkDateOf: .now)) == last)
   }
 
   @Test func theLiveSessionIsDrawnFromTheStatus() throws {

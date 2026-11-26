@@ -104,7 +104,7 @@ struct ChartTab: View {
         let oneDay = chart.range == .oneDay
         CandleChart(series: series, times: chart.times, studies: chart.studies, readoutShapes: chart.readoutShapes,
           atr: chart.atr, trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
-          events: oneDay ? chart.events : [], lines: lines, rangeTitle: RangePicker.title(chart.range),
+          events: oneDay ? chart.events : [], lines: lines,
           pending: chart.pending, livePrice: oneDay ? chart.livePrice : nil, viewport: $viewport)
           // Its panes have a fixed height: past this size the scale's tags and legends would
           // cover each other and the candles.
@@ -180,16 +180,16 @@ struct ChartTab: View {
     }
   }
 
-  /// The chart while its bars load (mockup v102): the chart's own card with the price pane's
-  /// grid, a faint candle silhouette with its volume, the price and time axes, and every enabled
-  /// study pane, as skeleton in the chart's own sizes; "Loading ABCD · 1 min bars" on the
-  /// readout's line. Nothing real until the bars are read.
+  /// The chart while its bars load (mockup v102, loader E): the chart's own card with the price
+  /// pane's grid, a faint candle silhouette that builds in left to right with its volume, the
+  /// price and time axes, and every enabled study pane, as skeleton in the chart's own sizes;
+  /// "Loading ABCD · 1 min bars" on the readout's line. Nothing real until the bars are read.
   private var loadingView: some View {
     LoadingChart(
       caption: chart.pending.map(PendingText.caption) ?? chart.symbol.map {
         ChartText.loadingBars($0, interval: String(localized: ChartFormat.title(chart.timeframe)))
       } ?? L10n.Common.loading,
-      lines: lines, rangeTitle: RangePicker.title(chart.range), timeframe: chart.timeframe, pending: chart.pending)
+      lines: lines, timeframe: chart.timeframe, pending: chart.pending)
   }
 
   /// Changes whenever a different chart is on screen, restarting the reload loop.
@@ -719,14 +719,11 @@ private struct RangePicker: View {
 private struct LoadingChart: View {
   let caption: LocalizedStringResource
   let lines: CandleChart.Lines
-  /// The chosen range and interval, which the chart's caption names.
-  let rangeTitle: LocalizedStringResource
+  /// The chosen interval, which the legend's lines depend on.
   let timeframe: Timeframe
   /// How far a read the chart's request budget holds back has got, shown as a progress line.
   var pending: ChartPendingV1?
 
-  /// Bars the caption is laid out with: a count of the usual length.
-  static let sampleBars = 100
   /// The silhouette's candles and the price pane's grid lines across and down, as the board's.
   static let candles = 34
   static let rows = 5
@@ -737,7 +734,7 @@ private struct LoadingChart: View {
       // The readout's line: "Loading ABCD · 1 min bars" over the chart's own caption, laid out
       // but not drawn, so the line is as tall as the readout it gives way to: one line, always.
       ZStack(alignment: .topLeading) {
-        CandleChart.caption(rangeTitle, timeframe, bars: Self.sampleBars)
+        CandleChart.caption
           .hidden()
         Text(caption)
           .foregroundStyle(Palette.textQuaternary)
@@ -751,7 +748,7 @@ private struct LoadingChart: View {
       Skeleton(nil) {
         VStack(spacing: 0) {
           SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns,
-            axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume)
+            axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume, builds: true)
             .frame(height: CandleChart.priceHeight)
           ForEach(lines.panes, id: \.self) { _ in
             SkeletonPane(axisWidth: CandleChart.axisLabelWidth)

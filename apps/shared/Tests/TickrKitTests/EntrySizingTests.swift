@@ -32,6 +32,17 @@ struct EntrySizingTests {
     #expect(sizing.tone == .bound)
   }
 
+  @Test func theRiskScreensSayEachLimitWithoutAFormula() throws {
+    let sizing = EntrySizing(size: try Self.latest("watching-v1.notional-cap.json"), configured: nil, text: Self.text)
+    #expect(sizing.shares == String(localized: L10n.sizingSharesLine("3521")))
+    #expect(sizing.place?.hasPrefix("IQ") == true)
+    #expect(sizing.limits[1].plain == String(localized: L10n.sizingPlainNotionalCap("$2500")))
+    #expect(sizing.limitedBy == String(localized: L10n.sizingLimitedBy(String(localized: L10n.sizingPlainNameNotionalCap))))
+    // Nothing sized today: no headline, the line says so.
+    let none = EntrySizing(size: nil, configured: nil, text: Self.text)
+    #expect(none.shares == nil && none.place == nil && none.limitedBy == nil)
+  }
+
   @Test func anOlderRecordShowsNoLimitsAndTheBotsCause() throws {
     let sizing = EntrySizing(size: try Self.latest("watching-v1.json"), configured: nil, text: Self.text)
     #expect(sizing.limits.isEmpty)

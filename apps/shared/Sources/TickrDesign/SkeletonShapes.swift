@@ -2,7 +2,7 @@ import SwiftUI
 
 // Skeleton shapes both apps lay their loading states out of (mockup v102): text lines, list rows,
 // stat tiles, and the chart's candles and study panes. Each stands for the content it replaces;
-// put them inside a `Skeleton`, which makes them breathe in place.
+// put them inside a `Skeleton`, which holds them still under its running bar.
 
 /// Lines of text: a card's paragraphs or a short list. The first line can be a value (a figure).
 public struct SkeletonLines: View {
@@ -128,6 +128,9 @@ public struct SkeletonCandles: View {
   let axisWidth: CGFloat
   let showsTime: Bool
   let volume: Bool
+  let builds: Bool
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.scenePhase) private var scenePhase
 
   /// The silhouette's wave: its middle and swing as shares of the plot's height, the swing of a
   /// candle's body and of its wicks, and the wave's pace (radians a candle) — two slow waves so
@@ -156,8 +159,11 @@ public struct SkeletonCandles: View {
   ///   - axisWidth: the price axis's width on the right, the real chart's.
   ///   - showsTime: the time axis's labels under the plot.
   ///   - volume: faint volume bars along the bottom of the plot.
+  ///   - builds: the candles build in left to right, hold and fade, over and over (loader E,
+  ///     `build(_:of:at:)`); still, every candle shown, when false or under Reduce Motion.
   public init(
-    candles: Int, rows: Int, columns: Int, axisWidth: CGFloat, showsTime: Bool = true, volume: Bool = false
+    candles: Int, rows: Int, columns: Int, axisWidth: CGFloat, showsTime: Bool = true, volume: Bool = false,
+    builds: Bool = false
   ) {
     self.candles = candles
     self.rows = rows
@@ -165,18 +171,53 @@ public struct SkeletonCandles: View {
     self.axisWidth = axisWidth
     self.showsTime = showsTime
     self.volume = volume
+    self.builds = builds
   }
 
   public var body: some View {
-    Canvas { context, size in
-      let timeRoom = showsTime ? Tokens.Loading.lineHeight + Tokens.Space.s : 0
-      let plot = CGRect(x: 0, y: 0, width: max(size.width - axisWidth, 0), height: max(size.height - timeRoom, 0))
-      drawGrid(&context, plot: plot)
-      drawCandles(&context, plot: plot)
-      if volume { drawVolume(&context, plot: plot) }
-      drawAxes(&context, plot: plot, size: size)
+    let still = !builds || reduceMotion || scenePhase != .active
+    // decorative: the candles build while the chart's bars load, only while it shows (loader E).
+    TimelineView(.animation(paused: still)) { timeline in
+      let phase = still ? Tokens.Loading.buildRestPhase : Self.phase(at: timeline.date)
+      Canvas { context, size in
+        let timeRoom = showsTime ? Tokens.Loading.lineHeight + Tokens.Space.s : 0
+        let plot = CGRect(x: 0, y: 0, width: max(size.width - axisWidth, 0),
+          height: max(size.height - timeRoom, 0))
+        drawGrid(&context, plot: plot)
+        drawCandles(&context, plot: plot, phase: phase)
+        if volume { drawVolume(&context, plot: plot) }
+        drawAxes(&context, plot: plot, size: size)
+      }
     }
     .accessibilityHidden(true)
+  }
+
+  /// Where the build is at `date`, as a share of its cycle (`Loading.buildSeconds`): a function of
+  /// the wall clock, so every loading chart builds together and one built again goes on.
+  public static func phase(at date: Date) -> Double {
+    let seconds = Tokens.Loading.buildSeconds
+    return date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: seconds) / seconds
+  }
+
+  /// A candle's look at `phase` of the build: its opacity and its height as a share of its own.
+  /// Candle `index` of `count` rises in (from `Loading.buildLowScale` and clear, eased) starting
+  /// at `buildStart` plus its share of `buildSpread`, so they rise left to right; all hold until
+  /// `buildHoldEnd`, then fade out together by `buildFadeEnd` and stay clear to the cycle's end.
+  public static func build(_ index: Int, of count: Int, at phase: Double) -> (opacity: Double, scale: Double) {
+    let start = Tokens.Loading.buildStart + Double(index) * Tokens.Loading.buildSpread / Double(max(count, 1))
+    let low = Tokens.Loading.buildLowScale
+    if phase < start { return (0, low) }
+    if phase < start + Tokens.Loading.buildRise {
+      let rise = Tokens.Loading.buildRiseCurve.value(at: (phase - start) / Tokens.Loading.buildRise)
+      return (rise, low + (1 - low) * rise)
+    }
+    if phase < Tokens.Loading.buildHoldEnd { return (1, 1) }
+    if phase < Tokens.Loading.buildFadeEnd {
+      let span = Tokens.Loading.buildFadeEnd - Tokens.Loading.buildHoldEnd
+      let fade = Tokens.Loading.buildFadeCurve.value(at: (phase - Tokens.Loading.buildHoldEnd) / span)
+      return (1 - fade, 1)
+    }
+    return (0, 1)
   }
 
   private func drawGrid(_ context: inout GraphicsContext, plot: CGRect) {
@@ -194,15 +235,17 @@ public struct SkeletonCandles: View {
     context.fill(grid, with: .color(SkeletonGridLine.color))
   }
 
-  private func drawCandles(_ context: inout GraphicsContext, plot: CGRect) {
+  private func drawCandles(_ context: inout GraphicsContext, plot: CGRect, phase: Double) {
     guard candles > 0 else { return }
     let slot = plot.width / CGFloat(candles)
-    var shape = Path()
     for index in 0..<candles {
+      let look = Self.build(index, of: candles, at: phase)
+      guard look.opacity > 0 else { continue }
+      var shape = Path()
       let wave = Self.wave(index)
       let middle = plot.minY + plot.height * (1 - wave)
-      let half = plot.height * Self.body * (1 + abs(sin(Double(index) * Self.fastPace))) / 2
-      let reach = half + plot.height * Self.wick
+      let half = plot.height * Self.body * (1 + abs(sin(Double(index) * Self.fastPace))) / 2 * look.scale
+      let reach = half + plot.height * Self.wick * look.scale
       let x = plot.minX + slot * CGFloat(index)
       let width = slot * Self.bodyShare
       let centre = x + slot / 2
@@ -210,8 +253,8 @@ public struct SkeletonCandles: View {
         height: reach + reach))
       shape.addRoundedRect(in: CGRect(x: centre - width / 2, y: middle - half, width: width, height: half + half),
         cornerSize: CGSize(width: Tokens.Stroke.regular, height: Tokens.Stroke.regular))
+      context.fill(shape, with: .color(SkeletonBlock.fill.opacity(look.opacity)))
     }
-    context.fill(shape, with: .color(SkeletonBlock.fill))
   }
 
   private func drawVolume(_ context: inout GraphicsContext, plot: CGRect) {
