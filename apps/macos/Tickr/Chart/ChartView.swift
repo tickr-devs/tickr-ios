@@ -241,53 +241,82 @@ struct ChartView: View {
   // MARK: Header
 
   /// The symbol (a menu of the others), its last price and the day's change, and the pointed
-  /// candle's values on the right.
+  /// candle's values on the right: on one line on the Mac; on an iPad narrower than that line (in
+  /// portrait) the values take their own line under the price, never over it.
   private var header: some View {
-    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
-      symbolMenu
-      // While the bars load the price, change and readout keep their places and sizes: sample
-      // values in the real fonts, drawn as skeleton blocks (`View.skeleton`), so nothing in the
-      // header moves when the bars arrive (owner, 2026-11-19).
-      if loadingBars {
-        Text(verbatim: Money.price(SkeletonSample.price))
-          .font(Tokens.Typography.quote)
-          .skeleton(true, .value)
-        Text(verbatim: Percent.signed(fraction: SkeletonSample.change))
-          .font(Tokens.Typography.calloutMono)
-          .skeleton(true)
-      }
-      if !loadingBars, let last = plot?.candles.last {
-        // The live bid where the bot's quotes have one, else the last closed candle's close.
-        let price = livePrice ?? last.close
-        Text(verbatim: Money.price(price))
-          .font(Tokens.Typography.quote)
-          // Coloured as the day's change beside it when there is one, so the two never disagree;
-          // else by the last candle.
-          .foregroundStyle(Palette.result(dayChange(price) ?? Money.decimal(price - last.open)))
-          .contentTransition(.numericText(value: price))
-          .animation(Tokens.Motion.quick, value: price)
-      }
-      if !loadingBars, let last = plot?.candles.last, let change = dayChange(livePrice ?? last.close) {
-        Text(verbatim: Percent.signed(fraction: change))
-          .font(Tokens.Typography.calloutMono)
-          .foregroundStyle(Palette.result(change))
-          .help(Text(L10n.Chart.dayChangeHelp))
-      }
-      Spacer(minLength: Tokens.Space.m)
-      if let plot {
-        ChartReadout(plot: plot, pointer: pointer)
-          .layoutPriority(-1)
-      } else if loadingBars {
-        // The readout's figures (time, open, high, low, close, volume) in its font.
-        HStack(spacing: Tokens.Space.m) {
-          ForEach(0..<SkeletonSample.readoutFigures, id: \.self) { _ in
-            Text(verbatim: Money.price(SkeletonSample.price))
-              .skeleton(true)
-          }
+    #if os(macOS)
+    // The window's least height holds one header line (`leastHeight`): the readout's gaps
+    // tighten instead (`OneLineFit`).
+    oneLineHeader
+    #else
+    ViewThatFits(in: .horizontal) {
+      oneLineHeader
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+          headline
         }
-        .font(Tokens.Typography.annotation)
-        .fixedSize()
+        readout
       }
+    }
+    #endif
+  }
+
+  private var oneLineHeader: some View {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+      headline
+      Spacer(minLength: Tokens.Space.m)
+      readout
+    }
+  }
+
+  /// The symbol menu, its last price and the day's change.
+  @ViewBuilder private var headline: some View {
+    symbolMenu
+    // While the bars load the price, change and readout keep their places and sizes: sample
+    // values in the real fonts, drawn as skeleton blocks (`View.skeleton`), so nothing in the
+    // header moves when the bars arrive (owner, 2026-11-19).
+    if loadingBars {
+      Text(verbatim: Money.price(SkeletonSample.price))
+        .font(Tokens.Typography.quote)
+        .skeleton(true, .value)
+      Text(verbatim: Percent.signed(fraction: SkeletonSample.change))
+        .font(Tokens.Typography.calloutMono)
+        .skeleton(true)
+    }
+    if !loadingBars, let last = plot?.candles.last {
+      // The live bid where the bot's quotes have one, else the last closed candle's close.
+      let price = livePrice ?? last.close
+      Text(verbatim: Money.price(price))
+        .font(Tokens.Typography.quote)
+        // Coloured as the day's change beside it when there is one, so the two never disagree;
+        // else by the last candle.
+        .foregroundStyle(Palette.result(dayChange(price) ?? Money.decimal(price - last.open)))
+        .contentTransition(.numericText(value: price))
+        .animation(Tokens.Motion.quick, value: price)
+    }
+    if !loadingBars, let last = plot?.candles.last, let change = dayChange(livePrice ?? last.close) {
+      Text(verbatim: Percent.signed(fraction: change))
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(Palette.result(change))
+        .help(Text(L10n.Chart.dayChangeHelp))
+    }
+  }
+
+  /// The pointed candle's values (`ChartReadout`), or their skeleton while the bars load.
+  @ViewBuilder private var readout: some View {
+    if let plot {
+      ChartReadout(plot: plot, pointer: pointer)
+        .layoutPriority(-1)
+    } else if loadingBars {
+      // The readout's figures (time, open, high, low, close, volume) in its font.
+      HStack(spacing: Tokens.Space.m) {
+        ForEach(0..<SkeletonSample.readoutFigures, id: \.self) { _ in
+          Text(verbatim: Money.price(SkeletonSample.price))
+            .skeleton(true)
+        }
+      }
+      .font(Tokens.Typography.annotation)
+      .fixedSize()
     }
   }
 

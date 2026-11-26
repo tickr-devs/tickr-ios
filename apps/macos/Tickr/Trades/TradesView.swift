@@ -370,6 +370,7 @@ private struct Stat<Value: View>: View {
 /// The shown day's closed trades. Double-click or the context menu opens a trade on the Chart.
 private struct TradesTable: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.dynamicTypeSize) private var typeSize
   @Binding var selection: DayTrade.ID?
   /// The row under the pointer, tinted as one.
   @State private var hovered: TradeRow.ID?
@@ -424,6 +425,16 @@ private struct TradesTable: View {
   static let leastWidth: CGFloat = Column.leastWidths.reduce(0, +)
     + cellSpacing * CGFloat(Column.leastWidths.count - 1) + edgeInset * CardArrangement.paddedEdges
 
+  #if os(iOS)
+  /// How much larger iOS draws the table's text (callout, at the screen's Dynamic Type size) than
+  /// the Mac's 12 points it was measured in: the table's least width grows with it.
+  static func typeGrowth(_ size: DynamicTypeSize) -> CGFloat {
+    TextMeasure.pointSize(.callout, at: size) / macCalloutSize
+  }
+  /// The Mac's callout size, in points (Apple's macOS type sizes), the table's values' font there.
+  static let macCalloutSize: CGFloat = 12
+  #endif
+
   /// Height of the "no trades" message in place of the table, in points.
   static let emptyHeight: CGFloat = 280
   /// Accessibility id of that message, for the UI tests.
@@ -470,8 +481,19 @@ private struct TradesTable: View {
         .frame(height: Self.emptyHeight)
         .accessibilityIdentifier(Self.emptyID)
       } else {
+        #if os(macOS)
         table
           .frame(height: tableHeight)
+        #else
+        // iOS draws the table's text a little larger than the Mac its columns were measured on:
+        // on an iPad in portrait the table scrolls sideways rather than cut a column.
+        ScrollView(.horizontal) {
+          table
+            .frame(minWidth: Self.leastWidth * Self.typeGrowth(typeSize), minHeight: tableHeight, maxHeight: tableHeight)
+        }
+        .withoutScrollIndicators()
+        .frame(height: tableHeight)
+        #endif
       }
     })
   }
