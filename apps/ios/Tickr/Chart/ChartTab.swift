@@ -48,6 +48,11 @@ struct ChartTab: View {
       guard let url = app.connection.url else { return }
       await chart.load(url, preferring: app.selectedSymbol ?? app.status?.positions.first?.symbol)
     }
+    // The symbol shown is the app's selected one, so the iPad and the unfolded Duo's Mac screens
+    // open on it after a resize or a fold (`AdaptiveRoot`).
+    .onChange(of: chart.symbol) { _, symbol in
+      if let symbol, app.selectedSymbol != symbol { app.selectedSymbol = symbol }
+    }
     // The app's one shown day: another tab's pick shows here.
     .task(id: app.shownDay) {
       guard let url = app.connection.url else { return }
