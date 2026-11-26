@@ -102,13 +102,10 @@ final class StubProtocol: URLProtocol {
     let day = try WireDate("2026-11-16")
     StubProtocol.answer = try (200, fixture("account-response-v1.json"))
     _ = try await client.account()
-    StubProtocol.answer = try (200, fixture("observers-v1.json"))
-    _ = try await client.observers(day: day)
     StubProtocol.answer = try (200, fixture("decisions-v1.json"))
     _ = try await client.decisions(symbol: "ABCD", day: day)
     #expect(StubProtocol.seen.map { $0.url?.absoluteString } == [
       "http://127.0.0.1:8766/account",
-      "http://127.0.0.1:8766/observers?date=2026-11-16",
       "http://127.0.0.1:8766/decisions?symbol=ABCD&date=2026-11-16",
     ])
   }
@@ -158,26 +155,6 @@ final class StubProtocol: URLProtocol {
     let journal = try await client.journal()
     #expect(journal.lastSeq == journal.rows.last?.seq)
     #expect(StubProtocol.seen.first?.url?.absoluteString == "http://127.0.0.1:8766/journal")
-  }
-
-  @Test func advisorRead() async throws {
-    StubProtocol.answer = try (200, fixture("advisor-runs-v1.json"))
-    let advisor = try await client.advisor()
-    #expect(advisor.runs.map(\.status) == [.proposed, .idea, .refused])
-    #expect(advisor.runs.filter(\.awaitingReview).count == advisor.awaitingReview)
-    #expect(advisor.runs.first?.judges.first?.verdict == .noEvidence)
-    #expect(StubProtocol.seen.first?.url?.absoluteString == "http://127.0.0.1:8766/advisor")
-  }
-
-  @Test func advisorDecisionPosts() async throws {
-    StubProtocol.answer = try (200, fixture("advisor-runs-v1.json"))
-    let runs = try await client.decideAdvisor(run: "20261115T150000Z-price-action-v1", verdict: .rejected)
-    #expect(runs.awaitingReview == 1)
-    let sent = try #require(StubProtocol.seen.first)
-    #expect(sent.httpMethod == "POST")
-    #expect(sent.url?.absoluteString == "http://127.0.0.1:8766/advisor/decision")
-    let body = try JSONSerialization.jsonObject(with: try #require(StubProtocol.seenBodies.first))
-    #expect(body as? [String: String] == ["run": "20261115T150000Z-price-action-v1", "verdict": "rejected"])
   }
 
   @Test func labReplayReadsAndStarts() async throws {

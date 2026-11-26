@@ -65,7 +65,6 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case quoteSymbol = "quote_symbol"
   case range
   case realized
-  case replay
   case reserved
   case room
   case rule

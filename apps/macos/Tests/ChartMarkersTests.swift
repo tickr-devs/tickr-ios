@@ -61,16 +61,15 @@ struct ChartMarkersTests {
     let candle = Candle(start: start, end: start.addingTimeInterval(60), open: 12.3, high: 12.4, low: 12.2,
       close: 12.35, volume: 1000)
     let marks = ChartMarkers.decisionMarks(decisions: decisions, real: [candle], place: { $0 })
-    #expect(marks.map(\.action) == [.exit, .enter, .enter])
+    // The fixture's second decision is a shadow strategy's ENTER: it never trades, so no mark.
+    #expect(marks.map(\.id) == [0, 2])
+    #expect(marks.map(\.action) == [.exit, .enter])
     #expect(marks[0].price == 12.35)
-    #expect(marks[0].observer == false)
-    #expect(marks[1].price == ChartMarkers.double(try #require(decisions[1].entryPrice).value))
-    #expect(marks[1].observer == true)
     #expect(marks[0].hollow == false)
-    #expect(marks[1].hollow == true)
     // The fixture's third decision: the strategy's own ENTER, refused by the platform.
-    #expect(marks[2].observer == false)
-    #expect(marks[2].skipped == true)
+    #expect(marks[1].price == ChartMarkers.double(try #require(decisions[2].entryPrice).value))
+    #expect(marks[1].skipped == true)
+    #expect(marks[1].hollow == true)
   }
 
   @Test("The strategy's ENTER with a what-if entry was not taken: it is marked skipped and hollow")
@@ -81,7 +80,6 @@ struct ChartMarkersTests {
     let decisions = try Wire.decoder().decode(DecisionsV1.self, from: Data(text.utf8)).decisions
     let mark = try #require(ChartMarkers.decisionMarks(decisions: decisions, real: [], place: { $0 }).first)
     #expect(mark.action == .enter)
-    #expect(mark.observer == false)
     #expect(mark.skipped == true)
     #expect(mark.hollow == true)
     let expected = L10n.Chart.skippedMark(String(localized: Verdict.enter.title))
@@ -107,7 +105,8 @@ struct ChartMarkersTests {
   @Test("A decision with no price and no candle around it has no mark; a WATCH without a candle neither")
   func decisionWithoutCandle() throws {
     let marks = ChartMarkers.decisionMarks(decisions: try decisions(), real: [], place: { $0 })
-    #expect(marks.map(\.action) == [.enter, .enter])
+    // Only the strategy's skipped ENTER has its own price; the shadow strategy's ENTER is left out.
+    #expect(marks.map(\.action) == [.enter])
     let watch = try fixture(DecisionsV1.self, "decisions-v1.json").decisions.filter { $0.action == .watch }
     #expect(ChartMarkers.decisionMarks(decisions: watch, real: [], place: { $0 }).isEmpty)
   }

@@ -3,35 +3,72 @@ import SwiftUI
 import Testing
 @testable import TickrDesign
 
-/// Loading (mockup v102, v121): the skeleton's breath, the button spinner, the progress line.
+/// Loading (mockup v102, loader E): the running bar, the chart's build, the button spinner, the
+/// progress line.
 @MainActor
 @Suite struct LoadingTests {
-  @Test("A breath goes from full to breathLow and back, smoothly, with no jump at its end")
-  func breathIsSmooth() {
-    let seconds = Tokens.Loading.breathSeconds
+  @Test("The running bar's segment crosses its track once a run, eased, with no jump inside a run")
+  func barRuns() {
+    let seconds = Tokens.Loading.barSeconds
+    let share = Tokens.Loading.barShare
     let start = Date(timeIntervalSinceReferenceDate: 1_000 * seconds)
-    #expect(abs(Skeleton<EmptyView>.breath(at: start) - 1) < 1e-9)
-    let middle = start.addingTimeInterval(seconds / 2)
-    #expect(abs(Skeleton<EmptyView>.breath(at: middle) - Tokens.Loading.breathLow) < 1e-9)
-    // Sampled finely across three breaths: always within [breathLow, 1], and no step between two
-    // samples bigger than the curve's own slope allows, so it never jumps (the old band did).
-    let steps = 3_000
-    let step = 3 * seconds / Double(steps)
-    let slope = (1 - Tokens.Loading.breathLow) * .pi / seconds
-    var previous = Skeleton<EmptyView>.breath(at: start)
-    for index in 1...steps {
-      let value = Skeleton<EmptyView>.breath(at: start.addingTimeInterval(Double(index) * step))
-      #expect(value >= Tokens.Loading.breathLow - 1e-9 && value <= 1 + 1e-9)
-      #expect(abs(value - previous) <= slope * step + 1e-9)
+    // A run starts a segment's width before the track and ends at the track's end, so the
+    // segment comes in from the left and leaves at the right: it is off the track at both ends.
+    #expect(abs(RunningBar.offset(at: start) + share) < 1e-9)
+    #expect(abs(RunningBar.offset(at: start.addingTimeInterval(seconds / 2)) - (1 - share) / 2) < 1e-6)
+    // Sampled finely inside one run: it only moves right, within its range, by small steps.
+    let steps = 2_000
+    var previous = RunningBar.offset(at: start)
+    for index in 1..<steps {
+      let value = RunningBar.offset(at: start.addingTimeInterval(seconds * Double(index) / Double(steps)))
+      #expect(value >= previous - 1e-9 && value <= 1 + 1e-9)
+      #expect(value - previous < 0.01)
       previous = value
     }
   }
 
-  @Test("Every skeleton breathes on one clock: built apart, they are at the same point")
-  func sharedBreathClock() {
+  @Test("Every running bar runs on one clock, and stands still in the middle under Reduce Motion")
+  func sharedBarClock() {
     let date = Date(timeIntervalSinceReferenceDate: 1_000.25)
-    let later = date.addingTimeInterval(7 * Tokens.Loading.breathSeconds)
-    #expect(abs(Skeleton<EmptyView>.breath(at: date) - Skeleton<EmptyView>.breath(at: later)) < 1e-9)
+    let later = date.addingTimeInterval(7 * Tokens.Loading.barSeconds)
+    #expect(abs(RunningBar.offset(at: date) - RunningBar.offset(at: later)) < 1e-9)
+    #expect(abs(RunningBar.restOffset * 2 + Tokens.Loading.barShare - 1) < 1e-9)
+  }
+
+  @Test("The chart's candles build left to right, hold together, then fade out together")
+  func candleBuild() {
+    let count = 60
+    // Before its start a candle is clear; the first rises before the last.
+    #expect(SkeletonCandles.build(0, of: count, at: 0).opacity == 0)
+    let early = Tokens.Loading.buildStart + Tokens.Loading.buildRise
+    #expect(SkeletonCandles.build(0, of: count, at: early).opacity == 1)
+    #expect(SkeletonCandles.build(count - 1, of: count, at: early).opacity == 0)
+    // On the hold (the frame Reduce Motion shows) every candle is whole.
+    for index in 0..<count {
+      let look = SkeletonCandles.build(index, of: count, at: Tokens.Loading.buildRestPhase)
+      #expect(look.opacity == 1 && look.scale == 1)
+    }
+    // Fading, all at the same opacity; gone by the fade's end, so the cycle restarts unseen.
+    let fading = (Tokens.Loading.buildHoldEnd + Tokens.Loading.buildFadeEnd) / 2
+    let first = SkeletonCandles.build(0, of: count, at: fading).opacity
+    #expect(first > 0 && first < 1)
+    #expect(SkeletonCandles.build(count - 1, of: count, at: fading).opacity == first)
+    #expect(SkeletonCandles.build(0, of: count, at: Tokens.Loading.buildFadeEnd).opacity == 0)
+    // Rising, a candle's opacity and height only grow, from the low scale to whole.
+    var previous = SkeletonCandles.build(count / 2, of: count, at: 0)
+    #expect(previous.scale == Tokens.Loading.buildLowScale)
+    for step in 1...1_000 {
+      let look = SkeletonCandles.build(count / 2, of: count, at: Tokens.Loading.buildHoldEnd * Double(step) / 1_000)
+      #expect(look.opacity >= previous.opacity - 1e-9 && look.scale >= previous.scale - 1e-9)
+      previous = look
+    }
+  }
+
+  @Test("A build runs on the wall clock: built apart, two charts are at the same point")
+  func sharedBuildClock() {
+    let date = Date(timeIntervalSinceReferenceDate: 1_000.25)
+    let later = date.addingTimeInterval(3 * Tokens.Loading.buildSeconds)
+    #expect(abs(SkeletonCandles.phase(at: date) - SkeletonCandles.phase(at: later)) < 1e-9)
   }
 
   @Test("Skeleton blocks take the board's heights and radii")

@@ -8,7 +8,7 @@ import TickrKit
 /// reads from its configuration (GET /settings); the phone computes nothing the bot acts on.
 struct RiskView: View {
   /// Order in which the cards rise in (`rise(step:)`).
-  private enum Order: Int { case room = 1, gate, fences, account, limits, session }
+  private enum Order: Int { case room = 1, sizing, account, gate, fences, limits, session }
 
   @Environment(AppModel.self) private var model
 
@@ -16,10 +16,18 @@ struct RiskView: View {
     Screen(L10n.Risk.title, back: L10n.App.home) {
       if let status = model.status {
         RoomCard(status: status, risk: model.settings?.risk).rise(step: Order.room.rawValue)
+      }
+      if let sizing {
+        EntrySizingSection(sizing: sizing)
+          .padding(Tokens.Space.l)
+          .tickrCard()
+          .rise(step: Order.sizing.rawValue)
+      }
+      AccountCard(response: model.account, failure: model.accountError).rise(step: Order.account.rawValue)
+      if let status = model.status {
         GateCard(status: status).rise(step: Order.gate.rawValue)
         FencesCard(status: status).rise(step: Order.fences.rawValue)
       }
-      AccountCard(response: model.account, failure: model.accountError).rise(step: Order.account.rawValue)
       LimitsCard(risk: model.settings?.risk, failure: model.settingsError).rise(step: Order.limits.rawValue)
       SessionCard(session: model.settings?.session).rise(step: Order.session.rawValue)
     }
@@ -27,6 +35,17 @@ struct RiskView: View {
     .task(id: model.connection.url) { await model.followAccount() }
     // The records' reconciliation and the latest entry size of the Risk room card.
     .task(id: model.connection.url) { await model.refreshFlow() }
+  }
+
+  /// "Last entry size" (mockup IOSRisk), its own card: nil while the day's latest size is not
+  /// read (never "no entry"), or on a recorded day (this screen is live only).
+  private var sizing: EntrySizing? {
+    guard model.isLive, let risk = model.settings?.risk else { return nil }
+    return model.watching.map { watching in
+      EntrySizing(size: watching.latestSize, configured: SizingLimits(
+        plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
+        dailyRoomUsd: model.status?.dailyRoomUsd?.value), text: .money)
+    }
   }
 }
 
@@ -82,9 +101,9 @@ private struct RiskLine: View {
   }
 }
 
-/// The Risk room card both apps share (mockup v115): the room the bot says is left of the daily
-/// loss limit, the net day, the reservations, the positions and the records, then how the last
-/// entry was sized.
+/// The Risk room card both apps share (mockup IOSRisk): the room the bot says is left of the
+/// daily loss limit, the net day, the reservations, the positions and the records. How the last
+/// entry was sized is its own card under it.
 private struct RoomCard: View {
   let status: StatusV1
   let risk: RiskSettings?
@@ -108,11 +127,7 @@ private struct RoomCard: View {
           RiskFact(.positions, RiskRoomText.positions,
             value: String(localized: L10n.Risk.positionsOf(status.positions.count, risk.maxOpenPositions))),
           .records(RecordsAgreement(fences: status.fences, latest: model.isLive ? model.flow?.reconcile : nil)),
-        ], sizing: (model.isLive ? model.watching : nil).map { watching in
-          EntrySizing(size: watching.latestSize, configured: SizingLimits(
-            plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
-            dailyRoomUsd: room), text: .money)
-        })
+        ], sizing: nil)
       } else {
         RiskLine(label: L10n.Risk.room, value: RiskFormat.amount(status.dailyRoomUsd?.value))
       }
@@ -120,8 +135,10 @@ private struct RoomCard: View {
   }
 }
 
-/// The broker account's money at the bot's latest balance read, and the account kind. Display
-/// only: the bot's limits are its settings, never these numbers. The account id is never shown.
+/// The broker account at the bot's latest read (mockup IOSRisk): equity big with the account kind
+/// and the read's time, four balances, then the rest of the balances, the broker's positions and
+/// today's fills, each one tap away. Display only: the bot's limits are its settings, never these
+/// numbers. The account id is never shown.
 private struct AccountCard: View {
   let response: AccountResponseV1?
   let failure: String?
@@ -131,11 +148,18 @@ private struct AccountCard: View {
   private var loading: Bool { response == nil && failure == nil }
 
   var body: some View {
-    RiskCard(title: L10n.Risk.account, tint: response?.stale == true ? Palette.warning : nil) {
-      if let label = account?.accountLabel {
-        Text(verbatim: label)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textSecondary)
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      RowStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xxs) {
+        CardLabel(L10n.Risk.account)
+        Spacer(minLength: Tokens.Space.s)
+        if let account {
+          Text(verbatim: [account.accountLabel, String(localized: L10n.Risk.readAt(
+            Format.timeOrDash(account.balanceReadAt ?? account.readAt)))].compactMap { $0 }
+            .joined(separator: Format.separator))
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
       }
       if let b = account?.balances {
         Text(verbatim: RiskFormat.amount(b.equityUsd.value))
@@ -147,30 +171,28 @@ private struct AccountCard: View {
         RiskLine(label: L10n.Risk.cash, value: RiskFormat.amount(b.cashUsd.value))
         RiskLine(label: L10n.Risk.buyingPower, value: RiskFormat.amount(b.buyingPowerUsd.value),
           color: Palette.accentText)
-        RiskLine(label: L10n.Risk.overnightBuyingPower, value: RiskFormat.amount(b.overnightBuyingPowerUsd.value))
-        RiskLine(label: L10n.Risk.positionsValue, value: RiskFormat.amount(b.positionsValueUsd.value))
-        RiskLine(label: L10n.Risk.unrealized, value: Money.signedUSD(b.unrealizedPlUsd.value),
-          color: Palette.result(b.unrealizedPlUsd.value))
         RiskLine(label: L10n.Risk.dayResult, value: Money.signedUSD(b.dayPlUsd.value),
           color: Palette.result(b.dayPlUsd.value))
-        Text(L10n.Risk.marginLine(
-          b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit),
-          String(b.marginCalls), RiskFormat.amount(b.maintenanceMarginUsd.value),
-          Format.timeOrDash(account?.balanceReadAt)))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(b.marginCalls > 0 ? Palette.warningText : Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
+        RiskLine(label: L10n.Risk.unrealized, value: Money.signedUSD(b.unrealizedPlUsd.value),
+          color: Palette.result(b.unrealizedPlUsd.value))
+        DisclosureLine(L10n.Risk.moreBalances) {
+          RiskLine(label: L10n.Risk.overnightBuyingPower, value: RiskFormat.amount(b.overnightBuyingPowerUsd.value))
+          RiskLine(label: L10n.Risk.positionsValue, value: RiskFormat.amount(b.positionsValueUsd.value))
+          RiskLine(label: L10n.Risk.dayTradesLeft,
+            value: b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit))
+          RiskLine(label: L10n.Risk.marginCalls, value: String(b.marginCalls),
+            color: b.marginCalls > 0 ? Palette.warningText : Palette.textPrimary)
+          RiskLine(label: L10n.Risk.maintenance, value: RiskFormat.amount(b.maintenanceMarginUsd.value))
+        }
       } else if loading {
         // The equity and the lines in their places while the account is read, values as skeleton.
         Text(verbatim: RiskFormat.amount(Decimal(SkeletonSample.price)))
           .font(Tokens.Typography.metric)
           .skeleton(true, .value)
-        ForEach([L10n.Risk.cash, L10n.Risk.buyingPower, L10n.Risk.overnightBuyingPower, L10n.Risk.positionsValue,
-          L10n.Risk.unrealized, L10n.Risk.dayResult], id: \.key) { label in
+        ForEach([L10n.Risk.cash, L10n.Risk.buyingPower, L10n.Risk.dayResult, L10n.Risk.unrealized], id: \.key) { label in
           RiskLine(label: label, value: nil)
         }
       }
-      // Above the lists, so the fills' "Show all" ends the card.
       if account?.balances == nil, !loading {
         Text(failure == nil || response != nil ? L10n.Risk.balanceNote : L10n.Risk.accountUnavailable)
           .font(Tokens.Typography.annotation)
@@ -178,23 +200,28 @@ private struct AccountCard: View {
           .fixedSize(horizontal: false, vertical: true)
       }
       if let account {
-        CardLabel(L10n.Risk.brokerPositions)
-          .padding(.top, Tokens.Space.xs)
-        if account.positions.isEmpty {
-          none
+        DisclosureLine(L10n.Risk.brokerPositions, summary: String(account.positions.count)) {
+          if account.positions.isEmpty {
+            none
+          }
+          // As many as the bot's entry slots, then "Show all N ›".
+          CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
+            endsCard: false) { _, position in positionRow(position) }
         }
-        // As many as the bot's entry slots, then "Show all N ›".
-        CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
-          endsCard: false) { _, position in positionRow(position) }
-        CardLabel(L10n.Risk.fillsToday)
-          .padding(.top, Tokens.Space.xs)
-        if account.fills.isEmpty {
-          none
+        DisclosureLine(L10n.Risk.fillsToday, summary: String(account.fills.count)) {
+          if account.fills.isEmpty {
+            none
+          }
+          // The latest fills, then "Show all N ›": the list grows all day.
+          CappedList(account.fillsLatestFirst, id: \.self, title: L10n.Risk.fillsToday, endsCard: false) { _, fill in
+            fillRow(fill)
+          }
         }
-        // The latest fills, then "Show all N ›" on the card's bottom edge: the list grows all day.
-        CappedList(account.fillsLatestFirst, id: \.self, title: L10n.Risk.fillsToday) { _, fill in fillRow(fill) }
       }
     }
+    .padding(Tokens.Space.l)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .tickrCard(tint: response?.stale == true ? Palette.warning : nil)
     .animation(Tokens.Motion.standard, value: response?.state)
   }
 

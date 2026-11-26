@@ -45,15 +45,14 @@ extension AppModelTests {
     while model.shownDayState == .loading, clock.now < deadline { try await Task.sleep(for: pickPoll) }
   }
 
-  @Test("A picked day asks for every part of it: trades, flow, symbols, observers, Not taken, performance")
+  @Test("A picked day asks for every part of it: trades, flow, symbols, Not taken, performance")
   func pickedDayReadAtOnce() async throws {
     let model = try await Self.modelWithDays()
     RouteProtocol.routes.withLock { $0.paths = [] }
     model.selectedDay = try WireDate("2026-11-15")
     #expect(model.shownDayState == .loading)
     try await Self.waitForPick(model)
-    let parts: Set = ["/days/2026-11-15", "/flow", "/watching", "/symbols", "/movers", "/observers", "/skipped",
-      "/performance"]
+    let parts: Set = ["/days/2026-11-15", "/flow", "/watching", "/symbols", "/movers", "/skipped", "/performance"]
     let clock = ContinuousClock()
     let deadline = clock.now.advanced(by: Self.pickWait)
     while !parts.isSubset(of: Set(RouteProtocol.routes.withLock { $0.paths })), clock.now < deadline {
@@ -180,10 +179,10 @@ extension AppModelTests {
   @Test("A picked day still being read is pending on every Overview card, never shown as zeros")
   func pickedDayPending() async throws {
     let model = try await Self.modelWithDays()
-    #expect(!model.dayPending && !model.flowPending && !model.observersPending)
+    #expect(!model.dayPending && !model.flowPending)
     model.selectedDay = try WireDate("2026-11-15")
     // Nothing of today stays under the picked day while it is read.
-    #expect(model.dayPending && model.flowPending && model.observersPending)
+    #expect(model.dayPending && model.flowPending)
     try await Self.waitForPick(model)
     #expect(!model.dayPending)
     #expect(model.shownResult != 0)

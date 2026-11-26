@@ -5,7 +5,7 @@ import SwiftUI
 /// the card's bottom edge (`CardFooterLink`: Show all). Both end only in the disclosure chevron
 /// (owner: chevron only, no arrow).
 
-/// A card header's link: a capsule in its tone (`info`; `highlight` in the advisor's box) holding an
+/// A card header's link: a capsule in its tone (`info` unless the card asks for another) holding an
 /// optional leading symbol, the title and the chevron. `Size.headerLink` tall; on iOS its touch
 /// target is at least `Size.touchTarget`. The title wraps rather than being cut. A link that
 /// pushes a screen is a `NavigationLink` with a `HeaderLinkLabel`, styled `.headerLink()`.

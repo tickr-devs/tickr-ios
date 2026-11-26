@@ -163,8 +163,6 @@ private struct CalendarDay: View {
   /// Inset of a tile's content, in points: the board's 5 (top, bottom) and 4 (sides) on the
   /// spacing scale.
   static let inset: CGFloat = Tokens.Space.xs
-  /// SF Symbol before the trade count.
-  static let countSymbol = "list.bullet"
 
   let cell: DayCalendar.Cell
   let isToday: Bool
@@ -195,7 +193,7 @@ private struct CalendarDay: View {
           }
         }
         Spacer(minLength: 0)
-        if let summary, let result {
+        if let result {
           // The largest size that holds the whole result: never cut, never scaled down.
           ViewThatFits(in: .horizontal) {
             ForEach(Tokens.Typography.calendarResultFonts.indices, id: \.self) { index in
@@ -205,20 +203,6 @@ private struct CalendarDay: View {
             }
           }
           .foregroundStyle(Palette.result(result))
-          // The count and the wins and losses on one line when they fit, else one under the other.
-          ViewThatFits(in: .horizontal) {
-            HStack(spacing: Tokens.Space.xs) {
-              count(summary)
-              Spacer(minLength: 0)
-              winsLosses(summary)
-            }
-            VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-              count(summary)
-              winsLosses(summary)
-            }
-          }
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
         }
       }
       .padding(Self.inset)
@@ -271,25 +255,5 @@ private struct CalendarDay: View {
     let lines = [DayText.day(summary.day) + Format.itemSeparator + figures(summary), CleanMark.text(summary.clean)]
     return (lines + (summary.hasBars ? [] : [String(localized: L10n.Trades.noBarsHelp)]))
       .joined(separator: Format.lineSeparator)
-  }
-
-  /// The list glyph and the day's closed-trade count.
-  private func count(_ summary: DaySummary) -> some View {
-    HStack(spacing: Tokens.Space.xxs) {
-      Image(systemName: Self.countSymbol)
-      Text(verbatim: String(summary.trades))
-    }
-    .fixedSize()
-  }
-
-  /// The day's wins and losses ("2W 1L"), the wins green and the losses pink when there are any.
-  private func winsLosses(_ summary: DaySummary) -> some View {
-    HStack(spacing: Tokens.Space.xxs) {
-      Text(L10n.Trades.calendarWins(summary.wins))
-        .foregroundStyle(Tone.result(Decimal(summary.wins)).text)
-      Text(L10n.Trades.calendarLosses(summary.losses))
-        .foregroundStyle(Tone.loss(Decimal(summary.losses)).text)
-    }
-    .fixedSize()
   }
 }

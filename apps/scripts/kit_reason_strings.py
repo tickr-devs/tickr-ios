@@ -1016,13 +1016,6 @@ GROUPS = [
                 "Las sesiones anteriores en caché se solapan con las velas del día",
             ),
             (
-                "history_sessions_differ",
-                "The replay settings use {replay} prior sessions, the bot caches {bot}: the "
-                "version would not see the bot's history",
-                "Los ajustes de repetición usan {replay} sesiones anteriores, el bot guarda {bot} "
-                "en caché: la versión no vería el historial del bot",
-            ),
-            (
                 "simulation_failed",
                 "The simulation failed: {error}: {detail}",
                 "La simulación falló: {error}: {detail}",
@@ -1640,6 +1633,61 @@ GROUPS = [
                 "command), then stop the bot",
                 "{count} operación(es) abiertas o entrando: ciérralas primero (o envía el comando "
                 "de emergencia) y luego detén el bot",
+            ),
+            (
+                "stop_already_running",
+                "A close-and-stop is already running",
+                "Ya hay un cierre y detención en curso",
+            ),
+            (
+                "trades_left_open",
+                "{count} trade(s) left open: nothing closes them; their broker stops are day "
+                "orders",
+                "{count} operación(es) quedan abiertas: nada las cierra; sus stops en el bróker "
+                "son órdenes del día",
+            ),
+            (
+                "stop_close_refused",
+                "A closing order was refused: the bot places the stop again; look in the Webull "
+                "app",
+                "Se rechazó una orden de cierre: el bot vuelve a poner el stop; revisa la app de "
+                "Webull",
+            ),
+            (
+                "stop_close_not_filled",
+                "A closing order did not fill: it is still working at the broker and its shares "
+                "are not under a stop; look in the Webull app",
+                "Una orden de cierre no se ejecutó: sigue activa en el bróker y sus acciones no "
+                "tienen stop; revisa la app de Webull",
+            ),
+            (
+                "stop_close_not_sent",
+                "A close was due outside the regular session: nothing was sent and the stop stays",
+                "Un cierre tocaba fuera de la sesión regular: no se envió nada y el stop se queda",
+            ),
+            (
+                "stop_close_failed",
+                "A close is held until you look: look in the Webull app",
+                "Un cierre queda detenido hasta que lo revises: revisa la app de Webull",
+            ),
+            (
+                "stop_close_kept",
+                "The bot keeps running and new entries stay stopped",
+                "El bot sigue funcionando y las nuevas entradas siguen detenidas",
+            ),
+            (
+                "stop_new_trade",
+                "A trade opened during close and stop: the bot keeps running and the closes "
+                "already asked go on; stop the bot again",
+                "Se abrió una operación durante cerrar y detener: el bot sigue funcionando y los "
+                "cierres ya pedidos continúan; detén el bot otra vez",
+            ),
+            (
+                "stop_interrupted",
+                "Close and stop was interrupted by a restart: the bot keeps running and new "
+                "entries stay stopped; stop it again",
+                "Cerrar y detener se interrumpió por un reinicio: el bot sigue funcionando y las "
+                "nuevas entradas siguen detenidas; detenlo otra vez",
             ),
             (
                 "no_open_position",

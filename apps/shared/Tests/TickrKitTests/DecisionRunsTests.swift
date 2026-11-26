@@ -40,9 +40,8 @@ struct DecisionRunsTests {
   @Test("Repeats of one verdict by one strategy merge; another verdict or strategy starts a run")
   func merge() throws {
     let runs = DecisionRun.merge([
-      try decision(3, "ENTER", observer: true), try decision(2, "ENTER", observer: true),
-      try decision(1, "ENTER", observer: true), try decision(0, "EXIT", observer: true),
-      try decision(0, "EXIT", "other", observer: true),
+      try decision(3, "ENTER"), try decision(2, "ENTER"), try decision(1, "ENTER"), try decision(0, "EXIT"),
+      try decision(0, "EXIT", "other"),
     ])
     #expect(runs.map(\.count) == [3, 1, 1])
     let newest = try decision(3, "ENTER")
@@ -71,17 +70,17 @@ struct DecisionRunsTests {
     #expect(list.strategy.map(\.count) == [1, 1])
   }
 
-  @Test("The trading strategy leads; ten observer entries in a row are one run")
-  func strategyLeads() throws {
+  @Test("A shadow strategy's decisions are left out of the list and its counts")
+  func shadowLeftOut() throws {
     var decisions = try (0..<10).map { try decision($0, "ENTER", "price-action-v2", version: "2", observer: true) }
     decisions.append(try decision(10, "ENTER"))
     decisions.append(try decision(11, "WATCH"))
     let list = DecisionList(decisions, everything: false)
     #expect(list.strategy.map(\.count) == [1])
     #expect(list.strategy[0].latest.action == .enter)
-    #expect(list.observers.map { $0.map(\.count) } == [[10]])
-    #expect(list.total == 12)
-    #expect(list.key == 11)
+    #expect(list.total == 2)
+    #expect(list.key == 1)
+    #expect(DecisionList(Array(decisions.prefix(10)), everything: true).isEmpty)
   }
 
   @Test("Everything keeps watching and holding, newest first")
@@ -90,19 +89,6 @@ struct DecisionRunsTests {
       try decision(3, "HOLD")], everything: true)
     #expect(list.strategy.map(\.latest.action) == [.hold, .enter, .watch])
     #expect(list.strategy.map(\.count) == [1, 1, 2])
-    #expect(list.observers.isEmpty)
-  }
-
-  @Test("Observers each get their own runs, the one with the newest decision first")
-  func observersApart() throws {
-    let list = DecisionList([
-      try decision(0, "ENTER", "a", observer: true), try decision(0, "ENTER", "b", observer: true),
-      try decision(1, "ENTER", "a", observer: true), try decision(1, "ENTER", "b", observer: true),
-    ], everything: false)
-    #expect(list.observers.map { $0.map(\.count) } == [[2], [2]])
-    #expect(list.observers.map { $0[0].latest.strategy.name } == ["b", "a"])
-    #expect(list.strategy.isEmpty)
-    #expect(!list.isEmpty)
   }
 
   @Test("Open positions first, then traded symbols newest first, then the rest, only with bars")

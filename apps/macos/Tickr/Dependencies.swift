@@ -19,10 +19,4 @@ extension Container {
   var chartModel: Factory<ChartModel> {
     self { ChartModel() }.singleton
   }
-
-  /// The AI advisor's runs and the owner's decisions, shared by the Lab and the Overview.
-  @MainActor
-  var advisorModel: Factory<AdvisorModel> {
-    self { AdvisorModel() }.singleton
-  }
 }

@@ -32,6 +32,20 @@ public enum Palette {
   /// A selected sidebar row's fill (with a `separatorStrong` hairline).
   public static let selection = Color(light: 0xE3EBFF, dark: 0x172046)
 
+  // MARK: brand
+
+  /// The brand mark's tile (`BrandMark`, the app icon, the launch screen, the tickr.bot site): a
+  /// dark tile in every appearance, top to bottom of its gradient, and its hairline edge.
+  public static let brandTileTop = Color(light: 0x141A33, dark: 0x141A33)
+  public static let brandTileBottom = Color(light: 0x070A16, dark: 0x070A16)
+  public static let brandTileEdge = Color(light: 0x2A3459, dark: 0x2A3459)
+  /// The mark's letter on the tile.
+  public static let brandLetter = Color(light: 0xE7EAF6, dark: 0xE7EAF6)
+  /// The mark's level on the tile: teal in every appearance.
+  public static let brandLine = Color(light: 0x2DD4BF, dark: 0x2DD4BF)
+  /// The level when nothing about the bot can be known (bot unreachable).
+  public static let brandMuted = Color(light: 0x5F6A8C, dark: 0x5F6A8C)
+
   // MARK: text, strongest to weakest
 
   /// Headlines and primary values.
@@ -74,7 +88,7 @@ public enum Palette {
   /// Information and orders: entries, commands in flight, reconciliation.
   public static let info = Color(Swatch.info)
   public static let infoText = Color(Swatch.infoText)
-  /// Context that is not live: environment, recorded days, planned (BACKLOG) features, observers.
+  /// Context that is not live: environment, recorded days, planned (BACKLOG) features.
   public static let highlight = Color(light: 0x8B5CF6, dark: 0xA78BFA)
   public static let highlightText = Color(Swatch.highlightText)
 

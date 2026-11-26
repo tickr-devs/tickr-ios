@@ -42,13 +42,11 @@ final class NetworkTrap: URLProtocol {
     "/journal": { _ = try Wire.decoder().decode(JournalV1.self, from: $0) },
     "/settings": { _ = try Wire.decoder().decode(SettingsV1.self, from: $0) },
     "/config": { _ = try Wire.decoder().decode(ConfigV1.self, from: $0) },
-    "/advisor": { _ = try Wire.decoder().decode(AdvisorRunsV1.self, from: $0) },
     "/lab/replay": { _ = try Wire.decoder().decode(LabReplayV1.self, from: $0) },
     "/days": { _ = try Wire.decoder().decode(DaysV1.self, from: $0) },
     "/days/": { _ = try Wire.decoder().decode(DayV1.self, from: $0) },
     "/flow": { _ = try Wire.decoder().decode(FlowV1.self, from: $0) },
     "/watching": { _ = try Wire.decoder().decode(WatchingV1.self, from: $0) },
-    "/observers": { _ = try Wire.decoder().decode(ObserversV1.self, from: $0) },
     "/skipped": { _ = try Wire.decoder().decode(SkippedV1.self, from: $0) },
     "/events": { _ = try Wire.decoder().decode(DayEventsV1.self, from: $0) },
     "/movers": { _ = try Wire.decoder().decode(MoversV1.self, from: $0) },
@@ -58,6 +56,10 @@ final class NetworkTrap: URLProtocol {
     "/bars": { _ = try Wire.decoder().decode(BarsV1.self, from: $0) },
     "/chart": { _ = try Wire.decoder().decode(ChartV1.self, from: $0) },
   ]
+
+  /// Recorded paths the apps no longer read (the shadow strategies and the AI advisor, re-scoped
+  /// to the trained model): `tickr demo --record` still records them, and no screen asks for them.
+  static let unread: Set<String> = ["/observers", "/advisor"]
 
   static func decode(path: String, body: Data) throws {
     let key = path.hasPrefix("/days/") ? "/days/" : path
@@ -69,13 +71,14 @@ final class NetworkTrap: URLProtocol {
     #expect(recording.frames > 1)
     #expect(!recording.routeKeys.isEmpty)
     var checked = 0
-    for route in recording.routeKeys {
+    let routes = recording.routeKeys.filter { route in !Self.unread.contains(String(route.prefix { $0 != "?" })) }
+    for route in routes {
       let path = String(route.prefix { $0 != "?" })
-      // Documents that grow through the day (charts, decisions, bars, observers): their first
+      // Documents that grow through the day (charts, decisions, bars): their first
       // and last answer, which hold every kind of row; the others are the same rows a minute
       // apart. Every answer of every other route.
       let all = recording.changes(route: route)
-      let grows = route.contains("symbol=") || route.hasPrefix("/observers")
+      let grows = route.contains("symbol=")
       for (index, answer) in all.enumerated() where !grows || index == 0 || index == all.count - 1 {
         if answer.status == 200 {
           try Self.decode(path: path, body: answer.body)
@@ -85,11 +88,11 @@ final class NetworkTrap: URLProtocol {
         checked += 1
       }
     }
-    #expect(checked >= recording.routeKeys.count)
+    #expect(checked >= routes.count)
     // Every screen's resource is there for the demo day.
     let day = recording.demoDay
     for route in ["/status", "/account", "/days", "/days/\(day)", "/flow?date=\(day)",
-      "/watching?date=\(day)", "/observers?date=\(day)", "/skipped?date=\(day)", "/jobs", "/settings", "/config"] {
+      "/watching?date=\(day)", "/skipped?date=\(day)", "/jobs", "/settings", "/config"] {
       #expect(recording.answer(route: route, frame: 0)?.status == 200, "\(route)")
     }
   }
