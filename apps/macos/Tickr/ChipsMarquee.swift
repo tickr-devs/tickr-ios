@@ -73,9 +73,9 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
             ForEach(items, id: \.self) { item in
               if opens(item) {
                 LinkTile(hint(item)) { open(item) } label: { chip(item) }
-                  .help(help(item))
+                  .tip(help(item))
               } else {
-                chip(item).help(help(item))
+                chip(item).tip(help(item))
               }
             }
           }
@@ -103,7 +103,7 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
       .onTapGesture {
         if let item = spot(at: handle.pointer.x)?.item, opens(item) { open(item) }
       }
-      .help(spot(at: pointer).map { help($0.item) } ?? Text(verbatim: String()))
+      .tip(spot(at: pointer).map { help($0.item) } ?? Text(verbatim: String()))
       // The moving row takes no events, so VoiceOver gets the chips as buttons here; lazy, so
       // only the ones it reaches are built.
       .accessibilityRepresentation {

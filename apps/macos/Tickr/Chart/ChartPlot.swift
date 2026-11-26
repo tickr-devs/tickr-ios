@@ -263,6 +263,21 @@ final class ChartPointer {
     pinned = index != nil && !pinned
   }
 
+  /// A tap on a touch screen, which has no pointer to follow: the first tap points at the tapped
+  /// candle (the chart has just selected it) and holds the crosshair there; the next lets it go
+  /// and clears it, since no pointer is left over the chart to show.
+  func touch(in pane: ChartPane, at location: CGPoint) {
+    if pinned {
+      pinned = false
+      hover = nil
+      index = nil
+      time = nil
+    } else {
+      hover = ChartHover(pane: pane, location: location)
+      pinned = index != nil
+    }
+  }
+
   /// Lets the crosshair go: a new symbol, range or day.
   func unpin() {
     pinned = false

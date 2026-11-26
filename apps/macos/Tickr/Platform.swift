@@ -16,6 +16,18 @@ extension View {
     #endif
   }
 
+  /// A short explanation of this view: the system tooltip under the Mac's pointer; on a touch
+  /// screen, which has no pointer to rest, a long press shows it (`hint`, a context menu that
+  /// never fires the button it explains), so nothing is said only on hover.
+  @ViewBuilder
+  func tip(_ text: Text) -> some View {
+    #if os(macOS)
+    help(text)
+    #else
+    hint(text)
+    #endif
+  }
+
   /// A menu drawn as its label alone, a plain button, on the Mac; iPadOS draws every menu that way.
   @ViewBuilder
   func buttonMenuStyle() -> some View {

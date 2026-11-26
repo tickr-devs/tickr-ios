@@ -541,7 +541,7 @@ private struct TradesTable: View {
               }
             }
             .buttonStyle(.plain)
-            .help(Text(L10n.Trades.showOnChart))
+            .tip(Text(L10n.Trades.showOnChart))
             .accessibilityLabel(Text(L10n.Trades.openPosition(position.id)))
             .accessibilityIdentifier(TradeRow.openID)
           case .closed(let trade):
@@ -740,7 +740,7 @@ private struct TradeDetailCard: View {
           .buttonStyle(.chip(selected: true))
           // Full label in either language, never cut.
           .fixedSize()
-          .help(Text(L10n.Trades.anotherHelp))
+          .tip(Text(L10n.Trades.anotherHelp))
           .popover(isPresented: $anotherShown, arrowEdge: .bottom) {
             AnotherStrategyView(trade: trade)
           }
@@ -761,7 +761,7 @@ private struct TradeDetailCard: View {
                 Text(L10n.Trades.stopConfirmedAfter).foregroundStyle(Palette.textSecondary)
                   .frame(maxWidth: .infinity, alignment: .leading)
                   .fixedSize(horizontal: false, vertical: true)
-                  .help(Text(L10n.Trades.stopConfirmedHelp))
+                  .tip(Text(L10n.Trades.stopConfirmedHelp))
                 if let seconds = trade.stopConfirmedAfterSeconds {
                   Text(verbatim: Format.seconds(seconds.value)).font(Tokens.Typography.calloutMono)
                 } else {
@@ -778,7 +778,7 @@ private struct TradeDetailCard: View {
                   .foregroundStyle(sent.color)
                 // A tooltip only when there is something to add (the bot's cause of a missing record).
                 if let help = sent.help {
-                  value.help(Text(verbatim: help))
+                  value.tip(Text(verbatim: help))
                 } else {
                   value
                 }
@@ -791,7 +791,7 @@ private struct TradeDetailCard: View {
                   .fixedSize(horizontal: false, vertical: true)
                 if let code = trade.codeVersion {
                   Text(verbatim: CodeVersion.short(code)).font(Tokens.Typography.calloutMono)
-                    .help(Text(L10n.Trades.codeVersionHelp(code)))
+                    .tip(Text(L10n.Trades.codeVersionHelp(code)))
                 } else {
                   notRecorded
                 }
@@ -800,7 +800,7 @@ private struct TradeDetailCard: View {
                 Text(L10n.Trades.overshoot).foregroundStyle(Palette.textSecondary)
                   .frame(maxWidth: .infinity, alignment: .leading)
                   .fixedSize(horizontal: false, vertical: true)
-                  .help(Text(L10n.Trades.overshootHelp))
+                  .tip(Text(L10n.Trades.overshootHelp))
                 if let usd = trade.overshootUsd?.value {
                   Text(L10n.Trades.overshootValue(Money.signedUSD(usd), trade.overshootR.map { Risk.text($0.value) }
                     ?? Format.missing))
@@ -809,7 +809,7 @@ private struct TradeDetailCard: View {
                     .foregroundStyle(Palette.textPrimary)
                 } else {
                   Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
-                    .help(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
+                    .tip(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
                 }
               }
             }
@@ -819,7 +819,7 @@ private struct TradeDetailCard: View {
               Text(verbatim: after)
                 .font(Tokens.Typography.captionMono)
                 .foregroundStyle(Palette.textTertiary)
-                .help(Text(L10n.Trades.priceAfterExit))
+                .tip(Text(L10n.Trades.priceAfterExit))
             }
             Spacer(minLength: 0)
             Footnote(L10n.Trades.excursionLowerBound)
@@ -1099,14 +1099,14 @@ private struct SkippedRow: View {
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(result.color)
         }
-        .help(Text(verbatim: WhatIfText.after(setup.pricesAfter)
+        .tip(Text(verbatim: WhatIfText.after(setup.pricesAfter)
           ?? ApiText.prose(setup.pricesAfterCauseCodes, text: setup.pricesAfterCause) ?? Format.missing))
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .contentShape(.rect)
     }
     .buttonStyle(.plain)
-    .help(Text(L10n.Trades.showOnChart))
+    .tip(Text(L10n.Trades.showOnChart))
   }
 
   @ViewBuilder private var admission: some View {
@@ -1147,7 +1147,7 @@ private struct CauseText: View {
           }
         } else if let phrase = cause.phrase {
           Text(verbatim: phrase)
-            .help(Text(verbatim: cause.readable(time: Format.marketMinute)))
+            .tip(Text(verbatim: cause.readable(time: Format.marketMinute)))
         } else if !cause.detail.isEmpty {
           Text(verbatim: cause.readable(time: Format.marketMinute))
         }

@@ -98,11 +98,11 @@ struct MonthCalendar: View {
       HStack(spacing: Tokens.Space.xxs) {
         Button { month = previous } label: { arrow(Symbols.previous) }
           .disabled(previous == nil)
-          .help(Text(L10n.Trades.previousMonth))
+          .tip(Text(L10n.Trades.previousMonth))
           .accessibilityLabel(Text(L10n.Trades.previousMonth))
         Button { month = next } label: { arrow(Symbols.next) }
           .disabled(next == nil)
-          .help(Text(L10n.Trades.nextMonth))
+          .tip(Text(L10n.Trades.nextMonth))
           .accessibilityLabel(Text(L10n.Trades.nextMonth))
       }
       .font(Tokens.Typography.chevron)
@@ -252,7 +252,7 @@ private struct CalendarDay: View {
     .buttonStyle(.plain)
     .onHover { hovered = $0 }
     .disabled(!opens)
-    .help(Text(verbatim: summary.map(Self.tooltip) ?? DayText.day(cell.day)))
+    .tip(Text(verbatim: summary.map(Self.tooltip) ?? DayText.day(cell.day)))
     .accessibilityLabel(Text(verbatim: DayText.day(cell.day)))
     .accessibilityValue(Text(verbatim: summary.map(Self.figures) ?? String(localized: L10n.Trades.noRecords)))
     .accessibilityAddTraits(selected ? .isSelected : [])

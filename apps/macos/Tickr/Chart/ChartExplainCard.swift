@@ -136,7 +136,7 @@ private struct CheckRow: View {
         .foregroundStyle(Palette.textQuaternary)
         .fixedSize()
     }
-    .help(Text(verbatim: help))
+    .tip(Text(verbatim: help))
     .accessibilityElement(children: .combine)
   }
 

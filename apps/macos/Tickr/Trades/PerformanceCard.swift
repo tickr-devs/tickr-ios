@@ -113,7 +113,7 @@ private struct Figure: View {
         Text(verbatim: Format.missing)
           .font(Tokens.Typography.figure)
           .foregroundStyle(Palette.textQuaternary)
-          .help(figure.cause.map { Text(verbatim: $0) } ?? Text(verbatim: Format.missing))
+          .tip(figure.cause.map { Text(verbatim: $0) } ?? Text(verbatim: Format.missing))
       }
       // A name longer than its quarter ("% de acierto") wraps onto a second line, never cut.
       Text(title)

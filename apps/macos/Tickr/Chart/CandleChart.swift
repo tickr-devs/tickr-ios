@@ -990,8 +990,19 @@ private struct SharedAxis: ViewModifier {
     let pointer = chart.pointerModel
     scrolling(content)
       .chartXSelection(value: chart.selection)
+      #if os(macOS)
       // A click holds the crosshair on its candle; the next click lets it go.
       .simultaneousGesture(TapGesture().onEnded { pointer.togglePin() })
+      #else
+      // A touch screen has no pointer to rest on a candle: a tap selects the tapped candle and
+      // holds the crosshair on it, the next tap lets it go. Dragging still scrolls the chart.
+      .chartGesture { proxy in
+        SpatialTapGesture().onEnded { tap in
+          proxy.selectXValue(at: tap.location.x)
+          pointer.touch(in: pane, at: tap.location)
+        }
+      }
+      #endif
       .onContinuousHover { phase in
         switch phase {
         case .active(let location): pointer.move(in: pane, to: location)

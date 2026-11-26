@@ -212,7 +212,7 @@ private struct RefusalsCard: View {
         .foregroundStyle(Palette.textPrimary)
         .frame(width: Self.countWidth, alignment: .trailing)
     }
-    .help(help(count.cause))
+    .tip(help(count.cause))
     .accessibilityElement(children: .combine)
   }
 
@@ -312,7 +312,7 @@ private struct ReplayCard: View {
         .foregroundStyle(Palette.textQuaternary)
         .multilineTextAlignment(.trailing)
         .frame(maxWidth: Self.noteWidth, alignment: .trailing)
-        .help(Text(L10n.Lab.replayNote))
+        .tip(Text(L10n.Lab.replayNote))
     }, content: {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         choices
@@ -790,7 +790,7 @@ private struct ExplainCard: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
     }
-    .help(check.note.isEmpty ? Text(verbatim: ApiText.rule(check.rule)) : Text(verbatim: check.note))
+    .tip(check.note.isEmpty ? Text(verbatim: ApiText.rule(check.rule)) : Text(verbatim: check.note))
     .accessibilityElement(children: .combine)
     .accessibilityValue(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
   }

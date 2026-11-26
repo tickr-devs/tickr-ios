@@ -271,7 +271,7 @@ struct ChartView: View {
         Text(verbatim: Percent.signed(fraction: change))
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.result(change))
-          .help(Text(L10n.Chart.dayChangeHelp))
+          .tip(Text(L10n.Chart.dayChangeHelp))
       }
       Spacer(minLength: Tokens.Space.m)
       if let plot {
@@ -330,7 +330,7 @@ struct ChartView: View {
     .menuIndicator(.hidden)
     .fixedSize()
     .disabled(symbols.isEmpty)
-    .help(Text(L10n.Chart.symbolHelp))
+    .tip(Text(L10n.Chart.symbolHelp))
     .accessibilityLabel(Text(L10n.Chart.symbol))
     .accessibilityValue(Text(verbatim: symbol ?? Format.missing))
   }
@@ -392,7 +392,7 @@ struct ChartView: View {
   /// The range as the apps' segmented switch (`.u-seg.mac.fit` on the Chart board).
   private var rangeChips: some View {
     SegmentSwitch(options: ChartRange.allCases.map { ($0, Text(Self.title($0))) }, selection: $range, fit: true)
-      .help(Text(L10n.Chart.rangeHelp))
+      .tip(Text(L10n.Chart.rangeHelp))
       .accessibilityElement(children: .contain)
       .accessibilityLabel(Text(L10n.Chart.rangeLabel))
   }
@@ -417,7 +417,7 @@ struct ChartView: View {
           .buttonStyle(.chip(selected: interval == item))
       }
     }
-    .help(Text(L10n.Chart.timeframeHelp))
+    .tip(Text(L10n.Chart.timeframeHelp))
     .accessibilityElement(children: .contain)
     .accessibilityLabel(Text(L10n.Chart.timeframeLabel))
   }
@@ -438,7 +438,7 @@ struct ChartView: View {
       SegmentSwitch<ChartStyle>.Option(.candles, title: Text(L10n.Chart.candles), glyph: .candles),
       SegmentSwitch<ChartStyle>.Option(.line, title: Text(L10n.Chart.lineStyle), glyph: .line),
     ], selection: $style, fit: true)
-    .help(Text(L10n.Chart.styleHelp))
+    .tip(Text(L10n.Chart.styleHelp))
   }
 
   /// A chip showing one symbol, named for VoiceOver.
@@ -459,23 +459,23 @@ struct ChartView: View {
       Toggle(isOn: $showFastEMA) { Text(L10n.Chart.ema(Indicators.fastEMAPeriod)) }
       Toggle(isOn: $showSlowEMA) { Text(L10n.Chart.ema(Indicators.slowEMAPeriod)) }
       Toggle(isOn: $showMovingAverages) { Text(L10n.Chart.movingAverageChip) }
-        .help(Text(L10n.Chart.movingAverageHelp))
+        .tip(Text(L10n.Chart.movingAverageHelp))
       Toggle(isOn: $showBollinger) { Text(L10n.Chart.bollinger) }
-        .help(Text(L10n.Chart.bollingerHelp(Studies.bollingerPeriod)))
+        .tip(Text(L10n.Chart.bollingerHelp(Studies.bollingerPeriod)))
       separator
       caption(L10n.Chart.panes, help: L10n.Chart.panesHelp)
       Toggle(isOn: $showVolume) { Text(L10n.Chart.volume) }
       Toggle(isOn: $showATR) { Text(L10n.Chart.atrChip) }
-        .help(Text(L10n.Chart.atr(Indicators.atrPeriod)))
+        .tip(Text(L10n.Chart.atr(Indicators.atrPeriod)))
       Toggle(isOn: $showRSI) { Text(L10n.Chart.rsiChip) }
-        .help(Text(L10n.Chart.rsiHelp(Studies.rsiPeriod)))
+        .tip(Text(L10n.Chart.rsiHelp(Studies.rsiPeriod)))
       Toggle(isOn: $showMACD) { Text(L10n.Chart.macd) }
-        .help(Text(L10n.Chart.macdHelp(Studies.macdFast, Studies.macdSlow, Studies.macdSignal)))
+        .tip(Text(L10n.Chart.macdHelp(Studies.macdFast, Studies.macdSlow, Studies.macdSignal)))
       Toggle(isOn: $showStochastic) { Text(L10n.Chart.stochastic) }
-        .help(Text(L10n.Chart.stochasticHelp(Studies.stochasticPeriod, Studies.stochasticSmoothing)))
+        .tip(Text(L10n.Chart.stochasticHelp(Studies.stochasticPeriod, Studies.stochasticSmoothing)))
       separator
       Toggle(isOn: $showMarks) { Text(L10n.Chart.tradesChip) }
-        .help(Text(L10n.Chart.tradesChipHelp))
+        .tip(Text(L10n.Chart.tradesChipHelp))
         .disabled(!showsDay)
     }
     .toggleStyle(.chip)
@@ -489,22 +489,22 @@ struct ChartView: View {
       .tracking(Tokens.Typography.labelTracking)
       .foregroundStyle(Palette.textQuaternary)
       .padding(.trailing, Tokens.Space.xxs)
-      .help(Text(help))
+      .tip(Text(help))
   }
 
   private var zoomButtons: some View {
     HStack(spacing: Tokens.Space.xs) {
       chip(Self.zoomOutSymbol, title: L10n.Chart.zoomOut) { viewport.zoomOut(total: candleCount) }
         .keyboardShortcut(Viewport.zoomOutKey, modifiers: .command)
-        .help(Text(L10n.Chart.zoomOutHelp))
+        .tip(Text(L10n.Chart.zoomOutHelp))
         .disabled(viewport.shown(total: candleCount) == nil)
       chip(Self.zoomInSymbol, title: L10n.Chart.zoomIn) { viewport.zoomIn(total: candleCount) }
         .keyboardShortcut(Viewport.zoomInKey, modifiers: .command)
-        .help(Text(L10n.Chart.zoomInHelp))
+        .tip(Text(L10n.Chart.zoomInHelp))
         .disabled(!viewport.canZoomIn(total: candleCount))
       chip(Self.fitSymbol, title: L10n.Chart.fit) { viewport.fit() }
         .keyboardShortcut(Viewport.fitKey, modifiers: .command)
-        .help(Text(L10n.Chart.fitHelp))
+        .tip(Text(L10n.Chart.fitHelp))
         .disabled(!viewport.canFit(total: candleCount))
     }
     .disabled(candleCount == 0)
@@ -536,7 +536,7 @@ struct ChartView: View {
       .controlSize(.small)
       .disabled(viewport.shown(total: total) == nil)
     }
-    .help(Text(L10n.Chart.scrollHistoryHelp))
+    .tip(Text(L10n.Chart.scrollHistoryHelp))
   }
 
   /// "● LIVE" while the chart follows the live day; its dot pulses once per new M1 bar.
@@ -552,7 +552,7 @@ struct ChartView: View {
     .padding(.vertical, Tokens.Space.xs + Tokens.Space.xxs)
     .background(Palette.profit.opacity(Tokens.Opacity.wash), in: shape)
     .overlay(shape.strokeBorder(Palette.profit, lineWidth: Tokens.Stroke.thin))
-    .help(Text(L10n.Chart.liveHelp))
+    .tip(Text(L10n.Chart.liveHelp))
     .transition(.opacity)
   }
 
@@ -562,7 +562,7 @@ struct ChartView: View {
     }
     .toggleStyle(.chip)
     .keyboardShortcut(Self.decisionsKey, modifiers: [.command, .option])
-    .help(Text(L10n.Chart.decisionsHelp))
+    .tip(Text(L10n.Chart.decisionsHelp))
     .accessibilityLabel(Text(L10n.Chart.decisions))
     .accessibilityIdentifier(Self.decisionsToggleID)
   }

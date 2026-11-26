@@ -314,14 +314,14 @@ private struct SidebarRail: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(Text(item.title))
+        .tip(Text(item.title))
         .accessibilityLabel(Text(item.title))
         .accessibilityIdentifier(item.rowID)
         .accessibilityAddTraits(selection == item ? .isSelected : [])
       }
       Spacer(minLength: 0)
       PulseDot(BotStateCard.color(model), pulsing: model.isLive, event: model.status?.botState)
-        .help(Text(verbatim: BotStateCard.stateText(model)))
+        .tip(Text(verbatim: BotStateCard.stateText(model)))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: BotStateCard.stateText(model)))
     }
@@ -416,7 +416,7 @@ private struct BotStateCard: View {
       // The run's id is a code for the logs, not for reading here (owner, 2026-11-18): it stays
       // on hover only.
     }
-    .help(model.status?.runId.map { Text(L10n.Root.run($0)) } ?? Text(verbatim: String()))
+    .tip(model.status?.runId.map { Text(L10n.Root.run($0)) } ?? Text(verbatim: String()))
     .padding(Tokens.Space.m)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard(radius: Tokens.Radius.large)
@@ -540,7 +540,7 @@ struct SidebarButton: View {
       }
     }
     .buttonStyle(.titleBar(square: true))
-    .help(Text(hidden ? L10n.Toolbar.showSidebar : L10n.Toolbar.hideSidebar))
+    .tip(Text(hidden ? L10n.Toolbar.showSidebar : L10n.Toolbar.hideSidebar))
     .accessibilityIdentifier(Self.id)
   }
 }
@@ -659,7 +659,7 @@ struct DayControls: View {
           .font(Tokens.Typography.dayStepper)
           .foregroundStyle(Palette.textPrimary)
           .fixedSize()
-          .help(Text(L10n.Toolbar.demoHelp))
+          .tip(Text(L10n.Toolbar.demoHelp))
       } else if arrows.visible {
         stepper
       } else {
@@ -705,7 +705,7 @@ struct DayControls: View {
       }
       .buttonStyle(.titleBar(square: true))
       .disabled(!arrows.canGoBack)
-      .help(Text(L10n.Toolbar.previousDayHelp))
+      .tip(Text(L10n.Toolbar.previousDayHelp))
       Menu {
         Button(String(localized: L10n.Common.today)) { model.showToday() }
           .disabled(model.isLive)
@@ -733,17 +733,17 @@ struct DayControls: View {
       .buttonStyle(.plain)
       .menuIndicator(.hidden)
       .fixedSize()
-      .help(Text(L10n.Toolbar.pickDayHelp))
+      .tip(Text(L10n.Toolbar.pickDayHelp))
       Button { model.showNextDay() } label: {
         Label { Text(L10n.Toolbar.nextDay) } icon: { Image(systemName: Symbols.next) }
       }
       .buttonStyle(.titleBar(square: true))
       .disabled(!arrows.canGoForward)
-      .help(Text(L10n.Toolbar.nextDayHelp))
+      .tip(Text(L10n.Toolbar.nextDayHelp))
       // Today is where the day already is while it is live: dimmed then, as ⌘T in the menu.
       TodayButton(L10n.Common.today) { model.showToday() }
         .disabled(model.isLive)
-        .help(Text(L10n.Toolbar.todayHelp))
+        .tip(Text(L10n.Toolbar.todayHelp))
     }
   }
 }
@@ -771,7 +771,7 @@ struct ConnectionStatus: View {
     if compact {
       // The text as of the latest status read: no ticking clock redraws the title bar.
       dot
-        .help(Text(verbatim: text(now: model.botTime(.now))))
+        .tip(Text(verbatim: text(now: model.botTime(.now))))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: text(now: model.botTime(.now))))
         .accessibilityIdentifier(Self.id)
@@ -798,7 +798,7 @@ struct ConnectionStatus: View {
       }
       .frame(width: Self.width, alignment: .trailing)
     }
-    .help(Text(verbatim: model.headline.text))
+    .tip(Text(verbatim: model.headline.text))
     .accessibilityElement(children: .combine)
     .accessibilityIdentifier(Self.id)
   }

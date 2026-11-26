@@ -57,6 +57,7 @@ private struct ActionButtonBody: View {
       .shadow(color: kind == .primary && enabled ? Palette.accent.opacity(Tokens.Opacity.faint) : .clear,
         radius: Tokens.Size.glowRadius, y: Tokens.Space.xxs)
       .contentShape(shape)
+      .touchReach()
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       // Under the pointer an enabled button lifts a point, as the design's buttons do.
