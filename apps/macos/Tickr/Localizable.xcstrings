@@ -1895,6 +1895,23 @@
         }
       }
     },
+    "chart.checksPassed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld passed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld de %2$lld superadas"
+          }
+        }
+      }
+    },
     "chart.close" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1986,13 +2003,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show why the strategies entered, watched or skipped this symbol, and mark their entries and exits on the candles (⌥⌘I)"
+            "value" : "Show why the bot entered, waited or skipped this symbol, and mark its entries and exits on the candles (⌥⌘I)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Muestra por qué las estrategias entraron, vigilaron u omitieron este símbolo, y marca sus entradas y salidas en las velas (⌥⌘I)"
+            "value" : "Muestra por qué el bot entró, esperó u omitió este símbolo, y marca sus entradas y salidas en las velas (⌥⌘I)"
           }
         }
       }
@@ -2027,6 +2044,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "EMA %lld"
+          }
+        }
+      }
+    },
+    "chart.emaHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exponential moving average of %lld candles"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media móvil exponencial de %lld velas"
           }
         }
       }
@@ -2088,30 +2122,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explain %1$@ · %2$@"
+            "value" : "Decision · %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explicar %1$@ · %2$@"
-          }
-        }
-      }
-    },
-    "chart.explainHint" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hover a candle: its decision and every check"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "pasa el cursor sobre una vela: su decisión y cada comprobación"
+            "value" : "Decisión · %@"
           }
         }
       }
@@ -2122,13 +2139,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explain %1$@ · %2$@, last in the %3$@ candle"
+            "value" : "Decision · %1$@, last in the %2$@ candle"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explicar %1$@ · %2$@, la última en la vela de %3$@"
+            "value" : "Decisión · %1$@, la última en la vela de %2$@"
           }
         }
       }
@@ -2139,13 +2156,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explain %@"
+            "value" : "Decision"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explicar %@"
+            "value" : "Decisión"
+          }
+        }
+      }
+    },
+    "chart.explainWhy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por qué"
           }
         }
       }
@@ -2734,13 +2768,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "entry"
+            "value" : "Entry"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "entrada"
+            "value" : "Entrada"
           }
         }
       }
@@ -2785,13 +2819,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Position on chart"
+            "value" : "Open position"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Posición en el gráfico"
+            "value" : "Posición abierta"
           }
         }
       }
@@ -2802,13 +2836,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "R now"
+            "value" : "now"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "R ahora"
+            "value" : "ahora"
           }
         }
       }
@@ -2819,13 +2853,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stop"
+            "value" : "Stop"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stop"
+            "value" : "Stop"
           }
         }
       }
@@ -2836,13 +2870,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Positions · watch · candidates"
+            "value" : "Symbols"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Posiciones · vigilancia · candidatos"
+            "value" : "Símbolos"
           }
         }
       }
@@ -2853,13 +2887,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Candidate"
+            "value" : "Screener"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Candidato"
+            "value" : "Filtro"
           }
         }
       }
@@ -2887,13 +2921,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No positions, watched symbols or candidates yet"
+            "value" : "No open, waiting or screened symbols yet"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aún no hay posiciones, símbolos vigilados ni candidatos"
+            "value" : "Aún no hay símbolos abiertos, en espera ni de los filtros"
           }
         }
       }
@@ -2904,13 +2938,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Position"
+            "value" : "Open"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Posición"
+            "value" : "Abierta"
           }
         }
       }
@@ -2989,13 +3023,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Watch"
+            "value" : "Waiting"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vigilancia"
+            "value" : "En espera"
           }
         }
       }
@@ -3584,13 +3618,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VOL %1$@ · avg %2$lld · rel. volume %3$@×"
+            "value" : "Volume %1$@ · rel. volume %2$@×"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VOL %1$@ · prom. %2$lld · vol. relativo %3$@×"
+            "value" : "Volumen %1$@ · vol. relativo %2$@×"
           }
         }
       }
@@ -3601,13 +3635,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VOL %@"
+            "value" : "Volume %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VOL %@"
+            "value" : "Volumen %@"
           }
         }
       }
@@ -3642,6 +3676,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VWAP"
+          }
+        }
+      }
+    },
+    "chart.vwapHelp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume-weighted average price of the session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precio medio ponderado por volumen de la sesión"
           }
         }
       }
@@ -12241,13 +12292,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ ET · %3$lld screened"
+            "value" : "%1$@ · %2$@ ET · %3$@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ ET · %3$lld filtrados"
+            "value" : "%1$@ · %2$@ ET · %3$@"
           }
         }
       }
@@ -12354,23 +12405,6 @@
         }
       }
     },
-    "symbols.pathToday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Path today"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recorrido de hoy"
-          }
-        }
-      }
-    },
     "symbols.search" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12394,13 +12428,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a symbol to see its path today."
+            "value" : "Select a symbol to see its steps today."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selecciona un símbolo para ver su recorrido de hoy."
+            "value" : "Selecciona un símbolo para ver sus pasos de hoy."
           }
         }
       }
@@ -12445,13 +12479,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Showing all %1$lld fast movers, plus %2$lld held or watched on top"
+            "value" : "Showing all %1$lld fast movers, plus %2$lld open or waiting on top"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mostrando los %1$lld de movimiento rápido, más %2$lld en cartera o vigilados arriba"
+            "value" : "Mostrando los %1$lld de movimiento rápido, más %2$lld abiertos o en espera arriba"
           }
         }
       }

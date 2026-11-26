@@ -2,9 +2,9 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// The rail's explain card: what the trading strategy decided about the shown symbol at
-/// the pointed candle, or its latest decision while the pointer is off the chart, with every check
-/// that led to it.
+/// The rail's decision card (mockup MacChart): what the bot decided about the shown symbol at the
+/// pointed candle, or its latest decision while the pointer is off the chart, in one line, with
+/// every check that led to it behind "Why".
 struct ChartExplainCard: View {
   let symbol: String?
   /// The day's candles, to find the pointed candle's decision; nil over a longer range.
@@ -14,9 +14,12 @@ struct ChartExplainCard: View {
   let error: String?
   /// The chart shows one day: decisions are recorded per day, so a longer range has none to read.
   let showsDay: Bool
+  /// The checks behind the decision are open.
+  @State private var showsWhy = false
 
-  /// Accessibility id of the card's content, for the UI tests.
+  /// Accessibility ids of the card's content and of its "Why" disclosure, for the UI tests.
   static let contentID = "chart-decisions-list"
+  static let whyID = "chart-decision-why"
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
@@ -37,14 +40,17 @@ struct ChartExplainCard: View {
         Badge(decision.action.title, color: decision.action.color)
       }
       summary(decision)
-      ForEach(Array(decision.checks.enumerated()), id: \.offset) { _, check in
-        CheckRow(check: check)
+      if !decision.checks.isEmpty {
+        DetailDisclosure(L10n.Chart.explainWhy,
+          summary: String(localized: L10n.Chart.checksPassed(decision.checks.filter(\.passed).count, decision.checks.count)),
+          isOpen: $showsWhy, id: Self.whyID) {
+          ForEach(Array(decision.checks.enumerated()), id: \.offset) { _, check in
+            CheckRow(check: check)
+          }
+        }
       }
-      Text(L10n.Chart.explainHint)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
     } else {
-      CardLabel(L10n.Chart.explainSymbol(symbol ?? Format.missing))
+      CardLabel(L10n.Chart.explainSymbol)
       if let candle = pointed, decisions?.decisions.isEmpty == false {
         note(L10n.Chart.noDecisionInCandle(Format.marketMinute(candle.start)))
       } else if !showsDay {
@@ -77,18 +83,19 @@ struct ChartExplainCard: View {
     return made.last { !$0.observer }
   }
 
-  /// "Explain ABCD · 12:54", and in a candle of several minutes which candle it is the last
-  /// decision of ("· last in the 12:50 candle"), so the time never reads as a different candle.
+  /// "Decision · 12:54", and in a candle of several minutes which candle it is the last decision
+  /// of ("· last in the 12:50 candle"), so the time never reads as a different candle. The
+  /// symbol is the chart's own.
   private func label(_ decision: DecisionV1) -> LocalizedStringResource {
-    let symbol = symbol ?? Format.missing
     let time = Format.marketMinute(decision.at.date)
     guard let candle = pointed, Format.marketMinute(candle.start) != time else {
-      return L10n.Chart.explain(symbol, time)
+      return L10n.Chart.explain(time)
     }
-    return L10n.Chart.explainInCandle(symbol, time, Format.marketMinute(candle.start))
+    return L10n.Chart.explainInCandle(time, Format.marketMinute(candle.start))
   }
 
-  /// One line on what the decision came to: the refusal, the entry and stop, or the strategy.
+  /// One line on what the decision came to: the refusal, the entry and stop, or which version
+  /// decided.
   @ViewBuilder private func summary(_ decision: DecisionV1) -> some View {
     if let reason = RefusalText.text(decision.refusal, cause: decision.refusalCause) {
       Text(verbatim: reason)

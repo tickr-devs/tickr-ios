@@ -2,11 +2,11 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-// The Symbols screen behind the Overview funnel (mockup v101, MacSymbols): every symbol of the
-// shown day in one column grid, by the funnel stage it got to, with why each one stopped, and the
-// fast movers. A funnel stage or the fast movers' "Show all" opens it on that tab; "Overview" or
-// Esc goes back. A click on a column's title sorts by it. The rows are the full list, never
-// capped; the list scrolls, and no text is cut.
+// The Symbols screen behind the Overview funnel (mockup MacSymbols, 2026-11-25): every symbol of
+// the shown day in one column grid, by the funnel stage it got to, with why each one stopped in
+// short, and the fast movers (their three figures only on that tab). A funnel stage or the fast
+// movers' "Show all" opens it on that tab; "Overview" or Esc goes back. A click on a column's title
+// sorts by it. The rows are the full list, never capped; the list scrolls, and no text is cut.
 
 struct SymbolsView: View {
   @Environment(AppModel.self) private var model
@@ -73,11 +73,8 @@ struct SymbolsView: View {
           selection: $filter)
           .fixedSize()
           .accessibilityLabel(Text(L10n.Symbols.show))
-      } else {
-        Text(verbatim: moverRules)
-          .font(Tokens.Typography.captionMono)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
+      } else if let rule = fastRule {
+        FastRuleButton(rule: rule)
       }
       TextField(text: $search, prompt: Text(L10n.Symbols.search)) { Text(L10n.Symbols.search) }
         .textFieldStyle(.roundedBorder)
@@ -85,8 +82,8 @@ struct SymbolsView: View {
     }
   }
 
-  /// "Mon Nov 16 · 10:48 ET · 412 screened": the day, the end of the latest discovery pass and how
-  /// many symbols the screeners listed; the bot's cause when no pass is recorded.
+  /// "Mon Nov 16 · 10:48 ET · From the screeners": the day, the end of the latest discovery pass
+  /// and the tab's caption; the bot's cause when no pass is recorded.
   private var context: String {
     let day = DayText.day(model.shownDay)
     guard let symbols = model.symbols else {
@@ -96,16 +93,16 @@ struct SymbolsView: View {
     guard let asOf = symbols.asOf?.date else {
       return [day, symbols.asOfCause].compactMap { $0 }.joined(separator: Format.itemSeparator)
     }
-    let screened = SymbolsBoard.count(.stage(.screeners), symbols: symbols, movers: model.movers) ?? 0
-    return String(localized: L10n.Symbols.context(day, Format.marketTime(asOf), screened))
+    return String(localized: L10n.Symbols.context(day, Format.marketTime(asOf),
+      SymbolsBoard.caption(tab, symbols: symbols)))
   }
 
-  /// The active strategy's fast mover thresholds, or why there are none.
-  private var moverRules: String {
+  /// The fast mover rule in one sentence, or why there is none; nil before the movers are read.
+  private var fastRule: String? {
     guard let movers = model.movers else {
-      return model.moversError.map { String(localized: L10n.Symbols.unavailable($0)) } ?? Format.missing
+      return model.moversError.map { String(localized: L10n.Symbols.unavailable($0)) }
     }
-    return movers.rules.map(SymbolsBoard.rules) ?? movers.rulesCauseText ?? Format.missing
+    return movers.rules.map(SymbolsBoard.fastRule) ?? movers.rulesCauseText
   }
 
   private func filterCount(_ filter: SymbolsFilter) -> Int {
@@ -166,7 +163,7 @@ struct SymbolsView: View {
     let current = selected ?? shown.first?.symbol
     return VStack(alignment: .leading, spacing: 0) {
       HStack(spacing: 0) {
-        ForEach(SymbolsColumn.allCases) { column in
+        ForEach(SymbolsColumn.table(fastMovers: fastMovers)) { column in
           Button {
             order = shownOrder.clicked(column)
           } label: {
@@ -187,7 +184,7 @@ struct SymbolsView: View {
               Skeleton(L10n.Common.loading) {
                 VStack(alignment: .leading, spacing: 0) {
                   ForEach(0..<SymbolsSkeleton.rows, id: \.self) { index in
-                    SymbolsSkeleton.row(index)
+                    SymbolsSkeleton.row(index, fastMovers: fastMovers)
                   }
                 }
               }
@@ -224,8 +221,9 @@ struct SymbolsView: View {
       }
       Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
-        // Fast movers: the flagged symbols, and apart from them the positions and watches pinned
-        // on top, so the tab's count and this line agree (owner test 2026-11-18: 74 vs 79).
+        // Fast movers: the flagged symbols, and apart from them the open positions and waiting
+        // symbols pinned on top, so the tab's count and this line agree (owner test 2026-11-18:
+        // 74 vs 79).
         let pinned = tab == .fastMovers ? shown.filter { $0.mover == nil }.count : 0
         Text(pinned > 0 ? L10n.Symbols.showingMovers(shown.count - pinned, pinned) : L10n.Symbols.showingAll(shown.count))
         Spacer(minLength: 0)
@@ -271,7 +269,7 @@ struct SymbolsView: View {
         ?? SymbolsLine(symbol: symbol, row: model.symbols?.rows.first { $0.symbol == symbol },
           mover: model.movers?.movers.first { $0.symbol == symbol },
           position: model.positions.contains { $0.id == symbol })
-      SymbolsDetailPanel(line: line, rules: model.movers?.rules)
+      SymbolsDetailPanel(line: line)
     } else {
       Footnote(L10n.Symbols.selectHint)
         .padding(Tokens.Space.l)
@@ -289,10 +287,9 @@ struct SymbolsView: View {
 private enum SymbolsSkeleton {
   /// Skeleton rows in the table, as the board's.
   static let rows = 18
-  /// Widths of the blocks that differ row to row, in points, repeating: the symbol, the
-  /// screener's pill and the outcome's words.
+  /// Widths of the blocks that differ row to row, in points, repeating: the symbol and the
+  /// outcome's words.
   static let symbols: [CGFloat] = [44, 38, 50, 42, 36, 48]
-  static let screeners: [CGFloat] = [56, 70, 48, 62, 52, 66]
   static let outcomes: [CGFloat] = [120, 90, 140, 104, 80, 128]
   /// Fixed blocks of a row, in points: a figure, the stage track (and its height) with the
   /// stage's name, the outcome's pill.
@@ -301,26 +298,24 @@ private enum SymbolsSkeleton {
   static let trackHeight: CGFloat = 10
   static let stage: CGFloat = 52
   static let outcomePill: CGFloat = 64
-  /// The detail panel's blocks, in points: the symbol and its badge, the price, the sparkline,
-  /// the outcome's words, the path's title and steps, and the notes under them.
+  /// The detail panel's blocks, in points: the symbol and its badge, the price, the screeners'
+  /// line, the sparkline, the headline's word and caption, and the steps' title.
   static let detailSymbol: CGFloat = 72
   static let detailSymbolHeight: CGFloat = 20
   static let detailBadge: CGFloat = 62
   static let detailPrice: CGFloat = 120
   static let detailPriceHeight: CGFloat = 22
   static let sparklineHeight: CGFloat = 40
+  static let foundBy: CGFloat = 220
+  static let headlineWord: CGFloat = 90
+  static let headlineWordHeight: CGFloat = 18
   static let detailOutcome: CGFloat = 170
-  static let pathTitle: CGFloat = 90
-  static let stepGlyph: CGFloat = 16
-  static let steps: [CGFloat] = [150, 120, 170, 110, 140, 100, 160, 130, 90]
-  static let stepFigure: CGFloat = 34
-  static let notesTitle: CGFloat = 120
-  static let notes: [CGFloat] = [210, 170]
+  static let stepsTitle: CGFloat = 120
 
   /// One skeleton row: a block in every column of the grid, as tall as a line.
-  static func row(_ index: Int) -> some View {
+  static func row(_ index: Int, fastMovers: Bool) -> some View {
     HStack(spacing: 0) {
-      ForEach(SymbolsColumn.allCases) { column in
+      ForEach(SymbolsColumn.table(fastMovers: fastMovers)) { column in
         cell(column, index).modifier(SymbolsGrid.Cell(column: column))
       }
     }
@@ -334,7 +329,6 @@ private enum SymbolsSkeleton {
     let pick = { (widths: [CGFloat]) in widths[index % widths.count] }
     switch column {
     case .symbol: SkeletonBlock(.line, width: pick(symbols))
-    case .screener: SkeletonBlock(.pill, width: pick(screeners))
     case .stage:
       HStack(spacing: Tokens.Space.xs) {
         SkeletonBlock(.block(height: trackHeight), width: track)
@@ -345,7 +339,7 @@ private enum SymbolsSkeleton {
         SkeletonBlock(.pill, width: outcomePill)
         SkeletonBlock(.line, width: pick(outcomes))
       }
-    case .last, .change, .volume, .atr, .dollars, .time: SkeletonBlock(.line, width: figure)
+    case .last, .change, .volume, .atr, .dollars, .screener, .time: SkeletonBlock(.line, width: figure)
     }
   }
 
@@ -358,24 +352,11 @@ private enum SymbolsSkeleton {
           SkeletonBlock(.pill, width: detailBadge)
         }
         SkeletonBlock(.block(height: detailPriceHeight), width: detailPrice)
+        SkeletonBlock(.line, width: foundBy)
         SkeletonBlock(.block(height: sparklineHeight))
-        HStack(spacing: Tokens.Space.s) {
-          SkeletonBlock(.pill, width: outcomePill)
-          SkeletonBlock(.line, width: detailOutcome)
-        }
-        SkeletonBlock(.line, width: pathTitle)
-        ForEach(Array(steps.enumerated()), id: \.offset) { _, width in
-          HStack(spacing: Tokens.Space.s) {
-            SkeletonBlock(.block(height: stepGlyph), width: stepGlyph)
-            SkeletonBlock(.line, width: width)
-            Spacer(minLength: Tokens.Space.s)
-            SkeletonBlock(.line, width: stepFigure)
-          }
-        }
-        SkeletonBlock(.line, width: notesTitle)
-        ForEach(Array(notes.enumerated()), id: \.offset) { _, width in
-          SkeletonBlock(.line, width: width)
-        }
+        SkeletonBlock(.block(height: headlineWordHeight), width: headlineWord)
+        SkeletonBlock(.line, width: detailOutcome)
+        SkeletonBlock(.line, width: stepsTitle)
         Spacer(minLength: 0)
       }
     }
@@ -405,7 +386,6 @@ private struct SymbolsGrid: View {
   static let volumeWidth: CGFloat = 60
   static let atrWidth: CGFloat = 60
   static let dollarsWidth: CGFloat = 64
-  static let screenerWidth: CGFloat = 120
   static let stageWidth: CGFloat = 142
   /// The time column is as wide as its clock ("09:32:01") in the lines' font, never a set width:
   /// a time on two lines read "09:32" over ":01" (owner, 2026-11-23).
@@ -421,9 +401,8 @@ private struct SymbolsGrid: View {
     case .volume: volumeWidth
     case .atr: atrWidth
     case .dollars: dollarsWidth
-    case .screener: screenerWidth
     case .stage: stageWidth
-    case .outcome, .time: nil
+    case .screener, .outcome, .time: nil
     }
   }
 
@@ -472,7 +451,7 @@ private struct SymbolsGrid: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      ForEach(SymbolsColumn.allCases) { column in
+      ForEach(SymbolsColumn.table(fastMovers: fastMovers)) { column in
         cell(column).modifier(Cell(column: column))
       }
     }
@@ -521,16 +500,8 @@ private struct SymbolsGrid: View {
       mover.map { MoverFigure(text: SymbolsBoard.ratio($0.dollarVolumeRatio), fired: $0.fired(.dollars)) }
         ?? MoverFigure(text: Format.missing, fired: false)
     case .screener:
-      if let screener = SymbolsBoard.screenerCell(row) {
-        HStack(spacing: Tokens.Space.xs) {
-          SourceChips([SourceChips.Item(text: screener.chip, change: nil, changeColor: Palette.textSecondary)])
-          if let more = screener.more {
-            Text(verbatim: more).font(Tokens.Typography.annotationBold).foregroundStyle(Palette.textQuaternary)
-          }
-        }
-      } else {
-        dash
-      }
+      // Not a column of the table: the screeners are in the selected symbol's detail.
+      dash
     case .stage:
       if let row {
         StageTrack(colors: row.trackColors, title: row.furthest.title)
@@ -540,8 +511,8 @@ private struct SymbolsGrid: View {
     case .outcome:
       if let row {
         HStack(alignment: .center, spacing: Tokens.Space.s) {
-          SymbolsOutcomeBadge.slot(SymbolsOutcome(row.state))
-          if let why = SymbolsBoard.why(row) {
+          SymbolsOutcomeBadge.slot(SymbolsOutcome(row))
+          if let why = SymbolsBoard.shortWhy(row) {
             Text(verbatim: why)
               .foregroundStyle(Palette.textSecondary)
               .fixedSize(horizontal: false, vertical: true)
@@ -596,20 +567,51 @@ private struct SymbolsColumnTitle: View {
   static let descending = "arrowtriangle.down.fill"
 }
 
-/// The POSITION (teal) or WATCH (blue) badge beside a symbol.
+/// The OPEN badge (teal) beside a symbol with an open position.
 private struct SymbolsLineBadge: View {
   let line: SymbolsLine
 
   var body: some View {
     if line.position {
       Badge(SymbolsText.position, color: Palette.accentText)
-    } else if line.watching {
-      Badge(Verdict.watch.title, color: Palette.infoText)
     }
   }
 }
 
-/// PASSED green, WAITING blue, DROPPED pink, NOT REACHED grey.
+/// The fast mover rule behind an "i" button beside the Fast movers caption (mockup MacSymbols):
+/// a real popover with the rule in one sentence.
+private struct FastRuleButton: View {
+  let rule: String
+  @State private var open = false
+
+  var body: some View {
+    Button { open = true } label: {
+      Image(systemName: InfoCaption.infoSymbol)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textTertiary)
+        .frame(minWidth: Tokens.Size.headerLink, minHeight: Tokens.Size.headerLink)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .linkPointer()
+    .help(Text(SymbolsText.fastRuleLabel))
+    .accessibilityLabel(Text(SymbolsText.fastRuleLabel))
+    .popover(isPresented: $open, arrowEdge: .bottom) {
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        CardLabel(SymbolsText.fastRuleLabel)
+        Text(verbatim: rule)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .padding(Tokens.Space.l)
+      .frame(idealWidth: Tokens.Size.popover, maxWidth: Tokens.Size.popover, alignment: .leading)
+      .background(Palette.surface)
+    }
+  }
+}
+
+/// ENTERED green, WAITING blue; SKIPPED, DROPPED and NOT REACHED neutral (mockup MacSymbols).
 private struct SymbolsOutcomeBadge: View {
   let outcome: SymbolsOutcome
 
@@ -628,21 +630,23 @@ private struct SymbolsOutcomeBadge: View {
 
 // MARK: - detail
 
-/// The selected symbol (mockup v101's detail, 300 pt, as tall as its content): the symbol, its
-/// price and change, the outcome and why, its fast bar against the thresholds, every stage of its
-/// path today with the time it got there, its screeners, the strategy's last decision with its
-/// checks, and links to its chart and days.
+/// The selected symbol (mockup MacSymbols, 300 pt, as tall as its content): the symbol, its price
+/// and change, the screeners that found it and when, today's line, what happened in one word and
+/// one caption, its fast bar's signals, every stage of its steps today with the time and the
+/// measured value behind a disclosure, and links to its chart and days.
 private struct SymbolsDetailPanel: View {
   @Environment(AppModel.self) private var model
   @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   /// Today's price line, kept while the same symbol's line is read again.
   @State private var dayLine: SymbolDayLine?
   @State private var shownLineSymbol: String?
+  /// The steps today are open.
+  @State private var showsSteps = false
   let line: SymbolsLine
-  let rules: FastMoverRulesV1?
 
-  /// SF Symbols of the chart link and the path steps.
+  /// SF Symbols of the chart link, the fast mover's bolt and the path steps.
   static let chartSymbol = "chart.xyaxis.line"
+  static let fastSymbol = "bolt.fill"
   static let passedSymbol = "checkmark"
   static let droppedSymbol = "xmark"
   static let waitingSymbol = "clock"
@@ -654,64 +658,60 @@ private struct SymbolsDetailPanel: View {
   var body: some View {
     let row = line.row
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        SymbolText(line.symbol)
-          .font(Tokens.Typography.quote)
-          .fontWeight(.bold)
-          .foregroundStyle(Palette.textPrimary)
-        SymbolsLineBadge(line: line)
-        Spacer(minLength: Tokens.Space.s)
-        if let seen = row?.firstSeen?.date {
-          Text(SymbolsText.seen(Format.marketTime(seen)))
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+          SymbolText(line.symbol)
+            .font(Tokens.Typography.quote)
+            .fontWeight(.bold)
+            .foregroundStyle(Palette.textPrimary)
+          SymbolsLineBadge(line: line)
+          Spacer(minLength: Tokens.Space.s)
+          Text(verbatim: shown.price.map { Money.price($0) } ?? Format.missing)
+            .font(Tokens.Typography.figure)
+            .foregroundStyle(Palette.textPrimary)
+          if let change = SymbolsBoard.tableChange(shown.changePct) {
+            Text(verbatim: change)
+              .font(Tokens.Typography.captionMono)
+              .fontWeight(.semibold)
+              .foregroundStyle((shown.changePct ?? 0) < 0 ? Palette.droppedText : Palette.profitText)
+          }
+        }
+        if let found = foundBy(row) {
+          Text(verbatim: found)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
         }
-      }
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(verbatim: shown.price.map { Money.price($0) } ?? Format.missing)
-          .font(Tokens.Typography.metric)
-          .foregroundStyle(Palette.textPrimary)
-        if let change = SymbolsBoard.tableChange(shown.changePct) {
-          Text(verbatim: change)
-            .font(Tokens.Typography.captionMono)
-            .fontWeight(.semibold)
-            .foregroundStyle((shown.changePct ?? 0) < 0 ? Palette.droppedText : Palette.profitText)
-        }
-        Spacer(minLength: Tokens.Space.s)
-        Text(SymbolsText.today)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
       }
       .task(id: line) { await readDayLine() }
       if let dayLine {
         let plotted = dayLine.plotted
         DayLine(closes: plotted.closes, previousClose: plotted.previousClose)
       }
-      if let row { outcome(row) }
-      section(SymbolsText.fastMover,
-        note: line.mover.map { String(localized: SymbolsText.flagged(Format.marketTime($0.at.date))) }
-          ?? String(localized: SymbolsText.notFlagged))
-      if let mover = line.mover { stats(mover) }
       if let row {
-        section(L10n.Symbols.pathToday, note: nil)
-        VStack(alignment: .leading, spacing: 0) {
-          ForEach(SymbolsBoard.path(row)) { step in pathStep(step, row: row) }
+        let headline = SymbolsBoard.headline(row)
+        SymbolHeadline(headline.title, caption: headline.caption, color: SymbolsOutcome(row).headlineColor)
+      }
+      if let mover = line.mover {
+        Label {
+          Text(verbatim: SymbolsBoard.fastNote(mover, time: Format.marketTime(mover.at.date)))
+            .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+          Image(systemName: Self.fastSymbol)
         }
-        if !row.sources.isEmpty {
-          section(SymbolsText.screeners, note: nil)
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            ForEach(row.sources, id: \.kind) { source in
-              HStack {
-                Text(verbatim: SymbolsBoard.screenerName(source)).foregroundStyle(Palette.textSecondary)
-                Spacer(minLength: Tokens.Space.s)
-                Text(SymbolsText.rank(source.rank)).foregroundStyle(Palette.textTertiary)
-              }
-              .font(Tokens.Typography.captionMono)
-            }
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.warningText)
+      }
+      if let row {
+        DetailDisclosure(SymbolsText.stepsToday,
+          summary: String(localized: SymbolsText.stepsPassed(SymbolsBoard.stepsPassed(row), SymbolStage.allCases.count)),
+          isOpen: $showsSteps) {
+          VStack(alignment: .leading, spacing: 0) {
+            ForEach(SymbolsBoard.path(row)) { step in pathStep(step, row: row) }
           }
         }
-        section(SymbolsText.lastDecision, note: nil)
-        decision(row)
+        .padding(.top, Tokens.Space.s)
+        .overlay(alignment: .top) { Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin) }
       }
       ChipFlow(spacing: Tokens.Space.s) {
         HeaderLink(L10n.Symbols.openChart, systemImage: Self.chartSymbol) {
@@ -730,6 +730,15 @@ private struct SymbolsDetailPanel: View {
     .accessibilityLabel(Text(L10n.Symbols.detailLabel))
   }
 
+  /// "Found by Top gainers #3, Most active #7 · first seen 09:41"; only the time without a
+  /// screener; nil without either.
+  private func foundBy(_ row: SymbolRowV1?) -> String? {
+    guard let row, let seen = row.firstSeen?.date else { return nil }
+    let time = Format.marketTime(seen)
+    guard let screeners = SymbolsBoard.foundBy(row) else { return String(localized: SymbolsText.seen(time)) }
+    return String(localized: SymbolsText.foundBy(screeners, time))
+  }
+
   /// Reads the line again whenever the row changes; another symbol's line never stays shown.
   private func readDayLine() async {
     let symbol = line.symbol
@@ -741,119 +750,39 @@ private struct SymbolsDetailPanel: View {
     shownLineSymbol = symbol
   }
 
-  /// The outcome badge, then "at Strategy · Close above VWAP 5.12 >= 5.20" or "reached Stop".
-  private func outcome(_ row: SymbolRowV1) -> some View {
-    let stage = String(localized: row.stage.title)
-    let place = String(localized: row.state == .passed ? SymbolsText.reachedStage(stage) : SymbolsText.atStage(stage))
-    let text = [place, SymbolsBoard.why(row)].compactMap { $0 }.joined(separator: Format.itemSeparator)
-    return HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-      SymbolsOutcomeBadge(outcome: SymbolsOutcome(row.state))
-      Text(verbatim: text)
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textSecondary)
-        .fixedSize(horizontal: false, vertical: true)
-    }
-  }
-
-  /// A section's label with an optional note on the right, under a line.
-  private func section(_ title: LocalizedStringResource, note: String?) -> some View {
-    HStack(alignment: .firstTextBaseline) {
-      Text(title)
-        .textCase(.uppercase)
-        .font(Tokens.Typography.label)
-        .tracking(Tokens.Typography.labelTracking)
-        .foregroundStyle(Palette.textQuaternary)
-      Spacer(minLength: Tokens.Space.s)
-      if let note {
-        Text(verbatim: note)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-    }
-    .padding(.top, Tokens.Space.s)
-    .overlay(alignment: .top) { Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin) }
-  }
-
-  /// The three fast mover figures, each against its threshold.
-  private func stats(_ mover: FastMoverV1) -> some View {
-    HStack(alignment: .top, spacing: Tokens.Space.s) {
-      MoverStat(SymbolsText.statVolume, value: SymbolsBoard.ratio(mover.volumeRatio),
-        note: note(mover.fired(.volume), rules?.minVolumeRatio, ratio: true), met: mover.fired(.volume))
-      MoverStat(SymbolsText.statMove, value: SymbolsBoard.atr(mover.moveAtr),
-        note: note(mover.fired(.move), rules?.minMoveAtr, ratio: false), met: mover.fired(.move))
-      MoverStat(SymbolsText.statDollars, value: SymbolsBoard.ratio(mover.dollarVolumeRatio),
-        note: note(mover.fired(.dollars), rules?.minDollarVolumeRatio, ratio: true), met: mover.fired(.dollars))
-    }
-  }
-
-  private func note(_ fired: Bool, _ threshold: DecimalString?, ratio: Bool) -> String {
-    threshold.map { SymbolsBoard.moverNote(fired: fired, threshold: $0, ratio: ratio) } ?? Format.missing
-  }
-
   private func pathStep(_ step: SymbolsBoard.Step, row: SymbolRowV1) -> some View {
     let reachedAt = SymbolsBoard.time(step, row: row)
     let (glyph, color): (String, Color) = switch step.mark {
     case .passed, .here(.passed): (Self.passedSymbol, Palette.profitText)
-    case .here(.dropped): (Self.droppedSymbol, Palette.droppedText)
+    case .here(.dropped): (Self.droppedSymbol, Palette.textTertiary)
     case .here(.waiting): (Self.waitingSymbol, Palette.infoText)
     case .here(.notReached): (Self.waitingSymbol, Palette.warningText)
     case .ahead: (Self.aheadSymbol, Palette.textQuaternary)
     }
-    let detail: String? = switch step.mark {
-    case .here(.dropped), .here(.waiting), .here(.notReached): SymbolsBoard.why(row)
-    case .ahead: String(localized: SymbolsText.stepNotReached)
-    case .passed, .here(.passed): nil
+    let detail = step.mark == .ahead ? String(localized: SymbolsText.stepNotReached) : step.detail
+    let detailColor = switch step.mark {
+    case .passed, .here(.passed): Palette.textTertiary
+    case .ahead: Palette.textQuaternary
+    case .here: color
     }
     return SymbolPathStep(systemImage: glyph, color: color, title: step.stage.title,
       time: step.mark == .ahead ? Format.missing : Format.marketTime(reachedAt), detail: detail,
-      detailColor: step.mark == .ahead ? Palette.textQuaternary : color, reached: step.mark != .ahead)
-  }
-
-  /// The strategy's latest decision: its verdict, when and which strategy, then every check.
-  @ViewBuilder private func decision(_ row: SymbolRowV1) -> some View {
-    if let verdict = row.verdict {
-      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Badge(verdict.title, color: verdict.color)
-          Text(SymbolsText.decided(Format.marketTime(row.decidedAt?.date), row.strategy ?? Format.missing))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        ForEach(Array(row.checks.enumerated()), id: \.offset) { _, check in
-          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-            Image(systemName: check.passed ? Self.passedSymbol : Self.droppedSymbol)
-              .font(Tokens.Typography.chevron)
-              .foregroundStyle(check.passed ? Palette.profitText : Palette.droppedText)
-            Text(verbatim: SymbolsBoard.checkText(check))
-              .font(Tokens.Typography.captionMono)
-              .foregroundStyle(Palette.textSecondary)
-              .fixedSize(horizontal: false, vertical: true)
-          }
-          .accessibilityElement(children: .combine)
-        }
-      }
-    } else {
-      Text(SymbolsText.noDecision)
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textTertiary)
-        .fixedSize(horizontal: false, vertical: true)
-    }
+      detailColor: detailColor, reached: step.mark != .ahead)
   }
 }
 
 // MARK: - colours and glyphs
 
 extension SymbolRowV1 {
-  /// One segment per stage (mockup v101): passed teal, where it stands blue when waiting and pink
-  /// when dropped, a hairline where it never got.
+  /// One segment per stage (mockup MacSymbols): passed teal, where it stands blue when waiting,
+  /// neutral when dropped and amber when not reached, a hairline where it never got.
   var trackColors: [Color] {
     SymbolStage.allCases.map { stage in
       if stage == self.stage {
         switch state {
         case .passed: return Palette.accent
         case .waiting: return Palette.info
-        case .dropped: return Palette.dropped
+        case .dropped: return Palette.textTertiary
         case .notReached: return Palette.warning
         }
       }
@@ -863,13 +792,20 @@ extension SymbolRowV1 {
 }
 
 extension SymbolsOutcome {
-  /// PASSED green, WAITING blue, DROPPED pink, NOT REACHED grey.
+  /// ENTERED green, WAITING blue; SKIPPED, DROPPED and NOT REACHED neutral (mockup MacSymbols).
   var color: Color {
     switch self {
     case .passed: Palette.profitText
     case .waiting: Palette.infoText
-    case .dropped: Palette.droppedText
-    case .notReached: Palette.textTertiary
+    case .skipped, .dropped, .notReached: Palette.textTertiary
+    }
+  }
+
+  /// The detail headline's colour: green or blue as the badge, the text's own colour otherwise.
+  var headlineColor: Color {
+    switch self {
+    case .passed, .waiting: color
+    case .skipped, .dropped, .notReached: Palette.textPrimary
     }
   }
 }
