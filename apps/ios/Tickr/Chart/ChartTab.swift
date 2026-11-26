@@ -41,6 +41,10 @@ struct ChartTab: View {
           // On Liquid Glass, as the system's own bars: the chart scrolling under it never shows
           // through the symbol and its price.
           .glassEffect(.regular, in: .rect(cornerRadius: Tokens.Radius.large))
+          // In an iPad window (Stage Manager, a narrow window shows this layout) the window
+          // controls sit in the top leading corner: the bar moves past them and narrows to fit.
+          // On iPhone there are no controls and nothing moves.
+          .containerCornerOffset(.leading, sizeToFit: true)
           .padding(.horizontal, Tokens.Space.s)
       }
     }

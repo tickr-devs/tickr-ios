@@ -201,7 +201,9 @@ struct CandleChart: View {
               .foregroundStyle(mark.color)
           }
           .annotation(position: .top, overflowResolution: Self.keepInside) {
-            if labelsDecisions {
+            // An exit's plate on the same candle takes the space above it: the decision keeps its
+            // diamond and its label gives way ("WATCH" sat under "EXIT +$93.38", Duo 2026-11-26).
+            if labelsDecisions && !exitCandles.contains(plot.index(at: mark.time) ?? -1) {
               ChartMarkPlate(mark.label, color: mark.color, textColor: mark.color)
             }
           }
@@ -400,6 +402,11 @@ struct CandleChart: View {
         .foregroundStyle(Palette.textQuaternary)
         .allowsHitTesting(false)
     }
+  }
+
+  /// Candles that carry an exit's plate (drawn above its mark, where a decision's label goes).
+  private var exitCandles: Set<Int> {
+    Set(marks.filter { $0.kind != .entry }.compactMap { plot.index(at: $0.time) })
   }
 
   /// Whether the decisions on screen are few enough to label.
