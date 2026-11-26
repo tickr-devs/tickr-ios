@@ -66,6 +66,25 @@ public enum EntryText {
       defaultValue: "The bot asks the broker to cancel the buy of \(quantity) shares at \(price). Nothing has filled, so no position opens. Entries stay on.",
       bundle: L10n.bundle)
   }
+  /// Beside the symbol on an entry's chip in the Mac Positions row (mockup v162): "QRST · entry".
+  public static var chipWord: LocalizedStringResource {
+    LocalizedStringResource("kit.entry.chipWord", defaultValue: "entry", bundle: L10n.bundle)
+  }
+  /// The chip's spoken name: "Working entry QRST".
+  public static func chipLabel(_ symbol: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.entry.chipLabel", defaultValue: "Working entry \(symbol)", bundle: L10n.bundle)
+  }
+  /// The iPhone's short state line on an entry row beside positions: "sent 10:46 · waiting for fill".
+  public static func sentWaitingShort(_ time: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.entry.sentWaitingShort", defaultValue: "sent \(time) · waiting for fill", bundle: L10n.bundle)
+  }
+  /// The iPhone entry row's Cancel pill, and its spoken name: "Cancel the entry for QRST".
+  public static var cancelShort: LocalizedStringResource {
+    LocalizedStringResource("kit.entry.cancelShort", defaultValue: "Cancel", bundle: L10n.bundle)
+  }
+  public static func cancelFor(_ symbol: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.entry.cancelFor", defaultValue: "Cancel the entry for \(symbol)", bundle: L10n.bundle)
+  }
   /// The question's answer that leaves the order working.
   public static var keep: LocalizedStringResource {
     LocalizedStringResource("kit.entry.keep", defaultValue: "Keep", bundle: L10n.bundle)

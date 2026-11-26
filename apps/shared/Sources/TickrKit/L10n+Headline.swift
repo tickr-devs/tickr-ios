@@ -17,6 +17,24 @@ extension L10n {
   static func headlineEntriesWorking(_ count: Int) -> LocalizedStringResource {
     LocalizedStringResource("kit.headline.entriesWorking", defaultValue: "\(count) entry orders working", bundle: bundle)
   }
+  /// With positions open and own entry orders working (mockup v162): "2 positions protected ·
+  /// 1 entry working", the positions' part first (`headlinePositionsProtected` when every one is
+  /// protected, else `headlineProtectedPositions`).
+  static func headlineWithEntries(_ positions: String, _ entries: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.headline.withEntries", defaultValue: "\(positions) · \(entries)", bundle: bundle)
+  }
+  static var headlinePositionProtected: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.positionProtected", defaultValue: "1 position protected", bundle: bundle)
+  }
+  static func headlinePositionsProtected(_ count: Int) -> LocalizedStringResource {
+    LocalizedStringResource("kit.headline.positionsProtected", defaultValue: "\(count) positions protected", bundle: bundle)
+  }
+  static var headlineEntryWorkingShort: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.entryWorkingShort", defaultValue: "1 entry working", bundle: bundle)
+  }
+  static func headlineEntriesWorkingShort(_ count: Int) -> LocalizedStringResource {
+    LocalizedStringResource("kit.headline.entriesWorkingShort", defaultValue: "\(count) entries working", bundle: bundle)
+  }
   /// The headline's detail with open positions; arguments: how many are open, and how many of
   /// them a verified broker stop protects.
   static func headlineProtectedPositions(_ count: Int, _ protected: Int) -> LocalizedStringResource {

@@ -1387,6 +1387,23 @@
         }
       }
     },
+    "kit.entry.cancelFor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel the entry for %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar la entrada de %@"
+          }
+        }
+      }
+    },
     "kit.entry.cancelHint" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1451,6 +1468,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancelando…"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
+          }
+        }
+      }
+    },
+    "kit.entry.chipLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Working entry %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada en curso %@"
+          }
+        }
+      }
+    },
+    "kit.entry.chipWord" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entry"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entrada"
           }
         }
       }
@@ -1553,6 +1621,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "enviada %@ · esperando ejecución"
+          }
+        }
+      }
+    },
+    "kit.entry.sentWaitingShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sent %@ · waiting for fill"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "enviada %@ · sin ejecutar"
           }
         }
       }
@@ -3678,6 +3763,23 @@
         }
       }
     },
+    "kit.headline.entriesWorkingShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entries working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entradas activas"
+          }
+        }
+      }
+    },
     "kit.headline.entryWorking" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3691,6 +3793,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 orden de entrada activa"
+          }
+        }
+      }
+    },
+    "kit.headline.entryWorkingShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 entry working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 entrada activa"
           }
         }
       }
@@ -3797,6 +3916,40 @@
         }
       }
     },
+    "kit.headline.positionProtected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 position protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 posición protegida"
+          }
+        }
+      }
+    },
+    "kit.headline.positionsProtected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld positions protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld posiciones protegidas"
+          }
+        }
+      }
+    },
     "kit.headline.protectedPositions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3878,6 +4031,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Estado del bot no disponible: %@. No se puede entrar."
+          }
+        }
+      }
+    },
+    "kit.headline.withEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
           }
         }
       }

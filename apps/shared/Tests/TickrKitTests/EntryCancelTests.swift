@@ -149,7 +149,16 @@ import Testing
     }
     #expect(Headline.detail(two) == "2 entry orders working")
     let none = try entryGone()
-    #expect(!Headline.detail(none).contains("entry"), "with a position open the headline counts positions")
+    #expect(Headline.detail(none) == "1 open · 1 protected by a verified broker stop", "no entry: positions alone")
+    #expect(Headline.detail(try status()) == "1 position protected · 1 entry working", "mockup v162")
+    let unverified = try status { status in
+      var positions = status["positions"] as? [[String: Any]] ?? []
+      var stop = positions[0]["stop"] as? [String: Any] ?? [:]
+      stop["state"] = "missing"
+      positions[0]["stop"] = stop
+      status["positions"] = positions
+    }
+    #expect(Headline.detail(unverified) == "1 open · 0 protected by a verified broker stop · 1 entry working")
     let idle = try status { status in
       status["positions"] = []
       status["working_entries"] = []

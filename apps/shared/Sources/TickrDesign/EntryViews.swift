@@ -4,19 +4,21 @@ import TickrKit
 /// A working entry's words (mockup v160, Mac Overview and iPhone Home): its label, the order, its
 /// state line ("sent 10:42 · waiting for fill", "Cancelling…", "Cancelled at broker"), then the
 /// planned stop and the most it loses if it fills, or, once cancelled, that no position opened.
-/// The apps put the symbol and Cancel entry around it, each in its own layout.
+/// The apps put the symbol and Cancel entry around it, each in its own layout. `compact` is the
+/// iPhone's row beside positions (mockup v162): the order and a short state line only, the label
+/// (`EntryBadge`) beside the symbol.
 public struct EntryFacts: View {
   let row: EntryRow
+  let compact: Bool
 
-  public init(_ row: EntryRow) { self.row = row }
+  public init(_ row: EntryRow, compact: Bool = false) {
+    self.row = row
+    self.compact = compact
+  }
 
   public var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      Text(row.phase == .cancelled ? EntryText.cancelled : EntryText.working)
-        .font(Tokens.Typography.label)
-        .tracking(Tokens.Typography.labelTracking)
-        .textCase(.uppercase)
-        .foregroundStyle(EntryLook.color(row.phase))
+      if !compact { EntryBadge(row) }
       Text(order)
         .font(Tokens.Typography.callout.weight(.semibold))
         .foregroundStyle(Palette.textPrimary)
@@ -32,7 +34,9 @@ public struct EntryFacts: View {
       }
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(lineColor)
-      if row.phase == .cancelled {
+      if compact {
+        EmptyView()
+      } else if row.phase == .cancelled {
         Text(EntryText.noPosition)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textTertiary)
@@ -61,7 +65,9 @@ public struct EntryFacts: View {
 
   private var line: LocalizedStringResource {
     switch row.phase {
-    case .working: row.sentAt.map { EntryText.sentWaiting(ClockText.minutes($0)) } ?? EntryText.waiting
+    case .working:
+      row.sentAt.map { ClockText.minutes($0) }.map { compact ? EntryText.sentWaitingShort($0) : EntryText.sentWaiting($0) }
+        ?? EntryText.waiting
     case .cancelling: EntryText.cancelling
     case .cancelled: EntryText.cancelledAtBroker
     }
@@ -73,6 +79,21 @@ public struct EntryFacts: View {
     case .cancelling: Palette.textSecondary
     case .cancelled: Palette.profitText
     }
+  }
+}
+
+/// A working entry's label: "Working entry", or "Entry cancelled" once the broker cancelled it.
+public struct EntryBadge: View {
+  let row: EntryRow
+
+  public init(_ row: EntryRow) { self.row = row }
+
+  public var body: some View {
+    Text(row.phase == .cancelled ? EntryText.cancelled : EntryText.working)
+      .font(Tokens.Typography.label)
+      .tracking(Tokens.Typography.labelTracking)
+      .textCase(.uppercase)
+      .foregroundStyle(EntryLook.color(row.phase))
   }
 }
 

@@ -104,10 +104,12 @@ struct HomeView: View {
               .rise(step: Order.positions.rawValue + index)
           }
         }
-        // Own entry orders working with nothing filled, and those just cancelled (mockup v160).
+        // Own entry orders working with nothing filled, and those just cancelled: one alone with
+        // nothing open as a full card (mockup v160), else a compact row each (mockup v162).
         let entries = model.entryRows
+        let compact = !status.positions.isEmpty || entries.count > 1
         ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-          EntryCard(row: entry).rise(step: Order.positions.rawValue + status.positions.count + index)
+          EntryCard(row: entry, compact: compact).rise(step: Order.positions.rawValue + status.positions.count + index)
         }
         if status.positions.isEmpty && entries.isEmpty {
           Text(L10n.Home.noPosition)
