@@ -594,7 +594,7 @@ private struct FastRuleButton: View {
     }
     .buttonStyle(.plain)
     .linkPointer()
-    .help(Text(SymbolsText.fastRuleLabel))
+    .tip(Text(SymbolsText.fastRuleLabel))
     .accessibilityLabel(Text(SymbolsText.fastRuleLabel))
     .popover(isPresented: $open, arrowEdge: .bottom) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
