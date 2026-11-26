@@ -2126,13 +2126,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Needs an Apple Developer membership"
+            "value" : "To the Tickr app on your iPhone and Mac"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Requiere la membresía de Apple Developer"
+            "value" : "A la app Tickr de tu iPhone y tu Mac"
           }
         }
       }
