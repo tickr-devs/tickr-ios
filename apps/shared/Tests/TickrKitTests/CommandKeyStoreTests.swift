@@ -30,4 +30,13 @@ import Testing
     #expect(store.keys.unknown.isEmpty)
     #expect(store.server == Self.other)
   }
+
+  @Test func aCommandBeingSentCannotBeginAgainUntilItEnds() {
+    let store = CommandKeyStore()
+    #expect(store.begin(.stopBot))
+    #expect(!store.begin(.stopBot))
+    #expect(store.begin(.emergency), "another command is not held up")
+    store.end(.stopBot)
+    #expect(store.begin(.stopBot))
+  }
 }

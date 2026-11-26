@@ -569,12 +569,18 @@ final class AppModel {
       notice = Notice(L10n.Notice.notCurrent(title), tone: .failure)
       return
     }
+    // One send of a command at a time across both iPad layouts' models (`CommandKeyStore`).
+    guard keyStore.begin(command) else {
+      notice = Notice(L10n.Notice.busy(title), tone: .failure)
+      return
+    }
     let asked = link
     sending = true
     inFlight = command
     defer {
       sending = false
       inFlight = nil
+      keyStore.end(command)
     }
     if let confirmOwner {
       switch await confirmOwner() {
@@ -627,7 +633,7 @@ final class AppModel {
   /// or one whose receipt the API cannot serve, is dropped with a notice to check the status
   /// before sending again. Not while a send is under way, which settles its own command.
   private func settleLost(_ url: URL) async {
-    guard !sending else { return }
+    guard !sending, keyStore.sending.isEmpty else { return }
     for command in keys.expire(now: now(), keepSeconds: keepSeconds) {
       notice = Notice(L10n.Notice.outcomeNotKnown(Board.commandTitle(command.kind)), tone: .failure)
     }

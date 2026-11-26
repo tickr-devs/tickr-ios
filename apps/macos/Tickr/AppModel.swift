@@ -1208,6 +1208,12 @@ public final class AppModel {
         cause: String(localized: L10n.Bot.notSentUntrusted), warning: nil))
       return
     }
+    // One send of a command at a time across both iPad layouts' models (`CommandKeyStore`).
+    guard keyStore.begin(command) else {
+      show(SentCommand(id: UUID().uuidString, kind: command.kind, title: title, outcome: .refused,
+        cause: String(localized: L10n.Bot.alreadySending), warning: nil))
+      return
+    }
     let asked = link
     sending = true
     inFlight = command
@@ -1215,6 +1221,7 @@ public final class AppModel {
     defer {
       sending = false
       inFlight = nil
+      keyStore.end(command)
     }
     // The owner first (iPad), while the buttons wait; the status read below comes after it, on
     // the connection the command was pressed on.
@@ -1272,7 +1279,7 @@ public final class AppModel {
   /// receipt the API cannot serve, is dropped and shown as not known, to check the status before
   /// sending again. Not while a send is under way, which settles its own command.
   private func settleLost() async {
-    guard !sending else { return }
+    guard !sending, keyStore.sending.isEmpty else { return }
     let before = keys.unknown
     for command in keys.expire(now: now(), keepSeconds: keepSeconds) {
       if let key = before[command]?.key { notKnown(command, key: key) }

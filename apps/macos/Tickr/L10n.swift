@@ -341,6 +341,11 @@ enum L10n {
         defaultValue: "not sent: Face ID or the passcode did not confirm the owner",
         bundle: L10n.bundle)
     }
+    static var alreadySending: LocalizedStringResource {
+      LocalizedStringResource("bot.alreadySending",
+        defaultValue: "not sent: this command is already being sent",
+        bundle: L10n.bundle)
+    }
     static var notSentUntrusted: LocalizedStringResource {
       LocalizedStringResource("bot.notSentUntrusted",
         defaultValue: "not sent: the app cannot trust the bot's status right now",

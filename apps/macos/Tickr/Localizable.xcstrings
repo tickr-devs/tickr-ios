@@ -171,6 +171,23 @@
         }
       }
     },
+    "bot.alreadySending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not sent: this command is already being sent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no enviado: este comando ya se está enviando"
+          }
+        }
+      }
+    },
     "bot.cancelExplanation" : {
       "extractionState" : "manual",
       "localizations" : {

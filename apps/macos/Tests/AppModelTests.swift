@@ -408,6 +408,31 @@ struct AppModelTests {
     #expect(model.toast?.outcome == .refused)
   }
 
+  @Test("A command being sent by one model is refused in the other (iPad layouts), never sent under a new key")
+  func oneSendAcrossModels() async throws {
+    let accepted = try Data(contentsOf: fixturesDir.appendingPathComponent("command-accepted-v1.json"))
+    RouteProtocol.routes.withLock { $0.bodies["/commands/flatten"] = accepted }
+    // The first layout's send waits at the owner check, so it is under way with no answer yet.
+    let (gate, open) = AsyncStream.makeStream(of: Void.self)
+    let first = AppModel(baseURL: APIClient.defaultBaseURL)
+    first.ownerCheck = { _, _ in
+      for await _ in gate { return true }
+      return false
+    }
+    let second = AppModel(baseURL: APIClient.defaultBaseURL)
+    await first.refreshStatus()
+    await second.refreshStatus()
+    let sending = Task { await first.send(.flattenSymbol("ABCD"), title: "Close ABCD position") }
+    while Container.shared.commandKeys().sending.isEmpty { await Task.yield() }
+    await second.send(.flattenSymbol("ABCD"), title: "Close ABCD position")
+    #expect(second.toast?.outcome == .refused)
+    #expect(Self.sentCount() == 0, "the other layout sent while the first send was under way")
+    open.yield()
+    await sending.value
+    #expect(Self.sentCount() == 1)
+    #expect(Container.shared.commandKeys().sending.isEmpty)
+  }
+
   @Test("A late answer from the server before a switch never shows as the new server's")
   func lateAnswerFromTheOldServerIsDropped() async throws {
     let stale = try Self.status(botState: "running", stale: true)
