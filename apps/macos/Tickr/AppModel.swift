@@ -284,6 +284,8 @@ public final class AppModel {
   /// The close-and-stop the bot reports, followed across reads for its steps' times and its
   /// refusal (`StopWatch`, the Bot card's steps).
   private(set) var stopWatch = StopWatch()
+  /// The working entries followed across reads, for "Cancelled at broker" (`EntryCancelWatch`).
+  private(set) var entryWatch = EntryCancelWatch()
 
   private var tasks: [Task<Void, Never>] = []
   /// Counts connections (`reconnect`): an answer is applied only while the connection it was
@@ -549,6 +551,7 @@ public final class AppModel {
     // Keys of the server before mean nothing at this one.
     keys.clear()
     lostTitles = [:]
+    entryWatch.forget()
     let url = baseURL
     client = Container.shared.apiClient(APIClient.Endpoint(baseURL: url))
     response = nil
@@ -603,6 +606,7 @@ public final class AppModel {
       let dayBefore = today
       response = fresh
       stopWatch.read(fresh.status)
+      entryWatch.read(fresh.status, now: now())
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
@@ -1234,6 +1238,7 @@ public final class AppModel {
     let record = SentCommand(id: accepted.command.commandId, kind: accepted.command.kind, title: title,
       outcome: nil, cause: nil, warning: accepted.warning)
     sent.insert(record, at: 0)
+    entryWatch.queued(accepted.command)
     show(record)
   }
 

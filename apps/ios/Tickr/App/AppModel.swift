@@ -101,6 +101,8 @@ final class AppModel {
   /// The close-and-stop the bot reports, followed across reads for its steps' times and its
   /// refusal (`StopWatch`, the bot-control sheet's steps).
   private(set) var stopWatch = StopWatch()
+  /// The working entries followed across reads, for "Cancelled at broker" (`EntryCancelWatch`).
+  private(set) var entryWatch = EntryCancelWatch()
   var notice: Notice?
   var selectedTab: AppTab = .home
   /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
@@ -240,6 +242,7 @@ final class AppModel {
     // Keys and queued commands of the address before mean nothing at this one.
     keys.clear()
     awaited = [:]
+    entryWatch.forget()
     response = nil
     reads = ReadFailures()
     lastReadAt = nil
@@ -306,6 +309,7 @@ final class AppModel {
       guard asked == link else { return false }
       response = fresh
       stopWatch.read(fresh.status)
+      entryWatch.read(fresh.status, now: now())
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
@@ -611,6 +615,7 @@ final class AppModel {
   /// A queued command: awaited in recent_commands, and said so.
   private func queued(_ accepted: CommandAcceptedV1, title: String) {
     awaited[accepted.command.commandId] = accepted.command.kind
+    entryWatch.queued(accepted.command)
     if let warning = accepted.warning {
       notice = Notice(L10n.Notice.queuedWarning(title, warning), tone: .failure)
     } else {

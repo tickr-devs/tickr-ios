@@ -104,7 +104,14 @@ struct HomeView: View {
               .rise(step: Order.positions.rawValue + index)
           }
         }
-        if status.positions.isEmpty {
+        // Own entry orders working with nothing filled, and those just cancelled: one alone with
+        // nothing open as a full card (mockup v160), else a compact row each (mockup v162).
+        let entries = model.entryRows
+        let compact = !status.positions.isEmpty || entries.count > 1
+        ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+          EntryCard(row: entry, compact: compact).rise(step: Order.positions.rawValue + status.positions.count + index)
+        }
+        if status.positions.isEmpty && entries.isEmpty {
           Text(L10n.Home.noPosition)
             .font(.subheadline)
             .foregroundStyle(Palette.textTertiary)
@@ -393,7 +400,9 @@ private struct Summary: View {
             CleanLine(clean: past.clean)
           } else if let status = model.status {
             if let limit = model.settings?.risk.maxOpenPositions {
-              Text(L10n.Home.slotsFree(max(0, limit - status.positions.count), limit))
+              // A working entry holds a slot as the engine counts it (mockup v162: "· 1 pending").
+              Text(verbatim: Slots.withPending(String(localized: L10n.Home.slotsFree(Slots.free(status, limit: limit), limit)),
+                status))
                 .font(.subheadline)
                 .foregroundStyle(Palette.textTertiary)
                 .contentTransition(.numericText())

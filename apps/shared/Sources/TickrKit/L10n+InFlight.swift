@@ -17,6 +17,10 @@ extension L10n {
   static func inFlightFlattenSymbol(_ symbol: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.inFlight.flattenSymbol", defaultValue: "Closing \(symbol) position", bundle: bundle)
   }
+  /// Cancelling one working entry order; same words as the entry's own "Cancelling…" line.
+  static var inFlightCancelEntry: LocalizedStringResource {
+    LocalizedStringResource("kit.inFlight.cancelEntry", defaultValue: "Cancelling…", bundle: bundle)
+  }
   static var inFlightFlatten: LocalizedStringResource {
     LocalizedStringResource("kit.inFlight.flatten", defaultValue: "Closing all positions", bundle: bundle)
   }
@@ -37,6 +41,7 @@ extension OperatorCommand {
     switch self {
     case .entryStop(let on): on ? L10n.inFlightPauseEntries : L10n.inFlightResumeEntries
     case .cancelOwnOrders: L10n.inFlightCancelOrders
+    case .cancelEntry: L10n.inFlightCancelEntry
     case .flatten: L10n.inFlightFlatten
     case .flattenSymbol(let symbol): L10n.inFlightFlattenSymbol(symbol)
     case .stopBot, .stopBotMode(.leaveOpen): L10n.inFlightStopBot

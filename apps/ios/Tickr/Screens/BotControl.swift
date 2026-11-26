@@ -197,7 +197,7 @@ struct BotControl: ViewModifier {
   static func needsOwner(_ command: OperatorCommand) -> Bool {
     switch command {
     case .entryStop(let on): return !on
-    case .cancelOwnOrders, .flatten, .flattenSymbol, .stopBot, .stopBotMode, .emergency: return true
+    case .cancelOwnOrders, .cancelEntry, .flatten, .flattenSymbol, .stopBot, .stopBotMode, .emergency: return true
     }
   }
 }
