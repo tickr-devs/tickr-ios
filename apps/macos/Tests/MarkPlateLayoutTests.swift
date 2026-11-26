@@ -41,11 +41,13 @@ struct MarkPlateLayoutTests {
 
   @Test("A plate with no free side is left out; plates far apart all stay")
   func leftOut() {
-    let crowded = place([
-      .init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above),
-      .init(id: 1, anchor: CGPoint(x: 100, y: 150), size: size, side: .below),
-      .init(id: 2, anchor: CGPoint(x: 105, y: 150), size: size, side: .above),
-    ])
+    // A plot just two plates high: the third plate on the same spot finds no free place.
+    let low = CGRect(x: 0, y: 0, width: 400, height: 48)
+    let crowded = MarkPlateLayout.place([
+      .init(id: 0, anchor: CGPoint(x: 100, y: 24), size: size, side: .above),
+      .init(id: 1, anchor: CGPoint(x: 100, y: 24), size: size, side: .below),
+      .init(id: 2, anchor: CGPoint(x: 105, y: 24), size: size, side: .above),
+    ], avoiding: .init(), in: low, offset: offset, gap: gap)
     #expect(Set(crowded.keys) == [0, 1])
     // An entry's plate below its mark and a decision's above it, 60 points apart in price:
     // nothing meets, so the decision keeps its label (the retest's lost "ENTER").
@@ -103,5 +105,16 @@ struct MarkPlateLayoutTests {
     let neighbour = CGRect(x: 112, y: 122, width: 16, height: 16)
     let moved = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], glyphs: [own, neighbour])
     #expect(try #require(moved[0]).y > 150)
+  }
+
+  @Test("Where candles fill the height, a plate goes beside its mark at its price, never far off")
+  func besideMark() throws {
+    // A tall candle from 20 to 280 under a fill's mark: no place above or below within reach
+    // is clear, beside the mark covers least.
+    let candle = CGRect(x: 95, y: 20, width: 10, height: 260)
+    let centres = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .below)], candles: [candle])
+    let centre = try #require(centres[0])
+    #expect(centre.y == 150)
+    #expect(centre.x - size.width / 2 >= 100 + offset)
   }
 }

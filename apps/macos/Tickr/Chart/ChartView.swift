@@ -334,34 +334,11 @@ struct ChartView: View {
     return DayChange.fraction(price: Money.decimal(price), previousClose: DayChange.previousClose(symbol, flow: model.flow))
   }
 
+  /// Redrawn only when its symbols change: a status refresh rebuilt the open menu on iPadOS, which
+  /// sent its list back to the top under the finger (Duo, 2026-11-26: a tap meant for ZNTH picked
+  /// PRQX).
   private var symbolMenu: some View {
-    Menu {
-      ForEach(symbols, id: \.self) { item in
-        Button { picked = item } label: { Text(verbatim: item) }
-      }
-    } label: {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
-        Text(verbatim: symbol ?? Format.missing)
-          .font(Tokens.Typography.metric)
-          .foregroundStyle(Palette.textPrimary)
-        // The menu's chevron only while there is a symbol to pick: no promise of a menu
-        // that would not open.
-        if !symbols.isEmpty {
-          Image(systemName: Self.menuSymbol)
-            .font(Tokens.Typography.chevron)
-            .foregroundStyle(Palette.textQuaternary)
-        }
-      }
-      .contentShape(.rect)
-    }
-    .buttonMenuStyle()
-    .buttonStyle(.plain)
-    .menuIndicator(.hidden)
-    .fixedSize()
-    .disabled(symbols.isEmpty)
-    .tip(Text(L10n.Chart.symbolHelp))
-    .accessibilityLabel(Text(L10n.Chart.symbol))
-    .accessibilityValue(Text(verbatim: symbol ?? Format.missing))
+    SymbolMenu(symbol: symbol, symbols: symbols, pick: { picked = $0 }).equatable()
   }
 
   // MARK: Controls

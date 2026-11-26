@@ -4,15 +4,16 @@ import CoreGraphics
 import Foundation
 
 /// Where the price pane's plates ("EXIT +$93.38", "BUY 50 @ 15.74", a decision's "WATCH") sit
-/// on screen, so none covers another and, where there is room, none covers a candle or a mark.
-/// Each plate in turn, in priority order, tries its own side of its mark, the other side, then
-/// clear space above and below the candles under it; the first place that touches nothing wins,
-/// else the first that touches no plate, else it is left out (its mark stays, and pointing at the
-/// candle still shows it). Plates stay inside the visible plot. Duo retest, 2026-11-26: a
-/// decision's label sat under an exit's plate, a fill's plate under the stop-out's a few candles
-/// on, and plates covered the candles (the owner's old complaint about BUY/EXIT plates).
+/// on screen. Each plate in turn, in priority order, looks at places near its mark: above and
+/// below it, a half plate further each step up to `reach` plates away, and beside it at its price.
+/// It takes the nearest place that covers no candle or mark, else the one that covers least;
+/// it never covers another plate, and with no such place within reach it is left out (its mark
+/// stays, and pointing at the candle still shows it). Plates stay inside the visible plot, a gap
+/// from its edges. Duo retests, 2026-11-26: a decision's label sat under an exit's plate, a fill's
+/// plate under the stop-out's, plates covered the candles (the owner's old complaint about
+/// BUY/EXIT plates), and plates sent to the far edge no longer read as their mark's.
 enum MarkPlateLayout {
-  /// Which side of its mark a plate takes first.
+  /// Which side of its mark a plate looks at first.
   enum Side {
     case above, below
   }
@@ -25,60 +26,70 @@ enum MarkPlateLayout {
     let side: Side
   }
 
-  /// The centres of the plates that are drawn, by id; `items` in priority order (first wins).
   /// What a plate should not cover where it can help it, on screen: the candles, and the marks'
-  /// glyphs (a mark's own, centred on its anchor, is not in its way).
+  /// glyphs (its own mark's glyph, the one over its anchor, is not in its way).
   struct Obstacles {
     var candles: [CGRect] = []
     var glyphs: [CGRect] = []
   }
 
+  /// Farthest a plate moves from its mark, in its own heights: farther, it no longer reads as the
+  /// mark's (r4: "BUY" 230 px above its arrow, under the legend).
+  static let reach: CGFloat = 3
+
+  /// The centres of the plates that are drawn, by id; `items` in priority order (first wins).
   /// `offset`: from the mark's centre to the plate's near edge; `gap`: least room between a plate
-  /// and anything else.
+  /// and anything else, and the plot's edges.
   static func place(
     _ items: [Item], avoiding obstacles: Obstacles, in frame: CGRect, offset: CGFloat, gap: CGFloat
   ) -> [Int: CGPoint] {
-    let shownCandles = obstacles.candles.filter { $0.intersects(frame) }
-    let shownGlyphs = obstacles.glyphs.filter { $0.intersects(frame) }
+    let inside = frame.insetBy(dx: gap, dy: gap)
+    let candles = obstacles.candles.filter { $0.intersects(frame) }
+    let glyphs = obstacles.glyphs.filter { $0.intersects(frame) }
     var taken: [CGRect] = []
     var centres: [Int: CGPoint] = [:]
     for item in items where frame.contains(item.anchor) {
-      let around = shownCandles + shownGlyphs.filter { CGPoint(x: $0.midX, y: $0.midY) != item.anchor }
-      let places = candidates(item, obstacles: around, offset: offset, gap: gap, in: frame)
-      let choice = places.first { clear($0, of: taken + around, gap: gap) } ?? places.first { clear($0, of: taken, gap: gap) }
+      let around = candles + glyphs.filter { !$0.contains(item.anchor) }
+      let places = candidates(item, offset: offset, in: inside).filter { covered($0, by: taken, gap: gap) == 0 }
+      // The nearest place that covers least: `places` runs nearest first, and `min` keeps the
+      // first of equals.
+      let choice = places.map { (rect: $0, cover: covered($0, by: around, gap: gap)) }.min { $0.cover < $1.cover }
       if let choice {
-        taken.append(choice)
-        centres[item.id] = CGPoint(x: choice.midX, y: choice.midY)
+        taken.append(choice.rect)
+        centres[item.id] = CGPoint(x: choice.rect.midX, y: choice.rect.midY)
       }
     }
     return centres
   }
 
-  /// Whether `rect` keeps `gap` from every one of `others` (touching at that distance is clear).
-  private static func clear(_ rect: CGRect, of others: [CGRect], gap: CGFloat) -> Bool {
-    !others.contains { other in
+  /// How much of `rect` lies within `gap` of `others`, in square points (0: clear of them all).
+  private static func covered(_ rect: CGRect, by others: [CGRect], gap: CGFloat) -> CGFloat {
+    others.reduce(0) { sum, other in
       let shared = other.insetBy(dx: -gap, dy: -gap).intersection(rect)
-      return !shared.isNull && shared.width > 0 && shared.height > 0
+      return shared.isNull ? sum : sum + shared.width * shared.height
     }
   }
 
-  /// The places a plate may take, in order: its own side of its mark, the other side, just above
-  /// everything under it, just below everything under it.
-  private static func candidates(
-    _ item: Item, obstacles: [CGRect], offset: CGFloat, gap: CGFloat, in frame: CGRect
-  ) -> [CGRect] {
-    let own = item.side == .above ? item.anchor.y - offset - item.size.height : item.anchor.y + offset
-    let other = item.side == .above ? item.anchor.y + offset : item.anchor.y - offset - item.size.height
-    var tops = [own, other]
-    let left = min(max(item.anchor.x - item.size.width / 2, frame.minX), frame.maxX - item.size.width)
-    let under = obstacles.filter { $0.maxX > left && $0.minX < left + item.size.width }
-    if let highest = under.map(\.minY).min(), let lowest = under.map(\.maxY).max() {
-      tops += [highest - gap - item.size.height, lowest + gap]
+  /// The places near a mark, nearest first: its own side then the other at each distance, then
+  /// beside it at its price (right, then left). A place that would leave `frame` across the price
+  /// is dropped; along the time axis a plate slides inside.
+  private static func candidates(_ item: Item, offset: CGFloat, in frame: CGRect) -> [CGRect] {
+    let size = item.size
+    let step = size.height / 2
+    let steps = Int((reach * size.height / step).rounded())
+    let above = { (distance: CGFloat) in item.anchor.y - offset - distance - size.height }
+    let below = { (distance: CGFloat) in item.anchor.y + offset + distance }
+    var tops: [CGFloat] = []
+    for index in 0...steps {
+      let distance = CGFloat(index) * step
+      tops += item.side == .above ? [above(distance), below(distance)] : [below(distance), above(distance)]
     }
-    return tops.map { top in
-      CGRect(
-        x: left, y: min(max(top, frame.minY), frame.maxY - item.size.height),
-        width: item.size.width, height: item.size.height)
+    let left = min(max(item.anchor.x - size.width / 2, frame.minX), frame.maxX - size.width)
+    let stacked = tops.map { CGRect(x: left, y: $0, width: size.width, height: size.height) }
+    let level = item.anchor.y - size.height / 2
+    let beside = [item.anchor.x + offset, item.anchor.x - offset - size.width].map {
+      CGRect(x: $0, y: level, width: size.width, height: size.height)
     }
+    return (stacked + beside).filter { frame.contains($0) }
   }
 }
