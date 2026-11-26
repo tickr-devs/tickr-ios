@@ -54,6 +54,9 @@ public struct EntrySizing: Equatable, Sendable {
     public let used: Double
     /// Whether this limit set the size.
     public let binds: Bool
+    /// The Risk screens' words for the limit, without a formula (mockup IOSRisk): "Planned loss
+    /// $50.00 · stop $0.0120 away", "Position size cap $2,500.00", "Room left $292.00".
+    public let plain: String
   }
 
   /// What the caption under the limits says.
@@ -68,8 +71,6 @@ public struct EntrySizing: Equatable, Sendable {
 
   /// The block's title.
   public static var title: String { String(localized: L10n.sizingTitle) }
-  /// The badge beside `meta`.
-  public static var badge: String { String(localized: L10n.sizingBadge) }
 
   /// Price of the example stock shown when nothing was sized today, in USD (mockup v115).
   public static let examplePrice: Decimal = 10
@@ -86,6 +87,13 @@ public struct EntrySizing: Equatable, Sendable {
   /// "Size set by: notional cap $2,500.00"; nil when there is nothing to say.
   public let caption: String?
   public let tone: Tone
+  /// The Risk screens' headline of a real entry: "3,521 shares"; nil for a day with no entry.
+  public let shares: String?
+  /// Where and when a real entry was sized, on the Risk screens: "IQ at $0.7100 · 10:31 ET".
+  public let place: String?
+  /// The Risk screens' caption of a real entry: "Set by the planned loss", "Limited by: position
+  /// size cap", or the bot's cause when the record does not say; nil when there is nothing to say.
+  public let limitedBy: String?
 
   /// The block for the latest sized decision, or, when there is none, for the example stock
   /// sized with `configured` (just the line when the limits are not known either).
@@ -97,13 +105,19 @@ public struct EntrySizing: Equatable, Sendable {
     }
   }
 
-  private init(meta: String?, line: String, lead: String?, limits: [Limit], caption: String?, tone: Tone) {
+  private init(
+    meta: String?, line: String, lead: String?, limits: [Limit], caption: String?, tone: Tone,
+    shares: String? = nil, place: String? = nil, limitedBy: String? = nil
+  ) {
     self.meta = meta
     self.line = line
     self.lead = lead
     self.limits = limits
     self.caption = caption
     self.tone = tone
+    self.shares = shares
+    self.place = place
+    self.limitedBy = limitedBy
   }
 
   private static func entry(_ size: LatestSizeV1, text: SizeText) -> EntrySizing {
@@ -127,8 +141,23 @@ public struct EntrySizing: Equatable, Sendable {
     } else {
       caption = size.bindingCauseText
     }
+    let time = ClockText.minutes(size.at.date)
+    let place = size.price.map { String(localized: L10n.sizingPlace(size.symbol, text.price($0.value), time)) }
+      ?? String(localized: L10n.sizingPlaceNoPrice(size.symbol, time))
     return EntrySizing(meta: meta, line: line, lead: limits.isEmpty ? nil : String(localized: L10n.sizingLead),
-      limits: limits, caption: caption, tone: size.binding == nil ? .unproven : .bound)
+      limits: limits, caption: caption, tone: size.binding == nil ? .unproven : .bound,
+      shares: String(localized: L10n.sizingSharesLine(shares)), place: place,
+      limitedBy: size.binding.map(limitedByText) ?? size.bindingCauseText)
+  }
+
+  /// "Set by the planned loss" when the planned loss sized the entry; else the limit that held
+  /// it down: "Limited by: position size cap".
+  private static func limitedByText(_ kind: SizeBinding) -> String {
+    switch kind {
+    case .plannedLoss: String(localized: L10n.sizingSetByPlannedLoss)
+    case .notionalCap: String(localized: L10n.sizingLimitedBy(String(localized: L10n.sizingPlainNameNotionalCap)))
+    case .dailyRoom: String(localized: L10n.sizingLimitedBy(String(localized: L10n.sizingPlainNameDailyRoom)))
+    }
   }
 
   /// The example stock sized with the configured limits, the way the strategies size: each limit
@@ -187,10 +216,15 @@ public struct EntrySizing: Equatable, Sendable {
     case .notionalCap: L10n.sizingRowNotionalCap(text.usd(usd), text.price(perShare))
     case .dailyRoom: L10n.sizingRowDailyRoom(text.usd(usd), text.price(perShare))
     }
+    let plain: LocalizedStringResource = switch kind {
+    case .plannedLoss: L10n.sizingPlainPlannedLoss(text.usd(usd), text.price(perShare))
+    case .notionalCap: L10n.sizingPlainNotionalCap(text.usd(usd))
+    case .dailyRoom: L10n.sizingPlainDailyRoom(text.usd(usd))
+    }
     // A limit allowing nothing is full when it set the size, empty otherwise.
     let used = shares > 0 ? NSDecimalNumber(decimal: max(size, 0) / shares).doubleValue : (binds ? 1 : 0)
     return Limit(id: kind, label: String(localized: label), allows: String(localized: L10n.sizingShares(text.shares(shares))),
-      used: min(max(used, 0), 1), binds: binds)
+      used: min(max(used, 0), 1), binds: binds, plain: String(localized: plain))
   }
 
   /// A limit's name inside a sentence ("notional cap").

@@ -25,7 +25,7 @@ final class TickrUITests: XCTestCase {
   /// English texts from the catalog: the confirmation's cancel button and the account badge for a
   /// broker read that matches the bot's records (account-response-v1.json).
   static let cancel = "Cancel"
-  static let matches = "MATCHES"
+  static let matches = "All match"
   /// The Overview header's one environment badge for the fixtures' environment (sandbox in
   /// status-response-v1.json), as its English text reads (environmentLabel, upper-cased as every
   /// badge is).
@@ -259,6 +259,10 @@ final class TickrUITests: XCTestCase {
     waitUntilStill(symbol, "trade row", in: app)
     symbol.click()
     let detail = app.descendants(matching: .any)[Self.tradeDetail].firstMatch
+    // The stop's timing is under the card's "Details" line, closed until clicked.
+    let details = detail.disclosureTriangles.firstMatch
+    XCTAssertTrue(details.waitForExistence(timeout: Self.timeout), "details line\n\(app.debugDescription)")
+    details.click()
     XCTAssertTrue(detail.staticTexts[Self.stopConfirmedAfter].waitForExistence(timeout: Self.timeout),
       "trade detail\n\(app.debugDescription)")
   }

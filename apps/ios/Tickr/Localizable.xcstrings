@@ -7940,13 +7940,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Account · broker"
+            "value" : "Account"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuenta · bróker"
+            "value" : "Cuenta"
           }
         }
       }
@@ -8059,13 +8059,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buying power · day"
+            "value" : "Buying power"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poder de compra · día"
+            "value" : "Poder de compra"
           }
         }
       }
@@ -8093,13 +8093,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Day P&L · broker"
+            "value" : "Day P&L"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "G/P del día · bróker"
+            "value" : "G/P del día"
+          }
+        }
+      }
+    },
+    "risk.dayTradesLeft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day trades left"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operaciones intradía restantes"
           }
         }
       }
@@ -8325,19 +8342,36 @@
         }
       }
     },
-    "risk.marginLine" : {
+    "risk.maintenance" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "day trades left %1$@ · margin calls %2$@ · maintenance %3$@ · balance at %4$@ ET"
+            "value" : "Maintenance"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "operaciones intradía restantes %1$@ · llamadas de margen %2$@ · mantenimiento %3$@ · saldo a las %4$@ ET"
+            "value" : "Mantenimiento"
+          }
+        }
+      }
+    },
+    "risk.marginCalls" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Margin calls"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Llamadas de margen"
           }
         }
       }
@@ -8355,6 +8389,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sin entradas por debajo del margen"
+          }
+        }
+      }
+    },
+    "risk.moreBalances" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More balances"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más saldos"
           }
         }
       }
@@ -8580,19 +8631,36 @@
         }
       }
     },
+    "risk.readAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "at %@ ET"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "a las %@ ET"
+          }
+        }
+      }
+    },
     "risk.room" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Risk room today"
+            "value" : "Room left today"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Margen de riesgo hoy"
+            "value" : "Margen de riesgo de hoy"
           }
         }
       }
