@@ -2,11 +2,12 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Sidebar sections, ordered by how often they are used during a trading day.
-enum AppSection: String, CaseIterable, Identifiable {
+/// Sidebar sections, ordered by how often they are used during a trading day. Public for the iOS
+/// app, which keeps the shown section across its two layouts (`RegularScreens(section:)`).
+public enum AppSection: String, CaseIterable, Identifiable, Sendable {
   case overview, chart, trades, risk, lab
 
-  var id: String { rawValue }
+  public var id: String { rawValue }
 
   var title: LocalizedStringResource {
     switch self {

@@ -25,6 +25,9 @@ struct AdaptiveRoot: View {
   @Environment(\.horizontalSizeClass) private var width
   @Environment(\.scenePhase) private var scenePhase
   @State private var showsSettings = false
+  /// The Mac screens' section, kept while the iPhone screens show so that a round trip (fold and
+  /// unfold) returns to it, unless a tab was picked meanwhile.
+  @State private var section: AppSection = .overview
 
   private var layout: ScreenLayout {
     ScreenLayout.pick(idiom: UIDevice.current.userInterfaceIdiom, width: width, configured: model.connection.url != nil)
@@ -40,7 +43,7 @@ struct AdaptiveRoot: View {
       case .regular:
         if let url = model.connection.url {
           RegularScreens(
-            endpoint: model.connection.endpoint(for: url), active: active,
+            endpoint: model.connection.endpoint(for: url), section: $section, active: active,
             ownerCheck: { command, title in await Self.confirmOwner(command, title: title) },
             settings: { showsSettings = true })
           .sheet(isPresented: $showsSettings) {
@@ -70,6 +73,16 @@ struct AdaptiveRoot: View {
     }
     // The iPhone screens' model reads the bot only while they are shown and the app is in front
     // (`RegularScreens` does the same for its own).
+    // One screen across the two layouts: folding or unfolding a Duo, or resizing an iPad window,
+    // keeps the section shown.
+    .onChange(of: layout, initial: true) { _, new in
+      switch new {
+      case .regular:
+        if AppTab(section) != model.selectedTab { section = AppSection(model.selectedTab) }
+      case .compact:
+        if AppSection(model.selectedTab) != section { model.selectedTab = AppTab(section) }
+      }
+    }
     .onChange(of: active && layout == .compact, initial: true) { _, on in
       if on { model.start() } else { model.stop() }
     }
@@ -80,5 +93,29 @@ struct AdaptiveRoot: View {
   static func confirmOwner(_ command: OperatorCommand?, title: String) async -> Bool {
     if let command, !BotControl.needsOwner(command) { return true }
     return await Biometrics.confirm(String(localized: L10n.Control.reason(title))) == .confirmed
+  }
+}
+
+/// The Mac screens' section for an iPhone tab: positions live on the Overview.
+extension AppSection {
+  init(_ tab: AppTab) {
+    switch tab {
+    case .home, .positions: self = .overview
+    case .chart: self = .chart
+    case .activity: self = .trades
+    case .lab: self = .lab
+    }
+  }
+}
+
+/// The iPhone tab for a Mac screens' section: risk and account live on Home.
+extension AppTab {
+  init(_ section: AppSection) {
+    switch section {
+    case .overview, .risk: self = .home
+    case .chart: self = .chart
+    case .trades: self = .activity
+    case .lab: self = .lab
+    }
   }
 }
