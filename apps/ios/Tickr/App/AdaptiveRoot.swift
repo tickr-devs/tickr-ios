@@ -28,6 +28,8 @@ struct AdaptiveRoot: View {
   /// The Mac screens' section, kept while the iPhone screens show so that a round trip (fold and
   /// unfold) returns to it, unless a tab was picked meanwhile.
   @State private var section: AppSection = .overview
+  /// The Mac screens' chart symbol; the iPhone screens keep theirs in the model.
+  @AppStorage(RegularScreens.chartSymbolKey) private var regularSymbol = ""
 
   private var layout: ScreenLayout {
     ScreenLayout.pick(idiom: UIDevice.current.userInterfaceIdiom, width: width, configured: model.connection.url != nil)
@@ -74,13 +76,15 @@ struct AdaptiveRoot: View {
     // The iPhone screens' model reads the bot only while they are shown and the app is in front
     // (`RegularScreens` does the same for its own).
     // One screen across the two layouts: folding or unfolding a Duo, or resizing an iPad window,
-    // keeps the section shown.
+    // keeps the section and the chart's symbol shown.
     .onChange(of: layout, initial: true) { _, new in
       switch new {
       case .regular:
         if AppTab(section) != model.selectedTab { section = AppSection(model.selectedTab) }
+        if let symbol = model.selectedSymbol { regularSymbol = symbol }
       case .compact:
         if AppSection(model.selectedTab) != section { model.selectedTab = AppTab(section) }
+        if !regularSymbol.isEmpty { model.selectedSymbol = regularSymbol }
       }
     }
     .onChange(of: active && layout == .compact, initial: true) { _, on in

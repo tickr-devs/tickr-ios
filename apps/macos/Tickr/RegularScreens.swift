@@ -28,6 +28,9 @@ public struct RegularScreens: View {
   /// The shown section, kept by the app across its layouts: folding a Duo or narrowing an iPad
   /// window and back shows the same screen.
   @Binding var section: AppSection
+  /// Settings key of the Chart screen's symbol, for the iOS app to carry the shown symbol between
+  /// its layouts.
+  public static let chartSymbolKey = ChartView.Keys.symbol
   /// The Dynamic Type size nearest to the Mac's fixed type sizes (callout 13 against the Mac's 12,
   /// body 14 against 13), the one the Mac screens are drawn at on the iPad.
   static let macLikeTypeSize = DynamicTypeSize.xSmall
