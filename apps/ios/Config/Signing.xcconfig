@@ -1,8 +1,11 @@
-// Build settings that differ per machine or per destination. The personal ones (team id, this
-// Mac's Tailscale name) live in the git-ignored Config/Local.xcconfig next to this file, never in
-// the committed project. To run on your iPhone: copy Local.xcconfig.example to Local.xcconfig and
-// fill it in. Do not pick the team in Xcode's Signing & Capabilities, which writes it into the
-// project.
+// Build settings that differ per machine or per destination. The bundle id prefix and the signing
+// team come from apps/Config/Identity.xcconfig (shared with the Mac app); this Mac's Tailscale
+// name and the Simulator token file live in the git-ignored Config/Local.xcconfig next to this
+// file, never in the committed project. To run on your iPhone: copy Local.xcconfig.example to
+// Local.xcconfig and fill it in. Do not pick the team in Xcode's Signing & Capabilities, which
+// writes it into the project.
+
+#include "../../Config/Identity.xcconfig"
 
 // Where the app reads the bot's API until a pairing link says otherwise (Info.plist, read by
 // Connection.load), per destination:

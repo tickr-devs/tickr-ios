@@ -243,6 +243,10 @@ enum L10n {
     static var stopBot: LocalizedStringResource {
       LocalizedStringResource("control.stopBot", defaultValue: "Stop bot", bundle: L10n.bundle)
     }
+    /// Closes the bot-control sheet while a close-and-stop goes on in the bot.
+    static var done: LocalizedStringResource {
+      LocalizedStringResource("control.done", defaultValue: "Done", bundle: L10n.bundle)
+    }
     /// The pill on every command while commands go to the demo day.
     static var demoTag: LocalizedStringResource {
       LocalizedStringResource("control.demoTag", defaultValue: "Demo", bundle: L10n.bundle)

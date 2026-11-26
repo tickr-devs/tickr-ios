@@ -171,57 +171,6 @@
         }
       }
     },
-    "bot.cancelExplanation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancels the bot's own working entry orders. Protective stops are never cancelled."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancela las órdenes de entrada activas del propio bot. Los stops de protección nunca se cancelan."
-          }
-        }
-      }
-    },
-    "bot.cancelOrders" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel orders"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancelar órdenes"
-          }
-        }
-      }
-    },
-    "bot.cancelQuestion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel the bot's working entry orders?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Cancelar las órdenes de entrada activas del bot?"
-          }
-        }
-      }
-    },
     "bot.checksCount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -307,6 +256,23 @@
         }
       }
     },
+    "bot.closeAllExplanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot pauses entries, cancels its working entry orders and closes every position at market, so it does not enter again. Resume entries when you are ready."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot pausa las entradas, cancela sus órdenes de entrada pendientes y cierra cada posición a mercado, así que no vuelve a entrar. Reanuda las entradas cuando quieras."
+          }
+        }
+      }
+    },
     "bot.closeSymbol" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -375,74 +341,6 @@
         }
       }
     },
-    "bot.emergency" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Emergency stop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parada de emergencia"
-          }
-        }
-      }
-    },
-    "bot.emergencyDetail" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "pauses entries · cancels entry orders · sells all"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "pausa las entradas · cancela las órdenes de entrada · vende todo"
-          }
-        }
-      }
-    },
-    "bot.emergencyExplanation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Three steps in order: pause new entries, cancel the bot's working entry orders, close every own position. Each broker stop stays until its closing sale is sent. The bot keeps running."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tres pasos en orden: pausar nuevas entradas, cancelar las órdenes de entrada activas del bot y cerrar cada posición propia. Cada stop del bróker se queda hasta que se envía su venta de cierre. El bot sigue en marcha."
-          }
-        }
-      }
-    },
-    "bot.emergencyQuestion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Run the emergency stop?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Ejecutar la parada de emergencia?"
-          }
-        }
-      }
-    },
     "bot.flatten" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -473,23 +371,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cerrar todo"
-          }
-        }
-      }
-    },
-    "bot.flattenAllExplanation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every own position closes through the normal exit. Positions the bot did not open are not touched."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cada posición propia se cierra mediante la salida normal. No se tocan las posiciones que el bot no abrió."
           }
         }
       }
@@ -541,74 +422,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Cerrar la posición de %@?"
-          }
-        }
-      }
-    },
-    "bot.holdAccessibility" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hold for %@ s to open the confirmation. The VoiceOver action opens it at once."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantén pulsado %@ s para abrir la confirmación. La acción de VoiceOver la abre de inmediato."
-          }
-        }
-      }
-    },
-    "bot.holding" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "keep holding…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "sigue pulsando…"
-          }
-        }
-      }
-    },
-    "bot.holdPrompt" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hold %@ s"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mantén %@ s"
-          }
-        }
-      }
-    },
-    "bot.lastResort" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last resort"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Último recurso"
           }
         }
       }
@@ -779,47 +592,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Pausar nuevas entradas?"
-          }
-        }
-      }
-    },
-    "bot.positionCount" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld position"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld positions"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld posición"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld posiciones"
-                }
-              }
-            }
           }
         }
       }
@@ -6614,6 +6386,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "estrategia"
+          }
+        }
+      }
+    },
+    "menuBar.moreInApp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To close positions or stop the bot, open Tickr."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para cerrar posiciones o detener el bot, abre Tickr."
           }
         }
       }

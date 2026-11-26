@@ -10,6 +10,12 @@ enum AccessibilityID {
   static let risk = "home.risk"
   /// Cancel button of the bot-control sheet.
   static let botControlCancel = "botControl.cancel"
+  /// Stop bot in the bot-control sheet while positions are open, and the two answers it offers.
+  static let botControlStop = "botControl.stop"
+  static let stopCloseAndStop = "botControl.closeAndStop"
+  static let stopLeaveOpen = "botControl.leaveOpen"
+  /// The command notice floating at the top of the screen.
+  static let notice = "notice"
   /// Activity toolbar button that shows or hides the calendar.
   static let calendar = "activity.calendar"
   /// Activity's unavailable state of a picked past day whose trades could not be read.

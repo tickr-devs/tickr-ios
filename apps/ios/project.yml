@@ -4,7 +4,6 @@
 # needs no project change.
 name: Tickr
 options:
-  bundleIdPrefix: local.tickr
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
@@ -76,20 +75,20 @@ targets:
         TickrSimulatorTokenFile: $(TICKR_SIMULATOR_FILE)
         # tickr://pair?... links from `python -m tickr.api pair` open the app to pair.
         CFBundleURLTypes:
-          - CFBundleURLName: local.tickr.pair
+          - CFBundleURLName: $(PRODUCT_BUNDLE_IDENTIFIER).pair
             CFBundleURLSchemes: [tickr]
         # Plain HTTP is allowed only to local addresses (the Simulator reaches the Mac's API on
         # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
-    # The team id and the API address come from Config/Signing.xcconfig and the git-ignored
-    # Config/Local.xcconfig.
+    # The bundle id prefix, the team id and the API address come from Config/Signing.xcconfig
+    # (which includes apps/Config/Identity.xcconfig) and the git-ignored Config/Local.xcconfig.
     configFiles:
       Debug: Config/Signing.xcconfig
       Release: Config/Signing.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: local.tickr.ios
+        PRODUCT_BUNDLE_IDENTIFIER: $(TICKR_BUNDLE_ID_PREFIX).ios
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
@@ -103,9 +102,13 @@ targets:
       - path: Tests/TickrTests
     dependencies:
       - target: Tickr
+    # The bundle id prefix (apps/Config/Identity.xcconfig, through Config/Signing.xcconfig).
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: local.tickr.ios.tests
+        PRODUCT_BUNDLE_IDENTIFIER: $(TICKR_BUNDLE_ID_PREFIX).ios.tests
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         GENERATE_INFOPLIST_FILE: YES
@@ -117,9 +120,13 @@ targets:
       - path: Tests/TickrUITests
     dependencies:
       - target: Tickr
+    # The bundle id prefix (apps/Config/Identity.xcconfig, through Config/Signing.xcconfig).
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: local.tickr.ios.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: $(TICKR_BUNDLE_ID_PREFIX).ios.uitests
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         GENERATE_INFOPLIST_FILE: YES

@@ -381,9 +381,9 @@ extension L10n {
       // swiftlint:disable:next line_length
       defaultValue: "{count} trade(s) open or entering: close them first (or send the emergency command), then stop the bot", bundle: bundle)
   }
-  /// A cause the API writes itself (`<field>_codes`). no_open_position (values: symbol)
-  static var proseReasonNoOpenPosition: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_open_position",
-      defaultValue: "No open position in {symbol}", bundle: bundle)
+  /// A cause the API writes itself (`<field>_codes`). stop_already_running
+  static var proseReasonStopAlreadyRunning: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_already_running",
+      defaultValue: "A close-and-stop is already running", bundle: bundle)
   }
 }
