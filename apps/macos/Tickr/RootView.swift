@@ -49,7 +49,7 @@ struct RootView: View {
   /// 212-point column of rows, 12 points of padding on each side and its hairline.
   static let sidebarMin: CGFloat = 200
   static let sidebarIdeal: CGFloat = 237
-  static let sidebarMax: CGFloat = 260
+  nonisolated static let sidebarMax: CGFloat = 260
   /// Width of the sidebar as an icon rail in a narrow window (`WindowWidthFit.rail`), in points
   /// (MainNarrow v110, 640-point board: `width:56px`).
   static let railWidth: CGFloat = 56

@@ -419,8 +419,8 @@ struct CandleChart: View {
       case .stochastic: Text(L10n.Chart.stochastic)
       case .atr:
         if let value = plot.atr.last(where: { $0 != nil }) ?? nil {
-          Text(L10n.Chart.atr(Indicators.atrPeriod)) + Text(verbatim: Format.itemSeparator)
-            + Text(verbatim: Money.value(value)).foregroundStyle(Palette.seriesATRText)
+          Text.joined(Text(L10n.Chart.atr(Indicators.atrPeriod)), Text(verbatim: Format.itemSeparator),
+            Text(verbatim: Money.value(value)).foregroundStyle(Palette.seriesATRText))
         } else {
           Text(L10n.Chart.atr(Indicators.atrPeriod))
         }

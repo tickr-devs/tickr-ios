@@ -988,8 +988,8 @@ private struct NotTakenCard: View {
             .foregroundStyle(Palette.result(summary.resultUsd))
         }
         // How the total was worked out, and how many it counts, on hover.
-        .help(Text(L10n.Trades.whatIfHelp) + Text(verbatim: Format.itemSeparator)
-          + Text(L10n.Trades.whatIfCounts(summary.wins, summary.losses, summary.notReplayed)))
+        .help(Text.joined(Text(L10n.Trades.whatIfHelp), Text(verbatim: Format.itemSeparator),
+          Text(L10n.Trades.whatIfCounts(summary.wins, summary.losses, summary.notReplayed))))
       }
     }, content: {
       if let signals = model.skipped?.signals, !signals.isEmpty {
