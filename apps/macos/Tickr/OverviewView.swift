@@ -131,7 +131,7 @@ struct OverviewView: View {
             DayResult().rise(step: Order.result.rawValue)
             LiveFlowCard().rise(step: Order.flow.rawValue)
             WatchingCard().filling().rise(step: Order.watching.rawValue)
-            PositionsCard().filling().rise(step: Order.positions.rawValue)
+            PositionsCard().filling().rise(step: Order.positions.rawValue).id(PositionsCard.id)
             SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
               // Also when a card above it changes height while the page's height stays the same
               // (the bottom row fills the rest), which moves it without a content-size change.
@@ -167,11 +167,16 @@ struct OverviewView: View {
     .jumps(on: model.shownDay)
   }
 
-  /// UI tests (`LayoutSweep.safetyFirst`): the Safety · bot card at the top of the screen, kept
-  /// there while the cards above it load, so a test clicks its commands without a scroll.
+  /// UI tests (`LayoutSweep.safetyFirst`, `LayoutSweep.positionsFirst`): the Safety · bot card
+  /// or the Positions card at the top of the screen, kept there while the cards above it load, so
+  /// a test clicks its commands without a scroll.
   private func showSafetyFirstIfAsked(_ proxy: ScrollViewProxy) {
     #if DEBUG
-    if LayoutSweep.safetyFirst { proxy.scrollTo(SafetyCard.id, anchor: .top) }
+    if LayoutSweep.positionsFirst {
+      proxy.scrollTo(PositionsCard.id, anchor: .top)
+    } else if LayoutSweep.safetyFirst {
+      proxy.scrollTo(SafetyCard.id, anchor: .top)
+    }
     #endif
   }
 }
@@ -862,7 +867,7 @@ private struct PositionsCard: View {
         // A tab never wraps or cuts its words (owner report 2026-11-18: five positions stacked
         // "+$17.42" one character per line): when the results do not fit, the tabs show the
         // symbols alone, tinted by their result; when even those do not, they scroll sideways.
-        if rows.count > 1 {
+        if rows.count > 1 && model.stoppedPositions == nil {
           ViewThatFits(in: .horizontal) {
             tabs(rows, shown: shown, results: true)
             tabs(rows, shown: shown, results: false)
@@ -870,6 +875,9 @@ private struct PositionsCard: View {
               .withoutScrollIndicators()
           }
         }
+        // Close all beside the tabs (mockup Main): it pauses entries, cancels the working entry
+        // orders and closes every position; shown only while one is open.
+        CloseAllButton()
         HeaderLink(L10n.Position.openChart, systemImage: AppSection.chartSymbol) {
           if let shown { chartSymbol = shown.position.symbol }
           model.section = .chart
@@ -878,7 +886,11 @@ private struct PositionsCard: View {
         .disabled(rows.isEmpty)
       }
     } content: {
-      if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
+      if model.isLive, let stopped = model.stoppedPositions {
+        // Bot stopped with positions open (boards Main, MainNarrow): the stopped bot's last
+        // knowledge of them, in place of the live position view, with Start bot.
+        StoppedPositionsPanel(stopped) { OverviewStartButton() }
+      } else if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
         PositionDetail(row: row)
           .id(row.id)
           .transition(.opacity.combined(with: .scale(scale: PositionsCard.switchScale)))
@@ -887,7 +899,12 @@ private struct PositionsCard: View {
       }
     }
     .animation(Tokens.Motion.standard, value: selected)
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier(Self.id)
   }
+
+  /// Accessibility id of the card, for the UI tests.
+  static let id = "overview-positions"
 
   /// Scale a position's detail starts from when the selection changes.
   static let switchScale = 0.98
@@ -946,8 +963,7 @@ private struct PositionTab: View {
 
 /// The selected position (mockup Main): its price line beside the symbol, the open result in
 /// large, the stop with the broker's confirmation, the size, the price now with its R, the most
-/// it can lose, and "Close ABCD", the Bot card's close command for this position with the same
-/// confirmation.
+/// it can lose, and "Close ABCD", the close command for this position, which asks first.
 private struct PositionDetail: View {
   let row: PositionRow
 
@@ -955,8 +971,7 @@ private struct PositionDetail: View {
   static let chartMinWidth: CGFloat = 160
   static let chartMinHeight: CGFloat = 210
   static let figuresWidth: CGFloat = 200
-  /// Accessibility id prefix of the position's close button: the Bot card keeps the action's own
-  /// id (`BotAction.flattenPrefix`) for its button of the same command.
+  /// Accessibility id prefix of the position's close button.
   static let closePrefix = "position-close-"
 
   var body: some View {
@@ -1227,24 +1242,11 @@ private struct SafetyCard: View {
   static let id = "overview-safety"
 
   var body: some View {
-    // One card as in the design (mockup Main): "Bot" with the bot's state and Stop bot, one status
-    // line that opens every safety check, then the commands, always in reach.
+    // One card as in the design (mockup Main): "Bot" with the bot's state, one status line that
+    // opens every safety check, then Pause entries and Stop bot, always in reach.
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      // Stop bot beside the bot's state; under the header when the card is too narrow for both.
-      // The state is a few words, always on one line: a pill that may wrap was squeezed by the
-      // header's spacer to one letter per line instead of the button moving down.
-      ViewThatFits(in: .horizontal) {
-        SectionHeader(L10n.Common.bot) {
-          HStack(spacing: Tokens.Space.s) {
-            BotPill().fixedSize()
-            BotStopButton()
-          }
-        }
-        VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          SectionHeader(L10n.Common.bot) { BotPill().fixedSize() }
-          BotStopButton()
-        }
-      }
+      // The state is a few words, always on one line.
+      SectionHeader(L10n.Common.bot) { BotPill().fixedSize() }
       BotStatusLine()
       Spacer(minLength: 0)
       BotSection()
@@ -1265,8 +1267,17 @@ private struct BotSection: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // While the link is down the controls are off and quiet grey, and the connection banner
       // says "commands off": no red line repeats it here (owner, 2026-11-18).
-      BotControls()
-        .grayscale(linkDown ? 1 : 0)
+      // A close-and-stop shows its steps in place of the buttons (boards Main, MainNarrow),
+      // driven only by the bot's status; a refusal brings the buttons back with its cause.
+      if model.isLive, let rows = model.stopSteps {
+        StopStepsSection(rows: rows)
+      } else {
+        BotControls()
+          .grayscale(linkDown ? 1 : 0)
+      }
+      if model.isLive, let refusal = model.stopRefusal {
+        Footnote(verbatim: refusal, color: Palette.lossText)
+      }
       if !model.isLive {
         Footnote(L10n.Safety.offWhileRecorded)
       } else if model.response?.stale == true && !linkDown {

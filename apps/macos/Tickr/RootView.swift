@@ -49,7 +49,7 @@ struct RootView: View {
   /// 212-point column of rows, 12 points of padding on each side and its hairline.
   static let sidebarMin: CGFloat = 200
   static let sidebarIdeal: CGFloat = 237
-  static let sidebarMax: CGFloat = 260
+  nonisolated static let sidebarMax: CGFloat = 260
   /// Width of the sidebar as an icon rail in a narrow window (`WindowWidthFit.rail`), in points
   /// (MainNarrow v110, 640-point board: `width:56px`).
   static let railWidth: CGFloat = 56
@@ -160,7 +160,8 @@ struct RootView: View {
           .modifier(ScreenRoomFrame(least: screenLeast))
           .lastKnown(model.connectionState.isLastKnown)
       }
-      if let unattended = model.unattendedPositions {
+      // On Overview a stopped bot's positions have their own panel (StoppedPositionsPanel).
+      if let unattended = model.unattendedPositions, unattended.reason == .silent || model.section != .overview {
         UnattendedBanner(unattended: unattended)
           .padding(Tokens.Space.l)
           .frame(maxHeight: .infinity, alignment: .top)

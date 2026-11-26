@@ -98,6 +98,9 @@ final class AppModel {
   private(set) var sending = false
   /// The command being sent, while it is: its button shows the spinner (`.inFlight`).
   private(set) var inFlight: OperatorCommand?
+  /// The close-and-stop the bot reports, followed across reads for its steps' times and its
+  /// refusal (`StopWatch`, the bot-control sheet's steps).
+  private(set) var stopWatch = StopWatch()
   var notice: Notice?
   var selectedTab: AppTab = .home
   /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
@@ -304,6 +307,7 @@ final class AppModel {
       fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
       guard asked == link else { return false }
       response = fresh
+      stopWatch.read(fresh.status)
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
@@ -569,6 +573,8 @@ final class AppModel {
     let asked = link
     sending = true
     inFlight = command
+    // A new command: an earlier close-and-stop's refusal is no longer the news.
+    stopWatch.forget()
     defer {
       sending = false
       inFlight = nil
@@ -668,6 +674,7 @@ final class AppModel {
     }
     botStarting = true
     defer { botStarting = false }
+    stopWatch.forget()
     switch await confirmOwner() {
     case .confirmed: break
     case .declined: return

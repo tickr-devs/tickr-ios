@@ -51,6 +51,11 @@ extension L10n {
     LocalizedStringResource("kit.prose.no_open_position",
       defaultValue: "No open position in {symbol}", bundle: bundle)
   }
+  /// A cause the API writes itself (`<field>_codes`). no_working_entry (values: symbol)
+  static var proseReasonNoWorkingEntry: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_working_entry",
+      defaultValue: "No entry order working in {symbol}", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). close_refused_before
   static var proseReasonCloseRefusedBefore: LocalizedStringResource {
     LocalizedStringResource("kit.prose.close_refused_before",

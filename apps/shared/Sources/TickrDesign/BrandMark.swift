@@ -39,7 +39,7 @@ public struct BrandMark: View {
   /// The level on the 24-unit grid: x from 12 to 19.5, y from 9 to 12 (LEVEL in the script).
   public static let level = CGRect(x: 12, y: 9, width: 7.5, height: 3)
   /// Units of the grid.
-  static let gridUnits = 24.0
+  nonisolated static let gridUnits = 24.0
   /// The tile's corner radius and hairline edge, as shares of its side.
   static let tileRadius = 0.3
   static let tileEdge = 0.025

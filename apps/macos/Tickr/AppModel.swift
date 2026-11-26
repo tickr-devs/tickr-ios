@@ -283,6 +283,9 @@ public final class AppModel {
   /// Held here, not in the view that asked: SwiftUI drops a view's own state whenever it rebuilds
   /// the view (Overview's cards change columns at a width breakpoint), and the question went with it.
   private(set) var confirming: PendingConfirmation?
+  /// The close-and-stop the bot reports, followed across reads for its steps' times and its
+  /// refusal (`StopWatch`, the Bot card's steps).
+  private(set) var stopWatch = StopWatch()
 
   private var tasks: [Task<Void, Never>] = []
   /// Counts connections (`reconnect`): an answer is applied only while the connection it was
@@ -601,6 +604,7 @@ public final class AppModel {
       current = !fresh.stale && fresh.status != nil
       let dayBefore = today
       response = fresh
+      stopWatch.read(fresh.status)
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
@@ -1110,6 +1114,7 @@ public final class AppModel {
   /// Asks the API to start the bot job through launchd (POST /commands/start-bot), once.
   public func startBot() async {
     guard canStartBot else { return }
+    stopWatch.forget()
     botStarting = true
     defer { botStarting = false }
     let asked = link
@@ -1129,8 +1134,12 @@ public final class AppModel {
   /// commands are off.
   func press(_ action: BotAction, in place: CommandPlace) {
     guard commandsEnabled else { return }
+    // A new command: an earlier close-and-stop's refusal is no longer the news.
+    stopWatch.forget()
     if action.needsConfirmation {
-      confirming = PendingConfirmation(action: action, place: place)
+      // Stop bot asks by what is open now: a choice with positions, the plain question without.
+      let stop = action == .stopBot ? StopQuestion.asked(positions: status?.positions ?? []) : .confirm
+      confirming = PendingConfirmation(action: action, place: place, stop: stop)
     } else {
       Task { await send(action.command, title: action.title) }
     }
@@ -1140,11 +1149,19 @@ public final class AppModel {
   /// the same step, and its own command (never another) goes to `send`, which checks again that
   /// commands are on. A withdrawn, replaced or already answered question sends nothing, so one
   /// question sends at most once. Returns the send, or nil when nothing is sent.
+  /// A Stop bot asked with positions open is answered with a mode (Close and stop, Leave open)
+  /// and sends it; without one it sends nothing.
   @discardableResult
-  func accept(_ question: PendingConfirmation) -> Task<Void, Never>? {
+  func accept(_ question: PendingConfirmation, mode: StopMode? = nil) -> Task<Void, Never>? {
     guard confirming == question else { return nil }
+    let command: OperatorCommand
+    switch (question.stop, mode) {
+    case (.confirm, _): command = question.action.command
+    case (.choose, let mode?): command = .stopBotMode(mode)
+    case (.choose, nil): return nil
+    }
     confirming = nil
-    return Task { await send(question.action.command, title: question.action.title) }
+    return Task { await send(command, title: question.action.title) }
   }
 
   /// Closes `question` unanswered (Cancel or Escape); a newer question stays.

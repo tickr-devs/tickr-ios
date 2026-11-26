@@ -3593,6 +3593,23 @@
         }
       }
     },
+    "kit.inFlight.closeAndStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closing and stopping"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrando y deteniendo"
+          }
+        }
+      }
+    },
     "kit.inFlight.emergency" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7430,6 +7447,24 @@
         }
       }
     },
+    "kit.prose.no_working_entry" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_working_entry",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entry order working in {symbol}"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguna orden de entrada activa en {symbol}"
+          }
+        }
+      }
+    },
     "kit.prose.not_a_data_day" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). not_a_data_day",
       "extractionState" : "manual",
@@ -9693,6 +9728,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "{open} abiertas, límite {limit}"
+          }
+        }
+      }
+    },
+    "kit.refusal.PRICE_COLLAR_BREACH" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. PRICE_COLLAR_BREACH",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit {limit} is {bar_distance} from the last bar's close {bar_close} (maximum {bar_max}) and {quote_distance} from the previous ask {previous_ask} (maximum {quote_max}); a maximum of 0 is off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El límite {limit} está a {bar_distance} del cierre de la última barra {bar_close} (máximo {bar_max}) y a {quote_distance} del ask anterior {previous_ask} (máximo {quote_max}); un máximo de 0 está desactivado"
           }
         }
       }
@@ -12034,6 +12087,183 @@
         }
       }
     },
+    "kit.stop.chooseBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose what happens to %@."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige qué pasa con %@."
+          }
+        }
+      }
+    },
+    "kit.stop.chooseTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Stop the bot with %lld position open?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Stop the bot with %lld positions open?"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "¿Detener el bot con %lld posición abierta?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "¿Detener el bot con %lld posiciones abiertas?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "kit.stop.closeAndStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close and stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar y detener"
+          }
+        }
+      }
+    },
+    "kit.stop.closeAndStopDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot closes %@ at market, then stops."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot cierra %@ a mercado y luego se detiene."
+          }
+        }
+      }
+    },
+    "kit.stop.closingPositions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closing positions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrando posiciones"
+          }
+        }
+      }
+    },
+    "kit.stop.lastKnown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last known from the broker at %@ ET. On start the bot reads the broker again and takes them back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Último dato leído del bróker a las %@ ET. Al iniciar, el bot vuelve a leer el bróker y retoma la vigilancia."
+          }
+        }
+      }
+    },
+    "kit.stop.lastKnownUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's last status has no broker read time. On start the bot reads the broker again and takes them back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El último estado del bot no tiene hora de lectura del bróker. Al iniciar, el bot vuelve a leer el bróker y retoma la vigilancia."
+          }
+        }
+      }
+    },
+    "kit.stop.leaveOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dejar abiertas"
+          }
+        }
+      }
+    },
+    "kit.stop.leaveOpenDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot stops at once and nothing closes them. Positions stay open. They close only at the broker, by their stop or your own orders. Broker stops are day orders and expire at 4:00 PM ET, so a position can stay overnight without a stop."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot se detiene ya y nada las cierra. Las posiciones siguen abiertas. Solo se cierran en el bróker, por su stop o por tus propias órdenes. Los stops del bróker son órdenes del día y vencen a las 4:00 PM ET, así que una posición puede quedar abierta de noche sin stop."
+          }
+        }
+      }
+    },
     "kit.stop.missing" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12064,6 +12294,217 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "STOP PENDIENTE"
+          }
+        }
+      }
+    },
+    "kit.stop.positionsClosed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Positions closed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posiciones cerradas"
+          }
+        }
+      }
+    },
+    "kit.stop.quantityColumn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantity"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cantidad"
+          }
+        }
+      }
+    },
+    "kit.stop.refused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close and stop refused: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar y detener rechazado: %@"
+          }
+        }
+      }
+    },
+    "kit.stop.shares" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ shares"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ acciones"
+          }
+        }
+      }
+    },
+    "kit.stop.stopColumn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop en el bróker"
+          }
+        }
+      }
+    },
+    "kit.stop.stopped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot stopped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot detenido"
+          }
+        }
+      }
+    },
+    "kit.stop.stoppedAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stopped at %@ ET"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "detenido a las %@ ET"
+          }
+        }
+      }
+    },
+    "kit.stop.stoppedBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot no longer watches these positions. They close only at the broker, by their stop or your own orders. Broker stops are day orders and expire at 4:00 PM ET, so a position can stay overnight without a stop."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot ya no vigila estas posiciones. Solo se cierran en el bróker, por su stop o por tus propias órdenes. Los stops del bróker son órdenes del día y vencen a las 4:00 PM ET, así que una posición puede quedar abierta de noche sin stop."
+          }
+        }
+      }
+    },
+    "kit.stop.stoppedOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot stopped · %lld position open"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot stopped · %lld positions open"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot detenido · %lld posición abierta"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot detenido · %lld posiciones abiertas"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "kit.stop.stopping" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopping bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deteniendo el bot"
+          }
+        }
+      }
+    },
+    "kit.stop.symbolColumn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Símbolo"
           }
         }
       }
