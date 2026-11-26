@@ -228,7 +228,7 @@ enum L10n {
     static var stopWarning: LocalizedStringResource {
       LocalizedStringResource("control.stopWarning",
         // swiftlint:disable:next line_length
-        defaultValue: "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. Start it again from Settings.",
+        defaultValue: "It stays stopped, also tomorrow, until you press Start bot in Settings. Refused while a trade is open or entering: close it first. Face ID confirms.",
         bundle: L10n.bundle)
     }
     static var resume: LocalizedStringResource {
@@ -800,14 +800,47 @@ enum L10n {
   }
 
   enum Activity {
+    /// VoiceOver hint of a closed trade's row: a tap opens its sheet.
+    static var tradeOpenHint: LocalizedStringResource {
+      LocalizedStringResource("activity.tradeOpenHint", defaultValue: "Opens the trade's details", bundle: L10n.bundle)
+    }
+    /// An open position's live price: "now 12.53".
+    static func nowPrice(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.nowPrice", defaultValue: "now \(price)", bundle: L10n.bundle)
+    }
+    /// An open position's last captured price when no live quote: "last 12.53".
+    static func lastPrice(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.lastPrice", defaultValue: "last \(price)", bundle: L10n.bundle)
+    }
+    /// An entry sent more than once: "sent ×2".
+    static func sentTimes(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.sentTimes", defaultValue: "sent ×\(count)", bundle: L10n.bundle)
+    }
+    /// The trade sheet's row of the exit reason.
+    static var tradeExit: LocalizedStringResource {
+      LocalizedStringResource("activity.tradeExit", defaultValue: "Exit", bundle: L10n.bundle)
+    }
+    /// The trade sheet's disclosure of the rest of the record.
+    static var tradeDetails: LocalizedStringResource {
+      LocalizedStringResource("activity.tradeDetails", defaultValue: "Details", bundle: L10n.bundle)
+    }
+    /// A figure the bot did not record for this trade.
+    static var notRecorded: LocalizedStringResource {
+      LocalizedStringResource("activity.notRecorded", defaultValue: "Not recorded", bundle: L10n.bundle)
+    }
+    /// The worst open result, a lower bound (only prices proven while the shares were held).
+    static var worstWhileOpen: LocalizedStringResource {
+      LocalizedStringResource("activity.worstWhileOpen", defaultValue: "Worst while open, at least", bundle: L10n.bundle)
+    }
+    /// The best open result, a lower bound.
+    static var bestWhileOpen: LocalizedStringResource {
+      LocalizedStringResource("activity.bestWhileOpen", defaultValue: "Best while open, at least", bundle: L10n.bundle)
+    }
     static var hintQuantity: LocalizedStringResource {
       LocalizedStringResource("activity.hintQuantity", defaultValue: "Quantity", bundle: L10n.bundle)
     }
     static var hintEntryExit: LocalizedStringResource {
       LocalizedStringResource("activity.hintEntryExit", defaultValue: "Entry → exit", bundle: L10n.bundle)
-    }
-    static var hintResultR: LocalizedStringResource {
-      LocalizedStringResource("activity.hintResultR", defaultValue: "Result in R", bundle: L10n.bundle)
     }
     static var hintStopAfter: LocalizedStringResource {
       LocalizedStringResource("activity.hintStopAfter", defaultValue: "Stop confirmed after the fill", bundle: L10n.bundle)
@@ -815,21 +848,6 @@ enum L10n {
     static var hintCodeVersion: LocalizedStringResource {
       LocalizedStringResource("activity.hintCodeVersion", defaultValue: "Bot code version that opened the trade",
         bundle: L10n.bundle)
-    }
-    static var hintMae: LocalizedStringResource {
-      LocalizedStringResource("activity.hintMae", defaultValue: "MAE: worst move against, at least", bundle: L10n.bundle)
-    }
-    static var hintMfe: LocalizedStringResource {
-      LocalizedStringResource("activity.hintMfe", defaultValue: "MFE: best move in favour, at least", bundle: L10n.bundle)
-    }
-    static var hintWhatIfEntry: LocalizedStringResource {
-      LocalizedStringResource("activity.hintWhatIfEntry", defaultValue: "What-if entry", bundle: L10n.bundle)
-    }
-    static var hintWhatIfStop: LocalizedStringResource {
-      LocalizedStringResource("activity.hintWhatIfStop", defaultValue: "What-if stop", bundle: L10n.bundle)
-    }
-    static var hintWhen: LocalizedStringResource {
-      LocalizedStringResource("activity.hintWhen", defaultValue: "When, and how many times", bundle: L10n.bundle)
     }
     /// The day's chips and their hints: closed trades, "2 W", "1 L", "1 open".
     static var hintClosed: LocalizedStringResource {
@@ -861,31 +879,12 @@ enum L10n {
     static func chipOpen(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("activity.chipOpen", defaultValue: "\(count) open", bundle: L10n.bundle)
     }
-    /// An open position's chips: last price, how many times the entry was sent ("×1"), fill time.
-    static var hintLast: LocalizedStringResource {
-      LocalizedStringResource("activity.hintLast", defaultValue: "Last price", bundle: L10n.bundle)
-    }
     /// The live bid in place of the last bar's close.
     static var hintBid: LocalizedStringResource {
       LocalizedStringResource("activity.hintBid", defaultValue: "Bid, live", bundle: L10n.bundle)
     }
-    static var hintSends: LocalizedStringResource {
-      LocalizedStringResource("activity.hintSends", defaultValue: "Times the entry was sent", bundle: L10n.bundle)
-    }
-    static func sends(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("activity.sends", defaultValue: "×\(count)", bundle: L10n.bundle)
-    }
-    static var hintOpened: LocalizedStringResource {
-      LocalizedStringResource("activity.hintOpened", defaultValue: "Filled at", bundle: L10n.bundle)
-    }
-    static var hintStop: LocalizedStringResource {
-      LocalizedStringResource("activity.hintStop", defaultValue: "Broker stop", bundle: L10n.bundle)
-    }
     static var hintEntry: LocalizedStringResource {
       LocalizedStringResource("activity.hintEntry", defaultValue: "Entry", bundle: L10n.bundle)
-    }
-    static var whatIfTag: LocalizedStringResource {
-      LocalizedStringResource("activity.whatIfTag", defaultValue: "what-if", bundle: L10n.bundle)
     }
     static var calendar: LocalizedStringResource {
       LocalizedStringResource("activity.calendar", defaultValue: "Calendar", bundle: L10n.bundle)
@@ -1003,25 +1002,8 @@ enum L10n {
     static func repeats(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("activity.repeats", defaultValue: "×\(count)", bundle: L10n.bundle)
     }
-    static var refusedTag: LocalizedStringResource {
-      LocalizedStringResource("activity.refusedTag", defaultValue: "REFUSED", bundle: L10n.bundle)
-    }
-    static var tooLateTag: LocalizedStringResource {
-      LocalizedStringResource("activity.tooLateTag", defaultValue: "TOO LATE", bundle: L10n.bundle)
-    }
     static var notTakenStale: LocalizedStringResource {
       LocalizedStringResource("activity.notTakenStale", defaultValue: "Last read shown; refresh failed",
-        bundle: L10n.bundle)
-    }
-    static func stopAfter(_ seconds: String) -> LocalizedStringResource {
-      LocalizedStringResource("activity.stopAfter", defaultValue: "stop confirmed in \(seconds) s", bundle: L10n.bundle)
-    }
-    /// VoiceOver: the bot code version (short git commit) that opened the trade.
-    static func codeVersion(_ code: String) -> LocalizedStringResource {
-      LocalizedStringResource("activity.codeVersion", defaultValue: "bot code \(code)", bundle: L10n.bundle)
-    }
-    static func excursion(_ mae: String, _ mfe: String) -> LocalizedStringResource {
-      LocalizedStringResource("activity.excursion", defaultValue: "MAE \(mae) · MFE \(mfe) (at least)",
         bundle: L10n.bundle)
     }
     /// Leads the prices after a signal: "after 1m +0.12 · 5m −0.30".
@@ -1031,10 +1013,6 @@ enum L10n {
     /// Minutes after a signal, short: "5m".
     static func minutesAfter(_ minutes: Int) -> LocalizedStringResource {
       LocalizedStringResource("activity.minutesAfter", defaultValue: "\(minutes)m", bundle: L10n.bundle)
-    }
-    /// What a skipped signal would have made, from the bot's replay: "would have made +$12.30 · +0.8 R".
-    static func wouldHaveMade(_ result: String) -> LocalizedStringResource {
-      LocalizedStringResource("activity.wouldHaveMade", defaultValue: "would have made \(result)", bundle: L10n.bundle)
     }
     /// The replay of a skipped signal could not run; the bot's cause follows as sent.
     static func noReplay(_ cause: String) -> LocalizedStringResource {
@@ -1052,9 +1030,46 @@ enum L10n {
     static var replayEndOfData: LocalizedStringResource {
       LocalizedStringResource("activity.replay.endOfData", defaultValue: "still open when data ran out", bundle: L10n.bundle)
     }
-    static func whatIf(_ entry: String, _ stop: String) -> LocalizedStringResource {
-      LocalizedStringResource("activity.whatIf", defaultValue: "what-if entry \(entry) · stop \(stop)",
+    /// Above the Not taken cards: how many setups the bot did not take.
+    static func notTakenCount(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("activity.notTakenCount", defaultValue: "\(count) not taken", bundle: L10n.bundle)
+    }
+    /// Leads what the day's not-taken setups would have made together: "If taken: +0.7 R +$6.00".
+    static var ifTaken: LocalizedStringResource {
+      LocalizedStringResource("activity.ifTaken", defaultValue: "If taken:", bundle: L10n.bundle)
+    }
+    /// VoiceOver for a Not taken card's what-if result in R.
+    static func ifTakenResult(_ result: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.ifTakenResult", defaultValue: "If taken: \(result)", bundle: L10n.bundle)
+    }
+    /// A not-taken setup the bot decided on a minute it had put aside to protect a fill.
+    static var tooLateTitle: LocalizedStringResource {
+      LocalizedStringResource("activity.tooLateTitle", defaultValue: "Too late to act on", bundle: L10n.bundle)
+    }
+    static var tooLateDetail: LocalizedStringResource {
+      LocalizedStringResource("activity.tooLateDetail",
+        defaultValue: "Decided after its minute, while the bot protected a new position", bundle: L10n.bundle)
+    }
+    /// An open Not taken card: the replay's entry and stop, "What-if 5.14 · stop 5.03".
+    static func whatIfLevels(_ entry: String, _ stop: String) -> LocalizedStringResource {
+      LocalizedStringResource("activity.whatIfLevels", defaultValue: "What-if \(entry) · stop \(stop)",
         bundle: L10n.bundle)
+    }
+    /// Under an open Not taken card: how the what-if was made.
+    static var whatIfNote: LocalizedStringResource {
+      LocalizedStringResource("activity.whatIfNote",
+        defaultValue: "Replayed once on the day's bars with the stop and exit rule, gross before fees",
+        bundle: L10n.bundle)
+    }
+    /// The same, on a card that stands for repeats of one cause.
+    static var whatIfNoteRepeats: LocalizedStringResource {
+      LocalizedStringResource("activity.whatIfNoteRepeats",
+        defaultValue: "Repeats are one card, replayed once on the day's bars with the stop and exit rule, gross before fees",
+        bundle: L10n.bundle)
+    }
+    /// VoiceOver hint of the open position's row on Activity.
+    static var positionOpenHint: LocalizedStringResource {
+      LocalizedStringResource("activity.positionOpenHint", defaultValue: "Opens the position", bundle: L10n.bundle)
     }
     static var nothingYet: LocalizedStringResource {
       LocalizedStringResource("activity.nothingYet", defaultValue: "Nothing recorded yet today.", bundle: L10n.bundle)
@@ -2038,8 +2053,23 @@ enum ChartText {
   static let refusedEntry = LocalizedStringResource("chart.event.refused",
     defaultValue: "Entry refused")
   static let trades = LocalizedStringResource("chart.trades", defaultValue: "Trades")
-  static let noTrades = LocalizedStringResource("chart.noTrades",
-    defaultValue: "No closed trades on this symbol this day.")
+  static let noTrades = LocalizedStringResource("chart.noTrades", defaultValue: "No trades this day")
+  /// Title of the trades card: "Trades in ABCD".
+  static func tradesIn(_ symbol: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.tradesIn", defaultValue: "Trades in \(symbol)")
+  }
+  /// The trades card's link to the Activity tab.
+  static let activity = LocalizedStringResource("chart.activity", defaultValue: "Activity")
+  /// An open position in the trades card: "Bought 10 @ 12.34".
+  static func bought(_ quantity: String, _ price: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.bought", defaultValue: "Bought \(quantity) @ \(price)")
+  }
+  /// A closed trade in the trades card: "Bought 15 @ 8.71 → sold 8.95".
+  static func boughtSold(_ quantity: String, _ entry: String, _ exit: String) -> LocalizedStringResource {
+    LocalizedStringResource("chart.boughtSold", defaultValue: "Bought \(quantity) @ \(entry) → sold \(exit)")
+  }
+  /// In place of an open position's result in the trades card.
+  static let openResult = LocalizedStringResource("chart.openResult", defaultValue: "open")
   static let entry = LocalizedStringResource("chart.entry", defaultValue: "Entry")
   /// A trade's entry mark's label on the chart: "Buy 10 @ 97.52" (as on the Mac).
   static func buyMark(_ quantity: String, _ price: String) -> LocalizedStringResource {

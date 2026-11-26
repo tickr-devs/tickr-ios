@@ -50,6 +50,13 @@ public enum Board {
     public let tag: String
     public let text: String
     public let tone: Tone
+
+    /// The tag in plain words for a line of the journal: "Stop set", not the ticker's "STOP SET".
+    public var plainTag: String {
+      let lower = tag.lowercased(with: .current)
+      guard let first = lower.first else { return lower }
+      return String(first).uppercased(with: .current) + lower.dropFirst()
+    }
   }
 
   /// Event id parts: `trade-<index>-enter`, `trade-<index>-exit`, `position-<symbol>-open`,
@@ -77,7 +84,8 @@ public enum Board {
         tone: .teal))
       let result = trade.resultUsd.value
       events.append(Event(
-        id: "\(tradeID)\(index)\(exitID)", time: trade.closedAt.date, tag: exitReasonTitle(trade.exitReason).uppercased(),
+        id: "\(tradeID)\(index)\(exitID)", time: trade.closedAt.date,
+        tag: journalReason(trade.exitReason)?.uppercased() ?? String(localized: L10n.journalClosed),
         text: String(localized: L10n.eventExitAt(trade.symbol, trade.exitPrice.text, signed(trade.resultUsd))),
         tone: exitTone(trade.exitReason, result: result)))
     }

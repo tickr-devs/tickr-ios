@@ -119,7 +119,7 @@ struct ChartTab: View {
         DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
       }
       if chart.day != nil {
-        DayTrades(trades: chart.trades)
+        DayTrades(symbol: chart.symbol, trades: chart.trades, position: chart.openPosition)
       }
     }
   }
@@ -633,57 +633,75 @@ private struct ChartControls: View {
   }
 }
 
-/// The chosen symbol's closed trades of the day.
+/// The chosen symbol's trades of the day, in words as on the board (mockup IOSChart): the open
+/// position first ("Bought 10 @ 12.34 · stop 11.90 · Verified", open), then each closed trade
+/// ("Bought 15 @ 8.71 → sold 8.95", its result). The header leads to Activity, on the same day.
 private struct DayTrades: View {
+  @Environment(AppModel.self) private var app
+  let symbol: String?
   let trades: [DayTrade]
+  let position: Position?
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      CardLabel(ChartText.trades)
-      if trades.isEmpty {
+      HStack(alignment: .center, spacing: Tokens.Space.s) {
+        CardLabel(symbol.map(ChartText.tradesIn) ?? ChartText.trades)
+        Spacer(minLength: Tokens.Space.s)
+        HeaderLink(ChartText.activity) { app.selectedTab = .activity }
+      }
+      if trades.isEmpty && position == nil {
         Text(ChartText.noTrades)
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textTertiary)
       }
+      if let position { openRow(position) }
       // The latest trades, then "Show all N ›": a busy symbol trades many times a day.
       CappedList(trades.sorted { $0.closedAt.date > $1.closedAt.date }, id: \.id, title: ChartText.trades,
-        limit: Tokens.Lists.comparedRows) { _, trade in tradeRow(trade) }
+        limit: Tokens.Lists.comparedRows) { _, trade in closedRow(trade) }
     }
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard()
   }
 
-  /// A trade: its times and prices, then its result in dollars and in R.
-  private func tradeRow(_ trade: DayTrade) -> some View {
-    HStack(alignment: .firstTextBaseline) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        HStack(spacing: Tokens.Space.xs) {
-          Text(trade.openedAt.date, format: ChartFormat.time)
-          Image(systemName: "arrow.right").imageScale(.small)
-          Text(trade.closedAt.date, format: ChartFormat.time)
-        }
+  /// The open position: when it filled, what was bought and its stop in the stop's state colour.
+  private func openRow(_ position: Position) -> some View {
+    let state = position.stop.state
+    var line = AttributedString(String(localized: ChartText.bought(position.quantity.text,
+      Money.price(position.entryPrice.value))))
+    line.swiftUI.foregroundColor = Palette.textSecondary
+    var stop = AttributedString(Format.separator + String(localized: L10n.Activity.stopDetail(
+      position.stop.price.map { Money.price($0.value) } ?? Format.missing, Board.stopStateTitle(state))))
+    stop.swiftUI.foregroundColor = state.tone.text
+    return row(time: (position.entry.filledAt ?? position.openedAt).date, what: line + stop) {
+      Text(ChartText.openResult)
+        .foregroundStyle(Tone.openPosition.text)
+    }
+  }
+
+  /// A closed trade: when it opened, what was bought and sold, its result in dollars.
+  private func closedRow(_ trade: DayTrade) -> some View {
+    var line = AttributedString(String(localized: ChartText.boughtSold(trade.quantity.text,
+      Money.price(trade.entryPrice.value), Money.price(trade.exitPrice.value))))
+    line.swiftUI.foregroundColor = Palette.textSecondary
+    return row(time: trade.openedAt.date, what: line) {
+      Text(verbatim: Money.signedUSD(trade.resultUsd.value))
+        .foregroundStyle(Palette.result(trade.resultUsd.value))
+    }
+  }
+
+  /// One line of the list: the time, the words (wrapping, never cut) and the result at the end.
+  private func row<Result: View>(time: Date, what: AttributedString, @ViewBuilder result: () -> Result) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      Text(time, format: ChartFormat.time)
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textTertiary)
-        HStack(spacing: Tokens.Space.xs) {
-          Text(verbatim: Money.price(trade.entryPrice.value))
-          Image(systemName: "arrow.right").imageScale(.small)
-          Text(verbatim: Money.price(trade.exitPrice.value))
-        }
-        .font(Tokens.Typography.bodyMono)
-        .foregroundStyle(Palette.textSecondary)
-      }
-      Spacer()
-      VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
-        Text(Money.signedUSD(trade.resultUsd.value))
-          .font(Tokens.Typography.bodyMono)
-          .foregroundStyle(Palette.result(trade.resultUsd.value))
-        if let r = trade.resultR {
-          Text(Risk.text(r))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
-        }
-      }
+      Text(what)
+        .font(Tokens.Typography.callout)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Tokens.Space.s)
+      result()
+        .font(Tokens.Typography.bodyMono.bold())
     }
     .accessibilityElement(children: .combine)
   }

@@ -257,7 +257,7 @@ enum L10n {
     static var stopExplanation: LocalizedStringResource {
       LocalizedStringResource("bot.stopExplanation",
         // swiftlint:disable:next line_length
-        defaultValue: "The bot stops and stays stopped until you run tickr clear-stop on this Mac; the app cannot start it again. Working entry orders are cancelled. Open positions stay open under their broker stop, a DAY order: nothing closes them at the session's end. Close the positions first to be flat.",
+        defaultValue: "The bot stops and stays stopped, also tomorrow, until you press Start bot. Refused while a trade is open or entering: close it first.",
         bundle: L10n.bundle)
     }
     /// The pill on every command while commands go to the demo day.
