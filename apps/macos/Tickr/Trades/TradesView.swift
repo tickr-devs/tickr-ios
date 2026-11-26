@@ -350,6 +350,10 @@ private struct Stat<Value: View>: View {
 private struct TradesTable: View {
   @Environment(AppModel.self) private var model
   @Environment(\.dynamicTypeSize) private var typeSize
+  #if os(iOS)
+  /// The card's width for the table, in points: the table scrolls sideways only below its least.
+  @State private var cardWidth = CGFloat.infinity
+  #endif
   @Binding var selection: DayTrade.ID?
   /// The row under the pointer, tinted as one.
   @State private var hovered: TradeRow.ID?
@@ -449,13 +453,23 @@ private struct TradesTable: View {
           .frame(height: tableHeight)
         #else
         // iOS draws the table's text a little larger than the Mac its columns were measured on:
-        // on an iPad in portrait the table scrolls sideways rather than cut a column.
-        ScrollView(.horizontal) {
-          table
-            .frame(minWidth: Self.leastWidth * Self.typeGrowth(typeSize), minHeight: tableHeight, maxHeight: tableHeight)
+        // where the card is narrower than the columns need (an iPad in portrait), the table
+        // scrolls sideways at an exact size rather than cut a column. A table left to size itself
+        // inside the sideways scroll view drew nothing on an iPad (2026-11-26).
+        let least = Self.leastWidth * Self.typeGrowth(typeSize)
+        Group {
+          if cardWidth >= least {
+            table
+          } else {
+            ScrollView(.horizontal) {
+              table.frame(width: least, height: tableHeight)
+            }
+            .withoutScrollIndicators()
+          }
         }
-        .withoutScrollIndicators()
+        .frame(maxWidth: .infinity)
         .frame(height: tableHeight)
+        .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { cardWidth = $0 })
         #endif
       }
     })

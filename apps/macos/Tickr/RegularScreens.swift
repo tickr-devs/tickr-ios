@@ -2,7 +2,6 @@
 import SwiftUI
 import TickrDesign
 import TickrKit
-import UIKit
 
 /// The Mac screens on an iPad in regular width (mockup v156, boards IPadLandscape, IPadPortrait
 /// and IPadSplit): the Mac sidebar and screens in a `NavigationSplitView`, and in the navigation
@@ -68,7 +67,7 @@ public struct RegularScreens: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { RegularToolbar(settings: settings) }
     }
-    .modifier(SidebarOverPhone())
+    .modifier(SidebarOverScreen(over: !roomy))
     // The Mac screens are laid out for the Mac's type sizes (their least widths are measured in
     // them); iOS's default sizes are 1 to 4 points larger and cut them in portrait. The smallest
     // standard size is the nearest to the Mac's; an accessibility size the owner chose stays.
@@ -110,16 +109,18 @@ public struct RegularScreens: View {
   }
 }
 
-/// On the unfolded iPhone Duo the sidebar opens over the screen, never beside it: its 951 points
-/// hold no screen beside the sidebar (the Chart's rail went under the navigation bar's items,
-/// 2026-11-26). An iPad keeps the system's split, the sidebar beside the screen where it fits.
-/// The idiom never changes while the app runs, so the view keeps its identity.
-private struct SidebarOverPhone: ViewModifier {
+/// Where the screen has no room for the sidebar beside it (an iPad in portrait or Split View, the
+/// unfolded Duo), the sidebar opened by hand floats over the screen instead of pushing it past
+/// the window's edge (iPad portrait cut the Lab's cards, 2026-11-26) or under the Duo's floating
+/// pill.
+private struct SidebarOverScreen: ViewModifier {
+  let over: Bool
+
   func body(content: Content) -> some View {
-    if UIDevice.current.userInterfaceIdiom == .phone {
+    if over {
       content.navigationSplitViewStyle(.prominentDetail)
     } else {
-      content
+      content.navigationSplitViewStyle(.balanced)
     }
   }
 }
