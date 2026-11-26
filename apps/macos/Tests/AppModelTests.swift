@@ -461,14 +461,37 @@ struct AppModelTests {
     let cancelled = try #require(model.confirming)
     model.withdraw(cancelled)
     #expect(model.accept(cancelled) == nil)
-    model.press(.emergency, in: .window)
+    model.press(.stopBot, in: .window)
     let older = try #require(model.confirming)
-    model.press(.flattenAll, in: .window)
+    model.press(.closeAll, in: .window)
     let newer = try #require(model.confirming)
     #expect(model.accept(older) == nil, "a replaced question sends nothing")
     #expect(model.confirming == newer, "and leaves the newer one open")
     model.withdraw(newer)
     #expect(Self.sentCount() == 0)
+  }
+
+  @Test("Stop bot with positions open asks to choose; only an answer with a mode sends, once")
+  func stopBotWithPositionsAsksToChoose() async throws {
+    RouteProtocol.routes.withLock { $0.bodies["/commands/stop-bot"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("command-accepted-v1.stop-close-and-stop.json")) }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    model.press(.stopBot, in: .window)
+    let question = try #require(model.confirming)
+    #expect(question.stop == .choose(symbols: ["ABCD", "EFGH"]))
+    #expect(StopChoice.title(question.stop) == String(localized: StopText.chooseTitle(2)))
+    #expect(model.accept(question) == nil, "a choice without an answer sends nothing")
+    #expect(model.confirming == question, "and stays open")
+    model.withdraw(question)
+    #expect(model.accept(question, mode: .closeAndStop) == nil, "a withdrawn choice sends nothing")
+    #expect(Self.sentCount() == 0)
+    model.press(.stopBot, in: .window)
+    let asked = try #require(model.confirming)
+    let send = try #require(model.accept(asked, mode: .closeAndStop))
+    await send.value
+    #expect(Self.sentCount() == 1)
+    #expect(RouteProtocol.routes.withLock { $0.paths }.filter { $0 == "/commands/stop-bot" }.count == 1)
   }
 
   /// A model with a current status and a flatten question open in `place`.
@@ -555,11 +578,11 @@ struct AppModelTests {
     model.press(.flatten(symbol: "ABCD"), in: .window)
     #expect(model.confirming == nil, "no status yet: commands are off, so nothing is asked")
     await model.refreshStatus()
-    model.press(.emergency, in: .menuBar)
+    model.press(.closeAll, in: .window)
     let first = try #require(model.confirming)
     model.withdraw(first)
     #expect(model.confirming == nil)
-    model.press(.emergency, in: .menuBar)
+    model.press(.closeAll, in: .window)
     let second = try #require(model.confirming)
     #expect(second != first, "a second press is a new question")
     model.withdraw(first)
@@ -600,29 +623,34 @@ struct AppModelTests {
     #expect(model.config == nil && model.configError != nil)
   }
 
-  @Test("Flatten of one symbol closes only that symbol; every action has a command")
+  @Test("Flatten of one symbol closes only that symbol; Close all is the API's emergency command")
   func actionsMapToCommands() {
     #expect(BotAction.flatten(symbol: "ABCD").command == .flattenSymbol("ABCD"))
-    #expect(BotAction.flattenAll.command == .flatten)
+    #expect(BotAction.closeAll.command == .emergency)
     #expect(BotAction.stopBot.command == .stopBot)
-    #expect(BotAction.emergency.command == .emergency)
+    #expect(BotAction.pauseEntries.command == .entryStop(on: true))
+    #expect(BotAction.resumeEntries.command == .entryStop(on: false))
   }
 
-  @Test("Only the emergency stop is held before it asks; every other command is a click")
-  func onlyTheEmergencyStopHolds() {
-    let actions: [BotAction] = [.pauseEntries, .resumeEntries, .cancelOrders, .flatten(symbol: "ABCD"), .flattenAll,
-      .stopBot, .emergency]
-    #expect(actions.filter(\.holdsFirst) == [.emergency])
-    // The hold comes before the question; it never replaces it.
-    #expect(BotAction.emergency.needsConfirmation)
+  @Test("Every command that closes or stops asks first; pausing and resuming act at once")
+  func closingAndStoppingAsk() {
+    for action in [BotAction.flatten(symbol: "ABCD"), .closeAll, .stopBot] {
+      #expect(action.needsConfirmation && action.isDestructive)
+    }
+    #expect(!BotAction.pauseEntries.needsConfirmation && !BotAction.resumeEntries.needsConfirmation)
+  }
+
+  @Test("Close all says it is closing the positions while it is on its way")
+  func closeAllInFlightTitle() {
+    #expect(BotAction.closeAll.inFlightTitle.key == OperatorCommand.flatten.inFlightTitle.key)
+    #expect(BotAction.stopBot.inFlightTitle.key == OperatorCommand.stopBot.inFlightTitle.key)
   }
 
   @Test("Commands are sorted into the design's tiers")
   func actionsHaveTheirTiers() {
     #expect(BotAction.pauseEntries.tier == .secondary(.warning))
     #expect(BotAction.resumeEntries.tier == .secondary(.accent))
-    #expect(BotAction.cancelOrders.tier == .secondary(.neutral))
-    for action in [BotAction.flatten(symbol: "ABCD"), .flattenAll, .stopBot] {
+    for action in [BotAction.flatten(symbol: "ABCD"), .closeAll, .stopBot] {
       #expect(action.tier == .destructive)
     }
   }

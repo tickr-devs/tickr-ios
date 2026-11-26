@@ -7,9 +7,10 @@ final class TickrUITests: XCTestCase {
   /// Environment variable of the fixture API (PreviewAPI.fixturesKey in the app) and its value.
   static let fixturesKey = "TICKR_FIXTURES"
   static let fixturesOn = "1"
-  /// Environment variable that opens Overview with the Safety · bot card at its top
-  /// (LayoutSweep.safetyFirstKey), turned on with `fixturesOn`'s value.
-  static let safetyFirstKey = "TICKR_OVERVIEW_SAFETY_FIRST"
+  /// Environment variable that opens Overview with the Positions card at its top
+  /// (LayoutSweep.positionsFirstKey), where each position's Close stands; turned on with
+  /// `fixturesOn`'s value.
+  static let positionsFirstKey = "TICKR_OVERVIEW_POSITIONS_FIRST"
   /// Pins the app to English so the texts below match the String Catalog's English values.
   /// Also starts without restoring windows saved by an earlier run.
   static let languageArguments = [
@@ -20,8 +21,9 @@ final class TickrUITests: XCTestCase {
   static let sections = ["overview", "chart", "trades", "risk", "lab"]
   static let rowPrefix = "sidebar-"
   static let screenPrefix = "screen-"
-  /// The open position in status-response-v1.json and its flatten button id (BotAction.id).
-  static let flattenButton = "flatten-ABCD"
+  /// The open position in status-response-v1.json and its Close button id on the Positions card
+  /// (PositionDetail.closePrefix).
+  static let flattenButton = "position-close-ABCD"
   /// English texts from the catalog: the confirmation's cancel button and the account badge for a
   /// broker read that matches the bot's records (account-response-v1.json).
   static let cancel = "Cancel"
@@ -164,10 +166,10 @@ final class TickrUITests: XCTestCase {
 
   @MainActor
   func testFlattenAsksBeforeSending() {
-    // Overview opens with the Safety · bot card at its top: the click lands where the button
-    // stands, never after XCUITest's own scroll, which could leave it at the screen's bottom edge
-    // under a hidden Dock rising at the pointer.
-    let app = launch(environment: [Self.safetyFirstKey: Self.fixturesOn])
+    // Overview opens with the Positions card at its top: the click lands where the position's
+    // Close stands, never after XCUITest's own scroll, which could leave it at the screen's bottom
+    // edge under a hidden Dock rising at the pointer.
+    let app = launch(environment: [Self.positionsFirstKey: Self.fixturesOn])
     open(Self.sections[0], in: app)
     let flatten = app.buttons[Self.flattenButton].firstMatch
     XCTAssertTrue(flatten.waitForExistence(timeout: Self.timeout))

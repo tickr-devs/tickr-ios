@@ -11,7 +11,7 @@ import XCTest
 /// terminal that already has the Screen Recording permission, takes each one when the tour asks.
 /// Run on the Mac, once per appearance:
 ///   swift apps/scripts/tour_capture.swift \
-///     ~/Library/Containers/local.tickr.operator.uitests.xctrunner/Data/tmp/tour-dark &
+///     ~/Library/Containers/bot.tickr.mac.uitests.xctrunner/Data/tmp/tour-dark &
 ///   TEST_RUNNER_TOUR_API=http://127.0.0.1:8776 TEST_RUNNER_TOUR_APPEARANCE=Dark \
 ///   TEST_RUNNER_TOUR_CAPTURE=tour-dark \
 ///   xcodebuild test -workspace Tickr.xcworkspace -scheme "Tickr macOS" \
@@ -44,8 +44,8 @@ final class ScreenTourUITests: XCTestCase {
   private static let decisionsToggle = "chart-decisions"
   /// The Chart rail's explain card (ChartExplainCard.contentID): present while the rail is shown.
   private static let explainCard = "chart-decisions-list"
-  /// Prefix of a flatten button id (BotAction.flattenPrefix).
-  private static let flattenPrefix = "flatten-"
+  /// Prefix of a position's Close button id on the Positions card (PositionDetail.closePrefix).
+  private static let flattenPrefix = "position-close-"
   /// English texts of the standard buttons the tour uses.
   private enum Label {
     static let showSidebar = "Show Sidebar"
