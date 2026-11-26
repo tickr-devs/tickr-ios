@@ -1,7 +1,7 @@
 import SwiftUI
 import Testing
-import TickrScreens
 @testable import Tickr
+import TickrScreens
 
 /// Which screens the app shows: the Mac screens on an iPad in regular width and on the unfolded
 /// iPhone Duo in landscape, with a connection; every other iPhone, landscape Pro Max included,
