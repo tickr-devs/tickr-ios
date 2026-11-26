@@ -1219,10 +1219,9 @@ private struct EmptyPositions: View {
 private struct WorkingEntryPanel: View {
   let rows: [EntryRow]
 
-  /// Size of the ring, its inner dashed ring's inset and its glyph, in points.
+  /// Size of the ring and its inner dashed ring's inset, in points.
   static let ring: CGFloat = 120
   static let ringInset: CGFloat = 20
-  static let glyph: CGFloat = 34
   /// Size of the inner ring's dashes, in points.
   static let dash: [CGFloat] = [4, 4]
 
@@ -1264,11 +1263,11 @@ private struct WorkingEntryPanel: View {
         .padding(Self.ringInset)
       switch row.phase {
       case .working:
-        Image(systemName: EntryLook.workingSymbol).font(.system(size: Self.glyph)).foregroundStyle(color)
+        Image(systemName: EntryLook.workingSymbol).font(.largeTitle).foregroundStyle(color)
       case .cancelling:
         Spinner()
       case .cancelled:
-        Image(systemName: EntryLook.doneSymbol).font(.system(size: Self.glyph)).foregroundStyle(Palette.profitText)
+        Image(systemName: EntryLook.doneSymbol).font(.largeTitle).foregroundStyle(Palette.profitText)
       }
     }
     .frame(width: Self.ring, height: Self.ring)
