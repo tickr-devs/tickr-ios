@@ -165,7 +165,13 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
   /// Space between chips, and after the last one before the next copy.
   static var spacing: CGFloat { Tokens.Space.s }
   /// Share of the strip's width that fades out at each end.
-  static let fadeEdge = 0.06
+  private static var fadeEdge: Double { ChipsMarqueeFade.edge }
+}
+
+/// The strip's faded ends (a generic type holds no stored constant).
+enum ChipsMarqueeFade {
+  /// Share of the strip's width that fades out at each end.
+  static let edge = 0.06
 }
 
 /// What the moving row draws: its chips and the slot outlined under the pointer. The pages are
