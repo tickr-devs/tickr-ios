@@ -405,36 +405,36 @@ private struct SymbolTagBadge: View {
   }
 }
 
-/// A fast mover's symbol, WATCH pill and time, then its volume against average, ATR move and
-/// dollar volume, each bright when its signal fired. Shared by the card and the screen.
+/// One fast mover on Home, as on the Mac Overview (mockup Main, IOSHome): the symbol, its one main
+/// signal (`SymbolsBoard.mainReason`, the one furthest past its rule) and the bar's time. Texts
+/// wrap, never cut; the three figures are on the Symbols screen's Fast movers tab.
 struct FastMoverLine: View {
   let mover: FastMoverV1
+  let rules: FastMoverRulesV1?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        SymbolText(mover.symbol)
-          .font(Tokens.Typography.chip)
-          .foregroundStyle(Palette.textPrimary)
-        if mover.watching { Badge(Verdict.watch.title, color: Palette.infoText) }
-        Spacer(minLength: 0)
-        Text(verbatim: Format.time(mover.at.date))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-      ChipFlow(spacing: Tokens.Space.s) {
-        MoverFigure(text: SymbolsBoard.volume(mover), fired: mover.fired(.volume))
-        MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move))
-        MoverFigure(text: SymbolsBoard.dollars(mover), fired: mover.fired(.dollars))
-      }
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      SymbolText(mover.symbol)
+        .font(Tokens.Typography.chip)
+        .foregroundStyle(Palette.textPrimary)
+      if mover.watching { Badge(Verdict.watch.title, color: Palette.infoText) }
+      Text(verbatim: SymbolsBoard.mainReason(mover, rules: rules))
+        .font(.subheadline)
+        .foregroundStyle(Palette.warningText)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: 0)
+      Text(verbatim: Format.time(mover.at.date))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
     }
+    .accessibilityElement(children: .combine)
   }
 }
 
 // MARK: - the Fast movers card on Home
 
 /// The day's fast movers on Home: the newest few rows, then "Show all N ›" pushing the Symbols
-/// screen on its Fast movers tab, and the thresholds in a mono caption. A new mover rises in as
+/// screen on its Fast movers tab (where the thresholds are). A new mover rises in as
 /// it arrives, a real event of the bot.
 struct FastMoversCard: View {
   let movers: MoversV1?
@@ -457,15 +457,9 @@ struct FastMoversCard: View {
         }
         let shown = Array(movers.movers.prefix(Self.rowCap))
         ForEach(Array(shown.enumerated()), id: \.element.symbol) { index, mover in
-          FastMoverLine(mover: mover).rise(step: index)
+          FastMoverLine(mover: mover, rules: movers.rules).rise(step: index)
         }
         .animation(Tokens.Motion.standard, value: shown.map(\.symbol))
-        if let rules = movers.rules {
-          Text(verbatim: SymbolsBoard.rules(rules))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-            .fixedSize(horizontal: false, vertical: true)
-        }
       } else if let failure {
         Text(L10n.FastMovers.unavailable(failure))
           .font(Tokens.Typography.annotation)

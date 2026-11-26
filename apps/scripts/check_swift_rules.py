@@ -799,8 +799,7 @@ ARRANGEMENT = re.compile(r"(?:View|Card|Page|Sheet|Panel|Section|Screen|Chart)$"
 # Components written in both apps before the rule (2026-11-16), each to move into TickrDesign
 # (or be renamed) in its own change; never add a name here.
 KNOWN_TWINS = {
-    "CauseText", "EventStrip", "PositionDetail", "SettingsRow",
-    "SkippedRow", "StatTile", "WatchingRow",
+    "CauseText", "EventStrip", "PositionDetail", "SettingsRow", "SkippedRow", "WatchingRow",
 }
 
 
