@@ -201,9 +201,10 @@ struct CandleChart: View {
               .foregroundStyle(mark.color)
           }
           .annotation(position: .top, overflowResolution: Self.keepInside) {
-            // An exit's plate on the same candle takes the space above it: the decision keeps its
-            // diamond and its label gives way ("WATCH" sat under "EXIT +$93.38", Duo 2026-11-26).
-            if labelsDecisions && !exitCandles.contains(plot.index(at: mark.time) ?? -1) {
+            // An exit's plate that would overlap it on screen takes the space above: the decision
+            // keeps its diamond and its label gives way ("WATCH" on the candle after an exit sat
+            // under "EXIT +$93.38", Duo 2026-11-26).
+            if labelsDecisions && !meetsExitPlate(mark.label, at: mark.time) {
               ChartMarkPlate(mark.label, color: mark.color, textColor: mark.color)
             }
           }
@@ -404,9 +405,24 @@ struct CandleChart: View {
     }
   }
 
-  /// Candles that carry an exit's plate (drawn above its mark, where a decision's label goes).
-  private var exitCandles: Set<Int> {
-    Set(marks.filter { $0.kind != .entry }.compactMap { plot.index(at: $0.time) })
+  /// Whether a decision's label at `time` would overlap, side by side on screen, an exit's plate
+  /// (both sit above their marks): half of each plate's measured width plus the gap between labels.
+  private func meetsExitPlate(_ label: LocalizedStringResource, at time: Date) -> Bool {
+    guard plotWidth > 0, visibleLength > 0 else { return false }
+    let perSecond = Double(plotWidth) / visibleLength
+    let half = plateWidth(label) / 2
+    return marks.contains { exit in
+      guard exit.kind != .entry else { return false }
+      let apart = abs(exit.time.timeIntervalSince(time)) * perSecond
+      return apart < Double(half + plateWidth(exit.label) / 2 + Tokens.Chart.axisLabelGap)
+    }
+  }
+
+  /// A `ChartMarkPlate`'s width on screen: its upper-case text in the plate's font and padding.
+  private func plateWidth(_ label: LocalizedStringResource) -> CGFloat {
+    let size = TextMeasure.pointSize(mac: Tokens.Typography.annotationSize, ios: .caption2)
+    let font = PlatformFont.monospacedSystemFont(ofSize: size, weight: .bold)
+    return TextMeasure.width(String(localized: label).uppercased(), font: font) + Tokens.Space.xs + Tokens.Space.xs
   }
 
   /// Whether the decisions on screen are few enough to label.

@@ -147,11 +147,17 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
   var body: some View {
     let scroll = ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        if tab != nil {
-          TitleRow(title: title) { leading } actions: { actions }
-        } else {
-          PushedHeader(title: title, back: back) { leading } actions: { actions }
+        Group {
+          if tab != nil {
+            TitleRow(title: title) { leading } actions: { actions }
+          } else {
+            PushedHeader(title: title, back: back) { leading } actions: { actions }
+          }
         }
+        // In an iPad window (Stage Manager, a narrow window shows this layout) the window controls
+        // sit in the top leading corner: the header moves past them and narrows to fit. On iPhone
+        // there are no controls and nothing moves.
+        .containerCornerOffset(.leading, sizeToFit: true)
         // The link to the bot, said the same on every screen: a banner over the last known
         // data (drawn dimmer), or an empty state in the card area when nothing was read.
         ConnectionPrompt()
