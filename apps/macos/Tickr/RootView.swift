@@ -796,7 +796,13 @@ struct ConnectionStatus: View {
           .multilineTextAlignment(.trailing)
           .fixedSize(horizontal: false, vertical: true)
       }
+      #if os(macOS)
       .frame(width: Self.width, alignment: .trailing)
+      #else
+      // The iPad's navigation bar lays its items out itself and draws iOS's larger type: the
+      // text keeps one line at its own width ("actualizado hace 1 s" wrapped in the Mac's width).
+      .fixedSize()
+      #endif
     }
     .tip(Text(verbatim: model.headline.text))
     .accessibilityElement(children: .combine)
