@@ -867,7 +867,7 @@ private struct PositionsCard: View {
         // A tab never wraps or cuts its words (owner report 2026-11-18: five positions stacked
         // "+$17.42" one character per line): when the results do not fit, the tabs show the
         // symbols alone, tinted by their result; when even those do not, they scroll sideways.
-        if rows.count > 1 {
+        if rows.count > 1 && model.stoppedPositions == nil {
           ViewThatFits(in: .horizontal) {
             tabs(rows, shown: shown, results: true)
             tabs(rows, shown: shown, results: false)
@@ -886,7 +886,11 @@ private struct PositionsCard: View {
         .disabled(rows.isEmpty)
       }
     } content: {
-      if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
+      if model.isLive, let stopped = model.stoppedPositions {
+        // Bot stopped with positions open (boards Main, MainNarrow): the stopped bot's last
+        // knowledge of them, in place of the live position view, with Start bot.
+        StoppedPositionsPanel(stopped) { OverviewStartButton() }
+      } else if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
         PositionDetail(row: row)
           .id(row.id)
           .transition(.opacity.combined(with: .scale(scale: PositionsCard.switchScale)))
@@ -1263,8 +1267,17 @@ private struct BotSection: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // While the link is down the controls are off and quiet grey, and the connection banner
       // says "commands off": no red line repeats it here (owner, 2026-11-18).
-      BotControls()
-        .grayscale(linkDown ? 1 : 0)
+      // A close-and-stop shows its steps in place of the buttons (boards Main, MainNarrow),
+      // driven only by the bot's status; a refusal brings the buttons back with its cause.
+      if model.isLive, let rows = model.stopSteps {
+        StopStepsSection(rows: rows)
+      } else {
+        BotControls()
+          .grayscale(linkDown ? 1 : 0)
+      }
+      if model.isLive, let refusal = model.stopRefusal {
+        Footnote(verbatim: refusal, color: Palette.lossText)
+      }
       if !model.isLive {
         Footnote(L10n.Safety.offWhileRecorded)
       } else if model.response?.stale == true && !linkDown {

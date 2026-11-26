@@ -4241,6 +4241,23 @@
         }
       }
     },
+    "control.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo"
+          }
+        }
+      }
+    },
     "control.flattenAll" : {
       "extractionState" : "manual",
       "localizations" : {

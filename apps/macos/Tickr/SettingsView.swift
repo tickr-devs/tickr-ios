@@ -731,9 +731,9 @@ private struct ConfigCard: View {
           .foregroundStyle(Palette.textQuaternary)
           .fixedSize(horizontal: false, vertical: true)
       }
-      (Text(verbatim: key.key).foregroundStyle(Palette.infoText)
-        + Text(verbatim: Self.assign).foregroundStyle(Palette.textTertiary)
-        + Text(verbatim: key.value).foregroundStyle(Palette.warningText))
+      Text.joined(Text(verbatim: key.key).foregroundStyle(Palette.infoText),
+        Text(verbatim: Self.assign).foregroundStyle(Palette.textTertiary),
+        Text(verbatim: key.value).foregroundStyle(Palette.warningText))
         .textSelection(.enabled)
         .fixedSize(horizontal: false, vertical: true)
     }
