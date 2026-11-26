@@ -21,6 +21,19 @@ public enum TextMeasure {
   public typealias PlatformFont = UIFont
   #endif
 
+  /// The point size a type role is drawn at: on the Mac its fixed design size `mac`; on iOS the
+  /// size of its text style `ios` now, as Dynamic Type sets it (`Tokens.Typography`'s iOS roles
+  /// follow text styles). Text measured to size a layout must use this, or the layout is cut to
+  /// the Mac's sizes while iOS draws bigger (the iPad's live flow broke "price-action-v3" at its
+  /// hyphen, 2026-11-26).
+  public static func pointSize(mac: CGFloat, ios: PlatformFont.TextStyle) -> CGFloat {
+    #if canImport(AppKit)
+    mac
+    #else
+    PlatformFont.preferredFont(forTextStyle: ios).pointSize
+    #endif
+  }
+
   /// Width of `string` in `font`, rounded up to whole points; `kern` adds tracking per character.
   public static func width(_ string: String, font: PlatformFont, kern: CGFloat = 0) -> CGFloat {
     CGFloat(CTLineGetTypographicBounds(line(string, font: font, kern: kern), nil, nil, nil)).rounded(.up)
