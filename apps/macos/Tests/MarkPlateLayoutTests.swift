@@ -13,8 +13,10 @@ struct MarkPlateLayoutTests {
   let offset: CGFloat = 4
   let gap: CGFloat = 2
 
-  private func place(_ items: [MarkPlateLayout.Item]) -> [Int: CGPoint] {
-    MarkPlateLayout.place(items, in: frame, offset: offset, gap: gap)
+  private func place(
+    _ items: [MarkPlateLayout.Item], candles: [CGRect] = [], glyphs: [CGRect] = []
+  ) -> [Int: CGPoint] {
+    MarkPlateLayout.place(items, avoiding: .init(candles: candles, glyphs: glyphs), in: frame, offset: offset, gap: gap)
   }
 
   @Test("A plate sits on its own side of its mark")
@@ -75,5 +77,31 @@ struct MarkPlateLayoutTests {
     #expect(edge.x - size.width / 2 >= frame.minX)
     #expect(edge.y - size.height / 2 >= frame.minY)
     #expect(centres[1] == nil)
+  }
+
+  @Test("A plate moves off the candles under it, above or below them, when there is room")
+  func offCandles() throws {
+    // A tall candle from 100 to 200 under an exit's mark at 150: above its high instead.
+    let candle = CGRect(x: 95, y: 100, width: 10, height: 100)
+    let above = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [candle])
+    #expect(try #require(above[0]).y + size.height / 2 <= candle.minY - gap)
+    // A candle reaching the plot's top: the plate goes below its low.
+    let top = CGRect(x: 95, y: 0, width: 10, height: 200)
+    let below = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [top])
+    #expect(try #require(below[0]).y - size.height / 2 >= top.maxY + gap)
+    // Candles filling the whole plot: the plate keeps its own side, over them.
+    let full = CGRect(x: 0, y: 0, width: 400, height: 300)
+    let over = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [full])
+    #expect(try #require(over[0]) == CGPoint(x: 100, y: 150 - offset - size.height / 2))
+  }
+
+  @Test("A mark's own glyph is not in its plate's way; another mark's is")
+  func glyphs() throws {
+    let own = CGRect(x: 92, y: 142, width: 16, height: 16)
+    let alone = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], glyphs: [own])
+    #expect(try #require(alone[0]) == CGPoint(x: 100, y: 150 - offset - size.height / 2))
+    let neighbour = CGRect(x: 112, y: 122, width: 16, height: 16)
+    let moved = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], glyphs: [own, neighbour])
+    #expect(try #require(moved[0]).y > 150)
   }
 }

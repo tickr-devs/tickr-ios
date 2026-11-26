@@ -396,7 +396,7 @@ struct CandleChart: View {
 
   /// The price pane's plates, placed apart over the chart: an exit's first, then an entry's,
   /// then the decisions' while few are on screen. A fill's plate goes under its mark, the others
-  /// above.
+  /// above; all keep clear of the candles and marks where they can.
   func markPlates(_ proxy: ChartProxy) -> ChartMarkPlates {
     let exits = marks.filter { $0.kind != .entry }
     let entries = marks.filter { $0.kind == .entry }
@@ -409,7 +409,11 @@ struct CandleChart: View {
       ChartMarkPlates.Plate(time: mark.time, price: mark.price, label: mark.label, color: mark.color,
         textColor: mark.color, side: .above)
     }
-    return ChartMarkPlates(plates: trades + verdicts, proxy: proxy)
+    let columns = candles[drawn].map { candle in
+      ChartMarkPlates.Column(start: bodyStart(candle), end: bodyEnd(candle), low: candle.low, high: candle.high)
+    }
+    let glyphs = marks.map { (time: $0.time, price: $0.price) } + decisions.map { (time: $0.time, price: $0.price) }
+    return ChartMarkPlates(plates: trades + verdicts, columns: columns, glyphs: glyphs, proxy: proxy)
   }
 
   /// Whether the decisions on screen are few enough to label.

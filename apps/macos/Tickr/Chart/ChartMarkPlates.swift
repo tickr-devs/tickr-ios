@@ -15,8 +15,19 @@ struct ChartMarkPlates: View {
     let side: MarkPlateLayout.Side
   }
 
+  /// A candle's reach on the chart, wick to wick, across its body.
+  struct Column {
+    let start: Date
+    let end: Date
+    let low: Double
+    let high: Double
+  }
+
   /// In priority order: the first keeps its place when two would meet.
   let plates: [Plate]
+  /// What the plates keep clear of where they can: the candles drawn, and every mark's glyph.
+  let columns: [Column]
+  let glyphs: [(time: Date, price: Double)]
   let proxy: ChartProxy
 
   var body: some View {
@@ -27,7 +38,9 @@ struct ChartMarkPlates: View {
         let frame = plot.intersection(CGRect(origin: .zero, size: geometry.size))
         if !frame.isNull {
           let centres = MarkPlateLayout.place(
-            items(origin: plot.origin), in: frame, offset: Self.markOffset, gap: Tokens.Space.xxs)
+            items(origin: plot.origin),
+            avoiding: .init(candles: candleRects(origin: plot.origin), glyphs: glyphRects(origin: plot.origin)),
+            in: frame, offset: Self.markOffset, gap: Tokens.Space.xxs)
           ForEach(plates.indices, id: \.self) { index in
             if let centre = centres[index] {
               let plate = plates[index]
@@ -48,6 +61,23 @@ struct ChartMarkPlates: View {
       return MarkPlateLayout.Item(
         id: index, anchor: CGPoint(x: origin.x + point.x, y: origin.y + point.y),
         size: Self.size(plate.label), side: plate.side)
+    }
+  }
+
+  private func candleRects(origin: CGPoint) -> [CGRect] {
+    columns.compactMap { column -> CGRect? in
+      guard let left = proxy.position(forX: column.start), let right = proxy.position(forX: column.end),
+        let top = proxy.position(forY: column.high), let bottom = proxy.position(forY: column.low)
+      else { return nil }
+      return CGRect(x: origin.x + left, y: origin.y + top, width: right - left, height: bottom - top)
+    }
+  }
+
+  private func glyphRects(origin: CGPoint) -> [CGRect] {
+    let side = TextMeasure.lineHeight(Self.font)
+    return glyphs.compactMap { glyph -> CGRect? in
+      guard let point = proxy.position(for: (x: glyph.time, y: glyph.price)) else { return nil }
+      return CGRect(x: origin.x + point.x - side / 2, y: origin.y + point.y - side / 2, width: side, height: side)
     }
   }
 
