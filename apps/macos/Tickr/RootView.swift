@@ -160,7 +160,8 @@ struct RootView: View {
           .modifier(ScreenRoomFrame(least: screenLeast))
           .lastKnown(model.connectionState.isLastKnown)
       }
-      if let unattended = model.unattendedPositions {
+      // On Overview a stopped bot's positions have their own panel (StoppedPositionsPanel).
+      if let unattended = model.unattendedPositions, unattended.reason == .silent || model.section != .overview {
         UnattendedBanner(unattended: unattended)
           .padding(Tokens.Space.l)
           .frame(maxHeight: .infinity, alignment: .top)

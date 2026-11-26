@@ -471,6 +471,29 @@ struct AppModelTests {
     #expect(Self.sentCount() == 0)
   }
 
+  @Test("Stop bot with positions open asks to choose; only an answer with a mode sends, once")
+  func stopBotWithPositionsAsksToChoose() async throws {
+    RouteProtocol.routes.withLock { $0.bodies["/commands/stop-bot"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("command-accepted-v1.stop-close-and-stop.json")) }
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await model.refreshStatus()
+    model.press(.stopBot, in: .window)
+    let question = try #require(model.confirming)
+    #expect(question.stop == .choose(symbols: ["ABCD", "EFGH"]))
+    #expect(StopChoice.title(question.stop) == String(localized: StopText.chooseTitle(2)))
+    #expect(model.accept(question) == nil, "a choice without an answer sends nothing")
+    #expect(model.confirming == question, "and stays open")
+    model.withdraw(question)
+    #expect(model.accept(question, mode: .closeAndStop) == nil, "a withdrawn choice sends nothing")
+    #expect(Self.sentCount() == 0)
+    model.press(.stopBot, in: .window)
+    let asked = try #require(model.confirming)
+    let send = try #require(model.accept(asked, mode: .closeAndStop))
+    await send.value
+    #expect(Self.sentCount() == 1)
+    #expect(RouteProtocol.routes.withLock { $0.paths }.filter { $0 == "/commands/stop-bot" }.count == 1)
+  }
+
   /// A model with a current status and a flatten question open in `place`.
   static func modelAsking(in place: CommandPlace = .window) async throws -> AppModel {
     let model = AppModel(baseURL: APIClient.defaultBaseURL)

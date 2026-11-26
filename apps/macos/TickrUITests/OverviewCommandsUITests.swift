@@ -5,8 +5,9 @@ import XCTest
 /// Close on the Positions card (V4 variant A). The cards sit in a row at least
 /// OverviewView.middleRowHeight tall, so every command must still lie inside its card and the
 /// window, be hittable, and (except pausing, which acts at once and is never pressed here) open its
-/// confirmation on a click. Escape withdraws every confirmation, and nothing is sent: no command
-/// toast ever shows. The commands that left the Safety card (cancel orders, the per-position and
+/// confirmation on a click; Stop bot, with the fixture's open position, offers its three choices
+/// (Close and stop, Leave open, Cancel). Escape withdraws every confirmation, and nothing is sent:
+/// no command toast ever shows. The commands that left the Safety card (cancel orders, the per-position and
 /// all-positions close, the emergency stop) must not come back there.
 /// Run in English and in Spanish, whose labels are the longest; the macOS app has one text size
 /// (no Dynamic Type on the Mac, Tokens.Typography). The app reads the contract fixtures.
@@ -34,6 +35,9 @@ final class OverviewCommandsUITests: XCTestCase {
   /// ABCD (status-response-v1.json). Pausing acts at once; the others ask first.
   static let pause = "pause"
   static let safetyConfirmed = ["stop"]
+  /// Buttons of each question that offers more than a yes: Stop bot with the fixture's open
+  /// position offers Close and stop, Leave open and Cancel (V4 variant A, StopChoice).
+  static let choices = ["stop": 3]
   static let positionsConfirmed = ["close-all", "position-close-ABCD"]
   /// Ids of the commands the Safety card no longer has (cancel orders, the per-position and
   /// all-positions close, the emergency stop), nor Close all, which lives on the Positions card.
@@ -230,6 +234,14 @@ final class OverviewCommandsUITests: XCTestCase {
       button.click()
       let sheet = app.sheets.firstMatch
       XCTAssertTrue(sheet.waitForExistence(timeout: Self.timeout), "\(id) asks for confirmation")
+      if let count = Self.choices[id] {
+        // Every choice is there and can be pressed; none is pressed here.
+        XCTAssertEqual(sheet.buttons.count, count, "\(id) offers its choices\n\(sheet.debugDescription)")
+        for index in 0..<sheet.buttons.count {
+          let choice = sheet.buttons.element(boundBy: index)
+          XCTAssertTrue(choice.isHittable && choice.isEnabled, "\(id): choice \(choice.label) cannot be pressed")
+        }
+      }
       // Escape is the confirmation's cancel in every language.
       app.typeKey(.escape, modifierFlags: [])
       XCTAssertTrue(sheet.waitForNonExistence(timeout: Self.timeout), "\(id): the confirmation stays open")

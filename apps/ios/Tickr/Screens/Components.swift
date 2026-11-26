@@ -621,6 +621,7 @@ struct NoticeOverlay: ViewModifier {
               if model.notice?.id == notice.id { model.notice = nil }
             }
             .onTapGesture { model.notice = nil }
+            .accessibilityIdentifier(AccessibilityID.notice)
         }
       }
       .animation(Tokens.Motion.standard, value: model.notice)

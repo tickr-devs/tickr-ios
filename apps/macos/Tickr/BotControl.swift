@@ -48,6 +48,11 @@ enum BotAction: Identifiable, Equatable {
 
   var title: String { String(localized: label) }
 
+  /// Whether `command` is this action's send: Stop bot's also with a mode.
+  func sends(_ command: OperatorCommand) -> Bool {
+    command == self.command || (self == .stopBot && command.kind == .stopBot)
+  }
+
   /// What the button says while the command is on its way: Close all is closing the positions
   /// (its pause and cancel come first and are quick), the rest as the command says it.
   var inFlightTitle: LocalizedStringResource {
@@ -129,6 +134,9 @@ struct PendingConfirmation: Identifiable, Equatable {
   let id = UUID()
   let action: BotAction
   let place: CommandPlace
+  /// Stop bot with positions open asks to choose (Close and stop, Leave open); every other
+  /// question is a plain yes.
+  var stop: StopQuestion = .confirm
 }
 
 /// The Safety card's two commands side by side, as the design draws them: Pause entries (Resume
@@ -162,7 +170,8 @@ struct CloseAllButton: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    if !model.positions.isEmpty {
+    // Not on a stopped bot's positions: its panel stands in their place.
+    if !model.positions.isEmpty && model.stoppedPositions == nil {
       BotCommandButton(action: .closeAll, place: .window, size: .small)
         // A few words: always whole, on one line.
         .fixedSize()
@@ -191,10 +200,16 @@ struct BotCommandButton: View {
     }
     .buttonStyle(.command(action.tier, size: size, tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
     .disabled(!model.commandsEnabled || !applicable)
-    .inFlight(model.inFlight == action.command ? Text(action.inFlightTitle) : nil)
+    .inFlight(inFlightTitle.map { Text($0) })
     // An off close command says why; the rest say what they do.
     .hint(verbatim: applicable ? action.explanation : String(localized: L10n.Bot.noPositions))
     .accessibilityIdentifier(identifier ?? action.id)
+  }
+
+  /// What the button says while its command is on its way: Stop bot says its mode's words.
+  private var inFlightTitle: LocalizedStringResource? {
+    guard let command = model.inFlight, action.sends(command) else { return nil }
+    return action == .stopBot ? command.inFlightTitle : action.inFlightTitle
   }
 
   private var applicable: Bool {
@@ -213,7 +228,8 @@ private struct BotCommandQuestions: ViewModifier {
   let place: CommandPlace
 
   func body(content: Content) -> some View {
-    let question = model.confirming.flatMap { $0.place == place ? $0 : nil }
+    let question = model.confirming.flatMap { $0.place == place && $0.stop == .confirm ? $0 : nil }
+    let choice = model.confirming.flatMap { $0.place == place && $0.stop != .confirm ? $0 : nil }
     content
       // The alert closes its binding around its buttons' actions, in an order SwiftUI does not
       // promise; the question is closed by its buttons instead (Escape is the cancel button), so
@@ -228,6 +244,17 @@ private struct BotCommandQuestions: ViewModifier {
         // Where the command goes, named in every confirmation: a demo switch left on must never
         // swallow a real command unnoticed.
         Text(BotControls.confirmation(asked.action.explanation, demo: model.demoDay))
+      }
+      // Stop bot with positions open (boards Main, MainNarrow): three buttons, Escape cancels.
+      .alert(Text(verbatim: choice.map { StopChoice.title($0.stop) } ?? ""), isPresented: Binding(get: { choice != nil },
+        set: { _ in }), presenting: choice) { asked in
+        Button(role: .destructive) { model.accept(asked, mode: .closeAndStop) } label: { Text(StopText.closeAndStop) }
+          .accessibilityIdentifier(StopChoice.closeAndStopID)
+        Button { model.accept(asked, mode: .leaveOpen) } label: { Text(StopText.leaveOpen) }
+          .accessibilityIdentifier(StopChoice.leaveOpenID)
+        Button(String(localized: L10n.Common.cancel), role: .cancel) { model.withdraw(asked) }
+      } message: { asked in
+        Text(BotControls.confirmation(StopChoice.explanation(asked.stop), demo: model.demoDay))
       }
       // A question lives only while its window or panel does: closed, or opened anew, it holds no
       // question from before (a question never reappears without a new press).
