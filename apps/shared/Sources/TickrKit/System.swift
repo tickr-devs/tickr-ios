@@ -337,9 +337,11 @@ public struct SystemV1: Codable, Hashable, Sendable {
   public let morningCheckCauseCodes: [ReasonV1]
   public let trainingCauseCodes: [ReasonV1]
   public let hostCauseCodes: [ReasonV1]
+  /// The trained model (`ModelV1`); nil from an older API.
+  public let model: ModelV1?
 
   enum CodingKeys: String, CodingKey {
-    case training, host
+    case training, host, model
     case servedAt = "served_at"
     case botState = "bot_state"
     case statusStale = "status_stale"
@@ -370,6 +372,7 @@ public struct SystemV1: Codable, Hashable, Sendable {
     morningCheckCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .morningCheckCauseCodes) ?? []
     trainingCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .trainingCauseCodes) ?? []
     hostCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .hostCauseCodes) ?? []
+    model = try c.decodeIfPresent(ModelV1.self, forKey: .model)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -388,5 +391,6 @@ public struct SystemV1: Codable, Hashable, Sendable {
     try c.encode(morningCheckCauseCodes, forKey: .morningCheckCauseCodes)
     try c.encode(trainingCauseCodes, forKey: .trainingCauseCodes)
     try c.encode(hostCauseCodes, forKey: .hostCauseCodes)
+    try c.encodeNullable(model, forKey: .model)
   }
 }

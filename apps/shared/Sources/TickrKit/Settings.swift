@@ -60,9 +60,14 @@ public struct SettingsV1: Codable, Hashable, Sendable {
   /// then they keep none.
   public let commandMaxAgeSeconds: DecimalString?
   public let apiVersion: Int
+  /// Who decides entries: the active strategy's name and version (docs/api.md, "Decider"); nil with
+  /// `deciderCause` (a code) when its file cannot be read, and nil from an older API.
+  public let decider: DeciderV1?
+  public let deciderCause: String?
 
   enum CodingKeys: String, CodingKey {
-    case environment, observers, risk, session
+    case environment, observers, risk, session, decider
+    case deciderCause = "decider_cause"
     case activeStrategy = "active_strategy"
     case statusStaleSeconds = "status_stale_seconds"
     case pollSeconds = "poll_seconds"
@@ -89,6 +94,27 @@ public struct SettingsV1: Codable, Hashable, Sendable {
     liveQuoteMaxAgeSeconds = try c.decodeIfPresent(DecimalString.self, forKey: .liveQuoteMaxAgeSeconds)
     quotesPollSeconds = try c.decodeIfPresent(DecimalString.self, forKey: .quotesPollSeconds)
     commandMaxAgeSeconds = try c.decodeIfPresent(DecimalString.self, forKey: .commandMaxAgeSeconds)
+    decider = try c.decodeIfPresent(DeciderV1.self, forKey: .decider)
+    deciderCause = try c.decodeIfPresent(String.self, forKey: .deciderCause)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(environment, forKey: .environment)
+    try c.encode(activeStrategy, forKey: .activeStrategy)
+    try c.encode(observers, forKey: .observers)
+    try c.encode(risk, forKey: .risk)
+    try c.encode(session, forKey: .session)
+    try c.encode(statusStaleSeconds, forKey: .statusStaleSeconds)
+    try c.encode(pollSeconds, forKey: .pollSeconds)
+    try c.encode(brokerReadMaxAgeSeconds, forKey: .brokerReadMaxAgeSeconds)
+    try c.encode(brokerReadWarnSeconds, forKey: .brokerReadWarnSeconds)
+    try c.encodeNullable(liveQuoteMaxAgeSeconds, forKey: .liveQuoteMaxAgeSeconds)
+    try c.encodeNullable(quotesPollSeconds, forKey: .quotesPollSeconds)
+    try c.encodeNullable(commandMaxAgeSeconds, forKey: .commandMaxAgeSeconds)
+    try c.encode(apiVersion, forKey: .apiVersion)
+    try c.encodeNullable(decider, forKey: .decider)
+    try c.encodeNullable(deciderCause, forKey: .deciderCause)
   }
 }
 
