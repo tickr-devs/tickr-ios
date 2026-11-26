@@ -1,6 +1,5 @@
-// Copy to Local.xcconfig (git-ignored) and set your Apple Developer team id (Xcode › Settings ›
-// Accounts › your Apple ID › Team ID column). A free Apple ID's personal team works too.
-DEVELOPMENT_TEAM = YOUR_TEAM_ID
+// Copy to Local.xcconfig (git-ignored) and fill it in. The signing team is not here: it is in
+// apps/Config/Team.xcconfig, shared with the Mac app.
 
 // This Mac's name on your tailnet, as `tailscale serve` shows it (no https://), e.g.
 // mac.tailnet-name.ts.net: the address an iPhone build starts with.

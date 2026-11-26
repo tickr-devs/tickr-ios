@@ -36,10 +36,12 @@ Pick the `Tickr iOS` scheme and an iPhone Simulator, Run. With the API running o
 `http://127.0.0.1:8766`, the default address there. To try Face ID in the Simulator: Features ›
 Face ID › Enrolled, then Matching Face when asked.
 
-On your iPhone: copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` (git-ignored) and
-put your team id in it (a free Apple ID works; the app then runs for 7 days before Xcode has to
-install it again), connect the phone, Run. Do not pick the team in Signing & Capabilities: that
-writes it into the committed project. Likewise never accept Xcode's "Update to recommended
+On your iPhone: copy `apps/Config/Team.xcconfig.example` to `apps/Config/Team.xcconfig` and
+`Config/Local.xcconfig.example` to `Config/Local.xcconfig` (both git-ignored), put your Apple
+Developer Program team id in the first and this Mac's Tailscale name in the second, connect the
+phone, Run. Do not pick the team in Signing & Capabilities: that writes it into the committed
+project. Bundle ids are `bot.tickr.ios` (and `.tests`, `.uitests`), from the one prefix in
+`apps/Config/Identity.xcconfig`, shared with the Mac app (`bot.tickr.mac`). Likewise never accept Xcode's "Update to recommended
 settings": the project is generated, so such changes go into `project.yml`.
 The phone reaches the Mac through Tailscale (`tailscale serve` in front of the API, HTTPS, only
 inside your tailnet) with a paired token: follow "Remote access" in `docs/api.md`, AirDrop the

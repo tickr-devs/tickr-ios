@@ -1,5 +1,5 @@
 # Per-user Xcode state; the project itself is committed.
 Tickr.xcodeproj/xcuserdata/
 Tickr.xcodeproj/project.xcworkspace/xcuserdata/
-# Personal signing settings (team id); see Config/Signing.xcconfig.
+# Personal settings (Tailscale name, Simulator token file); see Config/Signing.xcconfig.
 Config/Local.xcconfig
