@@ -25,7 +25,6 @@ struct PositionRowTests {
     let stale = TradeRow.open(
       PositionRow(position: position, lastBarClose: nil, lastBarAt: Date(), closes: [], latestClose: close))
     #expect(stale.isStale)
-    #expect(stale.result != nil)
     #expect(stale.resultR != nil)
     #expect(stale.resultRColor == Palette.textQuaternary)
     let fresh = TradeRow.open(

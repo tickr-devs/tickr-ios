@@ -171,7 +171,9 @@ private struct FactCell: View {
   }
 }
 
-/// "Last entry size": what was bought, what each limit allowed, and which one set the size.
+/// "Last entry size" on the Risk screens of both apps (mockup IOSRisk): the shares bought, big,
+/// with where and when; the limit that set them; then each limit with the shares it allows, the
+/// one that set the size in the accent. No formulas on screen. With no entry today, one line.
 public struct EntrySizingSection: View {
   let sizing: EntrySizing
 
@@ -181,40 +183,57 @@ public struct EntrySizingSection: View {
 
   public var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        CardLabel(EntrySizing.title)
-          .frame(maxWidth: .infinity, alignment: .leading)
-        if let meta = sizing.meta {
-          Text(verbatim: meta)
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-            .fixedSize()
-          Badge(verbatim: EntrySizing.badge, tone: .accent)
+      CardLabel(EntrySizing.title)
+      if let shares = sizing.shares {
+        // The shares beside where and when; under a narrow width the place wraps under them.
+        ViewThatFits(in: .horizontal) {
+          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) { headline(shares); place }
+          VStack(alignment: .leading, spacing: Tokens.Space.xxs) { headline(shares); place }
         }
-      }
-      Text(verbatim: sizing.line)
-        .font(Tokens.Typography.calloutMono)
-        .fontWeight(.semibold)
-        .foregroundStyle(Palette.textPrimary)
-        .fixedSize(horizontal: false, vertical: true)
-      if let lead = sizing.lead {
-        Text(verbatim: lead)
-          .font(Tokens.Typography.caption)
+        if let text = sizing.limitedBy {
+          SizingCaption(text: text, color: sizing.captionColor)
+        }
+        ForEach(sizing.limits) { limit in
+          HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+            Text(verbatim: limit.plain)
+              .font(Tokens.Typography.caption)
+              .fontWeight(limit.binds ? .semibold : .regular)
+              .foregroundStyle(limit.binds ? Palette.textPrimary : Palette.textTertiary)
+              .fixedSize(horizontal: false, vertical: true)
+              .frame(maxWidth: .infinity, alignment: .leading)
+            Text(verbatim: limit.allows)
+              .font(Tokens.Typography.captionMono)
+              .fontWeight(limit.binds ? .bold : .medium)
+              .foregroundStyle(limit.binds ? Palette.accentText : Palette.textSecondary)
+              .fixedSize()
+          }
+          .accessibilityElement(children: .combine)
+        }
+      } else {
+        Text(verbatim: sizing.line)
+          .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textTertiary)
           .fixedSize(horizontal: false, vertical: true)
       }
-      ForEach(Array(sizing.limits.enumerated()), id: \.element.id) { step, limit in
-        LimitRow(limit: limit, step: step)
-      }
-      if let caption = sizing.caption {
-        SizingCaption(text: caption, color: sizing.captionColor)
-      }
-    }
-    .padding(.top, Tokens.Space.s)
-    .overlay(alignment: .top) {
-      Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  private func headline(_ shares: String) -> some View {
+    Text(verbatim: shares)
+      .font(Tokens.Typography.metric)
+      .foregroundStyle(Palette.textPrimary)
+      .contentTransition(.numericText())
+      .fixedSize()
+  }
+
+  @ViewBuilder private var place: some View {
+    if let place = sizing.place {
+      Text(verbatim: place)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textQuaternary)
+        .fixedSize(horizontal: false, vertical: true)
+    }
   }
 }
 
