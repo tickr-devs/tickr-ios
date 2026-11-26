@@ -9,6 +9,14 @@ extension L10n {
   static var headlineNoOpenPosition: LocalizedStringResource {
     LocalizedStringResource("kit.headline.noOpenPosition", defaultValue: "No open position", bundle: bundle)
   }
+  /// The headline's detail with no position open but own entry orders working (mockup v160):
+  /// "1 entry order working"; argument: how many.
+  static var headlineEntryWorking: LocalizedStringResource {
+    LocalizedStringResource("kit.headline.entryWorking", defaultValue: "1 entry order working", bundle: bundle)
+  }
+  static func headlineEntriesWorking(_ count: Int) -> LocalizedStringResource {
+    LocalizedStringResource("kit.headline.entriesWorking", defaultValue: "\(count) entry orders working", bundle: bundle)
+  }
   /// The headline's detail with open positions; arguments: how many are open, and how many of
   /// them a verified broker stop protects.
   static func headlineProtectedPositions(_ count: Int, _ protected: Int) -> LocalizedStringResource {

@@ -136,6 +136,27 @@ import Testing
     #expect(watch.rows(refused, inFlight: nil).first?.phase == .working)
   }
 
+  @Test func theHeadlineSaysHowManyEntriesWorkWithNoPositionOpen() throws {
+    let one = try status { $0["positions"] = [] }
+    #expect(Headline.detail(one) == "1 entry order working")
+    let two = try status { status in
+      status["positions"] = []
+      var entries = status["working_entries"] as? [[String: Any]] ?? []
+      var other = entries[0]
+      other["symbol"] = "WXYZ"
+      entries.append(other)
+      status["working_entries"] = entries
+    }
+    #expect(Headline.detail(two) == "2 entry orders working")
+    let none = try entryGone()
+    #expect(!Headline.detail(none).contains("entry"), "with a position open the headline counts positions")
+    let idle = try status { status in
+      status["positions"] = []
+      status["working_entries"] = []
+    }
+    #expect(Headline.detail(idle) == "No open position")
+  }
+
   @Test func forgetDropsWhatWasFollowed() throws {
     var watch = EntryCancelWatch()
     watch.read(try cancelRequested(), now: Self.start)

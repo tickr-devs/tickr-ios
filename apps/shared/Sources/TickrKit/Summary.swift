@@ -79,10 +79,17 @@ public struct Headline: Equatable, Sendable {
   }
 
   /// The line after the headline about a trusted status: how many positions are open and how
-  /// many a verified broker stop protects, or that none is open.
+  /// many a verified broker stop protects; with none open, how many own entry orders work, or
+  /// that none is open.
   static func detail(_ status: StatusV1) -> String {
     let positions = Board.positions(status)
-    guard !positions.isEmpty else { return String(localized: L10n.headlineNoOpenPosition) }
+    guard !positions.isEmpty else {
+      switch status.workingEntries.count {
+      case 0: return String(localized: L10n.headlineNoOpenPosition)
+      case 1: return String(localized: L10n.headlineEntryWorking)
+      case let count: return String(localized: L10n.headlineEntriesWorking(count))
+      }
+    }
     let protected = positions.filter { $0.stop.state.isProtected }.count
     return String(localized: L10n.headlineProtectedPositions(positions.count, protected))
   }

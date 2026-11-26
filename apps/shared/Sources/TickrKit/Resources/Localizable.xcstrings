@@ -3661,6 +3661,40 @@
         }
       }
     },
+    "kit.headline.entriesWorking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entry orders working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld órdenes de entrada activas"
+          }
+        }
+      }
+    },
+    "kit.headline.entryWorking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 entry order working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 orden de entrada activa"
+          }
+        }
+      }
+    },
     "kit.headline.gateClosedInConfig" : {
       "extractionState" : "manual",
       "localizations" : {
