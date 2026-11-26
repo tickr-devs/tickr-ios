@@ -9697,6 +9697,24 @@
         }
       }
     },
+    "kit.refusal.PRICE_COLLAR_BREACH" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. PRICE_COLLAR_BREACH",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit {limit} is {bar_distance} from the last bar's close {bar_close} (maximum {bar_max}) and {quote_distance} from the previous ask {previous_ask} (maximum {quote_max}); a maximum of 0 is off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El límite {limit} está a {bar_distance} del cierre de la última barra {bar_close} (máximo {bar_max}) y a {quote_distance} del ask anterior {previous_ask} (máximo {quote_max}); un máximo de 0 está desactivado"
+          }
+        }
+      }
+    },
     "kit.refusal.PRICE_OUTSIDE_WINDOW" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. PRICE_OUTSIDE_WINDOW",
       "extractionState" : "manual",

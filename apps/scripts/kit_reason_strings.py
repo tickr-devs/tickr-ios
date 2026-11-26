@@ -454,6 +454,15 @@ GROUPS = [
                 "Ask {ask} fuera del rango de entrada {entry_low}–{limit}",
             ),
             (
+                "PRICE_COLLAR_BREACH",
+                "Limit {limit} is {bar_distance} from the last bar's close {bar_close} (maximum "
+                "{bar_max}) and {quote_distance} from the previous ask {previous_ask} (maximum "
+                "{quote_max}); a maximum of 0 is off",
+                "El límite {limit} está a {bar_distance} del cierre de la última barra "
+                "{bar_close} (máximo {bar_max}) y a {quote_distance} del ask anterior "
+                "{previous_ask} (máximo {quote_max}); un máximo de 0 está desactivado",
+            ),
+            (
                 "QUANTITY_NOT_WHOLE",
                 "Quantity {quantity} is not a whole number of shares",
                 "La cantidad {quantity} no es un número entero de acciones",
@@ -1798,6 +1807,17 @@ def line_length_exemption(line):
     return ["      // swiftlint:disable:next line_length", line] if len(line) > LINE else [line]
 
 
+def wrapped_sentence(part):
+    """One ReasonSentence inside a wrapped case, as lines ending in a newline. A sentence too
+    long for one line puts its key and each value name on a line of its own."""
+    line = f"      {part},"
+    if len(line) <= LINE:
+        return line + "\n"
+    key, names = part[len("ReasonSentence("):-len("])")].split(", [", 1)
+    inner = "".join(f"          {name.strip()},\n" for name in names.split(","))
+    return f"      ReasonSentence(\n        {key},\n        [\n{inner}        ]\n      ),\n"
+
+
 def entries():
     """(enum, key, code, variant, names, english, spanish, doc) for every sentence. A code with
     several shapes (api/reasons.py) has a sentence per shape, told apart by `variant`."""
@@ -1903,7 +1923,8 @@ def reason_swift(part):
             ]
             line = f"    case .{camel(code)}: [{', '.join(parts)}]"
             if len(line) > LINE:
-                line = f"    case .{camel(code)}: [\n      " + ",\n      ".join(parts) + ",\n    ]"
+                body = "".join(wrapped_sentence(part) for part in parts)
+                line = f"    case .{camel(code)}: [\n{body}    ]"
             sentences.append(line)
         sentences += [
             "    }",
