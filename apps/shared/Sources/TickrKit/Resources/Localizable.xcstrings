@@ -10063,6 +10063,60 @@
         }
       }
     },
+    "kit.refusal.EQUITY_UNKNOWN" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No equity read yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no se ha leído el capital"
+          }
+        }
+      }
+    },
+    "kit.refusal.EQUITY_UNKNOWN.age" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN age",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equity read {age} s ago, limit {limit} s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capital leído hace {age} s, límite {limit} s"
+          }
+        }
+      }
+    },
+    "kit.refusal.EQUITY_UNKNOWN.value" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN value",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equity figure {value} is not usable"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cifra de capital {value} no es utilizable"
+          }
+        }
+      }
+    },
     "kit.refusal.HALF_DAY" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. HALF_DAY",
       "extractionState" : "manual",
