@@ -2,8 +2,9 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// The first screen: the day's result, the one line that says what the bot is doing, live events,
-/// open positions and the live flow. The power button opens bot control.
+/// The first screen (IOSHome board): the one line that says what the bot is doing, the day's
+/// result, the day's events as a ticker, open positions, today's funnel and the fast movers. The
+/// power button opens bot control.
 struct HomeView: View {
   /// Order in which the blocks rise in (`rise(step:)`); open positions follow one step apart.
   private enum Order: Int { case day = 1, summary, ticker, positions, flow = 6, movers }
@@ -80,7 +81,7 @@ struct HomeView: View {
           .rise(step: Order.positions.rawValue)
         let dayFlow = model.flow?.day == model.shownDay ? model.flow : nil
         LiveFlowCard(status: status, flow: dayFlow, flowPending: model.flowPending,
-          slotLimit: model.settings?.risk.maxOpenPositions, current: false, recorded: true,
+          current: false, recorded: true,
           sources: StageSources(flow: dayFlow, skipped: model.skipped?.day == model.shownDay ? model.skipped : nil,
             watching: nil, status: nil, settings: model.settings),
           symbols: model.symbols?.day == model.shownDay ? model.symbols : nil)
@@ -92,9 +93,16 @@ struct HomeView: View {
           skipped: model.skipped?.day == model.today ? model.skipped : nil) {
           strip.moving(ornamentMoves).rise(step: Order.ticker.rawValue)
         }
-        ForEach(Array(Board.positions(status).enumerated()), id: \.element.symbol) { index, position in
-          PositionRow(position: position, marks: prices.marks[position.symbol])
-            .rise(step: Order.positions.rawValue + index)
+        if let stopped = model.stoppedPositions {
+          // Bot stopped with positions open (board IOSHome): the stopped bot's last knowledge
+          // of them in place of the live rows, with Start bot.
+          StoppedPositionsPanel(stopped) { HomeStartButton() }
+            .rise(step: Order.positions.rawValue)
+        } else {
+          ForEach(Array(Board.positions(status).enumerated()), id: \.element.symbol) { index, position in
+            PositionRow(position: position, marks: prices.marks[position.symbol])
+              .rise(step: Order.positions.rawValue + index)
+          }
         }
         if status.positions.isEmpty {
           Text(L10n.Home.noPosition)
@@ -109,7 +117,6 @@ struct HomeView: View {
         let todaySkipped = model.skipped?.day == model.today ? model.skipped : nil
         let current = model.isFresh && WireDate(newYorkDateOf: status.writtenAt.date) == model.today
         LiveFlowCard(status: status, flow: todayFlow, flowPending: model.flowPending,
-          slotLimit: model.settings?.risk.maxOpenPositions,
           current: current, recorded: false,
           // The status only while it is current, as the stages' own values.
           sources: StageSources(flow: todayFlow, skipped: todaySkipped, watching: nil,
@@ -244,9 +251,9 @@ private struct DayLine: View {
   }
 }
 
-/// The status's age under Home's summary ("updated 3 s ago"), after the connection's own health
-/// dot: green while fresh statuses arrive, amber when the status is stale, red with no status or a
-/// failed read. Only a fresh status of today pulses, and only when the health changes.
+/// The status's age under Home's summary with the quote stream ("updated 3 s ago · quotes fresh"),
+/// after the connection's own health dot: green while fresh statuses arrive, amber when the status
+/// is stale, red with no status or a failed read. Only a fresh status of today pulses, and only when the health changes.
 private struct AgeLine: View {
   @Environment(AppModel.self) private var model
 
@@ -257,12 +264,21 @@ private struct AgeLine: View {
     let freshness = ConnectionFreshness.color(response: model.response, fetchError: model.fetchError)
     HStack(spacing: Tokens.Space.xs) {
       PulseDot(freshness, size: Tokens.Size.dotSmall, pulsing: isToday && fresh, event: freshness)
-      Text(Format.age(model.response))
+      Text(line(isToday: isToday))
         .contentTransition(.numericText())
         .fixedSize(horizontal: false, vertical: true)
     }
     .font(Tokens.Typography.annotation)
     .foregroundStyle(Palette.textQuaternary)
+  }
+
+  /// "updated 3 s ago · quotes fresh": the quote stream only for a status of today (an old one
+  /// says nothing about the stream now); off is the bot's normal state while flat, said so.
+  private func line(isToday: Bool) -> LocalizedStringResource {
+    let age = Format.age(model.response)
+    guard isToday, let stream = model.status?.freshness.stream else { return age }
+    let quotes = L10n.Flow.quotes(String(localized: stream == .off ? L10n.Settings.streamNoPosition : stream.title))
+    return L10n.Home.ageQuotes(String(localized: age), String(localized: quotes))
   }
 }
 
@@ -361,32 +377,53 @@ private struct Summary: View {
               .foregroundStyle(Palette.warningText)
               .fixedSize(horizontal: false, vertical: true)
           }
+          // As on the board: wins and losses, then the free slots, why entries are closed (only
+          // while they are), the version and the status's age, little text beside the big result.
+          Group {
+            if let stats {
+              Text(L10n.Common.winsLosses(stats.wins, stats.losses))
+            } else {
+              Text(verbatim: Format.missing)
+            }
+          }
+          .font(.headline)
+          .foregroundStyle(Palette.textPrimary)
+          .fixedSize(horizontal: false, vertical: true)
           if let past {
             CleanLine(clean: past.clean)
           } else if let status = model.status {
-            // Each position's protection and the gate as glyphs; the words are in their hints.
-            HStack(spacing: Tokens.Space.xs) {
-              ForEach(status.positions, id: \.symbol) { position in
-                StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
-              }
-              if !status.tradingGate.open {
-                StateGlyph(Symbols.gateClosed, tone: EntryGate.closed.tone,
-                  label: L10n.Home.gateClosed(ApiText.gate(status.tradingGate)), style: .compact)
-              } else {
-                let entries = EntriesGlyph.make(status)
-                StateGlyph(entries.symbol, tone: entries.tone, label: entries.label, style: .compact)
-              }
-              Badge(keepingCase: status.codeVersion.map { L10n.Home.versionCode(status.strategy.version, CodeVersion.short($0)) }
-                ?? L10n.Common.version(status.strategy.version), tone: .highlight)
+            if let limit = model.settings?.risk.maxOpenPositions {
+              Text(L10n.Home.slotsFree(max(0, limit - status.positions.count), limit))
+                .font(.subheadline)
+                .foregroundStyle(Palette.textTertiary)
+                .contentTransition(.numericText())
+                .fixedSize(horizontal: false, vertical: true)
             }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(verbatim: subline(status)))
+            // Why entries are closed, only while they are: the gate closed in config, else the
+            // bot's own block (red when it needs the operator, grey for a calm "not now").
+            if !status.tradingGate.open {
+              entryLine(L10n.Home.gateClosed(ApiText.gate(status.tradingGate)), tone: EntryGate.closed.tone)
+            } else if status.entryBlock != nil {
+              let entries = EntriesGlyph.make(status)
+              entryLine(entries.label, tone: entries.tone)
+            }
+            Text(status.codeVersion.map { L10n.Home.versionCode(status.strategy.version, CodeVersion.short($0)) }
+              ?? L10n.Common.version(status.strategy.version))
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.highlightText)
             AgeLine()
           }
         }
       }
     }
     .animation(Tokens.Motion.standard, value: pulse)
+  }
+
+  private func entryLine(_ text: LocalizedStringResource, tone: Tone) -> some View {
+    Text(text)
+      .font(.footnote)
+      .foregroundStyle(tone.text)
+      .fixedSize(horizontal: false, vertical: true)
   }
 
   /// The headline's facts on the live day: the status's gate, and the countdown to the regular
@@ -408,7 +445,7 @@ private struct Summary: View {
       trailing: stats?.lossShare ?? 0, trailingColor: Palette.seriesATR,
       halo: result < 0 ? Palette.seriesATR : Palette.accent, lineWidth: Self.ringLine) {
       VStack(spacing: Tokens.Space.xxs) {
-        CardLabel(L10n.Home.day)
+        CardLabel(past == nil ? L10n.Home.today : L10n.Home.day)
         if stats == nil {
           // No day was read: a dash, never a $0.00 we do not know.
           Text(verbatim: Format.missing)
@@ -422,20 +459,8 @@ private struct Summary: View {
             // One line at its full size; the ring grows around it.
             .fixedSize()
         }
-        Group {
-          if let stats {
-            Text(L10n.Common.winsLosses(stats.wins, stats.losses))
-          } else {
-            Text(verbatim: Format.missing)
-          }
-        }
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-        .multilineTextAlignment(.center)
-        // "1 G · 5 P" and longer translations wrap, never cut.
-        .fixedSize(horizontal: false, vertical: true)
       }
-      // Inside the ring's opening at every text size ("4 W · 7 L" ran past it).
+      // Inside the ring's opening at every text size.
       .frame(minWidth: 0, maxWidth: ringSide * Self.innerShare)
       .padding(Tokens.Space.l)
     }
@@ -448,22 +473,6 @@ private struct Summary: View {
     .accessibilityElement(children: .ignore)
     // Before the day is read the ring shows dashes; VoiceOver says so, never "$0.00, 0 wins".
     .accessibilityLabel(Text(HomeView.dayResultLabel(stats: stats, result: result)))
-  }
-
-  private func subline(_ status: StatusV1) -> String {
-    var parts: [LocalizedStringResource] = []
-    for position in status.positions {
-      parts.append(position.stop.state.isProtected
-        ? L10n.Home.protected(position.symbol)
-        : L10n.Home.stopIs(position.symbol, Board.stopStateTitle(position.stop.state)))
-    }
-    parts.append(L10n.Home.strategy(status.strategy.name, status.strategy.version))
-    if let code = status.codeVersion {
-      parts.append(L10n.Home.codeVersion(CodeVersion.short(code)))
-    }
-    parts.append(status.tradingGate.open
-      ? EntriesGlyph.make(status).label : L10n.Home.gateClosed(ApiText.gate(status.tradingGate)))
-    return parts.map { String(localized: $0) }.joined(separator: " ")
   }
 }
 
@@ -586,12 +595,11 @@ private struct PositionRow: View {
   }
 }
 
-/// The live flow as on the design (IOSHome): the stages a setup passes as a 3×3 grid of tiles,
+/// Today's funnel as on the board (IOSHome): the stages a setup passes as a 3×3 grid of tiles,
 /// each with its glowing dot and name, what the bot reports for it, how many symbols it dropped
-/// today ("−144") and a chevron to every symbol at the stage; the bot's inputs (quote stream, last
-/// broker read) in the header and under a hairline.
+/// today ("−144") and a chevron to every symbol at the stage; "Risk ›" in the header.
 /// A status that is stale, failed or from an earlier session shows still, faint dots and says so.
-/// Tapping it opens Risk (the room and why entries are blocked).
+/// Its header link opens Risk (the room and why entries are blocked).
 private struct LiveFlowCard: View {
   let status: StatusV1
   /// Today's flow: stage counts and the day's stops; nil until read.
@@ -599,8 +607,6 @@ private struct LiveFlowCard: View {
   /// The first /flow read has not answered yet: the stages show a placeholder, not the status's
   /// numbers they would jump from.
   let flowPending: Bool
-  /// The configured position slots; nil until the settings are read.
-  let slotLimit: Int?
   /// The status is fresh and describes today's session.
   let current: Bool
   /// A recorded past day: every value comes from that day's flow and symbols, nothing from the
@@ -782,41 +788,30 @@ private struct LiveFlowCard: View {
     // Only the header's link opens Risk: a whole-card link would swallow the stages' taps and host
     // their popovers inside its label.
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      // As on the design: the label and the link to Risk ("slots 2 of 3 ›", the shared header link;
-      // "risk ›" while the slots are not known), then the bot's inputs (the quote stream and how
-      // long ago the broker was read). At large text sizes the inputs take the line under the label.
+      // As on the board: the label with the key to the tiles' pink counts, and the link to Risk.
+      // The quote stream is in the age line beside the ring; the broker read in the reconcile
+      // stage's detail. At large text sizes the link takes the line under the label.
       RowStack {
-        HStack(spacing: Tokens.Space.s) {
+        ChipFlow(spacing: Tokens.Space.s) {
           CardLabel(recorded ? L10n.Flow.titleRecorded : L10n.Flow.title)
-          NavigationLink {
-            RiskView()
-          } label: {
-            if current, let slotLimit {
-              HeaderLinkLabel(L10n.Flow.slots(status.positions.count, slotLimit))
-            } else {
-              HeaderLinkLabel(L10n.Flow.risk)
-            }
-          }
-          .buttonStyle(.headerLink())
-          .fixedSize()
-          .accessibilityIdentifier(AccessibilityID.risk)
-        }
-        Spacer(minLength: 0)
-        HStack(alignment: .center, spacing: Tokens.Space.s) {
+          Text(L10n.Flow.droppedKey)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.droppedText)
           if !current && !recorded {
             Text(L10n.Flow.notCurrent)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.warningText)
-              .fixedSize(horizontal: false, vertical: true)
-          }
-          // Today's quote stream and broker read say nothing about a recorded day.
-          if !recorded {
-            StateGlyph(Self.streamSymbol, tone: streamTone,
-              label: L10n.Flow.quotes(String(localized: status.freshness.stream.title)),
-              live: current && status.freshness.stream == .fresh, event: status.freshness.stream, style: .compact)
-            BrokerReadAge(readAt: status.freshness.lastBrokerReadAt, alarm: current)
           }
         }
+        Spacer(minLength: 0)
+        NavigationLink {
+          RiskView()
+        } label: {
+          HeaderLinkLabel(L10n.Home.riskLink)
+        }
+        .buttonStyle(.headerLink())
+        .fixedSize()
+        .accessibilityIdentifier(AccessibilityID.risk)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       // A 3×3 grid of equal tiles, as in the design (a long value wraps inside its tile, never
@@ -830,23 +825,6 @@ private struct LiveFlowCard: View {
       }
       // Until the first /flow read answers, a placeholder instead of numbers that would jump.
       .redacted(reason: (current || recorded) && flowPending ? .placeholder : [])
-      // The quote stream in words and the trays' legend, under a hairline, as on the design.
-      if current {
-        VStack(spacing: Tokens.Space.s) {
-          Divider().overlay(Palette.separator)
-          HStack(spacing: Tokens.Space.s) {
-            // Off is the bot's normal state while flat: said so, never just "off".
-            Text(L10n.Flow.quotes(String(localized: status.freshness.stream == .off
-              ? L10n.Settings.streamNoPosition : status.freshness.stream.title)))
-            Spacer(minLength: Tokens.Space.s)
-            // The legend of the tiles' pink counts.
-            Text(L10n.Flow.droppedLegend)
-              .foregroundStyle(Palette.droppedText)
-          }
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-        }
-      }
       ForEach(liveFences, id: \.kind) { fence in
         Label { Text(verbatim: Board.fenceText(fence, status: status)) } icon: {
           Image(systemName: "exclamationmark.triangle.fill")
@@ -866,21 +844,6 @@ private struct LiveFlowCard: View {
   /// Stage names, in `StageID` order.
   private static let names = [L10n.Flow.screen, L10n.Flow.stocks, L10n.FlowStages.quote, L10n.FlowStages.bars,
     L10n.Flow.strategy, L10n.Flow.risk, L10n.Flow.order, L10n.Flow.stop, L10n.FlowStages.reconcile]
-
-  /// Symbol of the quote stream.
-  static let streamSymbol = "waveform.path.ecg"
-
-  /// The quote stream's state as a tone: a lost stream is an alarm.
-  private var streamTone: Tone {
-    // An old status says nothing about the stream now.
-    guard current else { return .neutral }
-    switch status.freshness.stream {
-    case .fresh: return .profit
-    case .quiet: return .warning
-    case .lost: return .loss
-    case .off: return .neutral
-    }
-  }
 
   /// A stage as a button: a tap anywhere on it (its dot, name, value, dots or tray) pushes the
   /// Symbols screen on its tab, every symbol at the stage today; reconcile, which holds no symbol
@@ -995,45 +958,6 @@ private struct LiveFlowCard: View {
     }
     .unredacted(when: stage.urgent)
   }
-}
-
-/// How long ago the bot last read the broker, as on the design ("read 3 s"), counted on the
-/// clock; red when there was no read at all, "—" without a time.
-private struct BrokerReadAge: View {
-  let readAt: WireTime?
-  /// No read is an alarm only for a current status.
-  let alarm: Bool
-
-  @Environment(AppModel.self) private var model
-
-  var body: some View {
-    TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { _ in
-      Label {
-        Text(text)
-      } icon: {
-        Image(systemName: LiveFlowCardSymbols.brokerSymbol)
-      }
-      .labelStyle(ControlLabelStyle())
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(alarm && readAt == nil ? Palette.lossText : Palette.textQuaternary)
-      // Wraps at large text sizes rather than widening the card past the screen.
-      .fixedSize(horizontal: false, vertical: true)
-      .accessibilityLabel(Text(L10n.Flow.brokerRead(Format.timeOrDash(readAt))))
-    }
-  }
-
-  private var text: LocalizedStringResource {
-    guard let readAt else { return L10n.Flow.readNever }
-    let seconds = max(0, Int(model.botNow.timeIntervalSince(readAt.date)))
-    let minute = Int(PositionMarks.barSeconds)
-    return seconds < minute ? L10n.Flow.readSeconds(seconds) : L10n.Flow.readMinutes(seconds / minute)
-  }
-}
-
-/// Symbols of the live flow's inputs, shared with `BrokerReadAge`.
-private enum LiveFlowCardSymbols {
-  /// The last broker read: a clock going round.
-  static let brokerSymbol = "clock.arrow.circlepath"
 }
 
 /// The day's events as the design's ticker strip: each event's tag in its tone and what happened,

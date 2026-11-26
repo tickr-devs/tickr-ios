@@ -93,7 +93,7 @@ import TickrKit
     #expect(Tone.exit("stop-rejected") == .loss)
     #expect(Tone.exit("unprotected-too-long") == .loss)
     #expect(Tone.exit("a-reason-not-known-yet") == .neutral)
-    // A replay's words (observers, what-ifs): the same tags.
+    // A replay's words (what-ifs): the same tags.
     #expect(Tone.exit("stop") == .series)
     #expect(Tone.exit("strategy_exit") == .accent)
     #expect(Tone.exit("flatten") == .neutral)

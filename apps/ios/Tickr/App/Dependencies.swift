@@ -32,17 +32,10 @@ extension Container {
     self { PositionsModel() }
   }
 
-  /// The Lab tab's observers of the day. A new one each time the tab builds its view.
+  /// The Lab tab's reads: the day's refusals and record, and the replay. A new one each time the tab builds its view.
   @MainActor
   var labModel: Factory<LabModel> {
     self { LabModel() }
-  }
-
-  /// The AI advisor's runs and the owner's decisions on them, for the Lab's advisor card and the
-  /// proposal page it opens. A new one each time the tab builds its view.
-  @MainActor
-  var advisorModel: Factory<AdvisorModel> {
-    self { AdvisorModel() }
   }
 
   /// The symbols the strategy is watching closely, for the Positions tab. A new one each time the

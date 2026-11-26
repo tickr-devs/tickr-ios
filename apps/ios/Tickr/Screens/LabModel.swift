@@ -2,15 +2,11 @@ import Foundation
 import Observation
 import TickrKit
 
-/// The Lab's observers: what each shadow strategy decided on the status's session (GET
-/// /observers), read when the tab opens and on refresh. Read-only; observers never trade.
+/// The Lab's reads: the shown day's refused signals and, for a recorded day, its record, read
+/// when the tab opens and on refresh; and the replay, read while the Lab is open.
 @MainActor
 @Observable
 final class LabModel {
-  /// The observers of `day`, once read.
-  private(set) var observers: ObserversV1?
-  /// Why they could not be read, if they could not.
-  private(set) var failure: String?
   /// The shown recorded day's record (GET /days/<date>), once read; nil while today is shown.
   private(set) var pastDay: DayV1?
   /// Why it could not be read, if it could not.
@@ -49,13 +45,11 @@ final class LabModel {
     Container.shared.apiClient(Container.shared.appModel().connection.endpoint(for: url))
   }
 
-  /// Read the observers and the refusals of `day` from the bot at `url`, all at once, and, for a
-  /// recorded past day (`past`), its record, whose trades draw the trading strategy's line; another
-  /// bot's answers are dropped first.
+  /// Read the refusals of `day` from the bot at `url` and, for a recorded past day (`past`), its
+  /// record, whose trades give the trading strategy's day, both at once; another bot's answers are
+  /// dropped first.
   func load(_ url: URL, day: WireDate, past: Bool) async {
     if source != url {
-      observers = nil
-      failure = nil
       refusals = nil
       refusalsDay = nil
       refusalsFailure = nil
@@ -63,10 +57,9 @@ final class LabModel {
       pastDayFailure = nil
       source = url
     }
-    async let observersRead: Void = loadObservers(url, day: day)
     async let refusalsRead: Void = loadRefusals(url, day: day)
     async let dayRead: Void = past ? loadPastDay(url, day: day) : clearPastDay()
-    _ = await (observersRead, refusalsRead, dayRead)
+    _ = await (refusalsRead, dayRead)
   }
 
   /// Read the record of past day `day`. Another day's record is never shown under this one.
@@ -111,21 +104,6 @@ final class LabModel {
       return
     } catch {
       if day == refusalsDay { refusalsFailure = ErrorText.text(error) }
-    }
-  }
-
-  /// Read the observers of `day`. Another day's answer is never shown under this one.
-  func loadObservers(_ url: URL, day: WireDate) async {
-    if observers?.day != day { observers = nil }
-    do {
-      let read = try await client(url).observers(day: day)
-      guard read.day == day else { return }
-      observers = read
-      failure = nil
-    } catch is CancellationError {
-      return
-    } catch {
-      failure = ErrorText.text(error)
     }
   }
 

@@ -131,7 +131,7 @@ public enum ApiText {
 
   /// Where a code this app does not know is kept for diagnostics: the unified log (Console,
   /// subsystem and category below, debug level), never the screen.
-  static let diagnosticsSubsystem = "local.tickr.kit"
+  static let diagnosticsSubsystem = "bot.tickr.kit"
   static let diagnosticsCategory = "unknown-code"
 
   /// A cause code this app does not know (why a symbol stopped, from a bot of another release):

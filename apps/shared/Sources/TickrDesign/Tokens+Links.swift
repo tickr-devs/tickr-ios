@@ -78,7 +78,7 @@ extension Tokens {
     /// taller shows more (owner, 2026-11-18: never an ever-longer card, never a scroll inside it).
     /// Events of the day or of the history: fills, signals not taken, refusals by cause.
     public static let cappedRows = 5
-    /// Things compared side by side: strategy versions, observers, advisor runs, a symbol's trades.
+    /// Things compared side by side: strategy versions, a symbol's trades.
     public static let comparedRows = 3
     /// The broker's positions and open orders: as many as the bot's entry slots.
     public static let brokerRows = 6

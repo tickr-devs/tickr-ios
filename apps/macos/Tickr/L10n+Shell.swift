@@ -16,10 +16,6 @@ extension L10n.Toolbar {
   static func closedTrades(_ count: Int) -> LocalizedStringResource {
     LocalizedStringResource("toolbar.closedTrades", defaultValue: "\(count) closed", bundle: L10n.bundle)
   }
-  /// The bot's address and the age of its status ("127.0.0.1 · age 3 s").
-  static func connectionAge(_ host: String, _ age: String) -> LocalizedStringResource {
-    LocalizedStringResource("toolbar.connectionAge", defaultValue: "\(host) · age \(age)", bundle: L10n.bundle)
-  }
   /// An age in seconds and in minutes ("3 s", "2 min").
   static func ageSeconds(_ seconds: Int) -> LocalizedStringResource {
     LocalizedStringResource("toolbar.ageSeconds", defaultValue: "\(seconds) s", bundle: L10n.bundle)

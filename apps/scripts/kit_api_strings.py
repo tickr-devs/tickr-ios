@@ -243,7 +243,7 @@ for code, en, es in [
     ("QUOTE_INVALID", "Quote invalid", "Cotización no válida"),
     ("NO_BARS", "No minute bars", "Sin velas de un minuto"),
     ("SYMBOL_REFUSED", "Refused by the data provider", "Rechazado por el proveedor de datos"),
-    ("STRATEGY_LIQUIDITY", "Strategy liquidity rule", "Regla de liquidez de la estrategia"),
+    ("STRATEGY_LIQUIDITY", "Liquidity too low", "Liquidez insuficiente"),
 ]:
     add("discovery_" + code, "kit.discovery." + code, en, es, DC + code)
 

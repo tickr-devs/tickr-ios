@@ -1,8 +1,9 @@
 import SwiftUI
 
-// The pieces of a symbol's row on the Symbols screen and the Fast movers card (mockup v89), drawn
-// the same on both apps: a fast mover's figure, the screener chips and the stage track. They take
-// plain texts and colours; each app maps the API's rows onto them.
+// The pieces of a symbol's row and detail on the Symbols screen and the Fast movers card (mockups
+// v89, MacSymbols), drawn the same on both apps: a fast mover's figure, the stage track, the
+// detail's headline, its disclosures and path steps. They take plain texts and colours; each app
+// maps the API's rows onto them.
 
 /// One figure of a fast mover ("vol 6.4×", "+2.1 ATR", "$vol 4.1×"). The criterion the row met
 /// is amber, bold and lightly tinted with a thin amber border; an unmet one is quiet (mockup
@@ -33,45 +34,8 @@ public struct MoverFigure: View {
   }
 }
 
-/// A symbol's screeners as the apps' small chips (`chipFace(selected:small:)`, the boards'
-/// `.u-chip.sm`, "Gainers #3 +18.2%"): each chip's words, then an optional change in its own colour.
-public struct SourceChips: View {
-  /// One chip: the screener and rank, and the symbol's change with its colour (on one chip only).
-  public struct Item: Hashable {
-    public let text: String
-    public let change: String?
-    public let changeColor: Color
-
-    public init(text: String, change: String? = nil, changeColor: Color = Palette.textSecondary) {
-      self.text = text
-      self.change = change
-      self.changeColor = changeColor
-    }
-  }
-
-  let items: [Item]
-
-  public init(_ items: [Item]) {
-    self.items = items
-  }
-
-  public var body: some View {
-    ChipFlow(spacing: Tokens.Space.xs) {
-      ForEach(Array(items.enumerated()), id: \.offset) { _, item in
-        HStack(spacing: Tokens.Space.xs) {
-          Text(verbatim: item.text)
-          if let change = item.change {
-            Text(verbatim: change).foregroundStyle(item.changeColor)
-          }
-        }
-        .chipFace(selected: false, small: true)
-      }
-    }
-  }
-}
-
 /// How far a symbol got (mockup v101): one small segment per stage in `colors` (passed teal,
-/// waiting blue, dropped pink, not reached a hairline), then the furthest stage's name on the
+/// waiting blue, dropped neutral, not reached a hairline), then the furthest stage's name on the
 /// same line. VoiceOver reads the name.
 public struct StageTrack: View {
   let colors: [Color]
@@ -150,45 +114,93 @@ public struct UnderlineTab: View {
   }
 }
 
-/// One fast mover figure in the symbol detail (mockup v101): the name, the value, and whether it
-/// met its threshold ("met ≥ 5.0×" or "< 5.0×"). A met one is amber on a light amber wash.
-public struct MoverStat: View {
+/// What happened to a symbol, in the detail's head (mockup MacSymbols): one word in its tone
+/// ("Entered", "Skipped") and one caption under it. Both wrap, never cut.
+public struct SymbolHeadline: View {
   let title: Text
-  let value: String
-  let note: String
-  let met: Bool
+  let caption: String
+  let color: Color
 
-  public init(_ title: LocalizedStringResource, value: String, note: String, met: Bool) {
+  public init(_ title: LocalizedStringResource, caption: String, color: Color) {
     self.title = Text(title)
-    self.value = value
-    self.note = note
-    self.met = met
+    self.caption = caption
+    self.color = color
   }
 
   public var body: some View {
-    let shape = RoundedRectangle(cornerRadius: Tokens.Radius.chip)
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
       title
-        .textCase(.uppercase)
-        .font(Tokens.Typography.label)
-        .foregroundStyle(Palette.textQuaternary)
-      Text(verbatim: value)
         .font(Tokens.Typography.figure)
-        .foregroundStyle(met ? Palette.warningText : Palette.textQuaternary)
-      Text(verbatim: note)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
+        .foregroundStyle(color)
+        .accessibilityAddTraits(.isHeader)
+      Text(verbatim: caption)
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textTertiary)
         .fixedSize(horizontal: false, vertical: true)
     }
-    .padding(Tokens.Space.s)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(met ? Palette.warning.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
-    .overlay {
-      shape.strokeBorder(met ? Palette.warning.opacity(Tokens.Opacity.border) : Palette.separator,
-        lineWidth: Tokens.Stroke.thin)
-    }
     .accessibilityElement(children: .combine)
   }
+}
+
+/// A section of a detail that opens in place (mockups MacSymbols, MacChart, "Steps today ▾"):
+/// its label, a short summary on the right and a chevron that turns; the content shows under it
+/// while open. A real button, the whole row its touch target; `id` names it for the UI tests.
+public struct DetailDisclosure<Content: View>: View {
+  let title: Text
+  let summary: String?
+  @Binding var isOpen: Bool
+  let id: String?
+  let content: Content
+
+  public init(
+    _ title: LocalizedStringResource, summary: String?, isOpen: Binding<Bool>, id: String? = nil,
+    @ViewBuilder content: () -> Content
+  ) {
+    self.title = Text(title)
+    self.summary = summary
+    _isOpen = isOpen
+    self.id = id
+    self.content = content()
+  }
+
+  public var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      Button {
+        withAnimation(Tokens.Motion.quick) { isOpen.toggle() }
+      } label: {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+          title
+            .textCase(.uppercase)
+            .font(Tokens.Typography.label)
+            .tracking(Tokens.Typography.labelTracking)
+            .foregroundStyle(Palette.textQuaternary)
+          Spacer(minLength: Tokens.Space.s)
+          if let summary {
+            Text(verbatim: summary)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.textTertiary)
+          }
+          Image(systemName: Symbols.next)
+            .font(Tokens.Typography.chevron)
+            .foregroundStyle(Palette.textQuaternary)
+            .rotationEffect(isOpen ? .degrees(DisclosureLook.openDegrees) : .zero)
+        }
+        .frame(minHeight: Tokens.Size.footerLink)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+      .accessibilityAddTraits(isOpen ? .isSelected : [])
+      .accessibilityIdentifier(id ?? "")
+      if isOpen { content }
+    }
+  }
+}
+
+/// The look of `DetailDisclosure` (a generic type keeps no stored constants).
+private enum DisclosureLook {
+  /// How far the chevron turns when open, in degrees: from pointing on to pointing down.
+  static let openDegrees: Double = 90
 }
 
 /// One stage of a symbol's path today in the detail (mockup v101): a small icon in the step's

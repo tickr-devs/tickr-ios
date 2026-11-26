@@ -2,9 +2,10 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Open positions: one picker chip per position, then the selected one with its price against
-/// entry and stop, its protection chain, risk numbers and a Flatten button. Prices come from the
-/// captured bars (`PositionsModel`), for display only.
+/// Open positions (IOSPosition board): Close all in the title row, one picker chip per position,
+/// then the selected one with its result big, its price against entry and stop, its protection
+/// (the broker stop, three figures, the steps behind a disclosure) and Close position. Prices come
+/// from the captured bars (`PositionsModel`), for display only.
 struct PositionsView: View {
   @Environment(AppModel.self) private var model
   @State private var prices = Container.shared.positionsModel()
@@ -12,12 +13,17 @@ struct PositionsView: View {
 
   var body: some View {
     Screen(L10n.App.positions, tab: .positions) {
-      // The slots in use, mono and dim at the end of the title row, as on the design.
-      if model.isLive, let status = model.status, let limit = model.settings?.risk.maxOpenPositions {
-        Text(L10n.Positions.slots(status.positions.count, limit))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .contentTransition(.numericText())
+      // The slots in use, mono and dim at the end of the title row, then Close all, as on the design.
+      if model.isLive, let status = model.status {
+        if let limit = model.settings?.risk.maxOpenPositions {
+          Text(L10n.Positions.slots(status.positions.count, limit))
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+            .contentTransition(.numericText())
+        }
+        if !status.positions.isEmpty {
+          PositionsCloseAll(symbols: Board.positions(status).map(\.symbol))
+        }
       }
     } content: {
       if !model.isLive {
@@ -35,7 +41,7 @@ struct PositionsView: View {
         let positions = Board.positions(status)
         if positions.isEmpty {
           ContentUnavailableView {
-            Label { Text(L10n.Positions.none) } icon: { BrandMark.empty() }
+            Label { Text(L10n.Positions.none) } icon: { Image(systemName: EmptyState.nothingSymbol) }
           } description: {
             if let block = status.entryBlock {
               Text(verbatim: ApiText.entryBlock(block))
@@ -89,6 +95,49 @@ struct PositionsView: View {
     let url: URL?
     let day: WireDate?
     let positions: [Position]
+  }
+}
+
+/// "Close all" in the title row (IOSPosition board): POST /commands/emergency, which pauses
+/// entries, cancels the bot's working entry orders and closes every position it holds at market.
+/// It asks first, with the symbols it closes, then Face ID (`BotControl.confirmAndSend`).
+struct PositionsCloseAll: View {
+  @Environment(AppModel.self) private var model
+  @State private var confirm = false
+  /// The open positions' symbols, in the screen's order.
+  let symbols: [String]
+
+  /// The command Close all sends: the existing emergency (docs/api.md), never a new one.
+  static let command = OperatorCommand.emergency
+
+  /// The confirmation's title: "Close the last position?" for one, else "Close all N positions?".
+  static func title(_ count: Int) -> LocalizedStringResource {
+    count == 1 ? L10n.Positions.closeLastTitle : L10n.Positions.closeAllTitle(count)
+  }
+
+  var body: some View {
+    Button(role: .destructive) {
+      confirm = true
+    } label: {
+      Label { Text(L10n.Control.flattenAll) } icon: { Image(systemName: BotControl.flattenSymbol) }
+        .fixedSize()
+    }
+    .buttonStyle(.action(.destructive, size: .compact))
+    .disabled(!model.canCommand)
+    .inFlight(model.inFlight == Self.command ? Text(Self.command.inFlightTitle) : nil)
+    .confirmationDialog(Text(Self.title(symbols.count)), isPresented: $confirm, titleVisibility: .visible) {
+      if model.canCommand {
+        Button(role: .destructive) {
+          Task { await BotControl.confirmAndSend(Self.command, model: model) }
+        } label: {
+          Text(L10n.Control.flattenAll)
+        }
+      }
+      Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
+    } message: {
+      let list = symbols.formatted(.list(type: .and))
+      Text(BotControl.target(String(localized: L10n.Positions.closeAllMessage(list)), demo: model.connection.demo))
+    }
   }
 }
 
@@ -162,19 +211,17 @@ private struct PositionChips: View {
         .accessibilityValue(Text(verbatim: Board.stopStateTitle(position.stop.state)))
         .transition(.scale.combined(with: .opacity))
       }
-      ForEach(0..<freeSlots, id: \.self) { index in
-        VStack(spacing: Tokens.Space.xxs) {
-          Text(L10n.Positions.freeSlot).font(.footnote.monospaced().bold()).fixedSize()
-          Text(L10n.Positions.slotNumber(positions.count + index + 1)).font(Tokens.Typography.annotationBold)
-            .fixedSize()
-        }
-        .padding(.horizontal, Tokens.Space.s)
-        .frame(maxWidth: stretch ? .infinity : nil, minHeight: Self.chipHeight)
-        .foregroundStyle(Palette.textQuaternary)
-        .overlay(
-          RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-            .strokeBorder(Palette.separatorStrong, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash)))
-        .accessibilityElement(children: .combine)
+      ForEach(0..<freeSlots, id: \.self) { _ in
+        // Plain text, not a control: a free slot does nothing when tapped.
+        Text(L10n.Positions.freeSlot)
+          .font(.footnote.bold())
+          .fixedSize()
+          .padding(.horizontal, Tokens.Space.s)
+          .frame(maxWidth: stretch ? .infinity : nil, minHeight: Self.chipHeight)
+          .foregroundStyle(Palette.textQuaternary)
+          .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+              .strokeBorder(Palette.separatorStrong, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash)))
       }
       ForEach(0..<empty, id: \.self) { _ in
         Color.clear.frame(maxWidth: .infinity).accessibilityHidden(true)
@@ -186,37 +233,24 @@ private struct PositionChips: View {
 
 private struct PositionDetail: View {
   /// Order in which the blocks rise in (`rise(step:)`).
-  enum Order: Int { case chips = 1, title, levels, chain, stats, flatten, watching }
-
-  /// Digits after the point of the distance to the stop, in percent.
-  static let percentDigits = 1
+  enum Order: Int { case chips = 1, title, levels, protection, close, watching }
 
   @Environment(AppModel.self) private var model
   @Environment(\.dynamicTypeSize) private var typeSize
-  @State private var confirmFlatten = false
+  @State private var confirmClose = false
   let position: Position
   let marks: PositionMarks?
-
-  /// "−0.6 / +1.2 R", or in dollars while R is undefined; a dash without bars.
-  private var excursion: String {
-    guard let marks else { return Format.missing }
-    if let adverse = marks.adverseR, let favorable = marks.favorableR {
-      return Money.signed(adverse, fractionDigits: 1) + Format.slash + Risk.text(favorable)
-    }
-    return Money.signedUSD(marks.adverse) + Format.slash + Money.signedUSD(marks.favorable)
-  }
 
   var body: some View {
     let entry = position.entryPrice.value
     let stop = position.stop.price?.value
-    let quantity = position.quantity.value
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       // As on the design: the symbol with its shares, entry and fill time under it; the open result
       // with the last price and R at the right. At large text sizes the result goes under.
       RowStack(alignment: .bottom, spacing: Tokens.Space.s) {
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
           SymbolText(position.symbol)
-            .font(.title.monospaced().bold())
+            .font(.largeTitle.monospaced().bold())
             .fixedSize()
           Text(L10n.Positions.shares(position.quantity.text, Money.price(position.entryPrice.value),
             Format.clock(position.openedAt.date)))
@@ -256,27 +290,12 @@ private struct PositionDetail: View {
         model.selectedTab = .chart
       }
         .rise(step: Order.levels.rawValue)
-      ProtectionChain(position: position, brokerReadAt: model.status?.freshness.lastBrokerReadAt?.date,
+      ProtectionCard(position: position, marks: marks, brokerReadAt: model.status?.freshness.lastBrokerReadAt?.date,
         reconciled: model.isFresh && model.account?.stale == false)
-        .rise(step: Order.chain.rawValue)
-
-      // Three tiles in a row; one under another at large text sizes, so labels and figures stay whole.
-      RowStack(alignment: .top, spacing: Tokens.Space.s) {
-        StatTile(label: L10n.Positions.maxLoss,
-          value: Risk.plannedLoss(entry: entry, stop: stop, quantity: quantity).map(Money.usd)
-            ?? Format.missing)
-        StatTile(label: L10n.Positions.toStop,
-          value: stop.map {
-            Percent.signed(fraction: ($0 - entry) / entry, fractionDigits: Self.percentDigits)
-          } ?? Format.missing)
-        StatTile(label: L10n.Positions.excursion, value: excursion)
-      }
-      // One height for the three tiles, as on the design.
-      .fixedSize(horizontal: false, vertical: true)
-      .rise(step: Order.stats.rawValue)
+        .rise(step: Order.protection.rawValue)
 
       Button(role: .destructive) {
-        confirmFlatten = true
+        confirmClose = true
       } label: {
         Label { Text(L10n.Positions.closePosition) } icon: { Image(systemName: BotControl.flattenSymbol) }
       }
@@ -286,19 +305,20 @@ private struct PositionDetail: View {
       .disabled(!model.canCommand)
       .inFlight(model.inFlight == .flattenSymbol(position.symbol)
         ? Text(OperatorCommand.flattenSymbol(position.symbol).inFlightTitle) : nil)
-      .rise(step: Order.flatten.rawValue)
-      .confirmationDialog(Text(L10n.Positions.closeNow(position.symbol)), isPresented: $confirmFlatten,
+      .rise(step: Order.close.rawValue)
+      .confirmationDialog(Text(L10n.Positions.closeNow(position.symbol)), isPresented: $confirmClose,
         titleVisibility: .visible) {
         if model.canCommand {
           Button(role: .destructive) {
             Task { await BotControl.confirmAndSend(.flattenSymbol(position.symbol), model: model) }
           } label: {
-            Text(L10n.Positions.flatten(position.symbol))
+            Text(L10n.Positions.closePosition)
           }
         }
         Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
       } message: {
-        Text(BotControl.target(String(localized: L10n.Positions.flattenMessage), demo: model.connection.demo))
+        Text(BotControl.target(String(localized: L10n.Positions.closeMessage(position.quantity.text)),
+          demo: model.connection.demo))
       }
     }
   }
@@ -361,14 +381,14 @@ private struct LevelsCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      // The label, then its note; the note goes under it at large text sizes.
-      RowStack {
-        CardLabel(L10n.Positions.riskBand)
-        Spacer()
+      // No label (the board's chart speaks for itself): the note or the link to the full chart.
+      HStack {
+        Spacer(minLength: 0)
         if marks == nil {
           Text(L10n.Positions.waitingForBars)
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
         } else {
           HeaderLink(L10n.Positions.openChart, action: openChart)
         }
@@ -398,7 +418,7 @@ private struct LevelsCard: View {
     .padding(Tokens.Space.m)
     .tickrCard()
     .onAppear {
-      withAnimation(Tokens.Motion.draw.delay(Tokens.Motion.stagger * Double(PositionDetail.Order.flatten.rawValue))) {
+      withAnimation(Tokens.Motion.draw.delay(Tokens.Motion.stagger * Double(PositionDetail.Order.levels.rawValue))) {
         drawn = true
       }
     }
@@ -452,8 +472,97 @@ private struct LevelsCard: View {
   }
 }
 
+/// The board's Protection card: the broker stop as the headline in its state's colour (`StopState`),
+/// three figures (the planned loss, the distance to the stop, the worst and best excursion), and
+/// "How it was protected ›" opening the steps the bot proved, with when it last read the broker.
+private struct ProtectionCard: View {
+  /// Digits after the point of the distance to the stop, in percent.
+  static let percentDigits = 1
+
+  @State private var open = false
+  let position: Position
+  let marks: PositionMarks?
+  /// When the bot last read the broker, and whether that read is current (`ProtectionSteps`).
+  let brokerReadAt: Date?
+  let reconciled: Bool
+
+  /// "−0.6 / +1.2 R", or in dollars while R is undefined; a dash without bars.
+  private var excursion: String {
+    guard let marks else { return Format.missing }
+    if let adverse = marks.adverseR, let favorable = marks.favorableR {
+      return Money.signed(adverse, fractionDigits: 1) + Format.slash + Risk.text(favorable)
+    }
+    return Money.signedUSD(marks.adverse) + Format.slash + Money.signedUSD(marks.favorable)
+  }
+
+  var body: some View {
+    let entry = position.entryPrice.value
+    let stop = position.stop.price?.value
+    let state = position.stop.state
+    let price = stop.map { Money.price($0) } ?? Format.missing
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      CardLabel(L10n.Positions.protection)
+      Label {
+        Text(state == .verified ? L10n.Positions.stopAtBroker(price)
+          : L10n.Positions.stopState(price, Board.stopStateTitle(state)))
+          .fixedSize(horizontal: false, vertical: true)
+      } icon: {
+        Image(systemName: state.symbol).foregroundStyle(state.tone.text)
+      }
+      .font(.headline)
+      .foregroundStyle(state == .verified ? Palette.textPrimary : state.tone.text)
+      // Three figures in a row; one under another at large text sizes, so labels and figures stay whole.
+      RowStack(alignment: .top, spacing: Tokens.Space.s) {
+        figure(L10n.Positions.maxLoss,
+          Risk.plannedLoss(entry: entry, stop: stop, quantity: position.quantity.value).map(Money.usd) ?? Format.missing)
+        figure(L10n.Positions.toStop, stop.map {
+          Percent.signed(fraction: ($0 - entry) / entry, fractionDigits: Self.percentDigits)
+        } ?? Format.missing)
+        figure(L10n.Positions.excursion, excursion)
+      }
+      DisclosureGroup(isExpanded: $open) {
+        ProtectionSteps(position: position, brokerReadAt: brokerReadAt, reconciled: reconciled)
+          .padding(.top, Tokens.Space.s)
+      } label: {
+        HStack(spacing: Tokens.Space.s) {
+          Text(L10n.Positions.howProtected)
+            .foregroundStyle(Palette.textPrimary)
+          Spacer(minLength: Tokens.Space.s)
+          // When the bot last read the broker; amber while that read is not current.
+          Text(L10n.Positions.checkedAt(brokerReadAt.map(Format.clock) ?? Format.missing))
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(reconciled && brokerReadAt != nil ? Palette.textQuaternary : Palette.warningText)
+        }
+        .font(.subheadline)
+        .frame(minHeight: Tokens.Size.touchTarget)
+      }
+      .tint(Palette.textQuaternary)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.horizontal, Tokens.Space.l)
+    .padding(.vertical, Tokens.Space.m)
+    .tickrCard(tint: state.isProtected ? nil : Palette.loss)
+  }
+
+  /// One of the three figures: its name over a bold mono value, as on the board.
+  private func figure(_ label: LocalizedStringResource, _ value: String) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      Text(label)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textTertiary)
+      Text(verbatim: value)
+        .font(.subheadline.monospaced().bold())
+        .foregroundStyle(Palette.textPrimary)
+        .contentTransition(.numericText())
+        .fixedSize()
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .accessibilityElement(children: .combine)
+  }
+}
+
 /// What the bot proved about this position, step by step, drawn top to bottom.
-private struct ProtectionChain: View {
+private struct ProtectionSteps: View {
   /// Side of a step's dot, in points.
   static let dotSide: CGFloat = 14
   /// Glow around a step's dot, in points.
@@ -473,7 +582,6 @@ private struct ProtectionChain: View {
   var body: some View {
     let steps = self.steps
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      CardLabel(L10n.Positions.chain)
       ZStack(alignment: .topLeading) {
         GeometryReader { geometry in
           Capsule().fill(Palette.separator).frame(width: Tokens.Stroke.bold)
@@ -512,9 +620,7 @@ private struct ProtectionChain: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.l)
-    .padding(.vertical, Tokens.Space.m)
-    .tickrCard()
+    .padding(.vertical, Tokens.Space.xs)
     .onAppear {
       withAnimation(Tokens.Motion.fill.delay(Self.firstDelay)) { progress = 1 }
     }
@@ -525,8 +631,8 @@ private struct ProtectionChain: View {
     }
   }
 
-  /// When the line starts down and the first dot pops: the card's turn as the screen assembles.
-  private static var firstDelay: Double { Tokens.Motion.stagger * Double(PositionDetail.Order.flatten.rawValue) }
+  /// When the line starts down and the first dot pops: one beat after the disclosure opens.
+  private static var firstDelay: Double { Tokens.Motion.stagger }
 
   /// The entry order went out exactly once and the broker took it: acknowledged, or filled.
   private var entryProven: Bool {

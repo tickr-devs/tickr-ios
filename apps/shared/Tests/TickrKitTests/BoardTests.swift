@@ -134,7 +134,7 @@ import Testing
     #expect(Board.exitKind("order-resolved-by-operator") == .forced)
   }
 
-  /// A replay's trade (an observer's, a what-if) carries the replay's words: the same map reads
+  /// A replay's trade (a what-if) carries the replay's words: the same map reads
   /// them, never as the raw value ("STRATEGY_EXIT").
   @Test func replayExitReasonsReadAsTheBotsOwn() {
     #expect(Board.exitReasonTitle("stop") == Board.exitReasonTitle("stopped-out"))

@@ -276,7 +276,7 @@ struct LabReplayCard: View {
       case .idle:
         // The apps' empty state, sized to its content: no run yet is a calm state, not a gap.
         ContentUnavailableView {
-          Label { Text(L10n.Lab.replayIdle) } icon: { BrandMark.empty() }
+          Label { Text(L10n.Lab.replayIdle) } icon: { Image(systemName: EmptyState.nothingSymbol) }
         }
       }
     } else if let failure = lab.replayFailure {

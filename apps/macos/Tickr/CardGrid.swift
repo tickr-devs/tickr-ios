@@ -9,7 +9,7 @@ struct CardArrangement {
 }
 
 extension CardArrangement {
-  /// Columns in the design's widest card grids (Overview, Risk & account, Strategy lab).
+  /// Columns in the design's widest card grids (Overview, Risk & account).
   static let wideColumns = 3
   /// Edges a screen's padding is on across one axis (leading and trailing, or top and bottom).
   static let paddedEdges: CGFloat = 2

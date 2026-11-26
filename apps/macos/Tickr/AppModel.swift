@@ -243,9 +243,6 @@ public final class AppModel {
   /// 2026-11-17). Only for the New York date they were read on.
   @ObservationIgnored private var todayParts: (day: WireDate, parts: DayParts)?
   public private(set) var todayDocument: DayV1?
-  /// Observers with their decisions on the shown day; nil until read.
-  public private(set) var observers: ObserversV1?
-  public private(set) var observersError: String?
   /// The active strategy's ENTERs on the shown day that did not become a position; nil until read.
   /// The shown day's journal (GET /events); nil until read and when the bot cannot serve it (an
   /// older bot: today's card then shows what the status says).
@@ -284,6 +281,9 @@ public final class AppModel {
   /// Held here, not in the view that asked: SwiftUI drops a view's own state whenever it rebuilds
   /// the view (Overview's cards change columns at a width breakpoint), and the question went with it.
   private(set) var confirming: PendingConfirmation?
+  /// The close-and-stop the bot reports, followed across reads for its steps' times and its
+  /// refusal (`StopWatch`, the Bot card's steps).
+  private(set) var stopWatch = StopWatch()
 
   private var tasks: [Task<Void, Never>] = []
   /// Counts connections (`reconnect`): an answer is applied only while the connection it was
@@ -411,9 +411,8 @@ public final class AppModel {
   /// A picked past day whose trades are still being read: its result and counts are not known
   /// yet, so the cards show a skeleton, never a zero.
   public var dayPending: Bool { shownDayState == .loading }
-  /// The same for the picked day's flow and observers.
+  /// The same for the picked day's flow.
   public var flowPending: Bool { !isLive && flow == nil && flowError == nil }
-  public var observersPending: Bool { !isLive && observers == nil && observersError == nil }
 
   public var shownResult: Decimal {
     if isLive { return status?.resultTodayUsd.value ?? 0 }
@@ -575,7 +574,6 @@ public final class AppModel {
     labReplayError = nil
     labReplayRefusal = nil
     labReplayRefusedAt = nil
-    observers = nil
     skipped = nil
     performance = nil
     flow = nil
@@ -604,6 +602,7 @@ public final class AppModel {
       current = !fresh.stale && fresh.status != nil
       let dayBefore = today
       response = fresh
+      stopWatch.read(fresh.status)
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
@@ -683,10 +682,9 @@ public final class AppModel {
       guard asked == link else { return }
       historyError = Self.describe(error) ?? historyError
     }
-    async let observersRead: Void = refreshObservers()
     async let skippedRead: Void = refreshSkipped()
     async let performanceRead: Void = refreshPerformance()
-    _ = await (observersRead, skippedRead, performanceRead)
+    _ = await (skippedRead, performanceRead)
   }
 
   /// Reads the Lab's replay; a failed read clears it, so an old result never reads as current.
@@ -831,15 +829,6 @@ public final class AppModel {
     }
   }
 
-  /// Observers of the shown day. An answer for a day no longer shown is dropped.
-  public func refreshObservers() async {
-    let day = shownDay
-    let asked = link
-    let read = await Self.outcome { [client] in try await client.observers(day: day) }
-    guard shows(day, asked: asked) else { return }
-    apply(read, of: day, \.observers, \.observersError, kept: \.observers)
-  }
-
   /// Reads the shown day's skipped ENTERs. An answer for a day no longer shown is dropped; a
   /// failed read clears the list, so an old one never reads as current.
   public func refreshSkipped() async {
@@ -883,7 +872,7 @@ public final class AppModel {
   }
 
   /// Reads every card of the picked day at once (flow, watched symbols, symbols, fast movers,
-  /// journal, observers, Not taken, performance) and shows them together once all have answered,
+  /// journal, Not taken, performance) and shows them together once all have answered,
   /// each with its document or its own cause (owner 2026-11-22: what cannot show at once shows
   /// its loader, then all of it at once, never cards popping in one by one). The API keeps a
   /// past day's answers once built (api/settled.py), so they normally all answer within
@@ -904,19 +893,17 @@ public final class AppModel {
     async let symbols = Self.outcome { [client] in try await client.symbols(day: day) }
     async let movers = Self.outcome { [client] in try await client.movers(day: day) }
     async let events = Self.outcome { [client] in try await client.events(day: day) }
-    async let observers = Self.outcome { [client] in try await client.observers(day: day) }
     async let skipped = Self.outcome { [client] in try await client.skipped(day: day) }
     async let performance = Self.outcome { [client] in try await client.performance(from: from, to: day) }
-    let cards = await (flow, watching, symbols, movers, events, observers, skipped, performance)
+    let cards = await (flow, watching, symbols, movers, events, skipped, performance)
     guard asked == link, day == shownDay, !Task.isCancelled else { return }
     apply(cards.0, of: day, \.flow, \.flowError, kept: \.flow)
     apply(cards.1, of: day, \.watching, \.watchingError, kept: \.watching)
     apply(cards.2, of: day, \.symbols, \.symbolsError, kept: \.symbols)
     apply(cards.3, of: day, \.movers, \.moversError, kept: \.movers)
     applyEvents(cards.4, of: day)
-    apply(cards.5, of: day, \.observers, \.observersError, kept: \.observers)
-    apply(cards.6, of: day, \.skipped, \.skippedError, kept: \.skipped)
-    apply(cards.7, of: day, \.performance, \.performanceError, kept: \.performance)
+    apply(cards.5, of: day, \.skipped, \.skippedError, kept: \.skipped)
+    apply(cards.6, of: day, \.performance, \.performanceError, kept: \.performance)
   }
 
   /// Whether a single read's answer for `day` may be shown now: `day` is still shown and its
@@ -971,7 +958,7 @@ public final class AppModel {
   /// The shown day's parts as they are now.
   private var shownParts: DayParts {
     DayParts(document: dayDocument, flow: flow, watching: watching, symbols: symbols, movers: movers,
-      observers: observers, skipped: skipped, performance: performance)
+      skipped: skipped, performance: performance)
   }
 
   /// Shows `parts` as the shown day's, with no read failure.
@@ -986,8 +973,6 @@ public final class AppModel {
     symbolsError = nil
     movers = parts.movers
     moversError = nil
-    observers = parts.observers
-    observersError = nil
     skipped = parts.skipped
     skippedError = nil
     events = parts.events
@@ -1126,6 +1111,7 @@ public final class AppModel {
   /// Asks the API to start the bot job through launchd (POST /commands/start-bot), once.
   public func startBot() async {
     guard canStartBot else { return }
+    stopWatch.forget()
     botStarting = true
     defer { botStarting = false }
     let asked = link
@@ -1145,8 +1131,12 @@ public final class AppModel {
   /// commands are off.
   func press(_ action: BotAction, in place: CommandPlace) {
     guard commandsEnabled else { return }
+    // A new command: an earlier close-and-stop's refusal is no longer the news.
+    stopWatch.forget()
     if action.needsConfirmation {
-      confirming = PendingConfirmation(action: action, place: place)
+      // Stop bot asks by what is open now: a choice with positions, the plain question without.
+      let stop = action == .stopBot ? StopQuestion.asked(positions: status?.positions ?? []) : .confirm
+      confirming = PendingConfirmation(action: action, place: place, stop: stop)
     } else {
       Task { await send(action.command, title: action.title) }
     }
@@ -1156,11 +1146,19 @@ public final class AppModel {
   /// the same step, and its own command (never another) goes to `send`, which checks again that
   /// commands are on. A withdrawn, replaced or already answered question sends nothing, so one
   /// question sends at most once. Returns the send, or nil when nothing is sent.
+  /// A Stop bot asked with positions open is answered with a mode (Close and stop, Leave open)
+  /// and sends it; without one it sends nothing.
   @discardableResult
-  func accept(_ question: PendingConfirmation) -> Task<Void, Never>? {
+  func accept(_ question: PendingConfirmation, mode: StopMode? = nil) -> Task<Void, Never>? {
     guard confirming == question else { return nil }
+    let command: OperatorCommand
+    switch (question.stop, mode) {
+    case (.confirm, _): command = question.action.command
+    case (.choose, let mode?): command = .stopBotMode(mode)
+    case (.choose, nil): return nil
+    }
     confirming = nil
-    return Task { await send(question.action.command, title: question.action.title) }
+    return Task { await send(command, title: question.action.title) }
   }
 
   /// Closes `question` unanswered (Cancel or Escape); a newer question stays.
@@ -1326,7 +1324,6 @@ struct DayParts: Sendable {
   var watching: WatchingV1?
   var symbols: SymbolsV1?
   var movers: MoversV1?
-  var observers: ObserversV1?
   var skipped: SkippedV1?
   var events: DayEventsV1?
   var performance: PerformanceV1?

@@ -592,29 +592,6 @@ struct ConnectionPrompt: View {
   }
 }
 
-/// A label and a value in a small card, used in rows of three, as on the design: the section label
-/// over a bold mono figure, no rail.
-struct StatTile: View {
-  let label: LocalizedStringResource
-  let value: String
-  var color: Color = Palette.textPrimary
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      CardLabel(label)
-      Text(verbatim: value)
-        .font(.subheadline.monospaced().bold())
-        .foregroundStyle(color)
-        .contentTransition(.numericText())
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .tickrCard(radius: Tokens.Radius.large)
-    .accessibilityElement(children: .combine)
-  }
-}
-
 /// The command notice floating at the top of the screen, with haptics, gone after a few seconds.
 struct NoticeOverlay: ViewModifier {
   /// Seconds a notice stays on screen.
@@ -644,6 +621,7 @@ struct NoticeOverlay: ViewModifier {
               if model.notice?.id == notice.id { model.notice = nil }
             }
             .onTapGesture { model.notice = nil }
+            .accessibilityIdentifier(AccessibilityID.notice)
         }
       }
       .animation(Tokens.Motion.standard, value: model.notice)

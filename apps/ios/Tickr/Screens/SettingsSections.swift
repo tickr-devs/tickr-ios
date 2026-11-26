@@ -274,8 +274,8 @@ struct PreflightSection: View {
 
 /// What this iPhone is to be told about, as the iOS Settings board's "Notify this iPhone" card
 /// (IOSGateAlerts): three alarms that are always on (a position without a stop, a stop or exit the
-/// broker refused, a broker mismatch), each with a lock, then four the owner will choose (fills,
-/// a trailing stop tightened, the daily loss ceiling, an advisor proposal).
+/// broker refused, a broker mismatch), each with a lock, then three the owner will choose (fills,
+/// a trailing stop tightened, the daily loss ceiling).
 ///
 /// Delivery needs push notifications, and push needs an Apple Developer Program membership (APNs);
 /// until then the phone has no notification path at all. So, as the board tags the card
@@ -284,7 +284,7 @@ struct PreflightSection: View {
 struct NotificationsSection: View {
   /// The events the phone may be told about, in the board's order.
   enum Event: CaseIterable {
-    case unprotected, refused, mismatch, filled, trailing, ceiling, advisor
+    case unprotected, refused, mismatch, filled, trailing, ceiling
 
     var title: LocalizedStringResource {
       switch self {
@@ -294,7 +294,6 @@ struct NotificationsSection: View {
       case .filled: L10n.Settings.alertFilled
       case .trailing: L10n.Settings.alertTrailing
       case .ceiling: L10n.Settings.alertCeiling
-      case .advisor: L10n.Settings.alertAdvisor
       }
     }
 
@@ -306,7 +305,6 @@ struct NotificationsSection: View {
       case .filled: NotificationsSection.fillSymbol
       case .trailing: NotificationsSection.trailSymbol
       case .ceiling: NotificationsSection.ceilingSymbol
-      case .advisor: NotificationsSection.advisorSymbol
       }
     }
 
@@ -314,7 +312,7 @@ struct NotificationsSection: View {
       switch self {
       case .unprotected, .refused, .mismatch: .loss
       case .filled: .info
-      case .trailing, .advisor: .highlight
+      case .trailing: .highlight
       case .ceiling: .warning
       }
     }
@@ -327,11 +325,10 @@ struct NotificationsSection: View {
   }
 
   /// Symbols of the rows, one per event.
-  static let mismatchSymbol = "arrow.left.arrow.right"
-  static let fillSymbol = "arrow.right.to.line"
-  static let trailSymbol = "chart.line.uptrend.xyaxis"
-  static let ceilingSymbol = "chart.line.downtrend.xyaxis"
-  static let advisorSymbol = "star.fill"
+  nonisolated static let mismatchSymbol = "arrow.left.arrow.right"
+  nonisolated static let fillSymbol = "arrow.right.to.line"
+  nonisolated static let trailSymbol = "chart.line.uptrend.xyaxis"
+  nonisolated static let ceilingSymbol = "chart.line.downtrend.xyaxis"
   /// Symbol beside an always-on switch.
   static let lockSymbol = "lock.fill"
 

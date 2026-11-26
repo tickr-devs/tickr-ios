@@ -2,10 +2,9 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Why the bot acted here: what the trading strategy and its observers decided on the chosen
-/// symbol that day (GET /decisions), each decision with the checks behind it. The trading
-/// strategy leads, observers follow under their own label; the same verdict repeated bar after
-/// bar is one row with a count. Entries and exits show first; watching and holding open on request.
+/// Why the bot acted here: what the trading strategy decided on the chosen symbol that day (GET
+/// /decisions), each decision with the checks behind it; the same verdict repeated bar after bar
+/// is one row with a count. Entries and exits show first; watching and holding open on request.
 struct DecisionsCard: View {
   let decisions: DecisionsV1?
   let failure: String?
@@ -25,13 +24,6 @@ struct DecisionsCard: View {
           }
         }
         runs(list.strategy)
-        if !list.observers.isEmpty {
-          CardLabel(ChartText.observers)
-            .padding(.top, Tokens.Space.s)
-          ForEach(list.observers, id: \.self) { observer in
-            runs(observer)
-          }
-        }
         if list.total > list.key {
           Button {
             showsAll.toggle()
@@ -69,7 +61,7 @@ struct DecisionsCard: View {
   }
 }
 
-/// One decision, or a run of the same one: time, action, strategy (observers marked), how many
+/// One decision, or a run of the same one: time, action, strategy, how many
 /// bars in a row and since when, and, when opened, the checks of the newest one.
 private struct DecisionRow: View {
   let run: DecisionRun
@@ -106,11 +98,6 @@ private struct DecisionRow: View {
             Text(ChartText.strategy(decision.strategy.name, decision.strategy.version))
               .font(.footnote)
               .foregroundStyle(Palette.textSecondary)
-            if decision.observer {
-              Text(ChartText.observer)
-                .font(Tokens.Typography.annotation)
-                .foregroundStyle(Palette.highlightText)
-            }
           }
           if run.count > 1 {
             Text(ChartText.repeats(run.count, run.earliest.at.date.formatted(ChartFormat.time)))

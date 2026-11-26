@@ -13,14 +13,14 @@ struct OverviewView: View {
 
   /// Positions of the cards in the screen's `CardGrid`.
   private enum Slot: Int {
-    case header = 0, result, flow, watching, positions, safety, riskRoom, observers, fastMovers, journal
+    case header = 0, result, flow, watching, positions, safety, riskRoom, fastMovers, journal
   }
 
   /// Narrowest screen, in points, with the design's three columns of cards; below it the cards
   /// sit in two columns (MainNarrow v110).
   static let threeColumnsMinWidth: CGFloat = 1040
   /// The design's column widths (CSS fr units): Watching closely, Positions, Safety and the bot;
-  /// then Risk room, Fast movers above Observers, the journal (Main v115).
+  /// then Risk room, Fast movers, the journal (Main v115).
   static let middleRowWeights: [CGFloat] = [1, 1.4, 1]
   static let bottomRowWeights: [CGFloat] = [1.15, 1.3, 0.95]
   /// Width of the day's result beside the header on the two-column board, in points
@@ -34,7 +34,7 @@ struct OverviewView: View {
   /// in points. The row grows to its tallest card, so every safety fact and watched row is in
   /// sight without a scroll inside a card.
   static let middleRowHeight: CGFloat = 298
-  /// Least height of the bottom row (Risk room, Fast movers and Observers, the journal), in points. It takes
+  /// Least height of the bottom row (Risk room, Fast movers, the journal), in points. It takes
   /// the rest of the window's height as in the design, never less than this.
   static let bottomRowMinHeight: CGFloat = 150
   /// Padding around the cards on each side: the screen's widths above are the grid's plus twice this.
@@ -74,16 +74,14 @@ struct OverviewView: View {
       headerBesideResult(Tokens.Size.dayResultWidth),
       single(.flow),
       weighted(middleRowWeights, [.watching, .positions, .safety], height: .atLeast(middleRowHeight)),
-      CardRow(columns: zip(bottomRowWeights, [[Slot.riskRoom], [.fastMovers, .observers], [.journal]]).map {
-        CardColumn(width: .share($0), cards: $1.map(\.rawValue))
-      }, height: .fillsRest(atLeast: bottomRowMinHeight)),
+      weighted(bottomRowWeights, [.riskRoom, .fastMovers, .journal], height: .fillsRest(atLeast: bottomRowMinHeight)),
     ]),
     CardArrangement(minWidth: headerBesideNarrowResultMinGridWidth,
       rows: [headerBesideResult(OverviewView.dayResultNarrowWidth)] + twoColumnRows),
     CardArrangement(minWidth: twoColumnsMinGridWidth, rows: [single(.header), single(.result)] + twoColumnRows),
     CardArrangement(minWidth: 0, rows: [
       single(.header), single(.result), single(.safety), single(.flow), single(.positions), single(.watching),
-      single(.riskRoom), single(.observers), single(.fastMovers), single(.journal),
+      single(.riskRoom), single(.fastMovers), single(.journal),
     ]),
   ]
 
@@ -92,8 +90,8 @@ struct OverviewView: View {
     single(.flow),
     sized(positionsSafetyWeights, [.positions, .safety]),
     single(.watching),
-    sized(twoColumnWeights, [.riskRoom, .observers]),
-    sized(twoColumnWeights, [.fastMovers, .journal]),
+    sized(twoColumnWeights, [.riskRoom, .fastMovers]),
+    single(.journal),
   ]
 
   /// The day's result in its own column `width` points wide beside the header, each at its own
@@ -133,11 +131,15 @@ struct OverviewView: View {
             DayResult().rise(step: Order.result.rawValue)
             LiveFlowCard().rise(step: Order.flow.rawValue)
             WatchingCard().filling().rise(step: Order.watching.rawValue)
-            PositionsCard().filling().rise(step: Order.positions.rawValue)
+            PositionsCard().filling().rise(step: Order.positions.rawValue).id(PositionsCard.id)
             SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
+              // Also when a card above it changes height while the page's height stays the same
+              // (the bottom row fills the rest), which moves it without a content-size change.
+              .onGeometryChange(for: CGFloat.self) { $0.frame(in: .scrollView).minY } action: { _ in
+                showSafetyFirstIfAsked(proxy)
+              }
             Group {
               RiskRoomCard().filling()
-              ObserversCard().filling()
               FastMoversCard().filling()
               JournalCard().filling()
             }
@@ -165,11 +167,16 @@ struct OverviewView: View {
     .jumps(on: model.shownDay)
   }
 
-  /// UI tests (`LayoutSweep.safetyFirst`): the Safety · bot card at the top of the screen, kept
-  /// there while the cards above it load, so a test clicks its commands without a scroll.
+  /// UI tests (`LayoutSweep.safetyFirst`, `LayoutSweep.positionsFirst`): the Safety · bot card
+  /// or the Positions card at the top of the screen, kept there while the cards above it load, so
+  /// a test clicks its commands without a scroll.
   private func showSafetyFirstIfAsked(_ proxy: ScrollViewProxy) {
     #if DEBUG
-    if LayoutSweep.safetyFirst { proxy.scrollTo(SafetyCard.id, anchor: .top) }
+    if LayoutSweep.positionsFirst {
+      proxy.scrollTo(PositionsCard.id, anchor: .top)
+    } else if LayoutSweep.safetyFirst {
+      proxy.scrollTo(SafetyCard.id, anchor: .top)
+    }
     #endif
   }
 }
@@ -251,7 +258,7 @@ private struct Header: View {
   /// The last read of the bot failed: the connection banner speaks for the whole screen.
   private var linkDown: Bool { model.connectionState.failure != nil }
 
-  /// "Tickr Operator", the environment badge and the shown day's clean-day verdict.
+  /// "Tickr Operator", the environment badge and, when the shown day needs a look, its verdict.
   private var titleRow: some View {
     // The badges go onto a second line rather than run past a narrow header (MainNarrow v110).
     WrapRow(spacing: Tokens.Space.m, lineSpacing: Tokens.Space.s) {
@@ -265,8 +272,9 @@ private struct Header: View {
         EnvironmentBadge(ApiText.environment(status.environment), raw: status.environment,
           accessibilityLabel: ApiText.environmentLabel(status.environment))
       }
-      // The shown day's clean-day verdict from the bot's journal, as in the design.
-      if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean {
+      // The shown day's clean-day verdict from the bot's journal, only when it needs a look
+      // (mockup Main: a clean day says nothing new here).
+      if let clean = model.days.first(where: { $0.day == model.shownDay })?.clean, clean.verdict == .notClean {
         CleanBadge(clean: clean)
       }
     }
@@ -422,6 +430,9 @@ private struct LiveFlowCard: View {
   @Environment(AppModel.self) private var model
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+  /// Accessibility id of the card, for the UI tests.
+  static let id = "overview-live-flow"
+
   var body: some View {
     Card(model.isLive ? L10n.Flow.title : L10n.Flow.titleRecorded) {
       // Live: a green dot and the New York time of the bot's last status write, as in the design.
@@ -438,29 +449,39 @@ private struct LiveFlowCard: View {
           .foregroundStyle(Palette.textQuaternary)
       }
     } content: {
-      // The latest event under the title, then the screeners' chips, as in the design; a picked
-      // day still being read shows a skeleton there, never "nothing recorded yet".
+      // The screeners' chips scrolling across the top, then the stages (mockup Main: no separate
+      // latest-event line, the journal has every event). A picked day still being read shows a
+      // skeleton in their place, never "nothing recorded yet".
       if model.dayPending || model.flowPending {
         Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.fewLines) }
-      } else {
-        LatestEvent()
-      }
-      if let chips = model.flow?.chips, !chips.isEmpty {
+      } else if let chips = model.flow?.chips, !chips.isEmpty {
         FlowChips(chips: chips, moving: model.ornamentsMove(reduceMotion: reduceMotion))
       }
       // A failed /flow read: the stages and dots below then lack the day's flow.
       if let error = model.flowError {
         ReadFailureNote(L10n.Screener.unavailable(error), detail: nil)
       }
-      Pipeline(stages: stages, marks: FlowBoard.marks(flow: model.flow, skipped: model.skipped,
-        positions: model.isLive ? model.status?.positions ?? [] : []), moving: model.isLive,
+      let marks = self.marks
+      Pipeline(stages: stages(marks), marks: marks, moving: model.isLive,
         sources: StageSources(flow: model.flow, skipped: model.skipped, watching: model.watching,
           status: model.isLive ? model.status : nil, settings: model.settings))
     }
+    .accessibilityIdentifier(Self.id)
   }
 
-  private var stages: [Pipeline.Stage] {
+  /// Today's symbols, each at its furthest stage.
+  private var marks: [FlowMark] {
+    FlowBoard.marks(flow: model.flow, skipped: model.skipped,
+      positions: model.isLive ? model.status?.positions ?? [] : [])
+  }
+
+  private func stages(_ marks: [FlowMark]) -> [Pipeline.Stage] {
     let status = model.isLive ? model.status : nil
+    // How many each early stage dropped of the one before it (mockup Main: "−144"), and how many
+    // entries the risk limits refused.
+    let funnel = FlowStages.dropped([flowCount(.screeners), flowCount(.universe), symbolCount(.quote),
+      symbolCount(.bars)]).map { $0.map { String(localized: L10n.Flow.dropped($0)) } }
+    let refused = marks.filter { $0.stage == .risk && $0.refused }.count
     let positions = status.map(Board.positions) ?? []
     // An open position whose stop is not verified outranks the day's count of verified stops.
     let unprotected = positions.first { !$0.stop.state.isProtected }
@@ -468,31 +489,32 @@ private struct LiveFlowCard: View {
     // worst of the open and the day's stops.
     let stopTone = StopState.stageTone(open: positions.map(\.stop.state), day: (model.flow?.stops ?? []).map(\.state))
     return [
-      .init(id: .screeners, name: L10n.Flow.screeners, value: count(.screeners, L10n.Flow.seen),
+      .init(id: .screeners, name: L10n.Flow.screeners, value: count(.screeners),
         glyph: .screeners, color: Palette.accent, text: Palette.accentText),
-      .init(id: .universe, name: L10n.Flow.universe, value: count(.universe, L10n.Flow.stocks),
+      .init(id: .universe, name: L10n.Flow.universe, value: count(.universe), drop: funnel[1],
         glyph: .universe, color: Palette.seriesUniverse, text: Palette.seriesATRText),
       // Quote and bars come from GET /symbols only (the flow keeps its six stages for older apps).
-      .init(id: .quote, name: L10n.Flow.quote, value: reached(.quote, L10n.Flow.quoted), note: model.symbolsError,
+      .init(id: .quote, name: L10n.Flow.quote, value: reached(.quote), note: model.symbolsError, drop: funnel[2],
         glyph: .quote, color: Palette.accent, text: Palette.accentText),
-      .init(id: .bars, name: L10n.Flow.bars, value: reached(.bars, L10n.Flow.liquid), note: model.symbolsError,
+      .init(id: .bars, name: L10n.Flow.bars, value: reached(.bars), note: model.symbolsError, drop: funnel[3],
         glyph: .bars, color: Palette.info, text: Palette.infoText),
       .init(id: .strategy, name: L10n.Common.strategy,
-        value: count(.strategy, L10n.Flow.decided) ?? status.map { Format.strategy($0.strategy) },
+        value: count(.strategy) ?? status.map { Format.strategy($0.strategy) },
         glyph: .strategy, color: Palette.highlight, text: Palette.highlightText),
       // The day's count, as in the design; only an entry block that needs the operator outranks
       // it. A calm pause ("not now") shows only when there is no count yet.
       .init(id: .risk, name: L10n.Common.risk,
         value: (status?.entryBlock?.attention == true ? String(localized: L10n.Flow.blocked) : nil)
-          ?? count(.risk, L10n.Flow.passed)
+          ?? count(.risk)
           ?? status?.entryBlock.map { _ in String(localized: L10n.Flow.waiting) }
           ?? status.map { _ in String(localized: L10n.Flow.entriesAllowed) },
+        drop: refused > 0 ? String(localized: L10n.Flow.refusedCount(refused)) : nil,
         glyph: .risk, color: Palette.warning, text: Palette.warningText),
       .init(id: .order, name: L10n.Flow.order,
-        value: count(.order, L10n.Flow.filled) ?? status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
+        value: count(.order) ?? status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
         glyph: .order, color: Palette.info, text: Palette.infoText),
       .init(id: .stop, name: L10n.Flow.brokerStop,
-        value: unprotected.map { $0.stop.state.title } ?? count(.stop, L10n.Flow.verified)
+        value: unprotected.map { $0.stop.state.title } ?? count(.stop)
           ?? positions.first.map { $0.stop.state.title }
           ?? status.map { _ in String(localized: L10n.Common.noPosition) },
         glyph: .brokerStop, color: stopTone.fill, text: stopTone.text),
@@ -503,16 +525,27 @@ private struct LiveFlowCard: View {
 }
 
 extension LiveFlowCard {
-  /// "412 seen": how many symbols reached `stage` on the shown day, in the stage's word; nil
-  /// without a flow.
-  fileprivate func count(_ stage: FlowStage, _ word: (Int) -> LocalizedStringResource) -> String? {
-    model.flow?.stages.first { $0.stage == stage }.map { String(localized: word($0.count)) }
+  /// "412": how many symbols reached `stage` on the shown day; nil without a flow.
+  fileprivate func count(_ stage: FlowStage) -> String? {
+    flowCount(stage).map(Self.number)
   }
 
-  /// "141 quoted": how many symbols got to `stage` (GET /symbols), in the stage's word; nil
-  /// before the symbols are read.
-  fileprivate func reached(_ stage: SymbolStage, _ word: (Int) -> LocalizedStringResource) -> String? {
-    model.symbols?.stages.first { $0.stage == stage }.map { String(localized: word($0.count)) }
+  /// "141": how many symbols got to `stage` (GET /symbols); nil before the symbols are read.
+  fileprivate func reached(_ stage: SymbolStage) -> String? {
+    symbolCount(stage).map(Self.number)
+  }
+
+  fileprivate func flowCount(_ stage: FlowStage) -> Int? {
+    model.flow?.stages.first { $0.stage == stage }?.count
+  }
+
+  fileprivate func symbolCount(_ stage: SymbolStage) -> Int? {
+    model.symbols?.stages.first { $0.stage == stage }?.count
+  }
+
+  /// A count of symbols, grouped as every number of the apps.
+  fileprivate static func number(_ count: Int) -> String {
+    Money.number(Decimal(count), fractionDigits: 0)
   }
 
   fileprivate var reconcile: FlowStages.Reconcile { model.shownReconcile }
@@ -583,6 +616,8 @@ private struct Pipeline: View {
     let value: String?
     /// Why the value is missing, shown as its tooltip; nil = the API does not report it.
     var note: String?
+    /// The small line under the value: how many the stage dropped ("−144") or refused.
+    var drop: String?
     /// The stage's line glyph, as on the board.
     let glyph: DesignGlyph
     /// Fill colour of the stage (ring, glow) and the colour of its name.
@@ -609,8 +644,6 @@ private struct Pipeline: View {
   static let poolCap = 8
   /// Widest a stage's dots run before they wrap, in points (the design's).
   static let poolWidth: CGFloat = 104
-  /// Refused symbols a tray names before it counts the rest.
-  static let trayNamed = 2
   /// Blur of the soft glow around a reporting stage, in points.
   static let stageGlow: CGFloat = 9
   /// Blur of the glow around a stage under the pointer or with its detail open, in points.
@@ -703,18 +736,27 @@ private struct Pipeline: View {
           .foregroundStyle(Palette.textQuaternary)
           .help(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
       }
+      // How many the stage dropped or refused, small; the symbols left out and why on hover.
+      if let drop = stage.drop {
+        let out = stage.id.flowStage.map { flowStage in marks.filter { $0.stage == flowStage && $0.refused } } ?? []
+        let line = Text(verbatim: drop)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(stage.id == .risk ? Palette.seriesATRText : Palette.textQuaternary)
+          .contentTransition(.numericText())
+        if out.isEmpty {
+          line
+        } else {
+          line.hint(verbatim: out.map { [$0.id, $0.note].compactMap { $0 }.joined(separator: Format.itemSeparator) }
+            .joined(separator: Format.lineSeparator))
+        }
+      }
       if let flowStage = stage.id.flowStage {
-        // Only a stage that holds symbols shows its pool or tray: empty boxes read as broken
-        // placeholders. A stop dot is green unless its own stop is waiting or unconfirmed: one
-        // unprotected position reddens the stage, never the day's other stops.
+        // Only a stage that holds symbols shows its pool: empty boxes read as broken placeholders.
+        // A stop dot is green unless its own stop is waiting or unconfirmed: one unprotected
+        // position reddens the stage, never the day's other stops.
         let here = marks.filter { $0.stage == flowStage && !$0.refused }
-        let out = marks.filter { $0.stage == flowStage && $0.refused }
         if !here.isEmpty {
           pool(here, color: flowStage == .stop ? Palette.profit : stage.color)
-        }
-        if (flowStage == .universe || flowStage == .risk) && !out.isEmpty {
-          tray(out, title: flowStage == .universe ? L10n.Flow.trayExcluded : L10n.Flow.trayRefused,
-            color: flowStage == .universe ? Palette.textQuaternary : Palette.seriesATRText)
         }
       }
     }
@@ -737,30 +779,6 @@ private struct Pipeline: View {
       }
     }
     .frame(maxWidth: Self.poolWidth)
-  }
-
-  /// The symbols this stage left out or refused, named in a dashed tray as the design draws it:
-  /// its word, then the first symbols and how many more; each one's reason on hover.
-  private func tray(_ out: [FlowMark], title: LocalizedStringResource, color: Color) -> some View {
-    let named = out.prefix(Self.trayNamed).map(\.id)
-    let more = out.count - named.count
-    let text = (named + (more > 0 ? [String(localized: L10n.Flow.more(more))] : [])).joined(separator: Format.itemSeparator)
-    return HStack(spacing: Tokens.Space.xs) {
-      Text(title).bold().foregroundStyle(color)
-      Text(verbatim: text).foregroundStyle(Palette.textTertiary)
-    }
-    .font(Tokens.Typography.annotation)
-    .padding(.horizontal, Tokens.Space.s)
-    .padding(.vertical, Tokens.Space.xxs)
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.small)
-        .strokeBorder(color, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dashFine))
-    }
-    // Wraps inside its stage's cell rather than run under the next stage's value.
-    .fixedSize(horizontal: false, vertical: true)
-    .hint(verbatim: out.map { [$0.id, $0.note].compactMap { $0 }.joined(separator: Format.itemSeparator) }
-      .joined(separator: Format.lineSeparator))
-    .accessibilityElement(children: .combine)
   }
 }
 
@@ -849,7 +867,7 @@ private struct PositionsCard: View {
         // A tab never wraps or cuts its words (owner report 2026-11-18: five positions stacked
         // "+$17.42" one character per line): when the results do not fit, the tabs show the
         // symbols alone, tinted by their result; when even those do not, they scroll sideways.
-        if rows.count > 1 {
+        if rows.count > 1 && model.stoppedPositions == nil {
           ViewThatFits(in: .horizontal) {
             tabs(rows, shown: shown, results: true)
             tabs(rows, shown: shown, results: false)
@@ -857,6 +875,9 @@ private struct PositionsCard: View {
               .withoutScrollIndicators()
           }
         }
+        // Close all beside the tabs (mockup Main): it pauses entries, cancels the working entry
+        // orders and closes every position; shown only while one is open.
+        CloseAllButton()
         HeaderLink(L10n.Position.openChart, systemImage: AppSection.chartSymbol) {
           if let shown { chartSymbol = shown.position.symbol }
           model.section = .chart
@@ -865,7 +886,11 @@ private struct PositionsCard: View {
         .disabled(rows.isEmpty)
       }
     } content: {
-      if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
+      if model.isLive, let stopped = model.stoppedPositions {
+        // Bot stopped with positions open (boards Main, MainNarrow): the stopped bot's last
+        // knowledge of them, in place of the live position view, with Start bot.
+        StoppedPositionsPanel(stopped) { OverviewStartButton() }
+      } else if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
         PositionDetail(row: row)
           .id(row.id)
           .transition(.opacity.combined(with: .scale(scale: PositionsCard.switchScale)))
@@ -874,7 +899,12 @@ private struct PositionsCard: View {
       }
     }
     .animation(Tokens.Motion.standard, value: selected)
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier(Self.id)
   }
+
+  /// Accessibility id of the card, for the UI tests.
+  static let id = "overview-positions"
 
   /// Scale a position's detail starts from when the selection changes.
   static let switchScale = 0.98
@@ -931,14 +961,18 @@ private struct PositionTab: View {
   }
 }
 
+/// The selected position (mockup Main): its price line beside the symbol, the open result in
+/// large, the stop with the broker's confirmation, the size, the price now with its R, the most
+/// it can lose, and "Close ABCD", the close command for this position, which asks first.
 private struct PositionDetail: View {
-  @Environment(AppModel.self) private var model
   let row: PositionRow
 
   /// Smallest size of the price chart, and width of the figures column, in points.
   static let chartMinWidth: CGFloat = 160
   static let chartMinHeight: CGFloat = 210
   static let figuresWidth: CGFloat = 200
+  /// Accessibility id prefix of the position's close button.
+  static let closePrefix = "position-close-"
 
   var body: some View {
     // The chart beside the figures; above them in a card too narrow for both (the two-column
@@ -946,7 +980,7 @@ private struct PositionDetail: View {
     ViewThatFits(in: .horizontal) {
       HStack(alignment: .top, spacing: Tokens.Space.l) {
         chart
-        // A long figure ("Once · acknowledged") wraps inside the column the design gives it.
+        // A long figure wraps inside the column the design gives it.
         facts.frame(width: Self.figuresWidth)
       }
       VStack(alignment: .leading, spacing: Tokens.Space.l) {
@@ -964,113 +998,78 @@ private struct PositionDetail: View {
     }
   }
 
-  /// The symbol, its result, the entry, stop, size and time, and the stop's distance.
   private var facts: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack(spacing: Tokens.Space.s) {
-        StopGlyph(state: row.position.stop.state, symbol: row.position.symbol, price: row.position.stop.price,
-          style: .tile)
-        SymbolText(row.position.symbol).font(Tokens.Typography.metric)
-        Spacer()
+    let symbol = row.position.symbol
+    return VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      SymbolText(symbol).font(Tokens.Typography.figure).foregroundStyle(Palette.textPrimary)
+      Group {
         if let value = row.unrealized {
-          DeltaTag(value, text: Money.signedUSD(value), large: true)
-            .hint(L10n.Position.unrealized)
+          Text(verbatim: Money.signedUSD(value)).foregroundStyle(Palette.result(value))
         } else {
           Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
         }
       }
-      Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.s) {
-        GridRow {
-          IconMetric(Self.entrySymbol, label: L10n.Position.entry, value: Format.price(row.entry), tone: .info)
-          IconMetric(StopState.levelSymbol, label: L10n.Position.stop, value: Format.price(row.stop),
-            tone: row.position.stop.state.tone)
-        }
-        GridRow {
-          IconMetric(Self.quantitySymbol, label: L10n.Position.quantity, value: Format.quantity(row.quantity))
-          IconMetric(Self.openedSymbol, label: L10n.Position.opened,
-            value: Format.marketMinute(row.position.openedAt.date))
-        }
-      }
-      if let range = stopToLast {
-        MeterBar(fraction: range.fraction, tone: range.tone, marks: [
-          MeterMark(Format.price(row.stop), tone: .loss),
-          MeterMark(Format.price(row.price)),
-        ])
-        .hint(L10n.Position.chartLabel)
-      }
-      figures
-    }
-  }
-
-  /// Symbols of the position's figures.
-  static let entrySymbol = "arrow.right.to.line"
-  static let quantitySymbol = "number"
-  static let openedSymbol = "clock"
-  static let lastBarSymbol = "chart.bar.xaxis"
-  static let maxLossSymbol = "arrow.down.to.line"
-  static let rSymbol = "scalemass"
-  static let sentSymbol = "paperplane"
-  /// The stop-to-price meter spans this many risks (entry minus stop) above the stop, so the entry
-  /// sits half way and a full meter is a 1 R gain.
-  static let meterRisks: Decimal = 2
-
-  private var figures: some View {
-    VStack(spacing: Tokens.Space.s) {
-      StatLine(label: lastBarLabel, value: lastBarValue, color: isStale ? Palette.textQuaternary : Palette.textPrimary,
-        symbol: Self.lastBarSymbol)
-        .help(staleHelp)
-      StatLine(L10n.Position.maxLoss,
-        value: Risk.plannedLoss(entry: row.entry, stop: row.stop, quantity: row.quantity).map(Money.usd)
-          ?? Format.missing, symbol: Self.maxLossSymbol)
+      .font(Tokens.Typography.hero)
+      .contentTransition(.numericText())
+      .hint(L10n.Position.unrealized)
+      stop
+      Text(L10n.Position.sharesAt(Format.quantity(row.quantity), Money.price(row.entry)))
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.textSecondary)
+        .fixedSize(horizontal: false, vertical: true)
+      now
+      line(Text(L10n.Position.maxLoss), value: Risk.plannedLoss(entry: row.entry, stop: row.stop,
+        quantity: row.quantity).map(Money.usd) ?? Format.missing)
         .help(Text(L10n.Position.maxLossHelp))
-      if isStale, let time = row.lastBarAt {
-        StatLine(label: Text(L10n.Position.rAt(Format.marketMinute(time))),
-          value: row.latestResultR.map(Risk.text) ?? Format.missing, color: Palette.textQuaternary, symbol: Self.rSymbol)
-          .help(staleHelp)
-      } else {
-        StatLine(L10n.Position.rNow, value: row.resultR.map(Risk.text) ?? Format.missing, symbol: Self.rSymbol)
+      Spacer(minLength: Tokens.Space.s)
+      BotCommandButton(action: .flatten(symbol: symbol), place: .window, size: .regular,
+        title: L10n.Bot.closeSymbol(symbol), identifier: Self.closePrefix + symbol)
+    }
+  }
+
+  /// The stop's glyph, "Protected" once the broker confirmed it (else the stop's state) and its price.
+  private var stop: some View {
+    let state = row.position.stop.state
+    return HStack(spacing: Tokens.Space.s) {
+      StopGlyph(state: state, symbol: row.position.symbol, price: row.position.stop.price, style: .compact)
+      VStack(alignment: .leading, spacing: 0) {
+        Group {
+          if state == .verified { Text(L10n.Position.protected) } else { Text(verbatim: state.title) }
+        }
+        .font(Tokens.Typography.caption.weight(.semibold))
+        .foregroundStyle(state.tone.text)
+        Text(L10n.Position.stopLevel(Format.price(row.stop)))
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textTertiary)
       }
-      let sent = EntrySent.line(row.position.entry,
-        cause: ApiText.prose(row.position.entryCauseCodes, text: row.position.entryCause))
-      let line = StatLine(L10n.EntrySent.title, value: sent.text, color: sent.color, symbol: Self.sentSymbol)
-      // A hint only when there is something to add (the bot's cause of a missing record).
-      if let help = sent.help {
-        line.hint(verbatim: help)
-      } else {
-        line
-      }
+      .fixedSize(horizontal: false, vertical: true)
     }
+    .accessibilityElement(children: .combine)
   }
 
-  /// Where the last close sits between the stop (empty) and the entry's mirror above it (full):
-  /// half way is the entry. Nothing without a stop or a close.
-  private var stopToLast: (fraction: Double, tone: Tone)? {
-    guard let stop = row.stop, let last = row.price, row.entry > stop else { return nil }
-    let span = (row.entry - stop) * Self.meterRisks
-    let fraction = NSDecimalNumber(decimal: (last - stop) / span).doubleValue
-    return (fraction, last >= row.entry ? .profit : .warning)
+  /// "Now 12.53 · 0.43 R"; with no current price, the newest bar's close and R, greyed, as of its time.
+  private var now: some View {
+    let stale = row.isStale
+    let price = (row.price ?? row.latestClose).map { Format.price($0) } ?? Format.missing
+    let result = (stale ? row.latestResultR : row.resultR).map(Risk.text) ?? Format.missing
+    let label = stale ? row.lastBarAt.map { Text(L10n.Position.lastBarCloseAt(Format.marketMinute($0))) }
+      ?? Text(L10n.Position.lastBarClose) : Text(L10n.Position.now)
+    return line(label, value: [price, result].joined(separator: Format.itemSeparator), muted: stale)
+      .help(stale ? row.lastBarAt.map { Text(L10n.Position.staleHelp(Format.marketMinute($0))) }
+        ?? Text(L10n.Position.lastBarClose) : Text(L10n.Position.now))
   }
 
-  private var lastBarLabel: Text {
-    if let live = row.live {
-      return Text(L10n.Position.bidAt(ClockText.seconds(live.quotedAt)))
+  /// A label and its figure on one line, wrapping rather than cut.
+  private func line(_ label: Text, value: String, muted: Bool = false) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      label.font(Tokens.Typography.caption).foregroundStyle(Palette.textTertiary)
+      Text(verbatim: value)
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(muted ? Palette.textQuaternary : Palette.textPrimary)
+        .contentTransition(.numericText())
     }
-    if let time = row.lastBarAt {
-      return Text(L10n.Position.lastBarCloseAt(Format.marketMinute(time)))
-    }
-    return Text(L10n.Position.lastBarClose)
-  }
-
-  private var lastBarValue: String {
-    (row.price ?? row.latestClose).map { Format.price($0) } ?? Format.missing
-  }
-
-  /// The newest bar is too old to be the current price: shown greyed, as of its time.
-  private var isStale: Bool { row.isStale }
-
-  private var staleHelp: Text {
-    guard isStale, let time = row.lastBarAt else { return Text(L10n.Position.lastBarClose) }
-    return Text(L10n.Position.staleHelp(Format.marketMinute(time)))
+    .fixedSize(horizontal: false, vertical: true)
+    .accessibilityElement(children: .combine)
   }
 }
 
@@ -1242,60 +1241,13 @@ private struct SafetyCard: View {
   /// Accessibility id of the card, for the UI tests.
   static let id = "overview-safety"
 
-  /// Fence names the bot raises for a position or an open order it did not place (engine
-  /// Fence.FOREIGN_POSITION and FOREIGN_ORDER). A fence kind is the name, then ":" and a key
-  /// when it has one, as in "foreign-position:ABCD".
-  static let foreignPositionFence = "foreign-position"
-  static let foreignOrderFence = "foreign-order"
-  /// Separator between a fence's name and its key (protocol value).
-  static let fenceKeySeparator: Character = ":"
-
-  /// Columns of the safety tiles, as in the design.
-  static let tileColumns = 2
-
   var body: some View {
-    // One card as in the design: "Safety · bot" with the bot's state and Stop bot, the safety
-    // facts as tiles in two columns, then the commands. The tiles scroll when the card is short;
-    // the commands never do, so they are always in reach.
+    // One card as in the design (mockup Main): "Bot" with the bot's state, one status line that
+    // opens every safety check, then Pause entries and Stop bot, always in reach.
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      // Stop bot beside the bot's state; under the header when the card is too narrow for both.
-      // The state is one short word, always on one line: a pill that may wrap was squeezed by
-      // the header's spacer to one letter per line instead of the button moving down.
-      ViewThatFits(in: .horizontal) {
-        SectionHeader(L10n.Safety.titleWithBot) {
-          HStack(spacing: Tokens.Space.s) {
-            BotPill().fixedSize()
-            BotStopButton()
-          }
-        }
-        VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          SectionHeader(L10n.Safety.titleWithBot) { BotPill().fixedSize() }
-          BotStopButton()
-        }
-      }
-      ScrollsWhenTall {
-        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
-          let list = rows(now: model.botTime(context.date))
-          let lines = stride(from: 0, to: list.count, by: Self.tileColumns)
-            .map { Array(list[$0..<min($0 + Self.tileColumns, list.count)]) }
-          Grid(horizontalSpacing: Tokens.Space.s, verticalSpacing: Tokens.Space.xs) {
-            ForEach(lines.indices, id: \.self) { index in
-              GridRow {
-                // Each fact opens Risk & account, where its details are.
-                ForEach(lines[index]) { row in
-                  LinkTile(L10n.Safety.opensRisk, radius: Tokens.Radius.small) {
-                    model.section = .risk
-                  } label: {
-                    SafetyTile(symbol: row.symbol, label: row.label, value: row.value, tone: row.tone)
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      // Nothing was ever read: the facts' outline, never "unavailable" in every tile.
-      .offlineOutline(lines: Tokens.Loading.fewLines)
+      // The state is a few words, always on one line.
+      SectionHeader(L10n.Common.bot) { BotPill().fixedSize() }
+      BotStatusLine()
       Spacer(minLength: 0)
       BotSection()
     }
@@ -1304,123 +1256,6 @@ private struct SafetyCard: View {
     .tickrCard(radius: Tokens.Radius.large)
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
-  }
-
-  private enum RowID: Hashable { case status, stops, entries, reconcile, stream, read, foreign }
-
-  private struct Row: Identifiable {
-    let id: RowID
-    let label: LocalizedStringResource
-    let value: String
-    let tone: Tone
-    /// The open positions' stops, for the stops row's symbol (the worst one's, never a fixed check).
-    var stops: [StopState] = []
-
-    /// Symbols of the rows.
-    static let statusSymbol = "questionmark.circle"
-    static let entriesSymbol = "paperplane"
-    static let reconcileSymbol = "arrow.triangle.2.circlepath"
-    static let streamSymbol = "waveform.path.ecg"
-    static let readSymbol = "building.columns"
-    static let foreignSymbol = "person.crop.circle.badge.questionmark"
-
-    var symbol: String {
-      switch id {
-      case .status: return Self.statusSymbol
-      case .stops: return StopState.combinedSymbol(stops)
-      case .entries: return Self.entriesSymbol
-      case .reconcile: return Self.reconcileSymbol
-      case .stream: return Self.streamSymbol
-      case .read: return Self.readSymbol
-      case .foreign: return Self.foreignSymbol
-      }
-    }
-  }
-
-  private func rows(now: Date) -> [Row] {
-    guard model.isLive, let status = model.status else {
-      let value = String(localized: model.isLive ? L10n.Common.unavailable : L10n.Safety.recordedDay)
-      return [Row(id: .status, label: L10n.Safety.status, value: value, tone: .neutral)]
-    }
-    let positions = Board.positions(status)
-    let verified = positions.filter { $0.stop.state.isProtected }.count
-    let fenceNames = Set(status.fences.map { String($0.kind.prefix { $0 != Self.fenceKeySeparator }) })
-    // Positions or orders the bot did not place, in one tile.
-    let foreign = fenceNames.contains(Self.foreignPositionFence) || fenceNames.contains(Self.foreignOrderFence)
-    let stream = status.freshness.stream
-    let entries = positions.map { (symbol: $0.symbol, entry: $0.entry) }
-      + status.tradesToday.map { (symbol: $0.symbol, entry: $0.entry) }
-    let sent = EntrySent.summary(entries)
-    // The design's six tiles, in its order. The entry pause has no tile: Pause or Resume below
-    // shows it.
-    return [
-      Row(id: .reconcile, label: L10n.Safety.reconciliation,
-        value: status.fences.isEmpty
-          ? String(localized: L10n.Safety.noFences) : String(localized: L10n.Common.fences(status.fences.count)),
-        tone: status.fences.isEmpty ? .profit : .warning),
-      Row(id: .stops, label: L10n.Safety.brokerStops,
-        value: positions.isEmpty
-          ? String(localized: L10n.Common.noPosition) : String(localized: L10n.Safety.verified(verified, positions.count)),
-        tone: StopState.combinedTone(positions.map(\.stop.state)), stops: positions.map(\.stop.state)),
-      Row(id: .entries, label: L10n.EntrySent.safetyRow,
-        value: sent?.text ?? String(localized: L10n.Common.none), tone: sent?.tone ?? .neutral),
-      Row(id: .stream, label: L10n.Safety.quoteStream, value: stream.title,
-        tone: stream == .fresh ? .profit : stream == .off ? .neutral : .warning),
-      Row(id: .read, label: L10n.Safety.lastBrokerRead,
-        value: Format.age(since: status.freshness.lastBrokerReadAt?.date, now: now),
-        tone: BrokerReadAge.tone(since: status.freshness.lastBrokerReadAt?.date, now: now,
-          limits: BrokerReadAge.Limits(model.settings))),
-      Row(id: .foreign, label: L10n.Safety.foreignAtBroker,
-        value: String(localized: foreign ? L10n.Safety.present : L10n.Common.none),
-        tone: foreign ? .loss : .profit),
-    ]
-  }
-}
-
-/// The bot's state as a pill, in the Safety card's header.
-private struct BotPill: View {
-  @Environment(AppModel.self) private var model
-
-  var body: some View {
-    if let status = model.status {
-      let running = status.botState == .running
-      let isCurrent = model.isLive && model.fetchError == nil && model.response?.stale == false
-      StatusPill(verbatim: status.entryStop ? String(localized: L10n.Common.entriesPaused) : status.botState.title,
-        tone: status.entryStop ? .warning : running ? .accent : .neutral,
-        live: running && isCurrent, event: [AnyHashable(status.botState), AnyHashable(status.entryStop)])
-    }
-  }
-}
-
-/// One safety fact as the design draws it: a sunken tile with its glyph, its name and its value.
-private struct SafetyTile: View {
-  let symbol: String
-  let label: LocalizedStringResource
-  let value: String
-  let tone: Tone
-
-  var body: some View {
-    HStack(spacing: Tokens.Space.s) {
-      StateGlyph(symbol, tone: tone, label: label, style: .compact)
-      // The name above its value, each wrapping rather than cut.
-      VStack(alignment: .leading, spacing: 0) {
-        Text(label).font(Tokens.Typography.caption).foregroundStyle(Palette.textSecondary)
-        Text(verbatim: value)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(tone.text)
-          .contentTransition(.numericText())
-      }
-      // As tall as its words need: a long name wraps, never cut.
-      .fixedSize(horizontal: false, vertical: true)
-      Spacer(minLength: 0)
-    }
-    .padding(Tokens.Space.xs)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.small))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.small).strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
-    }
-    .help(Text(verbatim: "\(String(localized: label)): \(value)"))
   }
 }
 
@@ -1432,8 +1267,17 @@ private struct BotSection: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // While the link is down the controls are off and quiet grey, and the connection banner
       // says "commands off": no red line repeats it here (owner, 2026-11-18).
-      BotControls()
-        .grayscale(linkDown ? 1 : 0)
+      // A close-and-stop shows its steps in place of the buttons (boards Main, MainNarrow),
+      // driven only by the bot's status; a refusal brings the buttons back with its cause.
+      if model.isLive, let rows = model.stopSteps {
+        StopStepsSection(rows: rows)
+      } else {
+        BotControls()
+          .grayscale(linkDown ? 1 : 0)
+      }
+      if model.isLive, let refusal = model.stopRefusal {
+        Footnote(verbatim: refusal, color: Palette.lossText)
+      }
       if !model.isLive {
         Footnote(L10n.Safety.offWhileRecorded)
       } else if model.response?.stale == true && !linkDown {
@@ -1457,8 +1301,9 @@ private struct RiskRoomCard: View {
       if !model.isLive {
         recorded
       } else if let risk = model.settings?.risk {
-        // The shared card (mockup v115): the bot's own room, the four facts, then how the last
-        // entry was sized. The app never computes a room the bot did not report.
+        // The shared card (mockup Main): the bot's own room, three facts, then the last entry in
+        // one line with "Limits ›" opening every sizing limit. The app never computes a room the
+        // bot did not report; whether the records agree is the Bot card's first check.
         let reservations = model.status?.openReservationsUsd?.value
         RiskRoomPanel(room: model.dailyRoom, limit: risk.maxDailyLossUsd.value, reserved: reservations, facts: [
           RiskFact(.netResult, RiskRoomText.netResult, value: Money.signedUSD(model.shownResult),
@@ -1467,12 +1312,11 @@ private struct RiskRoomCard: View {
             color: reservations.map { Tone.amount($0, .warning).text } ?? Palette.textQuaternary),
           RiskFact(.positions, RiskRoomText.positions,
             value: String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions))),
-          .records(RecordsAgreement(fences: model.status?.fences ?? [], latest: model.flow?.reconcile)),
         ], sizing: model.watching.map { watching in
           EntrySizing(size: watching.latestSize, configured: SizingLimits(
             plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
             dailyRoomUsd: model.dailyRoom), text: .money)
-        })
+        }, summary: true)
         Spacer(minLength: 0)
       } else if let error = model.settingsError {
         ReadFailureNote(L10n.ReadFailed.settings, detail: error)
@@ -1498,154 +1342,11 @@ private struct RiskRoomCard: View {
           .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
       }
       if let size = model.watching?.latestSize {
-        EntrySizingSection(sizing: EntrySizing(size: size, configured: nil, text: .money))
+        EntrySizingSummary(sizing: EntrySizing(size: size, configured: nil, text: .money))
       }
       Spacer(minLength: 0)
       Footnote(L10n.RiskRoom.recordedNote)
     }
-  }
-}
-
-private struct ObserversCard: View {
-  @Environment(AppModel.self) private var model
-  @Environment(AdvisorModel.self) private var advisor
-
-  var body: some View {
-    Card(L10n.Observers.title) {
-      HeaderLink(L10n.Observers.lab) {
-        // The Lab's cards, where the observers are, not the advisor page left open earlier.
-        advisor.pageOpen = false
-        model.section = .lab
-      }
-    } content: {
-      if let observers = model.observers?.observers {
-        if observers.isEmpty {
-          Text(L10n.Observers.none).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-        }
-        // The design's compact rows: name and result, then a bar of the result against the
-        // largest; the decisions are in the Lab and on hover.
-        let largest = observers.compactMap { $0.resultGrossUSD.map { abs($0.value) } }.max() ?? 0
-        // The first observers (more in a tall window), then "Show all N ›" above the advisor.
-        CappedList(observers, id: \.id, title: L10n.Observers.title, limit: Tokens.Lists.comparedRows,
-          spacing: Tokens.Space.m, endsCard: false) { _, observer in OverviewObserverRow(observer: observer, largest: largest) }
-      } else if model.observersError != nil {
-        ReadFailureNote(L10n.Lab.observersUnavailable, detail: nil)
-      } else if model.observersPending {
-        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows) }
-      }
-      Spacer(minLength: 0)
-      AdvisorRow()
-    }
-  }
-}
-
-/// The AI advisor under the observers: its leading run and how many wait for the owner, and
-/// Review, which opens the run in the Lab.
-private struct AdvisorRow: View {
-  @Environment(AppModel.self) private var model
-  @Environment(AdvisorModel.self) private var advisor
-
-  var body: some View {
-    // On one line while everything fits whole; in a narrow column the pill and the link go on
-    // a line of their own, and in the narrowest one each on its own line, so no word is broken
-    // or cut. The last arrangement is the narrowest: a `ViewThatFits` keeps its last child even
-    // when it is wider than the column, which pushed the card over its neighbour (Fast movers).
-    ViewThatFits(in: .horizontal) {
-      HStack(spacing: Tokens.Space.s) {
-        words.fixedSize()
-        Spacer(minLength: Tokens.Space.s)
-        HStack(spacing: Tokens.Space.s) { actions }
-      }
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        words
-        HStack(spacing: Tokens.Space.s) { actions }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        words
-        actions
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    // The design's violet strip at the foot of the card; all of it opens the Lab.
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.medium))
-    .onTapGesture(perform: open)
-    .background(Palette.highlight.opacity(Tokens.Opacity.wash), in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
-        .strokeBorder(Palette.highlight.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin)
-    }
-  }
-
-  private var words: some View {
-    HStack(spacing: Tokens.Space.s) {
-      Image(systemName: AdvisorLook.symbol).foregroundStyle(Palette.highlightText)
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        Text(L10n.Observers.advisor).font(Tokens.Typography.callout)
-        if let lead = advisor.runs?.lead {
-          Text(verbatim: lead.title)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textQuaternary)
-        }
-      }
-    }
-  }
-
-  /// The pill and the link, laid out by the stack around them (a row, or one under the other).
-  @ViewBuilder private var actions: some View {
-    if let count = advisor.runs?.awaitingReview, count > 0 {
-      StatusPill(AdvisorWords.awaiting(count), tone: .highlight).fixedSize()
-    }
-    HeaderLink(advisor.runs?.lead == nil ? L10n.Observers.lab : AdvisorWords.review, tone: .highlight, action: open)
-      .fixedSize()
-  }
-
-  /// Opens the Lab, on the latest proposal when there is one.
-  private func open() {
-    if let lead = advisor.runs?.lead { advisor.open(lead.id) }
-    model.section = .lab
-  }
-}
-
-/// An observer on the Overview as the design draws it: its version and what sets it apart from
-/// the active strategy ("v3 · rel vol 1.5×", ObserverLabel), its result, and a
-/// bar of the result's size against the largest observer's, violet for a gain, amber for a loss.
-private struct OverviewObserverRow: View {
-  let observer: ObserverV1
-  /// The largest absolute result among the observers, in USD.
-  let largest: Decimal
-
-  var body: some View {
-    let result = observer.resultGrossUSD?.value
-    let share = result.map { largest > 0 ? NSDecimalNumber(decimal: abs($0) / largest).doubleValue : 0 } ?? 0
-    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      HStack(spacing: Tokens.Space.s) {
-        Text(verbatim: ObserverLabel.observer(observer))
-        Spacer(minLength: Tokens.Space.s)
-        if let result {
-          Text(verbatim: Money.signedUSD(result)).foregroundStyle(Palette.result(result))
-        } else {
-          Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
-        }
-      }
-      .font(Tokens.Typography.calloutMono)
-      GeometryReader { proxy in
-        Capsule().fill(Palette.surfaceSunken)
-          .overlay(alignment: .leading) {
-            Capsule().fill((result ?? 0) >= 0 ? Palette.highlight : Palette.warning)
-              .frame(width: proxy.size.width * share)
-              // Grows in, then moves only when the observer's result changes.
-              .grows(with: share)
-          }
-      }
-      .frame(height: Tokens.Size.barThin)
-    }
-    .help(Text(verbatim: [String(localized: L10n.Lab.decisionCount(observer.decisions.count)),
-      ApiText.prose(observer.resultCauseCodes, text: observer.resultCause)].compactMap { $0 }
-      .joined(separator: Format.lineSeparator)))
-    .accessibilityElement(children: .combine)
   }
 }
 
@@ -1689,7 +1390,6 @@ private struct JournalCard: View {
 #Preview {
   OverviewView()
     .environment(PreviewAPI.model())
-    .environment(PreviewAPI.advisor())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif

@@ -2,11 +2,11 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-// The Symbols screen behind Home's funnel (mockup v101, IOSSymbols): every symbol of today by the
-// funnel stage it got to, with why each one stopped, and the fast movers. A funnel stage or the
-// Fast movers card's "Show all" pushes it on that tab; "‹ Home" goes back. The funnel tabs scroll
-// sideways; a menu sorts the rows. A tap on a row pushes the symbol's detail. The rows are the
-// full list, never capped; texts wrap, never cut.
+// The Symbols screen behind Home's funnel (mockup IOSSymbols, 2026-11-25): every symbol of today by
+// the funnel stage it got to, with why each one stopped in short, and the fast movers. A funnel
+// stage or the Fast movers card's "Show all" pushes it on that tab; "‹ Home" goes back. The funnel
+// tabs scroll sideways; a menu sorts the rows. A tap on a row pushes the symbol's detail. The rows
+// are the full list, never capped; texts wrap, never cut.
 
 struct SymbolsView: View {
   @Environment(AppModel.self) private var model
@@ -17,6 +17,8 @@ struct SymbolsView: View {
   @State private var order: SymbolsOrder?
   /// The symbol whose detail is pushed.
   @State private var selected: SelectedSymbol?
+  /// The fast mover rule shows under its caption.
+  @State private var showsRule = false
 
   init(tab: SymbolsTab) {
     _tab = State(initialValue: tab)
@@ -47,12 +49,12 @@ struct SymbolsView: View {
     .refreshable { await model.refreshFlow() }
     .task(id: model.connection.url) { await model.followFlow() }
     .navigationDestination(item: $selected) { item in
-      SymbolDetailScreen(line: line(item.id), rules: model.movers?.rules)
+      SymbolDetailScreen(line: line(item.id))
     }
   }
 
-  /// "Mon Nov 16 · 10:48 ET · 412 screened": the day, the end of the latest discovery pass and how
-  /// many symbols the screeners listed; the bot's cause when no pass is recorded.
+  /// "Mon Nov 16 · 10:48 ET": the day and the end of the latest discovery pass; the bot's cause
+  /// when no pass is recorded.
   private var context: String {
     let day = DayText.day(model.shownDay)
     guard let symbols = model.symbols else {
@@ -62,8 +64,7 @@ struct SymbolsView: View {
     guard let asOf = symbols.asOf?.date else {
       return [day, symbols.asOfCause].compactMap { $0 }.joined(separator: Format.separator)
     }
-    let screened = SymbolsBoard.count(.stage(.screeners), symbols: symbols, movers: model.movers) ?? 0
-    return String(localized: L10n.Symbols.context(day, Format.time(asOf), screened))
+    return String(localized: L10n.Symbols.context(day, Format.time(asOf)))
   }
 
   private var searchField: some View {
@@ -131,37 +132,74 @@ struct SymbolsView: View {
     SymbolsBoard.count(item, symbols: model.symbols, movers: model.movers).map(String.init) ?? Format.missing
   }
 
-  /// The All / Passed / Dropped here switch with counts, or the fast mover rule; then the sort menu.
+  /// The All / Passed / Dropped here switch with counts and the stage's caption under it, or the
+  /// fast movers' caption with an "i" that opens their rule under it (mockup IOSSymbols); then
+  /// the sort menu.
   private var controls: some View {
-    HStack(alignment: .center, spacing: Tokens.Space.s) {
-      if case .stage = tab {
-        SegmentSwitch(options: SymbolsFilter.allCases.map { ($0, Text(SymbolsText.filterCount($0, filterCount($0)))) },
-          selection: $filter)
-          .accessibilityLabel(Text(L10n.Symbols.show))
-      } else {
-        Text(verbatim: moverRules)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
-          .frame(maxWidth: .infinity, alignment: .leading)
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      HStack(alignment: .center, spacing: Tokens.Space.s) {
+        if case .stage = tab {
+          SegmentSwitch(options: SymbolsFilter.allCases.map { ($0, Text(SymbolsText.filterCount($0, filterCount($0)))) },
+            selection: $filter)
+            .accessibilityLabel(Text(L10n.Symbols.show))
+        } else {
+          Text(verbatim: SymbolsBoard.caption(tab, symbols: model.symbols))
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textTertiary)
+            .fixedSize(horizontal: false, vertical: true)
+          if fastRule != nil { ruleButton }
+          Spacer(minLength: 0)
+        }
+        sortMenu
       }
-      Menu {
-        Picker(selection: Binding(get: { shownOrder.column }, set: { order = shownOrder.clicked($0) })) {
-          ForEach(Self.sortColumns) { column in
-            Text(column.title(fastMovers: tab == .fastMovers)).tag(column)
-          }
-        } label: {
-          Text(L10n.Symbols.sort)
+      if case .stage = tab {
+        Text(verbatim: SymbolsBoard.caption(tab, symbols: model.symbols))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textTertiary)
+          .fixedSize(horizontal: false, vertical: true)
+      } else if showsRule, let fastRule {
+        Text(verbatim: fastRule)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
+          .transition(.opacity)
+      }
+    }
+  }
+
+  /// The "i" beside the fast movers' caption: shows or hides their rule.
+  private var ruleButton: some View {
+    Button {
+      withAnimation(Tokens.Motion.quick) { showsRule.toggle() }
+    } label: {
+      Image(systemName: InfoCaption.infoSymbol)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(showsRule ? Palette.infoText : Palette.textTertiary)
+        .frame(width: Tokens.Size.touchTarget, height: Tokens.Size.touchTarget)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(Text(SymbolsText.fastRuleLabel))
+    .accessibilityAddTraits(showsRule ? .isSelected : [])
+  }
+
+  private var sortMenu: some View {
+    Menu {
+      Picker(selection: Binding(get: { shownOrder.column }, set: { order = shownOrder.clicked($0) })) {
+        ForEach(Self.sortColumns) { column in
+          Text(column.title(fastMovers: tab == .fastMovers)).tag(column)
         }
       } label: {
-        Image(systemName: Self.sortSymbol)
-          .font(Tokens.Typography.headerSymbol)
-          .foregroundStyle(Palette.infoText)
-          .frame(width: Tokens.Size.touchTarget, height: Tokens.Size.touchTarget)
-          .contentShape(Rectangle())
+        Text(L10n.Symbols.sort)
       }
-      .accessibilityLabel(Text(L10n.Symbols.sort))
+    } label: {
+      Image(systemName: Self.sortSymbol)
+        .font(Tokens.Typography.headerSymbol)
+        .foregroundStyle(Palette.infoText)
+        .frame(width: Tokens.Size.touchTarget, height: Tokens.Size.touchTarget)
+        .contentShape(Rectangle())
     }
+    .accessibilityLabel(Text(L10n.Symbols.sort))
   }
 
   private func filterCount(_ filter: SymbolsFilter) -> Int {
@@ -169,12 +207,12 @@ struct SymbolsView: View {
     return SymbolsBoard.rows(model.symbols?.rows ?? [], stage: stage, filter: filter, sort: .symbol, search: search).count
   }
 
-  /// The active strategy's fast mover thresholds, or why there are none.
-  private var moverRules: String {
+  /// The fast mover rule in one sentence, or why there is none; nil before the movers are read.
+  private var fastRule: String? {
     guard let movers = model.movers else {
-      return model.moversError.map { String(localized: L10n.Symbols.unavailable($0)) } ?? Format.missing
+      return model.moversError.map { String(localized: L10n.Symbols.unavailable($0)) }
     }
-    return movers.rules.map(SymbolsBoard.rules) ?? movers.rulesCauseText ?? Format.missing
+    return movers.rules.map(SymbolsBoard.fastRule) ?? movers.rulesCauseText
   }
 
   // MARK: list
@@ -266,9 +304,9 @@ private struct SelectedSymbol: Identifiable, Hashable {
 
 // MARK: - rows
 
-/// One row (mockup v101): the symbol, its badge, then the price, change and time on the right; the
-/// stage track with the stage name in the outcome's colour and why; on the Fast movers tab the
-/// bar's three figures. A chevron, as the row pushes the detail. Every text wraps; none is cut.
+/// One row (mockup IOSSymbols): the symbol, its badge, then the price, change and time on the
+/// right; the stage track with the stage name in the outcome's colour and why in short; on the
+/// Fast movers tab the bar's signals that fired. A chevron, as the row pushes the detail. Every text wraps; none is cut.
 private struct SymbolListRow: View {
   @Environment(AppModel.self) private var model
   let line: SymbolsLine
@@ -307,9 +345,9 @@ private struct SymbolListRow: View {
         if let row {
           HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
             StageTrack(colors: row.trackColors, title: row.furthest.title,
-              titleColor: SymbolsOutcome(row.state).color)
+              titleColor: SymbolsOutcome(row).color)
               .fixedSize()
-            if let why = SymbolsBoard.why(row) {
+            if let why = SymbolsBoard.shortWhy(row) {
               Text(verbatim: why)
                 .font(Tokens.Typography.annotation)
                 .foregroundStyle(Palette.textSecondary)
@@ -317,11 +355,12 @@ private struct SymbolListRow: View {
             }
           }
         }
+        // On the Fast movers tab only the signals that fired (mockup IOSSymbols).
         if fastMovers, let mover = line.mover {
           ChipFlow(spacing: Tokens.Space.s) {
-            MoverFigure(text: SymbolsBoard.volume(mover), fired: mover.fired(.volume))
-            MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move))
-            MoverFigure(text: SymbolsBoard.dollars(mover), fired: mover.fired(.dollars))
+            ForEach(SymbolsBoard.firedSignals(mover), id: \.self) { signal in
+              MoverFigure(text: signal, fired: true)
+            }
           }
         }
       }
@@ -392,49 +431,47 @@ private enum SymbolsSkeleton {
   }
 }
 
-/// The POSITION (teal) or WATCH (blue) badge beside a symbol.
+/// The OPEN badge (teal) beside a symbol with an open position.
 private struct SymbolTagBadge: View {
   let line: SymbolsLine
 
   var body: some View {
     if line.position {
       Badge(SymbolsText.position, color: Palette.accentText)
-    } else if line.watching {
-      Badge(Verdict.watch.title, color: Palette.infoText)
     }
   }
 }
 
-/// A fast mover's symbol, WATCH pill and time, then its volume against average, ATR move and
-/// dollar volume, each bright when its signal fired. Shared by the card and the screen.
+/// One fast mover on Home, as on the Mac Overview (mockup Main, IOSHome): the symbol, its one main
+/// signal (`SymbolsBoard.mainReason`, the one furthest past its rule) and the bar's time. Texts
+/// wrap, never cut; the three figures are on the Symbols screen's Fast movers tab.
 struct FastMoverLine: View {
   let mover: FastMoverV1
+  let rules: FastMoverRulesV1?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        SymbolText(mover.symbol)
-          .font(Tokens.Typography.chip)
-          .foregroundStyle(Palette.textPrimary)
-        if mover.watching { Badge(Verdict.watch.title, color: Palette.infoText) }
-        Spacer(minLength: 0)
-        Text(verbatim: Format.time(mover.at.date))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-      ChipFlow(spacing: Tokens.Space.s) {
-        MoverFigure(text: SymbolsBoard.volume(mover), fired: mover.fired(.volume))
-        MoverFigure(text: SymbolsBoard.move(mover), fired: mover.fired(.move))
-        MoverFigure(text: SymbolsBoard.dollars(mover), fired: mover.fired(.dollars))
-      }
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      SymbolText(mover.symbol)
+        .font(Tokens.Typography.chip)
+        .foregroundStyle(Palette.textPrimary)
+      if mover.watching { Badge(Verdict.watch.title, color: Palette.infoText) }
+      Text(verbatim: SymbolsBoard.mainReason(mover, rules: rules))
+        .font(.subheadline)
+        .foregroundStyle(Palette.warningText)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: 0)
+      Text(verbatim: Format.time(mover.at.date))
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
     }
+    .accessibilityElement(children: .combine)
   }
 }
 
 // MARK: - the Fast movers card on Home
 
 /// The day's fast movers on Home: the newest few rows, then "Show all N ›" pushing the Symbols
-/// screen on its Fast movers tab, and the thresholds in a mono caption. A new mover rises in as
+/// screen on its Fast movers tab (where the thresholds are). A new mover rises in as
 /// it arrives, a real event of the bot.
 struct FastMoversCard: View {
   let movers: MoversV1?
@@ -457,15 +494,9 @@ struct FastMoversCard: View {
         }
         let shown = Array(movers.movers.prefix(Self.rowCap))
         ForEach(Array(shown.enumerated()), id: \.element.symbol) { index, mover in
-          FastMoverLine(mover: mover).rise(step: index)
+          FastMoverLine(mover: mover, rules: movers.rules).rise(step: index)
         }
         .animation(Tokens.Motion.standard, value: shown.map(\.symbol))
-        if let rules = movers.rules {
-          Text(verbatim: SymbolsBoard.rules(rules))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-            .fixedSize(horizontal: false, vertical: true)
-        }
       } else if let failure {
         Text(L10n.FastMovers.unavailable(failure))
           .font(Tokens.Typography.annotation)
@@ -488,22 +519,24 @@ struct FastMoversCard: View {
 
 // MARK: - detail
 
-/// A symbol's detail, pushed from the list (mockup v101): the symbol, its price and change, then
-/// cards for the outcome and the fast bar, the path today with the time of each stage, the
-/// screeners and the strategy's last decision with its checks, and the links.
+/// A symbol's detail, pushed from the list (mockup IOSSymbols): the symbol, when it was first seen,
+/// its price and change and today's line, then what happened in one word and one caption with
+/// its fast bar's signals, its steps today behind a disclosure, and the chart link.
 private struct SymbolDetailScreen: View {
   @Environment(AppModel.self) private var model
   /// Today's price line, kept while the same symbol's line is read again.
   @State private var dayLine: SymbolDayLine?
   @State private var shownLineSymbol: String?
+  /// The steps today are open.
+  @State private var showsSteps = false
   let line: SymbolsLine
-  let rules: FastMoverRulesV1?
 
   /// The line's price and change: live where the bot's quotes hold the symbol.
   private var shown: SymbolsPrice { SymbolsBoard.shown(line, live: model.livePrice(line.symbol)) }
 
-  /// SF Symbols of the chart link and the path steps.
+  /// SF Symbols of the chart link, the fast mover's bolt and the path steps.
   static let chartSymbol = "chart.xyaxis.line"
+  static let fastSymbol = "bolt.fill"
   static let passedSymbol = "checkmark"
   static let droppedSymbol = "xmark"
   static let waitingSymbol = "clock"
@@ -547,34 +580,32 @@ private struct SymbolDetailScreen: View {
           DayLine(closes: plotted.closes, previousClose: plotted.previousClose)
         }
       }
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        if let row { outcome(row) }
-        sectionLabel(SymbolsText.fastMover,
-          note: line.mover.map { String(localized: SymbolsText.flagged(Format.time($0.at.date))) }
-            ?? String(localized: SymbolsText.notFlagged))
-        if let mover = line.mover { stats(mover) }
-      }
-      .detailCard()
-      if let row {
-        VStack(alignment: .leading, spacing: 0) {
-          sectionLabel(L10n.Symbols.pathToday, note: nil).padding(.bottom, Tokens.Space.xs)
-          ForEach(SymbolsBoard.path(row)) { step in pathStep(step, row: row) }
+      if row != nil || line.mover != nil {
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+          if let row {
+            let headline = SymbolsBoard.headline(row)
+            SymbolHeadline(headline.title, caption: headline.caption, color: SymbolsOutcome(row).headlineColor)
+          }
+          if let mover = line.mover {
+            Label {
+              Text(verbatim: SymbolsBoard.fastNote(mover, time: Format.time(mover.at.date)))
+                .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+              Image(systemName: Self.fastSymbol)
+            }
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.warningText)
+          }
         }
         .detailCard()
-        VStack(alignment: .leading, spacing: Tokens.Space.s) {
-          if !row.sources.isEmpty {
-            sectionLabel(SymbolsText.screeners, note: nil)
-            ForEach(row.sources, id: \.kind) { source in
-              HStack {
-                Text(verbatim: SymbolsBoard.screenerName(source)).foregroundStyle(Palette.textSecondary)
-                Spacer(minLength: Tokens.Space.s)
-                Text(SymbolsText.rank(source.rank)).foregroundStyle(Palette.textTertiary)
-              }
-              .font(Tokens.Typography.calloutMono)
-            }
+      }
+      if let row {
+        DetailDisclosure(SymbolsText.stepsToday,
+          summary: String(localized: SymbolsText.stepsPassed(SymbolsBoard.stepsPassed(row), SymbolStage.allCases.count)),
+          isOpen: $showsSteps) {
+          VStack(alignment: .leading, spacing: 0) {
+            ForEach(SymbolsBoard.path(row)) { step in pathStep(step, row: row) }
           }
-          sectionLabel(SymbolsText.lastDecision, note: nil)
-          decision(row)
         }
         .detailCard()
       }
@@ -598,96 +629,24 @@ private struct SymbolDetailScreen: View {
     shownLineSymbol = symbol
   }
 
-  /// The outcome badge, then "at Strategy · Close above VWAP 5.12 >= 5.20" or "reached Stop".
-  private func outcome(_ row: SymbolRowV1) -> some View {
-    let stage = String(localized: row.stage.title)
-    let place = String(localized: row.state == .passed ? SymbolsText.reachedStage(stage) : SymbolsText.atStage(stage))
-    let text = [place, SymbolsBoard.why(row)].compactMap { $0 }.joined(separator: Format.separator)
-    return HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-      Badge(SymbolsOutcome(row.state).title, color: SymbolsOutcome(row.state).color)
-      Text(verbatim: text)
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textSecondary)
-        .fixedSize(horizontal: false, vertical: true)
-    }
-  }
-
-  private func sectionLabel(_ title: LocalizedStringResource, note: String?) -> some View {
-    HStack(alignment: .firstTextBaseline) {
-      CardLabel(title)
-      Spacer(minLength: Tokens.Space.s)
-      if let note {
-        Text(verbatim: note)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-    }
-  }
-
-  /// The three fast mover figures, each against its threshold.
-  private func stats(_ mover: FastMoverV1) -> some View {
-    HStack(alignment: .top, spacing: Tokens.Space.s) {
-      MoverStat(SymbolsText.statVolume, value: SymbolsBoard.ratio(mover.volumeRatio),
-        note: note(mover.fired(.volume), rules?.minVolumeRatio, ratio: true), met: mover.fired(.volume))
-      MoverStat(SymbolsText.statMove, value: SymbolsBoard.atr(mover.moveAtr),
-        note: note(mover.fired(.move), rules?.minMoveAtr, ratio: false), met: mover.fired(.move))
-      MoverStat(SymbolsText.statDollars, value: SymbolsBoard.ratio(mover.dollarVolumeRatio),
-        note: note(mover.fired(.dollars), rules?.minDollarVolumeRatio, ratio: true), met: mover.fired(.dollars))
-    }
-  }
-
-  private func note(_ fired: Bool, _ threshold: DecimalString?, ratio: Bool) -> String {
-    threshold.map { SymbolsBoard.moverNote(fired: fired, threshold: $0, ratio: ratio) } ?? Format.missing
-  }
-
   private func pathStep(_ step: SymbolsBoard.Step, row: SymbolRowV1) -> some View {
     let reachedAt = SymbolsBoard.time(step, row: row)
     let (glyph, color): (String, Color) = switch step.mark {
     case .passed, .here(.passed): (Self.passedSymbol, Palette.profitText)
-    case .here(.dropped): (Self.droppedSymbol, Palette.droppedText)
+    case .here(.dropped): (Self.droppedSymbol, Palette.textTertiary)
     case .here(.waiting): (Self.waitingSymbol, Palette.infoText)
     case .here(.notReached): (Self.waitingSymbol, Palette.warningText)
     case .ahead: (Self.aheadSymbol, Palette.textQuaternary)
     }
-    let detail: String? = switch step.mark {
-    case .here(.dropped), .here(.waiting), .here(.notReached): SymbolsBoard.why(row)
-    case .ahead: String(localized: SymbolsText.stepNotReached)
-    case .passed, .here(.passed): nil
+    let detail = step.mark == .ahead ? String(localized: SymbolsText.stepNotReached) : step.detail
+    let detailColor = switch step.mark {
+    case .passed, .here(.passed): Palette.textTertiary
+    case .ahead: Palette.textQuaternary
+    case .here: color
     }
     return SymbolPathStep(systemImage: glyph, color: color, title: step.stage.title,
       time: step.mark == .ahead ? Format.missing : reachedAt.map(Format.time) ?? Format.missing, detail: detail,
-      detailColor: step.mark == .ahead ? Palette.textQuaternary : color, reached: step.mark != .ahead)
-  }
-
-  /// The strategy's latest decision: its verdict, when and which strategy, then every check.
-  @ViewBuilder private func decision(_ row: SymbolRowV1) -> some View {
-    if let verdict = row.verdict {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Badge(verdict.title, color: verdict.color)
-        Text(SymbolsText.decided(row.decidedAt.map { Format.time($0.date) } ?? Format.missing,
-          row.strategy ?? Format.missing))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
-      }
-      ForEach(Array(row.checks.enumerated()), id: \.offset) { _, check in
-        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          Image(systemName: check.passed ? Self.passedSymbol : Self.droppedSymbol)
-            .font(Tokens.Typography.chevron)
-            .foregroundStyle(check.passed ? Palette.profitText : Palette.droppedText)
-          Text(verbatim: SymbolsBoard.checkText(check))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textSecondary)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
-      }
-    } else {
-      Text(SymbolsText.noDecision)
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textTertiary)
-        .fixedSize(horizontal: false, vertical: true)
-    }
+      detailColor: detailColor, reached: step.mark != .ahead)
   }
 }
 
@@ -701,15 +660,15 @@ private extension View {
 // MARK: - colours and glyphs
 
 extension SymbolRowV1 {
-  /// One segment per stage (mockup v101): passed teal, where it stands blue when waiting and pink
-  /// when dropped, a hairline where it never got.
+  /// One segment per stage (mockup IOSSymbols): passed teal, where it stands blue when waiting,
+  /// neutral when dropped and amber when not reached, a hairline where it never got.
   var trackColors: [Color] {
     SymbolStage.allCases.map { stage in
       if stage == self.stage {
         switch state {
         case .passed: return Palette.accent
         case .waiting: return Palette.info
-        case .dropped: return Palette.dropped
+        case .dropped: return Palette.textTertiary
         case .notReached: return Palette.warning
         }
       }
@@ -719,13 +678,20 @@ extension SymbolRowV1 {
 }
 
 extension SymbolsOutcome {
-  /// PASSED green, WAITING blue, DROPPED pink, NOT REACHED grey.
+  /// ENTERED green, WAITING blue; SKIPPED, DROPPED and NOT REACHED neutral (mockup IOSSymbols).
   var color: Color {
     switch self {
     case .passed: Palette.profitText
     case .waiting: Palette.infoText
-    case .dropped: Palette.droppedText
-    case .notReached: Palette.textTertiary
+    case .skipped, .dropped, .notReached: Palette.textTertiary
+    }
+  }
+
+  /// The detail headline's colour: green or blue as the badge, the text's own colour otherwise.
+  var headlineColor: Color {
+    switch self {
+    case .passed, .waiting: color
+    case .skipped, .dropped, .notReached: Palette.textPrimary
     }
   }
 }

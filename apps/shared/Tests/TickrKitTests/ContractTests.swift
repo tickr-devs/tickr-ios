@@ -15,6 +15,10 @@ func fixture(_ name: String) throws -> Data {
   try Data(contentsOf: fixturesDir.appendingPathComponent(name))
 }
 
+/// Schemas of endpoints the apps no longer call, so they keep no Swift model of them: the shadow
+/// strategies' day and the AI advisor's runs (re-scoped to the trained model, docs/backlog.md).
+let unmirroredSchemas: Set<String> = ["observers-v1", "advisor-runs-v1"]
+
 /// Decode with the Swift model, encode again, and compare as JSON values.
 /// Equality proves every key and value of the fixture is modelled, including nulls.
 func roundTrip<T: Codable>(_ type: T.Type, _ data: Data) throws -> (Any, Any) {
@@ -43,7 +47,6 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
   "settings-values-v1": { try roundTrip(SettingsValuesV1.self, $0) },
   "settings-draft-v1": { try roundTrip(SettingsDraftV1.self, $0) },
   "explain-v1": { try roundTrip(ExplainV1.self, $0) },
-  "observers-v1": { try roundTrip(ObserversV1.self, $0) },
   "decisions-v1": { try roundTrip(DecisionsV1.self, $0) },
   "skipped-v1": { try roundTrip(SkippedV1.self, $0) },
   "performance-v1": { try roundTrip(PerformanceV1.self, $0) },
@@ -60,7 +63,6 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
   "alerts-v1": { try roundTrip(AlertsV1.self, $0) },
   "push-token-v1": { try roundTrip(PushTokenV1.self, $0) },
   "day-events-v1": { try roundTrip(DayEventsV1.self, $0) },
-  "advisor-runs-v1": { try roundTrip(AdvisorRunsV1.self, $0) },
   "lab-replay-v1": { try roundTrip(LabReplayV1.self, $0) },
   "trade-whatif-v1": { try roundTrip(TradeWhatIfV1.self, $0) },
   "quotes-v1": { try roundTrip(QuotesV1.self, $0) },
@@ -75,6 +77,7 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
     #expect(!names.isEmpty, "no fixtures found in \(fixturesDir.path)")
     for name in names {
       let schema = String(name.prefix { $0 != "." })
+      if unmirroredSchemas.contains(schema) { continue }
       let check = try #require(fixtureRoundTrips[schema], "\(name): no Swift model for schema \(schema)")
       let (original, again) = try check(try fixture(name))
       #expect(original as? NSDictionary == again as? NSDictionary, "\(name)")
@@ -86,13 +89,13 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
     let names = try FileManager.default.contentsOfDirectory(atPath: schemaDir.path)
       .filter { $0.hasSuffix(".schema.json") }
       .map { String($0.dropLast(".schema.json".count)) }
-    #expect(Set(names) == ["status-v1", "command-v1", "status-response-v1",
+    #expect(Set(names).subtracting(unmirroredSchemas) == ["status-v1", "command-v1", "status-response-v1",
       "command-accepted-v1", "command-receipt-v1", "paired-v1", "pending-commands-v1", "error-v1",
       "days-v1", "day-v1", "bars-v1", "settings-v1", "explain-v1",
-      "observers-v1", "decisions-v1", "skipped-v1", "performance-v1",
+      "decisions-v1", "skipped-v1", "performance-v1",
       "flow-v1", "watching-v1", "symbols-v1", "movers-v1", "account-v1", "account-response-v1",
       "chart-v1", "jobs-v1", "journal-v1", "lab-replay-v1", "bot-start-v1", "config-v1", "trade-whatif-v1",
-      "advisor-runs-v1", "quotes-v1", "quotes-response-v1", "day-events-v1", "system-v1",
+      "quotes-v1", "quotes-response-v1", "day-events-v1", "system-v1",
       "settings-schema-v1", "settings-values-v1", "settings-draft-v1", "alerts-v1",
       "push-token-v1"])
   }
@@ -189,9 +192,6 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
     #expect(skipped.signals.last?.entryPrice == nil)
     let decisions = try Wire.decoder().decode(DecisionsV1.self, from: fixture("decisions-v1.json"))
     #expect(decisions.decisions.map(\.admission) == [.notApplicable, .notEvaluated, .refused])
-    let observers = try Wire.decoder().decode(ObserversV1.self, from: fixture("observers-v1.json"))
-    #expect(observers.observers.first?.resultGrossUSD?.text == "-12.4000")
-    #expect(observers.observers.last?.resultCause == "no captured bars for 2026-11-16")
   }
 
   @Test func tradeMetrics() throws {

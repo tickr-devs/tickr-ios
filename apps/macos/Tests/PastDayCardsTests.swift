@@ -30,8 +30,8 @@ struct HeldTransport: APITransport {
 /// all at once and shown together once every read has answered (each card shows its loader until
 /// then), and never another pick's answers.
 extension AppModelTests {
-  static let cardPaths: Set<String> = ["/flow", "/watching", "/symbols", "/movers", "/events", "/observers",
-    "/skipped", "/performance"]
+  static let cardPaths: Set<String> = ["/flow", "/watching", "/symbols", "/movers", "/events", "/skipped",
+    "/performance"]
   /// Long enough that a card shown alone would be seen by the poll below, many times over.
   static let heldRead: Duration = .milliseconds(300)
 
@@ -43,7 +43,6 @@ extension AppModelTests {
       $0.bodies["/watching"] = try file("watching-v1.json")
       $0.bodies["/symbols"] = try file("symbols-v1.json")
       $0.bodies["/movers"] = try file("movers-v1.json")
-      $0.bodies["/observers"] = try file("observers-v1.json")
       $0.bodies["/skipped"] = try file("skipped-v1.json")
       $0.bodies["/performance"] = try file("performance-v1.json")
       $0.bodies["/events"] = try file("day-events-v1.empty.json")
@@ -57,13 +56,13 @@ extension AppModelTests {
   /// Whether any card of the shown day has an answer (its document or its cause).
   static func anyCard(_ model: AppModel) -> Bool {
     model.flow != nil || model.watching != nil || model.symbols != nil || model.movers != nil
-      || model.observers != nil || model.skipped != nil || model.performance != nil
+      || model.skipped != nil || model.performance != nil
       || model.skippedError != nil || model.performanceError != nil
   }
 
   static func everyCard(_ model: AppModel) -> Bool {
     model.flow != nil && model.watching != nil && model.symbols != nil && model.movers != nil
-      && model.observers != nil && model.skipped != nil && model.performance != nil
+      && model.skipped != nil && model.performance != nil
   }
 
   @Test("A picked day's trades show as they come; its cards are read at once and shown together")
@@ -91,7 +90,7 @@ extension AppModelTests {
 
   @Test("A periodic read of the picked day leaves its cards alone while they are read together")
   func periodicReadWaits() async throws {
-    let model = try await Self.modelWithCards(held: ["/observers"])
+    let model = try await Self.modelWithCards(held: ["/performance"])
     model.selectedDay = try WireDate(Self.emptyDay)
     try await Self.waitForPick(model)
     await model.refreshSkipped()  // the history poll, while the cards are still being read
