@@ -1,5 +1,5 @@
 import Testing
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The notify mode's command line (the bot runs `<executable> --notify-alert TITLE TEXT`).
 @Suite struct AlertRequestTests {

@@ -1,7 +1,7 @@
 import SwiftUI
 import Testing
 import TickrDesign
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The title bar's icon buttons (sidebar, previous and next day) keep at least macOS's regular
 /// control size (Apple HIG), drawn offscreen as the window would draw them.

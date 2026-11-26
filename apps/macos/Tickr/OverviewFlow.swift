@@ -465,7 +465,7 @@ private struct MoverRuleButton: View {
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .pointerStyle(.link)
+    .linkPointer()
     .help(Text(L10n.FastMovers.ruleHint))
     .accessibilityLabel(Text(L10n.FastMovers.ruleHint))
     .popover(isPresented: $open, arrowEdge: .bottom) {

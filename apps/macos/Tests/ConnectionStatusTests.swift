@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 import TickrDesign
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Toolbar connection dot")
 @MainActor

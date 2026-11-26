@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import TickrDesign
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Age of the last broker read on the Safety card")
 struct BrokerReadAgeTests {

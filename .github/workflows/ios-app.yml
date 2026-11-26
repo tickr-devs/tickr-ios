@@ -52,7 +52,7 @@ jobs:
           # Its own command, so a failing diff stops the job instead of reading as "no changes".
           files=$(git diff --name-only --no-renames "$range")
           hits=$(printf '%s\n' "$files" | grep -E \
-            '^(apps/ios/|apps/shared/|apps/scripts/select-xcode\.sh$|Tickr\.xcworkspace/|\.github/workflows/ios-app\.yml$)' \
+            '^(apps/ios/|apps/shared/|apps/macos/Tickr/|apps/macos/Package\.(swift|resolved)$|apps/scripts/select-xcode\.sh$|Tickr\.xcworkspace/|\.github/workflows/ios-app\.yml$)' \
             || true)
           if [ -n "$hits" ]; then echo "app=true"; else echo "app=false"; fi >> "$GITHUB_OUTPUT"
   ios-build-and-test:

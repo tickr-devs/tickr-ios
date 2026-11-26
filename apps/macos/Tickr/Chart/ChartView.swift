@@ -91,8 +91,8 @@ struct ChartView: View {
   /// controls (`leastControlRows` rows of chips, a chip being one label line with its padding), the
   /// chart's card (its padding around the panes) and the scroller, `m` apart (`columnParts`).
   static var leastHeight: CGFloat {
-    let header = TextMeasure.lineHeight(NSFont.monospacedSystemFont(ofSize: Tokens.Typography.metricSize, weight: .bold))
-    let label = NSFont.monospacedSystemFont(ofSize: Tokens.Typography.labelSize, weight: .semibold)
+    let header = TextMeasure.lineHeight(PlatformFont.monospacedSystemFont(ofSize: Tokens.Typography.metricSize, weight: .bold))
+    let label = PlatformFont.monospacedSystemFont(ofSize: Tokens.Typography.labelSize, weight: .semibold)
     let edges = CardArrangement.paddedEdges
     let chip = TextMeasure.lineHeight(label) + (Tokens.Space.xs + Tokens.Space.xxs) * edges
     let rows = CGFloat(leastControlRows)
@@ -325,7 +325,7 @@ struct ChartView: View {
       }
       .contentShape(.rect)
     }
-    .menuStyle(.button)
+    .buttonMenuStyle()
     .buttonStyle(.plain)
     .menuIndicator(.hidden)
     .fixedSize()

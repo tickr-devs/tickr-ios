@@ -74,11 +74,11 @@ public extension ButtonStyle where Self == WashPressStyle {
   static func washPress(_ color: Color) -> WashPressStyle { WashPressStyle(color) }
 }
 
-#if os(macOS)
 /// The Mac title bar's small bordered buttons (the sidebar, ‹ › and Today), as on every Mac board
 /// (`.tbtn`): the chip fill, a strong hairline and the label in `textTertiary`. One size for every
 /// title-bar button: an icon-only button `width` × `height`, a titled one as tall with side
-/// padding.
+/// padding. Built on iOS too, for the Mac screens an iPad shows in regular width (TickrScreens);
+/// the iPad's own navigation bar uses system buttons.
 public struct TitleBarButtonStyle: ButtonStyle {
   /// An icon-only button of the fixed size; otherwise the title with side padding.
   let square: Bool
@@ -125,7 +125,6 @@ public extension ButtonStyle where Self == TitleBarButtonStyle {
   /// `.buttonStyle(.titleBar(square: true))` (`TitleBarButtonStyle`).
   static func titleBar(square: Bool) -> TitleBarButtonStyle { TitleBarButtonStyle(square: square) }
 }
-#endif
 
 /// The way back to today from another day, the same control wherever a day can be changed: the
 /// Mac title bar's Today (a titled `TitleBarButtonStyle`, as on the boards), the iPhone's Home

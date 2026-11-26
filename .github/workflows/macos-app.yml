@@ -98,7 +98,7 @@ jobs:
           path: |
             apps/shared/.build
             apps/macos/.build
-          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
+          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**', 'apps/macos/Launch/**') }}
           restore-keys: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared
@@ -121,7 +121,7 @@ jobs:
           path: |
             apps/shared/.build
             apps/macos/.build
-          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
+          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**', 'apps/macos/Launch/**') }}
       # The release bundle (scripts/make-app.sh, ~2 min) is checked nightly on main and on manual
       # runs, not on every push.
       - name: Release app bundle carries its icon

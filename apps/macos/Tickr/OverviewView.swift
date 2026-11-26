@@ -170,7 +170,7 @@ struct OverviewView: View {
   /// UI tests (`LayoutSweep.safetyFirst`): the Safety · bot card at the top of the screen, kept
   /// there while the cards above it load, so a test clicks its commands without a scroll.
   private func showSafetyFirstIfAsked(_ proxy: ScrollViewProxy) {
-    #if DEBUG
+    #if DEBUG && os(macOS)
     if LayoutSweep.safetyFirst { proxy.scrollTo(SafetyCard.id, anchor: .top) }
     #endif
   }
@@ -679,7 +679,7 @@ private struct Pipeline: View {
         .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.medium))
     }
     .buttonStyle(.plain)
-    .pointerStyle(.link)
+    .linkPointer()
     .onHover { inside in
       if inside {
         hovered = stage.id

@@ -1,4 +1,3 @@
-import AppKit
 import SwiftUI
 import TickrDesign
 
@@ -153,8 +152,8 @@ struct StageRows: Layout {
   /// as it is drawn (upper case, `annotationBold`, `labelTracking`) or of its value
   /// (`annotation`: "141 cotizados"), with the column's padding.
   static func leastCellWidth(names: [String], values: [String]) -> CGFloat {
-    let bold = NSFont.monospacedSystemFont(ofSize: Tokens.Typography.annotationSize, weight: .bold)
-    let regular = NSFont.monospacedSystemFont(ofSize: Tokens.Typography.annotationSize, weight: .regular)
+    let bold = PlatformFont.monospacedSystemFont(ofSize: Tokens.Typography.annotationSize, weight: .bold)
+    let regular = PlatformFont.monospacedSystemFont(ofSize: Tokens.Typography.annotationSize, weight: .regular)
     let nameWords = names.flatMap { $0.uppercased().split(whereSeparator: \.isWhitespace) }
       .map { TextMeasure.width(String($0), font: bold, kern: Tokens.Typography.labelTracking) }
     let valueWords = values.flatMap { $0.split(whereSeparator: \.isWhitespace) }

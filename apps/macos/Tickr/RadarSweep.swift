@@ -1,4 +1,8 @@
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 import QuartzCore
 import SwiftUI
 import TickrDesign
@@ -8,8 +12,8 @@ import TickrKit
 /// in turn, as the design's empty-positions radar draws them. Core Animation runs both in the
 /// render server: driven by a `TimelineView(.animation)` the sweep redrew every display frame on
 /// the main thread while the Overview had no positions, which is most of the day. The blips are
-/// ornament like the sweep: they mark no symbol.
-struct RadarSweep: NSViewRepresentable {
+/// ornament like the sweep: they mark no symbol. An AppKit view on the Mac, a UIKit one on iPad.
+struct RadarSweep {
   /// Colour where the sweep is brightest; it fades to clear over `width`.
   let color: Color
   /// Width of the sweep's tail.
@@ -21,17 +25,35 @@ struct RadarSweep: NSViewRepresentable {
   /// Whether the scene is in front; a change updates the view, which starts the turn again.
   let active: Bool
 
-  func makeNSView(context: Context) -> RadarSweepView { RadarSweepView(frame: .zero) }
-
-  func updateNSView(_ view: RadarSweepView, context: Context) {
+  fileprivate func update(_ view: RadarSweepView, in environment: EnvironmentValues) {
     view.show(
-      color: color.resolve(in: context.environment).cgColor, width: width,
-      blips: blips.map { $0.resolve(in: context.environment).cgColor }, turning: turning)
+      color: color.resolve(in: environment).cgColor, width: width,
+      blips: blips.map { $0.resolve(in: environment).cgColor }, turning: turning)
   }
 }
 
+#if os(macOS)
+extension RadarSweep: NSViewRepresentable {
+  func makeNSView(context: Context) -> RadarSweepView { RadarSweepView(frame: .zero) }
+
+  func updateNSView(_ view: RadarSweepView, context: Context) { update(view, in: context.environment) }
+}
+
+/// The platform's view class the radar is drawn in.
+typealias RadarHostView = NSView
+#else
+extension RadarSweep: UIViewRepresentable {
+  func makeUIView(context: Context) -> RadarSweepView { RadarSweepView(frame: .zero) }
+
+  func updateUIView(_ view: RadarSweepView, context: Context) { update(view, in: context.environment) }
+}
+
+/// The platform's view class the radar is drawn in.
+typealias RadarHostView = UIView
+#endif
+
 /// Holds the sweep layer, round, and its turn, and the blips with their rings.
-final class RadarSweepView: NSView {
+final class RadarSweepView: RadarHostView {
   /// Keys of the turn on the sweep layer and of the ping on a blip's ring.
   static let turnKey = "turn"
   static let pingKey = "ping"
@@ -56,13 +78,23 @@ final class RadarSweepView: NSView {
   private var rings: [CAShapeLayer] = []
   private var turning = false
 
+  /// The layer the sweep and the blips are drawn in: a layer-hosting view's own on the Mac, the
+  /// view's layer on iPad (top-left origin on both).
+  private var host: CALayer? { layer }
+
   override init(frame: CGRect) {
     super.init(frame: frame)
+    #if os(macOS)
     // A layer-hosting view.
     let host = CALayer()
     host.isGeometryFlipped = true
     layer = host
     wantsLayer = true
+    #else
+    isUserInteractionEnabled = false
+    backgroundColor = .clear
+    let host = layer
+    #endif
     sweep.type = .conic
     sweep.startPoint = Self.center
     sweep.endPoint = Self.startEdge
@@ -73,11 +105,33 @@ final class RadarSweepView: NSView {
   @available(*, unavailable)
   required init?(coder: NSCoder) { nil }
 
+  #if os(macOS)
   // An ornament: clicks go through to what is under it.
   override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
   override func layout() {
     super.layout()
+    layoutLayers()
+  }
+
+  override func viewDidMoveToWindow() {
+    super.viewDidMoveToWindow()
+    if window != nil { turn() }
+  }
+  #else
+  // An ornament: touches go through to what is under it (`isUserInteractionEnabled` is off).
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    layoutLayers()
+  }
+
+  override func didMoveToWindow() {
+    super.didMoveToWindow()
+    if window != nil { turn() }
+  }
+  #endif
+
+  private func layoutLayers() {
     CATransaction.begin()
     CATransaction.setDisableActions(true)
     sweep.frame = bounds
@@ -95,11 +149,6 @@ final class RadarSweepView: NSView {
         transform: nil)
     }
     CATransaction.commit()
-  }
-
-  override func viewDidMoveToWindow() {
-    super.viewDidMoveToWindow()
-    if window != nil { turn() }
   }
 
   /// Colours the sweep and the blips and starts or stops their motion.
@@ -128,8 +177,12 @@ final class RadarSweepView: NSView {
       ring.opacity = 0
       return ring
     }
-    (rings + dots).forEach { layer?.addSublayer($0) }
+    (rings + dots).forEach { host?.addSublayer($0) }
+    #if os(macOS)
     needsLayout = true
+    #else
+    setNeedsLayout()
+    #endif
   }
 
   private func turn() {

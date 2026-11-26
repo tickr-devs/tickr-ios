@@ -642,7 +642,7 @@ struct CandleChart: View {
       least: Double(Tokens.Chart.hourLabelSpacing))
     let labels = sessions.labels(
       range: plot.range, candles: plot.real, extendedClose: plot.extendedClose, hourStep: step)
-    let font = NSFont.monospacedSystemFont(ofSize: Tokens.Chart.sessionAxisLabelSize, weight: .regular)
+    let font = PlatformFont.monospacedSystemFont(ofSize: Tokens.Chart.sessionAxisLabelSize, weight: .regular)
     let texts = labels.map { SessionAxisText.texts($0.kind, dayName: Format.chartSessionDay) }
     let items = zip(labels, texts).map { label, forms in
       AxisLabelPlacer.Item(
@@ -706,7 +706,7 @@ struct CandleChart: View {
   /// Whether a band's caption fits inside it on screen, with its inset on both sides.
   private func fits(_ caption: String, from start: Date, to end: Date) -> Bool {
     guard plotWidth > 0, visibleLength > 0 else { return false }
-    let font = NSFont.monospacedSystemFont(ofSize: Tokens.Chart.bandCaptionSize, weight: .semibold)
+    let font = PlatformFont.monospacedSystemFont(ofSize: Tokens.Chart.bandCaptionSize, weight: .semibold)
     let width = TextMeasure.width(caption, font: font, kern: Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking)
     let shown = Double(plotWidth) * end.timeIntervalSince(start) / visibleLength
     return shown >= Double(width + Tokens.Chart.bandCaptionInset + Tokens.Chart.bandCaptionInset)

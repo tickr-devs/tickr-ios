@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import TickrDesign
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("An open position's price and R, fresh or as of the newest bar")
 struct PositionRowTests {

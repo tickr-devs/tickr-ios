@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The Lab's Explain read: a slow answer for an old day or symbol never shows as current.
 @MainActor

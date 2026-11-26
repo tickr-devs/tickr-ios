@@ -1,4 +1,6 @@
+#if os(macOS)
 import AppKit
+#endif
 import QuartzCore
 import SwiftUI
 import TickrDesign
@@ -44,12 +46,26 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
   let open: (Item) -> Void
   let chip: (Item) -> Chip
 
+  #if os(macOS)
   @State private var handle = ChipsMarqueeHandle()
+  #endif
+
+  /// Whether the row moves: on the Mac, while asked and without Reduce Motion. On iPad the row is
+  /// the scroll view of buttons, which a finger moves.
+  private var moves: Bool {
+    #if os(macOS)
+    moving && !reduceMotion
+    #else
+    false
+    #endif
+  }
 
   var body: some View {
     Group {
-      if moving && !reduceMotion {
+      if moves {
+        #if os(macOS)
         marquee
+        #endif
       } else {
         ScrollView(.horizontal) {
           // Lazy: only the chips in view are built.
@@ -73,6 +89,7 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
       startPoint: .leading, endPoint: .trailing))
   }
 
+  #if os(macOS)
   private var marquee: some View {
     let pointer = handle.pointer.x
     let pointed = spot(at: pointer)
@@ -143,10 +160,12 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
     return nil
   }
 
+  #endif
+
   /// Space between chips, and after the last one before the next copy.
   static var spacing: CGFloat { Tokens.Space.s }
   /// Share of the strip's width that fades out at each end.
-  private static var fadeEdge: Double { ChipsMarqueeView.fadeEdge }
+  static let fadeEdge = 0.06
 }
 
 /// What the moving row draws: its chips and the slot outlined under the pointer. The pages are
@@ -217,6 +236,7 @@ final class MarqueePointer {
   var x: CGFloat?
 }
 
+#if os(macOS)
 /// Lets the strip find the chip under the pointer. Not observed: its values change as pages
 /// scroll by, and nothing redraws for them (only `pointer` is observed).
 @MainActor
@@ -277,9 +297,6 @@ final class ChipsMarqueeView: NSView {
   /// Key of the scroll animation, and the key path it drives (the mover's horizontal shift).
   static let animationKey = "chips-marquee"
   static let keyPath = "transform.translation.x"
-  /// Share of the strip's width that fades out at each end.
-  static let fadeEdge = 0.06
-
   private let mover = NSView()
   private var lead = ChipsMarqueeView.host()
   private var next = ChipsMarqueeView.host()
@@ -512,3 +529,4 @@ final class ChipsMarqueeView: NSView {
     turnOrScroll(from: current)
   }
 }
+#endif

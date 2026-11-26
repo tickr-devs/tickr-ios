@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The menu bar's Close all says how many positions it closes, as the design's "2 positions".
 @MainActor

@@ -2,7 +2,7 @@ import Foundation
 import Synchronization
 import Testing
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// Picking a past day (calendar, day list, title-bar menu, ⌘[): every part of it is read at once,
 /// a day read before shows at once, and the trades are never replaced by the earlier day's, zeros

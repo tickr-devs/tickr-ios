@@ -241,7 +241,9 @@ private struct Sidebar: View {
       .focusable()
       .focused($rowsFocused)
       .focusEffectDisabled()
+      #if os(macOS)
       .onMoveCommand(perform: move)
+      #endif
       Spacer(minLength: 0)
       BotStateCard()
     }
@@ -254,6 +256,7 @@ private struct Sidebar: View {
     .overlay(alignment: .trailing) { Hairline(axis: .vertical) }
   }
 
+  #if os(macOS)
   /// Selects the section above or below the selected one; the ends stay where they are.
   private func move(_ direction: MoveCommandDirection) {
     let sections = AppSection.allCases
@@ -264,6 +267,7 @@ private struct Sidebar: View {
     default: break
     }
   }
+  #endif
 
   /// The Trades row counts the shown day's trades; no other row has a number behind it.
   private func badge(for item: AppSection) -> Int? {
@@ -468,10 +472,12 @@ private struct WindowChrome: ViewModifier {
       // The window keeps the section's name (Window menu, Mission Control); the title bar shows
       // the design's one centred line instead.
       .navigationTitle(Text(section.title))
+      #if os(macOS)
       .toolbar(removing: .title)
       .toolbar { WindowToolbar(fit: fit.titleBar, sidebarButton: sidebarButton) }
       .toolbarBackground(Palette.titleBar, for: .windowToolbar)
       .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
+      #endif
   }
 }
 
@@ -713,7 +719,7 @@ struct DayControls: View {
         .foregroundStyle(Palette.textPrimary)
         .frame(minWidth: Self.dayMinWidth)
       }
-      .menuStyle(.button)
+      .buttonMenuStyle()
       .buttonStyle(.plain)
       .menuIndicator(.hidden)
       .fixedSize()

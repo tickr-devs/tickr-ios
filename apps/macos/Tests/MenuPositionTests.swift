@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import TickrMac
+@testable import TickrScreens
 
 @MainActor
 @Suite("Menu bar position scale")

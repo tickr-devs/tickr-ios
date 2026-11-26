@@ -19,6 +19,10 @@ attributes:
 packages:
   TickrShared:
     path: ../shared
+  # The Mac screens (apps/macos, library TickrScreens): an iPad or an unfolded iPhone in regular
+  # width shows them (mockup v156, boards IPadLandscape, IPadPortrait, IPadSplit).
+  TickrApp:
+    path: ../macos
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -45,6 +49,8 @@ targets:
         product: TickrKit
       - package: TickrShared
         product: TickrDesign
+      - package: TickrApp
+        product: TickrScreens
     info:
       path: Support/Info.plist
       properties:

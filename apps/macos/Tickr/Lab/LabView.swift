@@ -395,7 +395,7 @@ private struct ReplayCard: View {
         } label: {
           chip(first.flatMap(item).map(name) ?? Format.missing, tone: .accent)
         }
-        .menuStyle(.button)
+        .buttonMenuStyle()
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
@@ -420,7 +420,7 @@ private struct ReplayCard: View {
             chip(String(localized: L10n.Lab.replayCompareNone), tone: nil)
           }
         }
-        .menuStyle(.button)
+        .buttonMenuStyle()
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
@@ -444,7 +444,7 @@ private struct ReplayCard: View {
         } label: {
           chip(DayText.day(chosenDay ?? days[0]), tone: .accent)
         }
-        .menuStyle(.button)
+        .buttonMenuStyle()
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()

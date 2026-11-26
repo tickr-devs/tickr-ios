@@ -2,7 +2,7 @@ import Foundation
 import Synchronization
 import Testing
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The canned routes of `RouteProtocol`, answered through a transport that can hold some reads
 /// back, and answers by path and query first (`/skipped?date=2026-11-13`), then by path.

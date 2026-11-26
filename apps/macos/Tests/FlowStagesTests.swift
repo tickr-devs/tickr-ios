@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("The reconcile stage of the Overview pipeline")
 struct FlowStagesTests {
