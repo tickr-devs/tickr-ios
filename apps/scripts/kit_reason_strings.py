@@ -1704,6 +1704,11 @@ GROUPS = [
                 "Sin posición abierta en {symbol}",
             ),
             (
+                "no_working_entry",
+                "No entry order working in {symbol}",
+                "Ninguna orden de entrada activa en {symbol}",
+            ),
+            (
                 "close_refused_before",
                 "The closing order was refused before: look in the Webull app, then clear the "
                 "block",

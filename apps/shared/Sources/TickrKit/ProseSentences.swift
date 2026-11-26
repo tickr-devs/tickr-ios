@@ -246,6 +246,7 @@ extension ProseReason {
     case .stopNewTrade: [ReasonSentence(L10n.proseReasonStopNewTrade, [])]
     case .stopInterrupted: [ReasonSentence(L10n.proseReasonStopInterrupted, [])]
     case .noOpenPosition: [ReasonSentence(L10n.proseReasonNoOpenPosition, [.symbol])]
+    case .noWorkingEntry: [ReasonSentence(L10n.proseReasonNoWorkingEntry, [.symbol])]
     case .closeRefusedBefore: [ReasonSentence(L10n.proseReasonCloseRefusedBefore, [])]
     case .closeHeldOutsideSession: [ReasonSentence(L10n.proseReasonCloseHeldOutsideSession, [])]
     case .closeNotSentNow: [ReasonSentence(L10n.proseReasonCloseNotSentNow, [])]

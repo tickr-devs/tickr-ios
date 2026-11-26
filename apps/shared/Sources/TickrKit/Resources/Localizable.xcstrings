@@ -7430,6 +7430,24 @@
         }
       }
     },
+    "kit.prose.no_working_entry" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_working_entry",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entry order working in {symbol}"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguna orden de entrada activa en {symbol}"
+          }
+        }
+      }
+    },
     "kit.prose.not_a_data_day" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). not_a_data_day",
       "extractionState" : "manual",

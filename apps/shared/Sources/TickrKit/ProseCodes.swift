@@ -240,6 +240,7 @@ public enum ProseReason: String, CaseIterable, Sendable {
   case stopNewTrade = "stop_new_trade"
   case stopInterrupted = "stop_interrupted"
   case noOpenPosition = "no_open_position"
+  case noWorkingEntry = "no_working_entry"
   case closeRefusedBefore = "close_refused_before"
   case closeHeldOutsideSession = "close_held_outside_session"
   case closeNotSentNow = "close_not_sent_now"
