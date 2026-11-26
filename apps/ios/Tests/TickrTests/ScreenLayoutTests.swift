@@ -1,7 +1,7 @@
 import SwiftUI
 import Testing
-import TickrScreens
 @testable import Tickr
+import TickrScreens
 
 /// Which screens the app shows: the Mac screens only on an iPad in regular width with a
 /// connection; every iPhone, landscape Pro Max included, keeps the iPhone screens.
