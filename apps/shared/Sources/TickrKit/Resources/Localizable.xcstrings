@@ -10512,23 +10512,6 @@
         }
       }
     },
-    "kit.sizing.badge" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Size"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tamaño"
-          }
-        }
-      }
-    },
     "kit.sizing.exampleLead" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10559,6 +10542,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cada límite permite:"
+          }
+        }
+      }
+    },
+    "kit.sizing.limitedBy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limited by: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitado por: %@"
           }
         }
       }
@@ -10682,6 +10682,125 @@
         }
       }
     },
+    "kit.sizing.place" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ at %2$@ · %3$@ ET"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ a %2$@ · %3$@ ET"
+          }
+        }
+      }
+    },
+    "kit.sizing.placeNoPrice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ ET"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ ET"
+          }
+        }
+      }
+    },
+    "kit.sizing.plain.dailyRoom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room left %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Margen restante %@"
+          }
+        }
+      }
+    },
+    "kit.sizing.plain.notionalCap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position size cap %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tope por posición %@"
+          }
+        }
+      }
+    },
+    "kit.sizing.plain.plannedLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned loss %1$@ · stop %2$@ away"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pérdida planificada %1$@ · stop a %2$@"
+          }
+        }
+      }
+    },
+    "kit.sizing.plainName.dailyRoom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "room left"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "margen restante"
+          }
+        }
+      }
+    },
+    "kit.sizing.plainName.notionalCap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "position size cap"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tope por posición"
+          }
+        }
+      }
+    },
     "kit.sizing.row.dailyRoom" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10767,6 +10886,23 @@
         }
       }
     },
+    "kit.sizing.setByPlannedLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set by the planned loss"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fijado por la pérdida planificada"
+          }
+        }
+      }
+    },
     "kit.sizing.shares" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10780,6 +10916,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ acc."
+          }
+        }
+      }
+    },
+    "kit.sizing.sharesLine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ shares"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ acciones"
           }
         }
       }

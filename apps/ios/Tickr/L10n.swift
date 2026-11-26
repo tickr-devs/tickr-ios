@@ -624,7 +624,7 @@ enum L10n {
       LocalizedStringResource("risk.title", defaultValue: "Risk", bundle: L10n.bundle)
     }
     static var room: LocalizedStringResource {
-      LocalizedStringResource("risk.room", defaultValue: "Risk room today", bundle: L10n.bundle)
+      LocalizedStringResource("risk.room", defaultValue: "Room left today", bundle: L10n.bundle)
     }
     /// Open positions against the most allowed: "2 of 3".
     static func positionsOf(_ count: Int, _ limit: Int) -> LocalizedStringResource {
@@ -632,7 +632,7 @@ enum L10n {
     }
     /// The broker account card.
     static var account: LocalizedStringResource {
-      LocalizedStringResource("risk.account", defaultValue: "Account · broker", bundle: L10n.bundle)
+      LocalizedStringResource("risk.account", defaultValue: "Account", bundle: L10n.bundle)
     }
     /// Account equity: cash plus positions at market.
     static var equity: LocalizedStringResource {
@@ -644,7 +644,7 @@ enum L10n {
     }
     /// Intraday buying power.
     static var buyingPower: LocalizedStringResource {
-      LocalizedStringResource("risk.buyingPower", defaultValue: "Buying power · day", bundle: L10n.bundle)
+      LocalizedStringResource("risk.buyingPower", defaultValue: "Buying power", bundle: L10n.bundle)
     }
     /// Buying power held overnight.
     static var overnightBuyingPower: LocalizedStringResource {
@@ -660,18 +660,31 @@ enum L10n {
     }
     /// The broker's profit or loss for today.
     static var dayResult: LocalizedStringResource {
-      LocalizedStringResource("risk.dayResult", defaultValue: "Day P&L · broker", bundle: L10n.bundle)
+      LocalizedStringResource("risk.dayResult", defaultValue: "Day P&L", bundle: L10n.bundle)
     }
     /// Day trades left when the broker sets no limit.
     static var noLimit: LocalizedStringResource {
       LocalizedStringResource("risk.noLimit", defaultValue: "no limit", bundle: L10n.bundle)
     }
-    /// Margin facts under the balances: day trades left, margin calls, maintenance margin, read time.
-    static func marginLine(_ dayTrades: String, _ calls: String, _ margin: String, _ time: String)
-      -> LocalizedStringResource {
-      LocalizedStringResource("risk.marginLine",
-        defaultValue: "day trades left \(dayTrades) · margin calls \(calls) · maintenance \(margin) · balance at \(time) ET",
-        bundle: L10n.bundle)
+    /// The disclosure holding the other balances.
+    static var moreBalances: LocalizedStringResource {
+      LocalizedStringResource("risk.moreBalances", defaultValue: "More balances", bundle: L10n.bundle)
+    }
+    /// Day trades the broker still allows today.
+    static var dayTradesLeft: LocalizedStringResource {
+      LocalizedStringResource("risk.dayTradesLeft", defaultValue: "Day trades left", bundle: L10n.bundle)
+    }
+    /// Open margin calls.
+    static var marginCalls: LocalizedStringResource {
+      LocalizedStringResource("risk.marginCalls", defaultValue: "Margin calls", bundle: L10n.bundle)
+    }
+    /// The maintenance margin.
+    static var maintenance: LocalizedStringResource {
+      LocalizedStringResource("risk.maintenance", defaultValue: "Maintenance", bundle: L10n.bundle)
+    }
+    /// When the broker was read, beside the account kind: "at 10:48:03 ET".
+    static func readAt(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("risk.readAt", defaultValue: "at \(time) ET", bundle: L10n.bundle)
     }
     /// No balance read yet.
     static var balanceNote: LocalizedStringResource {
