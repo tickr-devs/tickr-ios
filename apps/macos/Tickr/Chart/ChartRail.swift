@@ -2,9 +2,9 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// The Chart's right rail: the symbols to chart (open positions, watched symbols, the screeners'
-/// candidates), what the strategy decided at the pointed candle, and the shown symbol's open
-/// position. A fixed width; it scrolls on its own when taller than the window.
+/// The Chart's right rail (mockup MacChart): the symbols to chart (open positions, waiting
+/// symbols, the screeners' first ones), what the bot decided at the pointed candle, and the shown
+/// symbol's open position. A fixed width; it scrolls on its own when taller than the window.
 struct ChartRail: View {
   @Environment(AppModel.self) private var model
   let symbol: String?
@@ -91,7 +91,7 @@ struct ChartRail: View {
   }
 }
 
-/// "Positions · watch · candidates": the symbols to chart, the shown one highlighted.
+/// "Symbols": the symbols to chart, the shown one highlighted.
 private struct SymbolList: View {
   struct Row: Identifiable {
     enum Kind { case position, watch, candidate }
@@ -169,18 +169,29 @@ private struct SymbolList: View {
     switch kind {
     case .position: Badge(L10n.Chart.railPosition, color: Palette.accentText)
     case .watch: Badge(L10n.Chart.railWatch, color: Palette.infoText)
-    case .candidate: Badge(L10n.Chart.railCandidate, color: Palette.highlightText)
+    case .candidate: Badge(L10n.Chart.railCandidate, color: Palette.textTertiary)
     }
   }
 }
 
-/// "Position on chart": the shown symbol's open position as the chart draws it.
+/// "Open position" (mockup MacChart): the R it stands at now, big, then its entry and its stop as
+/// the chart draws them.
 private struct PositionCard: View {
   let row: PositionRow
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      CardLabel(L10n.Chart.positionOnChart)
+      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+        CardLabel(L10n.Chart.positionOnChart)
+        Spacer(minLength: Tokens.Space.s)
+        let r = row.resultR ?? row.latestResultR
+        Text(verbatim: r.map(Risk.text) ?? Format.missing)
+          .font(Tokens.Typography.figure)
+          .foregroundStyle(r.map(Palette.result) ?? Palette.textQuaternary)
+        Text(L10n.Chart.positionRNow)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
       VStack(spacing: Tokens.Space.xs) {
         line(L10n.Chart.positionEntry) {
           Text(L10n.Chart.positionEntryValue(
@@ -188,11 +199,6 @@ private struct PositionCard: View {
             .foregroundStyle(Palette.textPrimary)
         }
         line(L10n.Chart.positionStop) { stop }
-        line(L10n.Chart.positionRNow) {
-          let r = row.resultR ?? row.latestResultR
-          Text(verbatim: r.map(Risk.text) ?? Format.missing)
-            .foregroundStyle(r.map(Palette.result) ?? Palette.textQuaternary)
-        }
       }
       .font(Tokens.Typography.captionMono)
       .foregroundStyle(Palette.textTertiary)

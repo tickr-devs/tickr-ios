@@ -65,6 +65,16 @@ import TickrKit
     #expect(ConnectionFreshness.color(response: nil, fetchError: nil) == Palette.loss)
   }
 
+  /// Close all on Positions is the existing emergency command, behind Face ID, and its question
+  /// names how many positions it closes.
+  @Test func closeAllIsTheEmergencyBehindFaceID() {
+    #expect(PositionsCloseAll.command == .emergency)
+    #expect(PositionsCloseAll.command.path == "/commands/emergency")
+    #expect(BotControl.needsOwner(PositionsCloseAll.command))
+    #expect(PositionsCloseAll.title(1).key == "positions.closeLastTitle")
+    #expect(PositionsCloseAll.title(2).key == "positions.closeAllTitle")
+  }
+
   /// VoiceOver reads "no data yet" before the day is read, never a $0.00 day with 0 wins.
   @Test func dayResultBeforeTheDayIsReadSaysNoData() throws {
     let unread = String(localized: HomeView.dayResultLabel(stats: nil, result: 0))

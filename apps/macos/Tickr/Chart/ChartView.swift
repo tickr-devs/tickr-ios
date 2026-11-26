@@ -456,8 +456,11 @@ struct ChartView: View {
     ChipFlow(spacing: Tokens.Space.xs) {
       caption(L10n.Chart.onPrice, help: L10n.Chart.onPriceHelp)
       Toggle(isOn: $showVWAP) { Text(L10n.Chart.vwap) }
+        .help(Text(L10n.Chart.vwapHelp))
       Toggle(isOn: $showFastEMA) { Text(L10n.Chart.ema(Indicators.fastEMAPeriod)) }
+        .help(Text(L10n.Chart.emaHelp(Indicators.fastEMAPeriod)))
       Toggle(isOn: $showSlowEMA) { Text(L10n.Chart.ema(Indicators.slowEMAPeriod)) }
+        .help(Text(L10n.Chart.emaHelp(Indicators.slowEMAPeriod)))
       Toggle(isOn: $showMovingAverages) { Text(L10n.Chart.movingAverageChip) }
         .help(Text(L10n.Chart.movingAverageHelp))
       Toggle(isOn: $showBollinger) { Text(L10n.Chart.bollinger) }
