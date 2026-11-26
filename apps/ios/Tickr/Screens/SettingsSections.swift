@@ -325,10 +325,10 @@ struct NotificationsSection: View {
   }
 
   /// Symbols of the rows, one per event.
-  static let mismatchSymbol = "arrow.left.arrow.right"
-  static let fillSymbol = "arrow.right.to.line"
-  static let trailSymbol = "chart.line.uptrend.xyaxis"
-  static let ceilingSymbol = "chart.line.downtrend.xyaxis"
+  nonisolated static let mismatchSymbol = "arrow.left.arrow.right"
+  nonisolated static let fillSymbol = "arrow.right.to.line"
+  nonisolated static let trailSymbol = "chart.line.uptrend.xyaxis"
+  nonisolated static let ceilingSymbol = "chart.line.downtrend.xyaxis"
   /// Symbol beside an always-on switch.
   static let lockSymbol = "lock.fill"
 

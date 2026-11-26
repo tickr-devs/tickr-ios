@@ -5,8 +5,9 @@ import Security
 /// another device, and readable after the first unlock so polling works when the app reopens.
 /// Registered on the container (`Container.keychain`); nothing else stores the token.
 struct Keychain: Sendable {
-  /// Keychain service and account of the token item.
-  static let service = "local.tickr.ios.api"
+  /// Keychain service and account of the token item. The item already belongs to this app alone
+  /// (its team and bundle id), so the service names only what it holds.
+  static let service = "api-token"
   static let account = "bearer-token"
 
   /// The Security calls the token goes through (`SecItems` on the phone; tests give their own).
