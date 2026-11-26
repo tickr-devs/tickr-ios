@@ -1218,9 +1218,9 @@ enum L10n {
     static var title: LocalizedStringResource {
       LocalizedStringResource("symbols.title", defaultValue: "Symbols", bundle: L10n.bundle)
     }
-    /// Under the title: day, end of the latest discovery pass, symbols the screeners listed.
-    static func context(_ day: String, _ time: String, _ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("symbols.context", defaultValue: "\(day) · \(time) ET · \(count) screened", bundle: L10n.bundle)
+    /// Under the title: the day and the end of the latest discovery pass.
+    static func context(_ day: String, _ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("symbols.context", defaultValue: "\(day) · \(time) ET", bundle: L10n.bundle)
     }
     /// A failed read of the symbols or movers; argument: the error.
     static func unavailable(_ error: String) -> LocalizedStringResource {
@@ -1258,17 +1258,13 @@ enum L10n {
     static var noMovers: LocalizedStringResource {
       LocalizedStringResource("symbols.noMovers", defaultValue: "No fast movers yet.", bundle: L10n.bundle)
     }
-    /// Detail: the symbol's stages today.
-    static var pathToday: LocalizedStringResource {
-      LocalizedStringResource("symbols.pathToday", defaultValue: "Path today", bundle: L10n.bundle)
-    }
     /// Detail link: the Chart on this symbol.
     static var openChart: LocalizedStringResource {
       LocalizedStringResource("symbols.openChart", defaultValue: "Open chart", bundle: L10n.bundle)
     }
     /// Accessibility hint of a row: opens its detail.
     static var rowHint: LocalizedStringResource {
-      LocalizedStringResource("symbols.rowHint", defaultValue: "Shows the symbol's path today", bundle: L10n.bundle)
+      LocalizedStringResource("symbols.rowHint", defaultValue: "Shows the symbol's steps today", bundle: L10n.bundle)
     }
   }
   enum FastMovers {
@@ -2013,7 +2009,7 @@ enum ChartText {
   static let zoomOut = LocalizedStringResource("chart.zoomOut", defaultValue: "Zoom out")
   static let liveHint = LocalizedStringResource("chart.live.hint",
     defaultValue: "Scrolls to the newest candle.")
-  static let todayLive = LocalizedStringResource("chart.todayLive", defaultValue: "today · live")
+  static let todayLive = LocalizedStringResource("chart.todayLive", defaultValue: "today")
   /// The day's high, low and volume beside the price, as on the design: "H", "L", "V".
   static let highShort = LocalizedStringResource("chart.highShort", defaultValue: "H")
   static let lowShort = LocalizedStringResource("chart.lowShort", defaultValue: "L")
@@ -2097,17 +2093,9 @@ enum ChartText {
   static func rsi(_ period: Int) -> LocalizedStringResource {
     LocalizedStringResource("chart.indicator.rsi", defaultValue: "RSI\(period)")
   }
-  /// The line above the chart while no candle is read: timeframe and candles on screen (both
-  /// already formatted), and how to move and read the chart.
-  static func caption(_ range: String, _ timeframe: String, _ bars: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.caption",
-      defaultValue: "\(range) · \(timeframe) · \(bars) · drag to scroll · pinch to zoom · touch and hold to read")
-  }
-
-  /// Candles on screen, for `caption`.
-  static func bars(_ count: Int) -> LocalizedStringResource {
-    LocalizedStringResource("chart.bars", defaultValue: "\(count) bars")
-  }
+  /// The line above the chart while no candle is read: how to move and read the chart.
+  static let caption = LocalizedStringResource("chart.caption",
+    defaultValue: "drag to scroll · pinch to zoom · touch and hold to read")
 
   /// The crosshair readout's letters before a candle's open, high, low, close and volume.
   static let readoutOpen = LocalizedStringResource("chart.readout.open", defaultValue: "O")
@@ -2115,16 +2103,14 @@ enum ChartText {
   static let readoutLow = LocalizedStringResource("chart.readout.low", defaultValue: "L")
   static let readoutClose = LocalizedStringResource("chart.readout.close", defaultValue: "C")
   static let readoutVolume = LocalizedStringResource("chart.readout.volume", defaultValue: "V")
-  /// The caption where the full one does not fit on its line: range, interval, bars on screen.
-  static func captionShort(_ range: String, _ timeframe: String, _ bars: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.captionShort", defaultValue: "\(range) · \(timeframe) · \(bars)")
-  }
+  /// The caption where the full one does not fit on its line.
+  static let captionShort = LocalizedStringResource("chart.captionShort", defaultValue: "touch and hold to read")
   static let decisions = LocalizedStringResource("chart.decisions",
     defaultValue: "Why the bot acted")
   static let noDecisions = LocalizedStringResource("chart.decisions.none",
     defaultValue: "No decisions recorded for this symbol that day.")
   static let noEntries = LocalizedStringResource("chart.decisions.noEntries",
-    defaultValue: "No entries or exits; the strategy only watched.")
+    defaultValue: "No entries or exits; the bot only waited.")
   static let keyDecisions = LocalizedStringResource("chart.decisions.key",
     defaultValue: "Entries and exits only")
   static let tradingStrategy = LocalizedStringResource("chart.decisions.strategyLabel",

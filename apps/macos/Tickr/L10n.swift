@@ -1583,15 +1583,25 @@ enum L10n {
     static func buyMark(_ quantity: String, _ price: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.buyMark", defaultValue: "Buy \(quantity) @ \(price)", bundle: L10n.bundle)
     }
-    /// The volume pane's name: the newest candle's volume, the span of the average and the
-    /// relative volume (the newest volume over the average).
-    static func volumePane(_ volume: String, _ period: Int, _ ratio: String) -> LocalizedStringResource {
+    /// The volume pane's name: the newest candle's volume and the relative volume (the newest
+    /// volume over the average).
+    static func volumePane(_ volume: String, _ ratio: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.volumePane",
-        defaultValue: "VOL \(volume) · avg \(period) · rel. volume \(ratio)×", bundle: L10n.bundle)
+        defaultValue: "Volume \(volume) · rel. volume \(ratio)×", bundle: L10n.bundle)
     }
     /// The volume pane's name before its average has a value.
     static func volumePaneShort(_ volume: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.volumePaneShort", defaultValue: "VOL \(volume)", bundle: L10n.bundle)
+      LocalizedStringResource("chart.volumePaneShort", defaultValue: "Volume \(volume)", bundle: L10n.bundle)
+    }
+    /// Tooltip of the VWAP chip.
+    static var vwapHelp: LocalizedStringResource {
+      LocalizedStringResource("chart.vwapHelp", defaultValue: "Volume-weighted average price of the session",
+        bundle: L10n.bundle)
+    }
+    /// Tooltip of an EMA chip; argument: its candles.
+    static func emaHelp(_ period: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.emaHelp", defaultValue: "Exponential moving average of \(period) candles",
+        bundle: L10n.bundle)
     }
     /// Name of the volume pane's average line (VoiceOver).
     static func volumeAverage(_ period: Int) -> LocalizedStringResource {
@@ -1650,22 +1660,22 @@ enum L10n {
       LocalizedStringResource("chart.dayChangeHelp", defaultValue: "Change from the previous close, as the screeners report it",
         bundle: L10n.bundle)
     }
-    /// The right rail's symbol list: the open positions, the watched symbols and the candidates.
+    /// The right rail's symbol list: the open positions, the waiting symbols and the screeners'.
     static var rail: LocalizedStringResource {
-      LocalizedStringResource("chart.rail", defaultValue: "Positions · watch · candidates", bundle: L10n.bundle)
+      LocalizedStringResource("chart.rail", defaultValue: "Symbols", bundle: L10n.bundle)
     }
     /// Count of open positions in the rail's header.
     static func railCount(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("chart.railCount", defaultValue: "\(count) positions", bundle: L10n.bundle)
     }
     static var railPosition: LocalizedStringResource {
-      LocalizedStringResource("chart.railPosition", defaultValue: "Position", bundle: L10n.bundle)
+      LocalizedStringResource("chart.railPosition", defaultValue: "Open", bundle: L10n.bundle)
     }
     static var railWatch: LocalizedStringResource {
-      LocalizedStringResource("chart.railWatch", defaultValue: "Watch", bundle: L10n.bundle)
+      LocalizedStringResource("chart.railWatch", defaultValue: "Waiting", bundle: L10n.bundle)
     }
     static var railCandidate: LocalizedStringResource {
-      LocalizedStringResource("chart.railCandidate", defaultValue: "Candidate", bundle: L10n.bundle)
+      LocalizedStringResource("chart.railCandidate", defaultValue: "Screener", bundle: L10n.bundle)
     }
     /// A position's stop in the rail; ✓ once the broker confirmed it.
     static func railStop(_ price: String) -> LocalizedStringResource {
@@ -1674,7 +1684,7 @@ enum L10n {
     static func railStopUnverified(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.railStopUnverified", defaultValue: "stop \(price) ?", bundle: L10n.bundle)
     }
-    /// When the strategy last decided to watch the symbol.
+    /// Since when the symbol waits for its entry.
     static func railSince(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("chart.railSince", defaultValue: "since \(time)", bundle: L10n.bundle)
     }
@@ -1692,22 +1702,25 @@ enum L10n {
       LocalizedStringResource("chart.sourceActives", defaultValue: "actives", bundle: L10n.bundle)
     }
     static var railEmpty: LocalizedStringResource {
-      LocalizedStringResource("chart.railEmpty", defaultValue: "No positions, watched symbols or candidates yet",
+      LocalizedStringResource("chart.railEmpty", defaultValue: "No open, waiting or screened symbols yet",
         bundle: L10n.bundle)
     }
-    /// Title of the explain card: the symbol and the time of the decision shown.
-    static func explain(_ symbol: String, _ time: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.explain", defaultValue: "Explain \(symbol) · \(time)", bundle: L10n.bundle)
+    /// Title of the decision card: the time of the decision shown.
+    static func explain(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.explain", defaultValue: "Decision · \(time)", bundle: L10n.bundle)
     }
-    /// The explain card's hint under its checks.
-    static var explainHint: LocalizedStringResource {
-      LocalizedStringResource("chart.explainHint", defaultValue: "hover a candle: its decision and every check",
-        bundle: L10n.bundle)
+    /// The decision card's disclosure of every check behind the decision.
+    static var explainWhy: LocalizedStringResource {
+      LocalizedStringResource("chart.explainWhy", defaultValue: "Why", bundle: L10n.bundle)
     }
-    /// The explain card's title in a candle of several minutes; arguments: the symbol, the
-    /// decision's minute, the candle's start.
-    static func explainInCandle(_ symbol: String, _ time: String, _ candle: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.explainInCandle", defaultValue: "Explain \(symbol) · \(time), last in the \(candle) candle",
+    /// How many of the decision's checks passed; arguments: passed, all.
+    static func checksPassed(_ passed: Int, _ total: Int) -> LocalizedStringResource {
+      LocalizedStringResource("chart.checksPassed", defaultValue: "\(passed) of \(total) passed", bundle: L10n.bundle)
+    }
+    /// The decision card's title in a candle of several minutes; arguments: the decision's minute,
+    /// the candle's start.
+    static func explainInCandle(_ time: String, _ candle: String) -> LocalizedStringResource {
+      LocalizedStringResource("chart.explainInCandle", defaultValue: "Decision · \(time), last in the \(candle) candle",
         bundle: L10n.bundle)
     }
     /// The explain card under a pointed candle the strategy made no decision in; argument: its start.
@@ -1715,16 +1728,16 @@ enum L10n {
       LocalizedStringResource("chart.noDecisionInCandle", defaultValue: "No decision in the \(time) candle.",
         bundle: L10n.bundle)
     }
-    /// The explain card's title while there is no decision to explain.
-    static func explainSymbol(_ symbol: String) -> LocalizedStringResource {
-      LocalizedStringResource("chart.explainSymbol", defaultValue: "Explain \(symbol)", bundle: L10n.bundle)
+    /// The decision card's title while there is no decision to show.
+    static var explainSymbol: LocalizedStringResource {
+      LocalizedStringResource("chart.explainSymbol", defaultValue: "Decision", bundle: L10n.bundle)
     }
     /// The card with the shown symbol's open position.
     static var positionOnChart: LocalizedStringResource {
-      LocalizedStringResource("chart.positionOnChart", defaultValue: "Position on chart", bundle: L10n.bundle)
+      LocalizedStringResource("chart.positionOnChart", defaultValue: "Open position", bundle: L10n.bundle)
     }
     static var positionEntry: LocalizedStringResource {
-      LocalizedStringResource("chart.positionEntry", defaultValue: "entry", bundle: L10n.bundle)
+      LocalizedStringResource("chart.positionEntry", defaultValue: "Entry", bundle: L10n.bundle)
     }
     /// "10:42 · 12.34 × 10": when, at what price and how many shares.
     static func positionEntryValue(_ time: String, _ price: String, _ quantity: String) -> LocalizedStringResource {
@@ -1732,13 +1745,14 @@ enum L10n {
         bundle: L10n.bundle)
     }
     static var positionStop: LocalizedStringResource {
-      LocalizedStringResource("chart.positionStop", defaultValue: "stop", bundle: L10n.bundle)
+      LocalizedStringResource("chart.positionStop", defaultValue: "Stop", bundle: L10n.bundle)
     }
     static var positionNoStop: LocalizedStringResource {
       LocalizedStringResource("chart.positionNoStop", defaultValue: "none", bundle: L10n.bundle)
     }
+    /// Under the position card's R: the R is the latest price's.
     static var positionRNow: LocalizedStringResource {
-      LocalizedStringResource("chart.positionRNow", defaultValue: "R now", bundle: L10n.bundle)
+      LocalizedStringResource("chart.positionRNow", defaultValue: "now", bundle: L10n.bundle)
     }
     /// Exit mark of a trade with its result.
     static func exitMark(_ result: String) -> LocalizedStringResource {
@@ -1800,7 +1814,7 @@ enum L10n {
     static var decisionsHelp: LocalizedStringResource {
       LocalizedStringResource("chart.decisionsHelp",
         // swiftlint:disable:next line_length
-        defaultValue: "Show why the strategies entered, watched or skipped this symbol, and mark their entries and exits on the candles (⌥⌘I)",
+        defaultValue: "Show why the bot entered, waited or skipped this symbol, and mark its entries and exits on the candles (⌥⌘I)",
         bundle: L10n.bundle)
     }
     /// Chart mark of the strategy's ENTER that was not taken (refused by risk or the gate).
@@ -3357,9 +3371,9 @@ enum L10n {
     static var back: LocalizedStringResource {
       LocalizedStringResource("symbols.back", defaultValue: "Overview", bundle: L10n.bundle)
     }
-    /// Under the title: day, end of the latest discovery pass, symbols the screeners listed.
-    static func context(_ day: String, _ time: String, _ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("symbols.context", defaultValue: "\(day) · \(time) ET · \(count) screened", bundle: L10n.bundle)
+    /// Under the title: day, end of the latest discovery pass, the tab's one-line caption.
+    static func context(_ day: String, _ time: String, _ caption: String) -> LocalizedStringResource {
+      LocalizedStringResource("symbols.context", defaultValue: "\(day) · \(time) ET · \(caption)", bundle: L10n.bundle)
     }
     /// A failed read of the symbols or movers; argument: the error.
     static func unavailable(_ error: String) -> LocalizedStringResource {
@@ -3389,11 +3403,11 @@ enum L10n {
     static func showingAll(_ count: Int) -> LocalizedStringResource {
       LocalizedStringResource("symbols.showingAll", defaultValue: "Showing all \(count)", bundle: L10n.bundle)
     }
-    /// Footer of the Fast movers tab: the flagged symbols, and the positions and watches pinned
-    /// above them that no fast-mover rule flagged.
+    /// Footer of the Fast movers tab: the flagged symbols, and the open positions and waiting
+    /// symbols pinned above them that no fast-mover rule flagged.
     static func showingMovers(_ flagged: Int, _ pinned: Int) -> LocalizedStringResource {
       // swiftlint:disable:next line_length
-      LocalizedStringResource("symbols.showingMovers", defaultValue: "Showing all \(flagged) fast movers, plus \(pinned) held or watched on top", bundle: L10n.bundle)
+      LocalizedStringResource("symbols.showingMovers", defaultValue: "Showing all \(flagged) fast movers, plus \(pinned) open or waiting on top", bundle: L10n.bundle)
     }
     /// The search left no row.
     static func noMatch(_ query: String) -> LocalizedStringResource {
@@ -3407,10 +3421,6 @@ enum L10n {
     static var noMovers: LocalizedStringResource {
       LocalizedStringResource("symbols.noMovers", defaultValue: "No fast movers yet.", bundle: L10n.bundle)
     }
-    /// Detail: the symbol's stages today.
-    static var pathToday: LocalizedStringResource {
-      LocalizedStringResource("symbols.pathToday", defaultValue: "Path today", bundle: L10n.bundle)
-    }
     /// Detail link: the Chart on this symbol.
     static var openChart: LocalizedStringResource {
       LocalizedStringResource("symbols.openChart", defaultValue: "Open chart", bundle: L10n.bundle)
@@ -3421,7 +3431,7 @@ enum L10n {
     }
     /// Detail with no symbol selected.
     static var selectHint: LocalizedStringResource {
-      LocalizedStringResource("symbols.selectHint", defaultValue: "Select a symbol to see its path today.", bundle: L10n.bundle)
+      LocalizedStringResource("symbols.selectHint", defaultValue: "Select a symbol to see its steps today.", bundle: L10n.bundle)
     }
   }
   enum FastMovers {

@@ -299,7 +299,7 @@ extension L10n {
   }
   /// Why discovery dropped a symbol: STRATEGY_LIQUIDITY
   static var discoveryStrategyLiquidity: LocalizedStringResource {
-    LocalizedStringResource("kit.discovery.STRATEGY_LIQUIDITY", defaultValue: "Strategy liquidity rule", bundle: bundle)
+    LocalizedStringResource("kit.discovery.STRATEGY_LIQUIDITY", defaultValue: "Liquidity too low", bundle: bundle)
   }
   /// Why the latest pass stopped before deciding a symbol: REQUEST_BUDGET
   static var notReachedRequestBudget: LocalizedStringResource {

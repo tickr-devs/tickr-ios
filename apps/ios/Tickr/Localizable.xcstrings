@@ -2296,47 +2296,6 @@
         }
       }
     },
-    "chart.bars" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld bar"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld bars"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld vela"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld velas"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "chart.barsUnavailable" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2394,13 +2353,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ · %3$@ · drag to scroll · pinch to zoom · touch and hold to read"
+            "value" : "drag to scroll · pinch to zoom · touch and hold to read"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ · %3$@ · arrastra para desplazar · pellizca para ampliar · mantén pulsado para leer"
+            "value" : "arrastra para desplazar · pellizca para ampliar · mantén pulsado para leer"
           }
         }
       }
@@ -2411,13 +2370,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ · %3$@"
+            "value" : "touch and hold to read"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ · %3$@"
+            "value" : "mantén pulsado para leer"
           }
         }
       }
@@ -2571,13 +2530,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No entries or exits; the strategy only watched."
+            "value" : "No entries or exits; the bot only waited."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sin entradas ni salidas; la estrategia solo observó."
+            "value" : "Sin entradas ni salidas; el bot solo esperó."
           }
         }
       }
@@ -3863,13 +3822,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "today · live"
+            "value" : "today"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "hoy · en vivo"
+            "value" : "hoy"
           }
         }
       }
@@ -10242,13 +10201,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ ET · %3$lld screened"
+            "value" : "%1$@ · %2$@ ET"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@ ET · %3$lld filtrados"
+            "value" : "%1$@ · %2$@ ET"
           }
         }
       }
@@ -10321,36 +10280,19 @@
         }
       }
     },
-    "symbols.pathToday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Path today"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recorrido de hoy"
-          }
-        }
-      }
-    },
     "symbols.rowHint" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shows the symbol's path today"
+            "value" : "Shows the symbol's steps today"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Muestra el recorrido del símbolo hoy"
+            "value" : "Muestra los pasos de hoy del símbolo"
           }
         }
       }

@@ -126,12 +126,9 @@ struct SymbolsBoardTests {
     return try #require(try Wire.decoder().decode(SymbolsV1.self, from: data).rows.first { $0.symbol == "QRST" })
   }
 
-  @Test("A WATCH is over once a later pass dropped the symbol; the drop is dated by that pass")
+  @Test("A drop at a later pass is dated by that pass, never by when the stage was first passed")
   func watchOverAfterLaterDrop() throws {
-    let current = try watched(decided: "2026-11-16T15:00:00.000Z")
-    #expect(SymbolsLine(symbol: "QRST", row: current, mover: nil, position: false).watching)
     let earlier = try watched(decided: "2026-11-16T14:40:00.000Z")
-    #expect(!SymbolsLine(symbol: "QRST", row: earlier, mover: nil, position: false).watching)
     let here = try #require(SymbolsBoard.path(earlier).first { $0.stage == earlier.stage })
     #expect(SymbolsBoard.time(here, row: earlier) == earlier.at?.date)
     let passed = try #require(SymbolsBoard.path(earlier).first { $0.stage == .quote })
@@ -203,7 +200,6 @@ struct SymbolsBoardTests {
     let efgh = try #require(movers.movers.last)
     #expect(SymbolsBoard.atr(efgh.moveAtr).hasPrefix(SymbolsBoard.minus))
     let abcd = try #require(symbols.rows.first { $0.symbol == "ABCD" })
-    #expect(SymbolsBoard.screenerCell(abcd)?.more == String(localized: L10n.symbolsMore(1)))
     #expect(abcd.reached.count == SymbolStage.allCases.count)
     #expect(abcd.checks.count == 2 && abcd.strategy != nil)
     #expect(SymbolsBoard.why(abcd) == nil)  // passed
