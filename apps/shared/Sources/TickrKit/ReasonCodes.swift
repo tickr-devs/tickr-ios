@@ -7,6 +7,9 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case active
   case age
   case ask
+  case barClose = "bar_close"
+  case barDistance = "bar_distance"
+  case barMax = "bar_max"
   case bid
   case bot
   case buyingPower = "buying_power"
@@ -60,8 +63,11 @@ public enum ReasonParam: String, CaseIterable, Sendable {
   case origin
   case pid
   case plannedLoss = "planned_loss"
+  case previousAsk = "previous_ask"
   case price
   case quantity
+  case quoteDistance = "quote_distance"
+  case quoteMax = "quote_max"
   case quoteSymbol = "quote_symbol"
   case range
   case realized
@@ -179,6 +185,7 @@ public enum RefusalReason: String, CaseIterable, Sendable {
   case quoteTimeInvalid = "QUOTE_TIME_INVALID"
   case quoteStale = "QUOTE_STALE"
   case priceOutsideWindow = "PRICE_OUTSIDE_WINDOW"
+  case priceCollarBreach = "PRICE_COLLAR_BREACH"
   case quantityNotWhole = "QUANTITY_NOT_WHOLE"
   case quantityBelowOne = "QUANTITY_BELOW_ONE"
   case notionalOverCap = "NOTIONAL_OVER_CAP"
