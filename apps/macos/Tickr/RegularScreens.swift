@@ -14,15 +14,20 @@ import TickrKit
 public struct RegularScreens: View {
   @State private var model = Container.shared.appModel()
   @State private var chart = Container.shared.chartModel()
-  /// Whether the sidebar shows; the system's sidebar button switches it. Automatic: beside the
-  /// screen in landscape, over it on demand in portrait (IPadPortrait), so a screen gets the
-  /// iPad's whole 834-point width there.
-  @State private var columns = NavigationSplitViewVisibility.automatic
+  /// Whether the sidebar shows; the system's sidebar button switches it. Automatic where it fits
+  /// beside the screens (`roomy`), else closed until asked (IPadPortrait, the unfolded Duo), so a
+  /// screen gets the whole width there. Closed until the width is known.
+  @State private var columns = NavigationSplitViewVisibility.detailOnly
   @Environment(\.dynamicTypeSize) private var typeSize
+  /// The width the screens get, which decides whether the sidebar may sit beside them.
+  @State private var width: CGFloat = 0
   /// Whether this model is reading the bot now (`active`); never started twice.
   @State private var polling = false
 
   let endpoint: APIClient.Endpoint
+  /// The shown section, kept by the app across its layouts: folding a Duo or narrowing an iPad
+  /// window and back shows the same screen.
+  @Binding var section: AppSection
   /// The Dynamic Type size nearest to the Mac's fixed type sizes (callout 13 against the Mac's 12,
   /// body 14 against 13), the one the Mac screens are drawn at on the iPad.
   static let macLikeTypeSize = DynamicTypeSize.xSmall
@@ -32,15 +37,17 @@ public struct RegularScreens: View {
 
   /// - Parameters:
   ///   - endpoint: the iPad's connection: where to read and send, with its token.
+  ///   - section: the shown section, shared with the iPhone screens' tab.
   ///   - active: the scene is in front and this layout is the one shown.
   ///   - ownerCheck: Face ID or the passcode before a command (`AppModel.ownerCheck`).
   ///   - settings: opens the iPad's settings.
   public init(
-    endpoint: APIClient.Endpoint, active: Bool,
+    endpoint: APIClient.Endpoint, section: Binding<AppSection>, active: Bool,
     ownerCheck: @escaping @MainActor (OperatorCommand?, String) async -> Bool,
     settings: @escaping () -> Void
   ) {
     self.endpoint = endpoint
+    _section = section
     self.active = active
     self.ownerCheck = ownerCheck
     self.settings = settings
@@ -61,6 +68,17 @@ public struct RegularScreens: View {
     // them); iOS's default sizes are 1 to 4 points larger and cut them in portrait. The smallest
     // standard size is the nearest to the Mac's; an accessibility size the owner chose stays.
     .dynamicTypeSize(typeSize.isAccessibilitySize ? typeSize : Self.macLikeTypeSize)
+    // Narrower than the sidebar beside the widest least screen (the unfolded Duo, an iPad in
+    // portrait or in Split View), the sidebar starts closed and its button opens it: open beside
+    // the screen, it cut the Chart's rail at 951 points.
+    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+    .onChange(of: roomy) { _, room in columns = room ? .automatic : .detailOnly }
+    .onChange(of: section, initial: true) { _, new in
+      if model.section != new { model.section = new }
+    }
+    .onChange(of: model.section) { _, new in
+      if section != new { section = new }
+    }
     .botCommandQuestions(in: .window)
     .hintHost()
     .readFailureContext(model)
@@ -76,6 +94,9 @@ public struct RegularScreens: View {
     .onChange(of: active, initial: true) { _, on in poll(on) }
     .onDisappear { poll(false) }
   }
+
+  /// Whether the sidebar fits beside the screens: at its widest, beside the widest least screen.
+  private var roomy: Bool { width >= RootView.sidebarMax + RootView.screenMinWidth }
 
   private func poll(_ on: Bool) {
     guard on != polling else { return }

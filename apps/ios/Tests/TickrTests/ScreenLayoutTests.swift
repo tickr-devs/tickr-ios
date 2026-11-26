@@ -1,5 +1,6 @@
 import SwiftUI
 import Testing
+import TickrScreens
 @testable import Tickr
 
 /// Which screens the app shows: the Mac screens on an iPad in regular width and on the unfolded
@@ -49,5 +50,19 @@ import Testing
   @Test func noConnectionShowsTheIPhoneScreensThatPair() {
     #expect(Self.pick(.pad, .regular, Self.iPad, configured: false) == .compact)
     #expect(Self.pick(.phone, .regular, Self.unfoldedDuo, configured: false) == .compact)
+  }
+
+  @Test func aSectionSurvivesARoundTripThroughTheOtherLayout() {
+    for section in [AppSection.overview, .chart, .trades, .lab] {
+      #expect(AppSection(AppTab(section)) == section)
+    }
+    for tab in [AppTab.home, .chart, .activity, .lab] {
+      #expect(AppTab(AppSection(tab)) == tab)
+    }
+  }
+
+  @Test func sectionsWithoutTheirOwnTabMapToWhereTheyLive() {
+    #expect(AppTab(AppSection.risk) == .home)
+    #expect(AppSection(AppTab.positions) == .overview)
   }
 }
