@@ -3,6 +3,54 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). trades_left_open (values: count)
+  static var proseReasonTradesLeftOpen: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.trades_left_open",
+      defaultValue: "{count} trade(s) left open: nothing closes them; their broker stops are day orders", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_close_refused
+  static var proseReasonStopCloseRefused: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_close_refused",
+      defaultValue: "A closing order was refused: the bot places the stop again; look in the Webull app", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_close_not_filled
+  static var proseReasonStopCloseNotFilled: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_close_not_filled",
+      // swiftlint:disable:next line_length
+      defaultValue: "A closing order did not fill: it is still working at the broker and its shares are not under a stop; look in the Webull app", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_close_not_sent
+  static var proseReasonStopCloseNotSent: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_close_not_sent",
+      defaultValue: "A close was due outside the regular session: nothing was sent and the stop stays", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_close_failed
+  static var proseReasonStopCloseFailed: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_close_failed",
+      defaultValue: "A close is held until you look: look in the Webull app", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_close_kept
+  static var proseReasonStopCloseKept: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_close_kept",
+      defaultValue: "The bot keeps running and new entries stay stopped", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_new_trade
+  static var proseReasonStopNewTrade: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_new_trade",
+      // swiftlint:disable:next line_length
+      defaultValue: "A trade opened during close and stop: the bot keeps running and the closes already asked go on; stop the bot again", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). stop_interrupted
+  static var proseReasonStopInterrupted: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.stop_interrupted",
+      // swiftlint:disable:next line_length
+      defaultValue: "Close and stop was interrupted by a restart: the bot keeps running and new entries stay stopped; stop it again", bundle: bundle)
+  }
+  /// A cause the API writes itself (`<field>_codes`). no_open_position (values: symbol)
+  static var proseReasonNoOpenPosition: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.no_open_position",
+      defaultValue: "No open position in {symbol}", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). close_refused_before
   static var proseReasonCloseRefusedBefore: LocalizedStringResource {
     LocalizedStringResource("kit.prose.close_refused_before",
