@@ -72,7 +72,6 @@ struct ScreenPicturesTests {
     let model = PreviewAPI.model()
     Container.shared.appModel.register { model }
     let chart = Container.shared.chartModel()
-    let advisor = PreviewAPI.advisor()
     // The least width holds the title bar's line, which shows the status: read it first.
     while model.status == nil { try await Task.sleep(for: Self.statusPoll) }
     let leastWidth = TickrMacApp.leastWidth(model: model, chart: chart)
@@ -93,7 +92,7 @@ struct ScreenPicturesTests {
           for key in LayoutSweep.fullChartKeys { UserDefaults.standard.set(inspector, forKey: key) }
           model.section = section
           let root = RootView()
-            .environment(model).environment(chart).environment(advisor)
+            .environment(model).environment(chart)
             .tint(Palette.info)
             .frame(minWidth: min(leastWidth, size.width), maxWidth: .infinity,
               minHeight: min(TickrMacApp.minHeight, size.height), maxHeight: .infinity)

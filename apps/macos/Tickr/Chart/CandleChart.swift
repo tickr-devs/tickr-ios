@@ -70,7 +70,7 @@ struct CandleChart: View {
   static let exitSymbol = "arrowtriangle.down.fill"
   /// Symbols of decision marks: one the strategy acted on, and one that did not trade.
   static let decisionSymbol = "diamond.fill"
-  static let observerSymbol = "diamond"
+  static let skippedSymbol = "diamond"
   /// Candles drawn beyond each side of the window while zoomed, as a share of the window, so a
   /// fast scroll never shows a bare edge before the next redraw. Farther candles are not drawn.
   static let drawnMargin = 1.0
@@ -101,7 +101,7 @@ struct CandleChart: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       PaneStack {
         // The legend in its own row above the plot, never over it: the marks' plates are kept
-        // inside the plot, so a plate near the top ("ENTER · OBSERVER") can no longer sit on the
+        // inside the plot, so a plate near the top ("ENTER · SKIPPED") can no longer sit on the
         // lines' values.
         VStack(alignment: .leading, spacing: 0) {
           ChartLegend(plot: plot, lines: lines, pointer: pointer)
@@ -196,7 +196,7 @@ struct CandleChart: View {
       ForEach(decisions) { mark in
         PointMark(x: .value(Plot.time, mark.time), y: .value(Plot.price, mark.price))
           .symbol {
-            Image(systemName: mark.hollow ? Self.observerSymbol : Self.decisionSymbol)
+            Image(systemName: mark.hollow ? Self.skippedSymbol : Self.decisionSymbol)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(mark.color)
           }
@@ -433,14 +433,13 @@ struct CandleChart: View {
     .allowsHitTesting(false)
   }
 
-  /// "VOL 23.4K · avg 20 · rel. volume 2.6×" for the newest candle; the volume alone until the
-  /// average has its first value.
+  /// "Volume 23.4K · rel. volume 2.6×" for the newest candle (against the average of the last
+  /// `ChartPlot.volumeAveragePeriod`); the volume alone until the average has its first value.
   @ViewBuilder private var volumeName: some View {
     if let last = candles.indices.last {
       let volume = Self.volumeText(candles[last].volume)
       if let average = plot.volumeAverage[last], average > 0 {
-        Text(L10n.Chart.volumePane(
-          volume, ChartPlot.volumeAveragePeriod, Money.number(candles[last].volume / average, fractionDigits: Self.ratioDigits)))
+        Text(L10n.Chart.volumePane(volume, Money.number(candles[last].volume / average, fractionDigits: Self.ratioDigits)))
       } else {
         Text(L10n.Chart.volumePaneShort(volume))
       }

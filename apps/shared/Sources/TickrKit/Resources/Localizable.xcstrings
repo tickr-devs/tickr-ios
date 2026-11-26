@@ -1,1196 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "kit.advisor.accept" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accept"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aceptar"
-          }
-        }
-      }
-    },
-    "kit.advisor.acceptedNext" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accepted · next: a config edit on the Mac"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aceptada · siguiente: una edición de la configuración en la Mac"
-          }
-        }
-      }
-    },
-    "kit.advisor.awaiting" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld awaiting review"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld en espera de revisión"
-          }
-        }
-      }
-    },
-    "kit.advisor.back" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategy lab"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laboratorio"
-          }
-        }
-      }
-    },
-    "kit.advisor.cancel" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancelar"
-          }
-        }
-      }
-    },
-    "kit.advisor.changed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "changed"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "cambiado"
-          }
-        }
-      }
-    },
-    "kit.advisor.confirmReason" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Record your decision on %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Registra tu decisión sobre %@"
-          }
-        }
-      }
-    },
-    "kit.advisor.confirmText" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Only your decision is recorded. Nothing is copied, started or traded."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo se registra tu decisión. No se copia, inicia ni opera nada."
-          }
-        }
-      }
-    },
-    "kit.advisor.confirmTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accept %@?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Aceptar %@?"
-          }
-        }
-      }
-    },
-    "kit.advisor.decisionFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't record the decision"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudo registrar la decisión"
-          }
-        }
-      }
-    },
-    "kit.advisor.diff" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What changes"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Qué cambia"
-          }
-        }
-      }
-    },
-    "kit.advisor.entry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entry"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrada"
-          }
-        }
-      }
-    },
-    "kit.advisor.evidence" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Evidence"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Evidencia"
-          }
-        }
-      }
-    },
-    "kit.advisor.exit" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exit"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salida"
-          }
-        }
-      }
-    },
-    "kit.advisor.expectedEffect" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Expected effect"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Efecto esperado"
-          }
-        }
-      }
-    },
-    "kit.advisor.failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't read the advisor's runs"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudieron leer las ejecuciones del asesor"
-          }
-        }
-      }
-    },
-    "kit.advisor.filters" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filters"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filtros"
-          }
-        }
-      }
-    },
-    "kit.advisor.fitting" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fitting period %@ · no evidence"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Periodo de ajuste %@ · sin evidencia"
-          }
-        }
-      }
-    },
-    "kit.advisor.fittingHint" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The advisor learned on these days, so their result proves nothing."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El asesor aprendió con estos días, así que su resultado no prueba nada."
-          }
-        }
-      }
-    },
-    "kit.advisor.holdout" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hold-out check"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Días reservados"
-          }
-        }
-      }
-    },
-    "kit.advisor.holdoutFrom" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hold-out from %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reservados desde %@"
-          }
-        }
-      }
-    },
-    "kit.advisor.hypothesis" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hypothesis"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hipótesis"
-          }
-        }
-      }
-    },
-    "kit.advisor.idea" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New strategy idea"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nueva idea de estrategia"
-          }
-        }
-      }
-    },
-    "kit.advisor.ideaName" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "idea · %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "idea · %@"
-          }
-        }
-      }
-    },
-    "kit.advisor.interval" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "interval %@ to %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "intervalo de %@ a %@"
-          }
-        }
-      }
-    },
-    "kit.advisor.judgeOn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Judge on %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Evaluar con %@"
-          }
-        }
-      }
-    },
-    "kit.advisor.lowered" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "lowered"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reducido"
-          }
-        }
-      }
-    },
-    "kit.advisor.mode.backtest" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "backtest"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "backtest"
-          }
-        }
-      }
-    },
-    "kit.advisor.mode.live" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "live days"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "días en vivo"
-          }
-        }
-      }
-    },
-    "kit.advisor.noRuns" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No advisor run yet: runs come from python -m tickr.advisor on the Mac."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aún no hay ejecuciones del asesor: provienen de python -m tickr.advisor en la Mac."
-          }
-        }
-      }
-    },
-    "kit.advisor.note" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The advisor never applies anything. Accept records your decision; running a version as an observer or active is a config edit on the Mac."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El asesor nunca aplica nada. Aceptar registra tu decisión; ejecutar una versión como observadora o activa es una edición de la configuración en la Mac."
-          }
-        }
-      }
-    },
-    "kit.advisor.notJudged" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not judged yet: run python -m tickr.advisor.judge on the Mac."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aún sin evaluar: ejecuta python -m tickr.advisor.judge en la Mac."
-          }
-        }
-      }
-    },
-    "kit.advisor.page" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advisor proposal"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Propuesta del asesor"
-          }
-        }
-      }
-    },
-    "kit.advisor.path" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proposal path"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ruta de la propuesta"
-          }
-        }
-      }
-    },
-    "kit.advisor.profitFactor" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profit factor"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Factor de beneficio"
-          }
-        }
-      }
-    },
-    "kit.advisor.raised" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "raised"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "aumentado"
-          }
-        }
-      }
-    },
-    "kit.advisor.reject" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reject"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechazar"
-          }
-        }
-      }
-    },
-    "kit.advisor.rejectedRecorded" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rejected · recorded"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechazada · registrada"
-          }
-        }
-      }
-    },
-    "kit.advisor.review" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Review"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Revisar"
-          }
-        }
-      }
-    },
-    "kit.advisor.risks" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Risks"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riesgos"
-          }
-        }
-      }
-    },
-    "kit.advisor.runGone" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This run is no longer among the newest runs the bot lists."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta ejecución ya no está entre las más recientes que lista el bot."
-          }
-        }
-      }
-    },
-    "kit.advisor.simulated" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "simulated"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "simulado"
-          }
-        }
-      }
-    },
-    "kit.advisor.state.accepted" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "accepted"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "aceptada"
-          }
-        }
-      }
-    },
-    "kit.advisor.state.awaiting" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "awaiting review"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "en espera de revisión"
-          }
-        }
-      }
-    },
-    "kit.advisor.state.noChange" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no change"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "sin cambio"
-          }
-        }
-      }
-    },
-    "kit.advisor.state.refused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "answer refused"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "respuesta rechazada"
-          }
-        }
-      }
-    },
-    "kit.advisor.state.rejected" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rejected"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rechazada"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.active" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Active · config"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activa · configuración"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.decided" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your decision"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu decisión"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.done" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reached"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "alcanzado"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.judged" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Judged"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Validada"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.observer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Observer · config"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Observadora · configuración"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.pending" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not reached"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no alcanzada"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.proposed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proposed"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Propuesta"
-          }
-        }
-      }
-    },
-    "kit.advisor.step.refused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rejected here"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rechazada aquí"
-          }
-        }
-      }
-    },
-    "kit.advisor.summary" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Summary"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resumen"
-          }
-        }
-      }
-    },
-    "kit.advisor.testPlan" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How to test"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cómo probar"
-          }
-        }
-      }
-    },
-    "kit.advisor.textOnly" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "text only"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "solo texto"
-          }
-        }
-      }
-    },
-    "kit.advisor.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI advisor"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Asesor de IA"
-          }
-        }
-      }
-    },
-    "kit.advisor.totalR" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total R"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "R total"
-          }
-        }
-      }
-    },
-    "kit.advisor.tradesMean" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld tr · %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld op. · %@"
-          }
-        }
-      }
-    },
-    "kit.advisor.tunedOn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tuned on %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustado con %@"
-          }
-        }
-      }
-    },
-    "kit.advisor.unreadable" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unreadable runs: %lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ejecuciones ilegibles: %lld"
-          }
-        }
-      }
-    },
-    "kit.advisor.verdict.edge" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: the interval is above 0, evidence of an edge."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: el intervalo está por encima de 0, evidencia de una ventaja."
-          }
-        }
-      }
-    },
-    "kit.advisor.verdict.negative" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: the interval is below 0, evidence of a negative edge."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: el intervalo está por debajo de 0, evidencia de una ventaja negativa."
-          }
-        }
-      }
-    },
-    "kit.advisor.verdict.noEvidence" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: the interval includes 0, no edge proven."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: el intervalo incluye el 0, ninguna ventaja probada."
-          }
-        }
-      }
-    },
-    "kit.advisor.verdict.tooFew" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: too few trades for an interval, no evidence either way."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@: muy pocas operaciones para un intervalo, sin evidencia en ningún sentido."
-          }
-        }
-      }
-    },
-    "kit.advisor.whyNoChange" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Why no change"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Por qué no hay cambio"
-          }
-        }
-      }
-    },
-    "kit.advisor.whyRefused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Why the answer was refused"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Por qué se rechazó la respuesta"
-          }
-        }
-      }
-    },
-    "kit.advisor.winRate" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Win rate"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "% de acierto"
-          }
-        }
-      }
-    },
     "kit.alert.api-credentials-unexpected" : {
       "comment" : "An alert the owner can receive: api-credentials-unexpected",
       "extractionState" : "manual",
@@ -3562,13 +2372,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strategy liquidity rule"
+            "value" : "Liquidity too low"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Regla de liquidez de la estrategia"
+            "value" : "Liquidez insuficiente"
           }
         }
       }
@@ -6700,142 +5510,6 @@
         }
       }
     },
-    "kit.observer.active" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · active"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · activa"
-          }
-        }
-      }
-    },
-    "kit.observer.activeSkipped" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "active skipped: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "activa omitida: %@"
-          }
-        }
-      }
-    },
-    "kit.observer.noEntriesYet" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no entries yet"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "aún sin entradas"
-          }
-        }
-      }
-    },
-    "kit.observer.relativeVolume" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rel vol %@×"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "vol rel %@×"
-          }
-        }
-      }
-    },
-    "kit.observer.sameSettings" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "same settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mismos ajustes"
-          }
-        }
-      }
-    },
-    "kit.observer.setting" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ %@"
-          }
-        }
-      }
-    },
-    "kit.observer.version" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ v%@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ v%@"
-          }
-        }
-      }
-    },
-    "kit.observer.watchingSince" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "watching since %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "vigilando desde %@"
-          }
-        }
-      }
-    },
     "kit.order.side_BUY" : {
       "comment" : "Order side buy",
       "extractionState" : "manual",
@@ -9821,6 +8495,24 @@
         }
       }
     },
+    "kit.prose.no_working_entry" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_working_entry",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entry order working in {symbol}"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguna orden de entrada activa en {symbol}"
+          }
+        }
+      }
+    },
     "kit.prose.not_a_data_day" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). not_a_data_day",
       "extractionState" : "manual",
@@ -11081,6 +9773,150 @@
         }
       }
     },
+    "kit.prose.stop_already_running" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_already_running",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A close-and-stop is already running"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya hay un cierre y detención en curso"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_close_failed" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_close_failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A close is held until you look: look in the Webull app"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un cierre queda detenido hasta que lo revises: revisa la app de Webull"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_close_kept" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_close_kept",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot keeps running and new entries stay stopped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot sigue funcionando y las nuevas entradas siguen detenidas"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_close_not_filled" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_close_not_filled",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A closing order did not fill: it is still working at the broker and its shares are not under a stop; look in the Webull app"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una orden de cierre no se ejecutó: sigue activa en el bróker y sus acciones no tienen stop; revisa la app de Webull"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_close_not_sent" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_close_not_sent",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A close was due outside the regular session: nothing was sent and the stop stays"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un cierre tocaba fuera de la sesión regular: no se envió nada y el stop se queda"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_close_refused" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_close_refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A closing order was refused: the bot places the stop again; look in the Webull app"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se rechazó una orden de cierre: el bot vuelve a poner el stop; revisa la app de Webull"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_interrupted" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_interrupted",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close and stop was interrupted by a restart: the bot keeps running and new entries stay stopped; stop it again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar y detener se interrumpió por un reinicio: el bot sigue funcionando y las nuevas entradas siguen detenidas; detenlo otra vez"
+          }
+        }
+      }
+    },
+    "kit.prose.stop_new_trade" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). stop_new_trade",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A trade opened during close and stop: the bot keeps running and the closes already asked go on; stop the bot again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se abrió una operación durante cerrar y detener: el bot sigue funcionando y los cierres ya pedidos continúan; detén el bot otra vez"
+          }
+        }
+      }
+    },
     "kit.prose.stop_not_cleared" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). stop_not_cleared",
       "extractionState" : "manual",
@@ -11239,6 +10075,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se propusieron {count} cambios, se permiten como máximo {max}"
+          }
+        }
+      }
+    },
+    "kit.prose.trades_left_open" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). trades_left_open",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{count} trade(s) left open: nothing closes them; their broker stops are day orders"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{count} operación(es) quedan abiertas: nada las cierra; sus stops en el bróker son órdenes del día"
           }
         }
       }
@@ -11926,6 +10780,24 @@
         }
       }
     },
+    "kit.refusal.PRICE_COLLAR_BREACH" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. PRICE_COLLAR_BREACH",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit {limit} is {bar_distance} from the last bar's close {bar_close} (maximum {bar_max}) and {quote_distance} from the previous ask {previous_ask} (maximum {quote_max}); a maximum of 0 is off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El límite {limit} está a {bar_distance} del cierre de la última barra {bar_close} (máximo {bar_max}) y a {quote_distance} del ask anterior {previous_ask} (máximo {quote_max}); un máximo de 0 está desactivado"
+          }
+        }
+      }
+    },
     "kit.refusal.PRICE_OUTSIDE_WINDOW" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. PRICE_OUTSIDE_WINDOW",
       "extractionState" : "manual",
@@ -12152,6 +11024,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "quedan de %@"
+          }
+        }
+      }
+    },
+    "kit.riskRoom.limits" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limits"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límites"
           }
         }
       }
@@ -12886,23 +11775,6 @@
         }
       }
     },
-    "kit.sizing.badge" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Size"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tamaño"
-          }
-        }
-      }
-    },
     "kit.sizing.exampleLead" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12933,6 +11805,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cada límite permite:"
+          }
+        }
+      }
+    },
+    "kit.sizing.limitedBy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limited by: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitado por: %@"
           }
         }
       }
@@ -13056,6 +11945,125 @@
         }
       }
     },
+    "kit.sizing.place" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ at %2$@ · %3$@ ET"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ a %2$@ · %3$@ ET"
+          }
+        }
+      }
+    },
+    "kit.sizing.placeNoPrice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ ET"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ ET"
+          }
+        }
+      }
+    },
+    "kit.sizing.plain.dailyRoom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room left %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Margen restante %@"
+          }
+        }
+      }
+    },
+    "kit.sizing.plain.notionalCap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position size cap %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tope por posición %@"
+          }
+        }
+      }
+    },
+    "kit.sizing.plain.plannedLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned loss %1$@ · stop %2$@ away"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pérdida planificada %1$@ · stop a %2$@"
+          }
+        }
+      }
+    },
+    "kit.sizing.plainName.dailyRoom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "room left"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "margen restante"
+          }
+        }
+      }
+    },
+    "kit.sizing.plainName.notionalCap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "position size cap"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tope por posición"
+          }
+        }
+      }
+    },
     "kit.sizing.row.dailyRoom" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13141,6 +12149,23 @@
         }
       }
     },
+    "kit.sizing.setByPlannedLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set by the planned loss"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fijado por la pérdida planificada"
+          }
+        }
+      }
+    },
     "kit.sizing.shares" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13154,6 +12179,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ acc."
+          }
+        }
+      }
+    },
+    "kit.sizing.sharesLine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ shares"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ acciones"
           }
         }
       }
@@ -14195,6 +13237,159 @@
         }
       }
     },
+    "kit.symbols.caption.bars" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enough trading"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suficiente negociación"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.fast" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sudden jump since the last bar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salto repentino desde la última barra"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.order" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order filled"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orden ejecutada"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.quote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fresh price, tight spread"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precio reciente, diferencial estrecho"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.risk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Within risk limits"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dentro de los límites de riesgo"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.screeners" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From the screeners"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De los filtros"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.stop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop at broker"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop en el bróker"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld chosen to enter"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld de %2$lld elegidos para entrar"
+          }
+        }
+      }
+    },
+    "kit.symbols.caption.universe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Common stocks only"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo acciones ordinarias"
+          }
+        }
+      }
+    },
     "kit.symbols.changeDown" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14252,13 +13447,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ATR"
+            "value" : "Move"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ATR"
+            "value" : "Movimiento"
           }
         }
       }
@@ -14286,13 +13481,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "$vol ×"
+            "value" : "$ traded"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "$vol ×"
+            "value" : "$ negociados"
           }
         }
       }
@@ -14337,13 +13532,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Outcome · reason"
+            "value" : "Result"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resultado · motivo"
+            "value" : "Resultado"
           }
         }
       }
@@ -14422,30 +13617,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vol ×"
+            "value" : "Volume"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vol ×"
-          }
-        }
-      }
-    },
-    "kit.symbols.decided" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
+            "value" : "Volumen"
           }
         }
       }
@@ -14467,23 +13645,6 @@
         }
       }
     },
-    "kit.symbols.fastMover" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fast mover"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Movimiento rápido"
-          }
-        }
-      }
-    },
     "kit.symbols.fastMovers" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14497,6 +13658,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Movimiento rápido"
+          }
+        }
+      }
+    },
+    "kit.symbols.fastNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast mover at %1$@ · %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Movimiento rápido a las %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "kit.symbols.fastRule" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flagged when a one-minute bar trades at least %1$@ and its volume is %2$@× the last %3$lld bars, or it moves %4$@× its usual range (ATR), or its dollars traded are %5$@×. Open positions and waiting symbols stay on top."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se marca cuando una barra de un minuto negocia al menos %1$@ y su volumen es %2$@× el de las últimas %3$lld barras, o se mueve %4$@× su rango habitual (ATR), o sus dólares negociados son %5$@×. Las posiciones abiertas y los símbolos en espera quedan arriba."
+          }
+        }
+      }
+    },
+    "kit.symbols.fastRuleLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How a fast mover is flagged"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo se marca un movimiento rápido"
           }
         }
       }
@@ -14569,121 +13781,87 @@
         }
       }
     },
-    "kit.symbols.flagged" : {
+    "kit.symbols.fired.dollars" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "flagged %@"
+            "value" : "$ traded %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "marcado %@"
+            "value" : "$ negociados %@"
           }
         }
       }
     },
-    "kit.symbols.lastDecision" : {
+    "kit.symbols.fired.move" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last strategy decision"
+            "value" : "Move %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Última decisión de la estrategia"
+            "value" : "Movimiento %@"
           }
         }
       }
     },
-    "kit.symbols.more" : {
+    "kit.symbols.fired.volume" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+%lld"
+            "value" : "Volume %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+%lld"
+            "value" : "Volumen %@"
           }
         }
       }
     },
-    "kit.symbols.mover.met" : {
+    "kit.symbols.foundBy" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "met ≥ %@"
+            "value" : "Found by %1$@ · first seen %2$@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "cumple ≥ %@"
+            "value" : "Encontrado por %1$@ · visto por primera vez %2$@"
           }
         }
       }
     },
-    "kit.symbols.mover.unmet" : {
+    "kit.symbols.notEntered" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "< %@"
+            "value" : "Not entered"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "< %@"
-          }
-        }
-      }
-    },
-    "kit.symbols.noDecision" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No strategy decision today."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin decisión de la estrategia hoy."
-          }
-        }
-      }
-    },
-    "kit.symbols.notFlagged" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not flagged today"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "sin marcar hoy"
+            "value" : "No entró"
           }
         }
       }
@@ -14745,13 +13923,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Passed"
+            "value" : "Entered"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aprobado"
+            "value" : "Entró"
+          }
+        }
+      }
+    },
+    "kit.symbols.outcome.skipped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skipped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartado"
           }
         }
       }
@@ -14796,13 +13991,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stop verified"
+            "value" : "Stop verified at broker"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stop verificado"
+            "value" : "Stop verificado en el bróker"
           }
         }
       }
@@ -14813,30 +14008,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Position"
+            "value" : "Open"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Posición"
-          }
-        }
-      }
-    },
-    "kit.symbols.rank" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "#%lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "#%lld"
+            "value" : "Abierta"
           }
         }
       }
@@ -14854,23 +14032,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@×"
-          }
-        }
-      }
-    },
-    "kit.symbols.reachedStage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reached %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "alcanzó %@"
           }
         }
       }
@@ -14926,36 +14087,19 @@
         }
       }
     },
-    "kit.symbols.screeners" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Screeners"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filtros"
-          }
-        }
-      }
-    },
     "kit.symbols.seen" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "seen %@"
+            "value" : "first seen %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "visto %@"
+            "value" : "visto por primera vez %@"
           }
         }
       }
@@ -15068,13 +14212,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bars"
+            "value" : "Volume ok"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Velas"
+            "value" : "Volumen ok"
           }
         }
       }
@@ -15085,13 +14229,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Order"
+            "value" : "Bought"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Orden"
+            "value" : "Comprado"
           }
         }
       }
@@ -15102,13 +14246,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quote"
+            "value" : "Price ok"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cotización"
+            "value" : "Precio ok"
           }
         }
       }
@@ -15119,13 +14263,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Risk"
+            "value" : "Risk ok"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Riesgo"
+            "value" : "Riesgo ok"
           }
         }
       }
@@ -15136,13 +14280,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Screeners"
+            "value" : "Found"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filtros"
+            "value" : "Encontrados"
           }
         }
       }
@@ -15153,13 +14297,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Broker stop"
+            "value" : "Stop set"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop en el bróker"
+            "value" : "Stop puesto"
           }
         }
       }
@@ -15170,13 +14314,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strategy"
+            "value" : "Decision"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Estrategia"
+            "value" : "Decisión"
           }
         }
       }
@@ -15187,64 +14331,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Universe"
+            "value" : "Stocks"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Universo"
-          }
-        }
-      }
-    },
-    "kit.symbols.stat.dollars" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "$ vol ×"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "$ vol ×"
-          }
-        }
-      }
-    },
-    "kit.symbols.stat.move" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Move ATR"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mov. ATR"
-          }
-        }
-      }
-    },
-    "kit.symbols.stat.volume" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vol ×"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vol ×"
+            "value" : "Acciones"
           }
         }
       }
@@ -15262,6 +14355,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "no alcanzada"
+          }
+        }
+      }
+    },
+    "kit.symbols.stepsPassed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld passed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld de %2$lld superados"
+          }
+        }
+      }
+    },
+    "kit.symbols.stepsToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steps today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pasos de hoy"
           }
         }
       }

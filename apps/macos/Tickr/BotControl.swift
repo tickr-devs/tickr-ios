@@ -4,39 +4,34 @@ import TickrKit
 
 /// An operator action as the app offers it. Each maps to one local-API command.
 enum BotAction: Identifiable, Equatable {
-  case pauseEntries, resumeEntries, cancelOrders, flatten(symbol: String), flattenAll, stopBot, emergency
+  case pauseEntries, resumeEntries, flatten(symbol: String), closeAll, stopBot
 
   /// Ids of the actions (SwiftUI identity only); a flatten action's id ends with its symbol.
   static let pauseID = "pause"
   static let resumeID = "resume"
-  static let cancelID = "cancel"
   static let flattenPrefix = "flatten-"
-  static let flattenAllID = "flatten-all"
+  static let closeAllID = "close-all"
   static let stopID = "stop"
-  static let emergencyID = "emergency"
 
   var id: String {
     switch self {
     case .pauseEntries: return Self.pauseID
     case .resumeEntries: return Self.resumeID
-    case .cancelOrders: return Self.cancelID
     case .flatten(let symbol): return Self.flattenPrefix + symbol
-    case .flattenAll: return Self.flattenAllID
+    case .closeAll: return Self.closeAllID
     case .stopBot: return Self.stopID
-    case .emergency: return Self.emergencyID
     }
   }
 
-  /// The API command the action sends.
+  /// The API command the action sends. Close all is the API's emergency command: entries paused,
+  /// the bot's working entry orders cancelled, every own position closed (docs/api.md).
   var command: OperatorCommand {
     switch self {
     case .pauseEntries: return .entryStop(on: true)
     case .resumeEntries: return .entryStop(on: false)
-    case .cancelOrders: return .cancelOwnOrders
     case .flatten(let symbol): return .flattenSymbol(symbol)
-    case .flattenAll: return .flatten
+    case .closeAll: return .emergency
     case .stopBot: return .stopBot
-    case .emergency: return .emergency
     }
   }
 
@@ -45,77 +40,64 @@ enum BotAction: Identifiable, Equatable {
     switch self {
     case .pauseEntries: return L10n.Bot.pauseEntries
     case .resumeEntries: return L10n.Bot.resumeEntries
-    case .cancelOrders: return L10n.Bot.cancelOrders
     case .flatten(let symbol): return L10n.Bot.flatten(symbol)
-    case .flattenAll: return L10n.Bot.flattenAll
+    case .closeAll: return L10n.Bot.flattenAll
     case .stopBot: return L10n.Bot.stopBot
-    case .emergency: return L10n.Bot.emergency
     }
   }
 
   var title: String { String(localized: label) }
 
+  /// What the button says while the command is on its way: Close all is closing the positions
+  /// (its pause and cancel come first and are quick), the rest as the command says it.
+  var inFlightTitle: LocalizedStringResource {
+    switch self {
+    case .closeAll: return OperatorCommand.flatten.inFlightTitle
+    default: return command.inFlightTitle
+    }
+  }
+
   /// SF Symbols of the actions (Pause draws `Symbols.pause`).
   static let resumeSymbol = "play.fill"
-  static let cancelSymbol = "xmark.circle"
   static let flattenSymbol = "rectangle.portrait.and.arrow.right"
-  static let flattenAllSymbol = "rectangle.portrait.and.arrow.right"
   static let stopSymbol = "stop.circle"
-  static let emergencySymbol = "exclamationmark.octagon.fill"
 
   var symbol: String {
     switch self {
     case .pauseEntries: return Symbols.pause
     case .resumeEntries: return Self.resumeSymbol
-    case .cancelOrders: return Self.cancelSymbol
-    case .flatten: return Self.flattenSymbol
-    case .flattenAll: return Self.flattenAllSymbol
+    case .flatten, .closeAll: return Self.flattenSymbol
     case .stopBot: return Self.stopSymbol
-    case .emergency: return Self.emergencySymbol
     }
   }
 
-  /// The action's look among the commands: pausing, resuming and cancelling are secondary, their
-  /// glyph in the action's tone (amber pause, teal resume, muted cancel); the rest close or stop
-  /// and are destructive. The emergency stop has its own button (`EmergencyButton`).
+  /// The action's look among the commands: pausing and resuming are secondary, their glyph in the
+  /// action's tone (amber pause, teal resume); the rest close or stop and are destructive.
   var tier: CommandButtonStyle.Tier {
     switch self {
     case .resumeEntries: return .secondary(.accent)
     case .pauseEntries: return .secondary(.warning)
-    case .cancelOrders: return .secondary(.neutral)
-    case .flatten, .flattenAll, .stopBot, .emergency: return .destructive
+    case .flatten, .closeAll, .stopBot: return .destructive
     }
   }
 
-  /// Only the emergency stop is held before it asks (`Tokens.Command.holdSeconds`): a click alone
-  /// never opens its question, so a slip of the pointer cannot start it. The hold comes before the
-  /// confirmation; it never replaces it.
-  var holdsFirst: Bool { self == .emergency }
-
   var isDestructive: Bool {
     switch self {
-    case .flatten, .flattenAll, .stopBot, .emergency: return true
-    default: return false
+    case .flatten, .closeAll, .stopBot: return true
+    case .pauseEntries, .resumeEntries: return false
     }
   }
 
   /// Pausing and resuming are reversible and act at once; the rest ask first.
-  var needsConfirmation: Bool {
-    switch self {
-    case .pauseEntries, .resumeEntries: return false
-    default: return true
-    }
-  }
+  var needsConfirmation: Bool { isDestructive }
 
   var question: String {
     switch self {
     case .pauseEntries: return String(localized: L10n.Bot.pauseQuestion)
     case .resumeEntries: return String(localized: L10n.Bot.resumeQuestion)
-    case .cancelOrders: return String(localized: L10n.Bot.cancelQuestion)
     case .flatten(let symbol): return String(localized: L10n.Bot.flattenQuestion(symbol))
-    case .flattenAll: return String(localized: L10n.Bot.flattenAllQuestion)
+    case .closeAll: return String(localized: L10n.Bot.flattenAllQuestion)
     case .stopBot: return String(localized: L10n.Bot.stopQuestion)
-    case .emergency: return String(localized: L10n.Bot.emergencyQuestion)
     }
   }
 
@@ -125,16 +107,12 @@ enum BotAction: Identifiable, Equatable {
       return String(localized: L10n.Bot.pauseExplanation)
     case .resumeEntries:
       return String(localized: L10n.Bot.resumeExplanation)
-    case .cancelOrders:
-      return String(localized: L10n.Bot.cancelExplanation)
     case .flatten:
       return String(localized: L10n.Bot.flattenExplanation) + " " + String(localized: L10n.Common.tradesAndDaysHint)
-    case .flattenAll:
-      return String(localized: L10n.Bot.flattenAllExplanation)
+    case .closeAll:
+      return String(localized: L10n.Bot.closeAllExplanation)
     case .stopBot:
       return String(localized: L10n.Bot.stopExplanation)
-    case .emergency:
-      return String(localized: L10n.Bot.emergencyExplanation)
     }
   }
 }
@@ -153,36 +131,22 @@ struct PendingConfirmation: Identifiable, Equatable {
   let place: CommandPlace
 }
 
-/// The bot control buttons, in the design's three tiers: pausing (or resuming) and cancelling,
-/// then the commands that close positions, then the emergency stop alone behind its "Last resort"
-/// divider. Stop bot stands in the Safety card's header (`BotStopButton`). A press that asks first opens its question in the model
-/// (`AppModel.press`); the window or panel around them shows it (`botCommandQuestions(in:)`).
-/// Used on Overview's Safety card and in the menu bar. No title is ever cut: commands go one under
-/// another when their titles do not fit side by side, and a title wraps as a last resort.
+/// The Safety card's two commands side by side, as the design draws them: Pause entries (Resume
+/// entries while paused) and Stop bot. Closing positions lives on the Positions card (each
+/// position's Close and Close all in its header). A press that asks first opens its question in
+/// the model (`AppModel.press`); the window around them shows it (`botCommandQuestions(in:)`). No
+/// title is ever cut: the two go one under the other when their titles do not fit side by side,
+/// and a title wraps as a last resort.
 struct BotControls: View {
   @Environment(AppModel.self) private var model
-  /// The menu-bar panel's shorter commands, with only Close all in the second row.
-  var compact = false
-  /// Where the buttons stand, so their questions open there.
-  var place = CommandPlace.window
 
-  /// Columns of each row (pause and cancel; the close commands), as in the design.
+  /// Columns of the row, as in the design.
   static let columns = 2
 
   var body: some View {
-    let paused = model.status?.entryStop ?? false
-    VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      CommandColumns(columns: Self.columns) {
-        button(paused ? .resumeEntries : .pauseEntries)
-        button(.cancelOrders)
-      }
-      CommandColumns(columns: compact ? 1 : Self.columns) {
-        ForEach(closing) { action in
-          button(action)
-        }
-      }
-      LastResortDivider(Text(L10n.Bot.lastResort))
-      emergency
+    CommandColumns(columns: Self.columns) {
+      BotCommandButton(action: model.pauseAction, place: .window, size: .regular)
+      BotCommandButton(action: .stopBot, place: .window, size: .regular)
     }
   }
 
@@ -190,86 +154,52 @@ struct BotControls: View {
   static func confirmation(_ explanation: String, demo: Bool) -> LocalizedStringResource {
     demo ? L10n.Bot.confirmToDemo(explanation) : L10n.Bot.confirmToBot(explanation)
   }
-
-  /// The hold's length as the hints say it ("1.5"), as every number of the apps (`Money`).
-  static var holdSeconds: String {
-    Money.number(Tokens.Command.holdSeconds, fractionDigits: holdDigits)
-  }
-
-  /// Decimals of the hold's length.
-  static let holdDigits = 1
-
-  private func button(_ action: BotAction) -> some View {
-    BotCommandButton(action: action, place: place, size: compact ? .compact : .regular,
-      detail: compact ? Self.detail(action, positions: model.positions.count) : nil)
-  }
-
-  /// The words after a menu-bar command's title, as the design's "2 positions" after Close all:
-  /// how many positions it closes; nothing without one (the command is off then) and after the
-  /// other commands.
-  static func detail(_ action: BotAction, positions: Int) -> LocalizedStringResource? {
-    guard case .flattenAll = action, positions > 0 else { return nil }
-    return L10n.Bot.positionCount(positions)
-  }
-
-  private var emergency: some View {
-    let action = BotAction.emergency
-    let hold = action.holdsFirst ? EmergencyButton.Hold(prompt: Text(L10n.Bot.holdPrompt(Self.holdSeconds)),
-      holding: Text(L10n.Bot.holding), accessibilityHint: Text(L10n.Bot.holdAccessibility(Self.holdSeconds))) : nil
-    return EmergencyButton(Text(action.label), detail: Text(L10n.Bot.emergencyDetail), symbol: action.symbol,
-      hold: hold, tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil) {
-      model.press(action, in: place)
-    }
-    .disabled(!model.commandsEnabled)
-    .hint(verbatim: action.explanation)
-    .accessibilityIdentifier(action.id)
-  }
-
-  /// The second row: one close command per open position, then Close all; the menu-bar panel has
-  /// Close all only.
-  private var closing: [BotAction] {
-    if compact { return [.flattenAll] }
-    return model.positions.map { .flatten(symbol: $0.position.symbol) } + [.flattenAll]
-  }
 }
 
-/// Stop bot in the Safety card's header, beside the bot's state, as the design draws it.
-struct BotStopButton: View {
+/// Close all in the Positions card's header (mockup Main): shown while a position is open, it
+/// asks first and then sends the API's emergency command (`BotAction.closeAll`).
+struct CloseAllButton: View {
+  @Environment(AppModel.self) private var model
+
   var body: some View {
-    BotCommandButton(action: .stopBot, place: .window, size: .small)
-      // A few words: always whole, on one line.
-      .fixedSize()
+    if !model.positions.isEmpty {
+      BotCommandButton(action: .closeAll, place: .window, size: .small)
+        // A few words: always whole, on one line.
+        .fixedSize()
+    }
   }
 }
 
-/// One bot command (not the emergency stop) in its tier, with the "DEMO" pill while commands go to
-/// the demo day. A close command is off without an open position, and says so.
-private struct BotCommandButton: View {
+/// One bot command in its tier, with the "DEMO" pill while commands go to the demo day. A close
+/// command is off without an open position, and says so. Every press goes through
+/// `AppModel.press`, so each asks first exactly as the others do.
+struct BotCommandButton: View {
   @Environment(AppModel.self) private var model
   let action: BotAction
   let place: CommandPlace
   let size: CommandButtonStyle.Size
-  /// A few words after the title (`BotControls.detail`).
-  var detail: LocalizedStringResource?
+  /// A shorter title in place of the action's own (the position panel's "Close ABCD").
+  var title: LocalizedStringResource?
+  /// Accessibility id in place of the action's, for a second button of the same command.
+  var identifier: String?
 
   var body: some View {
     Button(role: action.isDestructive ? .destructive : nil) {
       model.press(action, in: place)
     } label: {
-      Label { Text(action.label) } icon: { Image(systemName: action.symbol) }
+      Label { Text(title ?? action.label) } icon: { Image(systemName: action.symbol) }
     }
-    .buttonStyle(.command(action.tier, size: size, detail: detail.map { Text($0) },
-      tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
+    .buttonStyle(.command(action.tier, size: size, tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
     .disabled(!model.commandsEnabled || !applicable)
-    .inFlight(model.inFlight == action.command ? Text(action.command.inFlightTitle) : nil)
+    .inFlight(model.inFlight == action.command ? Text(action.inFlightTitle) : nil)
     // An off close command says why; the rest say what they do.
     .hint(verbatim: applicable ? action.explanation : String(localized: L10n.Bot.noPositions))
-    .accessibilityIdentifier(action.id)
+    .accessibilityIdentifier(identifier ?? action.id)
   }
 
   private var applicable: Bool {
     switch action {
-    case .flatten, .flattenAll: return !model.positions.isEmpty
+    case .flatten, .closeAll: return !model.positions.isEmpty
     default: return true
     }
   }
@@ -311,4 +241,10 @@ extension View {
   func botCommandQuestions(in place: CommandPlace) -> some View {
     modifier(BotCommandQuestions(place: place))
   }
+}
+
+extension AppModel {
+  /// Pause entries, or Resume entries while the operator's pause is on: the one pause command
+  /// of the Safety card and the menu bar.
+  var pauseAction: BotAction { status?.entryStop == true ? .resumeEntries : .pauseEntries }
 }

@@ -84,11 +84,6 @@ public struct APIClient: Sendable {
   static let systemPath = "/system"
   static let journalPath = "/journal"
   static let eventsPath = "/events"
-  static let advisorPath = "/advisor"
-  static let advisorDecisionPath = "/advisor/decision"
-  /// Body keys of POST /advisor/decision.
-  static let advisorRunField = "run"
-  static let advisorVerdictField = "verdict"
   static let labReplayPath = "/lab/replay"
   static let startBotPath = "/commands/start-bot"
   /// Body keys of a Lab replay start: the folder to replay, the one to compare it with, the day.
@@ -102,7 +97,6 @@ public struct APIClient: Sendable {
   static let pairPath = "/pair"
   /// Body key of the pairing code.
   static let codeKey = "code"
-  static let observersPath = "/observers"
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
   static let performancePath = "/performance"
@@ -157,13 +151,8 @@ public struct APIClient: Sendable {
     try await perform(request(path: Self.quotesPath, body: nil), expect: Self.ok)
   }
 
-  /// Every configured observer with its decisions recorded on `day`, oldest first.
-  public func observers(day: WireDate) async throws -> ObserversV1 {
-    try await perform(request(path: Self.observersPath, query: [(Self.dateQuery, day.text)], body: nil),
-      expect: Self.ok)
-  }
-
-  /// Every decision recorded for `symbol` on `day` (active strategy and observers), with checks.
+  /// Every decision recorded for `symbol` on `day`, with checks (a shadow strategy's marked
+  /// `observer`).
   public func decisions(symbol: String, day: WireDate) async throws -> DecisionsV1 {
     try await perform(request(path: Self.decisionsPath, query: [(Self.symbolQuery, symbol), (Self.dateQuery, day.text)],
       body: nil),
@@ -221,22 +210,6 @@ public struct APIClient: Sendable {
   /// The latest rows of the bot's journal with their numbers, newest last.
   public func journal() async throws -> JournalV1 {
     try await perform(request(path: Self.journalPath, body: nil), expect: Self.ok)
-  }
-
-  /// The AI advisor's newest runs with their proposals, hold-out verdicts and the owner's
-  /// decisions, newest first.
-  public func advisor() async throws -> AdvisorRunsV1 {
-    try await perform(request(path: Self.advisorPath, body: nil), expect: Self.ok)
-  }
-
-  /// Record the owner's verdict on an advisor proposal or idea. A note only: the bot deploys
-  /// nothing from it. Answers the runs as they now stand; an unknown run is 404 and a run that
-  /// takes no decision (refused, no change) 409, both thrown as `APIError.refused`.
-  public func decideAdvisor(run: String, verdict: OwnerVerdict) async throws -> AdvisorRunsV1 {
-    let body = try JSONSerialization.data(withJSONObject: [
-      Self.advisorRunField: run, Self.advisorVerdictField: verdict.rawValue,
-    ])
-    return try await perform(request(path: Self.advisorDecisionPath, body: body), expect: Self.ok)
   }
 
   /// The Lab's replay of the current strategy over the recent sessions: idle, running, done with

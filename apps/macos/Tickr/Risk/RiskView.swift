@@ -2,28 +2,29 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Risk & account, as the design's board: three columns of cards. The daily loss limit as a half
-/// gauge with whether entries are open, the session, and the planned request budget; the position
-/// slots with the configured limits, and reconciliation with every kind of fence; the broker
-/// account and the planned quote-stream health. Each column's last card fills it to the bottom.
+/// Risk & account, as the design's board (MacRisk v134): three columns of cards. The room left of
+/// the daily loss limit as a half gauge with whether entries are open, the market's session, and
+/// the planned request budget; the position slots, the configured limits with the last entry's
+/// size, and the broker check with the safety stops; the broker account and the planned
+/// quote-stream health. Each column's last card fills it to the bottom.
 struct RiskView: View {
   /// Entrance order of the cards.
   private enum Order: Int {
-    case lossRoom = 0, limits, account, session, fences, budget, stream
+    case lossRoom = 0, slots, limits, account, session, fences, budget, stream
   }
 
   /// Positions of the cards in the screen's `CardGrid`.
-  private enum Slot: Int { case lossRoom = 0, session, budget, limits, fences, account, stream }
+  private enum Slot: Int { case lossRoom = 0, session, budget, slots, limits, fences, account, stream }
 
   /// The design's three columns; a screen too narrow for three columns of the least width gets
   /// two. The same cards in both: a resize moves them and never makes them anew. Each column's
   /// last card fills it to the bottom of the window.
   static let arrangements: [CardArrangement] = [
     CardArrangement(minWidth: CardArrangement.columnsMinWidth(CardArrangement.wideColumns), rows: [
-      columns([[.lossRoom, .session, .budget], [.limits, .fences], [.account, .stream]])
+      columns([[.lossRoom, .session, .budget], [.slots, .limits, .fences], [.account, .stream]])
     ]),
     CardArrangement(minWidth: 0, rows: [
-      columns([[.lossRoom, .session, .limits, .budget], [.account, .fences, .stream]])
+      columns([[.lossRoom, .session, .slots, .limits, .budget], [.account, .fences, .stream]])
     ]),
   ]
 
@@ -42,6 +43,7 @@ struct RiskView: View {
           lossRoom.hugging()
           session.hugging()
           budget.filling()
+          slots.hugging()
           limits.hugging()
           fences.filling()
           account.hugging()
@@ -54,6 +56,7 @@ struct RiskView: View {
   }
 
   private var lossRoom: some View { LossRoomCard().rise(step: Order.lossRoom.rawValue) }
+  private var slots: some View { SlotsCard().rise(step: Order.slots.rawValue) }
   private var limits: some View { LimitsCard().rise(step: Order.limits.rawValue) }
   private var account: some View { AccountCard().rise(step: Order.account.rawValue) }
   // The New York clock is this Mac's own: it stays while the link is down.
@@ -129,35 +132,20 @@ private enum EntryGate: Hashable {
   }
 }
 
-/// A figure row of the design's mono list: a small coloured symbol, the label, the value at the
-/// right.
+/// A figure row of the design's mono list: the label, the value at the right.
 private struct FigureRow: View {
   let label: Text
   let value: String
-  var symbol: String?
-  var symbolColor: Color = Palette.textQuaternary
   var color: Color = Palette.textSecondary
 
-  init(
-    _ label: LocalizedStringResource, value: String, symbol: String? = nil,
-    symbolColor: Color = Palette.textQuaternary, color: Color = Palette.textSecondary
-  ) {
+  init(_ label: LocalizedStringResource, value: String, color: Color = Palette.textSecondary) {
     self.label = Text(label)
     self.value = value
-    self.symbol = symbol
-    self.symbolColor = symbolColor
     self.color = color
   }
 
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
-      if let symbol {
-        Image(systemName: symbol)
-          .font(Tokens.Typography.annotationBold)
-          .foregroundStyle(symbolColor)
-          .frame(width: Tokens.Size.rowSymbol)
-          .accessibilityHidden(true)
-      }
       label
         .foregroundStyle(Palette.textTertiary)
         .fixedSize(horizontal: false, vertical: true)
@@ -172,23 +160,9 @@ private struct FigureRow: View {
   }
 }
 
-/// A BACKLOG tag with what is planned, as the design marks features the bot does not serve yet.
-private struct PlannedLine: View {
-  let text: LocalizedStringResource
-
-  var body: some View {
-    HStack(spacing: Tokens.Space.s) {
-      Badge.backlog
-      Text(text)
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.textTertiary)
-      Spacer(minLength: 0)
-    }
-  }
-}
-
-/// The daily loss limit as the design's half gauge with a needle: the room the bot reports after
-/// the net day result (profits offset losses) and open reservations, against the limit.
+/// "Room left today", the design's half gauge with a needle: the room the bot reports after the
+/// net day result (profits offset losses) and open reservations, against the limit; then the day
+/// result, what losers lost and what open orders hold. How the room works is in the header's "i".
 private struct LossRoomCard: View {
   @Environment(AppModel.self) private var model
 
@@ -204,13 +178,8 @@ private struct LossRoomCard: View {
     return NSDecimalNumber(decimal: room / limit).doubleValue
   }
 
-  /// Symbols of the loss-room figures.
-  static let resultSymbol = "chart.line.uptrend.xyaxis"
-  static let feesSymbol = "building.columns"
-  static let realizedSymbol = "arrow.down.right"
-  static let reservationsSymbol = "lock"
-  static let plannedSymbol = StopState.levelSymbol
-  static let limitSymbol = "gauge.with.dots.needle.67percent"
+  /// Symbol beside the title whose tooltip says how the room works.
+  static let infoSymbol = "info.circle"
 
   /// Fill colour of the gauge: the accent while the room is calm, amber, then red near the limit.
   private var color: Color {
@@ -230,6 +199,12 @@ private struct LossRoomCard: View {
   var body: some View {
     let gate = EntryGate(model.status)
     Card(L10n.Risk.lossRoom, trailing: {
+      // How the room works, on hover: profits, open orders, sizing down, the minimum room.
+      Image(systemName: Self.infoSymbol)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+        .help(Text(L10n.Risk.lossRoomNote))
+        .accessibilityLabel(Text(L10n.Risk.lossRoomNote))
       if let status = model.status {
         // Why entries wait or are blocked, in the bot's words, on hover.
         StatusPill(gate.entriesTitle, tone: gate.tone, live: gate == .allowed, event: gate)
@@ -255,35 +230,25 @@ private struct LossRoomCard: View {
             .contentTransition(.numericText(value: room.map { NSDecimalNumber(decimal: $0).doubleValue } ?? 0))
             .animation(Tokens.Motion.quick, value: room)
             .fixedSize()
-          Text(L10n.Risk.roomLeft)
+          Text(L10n.Risk.ofLimit(amount(model.settings?.risk.maxDailyLossUsd)))
             .font(Tokens.Typography.caption)
             .foregroundStyle(Palette.textQuaternary)
         }
         .frame(maxWidth: .infinity)
         .modifier(AlarmPulse(active: room != nil && fraction < Tokens.Room.alarm))
         VStack(spacing: Tokens.Space.xs) {
-          FigureRow(L10n.Risk.limit, value: amount(model.settings?.risk.maxDailyLossUsd), symbol: Self.limitSymbol)
           FigureRow(L10n.Risk.resultToday, value: result.map(Money.signedUSD) ?? Format.missing,
-            symbol: Self.resultSymbol, symbolColor: result.map { Tone.result($0).fill } ?? Palette.textQuaternary,
             color: result.map(Palette.result) ?? Palette.textQuaternary)
-          FigureRow(L10n.Risk.feesToday,
-            value: model.status?.feesTodayUsd.map { Money.usd($0.value) } ?? Format.missing,
-            symbol: Self.feesSymbol, symbolColor: Palette.warning, color: Palette.textSecondary)
           // A loss and a reservation in their colour only while they show more than "$0.00".
           let lossTone = model.status?.realizedLossTodayUsd.map { Tone.loss($0.value) } ?? .neutral
           let reservedTone = model.status?.openReservationsUsd.map { Tone.amount($0.value, .warning) } ?? .neutral
-          FigureRow(L10n.Risk.realizedLoss, value: loss(model.status?.realizedLossTodayUsd),
-            symbol: Self.realizedSymbol, symbolColor: lossTone.fill, color: lossTone.text)
-          FigureRow(L10n.Risk.reservations, value: amount(model.status?.openReservationsUsd),
-            symbol: Self.reservationsSymbol, symbolColor: reservedTone.fill, color: reservedTone.text)
-          FigureRow(L10n.Risk.nextPlannedLoss, value: amount(model.settings?.risk.plannedLossUsd),
-            symbol: Self.plannedSymbol)
+          FigureRow(L10n.Risk.realizedLoss, value: loss(model.status?.realizedLossTodayUsd), color: lossTone.text)
+          FigureRow(L10n.Risk.reservations(model.positions.count), value: amount(model.status?.openReservationsUsd),
+            color: reservedTone.text)
         }
         if model.status != nil && room == nil {
           Footnote(L10n.Risk.roomNotReported, color: Palette.warningText)
         }
-        Footnote(L10n.Risk.lossRoomNote, color: Palette.textTertiary)
-        PlannedLine(text: L10n.Risk.lossBacklog)
       }
     })
   }
@@ -444,9 +409,9 @@ private enum FenceGroup: CaseIterable, Identifiable {
   }
 }
 
-/// Reconciliation and fences: whether the broker's account matches the bot's records, how many
-/// stops cover the positions, when the bot reads the broker next (GET /jobs), and every kind of
-/// fence with its state.
+/// "Broker check": whether the broker's positions, orders and stops match the bot's records, big;
+/// how many stops cover the positions and when the bot reads the broker next (GET /jobs); then the
+/// safety stops (fences) in one line that opens to every kind with its state.
 private struct ReconciliationCard: View {
   @Environment(AppModel.self) private var model
 
@@ -473,7 +438,12 @@ private struct ReconciliationCard: View {
           }
         }
         if let fences {
-          groups(fences)
+          let active = fences.count + (model.status?.entryStop == true ? 1 : 0)
+          DisclosureLine(L10n.Risk.safetyStops,
+            summary: String(localized: active == 0 ? L10n.Risk.noneActive : L10n.Common.fences(active)),
+            summaryColor: active == 0 ? Palette.profitText : Palette.warningText) {
+            groups(fences)
+          }
         } else {
           Footnote(L10n.Common.unavailable)
         }
@@ -484,15 +454,10 @@ private struct ReconciliationCard: View {
     .animation(Tokens.Motion.standard, value: model.account?.state)
   }
 
+  /// An old read says so in the header: its "All match" may no longer hold.
   @ViewBuilder private var badges: some View {
-    if let response = model.account {
-      HStack(spacing: Tokens.Space.xs) {
-        if response.stale {
-          Badge(L10n.Risk.stale, color: Palette.warningText)
-        }
-        Badge(response.account.matchesRecords ? L10n.Risk.matches : L10n.Risk.mismatch,
-          color: response.account.matchesRecords ? Palette.profitText : Palette.lossText)
-      }
+    if model.account?.stale == true {
+      Badge(L10n.Risk.stale, color: Palette.warningText)
     }
   }
 
@@ -534,7 +499,17 @@ private struct ReconciliationCard: View {
   @ViewBuilder private var checks: some View {
     if let response = model.account {
       let matches = response.account.matchesRecords
-      check(matches, Text(matches ? L10n.Risk.recordsMatch : L10n.Risk.recordsMismatch))
+      // The verdict big, in its colour, then what it covers.
+      HStack(spacing: Tokens.Space.s) {
+        glyph(matches ? Self.checkSymbol : Self.crossSymbol, color: matches ? Palette.profitText : Palette.lossText)
+        Text(matches ? L10n.Risk.matches : L10n.Risk.mismatch)
+          .font(Tokens.Typography.figure)
+          .foregroundStyle(matches ? Palette.profitText : Palette.lossText)
+      }
+      .accessibilityElement(children: .combine)
+      Text(L10n.Risk.checkCovers)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textTertiary)
       if let mismatch = response.account.mismatch {
         Text(verbatim: mismatch)
           .font(Tokens.Typography.caption)
@@ -640,45 +615,49 @@ private struct ReconciliationCard: View {
   }
 }
 
-/// Position slots as the design's tiles, then the configured risk limits (config/bot.toml, read
-/// through GET /settings), then the planned next-entry sizing.
+/// "Positions · 2 of 3": one tile per slot the config allows (`PositionSlots`).
+private struct SlotsCard: View {
+  @Environment(AppModel.self) private var model
+
+  var body: some View {
+    Card(L10n.Risk.slots(model.positions.count, model.settings.map { String($0.risk.maxOpenPositions) } ?? Format.missing)) {
+      if let risk = model.settings?.risk {
+        PositionSlots(limit: risk.maxOpenPositions, positions: model.positions)
+      } else {
+        Footnote(model.settingsError == nil ? L10n.Common.unavailable : L10n.Risk.settingsUnavailable)
+      }
+    }
+  }
+}
+
+/// The configured risk limits (config/bot.toml, read through GET /settings, read only), then how
+/// the last entry was sized, the same block as on the iPhone (`EntrySizingSection`).
 private struct LimitsCard: View {
   @Environment(AppModel.self) private var model
 
-  /// Symbols of the limits, as the design draws them.
-  static let plannedSymbol = StopState.levelSymbol
-  static let capSymbol = "rectangle.on.rectangle"
-  static let dailySymbol = "chart.line.downtrend.xyaxis"
-  static let minRoomSymbol = "plus"
-  static let positionsSymbol = "square.grid.3x1.below.line.grid.1x2"
-  static let quoteSymbol = "clock"
-
   var body: some View {
-    Card(L10n.Risk.slots, trailing: {
-      if let risk = model.settings?.risk {
-        Text(L10n.Risk.slotsLimit(risk.maxOpenPositions))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
+    Card(L10n.Risk.limits, trailing: {
+      Text(L10n.Risk.limitsSource)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
     }, content: {
       if let risk = model.settings?.risk {
-        PositionSlots(limit: risk.maxOpenPositions, positions: model.positions, gate: EntryGate(model.status))
-        SectionHeader(Text(L10n.Risk.limits)) {
-          Text(L10n.Risk.limitsSource)
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
-        }
         VStack(spacing: Tokens.Space.xs) {
-          FigureRow(L10n.Risk.plannedLoss, value: Money.usd(risk.plannedLossUsd.value), symbol: Self.plannedSymbol)
-          FigureRow(L10n.Risk.notionalCap, value: Money.usd(risk.positionNotionalCapUsd.value), symbol: Self.capSymbol)
-          FigureRow(L10n.Risk.dailyLoss, value: Money.usd(risk.maxDailyLossUsd.value), symbol: Self.dailySymbol)
-          FigureRow(L10n.Risk.minRoom, value: Money.usd(risk.minDailyRoomUsd.value), symbol: Self.minRoomSymbol)
-          FigureRow(L10n.Risk.openPositions, value: String(risk.maxOpenPositions), symbol: Self.positionsSymbol)
+          FigureRow(L10n.Risk.plannedLoss, value: Money.usd(risk.plannedLossUsd.value))
+          FigureRow(L10n.Risk.notionalCap, value: Money.usd(risk.positionNotionalCapUsd.value))
+          FigureRow(L10n.Risk.dailyLoss, value: Money.usd(risk.maxDailyLossUsd.value))
+          FigureRow(L10n.Risk.openPositions, value: String(risk.maxOpenPositions))
+          FigureRow(L10n.Risk.minRoom, value: Money.usd(risk.minDailyRoomUsd.value))
           FigureRow(L10n.Risk.quoteAge,
-            value: String(localized: L10n.Risk.seconds(Format.secondsNumber(risk.maxQuoteAgeSeconds.value))),
-            symbol: Self.quoteSymbol)
+            value: String(localized: L10n.Risk.seconds(Format.secondsNumber(risk.maxQuoteAgeSeconds.value))))
         }
-        SectionHeader(Text(L10n.Risk.sizingTitle)) { Badge.backlog }
+        // Nil while the day's latest size is unread: never "no entry". This screen is live only.
+        if model.isLive, let watching = model.watching {
+          Divider()
+          EntrySizingSection(sizing: EntrySizing(size: watching.latestSize, configured: SizingLimits(
+            plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
+            dailyRoomUsd: model.dailyRoom), text: .money))
+        }
       } else {
         Footnote(model.settingsError == nil ? L10n.Common.unavailable : L10n.Risk.settingsUnavailable)
       }
@@ -687,13 +666,12 @@ private struct LimitsCard: View {
 }
 
 /// One tile per position the config allows, as on the design: an open position's symbol, size,
-/// entry and stop with its state (confirmed green, pending amber, missing or unknown red), and a
-/// "free" tile for each unused slot saying whether the bot may fill it. More positions than the
-/// limit (a broker mismatch) still show every one.
+/// entry and what it can lose at its stop, then the stop with its state (confirmed green, pending
+/// amber, missing or unknown red), and one word, "Free", for each unused slot. More positions than
+/// the limit (a broker mismatch) still show every one.
 private struct PositionSlots: View {
   let limit: Int
   let positions: [PositionRow]
-  let gate: EntryGate
 
   /// Tiles in a row, as the design draws three slots across the card.
   static let columns = 3
@@ -715,7 +693,7 @@ private struct PositionSlots: View {
       }
     }
     .accessibilityElement(children: .contain)
-    .accessibilityLabel(Text(L10n.Risk.slots))
+    .accessibilityLabel(Text(L10n.Risk.slots(positions.count, String(limit))))
   }
 
   /// Colours of a stop state: its tone (`StopState.tone`): green verified, amber pending, red missing.
@@ -730,9 +708,11 @@ private struct PositionSlots: View {
       SymbolText(row.position.symbol)
         .font(Tokens.Typography.bodyMono.bold())
         .foregroundStyle(Palette.textPrimary)
-      Text(L10n.Risk.slotSize(Format.quantity(row.quantity), Format.price(row.entry)))
+      Text(L10n.Risk.slotSize(Format.quantity(row.quantity), Format.price(row.entry),
+        Risk.plannedLoss(entry: row.entry, stop: row.stop, quantity: row.quantity).map(Money.usd) ?? Format.missing))
         .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
+        .foregroundStyle(Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
       // Without a stop price the line says the state ("No stop"), never a bare dash.
       HStack(spacing: Tokens.Space.xxs) {
         if let stop = row.stop { Text(L10n.Risk.slotStop(Format.price(stop))) } else { Text(verbatim: state.title) }
@@ -753,13 +733,7 @@ private struct PositionSlots: View {
     tile(frame: Palette.separatorStrong) {
       Text(L10n.Risk.freeSlot)
         .font(Tokens.Typography.bodyMono.bold())
-        .foregroundStyle(Palette.textSecondary)
-      Text(L10n.Risk.freeWaiting)
-        .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-      Text(gate == .allowed ? L10n.Risk.admissionOpen : L10n.Risk.admissionClosed)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(gate == .allowed ? Palette.textQuaternary : Palette.warningText)
     }
     .accessibilityElement(children: .combine)
   }
@@ -794,7 +768,7 @@ private struct SessionCard: View {
   }
 
   var body: some View {
-    Card(L10n.Risk.session) {
+    Card(L10n.Risk.market) {
       // The clock beside the times; in a narrow card the times go under the clock rather than
       // being squeezed into slivers.
       ViewThatFits(in: .horizontal) {
@@ -875,10 +849,11 @@ private struct SessionCard: View {
   static let dash = "\u{2013}"
 }
 
-/// The broker account at the bot's last read, as the design's list: balances, then positions and
-/// open orders as the broker reports them. The broker is the source of truth; whether they match
-/// the bot's records is on the reconciliation card. Balances are display only: the bot's limits
-/// are its settings, never these numbers.
+/// The broker account at the bot's last read, as the design's list (MacRisk v134): the account kind
+/// and the read's time, equity big, three balances, the other balances and the broker's positions
+/// one click away, then the orders open at the broker (its stops) and today's fills. The broker is
+/// the source of truth; whether it matches the bot's records is on the broker check. Balances are
+/// display only: the bot's limits are its settings, never these numbers.
 private struct AccountCard: View {
   @Environment(AppModel.self) private var model
 
@@ -887,11 +862,16 @@ private struct AccountCard: View {
 
   var body: some View {
     // The account kind sits under the title, not beside it: beside it the title gets cut.
-    Card(L10n.Risk.account, tint: tint, content: {
-      if let label = model.account?.account.accountLabel {
-        Badge(verbatim: label, color: Palette.textSecondary)
+    Card(L10n.Risk.account, tint: tint, trailing: {
+      if let account = model.account?.account {
+        Text(verbatim: [account.accountLabel, String(localized: L10n.Risk.readAt(
+          Format.marketTime((account.balanceReadAt ?? account.readAt).date)))].compactMap { $0 }
+          .joined(separator: Format.itemSeparator))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
           .help(Text(L10n.Risk.accountKindHelp))
       }
+    }, content: {
       if let response = model.account {
         content(response)
       } else if model.accountError != nil {
@@ -912,33 +892,44 @@ private struct AccountCard: View {
   private func content(_ response: AccountResponseV1) -> some View {
     let account = response.account
     return VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      if let balances = account.balances {
-        balanceRows(balances, readAt: account.balanceReadAt)
+      if let b = account.balances {
+        balance(L10n.Risk.equity, b.equityUsd, font: Self.equityFont)
+        balance(L10n.Risk.cash, b.cashUsd, font: Self.figureFont)
+        balance(L10n.Risk.buyingPower, b.buyingPowerUsd, font: Self.figureFont, color: Palette.accentText)
+        balance(L10n.Risk.dayResult, b.dayPlUsd, font: Self.figureFont, signed: true)
+        DisclosureLine(L10n.Risk.moreBalances) {
+          FigureRow(L10n.Risk.overnightBuyingPower, value: Money.usd(b.overnightBuyingPowerUsd.value))
+          FigureRow(L10n.Risk.positionsValue, value: Money.usd(b.positionsValueUsd.value))
+          FigureRow(L10n.Risk.unrealized, value: Money.signedUSD(b.unrealizedPlUsd.value),
+            color: Palette.result(b.unrealizedPlUsd.value))
+          FigureRow(L10n.Risk.dayTradesLeft, value: b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit))
+          FigureRow(L10n.Risk.marginCalls, value: String(localized: L10n.Risk.marginValue(String(b.marginCalls),
+            Money.usd(b.maintenanceMarginUsd.value))), color: b.marginCalls > 0 ? Palette.warningText : Palette.textSecondary)
+        }
       } else {
         balance(L10n.Risk.equity, nil, font: Self.equityFont)
         balance(L10n.Risk.buyingPower, nil, font: Self.figureFont)
         Footnote(L10n.Risk.balanceNote)
       }
-      // When the broker was read: above the lists, so a list's "Show all" ends the card.
-      Text(L10n.Risk.readAt(Format.marketTime(account.readAt.date), Format.wholeSeconds(response.ageSeconds.value)))
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-      SectionHeader(Text(L10n.Risk.brokerPositions)) { note(L10n.Risk.positionsColumns) }
-        .padding(.top, Tokens.Space.xs)
-      if account.positions.isEmpty {
-        empty
+      let unrealized = account.positions.compactMap { $0.unrealizedPlUsd?.value }
+      DisclosureLine(L10n.Risk.brokerPositions,
+        summary: ([String(account.positions.count)] + (unrealized.isEmpty ? [] : [Money.signedUSD(unrealized.reduce(0, +))]))
+          .joined(separator: Format.itemSeparator)) {
+        if account.positions.isEmpty {
+          empty
+        }
+        // As many as the bot's entry slots (more in a tall window), then "Show all N ›".
+        CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
+          endsCard: false) { _, position in positionRow(position) }
       }
-      // As many as the bot's entry slots (more in a tall window), then "Show all N ›".
-      CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
-        endsCard: false) { _, position in positionRow(position) }
-      SectionHeader(Text(L10n.Risk.brokerOrders)) { note(L10n.Risk.ordersOpen) }
+      SectionHeader(Text(L10n.Risk.brokerOrders)) { EmptyView() }
         .padding(.top, Tokens.Space.xs)
       if account.orders.isEmpty {
         empty
       }
       CappedList(account.orders, id: \.self, title: L10n.Risk.brokerOrders, limit: Tokens.Lists.brokerRows,
         endsCard: false) { _, order in orderRow(order) }
-      SectionHeader(Text(L10n.Risk.fillsToday)) { note(L10n.Risk.fillsColumns) }
+      SectionHeader(Text(L10n.Risk.fillsToday)) { EmptyView() }
         .padding(.top, Tokens.Space.xs)
       if account.fills.isEmpty {
         empty
@@ -1029,12 +1020,6 @@ private struct AccountCard: View {
     .fixedSize()
   }
 
-  private func note(_ text: LocalizedStringResource) -> some View {
-    Text(text)
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(Palette.textQuaternary)
-  }
-
   private var empty: some View {
     Text(L10n.Risk.none)
       .font(Tokens.Typography.callout)
@@ -1043,24 +1028,6 @@ private struct AccountCard: View {
 
   /// The other balance figures: one size below equity.
   static let figureFont = Tokens.Typography.bodyMono.bold()
-
-  /// The balance rows of a read, then the account's margin facts in one line.
-  @ViewBuilder
-  private func balanceRows(_ b: AccountBalances, readAt: WireTime?) -> some View {
-    balance(L10n.Risk.equity, b.equityUsd, font: Self.equityFont)
-    balance(L10n.Risk.cash, b.cashUsd, font: Self.figureFont)
-    balance(L10n.Risk.buyingPower, b.buyingPowerUsd, font: Self.figureFont, color: Palette.accentText)
-    balance(L10n.Risk.overnightBuyingPower, b.overnightBuyingPowerUsd, font: Self.figureFont)
-    balance(L10n.Risk.positionsValue, b.positionsValueUsd, font: Self.figureFont)
-    balance(L10n.Risk.unrealized, b.unrealizedPlUsd, font: Self.figureFont, signed: true)
-    balance(L10n.Risk.dayResult, b.dayPlUsd, font: Self.figureFont, signed: true)
-    Text(L10n.Risk.marginLine(
-      b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit),
-      String(b.marginCalls), Money.usd(b.maintenanceMarginUsd.value),
-      Format.marketTime(readAt?.date)))
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(b.marginCalls > 0 ? Palette.warningText : Palette.textQuaternary)
-  }
 
   /// A balance row with a hairline below, as the design draws them. `signed`: a result, shown
   /// with its sign and coloured as a gain or a loss.

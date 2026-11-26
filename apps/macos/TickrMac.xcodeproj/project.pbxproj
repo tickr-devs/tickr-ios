@@ -15,6 +15,7 @@
 		A9E000000000000000000005 /* Tickr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tickr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9E000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A9E000000000000000000020 /* TickrUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TickrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9E00000000000000000002B /* Identity.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Identity.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -66,6 +67,7 @@
 				A9E000000000000000000004 /* Tickr */,
 				A9E000000000000000000021 /* TickrUITests */,
 				A9E000000000000000000015 /* Support */,
+				A9E00000000000000000002C /* Config */,
 				A9E000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +79,15 @@
 				A9E000000000000000000020 /* TickrUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A9E00000000000000000002C /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				A9E00000000000000000002B /* Identity.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
 			sourceTree = "<group>";
 		};
 		A9E000000000000000000015 /* Support */ = {
@@ -279,13 +290,12 @@
 		};
 		A9E000000000000000000013 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A9E00000000000000000002B /* Identity.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -297,7 +307,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).mac";
 				PRODUCT_NAME = Tickr;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -306,13 +316,12 @@
 		};
 		A9E000000000000000000014 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A9E00000000000000000002B /* Identity.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -324,7 +333,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).mac";
 				PRODUCT_NAME = Tickr;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -333,14 +342,13 @@
 		};
 		A9E000000000000000000029 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A9E00000000000000000002B /* Identity.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).mac.uitests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 6.0;
@@ -350,14 +358,13 @@
 		};
 		A9E00000000000000000002A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A9E00000000000000000002B /* Identity.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.operator.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).mac.uitests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 6.0;

@@ -31,8 +31,9 @@ open Tickr.xcworkspace        # at the repository root
 
 The workspace holds the macOS app (`apps/macos/TickrMac.xcodeproj`) and the shared package
 (`apps/shared`); the iOS app's project joins it when it is committed. Pick the scheme `Tickr macOS` and
-"My Mac", then Run (⌘R). Signing is automatic and signs to run locally; no Apple ID is needed
-for the Mac app. New Swift files dropped into `apps/macos/Tickr/` are picked up without
+"My Mac", then Run (⌘R). Signing is automatic: without `apps/Config/Team.xcconfig` it signs to run
+on this Mac only; with it (copy `Team.xcconfig.example`, see `apps/Config/Identity.xcconfig`) the
+team's Apple Development certificate signs it as `bot.tickr.mac`. New Swift files dropped into `apps/macos/Tickr/` are picked up without
 editing the project. Start the API first (below), or the app shows "unavailable".
 
 ## Run without Xcode
@@ -56,5 +57,5 @@ cd apps/shared && swift test
 ```
 
 The app talks to `http://127.0.0.1:8766` (the `[api]` port in `config/bot.toml`). If you change
-the port: `defaults write local.tickr.operator apiBaseURL http://127.0.0.1:<port>` for the
+the port: `defaults write bot.tickr.mac apiBaseURL http://127.0.0.1:<port>` for the
 bundle, or `defaults write TickrMac apiBaseURL ...` when started with `swift run`.

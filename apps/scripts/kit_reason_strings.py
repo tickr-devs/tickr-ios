@@ -454,6 +454,15 @@ GROUPS = [
                 "Ask {ask} fuera del rango de entrada {entry_low}–{limit}",
             ),
             (
+                "PRICE_COLLAR_BREACH",
+                "Limit {limit} is {bar_distance} from the last bar's close {bar_close} (maximum "
+                "{bar_max}) and {quote_distance} from the previous ask {previous_ask} (maximum "
+                "{quote_max}); a maximum of 0 is off",
+                "El límite {limit} está a {bar_distance} del cierre de la última barra "
+                "{bar_close} (máximo {bar_max}) y a {quote_distance} del ask anterior "
+                "{previous_ask} (máximo {quote_max}); un máximo de 0 está desactivado",
+            ),
+            (
                 "QUANTITY_NOT_WHOLE",
                 "Quantity {quantity} is not a whole number of shares",
                 "La cantidad {quantity} no es un número entero de acciones",
@@ -1014,13 +1023,6 @@ GROUPS = [
                 "cached_history_overlaps",
                 "The cached prior sessions overlap the day's bars",
                 "Las sesiones anteriores en caché se solapan con las velas del día",
-            ),
-            (
-                "history_sessions_differ",
-                "The replay settings use {replay} prior sessions, the bot caches {bot}: the "
-                "version would not see the bot's history",
-                "Los ajustes de repetición usan {replay} sesiones anteriores, el bot guarda {bot} "
-                "en caché: la versión no vería el historial del bot",
             ),
             (
                 "simulation_failed",
@@ -1642,9 +1644,69 @@ GROUPS = [
                 "de emergencia) y luego detén el bot",
             ),
             (
+                "stop_already_running",
+                "A close-and-stop is already running",
+                "Ya hay un cierre y detención en curso",
+            ),
+            (
+                "trades_left_open",
+                "{count} trade(s) left open: nothing closes them; their broker stops are day "
+                "orders",
+                "{count} operación(es) quedan abiertas: nada las cierra; sus stops en el bróker "
+                "son órdenes del día",
+            ),
+            (
+                "stop_close_refused",
+                "A closing order was refused: the bot places the stop again; look in the Webull "
+                "app",
+                "Se rechazó una orden de cierre: el bot vuelve a poner el stop; revisa la app de "
+                "Webull",
+            ),
+            (
+                "stop_close_not_filled",
+                "A closing order did not fill: it is still working at the broker and its shares "
+                "are not under a stop; look in the Webull app",
+                "Una orden de cierre no se ejecutó: sigue activa en el bróker y sus acciones no "
+                "tienen stop; revisa la app de Webull",
+            ),
+            (
+                "stop_close_not_sent",
+                "A close was due outside the regular session: nothing was sent and the stop stays",
+                "Un cierre tocaba fuera de la sesión regular: no se envió nada y el stop se queda",
+            ),
+            (
+                "stop_close_failed",
+                "A close is held until you look: look in the Webull app",
+                "Un cierre queda detenido hasta que lo revises: revisa la app de Webull",
+            ),
+            (
+                "stop_close_kept",
+                "The bot keeps running and new entries stay stopped",
+                "El bot sigue funcionando y las nuevas entradas siguen detenidas",
+            ),
+            (
+                "stop_new_trade",
+                "A trade opened during close and stop: the bot keeps running and the closes "
+                "already asked go on; stop the bot again",
+                "Se abrió una operación durante cerrar y detener: el bot sigue funcionando y los "
+                "cierres ya pedidos continúan; detén el bot otra vez",
+            ),
+            (
+                "stop_interrupted",
+                "Close and stop was interrupted by a restart: the bot keeps running and new "
+                "entries stay stopped; stop it again",
+                "Cerrar y detener se interrumpió por un reinicio: el bot sigue funcionando y las "
+                "nuevas entradas siguen detenidas; detenlo otra vez",
+            ),
+            (
                 "no_open_position",
                 "No open position in {symbol}",
                 "Sin posición abierta en {symbol}",
+            ),
+            (
+                "no_working_entry",
+                "No entry order working in {symbol}",
+                "Ninguna orden de entrada activa en {symbol}",
             ),
             (
                 "close_refused_before",
@@ -1748,6 +1810,17 @@ def params(text):
 def line_length_exemption(line):
     """The line, after a one-line SwiftLint exemption when it is longer than SwiftLint allows."""
     return ["      // swiftlint:disable:next line_length", line] if len(line) > LINE else [line]
+
+
+def wrapped_sentence(part):
+    """One ReasonSentence inside a wrapped case, as lines ending in a newline. A sentence too
+    long for one line puts its key and each value name on a line of its own."""
+    line = f"      {part},"
+    if len(line) <= LINE:
+        return line + "\n"
+    key, names = part[len("ReasonSentence("):-len("])")].split(", [", 1)
+    inner = "".join(f"          {name.strip()},\n" for name in names.split(","))
+    return f"      ReasonSentence(\n        {key},\n        [\n{inner}        ]\n      ),\n"
 
 
 def entries():
@@ -1855,7 +1928,8 @@ def reason_swift(part):
             ]
             line = f"    case .{camel(code)}: [{', '.join(parts)}]"
             if len(line) > LINE:
-                line = f"    case .{camel(code)}: [\n      " + ",\n      ".join(parts) + ",\n    ]"
+                body = "".join(wrapped_sentence(part) for part in parts)
+                line = f"    case .{camel(code)}: [\n{body}    ]"
             sentences.append(line)
         sentences += [
             "    }",

@@ -126,12 +126,9 @@ struct SymbolsBoardTests {
     return try #require(try Wire.decoder().decode(SymbolsV1.self, from: data).rows.first { $0.symbol == "QRST" })
   }
 
-  @Test("A WATCH is over once a later pass dropped the symbol; the drop is dated by that pass")
+  @Test("A drop at a later pass is dated by that pass, never by when the stage was first passed")
   func watchOverAfterLaterDrop() throws {
-    let current = try watched(decided: "2026-11-16T15:00:00.000Z")
-    #expect(SymbolsLine(symbol: "QRST", row: current, mover: nil, position: false).watching)
     let earlier = try watched(decided: "2026-11-16T14:40:00.000Z")
-    #expect(!SymbolsLine(symbol: "QRST", row: earlier, mover: nil, position: false).watching)
     let here = try #require(SymbolsBoard.path(earlier).first { $0.stage == earlier.stage })
     #expect(SymbolsBoard.time(here, row: earlier) == earlier.at?.date)
     let passed = try #require(SymbolsBoard.path(earlier).first { $0.stage == .quote })
@@ -147,6 +144,26 @@ struct SymbolsBoardTests {
     #expect(SymbolsBoard.move(efgh) == String(localized: L10n.moverMove(SymbolsBoard.fixed(-2.1, digits: 1))))
     #expect(SymbolsBoard.movers(movers.movers, search: "efg").map(\.symbol) == ["EFGH"])
     #expect(!SymbolsBoard.rules(try #require(movers.rules)).isEmpty)
+  }
+
+  @Test("A fast mover's row names the fired signal furthest past its rule, the first fired one without rules")
+  func moverMainReason() throws {
+    let klmn = try #require(movers.movers.first)
+    let efgh = try #require(movers.movers.last)
+    // The fixture's rules (5×, 2 ATR, 5×): KLMN 13.3 / 5 leads 4.8 / 2 and 9.1 / 5; EFGH 6.4 / 5 leads 2.1 / 2.
+    #expect(SymbolsBoard.mainSignal(klmn, rules: movers.rules) == .volume)
+    #expect(SymbolsBoard.mainSignal(efgh, rules: movers.rules) == .volume)
+    #expect(SymbolsBoard.mainReason(klmn, rules: movers.rules) == SymbolsBoard.volume(klmn))
+    // A stricter volume rule: the move leads, also a falling one (|−2.1| / 2).
+    let strict = try Wire.decoder().decode(FastMoverRulesV1.self, from: Data("""
+      {"lookback_bars": 10, "min_volume_ratio": "20", "min_move_atr": "2.0",
+       "min_dollar_volume_ratio": "5.0", "min_bar_dollar_volume_usd": "250000"}
+      """.utf8))
+    #expect(SymbolsBoard.mainSignal(klmn, rules: strict) == .move)
+    #expect(SymbolsBoard.mainSignal(efgh, rules: strict) == .move)
+    #expect(SymbolsBoard.mainReason(efgh, rules: strict) == SymbolsBoard.move(efgh))
+    // Without rules: the first signal the bot says fired.
+    #expect(SymbolsBoard.mainSignal(efgh, rules: nil) == .volume)
   }
 
   @Test("The table sorts by a clicked column, missing values last; a second click turns it")
@@ -183,7 +200,6 @@ struct SymbolsBoardTests {
     let efgh = try #require(movers.movers.last)
     #expect(SymbolsBoard.atr(efgh.moveAtr).hasPrefix(SymbolsBoard.minus))
     let abcd = try #require(symbols.rows.first { $0.symbol == "ABCD" })
-    #expect(SymbolsBoard.screenerCell(abcd)?.more == String(localized: L10n.symbolsMore(1)))
     #expect(abcd.reached.count == SymbolStage.allCases.count)
     #expect(abcd.checks.count == 2 && abcd.strategy != nil)
     #expect(SymbolsBoard.why(abcd) == nil)  // passed

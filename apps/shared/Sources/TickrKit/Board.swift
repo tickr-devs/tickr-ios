@@ -263,7 +263,7 @@ public enum Board {
 }
 
 /// The exit reasons the bot records for a closed trade (`trades.close_cause` in the bot's store),
-/// and those of its replays (`tickr.replay.engine.ExitReason`: an observer's or a what-if's trade),
+/// and those of its replays (`tickr.replay.engine.ExitReason`: a what-if's trade),
 /// one map for both, so neither is ever shown as its raw protocol value ("STRATEGY_EXIT").
 enum ExitReason: String {
   case stoppedOut = "stopped-out"
@@ -281,7 +281,7 @@ enum ExitReason: String {
   case closed
   /// The operator ended an order no broker read could settle (`tickr resolve-order`).
   case orderResolvedByOperator = "order-resolved-by-operator"
-  /// A replay's trade (an observer's, a what-if): its stop was hit.
+  /// A replay's trade (a what-if): its stop was hit.
   case replayStop = "stop"
   /// A replay's trade: the strategy's own exit.
   case replayStrategyExit = "strategy_exit"

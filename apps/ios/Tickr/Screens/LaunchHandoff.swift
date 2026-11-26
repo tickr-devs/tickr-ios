@@ -30,16 +30,16 @@ struct LaunchHandoff: View {
     GeometryReader { geometry in
       let centre = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
       let estimate = CGPoint(x: Tokens.Space.l + Tokens.Size.logoSmall / 2, y: Self.navigationBarHeight / 2)
-      let spark = BrandMark.breakout
+      let level = BrandMark.levelFrame(inTile: Tokens.Size.launchMark)
       ZStack(alignment: .topLeading) {
         Image(.launchMark)
           .overlay(alignment: .topLeading) {
-            Circle()
-              .fill(Palette.profit)
-              .frame(width: Tokens.Size.launchMark * BrandMark.sparkDiameter)
-              .scaleEffect(flashing ? Tokens.Motion.pulseScale : 1)
+            Rectangle()
+              .fill(Palette.brandLine)
+              .frame(width: level.width, height: level.height)
               .opacity(flashing ? 0 : Tokens.Opacity.faint)
-              .position(x: spark.x * Tokens.Size.launchMark, y: spark.y * Tokens.Size.launchMark)
+              .scaleEffect(flashing ? Tokens.Motion.pulseScale : 1)
+              .offset(x: level.minX, y: level.minY)
           }
           .scaleEffect(flown ? Tokens.Size.logoSmall / Tokens.Size.launchMark : 1)
           .position(flown ? target ?? estimate : centre)

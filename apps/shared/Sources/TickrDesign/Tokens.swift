@@ -221,11 +221,9 @@ public enum Tokens {
     public static let gridColumnMin: CGFloat = 300
     /// SF Symbols inside an icon well.
     public static let iconWellSymbol: CGFloat = 15
-    /// The brand mark (BrandMark) in a header, and small in a panel.
-    public static let logo: CGFloat = 64
+    /// The brand mark's tile (BrandMark) in a header, and small in a panel.
+    public static let logo: CGFloat = 52
     public static let logoSmall: CGFloat = 26
-    /// The brand mark as the illustration of an empty screen.
-    public static let emptyMark: CGFloat = 88
     /// The brand mark in the centre of the macOS opening (BrandOpening).
     public static let openingMark: CGFloat = 120
     /// The brand mark on the iOS launch screen (LAUNCH_MARK in apps/scripts/make_brand_assets.py).
@@ -314,13 +312,11 @@ public enum Tokens {
     public static let bumpSeconds = 0.6
     /// Each half of a bump (grow, then settle), so the whole takes `bumpSeconds`.
     public static let bump = Animation.easeInOut(duration: bumpSeconds / 2)
-    /// Seconds of one pass of the light across the Lab's advisor title (ornament, `OrnamentGate`).
-    public static let shineSeconds = 3.5
     /// Seconds of one breath of a glow (rings, alarms).
     public static let breatheSeconds = 2.4
     /// How much a breathing glow grows.
     public static let breatheScale: CGFloat = 1.08
-    /// iOS opening: seconds the launch screen's mark holds while its spark flashes once, then the
+    /// iOS opening: seconds the launch screen's mark holds while its level flashes once, then the
     /// mark flies into the Home title as the launch background fades.
     public static let launchHoldSeconds = 0.45
     public static let launchFlySeconds = 0.75
@@ -345,11 +341,11 @@ public enum Tokens {
     /// The radar's blips (and the session now dot's ring): how far a ring grows, a multiple of the dot; the second blip's lag, s.
     public static let blipScale: CGFloat = 1.9
     public static let blipLagSeconds = 0.8
-    /// macOS opening: when the mark's spark pops in, in seconds from the start (after the line
+    /// macOS opening: when the mark's level slides in, in seconds from the start (after the letter
     /// has nearly drawn), and how long it takes.
     public static let openingSparkDelaySeconds = 0.45
     public static let openingSparkSeconds = 0.25
-    /// The opening's spark pop: a timing curve that ends at its seconds, like the line's draw.
+    /// The opening's level slide: a timing curve that ends at its seconds, like the letter's fade.
     public static let openingSpark = Animation.easeOut(duration: openingSparkSeconds)
     /// Delay between the tiles of a grid (the Trades calendar) as it fills in, in seconds.
     public static let cellStagger = 0.025

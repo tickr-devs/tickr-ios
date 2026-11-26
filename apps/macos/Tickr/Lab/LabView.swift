@@ -2,44 +2,24 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Strategy lab, as the design's board: the strategy versions, what each would have made on the
-/// shown day, the replay that compares versions, the AI advisor, why signals were refused, and
-/// one symbol's decision explained. Three equal columns in two rows, each row as tall as its
-/// tallest card (never stretched to the window, which left cards half empty); the advisor's page
-/// takes the screen while it is open.
+/// Strategy lab, as the design's board: the strategy versions, the replay that compares versions,
+/// why signals were refused, and one symbol's decision explained. Two equal columns in two rows,
+/// each row as tall as its tallest card (never stretched to the window, which left cards half
+/// empty).
 struct LabView: View {
-  @Environment(AdvisorModel.self) private var advisor
-
   /// Entrance order of the cards.
   private enum Order: Int {
-    case versions = 0, curves, replay, advisor, refusals, explain
-  }
-
-  var body: some View {
-    Group {
-      if advisor.pageOpen {
-        AdvisorPage()
-      } else {
-        cards
-      }
-    }
+    case versions = 0, replay, refusals, explain
   }
 
   /// Positions of the cards in the screen's `CardGrid`.
-  private enum Slot: Int { case versions = 0, curves, replay, advisor, refusals, explain }
+  private enum Slot: Int { case versions = 0, replay, refusals, explain }
 
-  /// The design's grid: three equal columns in two rows; a screen too narrow for three columns
-  /// of the least width gets two. The same cards in both: a resize moves them and never makes
-  /// them anew.
+  /// The grid: two equal columns in two rows at every width.
   static let arrangements: [CardArrangement] = [
-    CardArrangement(minWidth: CardArrangement.columnsMinWidth(CardArrangement.wideColumns), rows: [
-      row([.versions, .curves, .replay]),
-      row([.advisor, .refusals, .explain]),
-    ]),
     CardArrangement(minWidth: 0, rows: [
-      row([.versions, .curves]),
-      row([.replay, .refusals]),
-      row([.explain, .advisor]),
+      row([.versions, .replay]),
+      row([.refusals, .explain]),
     ]),
   ]
 
@@ -47,13 +27,11 @@ struct LabView: View {
     CardRow(columns: slots.map { CardColumn(width: .share(1), cards: [$0.rawValue]) })
   }
 
-  private var cards: some View {
+  var body: some View {
     ScrollView {
       CardGrid(arrangements: Self.arrangements, spacing: Tokens.Space.l) {
         versions
-        curves
         replay
-        advisorCard
         refusals
         explain
       }
@@ -68,22 +46,19 @@ struct LabView: View {
   @Environment(AppModel.self) private var model
 
   private var versions: some View { VersionsCard().gridColumn().rise(step: Order.versions.rawValue) }
-  /// Sized to its content: a few rows under the chart, never an empty lower half.
-  private var curves: some View { CurvesCard().hugsContent().gridColumn().rise(step: Order.curves.rawValue) }
   private var replay: some View { ReplayCard().gridColumn().rise(step: Order.replay.rawValue) }
-  private var advisorCard: some View { AdvisorCard().gridColumn().rise(step: Order.advisor.rawValue) }
   private var refusals: some View { RefusalsCard().gridColumn().rise(step: Order.refusals.rawValue) }
   private var explain: some View { ExplainCard().gridColumn().rise(step: Order.explain.rawValue) }
 }
 
-/// Every strategy version the bot knows: the active one that trades, the observers that decide
-/// live without trading, and candidates the replay can run; each with its role.
+/// Every strategy version the bot knows: the active one that trades and the candidates the replay
+/// can run; each with its role.
 private struct VersionsCard: View {
   @Environment(AppModel.self) private var model
 
   private var activeName: String { model.status?.strategy.name ?? model.settings?.activeStrategy ?? Format.missing }
 
-  /// Candidate versions the bot offers for replay, which neither trade nor observe.
+  /// Candidate versions the bot offers for replay, which do not trade.
   private var candidates: [LabVersionV1] {
     model.labReplay?.versions.filter { $0.role == .candidate } ?? []
   }
@@ -103,41 +78,19 @@ private struct VersionsCard: View {
           }
           activePanel
         }
-        // Observers first, then candidates: the first few (more in a tall window), then
-        // "Show all N ›" on the card's bottom edge; the active version above is always shown.
-        CappedList(others, id: \.id, title: L10n.Lab.versions, limit: Tokens.Lists.comparedRows) { _, other in
-          row(name: other.name, version: other.version, tag: other.tag) { Text(other.note) }
+        // The candidates: the first few (more in a tall window), then "Show all N ›" on the
+        // card's bottom edge; the active version above is always shown.
+        CappedList(candidates, id: \.folder, title: L10n.Lab.versions, limit: Tokens.Lists.comparedRows) { _, candidate in
+          row(name: candidate.strategy ?? candidate.folder, version: candidate.version,
+            tag: Badge(L10n.Lab.tagCandidate, tone: .warning)) { Text(L10n.Lab.candidateNote) }
         }
       }
-      .animation(Tokens.Motion.standard, value: model.observers)
+      .animation(Tokens.Motion.standard, value: candidates)
     }
   }
 
   /// Height of the active version's curve, in points.
   static let sparkHeight: CGFloat = 24
-
-  /// A version other than the active one, as its row shows it.
-  private struct Other: Identifiable {
-    enum Key: Hashable { case observer(String), candidate(String) }
-    let id: Key
-    let name: String
-    let version: String?
-    let tag: Badge
-    let note: LocalizedStringResource
-  }
-
-  /// The observers (as read, else as set in the settings), then the candidates.
-  private var others: [Other] {
-    let observers: [Other] = if let read = model.observers?.observers {
-      read.map { Other(id: .observer($0.id), name: $0.name, version: $0.version,
-        tag: Badge(L10n.Lab.tagObserver, tone: .highlight), note: L10n.Lab.observerNote($0.decisions.count)) }
-    } else {
-      (model.settings?.observers ?? []).map { Other(id: .observer($0), name: $0, version: nil,
-        tag: Badge(L10n.Lab.tagObserver, tone: .highlight), note: L10n.Lab.observerNoteUnread) }
-    }
-    return observers + candidates.map { Other(id: .candidate($0.folder), name: $0.strategy ?? $0.folder, version: $0.version,
-      tag: Badge(L10n.Lab.tagCandidate, tone: .warning), note: L10n.Lab.candidateNote) }
-  }
 
   /// The active version's shown day under its row: trades, gross result and the day's curve.
   private var activePanel: some View {
@@ -196,215 +149,6 @@ private struct VersionsCard: View {
         .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
     }
     .accessibilityElement(children: .combine)
-  }
-}
-
-/// "Today if each version traded": the active strategy's real result through the shown day and
-/// each observer's simulated one, as step lines over the session, with a legend row per version.
-private struct CurvesCard: View {
-  @Environment(AppModel.self) private var model
-
-  /// Least width of the legend's result column, in points, so the results line up.
-  static let resultWidth: CGFloat = 68
-
-  var body: some View {
-    Card(model.isLive ? L10n.Lab.curves : L10n.Lab.curvesOnDay, trailing: { trailing }, content: {
-      VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        if let observers = model.observers?.observers {
-          let lines = lines(observers)
-          if realDayMatches, let span = span(observers) {
-            DayCurvesChart(lines: lines, start: span.start, end: span.end, domain: span.domain, live: model.isLive)
-          }
-          if observers.isEmpty {
-            Footnote(L10n.Lab.observersEmpty)
-          }
-          note
-          legend(lines, observers)
-        } else if model.observersError != nil {
-          ReadFailureNote(L10n.Lab.observersUnavailable, detail: nil)
-        } else {
-          Skeleton(L10n.Common.loading) {
-            VStack(alignment: .leading, spacing: Tokens.Space.m) {
-              SkeletonBlock(.block(height: DayCurvesChart.height))
-              SkeletonRows(Tokens.Loading.fewRows)
-            }
-          }
-          note
-        }
-      }
-      .animation(Tokens.Motion.standard, value: model.observers)
-    })
-  }
-
-  /// What the curves are; above the legend, so the legend's "Show all" ends the card.
-  private var note: some View {
-    Text(L10n.Lab.curvesNote)
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(Palette.textQuaternary)
-      .fixedSize(horizontal: false, vertical: true)
-  }
-
-  @ViewBuilder private var trailing: some View {
-    if model.isLive, model.status?.botState == .running {
-      HStack(spacing: Tokens.Space.xs) {
-        PulseDot(Palette.profit, size: Tokens.Size.dotSmall, pulsing: false)
-        Text(L10n.Lab.curvesRunning)
-      }
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(Palette.profitText)
-    } else if let day = model.observers?.day {
-      Text(verbatim: DayText.day(day))
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-    }
-  }
-
-  /// The design's legend: swatch, the version and what sets it apart ("v3 · rel vol 1.5×"), the
-  /// result; under it, on full-width lines of their own (never squeezed into a narrow column),
-  /// the figures or since when it watched, the symbols the active strategy skipped, and a reason.
-  private func legend(_ lines: [DayCurveLine], _ observers: [ObserverV1]) -> some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      if let active = lines.first(where: \.active) {
-        legendRow(color: active.color, curve: active.curve, name: ObserverLabel.active(active.name),
-          notes: [String(localized: L10n.Lab.closedWinsLosses(model.shownTradeCount, model.shownWins,
-            model.shownLosses))],
-          result: model.shownResult)
-      }
-      // The first observers (more in a tall window), then "Show all N ›".
-      CappedList(observers, id: \.id, title: model.isLive ? L10n.Lab.curves : L10n.Lab.curvesOnDay,
-        limit: Tokens.Lists.comparedRows) { index, observer in
-        legendRow(color: DayCurveLine.color(observerIndex: index), curve: DayCurve.observer(observer),
-          name: ObserverLabel.observer(observer), notes: notes(observer), result: observer.resultGrossUSD?.value)
-          .help(help(observer))
-          .transition(.opacity)
-      }
-    }
-  }
-
-  private func legendRow(color: Color, curve: DayCurve?, name: String, notes: [String], result: Decimal?) -> some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      HStack(spacing: Tokens.Space.s) {
-        CurveSwatch(color: color, curve: curve)
-        Text(verbatim: name)
-          .foregroundStyle(Palette.textPrimary)
-          .fixedSize(horizontal: false, vertical: true)
-          .layoutPriority(1)
-        Spacer(minLength: Tokens.Space.xs)
-        Group {
-          if let result {
-            MoneyText(value: result, font: Tokens.Typography.calloutMono)
-          } else {
-            Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
-          }
-        }
-        .fixedSize()
-        .frame(minWidth: Self.resultWidth, alignment: .trailing)
-      }
-      .font(Tokens.Typography.calloutMono)
-      ForEach(notes, id: \.self) { note in
-        Text(verbatim: note)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textQuaternary)
-          .padding(.leading, CurveSwatch.width + Tokens.Space.s)
-          .fixedSize(horizontal: false, vertical: true)
-      }
-    }
-    .accessibilityElement(children: .combine)
-  }
-
-  /// The lines under an observer: since when it watched ("watching since 15:08 · no entries
-  /// yet") or, from an older bot, its figures; then the symbols it would have entered that the
-  /// active strategy skipped, once there are any; then why it has no result or line.
-  private func notes(_ observer: ObserverV1) -> [String] {
-    let summary = traded.map { ObserverSummary(observer, traded: $0) }
-    var figures: [String] = []
-    if let since = ObserverLabel.since(observer) { figures.append(since) }
-    if let summary, summary.agreement != nil {
-      figures.append(String(localized: L10n.Lab.alsoTraded(summary.shared.count, summary.entered.count)))
-    } else if figures.isEmpty {
-      figures.append(String(localized: summary == nil ? L10n.Lab.decisionCount(observer.decisions.count)
-        : L10n.Lab.noEntries))
-    }
-    let first = figures.joined(separator: Format.itemSeparator)
-    return [first, summary.flatMap(ObserverLabel.skipped), cause(observer)].compactMap { $0 }
-  }
-
-  /// Why the row has no result, no line, or a dashed one.
-  private func cause(_ observer: ObserverV1) -> String? {
-    if observer.resultGrossUSD == nil, let cause = ApiText.prose(observer.resultCauseCodes, text: observer.resultCause) {
-      return cause
-    }
-    if observer.trades == nil, let cause = ApiText.prose(observer.tradesCauseCodes, text: observer.tradesCause) {
-      return cause
-    }
-    if observer.tradesTruncated {
-      return String(localized: L10n.Lab.tradesIncomplete(String(localized: L10n.Lab.tradesTruncated)))
-    }
-    return nil
-  }
-
-  /// The tooltip: decisions, the latest one and the symbols both entered.
-  private func help(_ observer: ObserverV1) -> Text {
-    var lines = [String(localized: L10n.Lab.decisionCount(observer.decisions.count))]
-    if let last = observer.decisions.last {
-      lines.append(String(localized: L10n.Lab.lastDecision(String(localized: last.action.title), last.symbol,
-        Format.marketMinute(last.at.date))))
-    }
-    if let traded {
-      let summary = ObserverSummary(observer, traded: traded)
-      if summary.agreement != nil {
-        lines.append(String(localized: L10n.Lab.agreement(summary.shared.count, summary.entered.count,
-          summary.entered.joined(separator: Format.listSeparator))))
-      }
-    }
-    return Text(verbatim: lines.joined(separator: Format.lineSeparator))
-  }
-
-  /// The active strategy's real trades, then each observer's simulated ones, in the rows' order.
-  private func lines(_ observers: [ObserverV1]) -> [DayCurveLine] {
-    let name = model.status?.strategy.name ?? model.settings?.activeStrategy ?? Format.missing
-    let active = DayCurveLine(name: name, color: Palette.accent,
-      curve: DayCurve.trades(model.shownTrades, reported: model.shownResult), active: true)
-    return [active] + observers.enumerated().map { index, observer in
-      DayCurveLine(name: observer.id, color: DayCurveLine.color(observerIndex: index),
-        curve: DayCurve.observer(observer), active: false)
-    }
-  }
-
-  /// The lines run from the session's open (or the day's first event) to now (live) or the
-  /// session's close; the axis spans the session when the bot reports its times for that day,
-  /// else the recorded events. Nil when nothing was recorded, so no axis is drawn around nothing.
-  private func span(_ observers: [ObserverV1]) -> (start: Date, end: Date, domain: ClosedRange<Date>)? {
-    var times = observers.flatMap { observer in
-      observer.decisions.map(\.at.date) + (observer.trades ?? []).flatMap { [$0.at.date] + [$0.closedAt?.date].compactMap { $0 } }
-    }
-    times += model.shownTrades.flatMap { [$0.openedAt.date, $0.closedAt.date] }
-    guard let first = times.min(), let last = times.max() else { return nil }
-    let session = model.jobs?.session.flatMap { $0.day == model.observers?.day ? $0 : nil }
-    let start = min(session?.regularOpen.date ?? first, first)
-    let close = max(session?.regularClose.date ?? last, last)
-    let end = model.isLive ? max(model.status?.writtenAt.date ?? last, last) : close
-    return (start, end, start...max(close, end))
-  }
-
-  /// True when the real trades and result the app shows are of the observers' day, so the
-  /// chart never draws one day's observers against another day's real line while days switch.
-  private var realDayMatches: Bool {
-    guard let day = model.observers?.day else { return false }
-    if model.isLive { return day == model.today && model.status != nil && model.todayDocument?.day == day }
-    return model.dayDocument?.day == day
-  }
-
-  /// Symbols the bot traded or holds on the observers' day, to compare each observer's entries
-  /// with; nil while that day's trades are not read, so no row claims the bot traded none.
-  private var traded: Set<String>? {
-    guard let day = model.observers?.day else { return nil }
-    if model.isLive {
-      guard let status = model.status, day == model.today else { return nil }
-      return Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol))
-    }
-    guard let document = model.dayDocument, document.day == day else { return nil }
-    return Set(document.trades.map(\.symbol))
   }
 }
 
@@ -496,92 +240,6 @@ private struct PlannedLine: View {
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textTertiary)
       Spacer(minLength: 0)
-    }
-  }
-}
-
-/// One observer: name and version, how many decisions it made, the latest one and its result.
-struct ObserverRow: View {
-  let observer: ObserverV1
-  let live: Bool
-  /// Symbols the bot traded that day; when given, the row says how many of the observer's entries
-  /// the bot also took.
-  var traded: Set<String>?
-  /// Its line's colour on the Lab chart; when given, a swatch of the line leads the row.
-  var color: Color?
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      HStack(spacing: Tokens.Space.s) {
-        if let color {
-          CurveSwatch(color: color, curve: DayCurve.observer(observer))
-        } else {
-          // One pulse per decision the observer adds while the day is live.
-          PulseDot(Palette.highlight, size: Tokens.Size.dotSmall, pulsing: live, event: observer.decisions.count)
-        }
-        Text(verbatim: observer.name).font(Tokens.Typography.calloutMono)
-        Badge(verbatim: observer.version, color: Palette.accentText, keepingCase: true)
-        Spacer()
-        if let result = observer.resultGrossUSD {
-          MoneyText(value: result.value, font: Tokens.Typography.calloutMono)
-        } else {
-          // The bot says why it has no result (no captured bars, no decisions...).
-          Text(verbatim: Format.missing)
-            .foregroundStyle(Palette.textQuaternary)
-            .help(ApiText.prose(observer.resultCauseCodes, text: observer.resultCause).map { Text(verbatim: $0) }
-              ?? Text(L10n.Lab.resultPending))
-        }
-      }
-      HStack(spacing: Tokens.Space.s) {
-        Text(L10n.Lab.decisionCount(observer.decisions.count))
-        if let last = observer.decisions.last {
-          Text(L10n.Lab.lastDecision(String(localized: last.action.title), last.symbol,
-            Format.marketMinute(last.at.date)))
-        }
-      }
-      .font(Tokens.Typography.captionMono)
-      .foregroundStyle(Palette.textTertiary)
-      if observer.resultGrossUSD == nil,
-        let cause = ApiText.prose(observer.resultCauseCodes, text: observer.resultCause) {
-        Text(verbatim: cause)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-      if color != nil {
-        curveNote
-      }
-      if let traded {
-        agreement(ObserverSummary(observer, traded: traded))
-      }
-    }
-  }
-
-  /// Why the row has no line, or why its line is dashed.
-  @ViewBuilder private var curveNote: some View {
-    if observer.trades == nil, let cause = ApiText.prose(observer.tradesCauseCodes, text: observer.tradesCause) {
-      Text(verbatim: cause)
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.textQuaternary)
-    } else if observer.tradesTruncated {
-      Text(L10n.Lab.tradesIncomplete(String(localized: L10n.Lab.tradesTruncated)))
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.textQuaternary)
-    }
-  }
-
-  /// How many of the symbols the observer would have entered the bot also traded, as a bar.
-  @ViewBuilder private func agreement(_ summary: ObserverSummary) -> some View {
-    if let share = summary.agreement {
-      MeterBar(fraction: share, tone: .highlight)
-        .accessibilityHidden(true)
-      Text(L10n.Lab.agreement(summary.shared.count, summary.entered.count,
-        summary.entered.joined(separator: Format.listSeparator)))
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textTertiary)
-    } else {
-      Text(L10n.Lab.noEntries)
-        .font(Tokens.Typography.captionMono)
-        .foregroundStyle(Palette.textTertiary)
     }
   }
 }
@@ -1002,10 +660,9 @@ private struct ExplainCard: View {
   /// The typed symbol as the bot names it.
   private var wanted: String { symbol.trimmingCharacters(in: .whitespaces).uppercased() }
 
-  /// The decision to explain: the active strategy's latest, else an observer's.
+  /// The decision to explain: the active strategy's latest (a shadow strategy's are left out).
   private var decision: DecisionV1? {
-    guard let list = decisions?.decisions else { return nil }
-    return list.last { !$0.observer } ?? list.last
+    decisions?.decisions.last { !$0.observer }
   }
 
   var body: some View {
@@ -1179,30 +836,6 @@ private struct ExplainCard: View {
 #Preview {
   LabView()
     .environment(PreviewAPI.model())
-    .environment(PreviewAPI.advisor())
     .frame(width: PreviewAPI.windowWidth, height: PreviewAPI.windowHeight)
 }
 #endif
-
-/// A short sample of a version's line on the Lab chart, as its legend: solid, dashed when the
-/// trade list is incomplete, dotted grey when there is no line.
-struct CurveSwatch: View {
-  let color: Color
-  let curve: DayCurve?
-
-  /// Width of the swatch, in points.
-  static let width: CGFloat = 14
-
-  var body: some View {
-    Canvas { context, size in
-      var path = Path()
-      path.move(to: CGPoint(x: 0, y: size.height / 2))
-      path.addLine(to: CGPoint(x: size.width, y: size.height / 2))
-      let dash = curve == nil ? Tokens.Stroke.dashFine : curve?.complete == false ? Tokens.Stroke.dash : []
-      context.stroke(path, with: .color(curve == nil ? Palette.textQuaternary : color),
-        style: StrokeStyle(lineWidth: DayCurvesChart.observerWidth, dash: dash))
-    }
-    .frame(width: Self.width, height: Tokens.Size.dotSmall)
-    .accessibilityHidden(true)
-  }
-}

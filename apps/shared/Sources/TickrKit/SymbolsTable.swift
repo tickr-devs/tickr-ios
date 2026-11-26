@@ -2,7 +2,7 @@ import Foundation
 
 // The Symbols table of mockup v101: one column grid for every tab and every kind of row, sorted by
 // a click on a column's title. The Fast movers tab lists the flagged symbols with the open
-// positions and the watches pinned on top for context. Pure, so both apps sort and word it alike.
+// positions and the waiting symbols pinned on top for context. Pure, so both apps sort and word it alike.
 
 /// A column of the Symbols table, in the design's order.
 public enum SymbolsColumn: String, CaseIterable, Identifiable, Hashable, Sendable {
@@ -15,6 +15,14 @@ public enum SymbolsColumn: String, CaseIterable, Identifiable, Hashable, Sendabl
     switch self {
     case .last, .change, .volume, .atr, .dollars, .time: true
     case .symbol, .screener, .stage, .outcome: false
+    }
+  }
+
+  /// The columns of the Mac table (mockup MacSymbols): the fast bar's three figures only on the
+  /// Fast movers tab; the screeners are in the selected symbol's detail, not a column.
+  public static func table(fastMovers: Bool) -> [SymbolsColumn] {
+    allCases.filter { column in
+      column != .screener && (fastMovers || ![.volume, .atr, .dollars].contains(column))
     }
   }
 
@@ -100,28 +108,18 @@ public struct SymbolsLine: Identifiable, Hashable, Sendable {
   }
 
   public var id: String { symbol }
-
-  /// The strategy's latest decision is WATCH and still where the symbol stands: a WATCH of 10:06
-  /// is over once a later pass dropped the symbol before the strategy (owner, 2026-11-18, ZIM
-  /// marked WATCH while every pass since dropped it at the quote).
-  public var watching: Bool { (row.map(Self.stillWatching) ?? false) || mover?.watching == true }
-
-  static func stillWatching(_ row: SymbolRowV1) -> Bool {
-    guard row.verdict == .watch else { return false }
-    guard let decided = row.decidedAt?.date, let now = row.at?.date else { return true }
-    return decided >= now
-  }
 }
 
-/// What a line's outcome badge says.
+/// What a line's outcome badge says (mockup MacSymbols): Entered (its stop verified), Waiting,
+/// Skipped (the decision said no), Dropped (any other stage), Not reached.
 public enum SymbolsOutcome: Hashable, Sendable, CaseIterable {
-  case passed, waiting, dropped, notReached
+  case passed, waiting, skipped, dropped, notReached
 
-  public init(_ state: SymbolState) {
-    switch state {
+  public init(_ row: SymbolRowV1) {
+    switch row.state {
     case .passed: self = .passed
     case .waiting: self = .waiting
-    case .dropped: self = .dropped
+    case .dropped: self = row.stage == .strategy ? .skipped : .dropped
     case .notReached: self = .notReached
     }
   }
@@ -130,6 +128,7 @@ public enum SymbolsOutcome: Hashable, Sendable, CaseIterable {
     switch self {
     case .passed: L10n.symbolsOutcomePassed
     case .waiting: L10n.symbolsOutcomeWaiting
+    case .skipped: L10n.symbolsOutcomeSkipped
     case .dropped: L10n.symbolsOutcomeDropped
     case .notReached: L10n.symbolsOutcomeNotReached
     }
@@ -258,18 +257,6 @@ extension SymbolsBoard {
     return (value.value < 0 ? minus : value.value > 0 ? plus : "") + body
   }
 
-  /// The best-ranked screener as "Gainers #3", and how many others listed it ("+1"); nil without.
-  public static func screenerCell(_ row: SymbolRowV1?) -> (chip: String, more: String?)? {
-    guard let row, let best = row.sources.min(by: { $0.rank < $1.rank }) else { return nil }
-    let more = row.sources.count - 1
-    return (source(best), more > 0 ? String(localized: L10n.symbolsMore(more)) : nil)
-  }
-
-  /// A screener's full name with the rank, for the detail ("Top gainers", "#3").
-  public static func screenerName(_ source: SymbolSourceV1) -> String {
-    String(localized: source.kind.fullTitle)
-  }
-
   /// The words after a line's outcome badge: what was measured against what for a drop or a
   /// stop before a decision; for a waiting symbol the check it waits on; nothing when it passed.
   public static func why(_ row: SymbolRowV1) -> String? {
@@ -278,13 +265,6 @@ extension SymbolsBoard {
     case .waiting: return row.checks.first { !$0.passed }.map(checkText) ?? outcome(row).detail
     case .passed: return nil
     }
-  }
-
-  /// "met ≥ 5.0×" or "< 5.0×": a fast mover figure against its threshold, for the detail.
-  public static func moverNote(fired: Bool, threshold: DecimalString, ratio: Bool) -> String {
-    let value = fixed(threshold.value, digits: ratioDigits)
-    let shown = ratio ? String(localized: L10n.symbolsRatio(value)) : value
-    return String(localized: fired ? L10n.symbolsMoverMet(shown) : L10n.symbolsMoverUnmet(shown))
   }
 
   /// Decimals of a change in the table ("▲ 18.20%", mockup v101).
@@ -304,26 +284,19 @@ extension ScreenerSource {
   }
 }
 
-/// The words of the Symbols table and detail that both apps show (mockup v101).
+/// The words of the Symbols table and detail that both apps show (mockup MacSymbols).
 public enum SymbolsText {
   public static var position: LocalizedStringResource { L10n.symbolsPosition }
   public static func seen(_ time: String) -> LocalizedStringResource { L10n.symbolsSeen(time) }
   public static var today: LocalizedStringResource { L10n.symbolsToday }
-  public static func atStage(_ stage: String) -> LocalizedStringResource { L10n.symbolsAtStage(stage) }
-  public static func reachedStage(_ stage: String) -> LocalizedStringResource { L10n.symbolsReachedStage(stage) }
-  public static var fastMover: LocalizedStringResource { L10n.symbolsFastMover }
-  public static func flagged(_ time: String) -> LocalizedStringResource { L10n.symbolsFlagged(time) }
-  public static var notFlagged: LocalizedStringResource { L10n.symbolsNotFlagged }
-  public static var statVolume: LocalizedStringResource { L10n.symbolsStatVolume }
-  public static var statMove: LocalizedStringResource { L10n.symbolsStatMove }
-  public static var statDollars: LocalizedStringResource { L10n.symbolsStatDollars }
-  public static var screeners: LocalizedStringResource { L10n.symbolsScreeners }
-  public static func rank(_ rank: Int) -> LocalizedStringResource { L10n.symbolsRank(rank) }
-  public static var lastDecision: LocalizedStringResource { L10n.symbolsLastDecision }
-  public static func decided(_ time: String, _ strategy: String) -> LocalizedStringResource {
-    L10n.symbolsDecided(time, strategy)
+  public static func foundBy(_ screeners: String, _ time: String) -> LocalizedStringResource {
+    L10n.symbolsFoundBy(screeners, time)
   }
-  public static var noDecision: LocalizedStringResource { L10n.symbolsNoDecision }
+  public static var stepsToday: LocalizedStringResource { L10n.symbolsStepsToday }
+  public static func stepsPassed(_ passed: Int, _ total: Int) -> LocalizedStringResource {
+    L10n.symbolsStepsPassed(passed, total)
+  }
+  public static var fastRuleLabel: LocalizedStringResource { L10n.symbolsFastRuleLabel }
   public static var stepNotReached: LocalizedStringResource { L10n.symbolsStepNotReached }
   public static var sortHint: LocalizedStringResource { L10n.symbolsSortHint }
   public static func filterCount(_ filter: SymbolsFilter, _ count: Int) -> LocalizedStringResource {

@@ -40,6 +40,7 @@ public struct SessionSettings: Codable, Hashable, Sendable {
 public struct SettingsV1: Codable, Hashable, Sendable {
   public let environment: String
   public let activeStrategy: String
+  /// Shadow strategies the config names; mirrored for the contract, not shown by the apps.
   public let observers: [String]
   public let risk: RiskSettings
   public let session: SessionSettings

@@ -456,8 +456,11 @@ struct ChartView: View {
     ChipFlow(spacing: Tokens.Space.xs) {
       caption(L10n.Chart.onPrice, help: L10n.Chart.onPriceHelp)
       Toggle(isOn: $showVWAP) { Text(L10n.Chart.vwap) }
+        .help(Text(L10n.Chart.vwapHelp))
       Toggle(isOn: $showFastEMA) { Text(L10n.Chart.ema(Indicators.fastEMAPeriod)) }
+        .help(Text(L10n.Chart.emaHelp(Indicators.fastEMAPeriod)))
       Toggle(isOn: $showSlowEMA) { Text(L10n.Chart.ema(Indicators.slowEMAPeriod)) }
+        .help(Text(L10n.Chart.emaHelp(Indicators.slowEMAPeriod)))
       Toggle(isOn: $showMovingAverages) { Text(L10n.Chart.movingAverageChip) }
         .help(Text(L10n.Chart.movingAverageHelp))
       Toggle(isOn: $showBollinger) { Text(L10n.Chart.bollinger) }
@@ -657,9 +660,9 @@ struct ChartView: View {
   }
 }
 
-/// The chart while its bars load (mockup v102): the price pane's grid, a faint candle silhouette
-/// and its price axis, every enabled study pane, and the time axis, as skeleton in the very panes
-/// the chart will take (`PaneStack`); "Loading ABCD · 1 min bars" in its top left. The toolbar
+/// The chart while its bars load (mockup v102, loader E): the price pane's grid, a faint candle
+/// silhouette that builds in left to right, its price axis, every enabled study pane, and the
+/// time axis, as skeleton in the very panes the chart will take (`PaneStack`); "Loading ABCD · 1 min bars" in its top left. The toolbar
 /// above stays live.
 private struct LoadingChart: View {
   let caption: LocalizedStringResource
@@ -679,7 +682,7 @@ private struct LoadingChart: View {
     Skeleton(nil) {
       PaneStack {
         SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns, axisWidth: Self.axis,
-          showsTime: studies == 0)
+          showsTime: studies == 0, builds: true)
         ForEach(0..<studies, id: \.self) { index in
           VStack(spacing: 0) {
             SkeletonGridLine()

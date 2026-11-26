@@ -2,22 +2,18 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Strategy lab: the active strategy now, then every observer (a shadow version that never trades)
-/// with the symbols it would have entered, how often the bot agreed and its simulated result.
-/// Approving a version stays on the Mac.
+/// Strategy lab: the active strategy now, the replay that compares versions, and why the day's
+/// signals were refused.
 struct LabView: View {
-  /// Symbol of a shadow version that only watches.
-  static let observerSymbol = "eye.fill"
   /// Symbol in front of a warning that the data is a failed or last read.
   static let warningSymbol = "exclamationmark.triangle.fill"
 
   /// Order in which the blocks rise in (`rise(step:)`).
-  private enum Order: Int { case active = 1, versions, replay, advisor, observers, refusals, later }
+  private enum Order: Int { case active = 1, replay, refusals, later }
 
   @Environment(AppModel.self) private var model
   @Environment(\.dynamicTypeSize) private var typeSize
   @State private var lab = Container.shared.labModel()
-  @State private var advisor = Container.shared.advisorModel()
 
   var body: some View {
     Screen(L10n.Lab.title, tab: .lab) {
@@ -86,15 +82,8 @@ struct LabView: View {
         .tickrCard()
         .rise(step: Order.active.rawValue)
 
-        VersionsCard(curves: curves(active), missing: missing, end: active.end(now: model.botNow, today: model.today),
-          live: model.isLive)
-          .rise(step: Order.versions.rawValue)
         LabReplayCard(lab: lab, url: model.connection.url)
           .rise(step: Order.replay.rawValue)
-        AdvisorCard(advisor: advisor, url: model.connection.url)
-          .rise(step: Order.advisor.rawValue)
-        ObserversCard(lab: lab, traded: active.traded)
-          .rise(step: Order.observers.rawValue)
         RefusalsCard(counts: lab.refusals, failure: lab.refusalsFailure)
           .rise(step: Order.refusals.rawValue)
         InfoCaption(L10n.Lab.later)
@@ -107,12 +96,11 @@ struct LabView: View {
     .refreshable {
       await model.refresh()
       await load()
-      if let url = model.connection.url { await advisor.load(url) }
     }
   }
 
   /// The address and the day the Lab shows (the status's session, or the app's recorded day); a
-  /// change reads the observers again.
+  /// change reads the day again.
   private var sessionKey: [String] {
     [model.connection.url?.absoluteString, labDay?.text].compactMap { $0 }
   }
@@ -120,19 +108,6 @@ struct LabView: View {
   /// The day the Lab shows: the app's recorded day, else the status's session.
   private var labDay: WireDate? {
     model.isLive ? model.status.map { WireDate(newYorkDateOf: $0.writtenAt.date) } : model.shownDay
-  }
-
-  /// The trading strategy's line, then each observer's whose trades the bot could list.
-  private func curves(_ active: ActiveDay) -> [VersionCurve] {
-    [active.curve] + (lab.observers?.observers.compactMap { VersionCurve.simulated($0, traded: active.traded) } ?? [])
-  }
-
-  /// Why an observer has no line: the bot could not list its simulated trades.
-  private var missing: [String] {
-    (lab.observers?.observers ?? []).filter { $0.trades == nil }.map { observer in
-      let cause = ApiText.prose(observer.tradesCauseCodes, text: observer.tradesCause) ?? Format.missing
-      return String(localized: L10n.Lab.noTrades(observer.name, observer.version, cause))
-    }
   }
 
   /// Size of the active strategy's day curve, in points, as on the design.
@@ -177,13 +152,8 @@ struct ActiveDay {
   let total: Decimal
   /// Positions still open (none on a recorded day).
   let open: Int
-  /// The symbols the trading strategy traded or holds that day.
-  let traded: Set<String>
-  /// When the status was written; nil on a recorded day (its line runs to its last close).
-  let writtenAt: Date?
   /// The recorded day shown; nil for the status's session.
   let recordedDay: WireDate?
-  let curve: VersionCurve
 
   init(status: StatusV1, past: DayV1?) {
     if let past {
@@ -193,8 +163,6 @@ struct ActiveDay {
       closes = past.trades.map { (at: $0.closedAt.date, result: $0.resultUsd.value) }
       total = past.resultUsd.value
       open = 0
-      traded = Set(past.trades.map(\.symbol))
-      writtenAt = nil
       recordedDay = past.day
     } else {
       name = status.strategy.name
@@ -202,18 +170,8 @@ struct ActiveDay {
       closes = status.tradesToday.map { (at: $0.closedAt.date, result: $0.resultUsd.value) }
       total = status.resultTodayUsd.value
       open = status.positions.count
-      traded = Set(status.tradesToday.map(\.symbol) + status.positions.map(\.symbol))
-      writtenAt = status.writtenAt.date
       recordedDay = nil
     }
-    curve = VersionCurve.active(name: name, version: version, closes: closes, total: total)
-  }
-
-  /// Where the lines end: now for today's live session, the status's time for an older one, the
-  /// last close of a recorded day.
-  func end(now: Date, today: WireDate) -> Date {
-    guard let writtenAt else { return closes.map(\.at).max() ?? now }
-    return WireDate(newYorkDateOf: writtenAt) == today ? now : writtenAt
   }
 }
 
@@ -278,93 +236,5 @@ private struct RefusalsCard: View {
     if let code = count.cause?.known { return Text(L10n.Cause.title(code)) }
     if let cause = count.cause { return cause.hasCode ? Text(L10n.Cause.other) : Text(verbatim: cause.code) }
     return Text(L10n.Lab.noCause)
-  }
-}
-
-/// Each observer of the day: name and version, the symbols it would have entered, how many of
-/// them the bot also traded, and its simulated result (or why there is none).
-private struct ObserversCard: View {
-  let lab: LabModel
-  let traded: Set<String>
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      CardLabel(L10n.Lab.board)
-      if let observers = lab.observers {
-        // A failed refresh after a good read: the rows stay, marked as the last read.
-        if let failure = lab.failure {
-          ReadFailureNote(L10n.Lab.failed, detail: failure)
-        }
-        if observers.observers.isEmpty {
-          InfoCaption(L10n.Lab.noObservers)
-        }
-        // The first observers, then "Show all N ›".
-        CappedList(observers.observers.map { ObserverSummary($0, traded: traded) }, id: \.id, title: L10n.Lab.board,
-          limit: Tokens.Lists.comparedRows, spacing: Tokens.Space.m) { _, summary in
-          ObserverRow(summary: summary)
-            .transition(.opacity.combined(with: .move(edge: .top)))
-        }
-      } else if let failure = lab.failure {
-        ReadFailureNote(L10n.Lab.failed, detail: failure)
-      } else {
-        Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.fewRows, badge: true) }
-      }
-    }
-    .padding(Tokens.Space.l)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .tickrCard()
-  }
-}
-
-private struct ObserverRow: View {
-  /// Symbol of the overlap with what the bot traded.
-  static let agreementSymbol = "circle.lefthalf.filled"
-
-  let summary: ObserverSummary
-
-  private var name: some View {
-    HStack(spacing: Tokens.Space.s) {
-      StateGlyph(LabView.observerSymbol, tone: .highlight,
-        label: L10n.Common.strategyVersion(summary.name, summary.version), style: .compact)
-      Text(L10n.Common.strategyVersion(summary.name, summary.version))
-        .font(.subheadline.monospaced().weight(.semibold))
-    }
-  }
-
-  @ViewBuilder private var result: some View {
-    if let result = summary.result {
-      DeltaTag(result, text: Money.signedUSD(result))
-    } else {
-      Badge(L10n.Lab.noResult, tone: .neutral)
-    }
-  }
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      // The name and the result in one row when the name fits whole; otherwise the result goes
-      // under it, so the name never breaks at a hyphen ("v2- / relvol-1.5").
-      ViewThatFits(in: .horizontal) {
-        HStack(spacing: Tokens.Space.s) {
-          name.fixedSize()
-          Spacer(minLength: 0)
-          result
-        }
-        VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-          name.fixedSize(horizontal: false, vertical: true)
-          result
-        }
-      }
-      if summary.result == nil, let cause = summary.resultCauseText {
-        InfoCaption(verbatim: cause)
-      }
-      if let agreement = summary.agreement {
-        MeterBar(fraction: agreement, tone: .highlight)
-        InfoCaption(L10n.Lab.agreement(summary.shared.count, summary.entered.count,
-          summary.entered.joined(separator: Format.separator)), systemImage: Self.agreementSymbol, tone: .highlight)
-      } else {
-        InfoCaption(L10n.Lab.noEntries)
-      }
-    }
-    .accessibilityElement(children: .combine)
   }
 }

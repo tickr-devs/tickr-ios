@@ -1,7 +1,7 @@
 import Foundation
 
 /// A decision of the trading strategy marked on the candle it fell in: where it began watching a
-/// symbol and where it said enter. Observers' decisions are left out; they never trade.
+/// symbol and where it said enter. A shadow strategy's decisions are left out; it never trades.
 public struct ChartEvent: Hashable, Sendable, Identifiable {
   public enum Kind: Hashable, Sendable {
     /// The first WATCH of a run of them.
@@ -56,7 +56,7 @@ public struct ChartEvent: Hashable, Sendable, Identifiable {
       switch decision.admission {
       case .taken: .enter
       case .refused: .refused
-      // Never evaluated (an observer's) or without an admission: nothing to claim on the chart.
+      // Never evaluated (a shadow strategy's) or without an admission: nothing to claim on the chart.
       case .notEvaluated, .notApplicable: nil
       }
     case .ignore, .hold, .exit: nil
