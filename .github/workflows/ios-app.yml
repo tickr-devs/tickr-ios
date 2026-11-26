@@ -114,5 +114,6 @@ jobs:
             grep -E "error:|failed|✘" test.log | tail -n 60 || tail -n 80 test.log
             exit 1
           fi
-          grep -E "warning:" test.log | grep -v "/SourcePackages/" || true
+          # Our own Swift warnings fail the job: the owner's Xcode stops on them (own-warnings.sh).
+          ../scripts/own-warnings.sh test.log
           grep -E "✔|passed" test.log | tail -n 5

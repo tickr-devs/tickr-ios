@@ -17,6 +17,8 @@ final class ScreenTourUITests: XCTestCase {
   private static let settle: UInt32 = 3
   /// Seconds to wait for an element to appear.
   private static let wait: TimeInterval = 10
+  /// Seconds a withdrawn question is watched for a command notice, which a send always shows.
+  private static let noNotice: TimeInterval = 1
   /// Most extra screenshots taken while scrolling one screen down.
   private static let maxScrolls = 4
   /// Accessibility identifiers the tour taps, the same in every language (the app's
@@ -26,6 +28,11 @@ final class ScreenTourUITests: XCTestCase {
     static let settings = "home.settings"
     static let risk = "home.risk"
     static let botControlCancel = "botControl.cancel"
+    /// Stop bot while positions are open, its two answers, and the command notice.
+    static let botControlStop = "botControl.stop"
+    static let stopCloseAndStop = "botControl.closeAndStop"
+    static let stopLeaveOpen = "botControl.leaveOpen"
+    static let notice = "notice"
     static let calendar = "activity.calendar"
     /// The tab bar's buttons, in order: the app draws the design's own tab bar.
     static let tabs = ["tab.home", "tab.positions", "tab.chart", "tab.activity", "tab.lab"]
@@ -120,6 +127,7 @@ final class ScreenTourUITests: XCTestCase {
       shot("tab0-bot-control")
       guard dismiss() else { return }
     }
+    stopChoices()
     if tap(app.buttons[Identifier.risk]) {
       capture(screen: "tab0-risk")
       back()
@@ -128,6 +136,28 @@ final class ScreenTourUITests: XCTestCase {
       capture(screen: "tab0-settings")
       back()
     }
+  }
+
+  /// With positions open, Stop bot asks what happens to them (V4 variant A): Close and stop and
+  /// Leave open are both offered, Cancel withdraws, and nothing is sent (no command notice). Skipped
+  /// when the bot holds nothing, where Stop bot keeps its plain confirmation.
+  private func stopChoices() {
+    guard tap(app.buttons[Identifier.botControl]) else { return }
+    let stop = app.buttons[Identifier.botControlStop].firstMatch
+    guard stop.waitForExistence(timeout: Self.wait), stop.isHittable else {
+      dismiss()
+      return
+    }
+    stop.tap()
+    for id in [Identifier.stopCloseAndStop, Identifier.stopLeaveOpen] {
+      let answer = app.buttons[id].firstMatch
+      XCTAssertTrue(answer.waitForExistence(timeout: Self.wait), "Stop bot does not offer \(id)")
+      XCTAssertTrue(answer.isEnabled, "\(id) is off")
+    }
+    shot("tab0-stop-choice")
+    guard dismiss() else { return }
+    XCTAssertFalse(app.descendants(matching: .any)[Identifier.notice].firstMatch.waitForExistence(timeout: Self.noNotice),
+      "a command was sent without an answer")
   }
 
   private func activityDetails() {

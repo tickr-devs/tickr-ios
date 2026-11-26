@@ -86,7 +86,7 @@ private struct PlannedCard: View {
     Card(title, tone: .highlight, trailing: {
       Badge.backlog
     }, content: {
-      (Text(L10n.Risk.notServed) + Text(verbatim: Format.itemSeparator) + Text(note))
+      Text.joined(Text(L10n.Risk.notServed), Text(verbatim: Format.itemSeparator), Text(note))
         .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.textTertiary)
         .fixedSize(horizontal: false, vertical: true)

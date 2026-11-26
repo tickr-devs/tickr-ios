@@ -334,6 +334,7 @@
 /* Begin XCBuildConfiguration section */
 		59D91C7622C3CE437D257C18 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 445FB381029F292DF0F650AC /* Signing.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -343,7 +344,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios.uitests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = Tickr;
@@ -352,6 +353,7 @@
 		};
 		5B32E9B1147D9D315582CB46 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 445FB381029F292DF0F650AC /* Signing.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -361,7 +363,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios.tests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tickr.app/Tickr";
@@ -381,7 +383,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -389,6 +391,7 @@
 		};
 		A510AC99ABB62C861D5E69BA /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 445FB381029F292DF0F650AC /* Signing.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -398,7 +401,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios.tests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tickr.app/Tickr";
@@ -473,6 +476,7 @@
 		};
 		C8E3FA20699775DCD2D19370 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 445FB381029F292DF0F650AC /* Signing.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -482,7 +486,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios.uitests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = Tickr;
@@ -502,7 +506,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = local.tickr.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
