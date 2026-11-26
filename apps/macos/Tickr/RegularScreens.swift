@@ -14,12 +14,18 @@ import TickrKit
 public struct RegularScreens: View {
   @State private var model = Container.shared.appModel()
   @State private var chart = Container.shared.chartModel()
-  /// Whether the sidebar shows; the system's sidebar button switches it.
-  @State private var columns = NavigationSplitViewVisibility.all
+  /// Whether the sidebar shows; the system's sidebar button switches it. Automatic: beside the
+  /// screen in landscape, over it on demand in portrait (IPadPortrait), so a screen gets the
+  /// iPad's whole 834-point width there.
+  @State private var columns = NavigationSplitViewVisibility.automatic
+  @Environment(\.dynamicTypeSize) private var typeSize
   /// Whether this model is reading the bot now (`active`); never started twice.
   @State private var polling = false
 
   let endpoint: APIClient.Endpoint
+  /// The Dynamic Type size nearest to the Mac's fixed type sizes (callout 13 against the Mac's 12,
+  /// body 14 against 13), the one the Mac screens are drawn at on the iPad.
+  static let macLikeTypeSize = DynamicTypeSize.xSmall
   let active: Bool
   let ownerCheck: @MainActor (OperatorCommand?, String) async -> Bool
   let settings: () -> Void
@@ -51,6 +57,10 @@ public struct RegularScreens: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { RegularToolbar(settings: settings) }
     }
+    // The Mac screens are laid out for the Mac's type sizes (their least widths are measured in
+    // them); iOS's default sizes are 1 to 4 points larger and cut them in portrait. The smallest
+    // standard size is the nearest to the Mac's; an accessibility size the owner chose stays.
+    .dynamicTypeSize(typeSize.isAccessibilitySize ? typeSize : Self.macLikeTypeSize)
     .botCommandQuestions(in: .window)
     .hintHost()
     .readFailureContext(model)

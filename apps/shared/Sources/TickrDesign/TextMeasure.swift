@@ -2,6 +2,7 @@ import CoreText
 #if canImport(AppKit)
 import AppKit
 #else
+import SwiftUI
 import UIKit
 #endif
 
@@ -33,6 +34,15 @@ public enum TextMeasure {
     PlatformFont.preferredFont(forTextStyle: ios).pointSize
     #endif
   }
+
+  #if !canImport(AppKit)
+  /// The size of text style `style` at Dynamic Type size `size`: what a view drawn under
+  /// `.dynamicTypeSize(size)` uses, which the system-wide setting alone does not tell.
+  public static func pointSize(_ style: PlatformFont.TextStyle, at size: DynamicTypeSize) -> CGFloat {
+    let traits = UITraitCollection(preferredContentSizeCategory: UIContentSizeCategory(size))
+    return PlatformFont.preferredFont(forTextStyle: style, compatibleWith: traits).pointSize
+  }
+  #endif
 
   /// Width of `string` in `font`, rounded up to whole points; `kern` adds tracking per character.
   public static func width(_ string: String, font: PlatformFont, kern: CGFloat = 0) -> CGFloat {
