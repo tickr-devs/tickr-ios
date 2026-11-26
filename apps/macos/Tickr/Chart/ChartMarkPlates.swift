@@ -44,7 +44,7 @@ struct ChartMarkPlates: View {
   private func items(origin: CGPoint) -> [MarkPlateLayout.Item] {
     plates.indices.compactMap { index in
       let plate = plates[index]
-      guard let point = proxy.position(forX: plate.time, y: plate.price) else { return nil }
+      guard let point = proxy.position(for: (x: plate.time, y: plate.price)) else { return nil }
       return MarkPlateLayout.Item(
         id: index, anchor: CGPoint(x: origin.x + point.x, y: origin.y + point.y),
         size: Self.size(plate.label), side: plate.side)
