@@ -61,6 +61,12 @@ enum LayoutSweep {
   /// edge (where a hidden Dock rises over a click).
   static let safetyFirstKey = "TICKR_OVERVIEW_SAFETY_FIRST"
   static var safetyFirst: Bool { ProcessInfo.processInfo.environment[safetyFirstKey] != nil }
+  /// Environment variable that opens Overview scrolled so the Positions card is at its top, as
+  /// `safetyFirstKey` does for the Safety · bot card: on the one-column board the two cards are
+  /// apart, and the UI tests click Close all and each position's Close there. It wins over
+  /// `safetyFirstKey`.
+  static let positionsFirstKey = "TICKR_OVERVIEW_POSITIONS_FIRST"
+  static var positionsFirst: Bool { ProcessInfo.processInfo.environment[positionsFirstKey] != nil }
   /// Seconds between looks for the main window while it opens.
   static let windowPollSeconds = 0.1
   /// Environment variable that makes the app take its display's visible area as at most this

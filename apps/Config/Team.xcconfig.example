@@ -1,0 +1,6 @@
+// Copy to Team.xcconfig (git-ignored) and set your Apple Developer Program team id: on
+// https://developer.apple.com/account, Membership details, Team ID. Both apps read it from here.
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+
+// Sign the Mac app with the team's Apple Development certificate instead of for this Mac only.
+CODE_SIGN_IDENTITY[sdk=macosx*] = Apple Development

@@ -1,0 +1,17 @@
+// The apps' identity: one source for both Xcode projects (apps/ios/project.yml and
+// apps/macos/TickrMac.xcodeproj) and for apps/macos/scripts/make-app.sh.
+//
+// Every bundle identifier is this prefix plus a fixed suffix per target: .ios and .mac for the
+// apps, .ios.tests, .ios.uitests and .mac.uitests for their test bundles. The prefix is the
+// tickr.bot domain reversed. An identifier registered on App Store Connect can never change, so
+// never edit the prefix once an app is uploaded there.
+TICKR_BUNDLE_ID_PREFIX = bot.tickr
+
+// Without a team the Mac app is signed to run on this Mac only; Team.xcconfig switches it to the
+// team's Apple Development certificate (needed for push and TestFlight).
+CODE_SIGN_IDENTITY[sdk=macosx*] = -
+
+// The Apple Developer team that signs both apps: the git-ignored Team.xcconfig next to this file
+// (copy Team.xcconfig.example). The team is never picked in Xcode's Signing & Capabilities, which
+// writes it into the committed project.
+#include? "Team.xcconfig"
