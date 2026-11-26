@@ -208,18 +208,11 @@ enum L10n {
     static var resumeEntries: LocalizedStringResource {
       LocalizedStringResource("bot.resumeEntries", defaultValue: "Resume entries", bundle: L10n.bundle)
     }
-    static var cancelOrders: LocalizedStringResource {
-      LocalizedStringResource("bot.cancelOrders", defaultValue: "Cancel orders", bundle: L10n.bundle)
-    }
     static func flatten(_ symbol: String) -> LocalizedStringResource {
       LocalizedStringResource("bot.flatten", defaultValue: "Close \(symbol) position", bundle: L10n.bundle)
     }
     static var flattenAll: LocalizedStringResource {
       LocalizedStringResource("bot.flattenAll", defaultValue: "Close all", bundle: L10n.bundle)
-    }
-    /// How many positions Close all closes, after its title in the menu bar ("2 positions").
-    static func positionCount(_ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("bot.positionCount", defaultValue: "\(count) positions", bundle: L10n.bundle)
     }
     static var stopBot: LocalizedStringResource {
       LocalizedStringResource("bot.stopBot", defaultValue: "Stop bot", bundle: L10n.bundle)
@@ -229,11 +222,6 @@ enum L10n {
     }
     static var resumeQuestion: LocalizedStringResource {
       LocalizedStringResource("bot.resumeQuestion", defaultValue: "Resume new entries?", bundle: L10n.bundle)
-    }
-    static var cancelQuestion: LocalizedStringResource {
-      LocalizedStringResource("bot.cancelQuestion",
-        defaultValue: "Cancel the bot's working entry orders?",
-        bundle: L10n.bundle)
     }
     static func flattenQuestion(_ symbol: String) -> LocalizedStringResource {
       LocalizedStringResource("bot.flattenQuestion", defaultValue: "Close the \(symbol) position?", bundle: L10n.bundle)
@@ -254,51 +242,22 @@ enum L10n {
         defaultValue: "Clears only your entry pause. Other blocks (risk, reconciliation, session) still apply.",
         bundle: L10n.bundle)
     }
-    static var cancelExplanation: LocalizedStringResource {
-      LocalizedStringResource("bot.cancelExplanation",
-        defaultValue: "Cancels the bot's own working entry orders. Protective stops are never cancelled.",
-        bundle: L10n.bundle)
-    }
     static var flattenExplanation: LocalizedStringResource {
       LocalizedStringResource("bot.flattenExplanation",
         defaultValue: "The bot cancels the stop, reads the held quantity again and sells it through the normal exit.",
         bundle: L10n.bundle)
     }
-    static var flattenAllExplanation: LocalizedStringResource {
-      LocalizedStringResource("bot.flattenAllExplanation",
-        defaultValue: "Every own position closes through the normal exit. Positions the bot did not open are not touched.",
+    /// What Close all does (the API's emergency command), in its confirmation and its hint.
+    static var closeAllExplanation: LocalizedStringResource {
+      LocalizedStringResource("bot.closeAllExplanation",
+        // swiftlint:disable:next line_length
+        defaultValue: "The bot pauses entries, cancels its working entry orders and closes every position at market, so it does not enter again. Resume entries when you are ready.",
         bundle: L10n.bundle)
     }
     static var stopExplanation: LocalizedStringResource {
       LocalizedStringResource("bot.stopExplanation",
         // swiftlint:disable:next line_length
         defaultValue: "The bot stops and stays stopped until you run tickr clear-stop on this Mac; the app cannot start it again. Working entry orders are cancelled. Open positions stay open under their broker stop, a DAY order: nothing closes them at the session's end. Close the positions first to be flat.",
-        bundle: L10n.bundle)
-    }
-    static var emergency: LocalizedStringResource {
-      LocalizedStringResource("bot.emergency", defaultValue: "Emergency stop", bundle: L10n.bundle)
-    }
-    /// Caption of the divider above the emergency stop, which sets it apart from the commands.
-    static var lastResort: LocalizedStringResource {
-      LocalizedStringResource("bot.lastResort", defaultValue: "Last resort", bundle: L10n.bundle)
-    }
-    /// The emergency stop's second line: what it does, in order.
-    static var emergencyDetail: LocalizedStringResource {
-      LocalizedStringResource("bot.emergencyDetail",
-        defaultValue: "pauses entries · cancels entry orders · sells all", bundle: L10n.bundle)
-    }
-    /// The emergency stop's hint before a press: hold it this many seconds.
-    static func holdPrompt(_ seconds: String) -> LocalizedStringResource {
-      LocalizedStringResource("bot.holdPrompt", defaultValue: "hold \(seconds) s", bundle: L10n.bundle)
-    }
-    /// The emergency stop's hint while it is held.
-    static var holding: LocalizedStringResource {
-      LocalizedStringResource("bot.holding", defaultValue: "keep holding…", bundle: L10n.bundle)
-    }
-    /// VoiceOver hint of the emergency stop: the hold, and the action that skips it.
-    static func holdAccessibility(_ seconds: String) -> LocalizedStringResource {
-      LocalizedStringResource("bot.holdAccessibility",
-        defaultValue: "Hold for \(seconds) s to open the confirmation. The VoiceOver action opens it at once.",
         bundle: L10n.bundle)
     }
     /// The pill on every command while commands go to the demo day.
@@ -308,15 +267,6 @@ enum L10n {
     /// Why a close command is off: there is no open position.
     static var noPositions: LocalizedStringResource {
       LocalizedStringResource("bot.noPositions", defaultValue: "No open positions", bundle: L10n.bundle)
-    }
-    static var emergencyQuestion: LocalizedStringResource {
-      LocalizedStringResource("bot.emergencyQuestion", defaultValue: "Run the emergency stop?", bundle: L10n.bundle)
-    }
-    static var emergencyExplanation: LocalizedStringResource {
-      LocalizedStringResource("bot.emergencyExplanation",
-        // swiftlint:disable:next line_length
-        defaultValue: "Three steps in order: pause new entries, cancel the bot's working entry orders, close every own position. Each broker stop stays until its closing sale is sent. The bot keeps running.",
-        bundle: L10n.bundle)
     }
     static var stoppedTitle: LocalizedStringResource {
       LocalizedStringResource("bot.stoppedTitle", defaultValue: "Bot Stopped with Open Positions", bundle: L10n.bundle)
@@ -3089,6 +3039,11 @@ enum L10n {
     }
     static var demoDetail: LocalizedStringResource {
       LocalizedStringResource("menuBar.demoDetail", defaultValue: "Turn it off in Settings › General before trading.",
+        bundle: L10n.bundle)
+    }
+    /// Menu bar: the line under Pause entries, its only command.
+    static var moreInApp: LocalizedStringResource {
+      LocalizedStringResource("menuBar.moreInApp", defaultValue: "To close positions or stop the bot, open Tickr.",
         bundle: L10n.bundle)
     }
     /// Menu bar: label over today's result.

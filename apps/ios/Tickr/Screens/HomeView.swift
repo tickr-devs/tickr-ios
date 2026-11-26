@@ -93,9 +93,16 @@ struct HomeView: View {
           skipped: model.skipped?.day == model.today ? model.skipped : nil) {
           strip.moving(ornamentMoves).rise(step: Order.ticker.rawValue)
         }
-        ForEach(Array(Board.positions(status).enumerated()), id: \.element.symbol) { index, position in
-          PositionRow(position: position, marks: prices.marks[position.symbol])
-            .rise(step: Order.positions.rawValue + index)
+        if let stopped = model.stoppedPositions {
+          // Bot stopped with positions open (board IOSHome): the stopped bot's last knowledge
+          // of them in place of the live rows, with Start bot.
+          StoppedPositionsPanel(stopped) { HomeStartButton() }
+            .rise(step: Order.positions.rawValue)
+        } else {
+          ForEach(Array(Board.positions(status).enumerated()), id: \.element.symbol) { index, position in
+            PositionRow(position: position, marks: prices.marks[position.symbol])
+              .rise(step: Order.positions.rawValue + index)
+          }
         }
         if status.positions.isEmpty {
           Text(L10n.Home.noPosition)
