@@ -4,9 +4,10 @@ import CoreGraphics
 import Foundation
 
 /// Where the price pane's plates ("EXIT +$93.38", "BUY 50 @ 15.74", a decision's "WATCH") sit
-/// on screen. Each plate in turn, in priority order, looks at places near its mark: above and
-/// below it, a half plate further each step up to `reach` plates away, and beside it at its price.
-/// It takes the nearest place that covers no candle or mark, else the one that covers least;
+/// on screen. Each plate in turn, in priority order, looks at places near its mark: right above
+/// and below it, slid sideways, beside it at its price, then a half plate further each step up
+/// to `reach` plates away. It takes the nearest place that covers no candle or mark, else the
+/// one that covers least;
 /// it never covers another plate, and with no such place within reach it is left out (its mark
 /// stays, and pointing at the candle still shows it). Plates stay inside the visible plot, a gap
 /// from its edges. Duo retests, 2026-11-26: a decision's label sat under an exit's plate, a fill's
@@ -33,9 +34,9 @@ enum MarkPlateLayout {
     var glyphs: [CGRect] = []
   }
 
-  /// Farthest a plate moves from its mark, in its own heights: farther, it no longer reads as the
-  /// mark's (r4: "BUY" 230 px above its arrow, under the legend).
-  static let reach: CGFloat = 3
+  /// Farthest a plate moves above or below its mark, in its own heights: farther, it no longer
+  /// reads as the mark's (r4: "BUY" 230 px above its arrow; r5: three heights still read as far).
+  static let reach: CGFloat = 2
 
   /// The centres of the plates that are drawn, by id; `items` in priority order (first wins).
   /// `offset`: from the mark's centre to the plate's near edge; `gap`: least room between a plate
@@ -70,26 +71,32 @@ enum MarkPlateLayout {
     }
   }
 
-  /// The places near a mark, nearest first: its own side then the other at each distance, then
-  /// beside it at its price (right, then left). A place that would leave `frame` across the price
-  /// is dropped; along the time axis a plate slides inside.
+  /// The places near a mark, nearest first: on its own side then the other, right by it; its own
+  /// side slid half a plate right and left; beside it at its price (right, then left); then a
+  /// half plate further above and below at each step, up to `reach`. A place that would leave
+  /// `frame` across the price is dropped; along the time axis a plate slides inside.
   private static func candidates(_ item: Item, offset: CGFloat, in frame: CGRect) -> [CGRect] {
     let size = item.size
     let step = size.height / 2
     let steps = Int((reach * size.height / step).rounded())
     let above = { (distance: CGFloat) in item.anchor.y - offset - distance - size.height }
     let below = { (distance: CGFloat) in item.anchor.y + offset + distance }
-    var tops: [CGFloat] = []
-    for index in 0...steps {
-      let distance = CGFloat(index) * step
-      tops += item.side == .above ? [above(distance), below(distance)] : [below(distance), above(distance)]
+    let sides = { (distance: CGFloat) in
+      item.side == .above ? [above(distance), below(distance)] : [below(distance), above(distance)]
     }
-    let left = min(max(item.anchor.x - size.width / 2, frame.minX), frame.maxX - size.width)
-    let stacked = tops.map { CGRect(x: left, y: $0, width: size.width, height: size.height) }
+    let centred = item.anchor.x - size.width / 2
+    let slide = { (left: CGFloat) in min(max(left, frame.minX), frame.maxX - size.width) }
+    let plate = { (left: CGFloat, top: CGFloat) in CGRect(x: slide(left), y: top, width: size.width, height: size.height) }
+    let near = sides(0)
+    var places = near.map { plate(centred, $0) }
+    places += [centred + size.width / 2, centred - size.width / 2].map { plate($0, near[0]) }
     let level = item.anchor.y - size.height / 2
-    let beside = [item.anchor.x + offset, item.anchor.x - offset - size.width].map {
+    places += [item.anchor.x + offset, item.anchor.x - offset - size.width].map {
       CGRect(x: $0, y: level, width: size.width, height: size.height)
     }
-    return (stacked + beside).filter { frame.contains($0) }
+    for index in 1...steps {
+      places += sides(CGFloat(index) * step).map { plate(centred, $0) }
+    }
+    return places.filter { frame.contains($0) }
   }
 }

@@ -83,12 +83,12 @@ struct MarkPlateLayoutTests {
 
   @Test("A plate moves off the candles under it, above or below them, when there is room")
   func offCandles() throws {
-    // A tall candle from 100 to 200 under an exit's mark at 150: above its high instead.
-    let candle = CGRect(x: 95, y: 100, width: 10, height: 100)
+    // A candle from 120 to 200 under an exit's mark at 150: above its high instead.
+    let candle = CGRect(x: 95, y: 120, width: 10, height: 80)
     let above = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [candle])
     #expect(try #require(above[0]).y + size.height / 2 <= candle.minY - gap)
     // A candle reaching the plot's top: the plate goes below its low.
-    let top = CGRect(x: 95, y: 0, width: 10, height: 200)
+    let top = CGRect(x: 95, y: 0, width: 10, height: 170)
     let below = place([.init(id: 0, anchor: CGPoint(x: 100, y: 150), size: size, side: .above)], candles: [top])
     #expect(try #require(below[0]).y - size.height / 2 >= top.maxY + gap)
     // Candles filling the whole plot: the plate keeps its own side, over them.
@@ -116,5 +116,17 @@ struct MarkPlateLayoutTests {
     let centre = try #require(centres[0])
     #expect(centre.y == 150)
     #expect(centre.x - size.width / 2 >= 100 + offset)
+  }
+
+  @Test("A plate slides sideways off a candle beside its mark before moving further away")
+  func slides() throws {
+    // Candles to the left of the exit's mark, above and below it, cover both centred places.
+    let candle = CGRect(x: 60, y: 100, width: 38, height: 60)
+    let lower = CGRect(x: 60, y: 175, width: 38, height: 60)
+    let centres = place(
+      [.init(id: 0, anchor: CGPoint(x: 100, y: 170), size: size, side: .above)], candles: [candle, lower])
+    let centre = try #require(centres[0])
+    #expect(centre.y < 170)
+    #expect(centre.x - size.width / 2 >= candle.maxX + gap)
   }
 }
