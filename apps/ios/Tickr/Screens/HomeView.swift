@@ -104,7 +104,12 @@ struct HomeView: View {
               .rise(step: Order.positions.rawValue + index)
           }
         }
-        if status.positions.isEmpty {
+        // Own entry orders working with nothing filled, and those just cancelled (mockup v160).
+        let entries = model.entryRows
+        ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+          EntryCard(row: entry).rise(step: Order.positions.rawValue + status.positions.count + index)
+        }
+        if status.positions.isEmpty && entries.isEmpty {
           Text(L10n.Home.noPosition)
             .font(.subheadline)
             .foregroundStyle(Palette.textTertiary)

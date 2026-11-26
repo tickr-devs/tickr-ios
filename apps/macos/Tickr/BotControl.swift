@@ -5,6 +5,8 @@ import TickrKit
 /// An operator action as the app offers it. Each maps to one local-API command.
 enum BotAction: Identifiable, Equatable {
   case pauseEntries, resumeEntries, flatten(symbol: String), closeAll, stopBot
+  /// Cancel one working entry order (mockup v160): the row it was pressed on.
+  case cancelEntry(EntryRow)
 
   /// Ids of the actions (SwiftUI identity only); a flatten action's id ends with its symbol.
   static let pauseID = "pause"
@@ -12,6 +14,7 @@ enum BotAction: Identifiable, Equatable {
   static let flattenPrefix = "flatten-"
   static let closeAllID = "close-all"
   static let stopID = "stop"
+  static let cancelEntryPrefix = "cancel-entry-"
 
   var id: String {
     switch self {
@@ -20,6 +23,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return Self.flattenPrefix + symbol
     case .closeAll: return Self.closeAllID
     case .stopBot: return Self.stopID
+    case .cancelEntry(let row): return Self.cancelEntryPrefix + row.symbol
     }
   }
 
@@ -32,6 +36,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return .flattenSymbol(symbol)
     case .closeAll: return .emergency
     case .stopBot: return .stopBot
+    case .cancelEntry(let row): return .cancelEntry(row.symbol)
     }
   }
 
@@ -43,6 +48,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return L10n.Bot.flatten(symbol)
     case .closeAll: return L10n.Bot.flattenAll
     case .stopBot: return L10n.Bot.stopBot
+    case .cancelEntry: return EntryText.cancel
     }
   }
 
@@ -73,6 +79,7 @@ enum BotAction: Identifiable, Equatable {
     case .resumeEntries: return Self.resumeSymbol
     case .flatten, .closeAll: return Self.flattenSymbol
     case .stopBot: return Self.stopSymbol
+    case .cancelEntry: return EntryLook.cancelSymbol
     }
   }
 
@@ -82,13 +89,13 @@ enum BotAction: Identifiable, Equatable {
     switch self {
     case .resumeEntries: return .secondary(.accent)
     case .pauseEntries: return .secondary(.warning)
-    case .flatten, .closeAll, .stopBot: return .destructive
+    case .flatten, .closeAll, .stopBot, .cancelEntry: return .destructive
     }
   }
 
   var isDestructive: Bool {
     switch self {
-    case .flatten, .closeAll, .stopBot: return true
+    case .flatten, .closeAll, .stopBot, .cancelEntry: return true
     case .pauseEntries, .resumeEntries: return false
     }
   }
@@ -103,6 +110,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return String(localized: L10n.Bot.flattenQuestion(symbol))
     case .closeAll: return String(localized: L10n.Bot.flattenAllQuestion)
     case .stopBot: return String(localized: L10n.Bot.stopQuestion)
+    case .cancelEntry(let row): return String(localized: EntryText.question(row.symbol))
     }
   }
 
@@ -118,7 +126,16 @@ enum BotAction: Identifiable, Equatable {
       return String(localized: L10n.Bot.closeAllExplanation)
     case .stopBot:
       return String(localized: L10n.Bot.stopExplanation)
+    case .cancelEntry(let row):
+      return String(localized: EntryText.explanation(Shares.text(row.quantity), Money.price(row.limitPrice)))
     }
+  }
+
+  /// The question's answer that sends nothing: Keep for a working entry (mockup v160), Cancel
+  /// for the rest.
+  var keepLabel: LocalizedStringResource {
+    if case .cancelEntry = self { return EntryText.keep }
+    return L10n.Common.cancel
   }
 }
 
@@ -176,6 +193,17 @@ struct CloseAllButton: View {
         // A few words: always whole, on one line.
         .fixedSize()
     }
+  }
+}
+
+/// Cancel entry (mockup v160): asks first, then sends cancel-own-orders for the entry's symbol
+/// (`BotAction.cancelEntry`). Off while its cancel is on its way.
+struct CancelEntryButton: View {
+  let row: EntryRow
+
+  var body: some View {
+    BotCommandButton(action: .cancelEntry(row), place: .window, size: .small)
+      .disabled(row.phase != .working)
   }
 }
 
@@ -239,7 +267,7 @@ private struct BotCommandQuestions: ViewModifier {
         Button(role: asked.action.isDestructive ? .destructive : nil) {
           model.accept(asked)
         } label: { Text(asked.action.label) }
-        Button(String(localized: L10n.Common.cancel), role: .cancel) { model.withdraw(asked) }
+        Button(role: .cancel) { model.withdraw(asked) } label: { Text(asked.action.keepLabel) }
       } message: { asked in
         // Where the command goes, named in every confirmation: a demo switch left on must never
         // swallow a real command unnoticed.
@@ -274,4 +302,8 @@ extension AppModel {
   /// Pause entries, or Resume entries while the operator's pause is on: the one pause command
   /// of the Safety card and the menu bar.
   var pauseAction: BotAction { status?.entryStop == true ? .resumeEntries : .pauseEntries }
+
+  /// The bot's working entries on the live day, with where each one's cancel stands, and those
+  /// just cancelled (`EntryCancelWatch`).
+  var entryRows: [EntryRow] { isLive ? entryWatch.rows(status, inFlight: inFlight) : [] }
 }

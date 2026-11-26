@@ -860,6 +860,7 @@ private struct PositionsCard: View {
 
   var body: some View {
     let rows = model.positions
+    let entries = model.entryRows
     let shown = rows.first(where: { $0.id == selected }) ?? rows.first
     Card(title) {
       HStack(spacing: Tokens.Space.s) {
@@ -874,6 +875,11 @@ private struct PositionsCard: View {
             ScrollView(.horizontal) { tabs(rows, shown: shown, results: false) }
               .withoutScrollIndicators()
           }
+        }
+        // Cancel entry (mockup v160) while one entry order works with nothing open; with several,
+        // each row carries its own.
+        if rows.isEmpty, entries.count == 1, let entry = entries.first, entry.phase != .cancelled {
+          CancelEntryButton(row: entry)
         }
         // Close all beside the tabs (mockup Main): it pauses entries, cancels the working entry
         // orders and closes every position; shown only while one is open.
@@ -894,11 +900,14 @@ private struct PositionsCard: View {
         PositionDetail(row: row)
           .id(row.id)
           .transition(.opacity.combined(with: .scale(scale: PositionsCard.switchScale)))
+      } else if !entries.isEmpty {
+        WorkingEntryPanel(rows: entries)
       } else {
         EmptyPositions()
       }
     }
     .animation(Tokens.Motion.standard, value: selected)
+    .animation(Tokens.Motion.standard, value: entries)
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
   }
@@ -1200,6 +1209,70 @@ private struct EmptyPositions: View {
     }
     // Fills the card the row stretches, centred in it, never a band of blank under the words.
     .frame(maxWidth: .infinity, minHeight: Self.minHeight, maxHeight: .infinity)
+  }
+}
+
+/// An own entry order working with nothing filled (mockup v160), in place of the empty state: a
+/// ring with the order's state (a clock while it works, a spinner while its cancel is on its way,
+/// a tick once the broker cancelled it) beside its words. Several entries stack, each with its
+/// own Cancel entry; a single one's sits in the card's header, as the design draws it.
+private struct WorkingEntryPanel: View {
+  let rows: [EntryRow]
+
+  /// Size of the ring, its inner dashed ring's inset and its glyph, in points.
+  static let ring: CGFloat = 120
+  static let ringInset: CGFloat = 20
+  static let glyph: CGFloat = 34
+  /// Size of the inner ring's dashes, in points.
+  static let dash: [CGFloat] = [4, 4]
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.l) {
+      ForEach(rows) { row in
+        HStack(spacing: Tokens.Space.xl) {
+          if rows.count == 1 { ring(row) }
+          VStack(alignment: .leading, spacing: Tokens.Space.s) {
+            HStack(spacing: Tokens.Space.s) {
+              EntryDot(row.phase)
+              SymbolText(row.symbol)
+                .font(Tokens.Typography.figure)
+                .foregroundStyle(Palette.textPrimary)
+              if rows.count > 1 && row.phase != .cancelled { CancelEntryButton(row: row).fixedSize() }
+            }
+            EntryFacts(row)
+          }
+          Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(Self.idPrefix + row.symbol)
+      }
+    }
+    // Fills the card the row stretches, centred in it, as the empty state does.
+    .frame(maxWidth: .infinity, minHeight: EmptyPositions.minHeight, maxHeight: .infinity)
+  }
+
+  /// Accessibility id prefix of an entry's row, for the UI tests.
+  static let idPrefix = "working-entry-"
+
+  private func ring(_ row: EntryRow) -> some View {
+    let color = EntryLook.color(row.phase)
+    return ZStack {
+      Circle().fill(Palette.surfaceSunken)
+      Circle().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin)
+      Circle()
+        .stroke(color.opacity(Tokens.Opacity.border), style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Self.dash))
+        .padding(Self.ringInset)
+      switch row.phase {
+      case .working:
+        Image(systemName: EntryLook.workingSymbol).font(.system(size: Self.glyph)).foregroundStyle(color)
+      case .cancelling:
+        Spinner()
+      case .cancelled:
+        Image(systemName: EntryLook.doneSymbol).font(.system(size: Self.glyph)).foregroundStyle(Palette.profitText)
+      }
+    }
+    .frame(width: Self.ring, height: Self.ring)
+    .accessibilityHidden(true)
   }
 }
 

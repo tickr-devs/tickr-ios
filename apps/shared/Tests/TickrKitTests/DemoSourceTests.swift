@@ -155,7 +155,7 @@ final class NetworkTrap: URLProtocol {
     _ = try await client.day(today)
     _ = try await client.chart(symbol: "MVLD", interval: .m1, range: .oneDay)
     for command in [OperatorCommand.entryStop(on: true), .entryStop(on: false), .cancelOwnOrders, .flatten,
-      .flattenSymbol("MVLD"), .stopBot, .emergency] {
+      .flattenSymbol("MVLD"), .cancelEntry("MVLD"), .stopBot, .emergency] {
       let accepted = try await client.send(command, idempotencyKey: UUID().uuidString)
       #expect(accepted.command.kind == command.kind)
     }
