@@ -136,6 +136,43 @@ import Testing
     #expect(watch.rows(refused, inFlight: nil).first?.phase == .working)
   }
 
+  /// The bot's command limit in the tests, seconds (`SettingsV1.commandMaxAgeSeconds`).
+  private static let maxAge: Decimal = 120
+  /// When the queued cancel was requested (its `requested_at`).
+  private static let requested = Date(timeIntervalSince1970: 1_794_841_202)
+  /// A moment past the limit, seconds after the request.
+  private static let pastLimit: TimeInterval = 121
+
+  @Test func aCancelTheBotNeverPicksUpLapsesAtTheCommandLimit() throws {
+    let working = try status()
+    var watch = EntryCancelWatch()
+    watch.queued(try queued())
+    watch.read(working, now: Self.requested + 1, commandMaxAge: Self.maxAge)
+    #expect(watch.rows(working, inFlight: nil).first?.phase == .cancelling, "within the limit it is on its way")
+    watch.read(working, now: Self.requested + Self.pastLimit, commandMaxAge: Self.maxAge)
+    let row = try #require(watch.rows(working, inFlight: nil).first)
+    #expect(row.phase == .working, "past the limit the bot refuses it as expired: the entry still works")
+    #expect(row.cancelLapsedAfter == Self.maxAge)
+    watch.queued(try queued())
+    #expect(watch.rows(working, inFlight: nil).first?.cancelLapsedAfter == nil, "a new press clears the note")
+  }
+
+  @Test func aCancelTheBotPickedUpNeverLapses() throws {
+    var watch = EntryCancelWatch()
+    watch.queued(try queued())
+    let asked = try cancelRequested()
+    watch.read(asked, now: Self.requested + Self.pastLimit, commandMaxAge: Self.maxAge)
+    #expect(watch.rows(asked, inFlight: nil).first?.phase == .cancelling, "the bot asked the broker; its read settles it")
+  }
+
+  @Test func withoutTheLimitACancelIsFollowedUntilARead() throws {
+    let working = try status()
+    var watch = EntryCancelWatch()
+    watch.queued(try queued())
+    watch.read(working, now: Self.requested + Self.pastLimit)
+    #expect(watch.rows(working, inFlight: nil).first?.phase == .cancelling, "an older API states no limit")
+  }
+
   @Test func theHeadlineSaysHowManyEntriesWorkWithNoPositionOpen() throws {
     let one = try status { $0["positions"] = [] }
     #expect(Headline.detail(one) == "1 entry order working")

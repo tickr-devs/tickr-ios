@@ -1421,6 +1421,23 @@
         }
       }
     },
+    "kit.entry.cancelLapsed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel not picked up by the bot within %@ s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot no recogió la cancelación en %@ s"
+          }
+        }
+      }
+    },
     "kit.entry.cancelled" : {
       "extractionState" : "manual",
       "localizations" : {

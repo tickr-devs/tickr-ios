@@ -66,16 +66,17 @@ public struct EntryFacts: View {
   private var line: LocalizedStringResource {
     switch row.phase {
     case .working:
-      row.sentAt.map { ClockText.minutes($0) }.map { compact ? EntryText.sentWaitingShort($0) : EntryText.sentWaiting($0) }
+      if let limit = row.cancelLapsedAfter { return EntryText.cancelLapsed(DurationText.number(limit)) }
+      return row.sentAt.map { ClockText.minutes($0) }.map { compact ? EntryText.sentWaitingShort($0) : EntryText.sentWaiting($0) }
         ?? EntryText.waiting
-    case .cancelling: EntryText.cancelling
-    case .cancelled: EntryText.cancelledAtBroker
+    case .cancelling: return EntryText.cancelling
+    case .cancelled: return EntryText.cancelledAtBroker
     }
   }
 
   private var lineColor: Color {
     switch row.phase {
-    case .working: Palette.textTertiary
+    case .working: row.cancelLapsedAfter == nil ? Palette.textTertiary : Palette.warningText
     case .cancelling: Palette.textSecondary
     case .cancelled: Palette.profitText
     }
