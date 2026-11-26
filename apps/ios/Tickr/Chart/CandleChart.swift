@@ -132,8 +132,6 @@ struct CandleChart: View {
   /// The trading strategy's watch and entry marks.
   let events: [ChartEvent]
   let lines: Lines
-  /// The range's name for the caption ("Day · 1m · 40 bars …").
-  var rangeTitle: LocalizedStringResource = ChartText.rangeDay
   /// What the chart still waits for while the chart's request budget fills it (a cold 5D):
   /// a progress line over the chart (mockup v102); nil when it is complete.
   var pending: ChartPendingV1?
@@ -1219,7 +1217,7 @@ struct CandleChart: View {
         }
       }
     } else {
-      Self.caption(rangeTitle, series.timeframe, bars: viewport.barsShown(series))
+      Self.caption
     }
   }
 
@@ -1231,15 +1229,13 @@ struct CandleChart: View {
     }
   }
 
-  /// The chart's caption on one line: with how to move and read the chart where that fits
-  /// across, else the range, interval and bars alone. The loading chart lays its line out with it.
-  static func caption(_ range: LocalizedStringResource, _ timeframe: Timeframe, bars: Int) -> some View {
-    let range = String(localized: range)
-    let interval = String(localized: ChartFormat.title(timeframe))
-    let count = String(localized: ChartText.bars(bars))
-    return ViewThatFits(in: .horizontal) {
-      Text(ChartText.caption(range, interval, count)).fixedSize()
-      Text(ChartText.captionShort(range, interval, count)).fixedSize()
+  /// The chart's caption on one line while no candle is read (mockup IOSChart): how to move and
+  /// read the chart, shorter where the whole does not fit across. The range and interval are on
+  /// their own controls. The loading chart lays its line out with it.
+  static var caption: some View {
+    ViewThatFits(in: .horizontal) {
+      Text(ChartText.caption).fixedSize()
+      Text(ChartText.captionShort).fixedSize()
     }
   }
 

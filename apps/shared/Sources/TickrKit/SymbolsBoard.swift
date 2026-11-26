@@ -249,7 +249,8 @@ public enum SymbolsBoard {
 
     public let stage: SymbolStage
     public let mark: Mark
-    /// Why it stopped here (`reason`): only on the stage it stands at, when dropped or not reached.
+    /// What it measured there: the exact reason (`why`) on the stage it stands at unless it
+    /// passed, the screeners and ranks on the first stage; nil elsewhere.
     public let detail: String?
     public var id: SymbolStage { stage }
   }
@@ -269,10 +270,11 @@ public enum SymbolsBoard {
     let tone = outcome(row).tone
     return SymbolStage.allCases.map { stage in
       if stage == row.stage {
-        return Step(stage: stage, mark: .here(tone), detail: tone == .dropped || tone == .notReached ? reason(row) : nil)
+        let detail = tone == .passed ? nil : why(row)
+        return Step(stage: stage, mark: .here(tone), detail: stage == .screeners ? detail ?? foundBy(row) : detail)
       }
       if stage.order < row.stage.order || stage.order <= row.furthest.order {
-        return Step(stage: stage, mark: .passed, detail: nil)
+        return Step(stage: stage, mark: .passed, detail: stage == .screeners ? foundBy(row) : nil)
       }
       return Step(stage: stage, mark: .ahead, detail: nil)
     }
@@ -323,10 +325,8 @@ public enum SymbolsBoard {
 
   /// "bar ≥ $250K, then any of: vol ≥ 5× · |move| ≥ 2 ATR · $ vol ≥ 5× · vs last 10 bars": the thresholds.
   public static func rules(_ rules: FastMoverRulesV1) -> String {
-    let floor = rules.minBarDollarVolumeUsd.value.formatted(
-      .currency(code: dollarCode).notation(.compactName).precision(.fractionLength(0...ratioDigits)))
-    return String(localized: L10n.moverRules(rules.minVolumeRatio.text, rules.minMoveAtr.text,
-      rules.minDollarVolumeRatio.text, floor, rules.lookbackBars))
+    String(localized: L10n.moverRules(rules.minVolumeRatio.text, rules.minMoveAtr.text,
+      rules.minDollarVolumeRatio.text, barFloor(rules), rules.lookbackBars))
   }
 
   /// Decimals of a change, as the flow chips write it ("+6.4%").
@@ -337,6 +337,8 @@ public enum SymbolsBoard {
   static let dollarCode = "USD"
   /// Between the parts of a reason.
   static let separator = " · "
+  /// Between the screeners of a list ("Top gainers #3, Most active #7").
+  static let listSeparator = ", "
   /// Shown before a positive change or move.
   static let plus = "+"
 
