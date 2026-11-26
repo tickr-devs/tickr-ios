@@ -25,7 +25,7 @@ struct RadarSweep {
   /// Whether the scene is in front; a change updates the view, which starts the turn again.
   let active: Bool
 
-  fileprivate func update(_ view: RadarSweepView, in environment: EnvironmentValues) {
+  @MainActor fileprivate func update(_ view: RadarSweepView, in environment: EnvironmentValues) {
     view.show(
       color: color.resolve(in: environment).cgColor, width: width,
       blips: blips.map { $0.resolve(in: environment).cgColor }, turning: turning)
