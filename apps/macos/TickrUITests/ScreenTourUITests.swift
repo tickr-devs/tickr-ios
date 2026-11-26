@@ -44,8 +44,8 @@ final class ScreenTourUITests: XCTestCase {
   private static let decisionsToggle = "chart-decisions"
   /// The Chart rail's explain card (ChartExplainCard.contentID): present while the rail is shown.
   private static let explainCard = "chart-decisions-list"
-  /// Prefix of a flatten button id (BotAction.flattenPrefix).
-  private static let flattenPrefix = "flatten-"
+  /// Prefix of a position's Close button id on the Positions card (PositionDetail.closePrefix).
+  private static let flattenPrefix = "position-close-"
   /// English texts of the standard buttons the tour uses.
   private enum Label {
     static let showSidebar = "Show Sidebar"
