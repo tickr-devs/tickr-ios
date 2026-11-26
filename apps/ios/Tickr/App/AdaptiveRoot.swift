@@ -6,28 +6,35 @@ import TickrScreens
 /// Which screens the app shows (mockup v156, approved 2026-11-25): an iPad in regular width shows
 /// the Mac screens (`RegularScreens`); compact width (iPad Slide Over and a third of the screen)
 /// shows the iPhone screens. An iPhone in landscape can be regular width too (Pro Max) and keeps
-/// its own landscape layout; only the unfolded iPhone Duo in landscape, wider than any iPhone that
-/// does not fold, shows the Mac screens (sidebar and content, the IOSDuo board). Folded, or
-/// unfolded and upright, the Duo is compact width and shows the iPhone screens.
+/// its own landscape layout; only the unfolded iPhone Duo in landscape shows the Mac screens
+/// (sidebar and content, the IOSDuo board). Folded, or unfolded and upright, the Duo shows the
+/// iPhone screens.
+///
+/// The Duo is told apart by its window, both ways: wider than the folded Duo is long and taller
+/// than any other iPhone is in landscape. Width alone did not do it: unfolded it is 951 points
+/// wide, narrower than a Pro Max in landscape (956), but 669 tall against the Pro Max's 440.
 enum ScreenLayout: Equatable {
   case compact, regular
 
-  /// Width of the widest iPhone that does not fold, in points: a Pro Max in landscape (440 × 956,
-  /// iPhone 16 Pro Max and later). Apple has not published the Duo's sizes; its inner screen
-  /// (7.6", the outer one's aspect ratio) is wider than this in landscape, and nothing else with
-  /// the phone idiom is. Read by `pick`.
-  static let widestPhone: CGFloat = 956
+  /// Height of the tallest iPhone that does not fold, in landscape, in points: a Pro Max's short
+  /// side (440 × 956, iPhone 16 Pro Max and later). Read by `pick`.
+  static let phoneLandscapeHeight: CGFloat = 440
+  /// Long side of the folded iPhone Duo, in points (466 × 678 in the Simulator, 2026-11-26): its
+  /// folded landscape is no wider than this. Read by `pick`.
+  static let foldedDuoLength: CGFloat = 678
 
-  /// The layout for a device of `idiom` in a window `windowWidth` points wide, of size class
-  /// `width`; the Mac screens also need a connection to show (the iPhone screens hold the pairing
-  /// that makes one).
+  /// The layout for a device of `idiom` in a window of `window` points, of size class `width`;
+  /// the Mac screens also need a connection to show (the iPhone screens hold the pairing that
+  /// makes one).
   static func pick(
-    idiom: UIUserInterfaceIdiom, width: UserInterfaceSizeClass?, windowWidth: CGFloat, configured: Bool
+    idiom: UIUserInterfaceIdiom, width: UserInterfaceSizeClass?, window: CGSize, configured: Bool
   ) -> ScreenLayout {
     guard width == .regular, configured else { return .compact }
     switch idiom {
     case .pad: return .regular
-    case .phone: return windowWidth > widestPhone ? .regular : .compact
+    case .phone:
+      let unfolded = window.width > foldedDuoLength && window.height > phoneLandscapeHeight
+      return unfolded ? .regular : .compact
     default: return .compact
     }
   }
@@ -41,11 +48,11 @@ struct AdaptiveRoot: View {
   @Environment(\.horizontalSizeClass) private var width
   @Environment(\.scenePhase) private var scenePhase
   @State private var showsSettings = false
-  /// The window's width, which tells an unfolded iPhone Duo in landscape from a Pro Max.
-  @State private var windowWidth: CGFloat = 0
+  /// The window's size, which tells an unfolded iPhone Duo in landscape from a Pro Max.
+  @State private var window: CGSize = .zero
 
   private var layout: ScreenLayout {
-    ScreenLayout.pick(idiom: UIDevice.current.userInterfaceIdiom, width: width, windowWidth: windowWidth,
+    ScreenLayout.pick(idiom: UIDevice.current.userInterfaceIdiom, width: width, window: window,
       configured: model.connection.url != nil)
   }
 
@@ -68,7 +75,7 @@ struct AdaptiveRoot: View {
         }
       }
     }
-    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { windowWidth = $0 }
+    .onGeometryChange(for: CGSize.self) { $0.size } action: { window = $0 }
     .modifier(NoticeOverlay())
     .onOpenURL { url in
       if let pairing = Pairing.parse(url.absoluteString) {
