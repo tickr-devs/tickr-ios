@@ -1,10 +1,14 @@
 import XCTest
 
 /// The bot's commands on Overview in the narrowest window the app allows, on a large display and
-/// on small ones. The Safety · bot card sits in a row at least OverviewView.middleRowHeight tall,
-/// so every command must still lie inside the card, be hittable, and (except pausing, which acts
-/// at once and is never pressed here) open its confirmation; the emergency stop only after a held
-/// press. Escape withdraws every confirmation, and nothing is sent: no command toast ever shows.
+/// on small ones: Pause entries and Stop bot on the Safety · bot card, Close all and the position's
+/// Close on the Positions card (V4 variant A). The cards sit in a row at least
+/// OverviewView.middleRowHeight tall, so every command must still lie inside its card and the
+/// window, be hittable, and (except pausing, which acts at once and is never pressed here) open its
+/// confirmation on a click; Stop bot, with the fixture's open position, offers its three choices
+/// (Close and stop, Leave open, Cancel). Escape withdraws every confirmation, and nothing is sent:
+/// no command toast ever shows. The commands that left the Safety card (cancel orders, the per-position and
+/// all-positions close, the emergency stop) must not come back there.
 /// Run in English and in Spanish, whose labels are the longest; the macOS app has one text size
 /// (no Dynamic Type on the Mac, Tokens.Typography). The app reads the contract fixtures.
 ///
@@ -21,25 +25,23 @@ final class OverviewCommandsUITests: XCTestCase {
   /// Launch arguments of each language, without restoring windows saved by an earlier run.
   static let english = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-ApplePersistenceIgnoreState", "YES"]
   static let spanish = ["-AppleLanguages", "(es)", "-AppleLocale", "es_US", "-ApplePersistenceIgnoreState", "YES"]
-  /// The Overview's sidebar row and screen (AppSection ids), and the Safety · bot card
-  /// (SafetyCard.id).
+  /// The Overview's sidebar row and screen (AppSection ids), the Safety · bot card
+  /// (SafetyCard.id) and the Positions card (PositionsCard.id).
   static let overviewRow = "sidebar-overview"
   static let overviewScreen = "screen-overview"
   static let safetyCard = "overview-safety"
-  /// Command ids (BotAction.id) with the fixture's one open position, ABCD
-  /// (status-response-v1.json). Pausing acts at once; the others ask first.
+  static let positionsCard = "overview-positions"
+  /// Command ids (BotAction.id, PositionDetail.closePrefix) with the fixture's one open position,
+  /// ABCD (status-response-v1.json). Pausing acts at once; the others ask first.
   static let pause = "pause"
-  static let confirmed = ["cancel", "flatten-ABCD", "flatten-all", "stop", "emergency"]
-  /// The emergency stop (BotAction.emergency) asks only after a press held
-  /// Tokens.Command.holdSeconds (1.5 s); a plain click asks nothing. The test holds it this long,
-  /// in seconds: XCUITest's held click can reach the app shorter than asked on a loaded runner
-  /// (a 2 s click arrived as mouse down and up 1.47 s apart, from 1.47 to 2.23 s over 16 runs,
-  /// 2026-11-17), so 2 s once left the app a press too short to ask. Twice the hold leaves room
-  /// for a shortfall about three times the largest seen (0.53 s).
-  static let emergency = "emergency"
-  static let hold: TimeInterval = 3
-  /// How long a plain click on the emergency stop is watched for a question that must not come.
-  static let noQuestion: TimeInterval = 2
+  static let safetyConfirmed = ["stop"]
+  /// Buttons of each question that offers more than a yes: Stop bot with the fixture's open
+  /// position offers Close and stop, Leave open and Cancel (V4 variant A, StopChoice).
+  static let choices = ["stop": 3]
+  static let positionsConfirmed = ["close-all", "position-close-ABCD"]
+  /// Ids of the commands the Safety card no longer has (cancel orders, the per-position and
+  /// all-positions close, the emergency stop), nor Close all, which lives on the Positions card.
+  static let notOnSafety = ["cancel", "flatten-ABCD", "flatten-all", "emergency", "close-all"]
   /// The narrowest window on the fixtures, in points: TickrMacApp.leastWidth, which this test
   /// target cannot read from the app. The title bar's need is wider than the screens' (1086): the
   /// sidebar's widest 260, AppKit's insets 4 + 4 and gap 8, the fixtures' longest line (Overview,
@@ -54,6 +56,10 @@ final class OverviewCommandsUITests: XCTestCase {
   /// (LayoutSweep.safetyFirstKey): every command is clicked where it stands, never after a
   /// scroll, and away from the screen's bottom edge.
   static let safetyFirstKey = "TICKR_OVERVIEW_SAFETY_FIRST"
+  /// The same for the Positions card (LayoutSweep.positionsFirstKey), which wins over
+  /// `safetyFirstKey`: on the one-column board the two cards are apart, so its commands are
+  /// checked in a second launch with this card at the top.
+  static let positionsFirstKey = "TICKR_OVERVIEW_POSITIONS_FIRST"
   /// Environment variable that pretends the display's visible area is at most `<width>x<height>`
   /// points (LayoutSweep.screenKey), and the displays pretended: a 13-inch laptop and a small
   /// display, as `(value, width, height)`.
@@ -122,7 +128,8 @@ final class OverviewCommandsUITests: XCTestCase {
 
   /// The narrowest window on the pretended display: never larger than it (its least size is
   /// capped to the display, `WindowFit`), as wide as it (the display is narrower than the
-  /// comfortable least width), and every command reachable inside it.
+  /// comfortable least width), and every command reachable inside it. On the one-column board
+  /// (`safetyBeforeFlow`) the Positions card is checked in a second launch with it at the top.
   @MainActor
   private func checkOnDisplay(
     _ arguments: [String], _ display: (value: String, width: CGFloat, height: CGFloat), safetyBeforeFlow: Bool = false
@@ -131,7 +138,9 @@ final class OverviewCommandsUITests: XCTestCase {
     let window = app.windows.firstMatch
     XCTAssertEqual(window.frame.width, display.width, accuracy: 1, "the window is not as wide as the display")
     XCTAssertLessThanOrEqual(window.frame.height, display.height + 1, "the window is taller than the display")
-    checkCommands(in: app, window: window)
+    openOverview(in: app)
+    checkSafety(in: app, window: window)
+    if !safetyBeforeFlow { checkPositions(in: app, window: window) }
     if safetyBeforeFlow {
       // One column: the Safety · bot card sits above the Live flow card, first after the header
       // and the day's result.
@@ -140,6 +149,10 @@ final class OverviewCommandsUITests: XCTestCase {
       XCTAssertTrue(flow.waitForExistence(timeout: Self.timeout), "live flow\n\(app.debugDescription)")
       XCTAssertLessThanOrEqual(card.frame.maxY, flow.frame.minY,
         "the Safety card \(card.frame) is not above the flow \(flow.frame)")
+      app.terminate()
+      let again = launch(arguments, screen: display.value, positionsFirst: true)
+      openOverview(in: again)
+      checkPositions(in: again, window: again.windows.firstMatch)
     }
   }
 
@@ -148,18 +161,22 @@ final class OverviewCommandsUITests: XCTestCase {
     let app = launch(arguments, screen: nil)
     let window = app.windows.firstMatch
     XCTAssertEqual(window.frame.width, minWidth, accuracy: 1, "the window is not at its least width")
-    checkCommands(in: app, window: window)
+    openOverview(in: app)
+    checkSafety(in: app, window: window)
+    checkPositions(in: app, window: window)
   }
 
   /// Launches the app on the fixtures at its least window, Overview showing the Safety · bot card
-  /// at its top, on the display `screen` pretends (`screenKey`) or the real one.
+  /// (or, with `positionsFirst`, the Positions card) at its top, on the display `screen` pretends
+  /// (`screenKey`) or the real one.
   @MainActor
-  private func launch(_ arguments: [String], screen: String?) -> XCUIApplication {
+  private func launch(_ arguments: [String], screen: String?, positionsFirst: Bool = false) -> XCUIApplication {
     let app = XCUIApplication()
     app.launchArguments = arguments
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
     app.launchEnvironment[Self.smallestKey] = Self.fixturesOn
     app.launchEnvironment[Self.safetyFirstKey] = Self.fixturesOn
+    if positionsFirst { app.launchEnvironment[Self.positionsFirstKey] = Self.fixturesOn }
     if let screen { app.launchEnvironment[Self.screenKey] = screen }
     app.launch()
     let window = app.windows.firstMatch
@@ -168,39 +185,63 @@ final class OverviewCommandsUITests: XCTestCase {
     return app
   }
 
-  /// Every command of the Safety · bot card lies inside the card, which lies wholly inside the
-  /// window; each asks before it acts, Escape withdraws the question, and nothing is sent.
+  /// Opens Overview from the sidebar.
   @MainActor
-  private func checkCommands(in app: XCUIApplication, window: XCUIElement) {
+  private func openOverview(in app: XCUIApplication) {
     let row = app.descendants(matching: .any)[Self.overviewRow].firstMatch
     XCTAssertTrue(row.waitForExistence(timeout: Self.timeout), "sidebar row\n\(app.debugDescription)")
     row.click()
     let screen = app.descendants(matching: .any)[Self.overviewScreen].firstMatch
     XCTAssertTrue(screen.waitForExistence(timeout: Self.timeout), "overview screen")
+  }
+
+  /// The Safety · bot card lies wholly inside the window, holds Pause entries and Stop bot and none
+  /// of the commands that left it; Stop bot asks before it acts.
+  @MainActor
+  private func checkSafety(in app: XCUIApplication, window: XCUIElement) {
     let card = app.descendants(matching: .any)[Self.safetyCard].firstMatch
     waitUntilStill(card, "safety card", in: app)
     XCTAssertTrue(window.frame.contains(card.frame), "the card \(card.frame) is not wholly in the window \(window.frame)")
-
     let pause = card.buttons[Self.pause].firstMatch
     XCTAssertTrue(pause.waitForExistence(timeout: Self.timeout), "pause\n\(app.debugDescription)")
     assertInside(pause, card, Self.pause)
-    for id in Self.confirmed {
+    for id in Self.notOnSafety {
+      XCTAssertFalse(card.buttons[id].firstMatch.exists, "\(id) is back on the Safety card")
+    }
+    checkConfirmed(Self.safetyConfirmed, in: card, app: app, window: window)
+  }
+
+  /// Close all and the position's Close on the Positions card: each inside the card and the window,
+  /// and each asks before it acts.
+  @MainActor
+  private func checkPositions(in app: XCUIApplication, window: XCUIElement) {
+    let card = app.descendants(matching: .any)[Self.positionsCard].firstMatch
+    waitUntilStill(card, "positions card", in: app)
+    checkConfirmed(Self.positionsConfirmed, in: card, app: app, window: window)
+  }
+
+  /// Each command lies inside its card and the window and is on; a click opens its question,
+  /// Escape withdraws it, and nothing is sent.
+  @MainActor
+  private func checkConfirmed(_ ids: [String], in card: XCUIElement, app: XCUIApplication, window: XCUIElement) {
+    for id in ids {
       let button = card.buttons[id].firstMatch
       XCTAssertTrue(button.waitForExistence(timeout: Self.timeout), "\(id)\n\(app.debugDescription)")
       waitUntilStill(button, id, in: app)
       assertInside(button, card, id)
+      XCTAssertTrue(window.frame.contains(button.frame), "\(id) \(button.frame) is not in the window \(window.frame)")
       XCTAssertTrue(button.isEnabled, "\(id) is off")
-      if id == Self.emergency {
-        // A click alone never starts the emergency stop: only a held press opens its question.
-        button.click()
-        XCTAssertFalse(app.sheets.firstMatch.waitForExistence(timeout: Self.noQuestion),
-          "a plain click on the emergency stop asks")
-        button.click(forDuration: Self.hold, thenDragTo: button)
-      } else {
-        button.click()
-      }
+      button.click()
       let sheet = app.sheets.firstMatch
       XCTAssertTrue(sheet.waitForExistence(timeout: Self.timeout), "\(id) asks for confirmation")
+      if let count = Self.choices[id] {
+        // Every choice is there and can be pressed; none is pressed here.
+        XCTAssertEqual(sheet.buttons.count, count, "\(id) offers its choices\n\(sheet.debugDescription)")
+        for index in 0..<sheet.buttons.count {
+          let choice = sheet.buttons.element(boundBy: index)
+          XCTAssertTrue(choice.isHittable && choice.isEnabled, "\(id): choice \(choice.label) cannot be pressed")
+        }
+      }
       // Escape is the confirmation's cancel in every language.
       app.typeKey(.escape, modifierFlags: [])
       XCTAssertTrue(sheet.waitForNonExistence(timeout: Self.timeout), "\(id): the confirmation stays open")

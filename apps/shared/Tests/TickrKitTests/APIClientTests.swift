@@ -119,6 +119,8 @@ final class StubProtocol: URLProtocol {
       (.flatten, "/commands/flatten", [:]),
       (.flattenSymbol("ABCD"), "/commands/flatten", ["symbol": "ABCD"]),
       (.stopBot, "/commands/stop-bot", [:]),
+      (.stopBotMode(.closeAndStop), "/commands/stop-bot", ["mode": "close_and_stop"]),
+      (.stopBotMode(.leaveOpen), "/commands/stop-bot", ["mode": "leave_open"]),
       (.emergency, "/commands/emergency", [:]),
     ]
     for (index, (command, path, body)) in cases.enumerated() {

@@ -29,7 +29,11 @@ xcrun actool "Tickr/$ICON_NAME.icon" --compile "$APP/Contents/Resources" \
 # alert style), plus the ones Xcode generates from build settings. One source for both builds.
 PLIST="$APP/Contents/Info.plist"
 plutil -convert xml1 -o "$PLIST" Support/Info.plist
-plutil -insert CFBundleIdentifier -string local.tickr.operator "$PLIST"
+# Bundle id: the prefix from its one source (apps/Config/Identity.xcconfig) plus the Mac suffix,
+# as the Xcode target builds it.
+PREFIX="$(sed -n 's/^TICKR_BUNDLE_ID_PREFIX = //p' ../Config/Identity.xcconfig)"
+[ -n "$PREFIX" ] || { echo "make-app.sh: TICKR_BUNDLE_ID_PREFIX missing in apps/Config/Identity.xcconfig" >&2; exit 1; }
+plutil -insert CFBundleIdentifier -string "$PREFIX.mac" "$PLIST"
 plutil -insert CFBundleExecutable -string Tickr "$PLIST"
 plutil -insert CFBundlePackageType -string APPL "$PLIST"
 plutil -insert CFBundleShortVersionString -string 0.1 "$PLIST"

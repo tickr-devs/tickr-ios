@@ -4,7 +4,7 @@ import TickrDesign
 import TickrKit
 
 /// The menu-bar extra: what the bot is doing, today's result, the open positions against their
-/// stops, the bot's flow and the common controls, without opening the main window. It always
+/// stops, the bot's flow and Pause entries, without opening the main window. It always
 /// shows today, even while the main window shows a recorded day. Drawn as the design's solid card:
 /// the panel's own surface replaces the window's translucent material, which greyed it out.
 struct MenuBarPanel: View {
@@ -31,11 +31,17 @@ struct MenuBarPanel: View {
       TodayResult().rise(step: Order.result.rawValue)
       MenuPositions().rise(step: Order.positions.rawValue)
       FlowDots().rise(step: Order.flow.rawValue)
-      // The commands in the design's tiers, compact: pause and cancel, Close all, then the
-      // emergency stop behind its divider.
-      BotControls(compact: true, place: .menuBar)
-        .frame(maxWidth: .infinity)
-        .rise(step: Order.controls.rawValue)
+      // Only Pause entries (Resume while paused), as designed; closing positions and stopping the
+      // bot are in the main window, and the line under it says so.
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        BotCommandButton(action: model.pauseAction, place: .menuBar, size: .compact)
+        Text(L10n.MenuBar.moreInApp)
+          .font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .rise(step: Order.controls.rawValue)
       Rectangle()
         .fill(Palette.separator)
         .frame(height: Tokens.Stroke.thin)
