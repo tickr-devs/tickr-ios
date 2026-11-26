@@ -13,6 +13,12 @@ extension L10n {
     LocalizedStringResource("kit.refusal.PRICE_OUTSIDE_WINDOW",
       defaultValue: "Ask {ask} outside the entry range {entry_low}–{limit}", bundle: bundle)
   }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. PRICE_COLLAR_BREACH (values: limit, bar_distance, bar_close, bar_max, quote_distance, previous_ask, quote_max)
+  static var refusalReasonPriceCollarBreach: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.PRICE_COLLAR_BREACH",
+      // swiftlint:disable:next line_length
+      defaultValue: "Limit {limit} is {bar_distance} from the last bar's close {bar_close} (maximum {bar_max}) and {quote_distance} from the previous ask {previous_ask} (maximum {quote_max}); a maximum of 0 is off", bundle: bundle)
+  }
   /// A refused entry's detail (`refusal.params`), after the rule's title. QUANTITY_NOT_WHOLE (values: quantity)
   static var refusalReasonQuantityNotWhole: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.QUANTITY_NOT_WHOLE",

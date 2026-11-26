@@ -23,6 +23,9 @@ extension L10n {
   static var inFlightStopBot: LocalizedStringResource {
     LocalizedStringResource("kit.inFlight.stopBot", defaultValue: "Stopping the bot", bundle: bundle)
   }
+  static var inFlightCloseAndStop: LocalizedStringResource {
+    LocalizedStringResource("kit.inFlight.closeAndStop", defaultValue: "Closing and stopping", bundle: bundle)
+  }
   static var inFlightEmergency: LocalizedStringResource {
     LocalizedStringResource("kit.inFlight.emergency", defaultValue: "Stopping everything", bundle: bundle)
   }
@@ -36,7 +39,8 @@ extension OperatorCommand {
     case .cancelOwnOrders: L10n.inFlightCancelOrders
     case .flatten: L10n.inFlightFlatten
     case .flattenSymbol(let symbol): L10n.inFlightFlattenSymbol(symbol)
-    case .stopBot: L10n.inFlightStopBot
+    case .stopBot, .stopBotMode(.leaveOpen): L10n.inFlightStopBot
+    case .stopBotMode(.closeAndStop): L10n.inFlightCloseAndStop
     case .emergency: L10n.inFlightEmergency
     }
   }

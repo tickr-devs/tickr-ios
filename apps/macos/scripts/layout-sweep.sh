@@ -25,13 +25,16 @@ mkdir -p "$APP/Contents/MacOS"
 cp "$(swift build --show-bin-path)/TickrMac" "$APP/Contents/MacOS/TickrMac"
 mkdir -p "$APP/Contents/Resources"
 cp -R "$(swift build --show-bin-path)"/*.bundle "$APP/Contents/Resources/"
-cat > "$APP/Contents/Info.plist" <<'PLIST'
+# Its id: the app's prefix from its one source (apps/Config/Identity.xcconfig), never the app's own.
+PREFIX="$(sed -n 's/^TICKR_BUNDLE_ID_PREFIX = //p' ../Config/Identity.xcconfig)"
+[ -n "$PREFIX" ] || { echo "layout-sweep.sh: TICKR_BUNDLE_ID_PREFIX missing in apps/Config/Identity.xcconfig" >&2; exit 1; }
+cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key><string>Tickr</string>
-  <key>CFBundleIdentifier</key><string>local.tickr.layoutsweep</string>
+  <key>CFBundleIdentifier</key><string>$PREFIX.mac.layoutsweep</string>
   <key>CFBundleExecutable</key><string>TickrMac</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
