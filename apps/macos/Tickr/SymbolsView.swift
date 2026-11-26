@@ -593,7 +593,7 @@ private struct FastRuleButton: View {
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .pointerStyle(.link)
+    .linkPointer()
     .help(Text(SymbolsText.fastRuleLabel))
     .accessibilityLabel(Text(SymbolsText.fastRuleLabel))
     .popover(isPresented: $open, arrowEdge: .bottom) {
