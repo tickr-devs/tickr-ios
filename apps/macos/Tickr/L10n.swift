@@ -2915,7 +2915,7 @@ enum L10n {
     }
     /// Card: one symbol's decision, check by check.
     static var explain: LocalizedStringResource {
-      LocalizedStringResource("lab.explain", defaultValue: "Why did the model decide that?", bundle: L10n.bundle)
+      LocalizedStringResource("lab.explain", defaultValue: "Why did the bot decide that?", bundle: L10n.bundle)
     }
     /// Placeholder of the symbol field.
     static var explainPrompt: LocalizedStringResource {
@@ -3018,7 +3018,7 @@ enum L10n {
     /// What the refusals card counts.
     static var refusalsInfo: LocalizedStringResource {
       LocalizedStringResource("lab.refusalsInfo",
-        defaultValue: "Times the model wanted to enter and the platform's limits said no.", bundle: L10n.bundle)
+        defaultValue: "Times the active version wanted to enter and the platform's limits said no.", bundle: L10n.bundle)
     }
     /// Under the decision: why it was decided.
     static func explainCause(_ cause: String) -> LocalizedStringResource {

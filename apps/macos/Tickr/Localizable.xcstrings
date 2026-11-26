@@ -5563,13 +5563,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Why did the model decide that?"
+            "value" : "Why did the bot decide that?"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Por qué decidió eso el modelo?"
+            "value" : "¿Por qué decidió eso el bot?"
           }
         }
       }
@@ -5801,13 +5801,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Times the model wanted to enter and the platform's limits said no."
+            "value" : "Times the active version wanted to enter and the platform's limits said no."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veces que el modelo quiso entrar y los límites de la plataforma dijeron que no."
+            "value" : "Veces que la versión activa quiso entrar y los límites de la plataforma dijeron que no."
           }
         }
       }
