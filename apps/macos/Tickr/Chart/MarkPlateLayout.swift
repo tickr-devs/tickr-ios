@@ -45,27 +45,51 @@ enum MarkPlateLayout {
 
   /// The centres of the plates that are drawn, by id; `items` in priority order (first wins).
   /// `offset`: from the mark's centre to the plate's near edge; `gap`: least room between a plate
-  /// and anything else, and the plot's edges.
+  /// and anything else, and the plot's edges. When placing in priority order leaves a plate over a
+  /// candle or mark, the plates with the fewest clear places go first instead, and that result is
+  /// kept if it leaves no more plates out and covers less (a cluster's first plate took the one
+  /// clear place of the next: KXTR, iPad retest 2026-11-26).
   static func place(
     _ items: [Item], avoiding obstacles: Obstacles, in frame: CGRect, offset: CGFloat, gap: CGFloat
   ) -> [Int: CGPoint] {
     let inside = frame.insetBy(dx: gap, dy: gap)
     let candles = obstacles.candles.filter { $0.intersects(frame) }
     let glyphs = obstacles.glyphs.filter { $0.intersects(frame) }
+    let options: [Options] = items.filter { frame.contains($0.anchor) }.map { item in
+      let around = candles + glyphs.filter { !$0.contains(item.anchor) }
+      let places = candidates(item, offset: offset, in: inside).map { (rect: $0, cover: covered($0, by: around, gap: gap)) }
+      return Options(id: item.id, places: places)
+    }
+    let ranked = greedy(options, gap: gap)
+    guard ranked.cover > 0 else { return ranked.centres }
+    let clear = { (option: Options) in option.places.filter { $0.cover == 0 }.count }
+    let constrained = options.enumerated().sorted { (clear($0.element), $0.offset) < (clear($1.element), $1.offset) }
+    let tight = greedy(constrained.map { $0.element }, gap: gap)
+    let better = tight.centres.count >= ranked.centres.count && tight.cover < ranked.cover
+    return better ? tight.centres : ranked.centres
+  }
+
+  /// One plate's places, nearest first, each with how much of the candles and marks it covers.
+  private struct Options {
+    let id: Int
+    let places: [(rect: CGRect, cover: CGFloat)]
+  }
+
+  /// Each plate in turn takes the nearest of its places that covers least and no plate before it.
+  private static func greedy(_ options: [Options], gap: CGFloat) -> (centres: [Int: CGPoint], cover: CGFloat) {
     var taken: [CGRect] = []
     var centres: [Int: CGPoint] = [:]
-    for item in items where frame.contains(item.anchor) {
-      let around = candles + glyphs.filter { !$0.contains(item.anchor) }
-      let places = candidates(item, offset: offset, in: inside).filter { covered($0, by: taken, gap: gap) == 0 }
-      // The nearest place that covers least: `places` runs nearest first, and `min` keeps the
-      // first of equals.
-      let choice = places.map { (rect: $0, cover: covered($0, by: around, gap: gap)) }.min { $0.cover < $1.cover }
-      if let choice {
+    var cover: CGFloat = 0
+    for option in options {
+      // `places` runs nearest first, and `min` keeps the first of equals.
+      let free = option.places.filter { covered($0.rect, by: taken, gap: gap) == 0 }
+      if let choice = free.min(by: { $0.cover < $1.cover }) {
         taken.append(choice.rect)
-        centres[item.id] = CGPoint(x: choice.rect.midX, y: choice.rect.midY)
+        centres[option.id] = CGPoint(x: choice.rect.midX, y: choice.rect.midY)
+        cover += choice.cover
       }
     }
-    return centres
+    return (centres, cover)
   }
 
   /// How much of `rect` lies within `gap` of `others`, in square points (0: clear of them all).
