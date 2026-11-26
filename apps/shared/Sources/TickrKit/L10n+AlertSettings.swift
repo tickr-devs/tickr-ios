@@ -37,9 +37,10 @@ public enum AlertText {
     LocalizedStringResource("kit.alerts.note.telegram",
       defaultValue: "To the chat in the bot's settings", bundle: bundle)
   }
-  /// Why push is not built yet.
+  /// Where a push goes.
   public static var pushNote: LocalizedStringResource {
-    LocalizedStringResource("kit.alerts.note.push", defaultValue: "Needs an Apple Developer membership", bundle: bundle)
+    LocalizedStringResource("kit.alerts.note.push",
+      defaultValue: "To the Tickr app on your iPhone and Mac", bundle: bundle)
   }
   /// The latest morning check proved the channel works.
   public static var works: LocalizedStringResource {
