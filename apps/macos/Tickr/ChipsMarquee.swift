@@ -80,6 +80,10 @@ struct ChipsMarquee<Item: Hashable, Chip: View>: View {
             }
           }
         }
+        // As tall as its chips: a horizontal scroll view takes whatever height it is offered,
+        // and in the live flow's card it was squeezed until the chips ran under the stages (iPad,
+        // 2026-11-26).
+        .fixedSize(horizontal: false, vertical: true)
         .withoutScrollIndicators()
       }
     }
