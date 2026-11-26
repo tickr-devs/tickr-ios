@@ -3,8 +3,9 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Trades & days: recorded days and the 30-day performance on the left; the shown day's figures,
-/// its trades, the selected trade beside the signals not taken, and what-if replays on the right.
+/// Trades & days (MacTrades v134): recorded days and the 30-day performance on the left; the
+/// shown day's figures, its trades, and the selected trade beside the signals not taken (with what
+/// they would have made) on the right.
 /// Picking a day here is the same as picking it in the toolbar.
 struct TradesView: View {
   @Environment(AppModel.self) private var model
@@ -37,12 +38,12 @@ struct TradesView: View {
   /// columns were cut to "10:07:…". With the sidebar at its preferred width the window's first
   /// width (`TickrMacApp.defaultWidth`) is wide enough, as on the board.
   static let sideBySideMinWidth: CGFloat = leastScreenWidth + daysColumnWidth + columnGap
-  /// Width of the selected trade's card beside Not taken, in points.
-  static let detailWidth: CGFloat = 330
+  /// Width of the selected trade's card beside Not taken, in points: the board's 360 (MacTrades v134).
+  static let detailWidth: CGFloat = 360
 
   /// Entrance order of the screen's parts.
   fileprivate enum Order: Int {
-    case days = 0, performance, stats, trades, detail, notTaken, whatIf
+    case days = 0, performance, stats, trades, detail, notTaken
   }
 
   /// The screen's size, read from its scroll area: whether the days column fits beside the day,
@@ -149,8 +150,7 @@ struct TradesView: View {
     }
   }
 
-  /// The shown day's figures, trades, the selected trade with the signals not taken, and
-  /// replays.
+  /// The shown day's figures, trades, and the selected trade with the signals not taken.
   /// A picked past day shows its title at once, then its trades once read: a skeleton while they
   /// are, the unavailable state with its cause when they could not be (never the day before's
   /// figures, nor zeros that read as an empty day).
@@ -176,8 +176,6 @@ struct TradesView: View {
         TradesTable(selection: $selection, showOnChart: showOnChart)
           .rise(step: Order.trades.rawValue)
         selectedAndNotTaken
-        WhatIfCard()
-          .rise(step: Order.whatIf.rawValue)
       }
     }
     // A picked day's cards take its skeleton's place without rising (design-system "Loading").
@@ -285,11 +283,10 @@ private struct DaysColumn: View {
 
 // MARK: Shown day
 
-/// The shown day's figures: result, trades, average R, best and worst trade.
+/// The shown day's figures: result, trades, average R (MacTrades v134; each trade's best and
+/// worst are in the table).
 private struct DayStatsRow: View {
   @Environment(AppModel.self) private var model
-
-  private var results: [Decimal] { model.shownTrades.map(\.resultUsd.value) }
 
   private var averageR: Decimal? {
     let values = model.shownTrades.compactMap(\.resultR)
@@ -297,14 +294,11 @@ private struct DayStatsRow: View {
     return values.reduce(0, +) / Decimal(values.count)
   }
 
-  /// Four figures in a row; two rows of two when the row would have to shrink them.
+  /// Three figures in a row; one under the other when the row would have to shrink them.
   var body: some View {
     ViewThatFits(in: .horizontal) {
-      HStack(spacing: Tokens.Space.l) { result; trades; average; bestWorst }
-      Grid(horizontalSpacing: Tokens.Space.l, verticalSpacing: Tokens.Space.l) {
-        GridRow { result; trades }
-        GridRow { average; bestWorst }
-      }
+      HStack(spacing: Tokens.Space.l) { result; trades; average }
+      VStack(spacing: Tokens.Space.l) { result; trades; average }
     }
   }
 
@@ -335,21 +329,6 @@ private struct DayStatsRow: View {
         .foregroundStyle(averageR.map(Palette.result) ?? Palette.textQuaternary)
     }
   }
-
-  private var bestWorst: some View {
-    Stat(L10n.Trades.bestWorst) {
-      HStack(spacing: Tokens.Space.s) {
-        if let best = results.max(), let worst = results.min() {
-          MoneyText(value: best, font: Tokens.Typography.figure)
-          MoneyText(value: worst, font: Tokens.Typography.figure)
-        } else {
-          Text(verbatim: Format.missing)
-            .font(Tokens.Typography.figure)
-            .foregroundStyle(Palette.textQuaternary)
-        }
-      }
-    }
-  }
 }
 
 /// A card holding one figure of the shown day.
@@ -378,40 +357,28 @@ private struct TradesTable: View {
   @State private var risen: Set<TradeRow.ID> = []
   let showOnChart: (String) -> Void
 
-  /// Least and preferred widths of the table's columns, in points. Each least width holds the
-  /// column's widest content and its heading whole, in English and Spanish (measured in the
-  /// table's fonts: values in 12-point mono, headings and badges in 10-point mono; a heading cell
-  /// keeps a few points of inset, a value cell none); the preferred widths are the board's
-  /// (MacTrades: 76 · 56 · 34 · 56 · 72 · 68 · reason · 66 · 72), never under the least.
+  /// Least and preferred widths of the table's four columns, in points (MacTrades v134: time,
+  /// symbol, exit, result). Each least width holds the column's widest content and its heading
+  /// whole, in English and Spanish (values in 12-point mono, headings and badges in 10-point mono;
+  /// a heading cell keeps a few points of inset, a value cell none).
   private enum Column {
     /// "10:07:00" (59.3).
     static let timeMin: CGFloat = 60
     static let time: CGFloat = 76
-    /// The heading "SYMBOL" (37.1, and the header cell's own inset, as the quantity's: at 40 it
-    /// read "SYMB…"); a five-letter symbol such as "BRK.B" takes 37.1.
+    /// The heading "SYMBOL" (37.1, and the header cell's own inset: at 40 it read "SYMB…"); a
+    /// five-letter symbol such as "BRK.B" takes 37.1.
     static let symbolMin: CGFloat = 46
     static let symbol: CGFloat = 56
-    /// A six-letter heading (37.1, and the header cell's own inset: at 38 its last letters were
-    /// cut); the English "QTY" and Spanish "CANT." are shorter; a four-digit quantity takes 29.7.
-    static let quantityMin: CGFloat = 46
-    static let quantity: CGFloat = 48
-    /// A four-digit price "1234.56" (51.9); the board gives entry, exit and stop their own widths.
-    static let priceMin: CGFloat = 52
-    static let entry: CGFloat = 56
-    static let exit: CGFloat = 72
-    static let stop: CGFloat = 68
-    /// The reason badge with the widest exit reason, 21 characters (129.8 and the badge's padding,
-    /// 146): the Spanish "MUCHO TIEMPO SIN STOP", "COTIZACIONES PERDIDAS", "SE ACABARON LAS VELAS".
-    static let reasonMin: CGFloat = 148
-    static let reason: CGFloat = 152
-    /// "−10.0 R" (51.9).
-    static let figureMin: CGFloat = 52
-    static let figure: CGFloat = 66
+    /// The widest exit: an open position's OPEN tag (44) with its line in 11-point mono,
+    /// "1234 @ 1234.56 · stop 1234.56 ✓" (31 characters, 205), or the widest exit reason badge,
+    /// 21 characters (146): the Spanish "MUCHO TIEMPO SIN STOP".
+    static let reasonMin: CGFloat = 260
+    static let reason: CGFloat = 300
     /// "−$1,234.56" (74.2).
     static let moneyMin: CGFloat = 76
-    static let money: CGFloat = 80
-    /// The least widths of the nine columns in the table's order.
-    static let leastWidths = [timeMin, symbolMin, quantityMin, priceMin, priceMin, priceMin, reasonMin, figureMin, moneyMin]
+    static let money: CGFloat = 88
+    /// The least widths of the four columns in the table's order.
+    static let leastWidths = [timeMin, symbolMin, reasonMin, moneyMin]
   }
 
   /// AppKit's table layout around the columns, in points (measured with Accessibility on macOS
@@ -454,11 +421,7 @@ private struct TradesTable: View {
   }
 
   var body: some View {
-    Card(L10n.Trades.tradesOfDay, trailing: {
-      Text(L10n.Trades.tradesHint)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-    }, content: {
+    Card(L10n.Trades.tradesOfDay, trailing: { EmptyView() }, content: {
       if rows.isEmpty {
         Group {
           if model.isLive {
@@ -501,33 +464,7 @@ private struct TradesTable: View {
         }
       }
       .width(min: Column.symbolMin, ideal: Column.symbol)
-      TableColumn(Self.header(L10n.Trades.quantity)) { row in
-        cell(row, step: steps[row.id]) {
-          Text(verbatim: Format.quantity(row.quantity)).font(Tokens.Typography.calloutMono)
-        }
-      }
-      .width(min: Column.quantityMin, ideal: Column.quantity)
-      TableColumn(Self.header(L10n.Trades.entry)) { row in
-        cell(row, step: steps[row.id]) {
-          Text(verbatim: Format.price(row.entry)).font(Tokens.Typography.calloutMono)
-        }
-      }
-      .width(min: Column.priceMin, ideal: Column.entry)
       TableColumn(Self.header(L10n.Trades.exit)) { row in
-        cell(row, step: steps[row.id]) {
-          Text(verbatim: Format.price(row.exit)).font(Tokens.Typography.calloutMono)
-            .foregroundStyle(row.exit == nil ? Palette.textQuaternary : Palette.textPrimary)
-        }
-      }
-      .width(min: Column.priceMin, ideal: Column.exit)
-      TableColumn(Self.header(L10n.Trades.stop)) { row in
-        cell(row, step: steps[row.id]) {
-          Text(verbatim: Format.price(row.stop)).font(Tokens.Typography.calloutMono)
-            .foregroundStyle(row.stopUnverified ? Palette.lossText : Palette.textPrimary)
-        }
-      }
-      .width(min: Column.priceMin, ideal: Column.stop)
-      TableColumn(Self.header(L10n.Trades.reason)) { row in
         cell(row, step: steps[row.id]) {
           switch row {
           case .open(let position):
@@ -538,6 +475,7 @@ private struct TradesTable: View {
                 // verified), never a loop.
                 PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: position.event)
                 Badge(L10n.Trades.open, tone: Tone.openPosition)
+                OpenLine(row: position)
               }
             }
             .buttonStyle(.plain)
@@ -552,24 +490,16 @@ private struct TradesTable: View {
         }
       }
       .width(min: Column.reasonMin, ideal: Column.reason)
-      TableColumn(Self.header(L10n.Trades.resultR)) { row in
-        cell(row, step: steps[row.id]) {
-          Text(verbatim: row.resultR.map(Risk.text) ?? Format.missing)
-            .font(Tokens.Typography.calloutMono)
-            .foregroundStyle(row.resultRColor)
-        }
-      }
-      .width(min: Column.figureMin, ideal: Column.figure)
       TableColumn(Self.header(L10n.Trades.result)) { row in
         cell(row, step: steps[row.id]) {
-          if let result = row.result {
-            // Greyed while it is as of an older bar, as in the menu-bar panel.
-            MoneyText(value: result, font: Tokens.Typography.calloutMono, muted: row.isStale)
-          } else {
-            Text(L10n.Trades.open)
-              .textCase(.lowercase)
-              .font(Tokens.Typography.calloutMono)
-              .foregroundStyle(Palette.textQuaternary)
+          switch row {
+          case .open:
+            // Still open: R now, greyed while it is as of an older bar (MacTrades v134).
+            Text(verbatim: row.resultR.map(Risk.text) ?? Format.missing)
+              .font(Tokens.Typography.calloutMono.bold())
+              .foregroundStyle(row.resultRColor)
+          case .closed(let trade):
+            MoneyText(value: trade.resultUsd.value, font: Tokens.Typography.calloutMono.bold())
           }
         }
       }
@@ -626,8 +556,8 @@ private struct TradesTable: View {
   }
 }
 
-/// A row of the day's trades table: a position still open on the live day (its live R and
-/// result), or a closed trade.
+/// A row of the day's trades table: a position still open on the live day (its live R), or a
+/// closed trade.
 enum TradeRow: Identifiable {
   case open(PositionRow)
   case closed(DayTrade)
@@ -652,42 +582,7 @@ enum TradeRow: Identifiable {
     }
   }
 
-  var quantity: Decimal {
-    switch self {
-    case .open(let row): row.quantity
-    case .closed(let trade): trade.quantity.value
-    }
-  }
-
-  var entry: Decimal {
-    switch self {
-    case .open(let row): row.entry
-    case .closed(let trade): trade.entryPrice.value
-    }
-  }
-
-  /// The exit price; nil while open.
-  var exit: Decimal? {
-    switch self {
-    case .open: nil
-    case .closed(let trade): trade.exitPrice.value
-    }
-  }
-
-  var stop: Decimal? {
-    switch self {
-    case .open(let row): row.stop
-    case .closed(let trade): trade.stopPrice?.value
-    }
-  }
-
-  /// An open position whose broker stop is not verified.
-  var stopUnverified: Bool {
-    if case .open(let row) = self { return !row.position.stop.state.isProtected }
-    return false
-  }
-
-  /// R now (open, at the newest captured bar) or at the exit.
+  /// R now (open, at the newest captured bar) or at the exit; the table shows it for an open row.
   var resultR: Decimal? {
     switch self {
     case .open(let row): row.resultR ?? row.latestResultR
@@ -707,30 +602,49 @@ enum TradeRow: Identifiable {
     guard let resultR, !isStale else { return Palette.textQuaternary }
     return Palette.result(resultR)
   }
+}
 
-  /// Result in USD now (open, gross) or at the exit (after fees once known); nil while an open one has no bar yet.
-  var result: Decimal? {
-    switch self {
-    case .open(let row): row.unrealized ?? row.latestUnrealized
-    case .closed(let trade): trade.resultUsd.value
+/// An open position's size, entry and stop in the trades table: "10 @ 12.34 · stop 11.90 ✓",
+/// the tick only once the broker confirmed the stop (MacTrades v134); its state in words when
+/// it has no stop price.
+private struct OpenLine: View {
+  let row: PositionRow
+
+  /// Symbol after a confirmed stop.
+  static let confirmedSymbol = "checkmark"
+
+  var body: some View {
+    let state = row.position.stop.state
+    HStack(spacing: Tokens.Space.xxs) {
+      Text(L10n.Trades.openLine(Format.quantity(row.quantity), Format.price(row.entry),
+        row.stop == nil ? state.title : Format.price(row.stop)))
+      if state.isProtected {
+        Image(systemName: Self.confirmedSymbol).accessibilityHidden(true)
+      }
     }
+    .font(Tokens.Typography.captionMono)
+    .foregroundStyle(state.isProtected ? Palette.textSecondary : state.tone.text)
+    .fixedSize()
+    .help(Text(verbatim: state.title))
   }
 }
 
-/// The selected trade's risk (1 R), price excursion and how fast the broker confirmed its stop.
+/// The selected trade (MacTrades v134): its symbol and time, the result big with its R, one line
+/// with its size, prices, stop and 1 R, and how it exited; its risk, stop timing, price excursion
+/// and what came after are one click away under "Details". "Other versions" replays it.
 private struct TradeDetailCard: View {
   let trade: DayTrade?
   @State private var anotherShown = false
 
   /// Accessibility id of the card, for the UI tests.
   static let id = "trades-detail"
-  /// Symbol of the "Another strategy" button.
+  /// Symbol of the "Other versions" button.
   static let anotherSymbol = "arrow.triangle.branch"
 
   var body: some View {
     Group {
       if let trade {
-        Card(L10n.Trades.tradeDetail(trade.symbol), trailing: {
+        Card(L10n.Trades.selectedTrade, trailing: {
           Button {
             anotherShown.toggle()
           } label: {
@@ -746,83 +660,25 @@ private struct TradeDetailCard: View {
           }
         }, content: {
           VStack(alignment: .leading, spacing: Tokens.Space.m) {
-            Grid(alignment: .leading, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.s) {
-              GridRow {
-                Text(L10n.Trades.oneR).foregroundStyle(Palette.textSecondary)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                  .fixedSize(horizontal: false, vertical: true)
-                MoneyText(
-                  value: trade.plannedLossUsd.value, font: Tokens.Typography.calloutMono, colored: false,
-                  signed: false)
-                  // The values line up on the right, as in the design; the labels take the rest.
-                  .gridColumnAlignment(.trailing)
-              }
-              GridRow {
-                Text(L10n.Trades.stopConfirmedAfter).foregroundStyle(Palette.textSecondary)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                  .fixedSize(horizontal: false, vertical: true)
-                  .help(Text(L10n.Trades.stopConfirmedHelp))
-                if let seconds = trade.stopConfirmedAfterSeconds {
-                  Text(verbatim: Format.seconds(seconds.value)).font(Tokens.Typography.calloutMono)
-                } else {
-                  notRecorded
-                }
-              }
-              GridRow {
-                let sent = EntrySent.line(trade.entry, cause: ApiText.prose(trade.entryCauseCodes, text: trade.entryCause))
-                Text(L10n.EntrySent.title).foregroundStyle(Palette.textSecondary)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                  .fixedSize(horizontal: false, vertical: true)
-                let value = Text(verbatim: sent.text)
-                  .font(Tokens.Typography.calloutMono)
-                  .foregroundStyle(sent.color)
-                // A tooltip only when there is something to add (the bot's cause of a missing record).
-                if let help = sent.help {
-                  value.help(Text(verbatim: help))
-                } else {
-                  value
-                }
-              }
-              excursion(L10n.Trades.maeAtLeast, trade.maeUsd)
-              excursion(L10n.Trades.mfeAtLeast, trade.mfeUsd)
-              GridRow {
-                Text(L10n.Trades.codeVersion).foregroundStyle(Palette.textSecondary)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                  .fixedSize(horizontal: false, vertical: true)
-                if let code = trade.codeVersion {
-                  Text(verbatim: CodeVersion.short(code)).font(Tokens.Typography.calloutMono)
-                    .help(Text(L10n.Trades.codeVersionHelp(code)))
-                } else {
-                  notRecorded
-                }
-              }
-              GridRow {
-                Text(L10n.Trades.overshoot).foregroundStyle(Palette.textSecondary)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                  .fixedSize(horizontal: false, vertical: true)
-                  .help(Text(L10n.Trades.overshootHelp))
-                if let usd = trade.overshootUsd?.value {
-                  Text(L10n.Trades.overshootValue(Money.signedUSD(usd), trade.overshootR.map { Risk.text($0.value) }
-                    ?? Format.missing))
-                    .font(Tokens.Typography.calloutMono)
-                    // Neutral, not green: this is profit the trade left behind, not a gain.
-                    .foregroundStyle(Palette.textPrimary)
-                } else {
-                  Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
-                    .help(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
-                }
-              }
+            headline(trade)
+            // The tick only when the broker confirmed the stop.
+            let parts = (Format.quantity(trade.quantity.value), Format.price(trade.entryPrice.value),
+              Format.price(trade.exitPrice.value), Format.price(trade.stopPrice?.value), Money.usd(trade.plannedLossUsd.value))
+            Text(trade.stopConfirmedAfterSeconds == nil ? L10n.Trades.fillLine(parts.0, parts.1, parts.2, parts.3, parts.4)
+              : L10n.Trades.fillLineVerified(parts.0, parts.1, parts.2, parts.3, parts.4))
+              .font(Tokens.Typography.captionMono)
+              .foregroundStyle(Palette.textSecondary)
+              .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: Tokens.Space.s) {
+              Text(L10n.Trades.exit).foregroundStyle(Palette.textSecondary)
+              Spacer(minLength: Tokens.Space.s)
+              Badge(verbatim: Board.exitReasonTitle(trade.exitReason), tone: Tone.exit(trade.exitReason))
             }
             .font(Tokens.Typography.callout)
-            if let after = WhatIfText.after(trade.pricesAfter) {
-              Divider()
-              Text(verbatim: after)
-                .font(Tokens.Typography.captionMono)
-                .foregroundStyle(Palette.textTertiary)
-                .help(Text(L10n.Trades.priceAfterExit))
+            DisclosureLine(L10n.Trades.details) {
+              details(trade)
             }
             Spacer(minLength: 0)
-            Footnote(L10n.Trades.excursionLowerBound)
           }
           .frame(maxHeight: .infinity, alignment: .top)
         })
@@ -832,6 +688,99 @@ private struct TradeDetailCard: View {
     }
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
+  }
+
+  /// The symbol and when it closed; the result big, with its R under it.
+  private func headline(_ trade: DayTrade) -> some View {
+    HStack(alignment: .top, spacing: Tokens.Space.m) {
+      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+        SymbolText(trade.symbol).font(Tokens.Typography.metric)
+        Text(verbatim: Format.marketMinute(trade.closedAt.date))
+          .font(Tokens.Typography.captionMono)
+          .foregroundStyle(Palette.textTertiary)
+      }
+      Spacer(minLength: Tokens.Space.s)
+      VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
+        MoneyText(value: trade.resultUsd.value, font: Tokens.Typography.metric)
+        if let r = trade.resultR {
+          Text(verbatim: Risk.text(r))
+            .font(Tokens.Typography.captionMono)
+            .foregroundStyle(Palette.result(r))
+        }
+      }
+    }
+  }
+
+  /// Everything else about the trade, under "Details".
+  @ViewBuilder private func details(_ trade: DayTrade) -> some View {
+    Grid(alignment: .leading, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.s) {
+      GridRow {
+        Text(L10n.Trades.stopConfirmedAfter).foregroundStyle(Palette.textSecondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .fixedSize(horizontal: false, vertical: true)
+          .help(Text(L10n.Trades.stopConfirmedHelp))
+        if let seconds = trade.stopConfirmedAfterSeconds {
+          Text(verbatim: Format.seconds(seconds.value)).font(Tokens.Typography.calloutMono)
+            // The values line up on the right, as in the design; the labels take the rest.
+            .gridColumnAlignment(.trailing)
+        } else {
+          notRecorded.gridColumnAlignment(.trailing)
+        }
+      }
+      GridRow {
+        let sent = EntrySent.line(trade.entry, cause: ApiText.prose(trade.entryCauseCodes, text: trade.entryCause))
+        Text(L10n.EntrySent.title).foregroundStyle(Palette.textSecondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .fixedSize(horizontal: false, vertical: true)
+        let value = Text(verbatim: sent.text)
+          .font(Tokens.Typography.calloutMono)
+          .foregroundStyle(sent.color)
+        // A tooltip only when there is something to add (the bot's cause of a missing record).
+        if let help = sent.help {
+          value.help(Text(verbatim: help))
+        } else {
+          value
+        }
+      }
+      excursion(L10n.Trades.maeAtLeast, trade.maeUsd)
+      excursion(L10n.Trades.mfeAtLeast, trade.mfeUsd)
+      GridRow {
+        Text(L10n.Trades.codeVersion).foregroundStyle(Palette.textSecondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .fixedSize(horizontal: false, vertical: true)
+        if let code = trade.codeVersion {
+          Text(verbatim: CodeVersion.short(code)).font(Tokens.Typography.calloutMono)
+            .help(Text(L10n.Trades.codeVersionHelp(code)))
+        } else {
+          notRecorded
+        }
+      }
+      GridRow {
+        Text(L10n.Trades.overshoot).foregroundStyle(Palette.textSecondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .fixedSize(horizontal: false, vertical: true)
+          .help(Text(L10n.Trades.overshootHelp))
+        if let usd = trade.overshootUsd?.value {
+          Text(L10n.Trades.overshootValue(Money.signedUSD(usd), trade.overshootR.map { Risk.text($0.value) }
+            ?? Format.missing))
+            .font(Tokens.Typography.calloutMono)
+            // Neutral, not green: this is profit the trade left behind, not a gain.
+            .foregroundStyle(Palette.textPrimary)
+        } else {
+          Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
+            .help(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
+        }
+      }
+    }
+    .font(Tokens.Typography.callout)
+    if let after = WhatIfText.after(trade.pricesAfter) {
+      Text(verbatim: after)
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
+        .help(Text(L10n.Trades.priceAfterExit))
+    }
+    Footnote(L10n.Trades.excursionLowerBound)
   }
 
   private func excursion(_ title: LocalizedStringResource, _ value: DecimalString?) -> some View {
@@ -1011,8 +960,9 @@ private struct AnotherStrategyView: View {
 }
 
 /// The active strategy's entry signals of the shown day that did not become a position: refused
-/// by the platform (the rule in words, with its detail) or never evaluated, with their what-if
-/// levels. Repeats on one symbol for one reason are one row, as on iOS.
+/// by the platform (the rule in words, with its detail) or never evaluated, each with what it
+/// would have made, and the day's total in the header (MacTrades v134). A click opens a row's
+/// what-if levels and the price after. Repeats on one symbol for one reason are one row, as on iOS.
 private struct NotTakenCard: View {
   @Environment(AppModel.self) private var model
   /// Runs of signals the bot added in the latest read: each flashes once.
@@ -1025,9 +975,22 @@ private struct NotTakenCard: View {
 
   var body: some View {
     Card(L10n.Trades.notTaken, trailing: {
-      Text(L10n.Trades.notTakenHint)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
+      if let signals = model.skipped?.signals, let summary = WhatIfSummary.make(SkippedGroup.make(signals)) {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
+          Text(L10n.Trades.whatIfSummary)
+            .font(Tokens.Typography.caption)
+            .foregroundStyle(Palette.textTertiary)
+          Text(verbatim: Risk.text(summary.resultR))
+            .font(Tokens.Typography.captionMono.bold())
+            .foregroundStyle(Palette.result(summary.resultR))
+          Text(verbatim: Money.signedUSD(summary.resultUsd))
+            .font(Tokens.Typography.captionMono.bold())
+            .foregroundStyle(Palette.result(summary.resultUsd))
+        }
+        // How the total was worked out, and how many it counts, on hover.
+        .help(Text(L10n.Trades.whatIfHelp) + Text(verbatim: Format.itemSeparator)
+          + Text(L10n.Trades.whatIfCounts(summary.wins, summary.losses, summary.notReplayed)))
+      }
     }, content: {
       if let signals = model.skipped?.signals, !signals.isEmpty {
         let groups = SkippedGroup.make(signals)
@@ -1053,10 +1016,19 @@ private struct NotTakenCard: View {
   }
 }
 
-/// One run of skipped signals; a click opens the Chart on its symbol.
+/// One run of skipped signals: the symbol, the rule that refused it with its detail and time,
+/// and what it would have made. A click opens the what-if levels and the price after; the context
+/// menu opens the Chart on its symbol.
 private struct SkippedRow: View {
   let group: SkippedGroup
   let showOnChart: (String) -> Void
+  @State private var open = false
+
+  /// Width of the symbol column, in points: a five-letter symbol in 13-point mono.
+  static let symbolWidth: CGFloat = 56
+  /// Symbols of the row's disclosure, closed and open.
+  static let closedSymbol = "chevron.down"
+  static let openSymbol = "chevron.up"
 
   /// "16:27" or, for repeats, "16:27–16:29 · ×3"; repeats within one minute (or on one bar)
   /// read "16:27 · ×3", never "16:27–16:27".
@@ -1070,43 +1042,62 @@ private struct SkippedRow: View {
 
   var body: some View {
     let signal = group.latest
-    Button { showOnChart(signal.symbol) } label: {
-      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        HStack(spacing: Tokens.Space.s) {
-          SymbolText(signal.symbol).font(Tokens.Typography.calloutMono.weight(.semibold))
-          admission
-          Spacer(minLength: 0)
-          Text(verbatim: when)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
+    // The what-if is the setup's first signal: a repeat would not have been a second trade.
+    let setup = group.first
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      Button { withAnimation(Tokens.Motion.standard) { open.toggle() } } label: {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+          SymbolText(signal.symbol)
+            .font(Tokens.Typography.calloutMono.weight(.semibold))
+            .frame(width: Self.symbolWidth, alignment: .leading)
+          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+            HStack(spacing: Tokens.Space.s) {
+              admission
+              Text(verbatim: when)
+                .font(Tokens.Typography.captionMono)
+                .foregroundStyle(Palette.textTertiary)
+            }
+            if let cause = group.cause {
+              CauseText(cause: cause)
+            }
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+          HStack(spacing: Tokens.Space.xs) {
+            Text(verbatim: setup.whatIf.resultR.map { Risk.text($0.value) } ?? Format.missing)
+              .font(Tokens.Typography.captionMono.bold())
+              .foregroundStyle(setup.whatIf.resultR.map { Palette.result($0.value) } ?? Palette.textQuaternary)
+            Image(systemName: open ? Self.openSymbol : Self.closedSymbol)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.textQuaternary)
+              .accessibilityHidden(true)
+          }
+          .fixedSize()
         }
-        if let cause = group.cause {
-          CauseText(cause: cause)
-        }
-        // The what-if is the setup's first signal: a repeat would not have been a second trade.
-        let setup = group.first
-        if let entry = setup.entryPrice, let stop = setup.stopPrice {
-          Text(L10n.Trades.whatIfLevels(Format.price(entry.value), Format.price(stop.value)))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
-        }
-        let result = WhatIfText.result(setup.whatIf)
-        HStack(spacing: Tokens.Space.xs) {
-          Circle()
-            .fill(result.color)
-            .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-          Text(verbatim: result.text)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(result.color)
-        }
-        .help(Text(verbatim: WhatIfText.after(setup.pricesAfter)
-          ?? ApiText.prose(setup.pricesAfterCauseCodes, text: setup.pricesAfterCause) ?? Format.missing))
+        .contentShape(.rect)
       }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .contentShape(.rect)
+      .buttonStyle(.plain)
+      .contextMenu {
+        Button { showOnChart(signal.symbol) } label: {
+          Label { Text(L10n.Trades.showOnChart) } icon: { Image(systemName: "chart.xyaxis.line") }
+        }
+      }
+      if open {
+        VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+          if let entry = setup.entryPrice, let stop = setup.stopPrice {
+            Text(L10n.Trades.whatIfLevels(Format.price(entry.value), Format.price(stop.value)))
+          }
+          let result = WhatIfText.result(setup.whatIf)
+          Text(verbatim: result.text).foregroundStyle(result.color)
+          Text(verbatim: WhatIfText.after(setup.pricesAfter)
+            ?? ApiText.prose(setup.pricesAfterCauseCodes, text: setup.pricesAfterCause) ?? Format.missing)
+        }
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.leading, Self.symbolWidth + Tokens.Space.m)
+        .transition(.opacity)
+      }
     }
-    .buttonStyle(.plain)
-    .help(Text(L10n.Trades.showOnChart))
   }
 
   @ViewBuilder private var admission: some View {
@@ -1156,60 +1147,6 @@ private struct CauseText: View {
       .foregroundStyle(Palette.textTertiary)
       .fixedSize(horizontal: false, vertical: true)
     }
-  }
-}
-
-/// What the day's skipped setups would have made had each been entered once, from the bot's
-/// replays: one slim row, its label on the left.
-private struct WhatIfCard: View {
-  @Environment(AppModel.self) private var model
-
-  /// Width of the label column, in points.
-  static let labelWidth: CGFloat = 56
-
-  var body: some View {
-    HStack(alignment: .top, spacing: Tokens.Space.l) {
-      Text(L10n.Trades.whatIf)
-        .textCase(.uppercase)
-        .font(Tokens.Typography.label)
-        .tracking(Tokens.Typography.labelTracking)
-        .foregroundStyle(Palette.textQuaternary)
-        .frame(width: Self.labelWidth, alignment: .leading)
-        .accessibilityAddTraits(.isHeader)
-      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        if let signals = model.skipped?.signals {
-          if let summary = WhatIfSummary.make(SkippedGroup.make(signals)) {
-            HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-              Text(L10n.Trades.whatIfSummary)
-                .font(Tokens.Typography.callout)
-                .foregroundStyle(Palette.textSecondary)
-              Text(verbatim: Risk.text(summary.resultR))
-                .font(Tokens.Typography.chipValue)
-                .foregroundStyle(Palette.result(summary.resultR))
-              Text(verbatim: Money.signedUSD(summary.resultUsd))
-                .font(Tokens.Typography.calloutMono.bold())
-                .foregroundStyle(Palette.result(summary.resultUsd))
-              Text(L10n.Trades.whatIfCounts(summary.wins, summary.losses, summary.notReplayed))
-                .font(Tokens.Typography.captionMono)
-                .foregroundStyle(Palette.textTertiary)
-            }
-          } else {
-            Text(L10n.Trades.whatIfNone)
-              .font(Tokens.Typography.callout)
-              .foregroundStyle(Palette.textSecondary)
-          }
-        }
-        Text(L10n.Trades.whatIfHelp)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textTertiary)
-          .fixedSize(horizontal: false, vertical: true)
-      }
-      .offlineOutline(lines: Tokens.Loading.fewLines)
-      .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    .padding(Tokens.Space.l)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .tickrCard(radius: Tokens.Radius.large)
   }
 }
 
