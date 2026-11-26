@@ -2,23 +2,24 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// The bot actions behind the power button, in a sheet with a clear Cancel. Commands that cancel orders or close positions ask for Face ID first.
+/// The bot actions behind the power button, in a sheet with a clear Cancel: Pause (or Resume)
+/// entries and Stop bot. Commands other than pausing ask for Face ID first.
 struct BotControl: ViewModifier {
   @Environment(AppModel.self) private var model
   @Binding var isPresented: Bool
-  /// A command that cannot be undone from the phone, waiting for its own confirmation.
+  /// Stop bot, waiting for its own confirmation.
   @State private var severe: OperatorCommand?
   /// The action chosen in the sheet, run once the sheet has gone so its alert can show.
   @State private var chosen: (() -> Void)?
 
   func body(content: Content) -> some View {
     content
-      .alert(Text(severeTitle), isPresented: Binding(get: { severe != nil }, set: { if !$0 { severe = nil } }),
+      .alert(Text(L10n.Control.stopTitle), isPresented: Binding(get: { severe != nil }, set: { if !$0 { severe = nil } }),
         presenting: severe) { command in
-        Button(role: .destructive) { run(command) } label: { Text(severeAction(command)) }
+        Button(role: .destructive) { run(command) } label: { Text(L10n.Control.stopBot) }
         Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
-      } message: { command in
-        Text(Self.target(String(localized: severeMessage(command)), demo: model.connection.demo))
+      } message: { _ in
+        Text(Self.target(String(localized: L10n.Control.stopWarning), demo: model.connection.demo))
       }
       // A sheet, not a confirmation dialog: on iOS 26 a dialog turns into a popover without its
       // Cancel button, pointing away from the power button.
@@ -48,13 +49,13 @@ struct BotControl: ViewModifier {
             .font(.headline)
             .foregroundStyle(Palette.textPrimary)
         }
-        Text(L10n.Control.short)
+        Label { Text(L10n.Control.stopsStay) } icon: { Image(systemName: StopState.levelSymbol) }
           .font(.footnote)
           .foregroundStyle(Palette.textTertiary)
           .fixedSize(horizontal: false, vertical: true)
         if let status = model.status, model.canCommand {
-          // The design's three tiers: pausing (or resuming) and cancelling, then the commands that
-          // close positions or stop the bot, then the emergency stop alone behind its divider.
+          // As on the board: pausing (or resuming) entries, then stopping the bot. Closing
+          // positions lives on the Positions tab (Close position, Close all).
           VStack(spacing: Tokens.Space.s) {
             if status.entryStop {
               action(L10n.Control.resume, symbol: Self.resumeSymbol, tier: .secondary(.accent)) {
@@ -65,18 +66,8 @@ struct BotControl: ViewModifier {
                 run(.entryStop(on: true))
               }
             }
-            action(L10n.Control.cancelOrders, symbol: Self.cancelSymbol, tier: .secondary(.neutral)) {
-              run(.cancelOwnOrders)
-            }
-            action(L10n.Control.flattenAll, symbol: Self.flattenSymbol, tier: .destructive) { run(.flatten) }
             if status.botState == .running {
               action(L10n.Control.stopBot, symbol: Self.stopSymbol, tier: .destructive) { severe = .stopBot }
-            }
-            LastResortDivider(Text(L10n.Control.lastResort))
-            EmergencyButton(Text(L10n.Control.emergency), detail: Text(L10n.Control.emergencyDetail),
-              symbol: Self.emergencySymbol, tag: tag) {
-              chosen = { severe = .emergency }
-              isPresented = false
             }
           }
         }
@@ -114,12 +105,11 @@ struct BotControl: ViewModifier {
   /// Corner radius of the sheet, in points (the design's bottom sheet).
   static let sheetRadius: CGFloat = 28
 
-  /// Symbols of the actions and of the bot's state (Pause draws `Symbols.pause`).
+  /// Symbols of the actions and of the bot's state (Pause draws `Symbols.pause`); `flattenSymbol`
+  /// is the Positions tab's Close position and Close all.
   static let resumeSymbol = "play.fill"
-  static let cancelSymbol = "xmark.circle"
   static let flattenSymbol = "rectangle.portrait.and.arrow.right"
   static let stopSymbol = "stop.circle"
-  static let emergencySymbol = "exclamationmark.octagon.fill"
   static let unknownSymbol = "questionmark"
   static let stoppedSymbol = "stop.fill"
 
@@ -141,22 +131,10 @@ struct BotControl: ViewModifier {
     return status.entryStop ? L10n.Control.statePaused(state) : L10n.Control.state(state)
   }
 
-  private var severeTitle: LocalizedStringResource {
-    severe == .emergency ? L10n.Control.emergencyTitle : L10n.Control.stopTitle
-  }
-
-  private func severeAction(_ command: OperatorCommand) -> LocalizedStringResource {
-    command == .emergency ? L10n.Control.emergency : L10n.Control.stopBot
-  }
-
   /// A confirmation's message with where the command goes, named every time: a demo switch left
   /// on must never swallow a real command unnoticed.
   static func target(_ message: String, demo: Bool) -> LocalizedStringResource {
     demo ? L10n.Control.toDemo(message) : L10n.Control.toBot(message)
-  }
-
-  private func severeMessage(_ command: OperatorCommand) -> LocalizedStringResource {
-    command == .emergency ? L10n.Control.emergencyWarning : L10n.Control.stopWarning
   }
 
   private func run(_ command: OperatorCommand) {

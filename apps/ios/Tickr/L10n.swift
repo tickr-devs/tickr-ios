@@ -204,6 +204,10 @@ enum L10n {
   }
 
   enum Control {
+    /// Under the bot's state in the power menu: no command there touches a broker stop.
+    static var stopsStay: LocalizedStringResource {
+      LocalizedStringResource("control.stopsStay", defaultValue: "Broker stops stay in place", bundle: L10n.bundle)
+    }
     static var startWarning: LocalizedStringResource {
       LocalizedStringResource("control.startWarning",
         // swiftlint:disable:next line_length
@@ -227,43 +231,17 @@ enum L10n {
         defaultValue: "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. Start it again from Settings.",
         bundle: L10n.bundle)
     }
-    static var emergencyTitle: LocalizedStringResource {
-      LocalizedStringResource("control.emergencyTitle",
-        defaultValue: "Emergency stop?",
-        bundle: L10n.bundle)
-    }
-    static var emergencyWarning: LocalizedStringResource {
-      LocalizedStringResource("control.emergencyWarning",
-        // swiftlint:disable:next line_length
-        defaultValue: "The bot pauses entries, cancels its entry orders and sells every position it holds at market through the normal exit. Each stop is cancelled only right before its sale. Entries stay paused until you resume them.",
-        bundle: L10n.bundle)
-    }
     static var resume: LocalizedStringResource {
       LocalizedStringResource("control.resume", defaultValue: "Resume entries", bundle: L10n.bundle)
     }
     static var pause: LocalizedStringResource {
       LocalizedStringResource("control.pause", defaultValue: "Pause entries", bundle: L10n.bundle)
     }
-    static var cancelOrders: LocalizedStringResource {
-      LocalizedStringResource("control.cancelOrders", defaultValue: "Cancel orders", bundle: L10n.bundle)
-    }
     static var flattenAll: LocalizedStringResource {
       LocalizedStringResource("control.flattenAll", defaultValue: "Close all", bundle: L10n.bundle)
     }
     static var stopBot: LocalizedStringResource {
       LocalizedStringResource("control.stopBot", defaultValue: "Stop bot", bundle: L10n.bundle)
-    }
-    static var emergency: LocalizedStringResource {
-      LocalizedStringResource("control.emergency", defaultValue: "Emergency stop", bundle: L10n.bundle)
-    }
-    /// Caption of the divider above the emergency stop, which sets it apart from the commands.
-    static var lastResort: LocalizedStringResource {
-      LocalizedStringResource("control.lastResort", defaultValue: "Last resort", bundle: L10n.bundle)
-    }
-    /// The emergency stop's second line: what it does, in order.
-    static var emergencyDetail: LocalizedStringResource {
-      LocalizedStringResource("control.emergencyDetail",
-        defaultValue: "pauses entries · cancels entry orders · sells all", bundle: L10n.bundle)
     }
     /// The pill on every command while commands go to the demo day.
     static var demoTag: LocalizedStringResource {
@@ -277,12 +255,6 @@ enum L10n {
     /// A command confirmation's message with where the command goes: the real bot.
     static func toBot(_ message: String) -> LocalizedStringResource {
       LocalizedStringResource("control.toBot", defaultValue: "\(message)\n\nSent to: the bot.", bundle: L10n.bundle)
-    }
-    static var short: LocalizedStringResource {
-      LocalizedStringResource("control.short",
-        // swiftlint:disable:next line_length
-        defaultValue: "Pausing and cancelling never touch broker stops; closing a position cancels its stop only right before its sale. Each command is sent once.",
-        bundle: L10n.bundle)
     }
     static var unknown: LocalizedStringResource {
       LocalizedStringResource("control.unknown", defaultValue: "Bot status unknown", bundle: L10n.bundle)
@@ -304,6 +276,22 @@ enum L10n {
   }
 
   enum Home {
+    /// Inside the day's ring on the live day (a recorded day reads `day`).
+    static var today: LocalizedStringResource {
+      LocalizedStringResource("home.today", defaultValue: "today", bundle: L10n.bundle)
+    }
+    /// Beside the ring: the free position slots, "1 of 3 slots free".
+    static func slotsFree(_ free: Int, _ limit: Int) -> LocalizedStringResource {
+      LocalizedStringResource("home.slotsFree", defaultValue: "\(free) of \(limit) slots free", bundle: L10n.bundle)
+    }
+    /// The status's age with the quote stream: "updated 3 s ago · quotes fresh".
+    static func ageQuotes(_ age: String, _ quotes: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.ageQuotes", defaultValue: "\(age) · \(quotes)", bundle: L10n.bundle)
+    }
+    /// The funnel's link to the Risk screen.
+    static var riskLink: LocalizedStringResource {
+      LocalizedStringResource("home.riskLink", defaultValue: "Risk", bundle: L10n.bundle)
+    }
     /// Beside the day's result while it does not count the broker's fees yet.
     static var beforeFees: LocalizedStringResource {
       LocalizedStringResource("home.beforeFees", defaultValue: "Day result before broker fees", bundle: L10n.bundle)
@@ -376,21 +364,6 @@ enum L10n {
       LocalizedStringResource("home.dayResultUnavailable", defaultValue: "Day result: no data yet",
         bundle: L10n.bundle)
     }
-    static func protected(_ symbol: String) -> LocalizedStringResource {
-      LocalizedStringResource("home.protected",
-        defaultValue: "\(symbol) protected by a broker stop.",
-        bundle: L10n.bundle)
-    }
-    static func stopIs(_ symbol: String, _ state: String) -> LocalizedStringResource {
-      LocalizedStringResource("home.stopIs", defaultValue: "\(symbol) stop is \(state).", bundle: L10n.bundle)
-    }
-    static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
-      LocalizedStringResource("home.strategy", defaultValue: "Strategy \(name) v\(version).", bundle: L10n.bundle)
-    }
-    /// VoiceOver: the bot code version (short git commit) the running bot is on.
-    static func codeVersion(_ code: String) -> LocalizedStringResource {
-      LocalizedStringResource("home.codeVersion", defaultValue: "Bot code \(code).", bundle: L10n.bundle)
-    }
     /// The strategy version badge with the bot code version (short git commit).
     static func versionCode(_ version: String, _ code: String) -> LocalizedStringResource {
       LocalizedStringResource("home.versionCode", defaultValue: "v\(version) · \(code)", bundle: L10n.bundle)
@@ -408,6 +381,7 @@ enum L10n {
     static func entriesBlocked(_ cause: String) -> LocalizedStringResource {
       LocalizedStringResource("home.entriesBlocked", defaultValue: "Entries blocked: \(cause).", bundle: L10n.bundle)
     }
+    /// Beside the ring while the trading gate is closed in config, with its cause.
     static func gateClosed(_ cause: String) -> LocalizedStringResource {
       LocalizedStringResource("home.gateClosed", defaultValue: "Trading gate closed: \(cause).", bundle: L10n.bundle)
     }
@@ -433,6 +407,10 @@ enum L10n {
   }
 
   enum Flow {
+    /// The funnel's key to the tiles' pink counts.
+    static var droppedKey: LocalizedStringResource {
+      LocalizedStringResource("flow.droppedKey", defaultValue: "−N dropped here", bundle: L10n.bundle)
+    }
     /// The event line's tag for a signal risk refused: "REFUSED".
     /// Symbols a live-flow stage dropped today, on its tile: "−144".
     static func dropped(_ count: Int) -> LocalizedStringResource {
@@ -444,7 +422,7 @@ enum L10n {
     }
     /// Card title on Home: the stages a setup passes through.
     static var title: LocalizedStringResource {
-      LocalizedStringResource("flow.title", defaultValue: "Live flow", bundle: L10n.bundle)
+      LocalizedStringResource("flow.title", defaultValue: "Today’s funnel", bundle: L10n.bundle)
     }
     /// The flow card's title on a recorded day: nothing on it is live.
     static var titleRecorded: LocalizedStringResource {
@@ -492,14 +470,6 @@ enum L10n {
     static var openOnChart: LocalizedStringResource {
       LocalizedStringResource("flow.openOnChart", defaultValue: "Opens the chart on this symbol", bundle: L10n.bundle)
     }
-    /// The position slots in use, on the live flow's header (the link to Risk): "slots 2 of 3".
-    static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
-      LocalizedStringResource("flow.slots", defaultValue: "slots \(used) of \(limit)", bundle: L10n.bundle)
-    }
-    /// The legend of the tiles' pink counts, as on the board.
-    static var droppedLegend: LocalizedStringResource {
-      LocalizedStringResource("flow.droppedLegend", defaultValue: "pink: dropped at this stage today", bundle: L10n.bundle)
-    }
     /// In place of the slots when the status is stale, failed or from an earlier session.
     static var notCurrent: LocalizedStringResource {
       LocalizedStringResource("flow.notCurrent", defaultValue: "not current", bundle: L10n.bundle)
@@ -508,32 +478,56 @@ enum L10n {
     static func quotes(_ state: String) -> LocalizedStringResource {
       LocalizedStringResource("flow.quotes", defaultValue: "quotes \(state)", bundle: L10n.bundle)
     }
-    /// The bot's last broker read under the stages: "broker read 14:06:02".
-    static func brokerRead(_ time: String) -> LocalizedStringResource {
-      LocalizedStringResource("flow.brokerRead", defaultValue: "broker read \(time)", bundle: L10n.bundle)
-    }
-    /// How long ago the broker was read, in the live flow's header: "read 3 s", "read 2 min", "read —".
-    static func readSeconds(_ seconds: Int) -> LocalizedStringResource {
-      LocalizedStringResource("flow.readSeconds", defaultValue: "read \(seconds) s", bundle: L10n.bundle)
-    }
-    static func readMinutes(_ minutes: Int) -> LocalizedStringResource {
-      LocalizedStringResource("flow.readMinutes", defaultValue: "read \(minutes) min", bundle: L10n.bundle)
-    }
-    static var readNever: LocalizedStringResource {
-      LocalizedStringResource("flow.readNever", defaultValue: "read —", bundle: L10n.bundle)
-    }
   }
 
   enum Positions {
+    /// Title of the protection card.
+    static var protection: LocalizedStringResource {
+      LocalizedStringResource("positions.protection", defaultValue: "Protection", bundle: L10n.bundle)
+    }
+    /// The protection card's headline while the stop is verified: "Stop 11.90 at broker".
+    static func stopAtBroker(_ price: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.stopAtBroker", defaultValue: "Stop \(price) at broker", bundle: L10n.bundle)
+    }
+    /// The protection card's headline otherwise: "Stop 11.90 · pending".
+    static func stopState(_ price: String, _ state: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.stopState", defaultValue: "Stop \(price) · \(state)", bundle: L10n.bundle)
+    }
+    /// The disclosure that opens the protection steps.
+    static var howProtected: LocalizedStringResource {
+      LocalizedStringResource("positions.howProtected", defaultValue: "How it was protected", bundle: L10n.bundle)
+    }
+    /// Beside the disclosure: when the bot last read the broker, "Checked 10:48:55".
+    static func checkedAt(_ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.checkedAt", defaultValue: "Checked \(time)", bundle: L10n.bundle)
+    }
+    /// Close one position: the confirmation's message, with its quantity.
+    static func closeMessage(_ quantity: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.closeMessage",
+        // swiftlint:disable:next line_length
+        defaultValue: "The bot cancels the stop, re-reads the quantity and sells \(quantity) shares at market. Other positions are not touched.",
+        bundle: L10n.bundle)
+    }
+    /// Close all (POST /commands/emergency): the confirmation's title with several positions.
+    static func closeAllTitle(_ count: Int) -> LocalizedStringResource {
+      LocalizedStringResource("positions.closeAllTitle", defaultValue: "Close all \(count) positions?", bundle: L10n.bundle)
+    }
+    /// Close all with one position left.
+    static var closeLastTitle: LocalizedStringResource {
+      LocalizedStringResource("positions.closeLastTitle", defaultValue: "Close the last position?", bundle: L10n.bundle)
+    }
+    /// Close all: what the emergency command does, with the symbols it closes.
+    static func closeAllMessage(_ symbols: String) -> LocalizedStringResource {
+      LocalizedStringResource("positions.closeAllMessage",
+        // swiftlint:disable:next line_length
+        defaultValue: "The bot pauses entries, cancels its working entry orders and closes every position at market (\(symbols)), so it does not enter again.",
+        bundle: L10n.bundle)
+    }
     static func slots(_ used: Int, _ limit: Int) -> LocalizedStringResource {
       LocalizedStringResource("positions.slots", defaultValue: "\(used) of \(limit) slots", bundle: L10n.bundle)
     }
-    /// Under a free slot's chip: "slot 3".
-    static func slotNumber(_ number: Int) -> LocalizedStringResource {
-      LocalizedStringResource("positions.slotNumber", defaultValue: "slot \(number)", bundle: L10n.bundle)
-    }
     static var freeSlot: LocalizedStringResource {
-      LocalizedStringResource("positions.freeSlot", defaultValue: "free", bundle: L10n.bundle)
+      LocalizedStringResource("positions.freeSlot", defaultValue: "Free", bundle: L10n.bundle)
     }
     static var none: LocalizedStringResource {
       LocalizedStringResource("positions.none", defaultValue: "No open position", bundle: L10n.bundle)
@@ -545,14 +539,14 @@ enum L10n {
     }
     static func shares(_ quantity: String, _ price: String, _ time: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.shares",
-        defaultValue: "\(quantity) shares @ \(price) · \(time)",
+        defaultValue: "\(quantity) shares at \(price) · \(time)",
         bundle: L10n.bundle)
     }
     static var maxLoss: LocalizedStringResource {
-      LocalizedStringResource("positions.maxLoss", defaultValue: "max loss", bundle: L10n.bundle)
+      LocalizedStringResource("positions.maxLoss", defaultValue: "Max loss", bundle: L10n.bundle)
     }
     static var toStop: LocalizedStringResource {
-      LocalizedStringResource("positions.toStop", defaultValue: "to stop", bundle: L10n.bundle)
+      LocalizedStringResource("positions.toStop", defaultValue: "To stop", bundle: L10n.bundle)
     }
     /// The close button under a position: closes this one position, after a confirmation.
     static var closePosition: LocalizedStringResource {
@@ -561,26 +555,14 @@ enum L10n {
     static func closeNow(_ symbol: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.closeNow", defaultValue: "Close \(symbol) now?", bundle: L10n.bundle)
     }
-    static func flatten(_ symbol: String) -> LocalizedStringResource {
-      LocalizedStringResource("positions.flatten", defaultValue: "Close \(symbol) position", bundle: L10n.bundle)
-    }
-    static var flattenMessage: LocalizedStringResource {
-      LocalizedStringResource("positions.flattenMessage",
-        // swiftlint:disable:next line_length
-        defaultValue: "The bot cancels this position's stop, re-reads the quantity and sells at market through the normal exit. Only this symbol closes; the bot's other positions and positions not opened by the bot are not touched.",
-        bundle: L10n.bundle)
-    }
     static var openChart: LocalizedStringResource {
       LocalizedStringResource("positions.openChart", defaultValue: "Full chart", bundle: L10n.bundle)
-    }
-    static var riskBand: LocalizedStringResource {
-      LocalizedStringResource("positions.riskBand", defaultValue: "Risk band", bundle: L10n.bundle)
     }
     static var waitingForBars: LocalizedStringResource {
       LocalizedStringResource("positions.waitingForBars", defaultValue: "price line waits for bars", bundle: L10n.bundle)
     }
     static var excursion: LocalizedStringResource {
-      LocalizedStringResource("positions.excursion", defaultValue: "MAE / MFE", bundle: L10n.bundle)
+      LocalizedStringResource("positions.excursion", defaultValue: "Worst / best", bundle: L10n.bundle)
     }
     static var reconciled: LocalizedStringResource {
       LocalizedStringResource("positions.reconciled", defaultValue: "Reconciled with broker", bundle: L10n.bundle)
@@ -610,9 +592,6 @@ enum L10n {
     }
     static func levels(_ entry: String, _ stop: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.levels", defaultValue: "Entry \(entry), stop \(stop)", bundle: L10n.bundle)
-    }
-    static var chain: LocalizedStringResource {
-      LocalizedStringResource("positions.chain", defaultValue: "Protection chain", bundle: L10n.bundle)
     }
     static func filled(_ quantity: String, _ price: String) -> LocalizedStringResource {
       LocalizedStringResource("positions.filled", defaultValue: "Filled \(quantity) @ \(price)", bundle: L10n.bundle)
@@ -1239,9 +1218,9 @@ enum L10n {
     static var title: LocalizedStringResource {
       LocalizedStringResource("symbols.title", defaultValue: "Symbols", bundle: L10n.bundle)
     }
-    /// Under the title: day, end of the latest discovery pass, symbols the screeners listed.
-    static func context(_ day: String, _ time: String, _ count: Int) -> LocalizedStringResource {
-      LocalizedStringResource("symbols.context", defaultValue: "\(day) · \(time) ET · \(count) screened", bundle: L10n.bundle)
+    /// Under the title: the day and the end of the latest discovery pass.
+    static func context(_ day: String, _ time: String) -> LocalizedStringResource {
+      LocalizedStringResource("symbols.context", defaultValue: "\(day) · \(time) ET", bundle: L10n.bundle)
     }
     /// A failed read of the symbols or movers; argument: the error.
     static func unavailable(_ error: String) -> LocalizedStringResource {
@@ -1279,17 +1258,13 @@ enum L10n {
     static var noMovers: LocalizedStringResource {
       LocalizedStringResource("symbols.noMovers", defaultValue: "No fast movers yet.", bundle: L10n.bundle)
     }
-    /// Detail: the symbol's stages today.
-    static var pathToday: LocalizedStringResource {
-      LocalizedStringResource("symbols.pathToday", defaultValue: "Path today", bundle: L10n.bundle)
-    }
     /// Detail link: the Chart on this symbol.
     static var openChart: LocalizedStringResource {
       LocalizedStringResource("symbols.openChart", defaultValue: "Open chart", bundle: L10n.bundle)
     }
     /// Accessibility hint of a row: opens its detail.
     static var rowHint: LocalizedStringResource {
-      LocalizedStringResource("symbols.rowHint", defaultValue: "Shows the symbol's path today", bundle: L10n.bundle)
+      LocalizedStringResource("symbols.rowHint", defaultValue: "Shows the symbol's steps today", bundle: L10n.bundle)
     }
   }
   enum FastMovers {
@@ -2034,7 +2009,7 @@ enum ChartText {
   static let zoomOut = LocalizedStringResource("chart.zoomOut", defaultValue: "Zoom out")
   static let liveHint = LocalizedStringResource("chart.live.hint",
     defaultValue: "Scrolls to the newest candle.")
-  static let todayLive = LocalizedStringResource("chart.todayLive", defaultValue: "today · live")
+  static let todayLive = LocalizedStringResource("chart.todayLive", defaultValue: "today")
   /// The day's high, low and volume beside the price, as on the design: "H", "L", "V".
   static let highShort = LocalizedStringResource("chart.highShort", defaultValue: "H")
   static let lowShort = LocalizedStringResource("chart.lowShort", defaultValue: "L")
@@ -2118,17 +2093,9 @@ enum ChartText {
   static func rsi(_ period: Int) -> LocalizedStringResource {
     LocalizedStringResource("chart.indicator.rsi", defaultValue: "RSI\(period)")
   }
-  /// The line above the chart while no candle is read: timeframe and candles on screen (both
-  /// already formatted), and how to move and read the chart.
-  static func caption(_ range: String, _ timeframe: String, _ bars: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.caption",
-      defaultValue: "\(range) · \(timeframe) · \(bars) · drag to scroll · pinch to zoom · touch and hold to read")
-  }
-
-  /// Candles on screen, for `caption`.
-  static func bars(_ count: Int) -> LocalizedStringResource {
-    LocalizedStringResource("chart.bars", defaultValue: "\(count) bars")
-  }
+  /// The line above the chart while no candle is read: how to move and read the chart.
+  static let caption = LocalizedStringResource("chart.caption",
+    defaultValue: "drag to scroll · pinch to zoom · touch and hold to read")
 
   /// The crosshair readout's letters before a candle's open, high, low, close and volume.
   static let readoutOpen = LocalizedStringResource("chart.readout.open", defaultValue: "O")
@@ -2136,16 +2103,14 @@ enum ChartText {
   static let readoutLow = LocalizedStringResource("chart.readout.low", defaultValue: "L")
   static let readoutClose = LocalizedStringResource("chart.readout.close", defaultValue: "C")
   static let readoutVolume = LocalizedStringResource("chart.readout.volume", defaultValue: "V")
-  /// The caption where the full one does not fit on its line: range, interval, bars on screen.
-  static func captionShort(_ range: String, _ timeframe: String, _ bars: String) -> LocalizedStringResource {
-    LocalizedStringResource("chart.captionShort", defaultValue: "\(range) · \(timeframe) · \(bars)")
-  }
+  /// The caption where the full one does not fit on its line.
+  static let captionShort = LocalizedStringResource("chart.captionShort", defaultValue: "touch and hold to read")
   static let decisions = LocalizedStringResource("chart.decisions",
     defaultValue: "Why the bot acted")
   static let noDecisions = LocalizedStringResource("chart.decisions.none",
     defaultValue: "No decisions recorded for this symbol that day.")
   static let noEntries = LocalizedStringResource("chart.decisions.noEntries",
-    defaultValue: "No entries or exits; the strategy only watched.")
+    defaultValue: "No entries or exits; the bot only waited.")
   static let keyDecisions = LocalizedStringResource("chart.decisions.key",
     defaultValue: "Entries and exits only")
   static let tradingStrategy = LocalizedStringResource("chart.decisions.strategyLabel",
