@@ -1,0 +1,49 @@
+{
+  "environment": "sandbox",
+  "day": "2026-11-16",
+  "symbol": "ABCD",
+  "decided_at": "2026-11-16T15:01:02.123Z",
+  "bar_start": "2026-11-16T15:00:00.000Z",
+  "strategy": "price_action_v1",
+  "version": "1",
+  "verdict": "WATCH",
+  "setup": "breakout",
+  "admission": "not_applicable",
+  "refusal_cause": null,
+  "first_failed_check": "spread_ratio",
+  "checks": [
+    {
+      "rule": "bars_consistent",
+      "measured": null,
+      "operator": "is",
+      "threshold": null,
+      "passed": true,
+      "note": "own symbol, increasing start",
+      "against_trigger": false
+    },
+    {
+      "rule": "relative_volume",
+      "measured": "2.4",
+      "operator": ">=",
+      "threshold": "1.5",
+      "passed": true,
+      "note": "",
+      "against_trigger": false
+    },
+    {
+      "rule": "spread_ratio",
+      "measured": "0.0031",
+      "operator": "<=",
+      "threshold": "0.002",
+      "passed": false,
+      "note": "",
+      "against_trigger": false
+    }
+  ],
+  "api_version": 1,
+  "decider": {
+    "kind": "strategy",
+    "name": "price_action_v1",
+    "version": "1"
+  }
+}

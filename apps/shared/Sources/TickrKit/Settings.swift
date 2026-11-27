@@ -11,6 +11,10 @@ public struct RiskSettings: Codable, Hashable, Sendable {
   public let maxQuoteAgeSeconds: DecimalString
   /// Below this much daily room the bot takes no new entries.
   public let minDailyRoomUsd: DecimalString
+  /// Weekly loss limit; 0 = off, nil from an older API (added after version 1 shipped).
+  public let maxWeeklyLossUsd: DecimalString?
+  /// Stop-outs in a row that stop new entries for the day; 0 = off, nil from an older API.
+  public let stopOutStreakLimit: Int?
 
   enum CodingKeys: String, CodingKey {
     case plannedLossUsd = "planned_loss_usd"
@@ -19,6 +23,8 @@ public struct RiskSettings: Codable, Hashable, Sendable {
     case maxOpenPositions = "max_open_positions"
     case maxQuoteAgeSeconds = "max_quote_age_seconds"
     case minDailyRoomUsd = "min_daily_room_usd"
+    case maxWeeklyLossUsd = "max_weekly_loss_usd"
+    case stopOutStreakLimit = "stop_out_streak_limit"
   }
 }
 

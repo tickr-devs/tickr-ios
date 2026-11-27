@@ -1,0 +1,109 @@
+{
+  "served_at": "2026-11-16T15:00:00.123Z",
+  "bot_state": "running",
+  "status_stale": false,
+  "broker_link": {
+    "last_read_at": "2026-11-16T14:59:56.123Z",
+    "warn_seconds": "30",
+    "max_age_seconds": "90",
+    "state": "fresh",
+    "stream": "fresh",
+    "cause": null,
+    "cause_codes": []
+  },
+  "morning_check": {
+    "job": "preflight",
+    "started_at": "2026-11-16T08:30:00.123Z",
+    "finished_at": "2026-11-16T08:30:41.123Z",
+    "day": "2026-11-16",
+    "outcome": "ready",
+    "blocks_start": false,
+    "cause": null,
+    "checks": [
+      {
+        "name": "config",
+        "passed": true,
+        "cause": null
+      },
+      {
+        "name": "calendar",
+        "passed": true,
+        "cause": null
+      },
+      {
+        "name": "credentials",
+        "passed": true,
+        "cause": null
+      },
+      {
+        "name": "token",
+        "passed": true,
+        "cause": null
+      }
+    ]
+  },
+  "morning_check_cause": null,
+  "training": {
+    "job": "wide model",
+    "state": "running",
+    "done": 130,
+    "total": 209,
+    "started_at": "2026-11-16T06:00:00.123Z",
+    "updated_at": "2026-11-16T14:58:00.123Z",
+    "cause": null,
+    "cause_codes": []
+  },
+  "training_cause": null,
+  "host": {
+    "kind": "mac",
+    "watchdog": {
+      "started_day": "2026-11-16",
+      "last_check_at": null,
+      "last_check_read": null,
+      "last_check_flat": null,
+      "restarts": [
+        {
+          "at": "2026-11-13T00:40:00.123Z",
+          "outcome": "started",
+          "early": false,
+          "open_trades": 1,
+          "cause": null,
+          "cause_codes": []
+        },
+        {
+          "at": "2026-11-06T15:00:00.123Z",
+          "outcome": "refused",
+          "early": false,
+          "open_trades": null,
+          "cause": "stop marker stopped-by-operator.json exists; the watchdog never starts a bot the operator stopped",
+          "cause_codes": [
+            {
+              "code": "restart_refused_operator_stop",
+              "params": {}
+            }
+          ]
+        }
+      ],
+      "restart_count": 2,
+      "cause": null,
+      "cause_codes": []
+    },
+    "sleep": {
+      "state": "held",
+      "holds": 2,
+      "cause": null,
+      "cause_codes": []
+    }
+  },
+  "host_cause": null,
+  "api_version": 1,
+  "model": {
+    "enabled": false,
+    "bundle": null,
+    "state": "off",
+    "cause": null
+  },
+  "morning_check_cause_codes": [],
+  "training_cause_codes": [],
+  "host_cause_codes": []
+}

@@ -1,0 +1,46 @@
+{
+  "day": "2026-11-16",
+  "rules": {
+    "lookback_bars": 10,
+    "min_volume_ratio": "5.0",
+    "min_move_atr": "2.0",
+    "min_dollar_volume_ratio": "5.0",
+    "min_bar_dollar_volume_usd": "250000"
+  },
+  "rules_cause": null,
+  "movers": [
+    {
+      "symbol": "KLMN",
+      "at": "2026-11-16T14:59:00.000Z",
+      "close": "20.50",
+      "bar_dollar_volume": "820000",
+      "volume_ratio": "13.3",
+      "move_atr": "4.8",
+      "dollar_volume_ratio": "9.1",
+      "fired": [
+        "volume_ratio",
+        "move_atr",
+        "dollar_volume_ratio"
+      ],
+      "spike_up": true,
+      "watching": true
+    },
+    {
+      "symbol": "EFGH",
+      "at": "2026-11-16T14:54:00.000Z",
+      "close": "8.95",
+      "bar_dollar_volume": "410000",
+      "volume_ratio": "6.4",
+      "move_atr": "-2.1",
+      "dollar_volume_ratio": "4.2",
+      "fired": [
+        "volume_ratio",
+        "move_atr"
+      ],
+      "spike_up": false,
+      "watching": false
+    }
+  ],
+  "api_version": 1,
+  "rules_cause_codes": []
+}

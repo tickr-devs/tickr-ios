@@ -49,6 +49,11 @@ public enum RefusalCode: String, Sendable, CaseIterable {
   case dailyMoneyUnknown = "DAILY_MONEY_UNKNOWN"
   case dailyMoneyInvalid = "DAILY_MONEY_INVALID"
   case dailyCeiling = "DAILY_CEILING"
+  /// The loss locks (backlog T11, off unless configured in `[risk]`).
+  case weeklyMoneyUnknown = "WEEKLY_MONEY_UNKNOWN"
+  case weeklyMoneyInvalid = "WEEKLY_MONEY_INVALID"
+  case weeklyCeiling = "WEEKLY_CEILING"
+  case stopOutStreak = "STOP_OUT_STREAK"
   case buyingPowerUnknown = "BUYING_POWER_UNKNOWN"
   case buyingPowerShort = "BUYING_POWER_SHORT"
   /// The account equity the percent-of-equity limits need (`[risk]`, off unless configured).
@@ -95,7 +100,7 @@ public enum RefusalCode: String, Sendable, CaseIterable {
       .afterLastEntry, .strategyNotExtended:
       return Self.sessionSymbol
     case .countInvalid, .ownPosition, .ownOrder, .positionLimit, .workingEntryLimit: return Self.ownSymbol
-    case .cooldown: return Self.cooldownSymbol
+    case .cooldown, .stopOutStreak: return Self.cooldownSymbol
     case .decisionNotEnter, .decisionNotActive, .decisionIncomplete, .decisionInvalid, .setupInvalidated:
       return Self.setupSymbol
     case .quoteMissing, .quoteSymbolMismatch, .quoteInvalid, .quoteTimeInvalid, .quoteStale, .spreadTooWide:
@@ -103,7 +108,8 @@ public enum RefusalCode: String, Sendable, CaseIterable {
     case .orderPricesMissing, .orderPricesInvalid, .priceOutside, .priceCollarUnknown, .priceCollarBreach:
       return Self.priceSymbol
     case .quantityBelowOne, .quantityNotWhole, .notionalOverCap, .plannedLossOver, .dailyMoneyUnknown,
-      .dailyMoneyInvalid, .dailyCeiling, .buyingPowerShort:
+      .dailyMoneyInvalid, .dailyCeiling, .weeklyMoneyUnknown, .weeklyMoneyInvalid, .weeklyCeiling,
+      .buyingPowerShort:
       return Self.sizeSymbol
     case .entryBudget, .stopBudget, .tradabilityBudget: return Self.budgetSymbol
     }

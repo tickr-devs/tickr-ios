@@ -1786,6 +1786,23 @@
         }
       }
     },
+    "cause.stopOutStreak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many stop-outs in a row today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiados stops ejecutados seguidos hoy"
+          }
+        }
+      }
+    },
     "cause.strategyNotExtended" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1850,6 +1867,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exposición sin resolver"
+          }
+        }
+      }
+    },
+    "cause.weeklyCeiling" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly loss limit reached"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límite de pérdida semanal alcanzado"
+          }
+        }
+      }
+    },
+    "cause.weeklyMoneyInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week's loss figures invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifras de pérdida de la semana no válidas"
+          }
+        }
+      }
+    },
+    "cause.weeklyMoneyUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week's loss figures unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifras de pérdida de la semana desconocidas"
           }
         }
       }

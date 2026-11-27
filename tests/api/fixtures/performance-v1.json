@@ -1,0 +1,60 @@
+{
+  "environment": "sandbox",
+  "from_day": "2026-11-10",
+  "to_day": "2026-11-16",
+  "trades": 5,
+  "wins": 2,
+  "losses": 2,
+  "scratches": 1,
+  "exclusions": [
+    {
+      "cause": "planned loss is not positive: no 1 R to divide by",
+      "trades": 1,
+      "cause_codes": [
+        {
+          "code": "planned_loss_not_positive_r",
+          "params": {}
+        }
+      ]
+    }
+  ],
+  "win_rate": "0.4000",
+  "win_rate_cause": null,
+  "expectancy_gross_r": "0.4000",
+  "expectancy_gross_r_cause": null,
+  "expectancy_gross_usd": "12.5000",
+  "expectancy_gross_usd_cause": null,
+  "average_win_gross_r": "1.7500",
+  "average_win_gross_r_cause": null,
+  "average_loss_gross_r": "-0.7500",
+  "average_loss_gross_r_cause": null,
+  "profit_factor_gross": "1.8333",
+  "profit_factor_gross_cause": null,
+  "max_drawdown_gross_r": "1.5000",
+  "max_drawdown_gross_usd": "75",
+  "result_gross_r": "2.0000",
+  "result_gross_usd": "62.50",
+  "days": [
+    {
+      "day": "2026-11-13",
+      "trades": 2,
+      "result_gross_r": "1.0000",
+      "result_gross_usd": "50",
+      "cumulative_gross_r": "1.0000"
+    },
+    {
+      "day": "2026-11-16",
+      "trades": 3,
+      "result_gross_r": "1.0000",
+      "result_gross_usd": "12.50",
+      "cumulative_gross_r": "2.0000"
+    }
+  ],
+  "api_version": 1,
+  "win_rate_cause_codes": [],
+  "expectancy_gross_r_cause_codes": [],
+  "expectancy_gross_usd_cause_codes": [],
+  "average_win_gross_r_cause_codes": [],
+  "average_loss_gross_r_cause_codes": [],
+  "profit_factor_gross_cause_codes": []
+}

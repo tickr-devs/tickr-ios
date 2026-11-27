@@ -1,0 +1,103 @@
+{
+  "served_at": "2026-12-31T22:00:00.000Z",
+  "bot_state": "stopped",
+  "status_stale": false,
+  "bot_started_at": null,
+  "reconcile": {
+    "interval_seconds": "10",
+    "last_at": null,
+    "next_at": null
+  },
+  "backup": {
+    "last_at": null,
+    "last_failed_at": null,
+    "last_failed_error": null,
+    "cause": "no backup recorded yet",
+    "cause_codes": [
+      {
+        "code": "no_backup",
+        "params": {}
+      }
+    ]
+  },
+  "launchd": [
+    {
+      "name": "preflight",
+      "local_time": "08:30",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "bot",
+      "local_time": "09:00",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "watchdog",
+      "local_time": "09:05",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "nightly-fetch",
+      "local_time": "19:00",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "session": {
+    "day": "2026-12-31",
+    "regular_open": "2026-12-31T14:30:00.000Z",
+    "last_entry_at": "2026-12-31T20:45:00.000Z",
+    "flatten_at": "2026-12-31T20:55:00.000Z",
+    "regular_close": "2026-12-31T21:00:00.000Z",
+    "premarket_open": "2026-12-31T09:00:00.000Z",
+    "extended_close": "2027-01-01T01:00:00.000Z"
+  },
+  "session_cause": null,
+  "nightly_fetch": {
+    "finished_at": null,
+    "last_day": null,
+    "new_sessions": null,
+    "cause": "the nightly fetch has not run yet",
+    "cause_codes": [
+      {
+        "code": "nightly_never_ran",
+        "params": {}
+      }
+    ]
+  },
+  "api_version": 1,
+  "session_cause_codes": [],
+  "next_session": null,
+  "next_session_cause": "OUT_OF_COVERAGE: 2027-01-01 is not covered by any file",
+  "next_session_cause_codes": [
+    {
+      "code": "calendar_not_covered",
+      "params": {
+        "day": "2027-01-01"
+      }
+    }
+  ]
+}

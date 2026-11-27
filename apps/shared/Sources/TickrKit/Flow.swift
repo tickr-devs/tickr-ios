@@ -184,7 +184,7 @@ public struct FlowV1: Codable, Hashable, Sendable {
 public struct WatchingRowV1: Codable, Hashable, Sendable {
   public let symbol: String
   public let at: WireTime
-  public let strategy: StrategyRefV1
+  public let strategy: StrategyId
   public let verdict: Verdict
   public let decisiveCheck: CheckV1?
   /// How close the decisive check is to passing, 0 to 1; nil with `closenessCause`.
@@ -216,7 +216,7 @@ public struct WatchingRowV1: Codable, Hashable, Sendable {
     let c = try decoder.container(keyedBy: CodingKeys.self)
     symbol = try c.decode(String.self, forKey: .symbol)
     at = try c.decode(WireTime.self, forKey: .at)
-    strategy = try c.decode(StrategyRefV1.self, forKey: .strategy)
+    strategy = try c.decode(StrategyId.self, forKey: .strategy)
     verdict = try c.decode(Verdict.self, forKey: .verdict)
     decisiveCheck = try c.decodeNullable(CheckV1.self, forKey: .decisiveCheck)
     closeness = try c.decodeNullable(DecimalString.self, forKey: .closeness)

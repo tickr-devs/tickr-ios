@@ -1,0 +1,95 @@
+{
+  "served_at": "2026-11-21T15:00:00.123Z",
+  "bot_state": "stopped",
+  "status_stale": true,
+  "bot_started_at": null,
+  "reconcile": {
+    "interval_seconds": "10",
+    "last_at": "2026-11-20T21:00:00.123Z",
+    "next_at": null
+  },
+  "backup": {
+    "last_at": "2026-11-20T15:00:00.123Z",
+    "last_failed_at": "2026-11-20T22:00:00.123Z",
+    "last_failed_error": "OperationalError",
+    "cause": null,
+    "cause_codes": []
+  },
+  "launchd": [
+    {
+      "name": "preflight",
+      "local_time": "08:30",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "bot",
+      "local_time": "09:00",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "watchdog",
+      "local_time": "09:05",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "nightly-fetch",
+      "local_time": "19:00",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "session": null,
+  "session_cause": "WEEKEND: 2026-11-21 is a weekend",
+  "nightly_fetch": {
+    "finished_at": "2026-11-21T12:00:00.123Z",
+    "last_day": null,
+    "new_sessions": 0,
+    "cause": "stopped at 2026-11-23T12:30:00+00:00, before the next session ([backtest] nightly_stop_minutes_before_open); current is unchanged",
+    "cause_codes": [
+      {
+        "code": "nightly_stopped_before_open",
+        "params": {}
+      }
+    ]
+  },
+  "api_version": 1,
+  "session_cause_codes": [
+    {
+      "code": "calendar_weekend",
+      "params": {
+        "day": "2026-11-21"
+      }
+    }
+  ],
+  "next_session": {
+    "day": "2026-11-23",
+    "regular_open": "2026-11-23T14:30:00.000Z",
+    "regular_close": "2026-11-23T21:00:00.000Z",
+    "kind": "regular"
+  },
+  "next_session_cause": null,
+  "next_session_cause_codes": []
+}

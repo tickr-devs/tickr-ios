@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:settings-v1",
+  "title": "SettingsV1",
+  "type": "object",
+  "properties": {
+    "environment": {
+      "type": "string"
+    },
+    "active_strategy": {
+      "type": "string"
+    },
+    "observers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk": {
+      "type": "object",
+      "properties": {
+        "planned_loss_usd": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "position_notional_cap_usd": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "max_daily_loss_usd": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "max_open_positions": {
+          "type": "integer"
+        },
+        "max_quote_age_seconds": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "min_daily_room_usd": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "max_weekly_loss_usd": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stop_out_streak_limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "planned_loss_usd",
+        "position_notional_cap_usd",
+        "max_daily_loss_usd",
+        "max_open_positions",
+        "max_quote_age_seconds",
+        "min_daily_room_usd"
+      ],
+      "additionalProperties": false
+    },
+    "session": {
+      "type": "object",
+      "properties": {
+        "timezone": {
+          "type": "string"
+        },
+        "last_entry_minutes_before_close": {
+          "type": "integer"
+        },
+        "flatten_minutes_before_close": {
+          "type": "integer"
+        },
+        "half_days_enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "timezone",
+        "last_entry_minutes_before_close",
+        "flatten_minutes_before_close",
+        "half_days_enabled"
+      ],
+      "additionalProperties": false
+    },
+    "status_stale_seconds": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "poll_seconds": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "broker_read_max_age_seconds": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "broker_read_warn_seconds": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "live_quote_max_age_seconds": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "quotes_poll_seconds": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "command_max_age_seconds": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decider": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "strategy",
+                "model"
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decider_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "environment",
+    "active_strategy",
+    "observers",
+    "risk",
+    "session",
+    "status_stale_seconds",
+    "poll_seconds",
+    "broker_read_max_age_seconds",
+    "broker_read_warn_seconds",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

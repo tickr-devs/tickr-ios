@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:command-accepted-v1",
+  "title": "CommandAcceptedV1",
+  "type": "object",
+  "properties": {
+    "command": {
+      "type": "object",
+      "properties": {
+        "command_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "entry-stop-on",
+            "entry-stop-off",
+            "cancel-own-orders",
+            "flatten",
+            "stop-bot",
+            "emergency"
+          ]
+        },
+        "requested_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+        },
+        "source": {
+          "type": "string"
+        },
+        "symbol": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "close_and_stop",
+                "leave_open"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        }
+      },
+      "required": [
+        "command_id",
+        "kind",
+        "requested_at",
+        "source",
+        "symbol",
+        "schema_version"
+      ],
+      "additionalProperties": false
+    },
+    "warning": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "command",
+    "warning",
+    "api_version"
+  ],
+  "additionalProperties": false
+}
