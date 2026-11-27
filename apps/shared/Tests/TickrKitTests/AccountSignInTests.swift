@@ -28,8 +28,9 @@ import Testing
     let account = AccountSignIn(client: .ios, transport: transport)
     #expect(try await account.signIn(email: "owner@example.com", password: "pw") == .secondFactor([.authenticator]))
     #expect(try await account.secondFactor(code: "123456") == .signedIn)
-    let session = try await account.botSession(name: "iPhone 3F2A1B7C")
-    #expect(session.accessToken == "a1" && session.refreshToken == "r1")
+    let answer = try await account.botSession(name: "iPhone 3F2A1B7C")
+    #expect(answer.session.accessToken == "a1" && answer.session.refreshToken == "r1")
+    #expect(answer.email == "owner@example.com")
 
     let sent = transport.sent
     #expect(sent.map { $0.url?.absoluteString ?? "" } == [

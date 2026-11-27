@@ -116,15 +116,16 @@ public actor AccountSignIn {
 
   // MARK: The bot
 
-  /// Once signed in: the grant, then this device's tokens from the bot under `name`. tickr.bot's
-  /// session is deleted afterwards in every case, the bot's refusal included, before this returns.
-  public func botSession(name: String) async throws -> SessionV1 {
+  /// Once signed in: the grant, then this device's tokens from the bot under `name`, with the
+  /// account's email for "Signed in as". tickr.bot's session is deleted afterwards in every case,
+  /// the bot's refusal included, before this returns.
+  public func botSession(name: String) async throws -> (session: SessionV1, email: String) {
     do {
       let grant = try await self.grant()
       let answer = try await APIClient(baseURL: BotAddress.url, transport: transport)
-        .signIn(grant: grant, name: SignIn.deviceName(name))
+        .signIn(grant: grant.grant, name: SignIn.deviceName(name))
       await signOutOfSite()
-      return answer
+      return (answer, grant.email)
     } catch {
       await signOutOfSite()
       throw error
@@ -141,7 +142,7 @@ public actor AccountSignIn {
     sessionToken = nil
   }
 
-  private func grant() async throws(AccountError) -> String {
+  private func grant() async throws(AccountError) -> GrantAnswer {
     let body = Self.encode([Self.clientKey: client.rawValue, Self.resourceKey: BotAddress.url.absoluteString])
     var request = URLRequest(url: Self.site.appendingPathComponent(Self.grantPath))
     request.httpMethod = Self.post
@@ -160,7 +161,7 @@ public actor AccountSignIn {
     guard let answer = try? JSONDecoder().decode(GrantAnswer.self, from: data), !answer.grant.isEmpty else {
       throw .unreadable
     }
-    return answer.grant
+    return answer
   }
 
   // MARK: Requests
@@ -228,7 +229,10 @@ public actor AccountSignIn {
     }
   }
 
-  struct GrantAnswer: Decodable { let grant: String }
+  struct GrantAnswer: Decodable {
+    let grant: String
+    let email: String
+  }
   struct GrantRefusal: Decodable { let error: String }
 }
 

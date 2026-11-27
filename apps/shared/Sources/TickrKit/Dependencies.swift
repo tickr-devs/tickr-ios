@@ -57,7 +57,18 @@ extension Container {
   /// This device's sign-in with the bot (`BotSession`): one per app run, so the access token is
   /// renewed by one caller at a time. Tests give their own.
   public var botSession: Factory<BotSession> {
-    self { BotSession(keychain: self.keychain(), transport: self.urlSession(), now: self.now()) }.cached
+    self {
+      BotSession(keychain: self.keychain(), transport: self.urlSession(), now: self.now()) { why in
+        Task { @MainActor in Container.shared.signInState().end(why) }
+      }
+    }.cached
+  }
+
+  /// Whether the screens show the sign-in (`SignInState`): signed in when the Keychain holds the
+  /// bot's tokens at launch.
+  @MainActor
+  public var signInState: Factory<SignInState> {
+    self { SignInState(signedIn: self.keychain().readToken() != nil) }.cached
   }
 
   /// A new sign-in with the owner's tickr.bot account for this app (`AccountSignIn`).

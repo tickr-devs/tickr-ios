@@ -113,6 +113,8 @@ public struct APIClient: Sendable {
   static let nameKey = "name"
   /// HTTP status of a sign-out (no body).
   static let noContent = 204
+  /// HTTP status of a request whose bearer token the bot did not take.
+  static let unauthorized = 401
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
   static let performancePath = "/performance"
@@ -352,10 +354,8 @@ public struct APIClient: Sendable {
 
   func perform<T: Decodable>(_ request: URLRequest, expect: Int) async throws -> T {
     var request = request
-    if let session {
-      request.setValue("\(Self.bearerScheme) \(try await session.accessToken())",
-        forHTTPHeaderField: Self.authorizationHeader)
-    }
+    let sentToken = try await session?.accessToken()
+    if let sentToken { request.setValue("\(Self.bearerScheme) \(sentToken)", forHTTPHeaderField: Self.authorizationHeader) }
     let data: Data
     let response: URLResponse
     do {
@@ -369,6 +369,10 @@ public struct APIClient: Sendable {
       throw APIError.contract(String(localized: L10n.apiNotHTTP))
     }
     let decoder = Wire.decoder()
+    if http.statusCode == Self.unauthorized, let session, let sentToken {
+      // Renewed, the next request goes through; revoked, the sign-in ends (`BotSession`).
+      await session.rejected(sentToken)
+    }
     if http.statusCode != expect {
       guard let refusal = try? decoder.decode(ErrorV1.self, from: data) else {
         throw APIError.contract(String(localized: L10n.apiNoErrorBody(http.statusCode)))

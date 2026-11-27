@@ -88,6 +88,13 @@ func signedInAnswer(_ access: String, _ refresh: String) throws -> SessionV1 {
   try Wire.decoder().decode(SessionV1.self, from: Data(sessionJSON(access, refresh).utf8))
 }
 
+/// What a session reported as ended.
+final class Ends: Sendable {
+  private let list = Mutex<[SignInEnd]>([])
+  var all: [SignInEnd] { list.withLock { $0 } }
+  func add(_ end: SignInEnd) { list.withLock { $0.append(end) } }
+}
+
 /// The bot tokens on this device (BotSession.swift): kept in the Keychain, the access token
 /// handed out until it runs out, one renewal at a time, never resent.
 @Suite struct BotSessionTests {
@@ -169,6 +176,21 @@ func signedInAnswer(_ access: String, _ refresh: String) throws -> SessionV1 {
     clock.advance(2_592_000)
     await #expect(throws: BotSessionError.signInAgain) { try await bot.accessToken() }
     #expect(transport.sent.isEmpty && items.text == nil)
+  }
+
+  @Test func aRevokedDeviceEndsItsSignInOnTheNextRequest() async throws {
+    let unauthorized = #"{"error":"unauthorized","cause":"the bearer token is not the paired one","api_version":1}"#
+    let refusal = #"{"error":"unauthorized","cause":"no signed-in device","api_version":1}"#
+    let transport = ScriptedTransport([.http(401, unauthorized), .http(401, refusal)])
+    let ends = Ends()
+    let clock = clock
+    let bot = BotSession(keychain: Keychain(items: items), transport: transport, now: { clock.now }, ended: { ends.add($0) })
+    await bot.signedIn(try signedInAnswer("a1", "r1"))
+    await #expect(throws: APIError.self) {
+      try await APIClient(baseURL: BotAddress.url, session: bot, transport: transport).status()
+    }
+    #expect(transport.body(1)?["refresh_token"] as? String == "r1")
+    #expect(ends.all == [.revoked] && items.text == nil)
   }
 
   @Test func theClientCarriesTheCurrentAccessToken() async throws {

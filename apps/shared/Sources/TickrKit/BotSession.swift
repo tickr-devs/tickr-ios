@@ -57,6 +57,14 @@ public struct BotTokens: Codable, Hashable, Sendable {
   }
 }
 
+/// Why a sign-in ended on its own (not by signing out here): what the sign-in screen says.
+public enum SignInEnd: Equatable, Sendable {
+  /// It ran out, or a renewal's answer was lost.
+  case expired
+  /// The bot refused this device's tokens: signed out elsewhere or revoked.
+  case revoked
+}
+
 /// Why the device has no usable access token.
 public enum BotSessionError: Error, Equatable, Sendable {
   /// Not signed in, or the sign-in ended (expired, revoked, or a renewal whose answer was lost):
@@ -79,11 +87,17 @@ public actor BotSession {
   private var tokens: BotTokens?
   private var loaded = false
   private var renewing: Task<BotTokens, any Error>?
+  /// Told once each time a kept sign-in ends on its own (`SignInEnd`), so the app shows the sign-in.
+  private let ended: @Sendable (SignInEnd) -> Void
 
-  public init(keychain: Keychain, transport: any APITransport, now: @escaping @Sendable () -> Date) {
+  public init(
+    keychain: Keychain, transport: any APITransport, now: @escaping @Sendable () -> Date,
+    ended: @escaping @Sendable (SignInEnd) -> Void = { _ in }
+  ) {
     self.keychain = keychain
     self.transport = transport
     self.now = now
+    self.ended = ended
   }
 
   /// Whether a sign-in is kept (it may still have run out; `accessToken` says).
@@ -95,13 +109,18 @@ public actor BotSession {
     if now() < held.accessExpiresAt { return held.accessToken }
     if let renewing { return try await renewing.value.accessToken }
     guard now() < held.refreshExpiresAt else {
-      forget()
+      end(.expired)
       throw BotSessionError.signInAgain
     }
-    let task = Task { try await self.renew(held) }
-    renewing = task
-    defer { renewing = nil }
-    return try await task.value.accessToken
+    return try await renewOnce(held).accessToken
+  }
+
+  /// The bot refused `token` (401): if it is still the current access token, renew once. The
+  /// access token may only have run out on the bot's clock a moment early; a device the bot
+  /// revoked has no refresh token left either, and its sign-in ends here.
+  public func rejected(_ token: String) async {
+    guard let held = current(), held.accessToken == token, renewing == nil else { return }
+    _ = try? await renewOnce(held)
   }
 
   /// Keep the pair the bot answered to POST /session. False when the Keychain did not keep it.
@@ -110,11 +129,24 @@ public actor BotSession {
     store(BotTokens(answer, receivedAt: now()))
   }
 
-  /// Forget the tokens on this device (after DELETE /session, or when the bot ended the sign-in).
+  /// Forget the tokens on this device (signing out here).
   public func forget() {
     tokens = nil
     loaded = true
     keychain.deleteToken()
+  }
+
+  private func end(_ why: SignInEnd) {
+    forget()
+    ended(why)
+  }
+
+  private func renewOnce(_ held: BotTokens) async throws -> BotTokens {
+    if let renewing { return try await renewing.value }
+    let task = Task { try await self.renew(held) }
+    renewing = task
+    defer { renewing = nil }
+    return try await task.value
   }
 
   private func current() -> BotTokens? {
@@ -147,12 +179,12 @@ public actor BotSession {
         throw BotSessionError.offline(error.localizedDescription)
       }
       // The request may have reached the bot and retired the refresh token: never resent.
-      forget()
+      end(.expired)
       throw BotSessionError.signInAgain
     }
     guard (response as? HTTPURLResponse)?.statusCode == APIClient.ok,
       let answer = try? Wire.decoder().decode(SessionV1.self, from: data) else {
-      forget()
+      end(.revoked)
       throw BotSessionError.signInAgain
     }
     let renewed = BotTokens(answer, receivedAt: now())
