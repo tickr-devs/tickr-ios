@@ -17,6 +17,8 @@ final class ScriptedTransport: APITransport {
   private struct State {
     var answers: [Answer]
     var sent: [URLRequest] = []
+    /// Run once a request is sent, before its answer: what the app does meanwhile.
+    var meanwhile: (@Sendable () async -> Void)?
   }
 
   private let state: Mutex<State>
@@ -27,16 +29,23 @@ final class ScriptedTransport: APITransport {
 
   var sent: [URLRequest] { state.withLock { $0.sent } }
 
+  func whileSending(_ action: @escaping @Sendable () async -> Void) {
+    state.withLock { $0.meanwhile = action }
+  }
+
   func body(_ index: Int) -> [String: Any]? {
     let data = sent[index].httpBody ?? Data()
     return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
   }
 
   func response(to request: URLRequest) async throws -> (Data, URLResponse) {
-    let answer = state.withLock { state in
+    let (answer, meanwhile) = state.withLock { state in
       state.sent.append(request)
-      return state.answers.isEmpty ? Answer.failure(.badServerResponse) : state.answers.removeFirst()
+      let meanwhile = state.meanwhile
+      state.meanwhile = nil
+      return (state.answers.isEmpty ? Answer.failure(.badServerResponse) : state.answers.removeFirst(), meanwhile)
     }
+    await meanwhile?()
     switch answer {
     case .failure(let code):
       throw URLError(code)
@@ -59,13 +68,26 @@ final class ScriptedTransport: APITransport {
 /// One generic-password item in memory.
 final class MemoryKeychain: KeychainItems {
   private let stored = Mutex<Data?>(nil)
+  /// Saves taken before every further one is refused (nil: all taken).
+  let savesTaken = Mutex<Int?>(nil)
+
+  /// Whether one more save is taken, counting it.
+  private func takesSave() -> Bool {
+    savesTaken.withLock { left in
+      guard let count = left else { return true }
+      guard count > .zero else { return false }
+      left = count - 1
+      return true
+    }
+  }
 
   var text: String? { stored.withLock { $0.flatMap { String(bytes: $0, encoding: .utf8) } } }
 
   func copy(_ query: [String: Any]) -> Data? { stored.withLock { $0 } }
 
   func update(_ query: [String: Any], _ attributes: [String: Any]) -> OSStatus {
-    stored.withLock { item in
+    guard takesSave() else { return errSecInteractionNotAllowed }
+    return stored.withLock { item in
       guard item != nil else { return errSecItemNotFound }
       item = attributes[kSecValueData as String] as? Data
       return errSecSuccess
@@ -73,6 +95,7 @@ final class MemoryKeychain: KeychainItems {
   }
 
   func add(_ item: [String: Any]) -> OSStatus {
+    guard takesSave() else { return errSecInteractionNotAllowed }
     stored.withLock { $0 = item[kSecValueData as String] as? Data }
     return errSecSuccess
   }
@@ -196,6 +219,41 @@ final class Ends: Sendable {
   static let unavailable = 503
   static let tooMany = 429
   static let wait = 30
+
+  @Test func aRenewedPairTheKeychainRefusesDeletesTheRetiredOne() async throws {
+    let transport = ScriptedTransport([.http(APIClient.ok, sessionJSON("a2", "r2"))])
+    let bot = session(transport)
+    await bot.signedIn(try signedInAnswer("a1", "r1"))
+    items.savesTaken.withLock { $0 = .zero }
+    clock.advance(900)
+    #expect(try await bot.accessToken() == "a2")
+    #expect(items.text == nil)
+    #expect(await bot.isSignedIn)
+  }
+
+  @Test func aSignOutDuringARenewalKeepsNothing() async throws {
+    let transport = ScriptedTransport([.http(APIClient.ok, sessionJSON("a2", "r2"))])
+    let ends = Ends()
+    let clock = clock
+    let bot = BotSession(keychain: Keychain(items: items), transport: transport, now: { clock.now }, ended: { ends.add($0) })
+    await bot.signedIn(try signedInAnswer("a1", "r1"))
+    clock.advance(900)
+    transport.whileSending { await bot.forget() }
+    await #expect(throws: BotSessionError.signInAgain) { try await bot.accessToken() }
+    #expect(items.text == nil)
+    #expect(await !bot.isSignedIn)
+    #expect(ends.all.isEmpty)
+  }
+
+  @Test func aFirstPairTheKeychainRefusesSignsTheDeviceOutAtTheBot() async throws {
+    let transport = ScriptedTransport([.http(APIClient.noContent, "")])
+    let bot = session(transport)
+    items.savesTaken.withLock { $0 = .zero }
+    #expect(await !bot.signedIn(try signedInAnswer("a1", "r1")))
+    #expect(await !bot.isSignedIn)
+    #expect(transport.sent.map(\.httpMethod) == ["DELETE"])
+    #expect(transport.sent.first?.value(forHTTPHeaderField: "Authorization") == "Bearer a1")
+  }
 
   @Test func aLostAnswerIsNeverResent() async throws {
     let transport = ScriptedTransport([.failure(.networkConnectionLost)])

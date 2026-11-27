@@ -98,6 +98,9 @@ public actor BotSession {
   private var tokens: BotTokens?
   private var loaded = false
   private var renewing: Task<BotTokens, any Error>?
+  /// Counts sign-ins and sign-outs here: a renewal answered after either belongs to a sign-in
+  /// that is gone, so it keeps nothing and ends nothing.
+  private var generation = 0
   /// No renewal is sent before `until`: the bot's `Retry-After` on the last one, with its status.
   private var renewWait: (until: Date, status: Int)?
   /// Told once each time a kept sign-in ends on its own (`SignInEnd`), so the app shows the sign-in.
@@ -140,16 +143,27 @@ public actor BotSession {
     _ = try? await renewOnce(held)
   }
 
-  /// Keep the pair the bot answered to POST /session. False when the Keychain did not keep it.
+  /// Keep the pair the bot answered to POST /session. False when the Keychain did not keep it:
+  /// then the pair is dropped and the bot is asked to sign the device out (once, never resent),
+  /// so the bot lists no device this app does not hold.
   @discardableResult
-  public func signedIn(_ answer: SessionV1) -> Bool {
-    store(BotTokens(answer, receivedAt: now()))
+  public func signedIn(_ answer: SessionV1) async -> Bool {
+    generation += 1
+    renewing = nil
+    renewWait = nil
+    if store(BotTokens(answer, receivedAt: now())) { return true }
+    forget()
+    try? await APIClient(baseURL: BotAddress.url, token: answer.accessToken, transport: transport).signOut()
+    return false
   }
 
-  /// Forget the tokens on this device (signing out here).
+  /// Forget the tokens on this device (signing out here). A renewal still in flight keeps nothing.
   public func forget() {
+    generation += 1
     tokens = nil
     loaded = true
+    renewing = nil
+    renewWait = nil
     keychain.deleteToken()
   }
 
@@ -162,7 +176,7 @@ public actor BotSession {
     if let renewing { return try await renewing.value }
     let task = Task { try await self.renew(held) }
     renewing = task
-    defer { renewing = nil }
+    defer { if renewing == task { renewing = nil } }
     return try await task.value
   }
 
@@ -187,36 +201,22 @@ public actor BotSession {
   private func renew(_ held: BotTokens) async throws -> BotTokens {
     let request = try APIClient(baseURL: BotAddress.url, transport: transport)
       .refreshRequest(refreshToken: held.refreshToken)
+    let started = generation
     let data: Data
     let response: URLResponse
     do {
       (data, response) = try await transport.response(to: request)
     } catch {
-      if let code = (error as? URLError)?.code, Self.neverSent.contains(code) {
-        throw BotSessionError.offline(error.localizedDescription)
-      }
-      // The request may have reached the bot and retired the refresh token: never resent.
-      end(.expired)
-      throw BotSessionError.signInAgain
+      // Signed out or in again meanwhile: this renewal's sign-in is gone, nothing to keep or end.
+      guard generation == started else { throw BotSessionError.signInAgain }
+      throw failed(error)
     }
+    guard generation == started else { throw BotSessionError.signInAgain }
     guard let http = response as? HTTPURLResponse else {
       end(.expired)
       throw BotSessionError.signInAgain
     }
-    switch http.statusCode {
-    case APIClient.ok:
-      break
-    case APIClient.unauthorized:
-      // The only answer that retires a refresh token without a new pair: revoked, reused or run out.
-      end(.revoked)
-      throw BotSessionError.signInAgain
-    default:
-      // A limit (429), a restart behind the proxy (502, 503, 504) or any other failure: the bot
-      // retired nothing, so the tokens stay and the renewal waits as long as the bot asked.
-      let retryAfter = http.value(forHTTPHeaderField: APIClient.retryAfterHeader).flatMap { Int($0) }
-      renewWait = retryAfter.map { (now().addingTimeInterval(TimeInterval($0)), http.statusCode) }
-      throw BotSessionError.unavailable(status: http.statusCode, retryAfter: retryAfter)
-    }
+    if http.statusCode != APIClient.ok { throw refused(http) }
     guard let answer = try? Wire.decoder().decode(SessionV1.self, from: data) else {
       // The bot answered 200, so it retired the refresh token, but the new pair is unreadable.
       end(.expired)
@@ -224,13 +224,49 @@ public actor BotSession {
     }
     renewWait = nil
     let renewed = BotTokens(answer, receivedAt: now())
-    store(renewed)
+    if !store(renewed) {
+      // The Keychain may still hold the refresh token the bot just retired: presented after the
+      // next launch, it would read as reuse and revoke this device. Delete it and run on the pair
+      // in memory; if even the delete fails, end the sign-in here.
+      guard keychain.deleteToken() else {
+        end(.expired)
+        throw BotSessionError.signInAgain
+      }
+    }
     return renewed
   }
 
+  /// A renewal that got no answer: kept when it never left this device, else ended (never resent).
+  private func failed(_ error: any Error) -> BotSessionError {
+    if let code = (error as? URLError)?.code, Self.neverSent.contains(code) {
+      return .offline(error.localizedDescription)
+    }
+    // The request may have reached the bot and retired the refresh token.
+    end(.expired)
+    return .signInAgain
+  }
+
+  /// A renewal the bot answered with another status than 200.
+  private func refused(_ http: HTTPURLResponse) -> BotSessionError {
+    if http.statusCode == APIClient.unauthorized {
+      // The only answer that retires a refresh token without a new pair: revoked, reused or run out.
+      end(.revoked)
+      return .signInAgain
+    }
+    // A limit (429), a restart behind the proxy (502, 503, 504) or any other failure: the bot
+    // retired nothing, so the tokens stay and the renewal waits as long as the bot asked.
+    let retryAfter = http.value(forHTTPHeaderField: APIClient.retryAfterHeader).flatMap { Int($0) }
+    renewWait = retryAfter.map { (now().addingTimeInterval(TimeInterval($0)), http.statusCode) }
+    return .unavailable(status: http.statusCode, retryAfter: retryAfter)
+  }
+
   /// Failures where the request never left this device, so the refresh token is still live.
+  /// A failed TLS handshake (a captive Wi-Fi portal among them) sends no HTTP byte either.
   static let neverSent: Set<URLError.Code> = [
     .notConnectedToInternet, .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed,
     .internationalRoamingOff, .dataNotAllowed, .callIsActive,
+    .secureConnectionFailed, .serverCertificateUntrusted, .serverCertificateHasBadDate,
+    .serverCertificateNotYetValid, .serverCertificateHasUnknownRoot, .clientCertificateRejected,
+    .appTransportSecurityRequiresSecureConnection,
   ]
 }

@@ -104,9 +104,8 @@ public struct APIClient: Sendable {
   static let versionQuery = "version"
   /// Remote port only: POST signs this device in with a tickr.bot grant, DELETE signs it out.
   static let sessionPath = "/session"
-  /// Where a signed-in device trades its refresh token for a new pair (no bearer token).
+  /// Where a signed-in device trades its refresh token (the body's key) for a new pair.
   static let refreshPath = "/session/refresh"
-  /// The refresh body's key.
   static let refreshTokenKey = "refresh_token"
   /// Body keys of a sign-in: the grant and the device's name in the bot's device list.
   static let grantKey = "grant"

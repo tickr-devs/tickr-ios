@@ -55,8 +55,11 @@ public struct Keychain: Sendable {
     return status == errSecSuccess && readToken() == token
   }
 
-  public func deleteToken() {
-    items.delete(query)
+  /// False when an item may still be there (the delete failed for another reason than none).
+  @discardableResult
+  public func deleteToken() -> Bool {
+    let status = items.delete(query)
+    return status == errSecSuccess || status == errSecItemNotFound
   }
 }
 

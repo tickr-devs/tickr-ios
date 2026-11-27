@@ -14,6 +14,19 @@ public enum SignInDevice: Sendable, Equatable {
   /// How much of the vendor id an iPhone's or iPad's name keeps: enough to tell the owner's
   /// devices apart (signing in again under one name replaces its tokens).
   static let vendorIdLength = 8
+  /// UserDefaults key of the random id an iPhone or iPad uses when the system gives no vendor id
+  /// (before the first unlock), so two devices of one model never share a name.
+  static let keptIdKey = "signInDeviceId"
+
+  #if os(iOS)
+  /// The id kept for this device, made once.
+  private static func keptId() -> String {
+    if let kept = UserDefaults.standard.string(forKey: keptIdKey) { return kept }
+    let made = UUID().uuidString
+    UserDefaults.standard.set(made, forKey: keptIdKey)
+    return made
+  }
+  #endif
 
   @MainActor
   public static var current: SignInDevice {
@@ -33,8 +46,8 @@ public enum SignInDevice: Sendable, Equatable {
     #if os(macOS)
     Host.current().localizedName ?? Self.macName
     #else
-    let id = UIDevice.current.identifierForVendor?.uuidString.prefix(Self.vendorIdLength) ?? ""
-    return "\(UIDevice.current.model) \(id)"
+    let id = UIDevice.current.identifierForVendor?.uuidString ?? Self.keptId()
+    return "\(UIDevice.current.model) \(id.prefix(Self.vendorIdLength))"
     #endif
   }
 }
