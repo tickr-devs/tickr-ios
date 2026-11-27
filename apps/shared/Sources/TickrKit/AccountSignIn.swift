@@ -153,7 +153,7 @@ public actor AccountSignIn {
     request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
     request.httpBody = body
     headers(&request)
-    let (data, status) = try await exchange(request)
+    let (data, status, _) = try await exchange(request)
     guard status == Self.ok else {
       let refusal = (try? JSONDecoder().decode(GrantRefusal.self, from: data))?.error
       switch refusal {
