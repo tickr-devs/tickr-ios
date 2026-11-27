@@ -75,8 +75,8 @@ extension AlertChannelV1 {
 
 public struct AlertRoutingPanel: View {
   /// Symbols of the channels, the always-on rows and the note under the grid.
-  static let telegramSymbol = "paperplane.fill"
-  static let pushSymbol = "iphone"
+  nonisolated static let telegramSymbol = "paperplane.fill"
+  nonisolated static let pushSymbol = "iphone"
   static let lockSymbol = Symbols.gateClosed
   static let feedSymbol = "tray.full"
 
