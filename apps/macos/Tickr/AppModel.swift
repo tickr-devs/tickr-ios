@@ -185,6 +185,9 @@ public final class AppModel {
   public private(set) var system: SystemV1?
   /// Why the System card could not be read, if it could not.
   public private(set) var systemError: String?
+  /// The notification settings (GET /alerts) and the owner's changes on their way, read when
+  /// Settings › Notifications opens.
+  public let alertRouting = AlertRouting()
   /// The bot day whose jobs were read for the headline's countdown (today's session); nil until
   /// they are, so a failed read is tried again at the next status.
   private var jobsReadDay: WireDate?
@@ -597,6 +600,7 @@ public final class AppModel {
     jobsReadDay = nil
     system = nil
     systemError = nil
+    alertRouting.clear()
     config = nil
     configError = nil
     botStart = nil
@@ -817,6 +821,17 @@ public final class AppModel {
       system = nil
       systemError = Self.describe(error) ?? systemError
     }
+  }
+
+  /// Reads the notification settings.
+  public func refreshAlerts() async {
+    await alertRouting.refresh(client)
+  }
+
+  /// Turns one alert kind on or off on one channel (PUT /alerts/routing): sent once, the answer
+  /// shown; a refusal is kept in `alertRouting.changeError`.
+  public func setAlertRoute(_ cell: AlertCell, on: Bool) async {
+    await alertRouting.set(cell, on: on, client: client)
   }
 
   public func refreshConfig() async {

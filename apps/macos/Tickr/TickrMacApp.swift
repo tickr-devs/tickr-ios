@@ -8,7 +8,7 @@ import TickrKit
 #if os(macOS)
 /// macOS shell: the main window with a sidebar, the standard Settings window (⌘,) and a
 /// menu-bar extra. Appearance follows the system (Defaults.appearance can force one for the tour).
-/// Started by `Launcher` (AlertCommand.swift), which first handles the bot's notify mode.
+/// Started by `Launcher` (Launcher.swift).
 @MainActor
 struct TickrMacApp: App {
   /// Narrowest window at which no screen breaks, in points: the sidebar at its widest (the person
@@ -45,15 +45,6 @@ struct TickrMacApp: App {
     LayoutSweep.startIfAsked(model: model)
     LayoutSweep.smallestIfAsked(model: model)
     #endif
-    // The bot shows its alerts through this app (AlertCommand.swift): ask once, here, where the
-    // question can be seen. Not in the UI tests' fixture mode, where nobody could answer.
-    var asksForNotifications = AlertPoster.available
-    #if DEBUG
-    asksForNotifications = asksForNotifications && !PreviewAPI.servesFixtures
-    #endif
-    if asksForNotifications {
-      Task { await AlertPoster().requestPermission() }
-    }
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.
     NSApplication.shared.setActivationPolicy(.regular)
