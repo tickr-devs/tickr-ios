@@ -21,7 +21,7 @@ enum SignInProblem: Equatable {
   /// the passkey sheet). `secondStep`: a wrong code there is the authenticator's.
   static func of(_ error: any Error, secondStep: Bool = false) -> SignInProblem? {
     switch error {
-    case let account as AccountError: return of(account, secondStep: secondStep)
+    case let account as AccountError: return ofAccount(account, secondStep: secondStep)
     case let passkey as PasskeyFailure: return passkey == .closed ? nil : .noPasskey
     case let api as APIError:
       switch api {
@@ -36,7 +36,8 @@ enum SignInProblem: Equatable {
     }
   }
 
-  private static func of(_ error: AccountError, secondStep: Bool) -> SignInProblem {
+  /// What one of tickr.bot's account errors means; its own name, so `of` can never call itself.
+  private static func ofAccount(_ error: AccountError, secondStep: Bool) -> SignInProblem {
     switch error {
     case .refused(_, let words):
       switch error.refusal {
