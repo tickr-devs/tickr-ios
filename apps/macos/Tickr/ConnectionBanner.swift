@@ -10,8 +10,6 @@ import TickrKit
 /// (`commandsEnabled`).
 struct ConnectionBanner: View {
   @Environment(AppModel.self) private var model
-  /// The address Settings shows and the app reads at launch; the one-click fix writes it too.
-  @AppStorage(Defaults.apiBaseURL) private var apiBaseURL = APIClient.defaultBaseURL.absoluteString
   /// A Retry is on its way: the button waits for it.
   @State private var retrying = false
 
@@ -19,15 +17,8 @@ struct ConnectionBanner: View {
     if let message = model.connectionMessage {
       ConnectionNotice(.banner, title: message.title, subtitle: message.subtitle,
         detailsLabel: ConnectionMessage.detailsLabel, details: details(message)) {
-        if Self.offersOwnAddress && message.refused && model.address != APIClient.defaultBaseURL {
-          // The bot refuses this address (a Host or token it does not accept): reading it again
-          // never helps, going back to this Mac's own address does.
-          Button {
-            apiBaseURL = APIClient.defaultBaseURL.absoluteString
-            model.connect(to: APIClient.defaultBaseURL)
-          } label: { Text(ConnectionMessage.useAddress(Self.defaultAddress)) }
-            .buttonStyle(.action(.primary, size: .compact))
-        } else {
+        // The bot refusing this device's token is not fixed by reading again: Settings signs in.
+        if !message.refused {
           Button {
             Task {
               retrying = true
@@ -47,23 +38,6 @@ struct ConnectionBanner: View {
       .padding([.horizontal, .top], Tokens.Space.l)
       .transition(.move(edge: .top).combined(with: .opacity))
     }
-  }
-
-  /// Whether a refused address is answered with "use this Mac's own address": only on the Mac. An
-  /// iPad has no bot of its own; its address and token come from pairing (the iPad's Settings).
-  static var offersOwnAddress: Bool {
-    #if os(macOS)
-    true
-    #else
-    false
-    #endif
-  }
-
-  /// This Mac's own API address as the banner names it ("127.0.0.1:8766").
-  static var defaultAddress: String {
-    let url = APIClient.defaultBaseURL
-    let host = url.host() ?? url.absoluteString
-    return url.port.map { "\(host):\($0)" } ?? host
   }
 
   /// The technical lines under "Details": the address read from, then the failure as the API

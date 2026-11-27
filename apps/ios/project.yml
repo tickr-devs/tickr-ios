@@ -79,15 +79,8 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
-        # The API address the app starts with before pairing: the Simulator's or the iPhone's,
-        # set per destination in Config/Signing.xcconfig.
-        TickrAPIAddress: $(TICKR_API_ADDRESS)
         # The Simulator's own token file on this Mac, read by a Simulator build at launch.
         TickrSimulatorTokenFile: $(TICKR_SIMULATOR_FILE)
-        # tickr://pair?... links from `python -m tickr.api pair` open the app to pair.
-        CFBundleURLTypes:
-          - CFBundleURLName: $(PRODUCT_BUNDLE_IDENTIFIER).pair
-            CFBundleURLSchemes: [tickr]
         # Plain HTTP is allowed only to local addresses (the Simulator reaches the Mac's API on
         # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
         NSAppTransportSecurity:
@@ -104,6 +97,8 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
+        # tickr.bot's passkeys for the native sign-in (associated domain webcredentials:tickr.bot).
+        CODE_SIGN_ENTITLEMENTS: Support/Tickr.entitlements
         ENABLE_PREVIEWS: YES
   # Swift Testing tests of the screens' logic (Tests/TickrTests), hosted in the app so they can
   # reach its internal types with @testable import.

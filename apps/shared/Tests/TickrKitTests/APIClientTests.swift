@@ -200,26 +200,37 @@ final class StubProtocol: URLProtocol {
       == ["date=2026-11-13", "symbol=ABCD", "version=price-action-v2"])
   }
 
-  @Test func redeemPairingPostsTheCodeWithoutAToken() async throws {
-    let remote = APIClient(baseURL: try #require(URL(string: "https://mac.ts.net")), transport: StubProtocol.session())
-    StubProtocol.answer = try (200, fixture("paired-v1.json"))
-    let paired = try await remote.redeemPairing(code: "c0de")
-    #expect(paired.token == "example-token-not-a-secret_0123456789-abcdef")
+  @Test func signInPostsTheGrantAndNameWithoutAToken() async throws {
+    let remote = APIClient(baseURL: BotAddress.url, transport: StubProtocol.session())
+    StubProtocol.answer = (200, Data(sessionJSON("a1", "r1").utf8))
+    let session = try await remote.signIn(grant: "grant", name: "iPhone")
+    #expect(session.accessToken == "a1" && session.refreshToken == "r1" && session.accessExpiresIn == 900)
     let sent = try #require(StubProtocol.seen.first)
     #expect(sent.httpMethod == "POST")
-    #expect(sent.url?.absoluteString == "https://mac.ts.net/pair")
+    #expect(sent.url?.absoluteString == "https://api.tickr.bot/session")
     #expect(sent.value(forHTTPHeaderField: "Authorization") == nil)
     let body = try JSONSerialization.jsonObject(with: StubProtocol.seenBodies[0]) as? [String: String]
-    #expect(body == ["code": "c0de"])
+    #expect(body == ["grant": "grant", "name": "iPhone"])
   }
 
-  @Test func refusedPairingCodeIsATypedRefusal() async throws {
-    let remote = APIClient(baseURL: try #require(URL(string: "https://mac.ts.net")), transport: StubProtocol.session())
-    let body = Data(#"{"error":"unauthorized","cause":"the pairing code has expired","api_version":1}"#.utf8)
+  @Test func refusedGrantIsATypedRefusal() async throws {
+    let remote = APIClient(baseURL: BotAddress.url, transport: StubProtocol.session())
+    let body = Data(#"{"error":"unauthorized","cause":"the grant has expired; sign in again","api_version":1}"#.utf8)
     StubProtocol.answer = (401, body)
-    await #expect(throws: APIError.refused(status: 401, error: "unauthorized", cause: "the pairing code has expired")) {
-      try await remote.redeemPairing(code: "old")
+    await #expect(throws: APIError.refused(status: 401, error: "unauthorized",
+      cause: "the grant has expired; sign in again")) {
+      try await remote.signIn(grant: "old", name: "iPhone")
     }
+  }
+
+  @Test func signOutDeletesTheSessionWithTheToken() async throws {
+    let remote = APIClient(baseURL: BotAddress.url, token: "t", transport: StubProtocol.session())
+    StubProtocol.answer = (204, Data())
+    try await remote.signOut()
+    let sent = try #require(StubProtocol.seen.first)
+    #expect(sent.httpMethod == "DELETE")
+    #expect(sent.url?.absoluteString == "https://api.tickr.bot/session")
+    #expect(sent.value(forHTTPHeaderField: "Authorization") == "Bearer t")
   }
 
   @Test func labReplayRunningIsAConflict() async throws {

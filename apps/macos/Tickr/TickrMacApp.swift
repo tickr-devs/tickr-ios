@@ -167,6 +167,27 @@ private struct OpeningOverlay: View {
   }
 }
 
+/// The screens once this Mac is signed in with the bot, the sign-in until then (mockup v174,
+/// board MacSignIn). A development address and the demo day need no sign-in. The launch's opening
+/// lands on the sign-in's mark when there is no sign-in, else on the Overview's.
+private struct MacSignInGate: View {
+  @Environment(AppModel.self) private var model
+  @State private var state = Container.shared.signInState()
+
+  var body: some View {
+    Group {
+      if model.signedIn || model.demoDay || model.address != BotAddress.url {
+        RootView()
+      } else {
+        SignInScreen(device: .mac, ended: state.ended, markShown: model.openingPlayed) { centre in
+          model.overviewMarkCentre = centre
+        }
+      }
+    }
+    .onChange(of: state.signedIn, initial: true) { _, signedIn in model.use(signedIn: signedIn) }
+  }
+}
+
 /// The main window's content at its least size or larger.
 ///
 /// The least size comes from data and constants only (`TickrMacApp.leastWidth`, `minHeight`),
@@ -186,7 +207,7 @@ private struct MainWindow: View {
   var body: some View {
     let comfortable = CGSize(width: TickrMacApp.leastWidth(model: model, chart: chart), height: TickrMacApp.minHeight)
     WindowFrame(minSize: WindowFit.least(comfortable: comfortable, room: room)) {
-      RootView()
+      MacSignInGate()
         .background(ScreenRoomReader { if room != $0 { room = $0 } })
         .overlay { OpeningOverlay() }
         .readFailureContext(model)

@@ -145,6 +145,24 @@
         }
       }
     },
+    "kit.alert.device-session" : {
+      "comment" : "An alert the owner can receive: device-session",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A device signed in or out of the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dispositivo inició o cerró sesión en el bot"
+          }
+        }
+      }
+    },
     "kit.alert.disk-low" : {
       "comment" : "An alert the owner can receive: disk-low",
       "extractionState" : "manual",
@@ -1858,13 +1876,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "the Mac answers, the bot has no status · entries not possible"
+            "value" : "the server answers, the bot has no status · entries not possible"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "la Mac responde, el bot no tiene estado · no se puede entrar"
+            "value" : "el servidor responde, el bot no tiene estado · no se pueden abrir entradas"
           }
         }
       }
@@ -1892,13 +1910,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "pair this device with the Mac in Settings"
+            "value" : "sign in with your tickr.bot account in Settings"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "vincula este dispositivo con la Mac en Ajustes"
+            "value" : "inicia sesión con tu cuenta de tickr.bot en Ajustes"
           }
         }
       }
@@ -1909,13 +1927,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect to your Mac"
+            "value" : "Sign in to your bot"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Conéctate a tu Mac"
+            "value" : "Inicia sesión en tu bot"
           }
         }
       }
@@ -1943,13 +1961,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "the address or pairing is wrong, retrying will not help · commands off"
+            "value" : "this device is not signed in to the bot, retrying will not help: sign in again in Settings · commands off"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "la dirección o la vinculación es incorrecta, reintentar no ayudará · comandos desactivados"
+            "value" : "este dispositivo no tiene sesión en el bot, reintentar no ayudará: vuelve a iniciar sesión en Ajustes · comandos desactivados"
           }
         }
       }
@@ -1960,13 +1978,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot refuses this address"
+            "value" : "The bot refuses this device"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El bot rechaza esta dirección"
+            "value" : "El bot rechaza este dispositivo"
           }
         }
       }
@@ -2018,23 +2036,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se puede llegar al bot"
-          }
-        }
-      }
-    },
-    "kit.connection.useAddress" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usar %@"
           }
         }
       }
@@ -12684,6 +12685,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Desplázate hacia abajo"
+          }
+        }
+      }
+    },
+    "kit.signIn.accountRefused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "this tickr.bot account may not reach the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "esta cuenta de tickr.bot no tiene acceso al bot"
+          }
+        }
+      }
+    },
+    "kit.signIn.badAnswer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr.bot sent an answer this sign-in does not expect"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr.bot envió una respuesta que este inicio de sesión no espera"
+          }
+        }
+      }
+    },
+    "kit.signIn.codeSpent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This code can't be used any more; send a new one"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este código ya no se puede usar; envía uno nuevo"
+          }
+        }
+      }
+    },
+    "kit.signIn.needsStrongFactor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reaching the bot needs your passkey or authenticator app; sign in with one of them"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para llegar al bot necesitas tu llave de acceso o tu app de autenticación; inicia sesión con una de ellas"
+          }
+        }
+      }
+    },
+    "kit.signIn.unreachable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr.bot cannot be reached; check the connection and try again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede conectar con tickr.bot; revisa la conexión e inténtalo de nuevo"
           }
         }
       }

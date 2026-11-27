@@ -320,6 +320,7 @@ public enum AlertKindCode: String, CaseIterable, Sendable {
   case protectionChangeIgnored = "protection-change-ignored"
   case remoteAuthBlocked = "remote-auth-blocked"
   case riskCommandUsed = "risk-command-used"
+  case deviceSession = "device-session"
 
   public var title: LocalizedStringResource {
     switch self {
@@ -355,6 +356,7 @@ public enum AlertKindCode: String, CaseIterable, Sendable {
     case .protectionChangeIgnored: L10n.alertProtectionChangeIgnored
     case .remoteAuthBlocked: L10n.alertRemoteAuthBlocked
     case .riskCommandUsed: L10n.alertRiskCommandUsed
+    case .deviceSession: L10n.alertDeviceSession
     }
   }
 }
