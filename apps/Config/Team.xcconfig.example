@@ -5,6 +5,7 @@ DEVELOPMENT_TEAM = YOUR_TEAM_ID
 // Sign the Mac app with the team's Apple Development certificate instead of for this Mac only.
 CODE_SIGN_IDENTITY[sdk=macosx*] = Apple Development
 
-// The Mac app's push entitlement (apps/macos/Support/Tickr.entitlements), which needs the team's
-// certificate.
+// The Mac app's entitlements (push alerts over APNs, tickr.bot's passkeys with
+// webcredentials:tickr.bot). Only with the team: an app signed for this Mac only may not claim an
+// associated domain or APNs, and macOS would not start it.
 TICKR_MAC_ENTITLEMENTS = Support/Tickr.entitlements

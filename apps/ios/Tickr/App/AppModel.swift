@@ -1,6 +1,9 @@
 import Foundation
 import Observation
+import TickrDesign
 import TickrKit
+import TickrScreens
+import UIKit
 
 enum AppTab: Hashable { case home, positions, chart, activity, lab }
 
@@ -108,11 +111,12 @@ final class AppModel {
   private(set) var entryWatch = EntryCancelWatch()
   var notice: Notice?
   var selectedTab: AppTab = .home
-  /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
+  /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands;
+  /// the sign-in's mark while the phone has no sign-in.
   @ObservationIgnored var homeMarkCentre: CGPoint?
+  /// The side of the mark the opening lands on: Home's, or the sign-in's.
+  @ObservationIgnored var homeMarkSide = Tokens.Size.logoSmall
   var selectedSymbol: String?
-  /// A pairing link opened from outside (AirDrop), waiting for the owner to confirm.
-  var pendingPairing: Pairing?
 
   /// How far the bot's clock is ahead of this phone's, from the last status's `served_at`. The
   /// bot's clock decides what "today" is: the phone's clock can drift, and `tickr demo` plays a
@@ -727,26 +731,9 @@ final class AppModel {
     await refresh()
   }
 
-  /// Uses a pairing link: redeems its one-time code at the Mac's HTTPS address for the bearer
-  /// token, then that address and token replace the current connection. Refused, with the earlier
-  /// connection kept, when the Mac refuses the code (used, expired, or another pairing started) or
-  /// the Keychain does not take the token.
-  func pair(_ pairing: Pairing) async {
-    let redeemed: PairedV1
-    do {
-      redeemed = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: pairing.url))
-        .redeemPairing(code: pairing.code)
-    } catch {
-      notice = Notice(L10n.Pair.notRedeemed(ErrorText.text(error)), tone: .failure)
-      return
-    }
-    guard Container.shared.keychain().saveToken(redeemed.token) else {
-      notice = Notice(L10n.Pair.notSaved, tone: .failure)
-      return
-    }
-    connection = Connection(paired: pairing.url, token: redeemed.token)
-    notice = Notice(L10n.Pair.paired(Connection.displayHost(pairing.url) ?? String(localized: L10n.Pair.thisMac)),
-      tone: .success)
+  /// Signs this phone out (`DeviceSignOut`); the screens turn to the sign-in.
+  func signOut() async {
+    await DeviceSignOut.run()
   }
 
   private func resolveAwaited(_ fresh: StatusResponseV1) {

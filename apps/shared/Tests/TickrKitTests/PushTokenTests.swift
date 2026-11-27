@@ -82,6 +82,26 @@ extension APIClientTests {
     #expect(bodies.map { $0["kind"] } == ["alert", "alert", "activity_start", "alert", "activity_start"])
   }
 
+  @MainActor @Test func aNewSignInRegistersEveryTokenAgain() async throws {
+    // The bot drops a device's push tokens when its sign-in ends: the next sign-in sends them again.
+    Container.shared.urlSession.register { StubProtocol.session() }
+    StubProtocol.answer = (200, Self.registered)
+    let registrar = PushRegistrar(identity: Self.identity)
+    let bot = APIClient.Endpoint(baseURL: try #require(URL(string: "https://api.tickr.bot")), token: "t")
+    registrar.received(Data([0xAB]), kind: .alert)
+    await registrar.reached(bot)?.value
+    #expect(registrar.reached(bot) == nil)
+    // Signed out and in again in the same run: nothing goes until the bot answers the new sign-in.
+    registrar.signedIn()
+    #expect(registrar.received(Data([0xAB]), kind: .alert) == nil)
+    await registrar.reached(bot)?.value
+    #expect(registrar.reached(bot) == nil)
+    let bodies = try StubProtocol.seenBodies.map {
+      try #require(JSONSerialization.jsonObject(with: $0) as? [String: String])
+    }
+    #expect(bodies.map { $0["token"] } == ["ab", "ab"])
+  }
+
   @MainActor @Test func registrarIgnoresTheDemoDayAndABuildWithoutIdentity() async throws {
     Container.shared.urlSession.register { StubProtocol.session() }
     let demo = PushRegistrar(identity: Self.identity)

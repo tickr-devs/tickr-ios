@@ -88,15 +88,8 @@ targets:
         # Only HTTPS and the system's own encryption: exempt, so App Store Connect asks nothing
         # at each TestFlight upload.
         ITSAppUsesNonExemptEncryption: false
-        # The API address the app starts with before pairing: the Simulator's or the iPhone's,
-        # set per destination in Config/Signing.xcconfig.
-        TickrAPIAddress: $(TICKR_API_ADDRESS)
         # The Simulator's own token file on this Mac, read by a Simulator build at launch.
         TickrSimulatorTokenFile: $(TICKR_SIMULATOR_FILE)
-        # tickr://pair?... links from `python -m tickr.api pair` open the app to pair.
-        CFBundleURLTypes:
-          - CFBundleURLName: $(PRODUCT_BUNDLE_IDENTIFIER).pair
-            CFBundleURLSchemes: [tickr]
         # The APNs environment of this build's push token (TICKR_APS_ENVIRONMENT in
         # apps/Config/Identity.xcconfig: development for Debug, production for Release), which the
         # app tells the bot (TickrKit PushIdentity).
@@ -125,6 +118,8 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
+        # tickr.bot's passkeys for the native sign-in (associated domain webcredentials:tickr.bot).
+        CODE_SIGN_ENTITLEMENTS: Support/Tickr.entitlements
         ENABLE_PREVIEWS: YES
   # The trading day's Live Activity (Lock Screen and Dynamic Island, mockup v138), drawn from the
   # content-state the bot pushes (TickrKit TickrActivityAttributes). Its own texts and String

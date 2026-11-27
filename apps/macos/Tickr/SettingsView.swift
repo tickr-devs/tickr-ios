@@ -91,16 +91,10 @@ struct SettingsView: View {
 
 private struct GeneralSettings: View {
   @Environment(AppModel.self) private var model
-  @AppStorage(Defaults.apiBaseURL) private var apiBaseURL = APIClient.defaultBaseURL.absoluteString
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
-  @State private var draft = ""
-  @State private var invalid = false
-  @FocusState private var editing: Bool
-
-  /// URL schemes the local API address may use.
-  static let schemes: Set = ["http", "https"]
-  /// How long after the pane appears the address field's automatic focus is released.
-  static let focusRelease: Duration = .milliseconds(150)
+  @State private var signIn = Container.shared.signInState()
+  /// The sign-out question is open.
+  @State private var askingSignOut = false
 
   var body: some View {
     Group {
@@ -117,45 +111,32 @@ private struct GeneralSettings: View {
       MorningCheckSection()
       SystemSection()
     }
-    .onAppear { draft = model.address.absoluteString }
-    .alert(String(localized: L10n.Settings.invalidAddress), isPresented: $invalid) {
-      Button(String(localized: L10n.Settings.ok), role: .cancel) {}
-    } message: {
-      Text(L10n.Settings.enterAddress(APIClient.defaultBaseURL.absoluteString))
-    }
   }
 
-  /// The design's "Bot connection": the address in a mono field with Use Default and Connect, the
-  /// connection's state under it with a dot; what the address may be is the label's tooltip.
+  /// The design's "Connection" (mockup v174, MacSystem > General): who this Mac is signed in as,
+  /// the bot's address (built into the app) with the link's state, and Sign Out with what it
+  /// does. A development address shows only its address and state.
   private var connection: some View {
     let reachable = model.fetchError == nil
-    return SettingsCard(L10n.Settings.botConnection,
-      info: L10n.Settings.addressFootnote(APIClient.defaultBaseURL.absoluteString)) {
+    let ownAddress = model.address == BotAddress.url
+    return SettingsCard(L10n.SignIn.connection) {
+      if ownAddress, model.signedIn {
+        Text(signIn.email.map { L10n.SignIn.signedInMac($0) } ?? L10n.SignIn.signedInNoEmail)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textPrimary)
+      }
       HStack(spacing: Tokens.Space.s) {
-        Text(L10n.Settings.apiAddress)
+        Text(L10n.SignIn.bot)
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.textTertiary)
           .fixedSize()
-        TextField(String(localized: L10n.Settings.apiAddress), text: $draft)
-          .labelsHidden()
-          .textFieldStyle(.roundedBorder)
+        Text(verbatim: model.address.host() ?? model.address.absoluteString)
           .font(Tokens.Typography.calloutMono)
-          .focused($editing)
-          .onSubmit(apply)
-        Button(String(localized: L10n.Settings.useDefault)) {
-          draft = APIClient.defaultBaseURL.absoluteString
-          apply()
-        }
-        .buttonStyle(.action(.secondary, size: .compact))
-        // Connect with the same address reads the bot again at once, so it is never off.
-        Button(String(localized: L10n.Settings.connect), action: apply)
-          .buttonStyle(.action(.primary, size: .compact))
-          .keyboardShortcut(.defaultAction)
-      }
-      HStack(spacing: Tokens.Space.s) {
+          .textSelection(.enabled)
+        Spacer(minLength: Tokens.Space.s)
         // One pulse when the bot becomes reachable or unreachable, never per read.
-        PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
-        Group {
+        HStack(spacing: Tokens.Space.xs) {
+          PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
           if let error = model.fetchError {
             ReadFailureNote(L10n.Settings.notReachable, detail: error, tone: .loss, defersToConnection: false)
           } else {
@@ -165,23 +146,23 @@ private struct GeneralSettings: View {
         .font(Tokens.Typography.callout)
         .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
       }
+      if ownAddress, model.signedIn {
+        HStack(spacing: Tokens.Space.m) {
+          Button(String(localized: L10n.SignIn.signOut)) { askingSignOut = true }
+            .buttonStyle(.action(.secondary, size: .compact))
+          Text(L10n.SignIn.outHintMac)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+      }
     }
-    // Settings opens with nothing in focus, so the address is not selected under the cursor:
-    // AppKit gives the field focus once the window is up, so it is taken back just after.
-    .task {
-      try? await Task.sleep(for: Self.focusRelease)
-      editing = false
+    .alert(Text(L10n.SignIn.outQuestionMac), isPresented: $askingSignOut) {
+      Button(role: .destructive) { Task { await DeviceSignOut.run() } } label: { Text(L10n.SignIn.signOut) }
+      Button(role: .cancel) {} label: { Text(L10n.SignIn.cancel) }
+    } message: {
+      Text(L10n.SignIn.outBody)
     }
-  }
-
-  private func apply() {
-    guard let url = URL(string: draft.trimmingCharacters(in: .whitespaces)),
-      Self.schemes.contains(url.scheme ?? ""), url.host() != nil else {
-      invalid = true
-      return
-    }
-    apiBaseURL = url.absoluteString
-    model.connect(to: url)
   }
 }
 

@@ -127,16 +127,21 @@ public final class AppModel {
   public private(set) var demoDay: Bool
   /// The address the app talks to: `address`, or the demo day's (`DemoDay.address`).
   public var baseURL: URL { DemoDay.address(address, demo: demoDay) }
-  /// The paired token of a remote address (iPad: from the pairing in its Settings); nil on the
-  /// Mac, whose API is this machine's own.
+  /// A fixed token for the bot: the iPad Simulator's own (`pair-simulator`); nil otherwise, a
+  /// signed-in device's tokens being `BotSession`'s (`signedIn`).
   public private(set) var token: String?
+  /// Whether this device is signed in with the bot (`SignInState`): its requests to the bot's
+  /// address carry the access token `BotSession` keeps (never in the demo day).
+  public private(set) var signedIn: Bool
   /// Proves the owner is the one pressing (Face ID or the passcode on iPad) before a command is
   /// sent, `nil` for starting the bot, with the command's title as the reason; false refuses the
   /// command and sends nothing. Set by the iPad; nil on the Mac, which asks nothing more than the
   /// screens' own questions.
   @ObservationIgnored public var ownerCheck: (@MainActor (OperatorCommand?, String) async -> Bool)?
   /// Where every read and command of the screens goes: the address with its token.
-  public var endpoint: APIClient.Endpoint { APIClient.Endpoint(baseURL: baseURL, token: token) }
+  public var endpoint: APIClient.Endpoint {
+    APIClient.Endpoint(baseURL: baseURL, token: token, signedIn: signedIn && !demoDay && address == BotAddress.url)
+  }
   @ObservationIgnored private var client: APIClient
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
@@ -319,10 +324,14 @@ public final class AppModel {
   /// The title each lost send was pressed under ("Close ABCD position"), by its key.
   @ObservationIgnored private var lostTitles: [String: String] = [:]
 
-  public init(baseURL: URL, demoDay: Bool = false) {
+  public init(baseURL: URL, token: String? = nil, signedIn: Bool = false, demoDay: Bool = false) {
     self.address = baseURL
+    self.token = token
+    self.signedIn = signedIn
     self.demoDay = demoDay
-    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: DemoDay.address(baseURL, demo: demoDay)))
+    let shown = DemoDay.address(baseURL, demo: demoDay)
+    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: shown, token: demoDay ? nil : token,
+      signedIn: signedIn && !demoDay && baseURL == BotAddress.url))
   }
 
   // MARK: derived
@@ -555,13 +564,22 @@ public final class AppModel {
   }
 
   /// Point the screens at `endpoint` as it is, address and token (the iPad's connection after a
-  /// pairing or a change in its Settings). The same endpoint again changes nothing.
+  /// sign-in or a change in its Settings). The same endpoint again changes nothing.
   public func connect(to endpoint: APIClient.Endpoint) {
     guard endpoint != self.endpoint else { return }
     address = endpoint.baseURL
     token = endpoint.token
+    signedIn = endpoint.signedIn
     demoDay = false
     selectedDay = nil
+    reconnect()
+  }
+
+  /// This Mac signed in with the bot (`SignInState`), or signed out: the screens read the bot
+  /// again from nothing.
+  public func use(signedIn: Bool) {
+    guard signedIn != self.signedIn else { return }
+    self.signedIn = signedIn
     reconnect()
   }
 
@@ -651,7 +669,7 @@ public final class AppModel {
         await refreshHistory()
       }
       resolveSentCommands()
-      pushRegistrar.reached(APIClient.Endpoint(baseURL: baseURL))
+      pushRegistrar.reached(endpoint)
       await settleLost()
       // Today's session and the next one for the headline's countdown: read once per bot day,
       // and again once the next session has opened (it then names the one after).

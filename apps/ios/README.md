@@ -36,24 +36,23 @@ open apps/ios/Tickr.xcodeproj
 
 (or open the root `Tickr.xcworkspace` to have the iOS and macOS apps side by side).
 
-Pick the `Tickr iOS` scheme and an iPhone Simulator, Run. With the API running on the same Mac
-(`python -m tickr.api --config config/bot.toml`) the Simulator reaches it at
-`http://127.0.0.1:8766`, the default address there. To try Face ID in the Simulator: Features ›
+Pick the `Tickr iOS` scheme and an iPhone Simulator, Run. The app reads the bot at
+`https://api.tickr.bot`, built in, once you sign in with your tickr.bot account (Settings ›
+Sign in with tickr.bot). To read a bot running on this Mac instead, run
+`python -m tickr.api pair-simulator` and put the file path it prints in `Config/Local.xcconfig`
+(`TICKR_SIMULATOR_TOKEN_FILE`). To try Face ID in the Simulator: Features ›
 Face ID › Enrolled, then Matching Face when asked.
 
 On your iPhone: copy `apps/Config/Team.xcconfig.example` to `apps/Config/Team.xcconfig` and
 `Config/Local.xcconfig.example` to `Config/Local.xcconfig` (both git-ignored), put your Apple
-Developer Program team id in the first and this Mac's Tailscale name in the second, connect the
-phone, Run. Do not pick the team in Signing & Capabilities: that writes it into the committed
+Developer Program team id in the first, connect the phone, Run. Do not pick the team in Signing & Capabilities: that writes it into the committed
 project. Bundle ids are `bot.tickr.ios` (and `.widgets`, `.tests`, `.uitests`), from the one prefix in
 `apps/Config/Identity.xcconfig`, shared with the Mac app (`bot.tickr.mac`). Likewise never accept Xcode's "Update to recommended
 settings": the project is generated, so such changes go into `project.yml`.
-The phone reaches the Mac through Tailscale (`tailscale serve` in front of the API, HTTPS, only
-inside your tailnet) with a paired token: follow "Remote access" in `docs/api.md`, AirDrop the
-pairing file to the phone and paste the link in Settings › Pair with Mac (or open it on the phone).
-The link holds a one-time code that the app redeems at the Mac for the token, so the link is
-worthless once used. The token is kept in the phone's Keychain (this device only) and sent only
-over HTTPS to the address it was paired with.
+The phone signs in once with the owner's tickr.bot account (passkey) in the system's sign-in
+sheet; tickr.bot gives the app a 60-second grant for the bot, which the bot trades for this
+phone's own token (`POST /session` in `docs/api.md`). The token is kept in the phone's Keychain
+(this device only) and sent only over HTTPS to the bot's address; Sign out revokes it on the bot.
 
 ## TestFlight
 

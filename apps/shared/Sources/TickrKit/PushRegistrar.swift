@@ -48,6 +48,14 @@ public final class PushRegistrar {
     return registerDue()
   }
 
+  /// This device signed in with the bot again. The bot drops a device's push tokens when its
+  /// sign-in ends (sign-out, expiry, the name taken by another device), so every token goes again,
+  /// once the next status read answers with the new sign-in (`reached`).
+  public func signedIn() {
+    sent.removeAll()
+    endpoint = nil
+  }
+
   /// The system could not give a token of `kind` (no entitlement, no network): recorded only.
   public func failed(_ error: any Error, kind: PushTokenKind) {
     log.error("\(kind.rawValue, privacy: .public) \(error.localizedDescription, privacy: .public)")

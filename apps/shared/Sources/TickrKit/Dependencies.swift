@@ -19,7 +19,8 @@ extension Container {
     self { endpoint in
       DemoDay.isDemo(endpoint.baseURL)
         ? APIClient(baseURL: endpoint.baseURL, transport: self.demoSource())
-        : APIClient(baseURL: endpoint.baseURL, token: endpoint.token, transport: self.urlSession())
+        : APIClient(baseURL: endpoint.baseURL, token: endpoint.token,
+          session: endpoint.signedIn ? self.botSession() : nil, transport: self.urlSession())
     }
   }
 
@@ -55,6 +56,33 @@ extension Container {
     self { PushRegistrar(identity: PushIdentity.of(.main, platform: .current)) }.cached
   }
 
+  /// Where this device's bot token lives: its Keychain (`Keychain`). Tests give one in memory.
+  public var keychain: Factory<Keychain> {
+    self { Keychain() }
+  }
+
+  /// This device's sign-in with the bot (`BotSession`): one per app run, so the access token is
+  /// renewed by one caller at a time. Tests give their own.
+  public var botSession: Factory<BotSession> {
+    self {
+      BotSession(keychain: self.keychain(), transport: self.urlSession(), now: self.now()) { why in
+        Task { @MainActor in Container.shared.signInState().end(why) }
+      }
+    }.cached
+  }
+
+  /// Whether the screens show the sign-in (`SignInState`): signed in when the Keychain holds the
+  /// bot's pair of tokens at launch (a token the pairing left is no sign-in).
+  @MainActor
+  public var signInState: Factory<SignInState> {
+    self { SignInState(signedIn: BotTokens.kept(in: self.keychain()) != nil) }.cached
+  }
+
+  /// A new sign-in with the owner's tickr.bot account for this app (`AccountSignIn`).
+  public var accountSignIn: ParameterFactory<AccountSignIn.Client, AccountSignIn> {
+    self { client in AccountSignIn(client: client, transport: self.urlSession()) }
+  }
+
   /// The current moment. Tests pin it.
   public var now: Factory<@Sendable () -> Date> {
     self { { Date() } }
@@ -62,14 +90,17 @@ extension Container {
 }
 
 extension APIClient {
-  /// Where to reach the API: its address and, for a remote address, the pairing token.
+  /// Where to reach the API: its address and, for the bot's address, this device's token: a fixed
+  /// one (the Simulator's), or `signedIn` for the tokens of `Container.botSession`.
   public struct Endpoint: Hashable, Sendable {
     public let baseURL: URL
     public let token: String?
+    public let signedIn: Bool
 
-    public init(baseURL: URL, token: String? = nil) {
+    public init(baseURL: URL, token: String? = nil, signedIn: Bool = false) {
       self.baseURL = baseURL
       self.token = token
+      self.signedIn = signedIn
     }
   }
 }

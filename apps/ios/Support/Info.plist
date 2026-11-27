@@ -23,17 +23,6 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>$(PRODUCT_BUNDLE_IDENTIFIER).pair</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>tickr</string>
-			</array>
-		</dict>
-	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -47,8 +36,6 @@
 	<string>Confirms commands that cancel orders or close positions.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
-	<key>TickrAPIAddress</key>
-	<string>$(TICKR_API_ADDRESS)</string>
 	<key>TickrApsEnvironment</key>
 	<string>$(TICKR_APS_ENVIRONMENT)</string>
 	<key>TickrSimulatorTokenFile</key>

@@ -844,18 +844,6 @@ enum L10n {
         defaultValue: "Read-only. Change it in the config on the Mac.",
         bundle: L10n.bundle)
     }
-    static var apiAddress: LocalizedStringResource {
-      LocalizedStringResource("settings.apiAddress", defaultValue: "Address", bundle: L10n.bundle)
-    }
-    static var useDefault: LocalizedStringResource {
-      LocalizedStringResource("settings.useDefault", defaultValue: "Use Default", bundle: L10n.bundle)
-    }
-    static var connect: LocalizedStringResource {
-      LocalizedStringResource("settings.connect", defaultValue: "Connect", bundle: L10n.bundle)
-    }
-    static var botConnection: LocalizedStringResource {
-      LocalizedStringResource("settings.botConnection", defaultValue: "Bot connection", bundle: L10n.bundle)
-    }
     static var notReachable: LocalizedStringResource {
       LocalizedStringResource("settings.notReachable", defaultValue: "Not reachable", bundle: L10n.bundle)
     }
@@ -884,16 +872,8 @@ enum L10n {
     static var theme: LocalizedStringResource {
       LocalizedStringResource("settings.theme", defaultValue: "Theme", bundle: L10n.bundle)
     }
-    static var invalidAddress: LocalizedStringResource {
-      LocalizedStringResource("settings.invalidAddress", defaultValue: "Invalid address", bundle: L10n.bundle)
-    }
     static var ok: LocalizedStringResource {
       LocalizedStringResource("settings.ok", defaultValue: "OK", bundle: L10n.bundle)
-    }
-    static func enterAddress(_ example: String) -> LocalizedStringResource {
-      LocalizedStringResource("settings.enterAddress",
-        defaultValue: "Enter an http address of the bot's local API, such as \(example).",
-        bundle: L10n.bundle)
     }
     static var activeStrategy: LocalizedStringResource {
       LocalizedStringResource("settings.activeStrategy", defaultValue: "Active strategy", bundle: L10n.bundle)
@@ -1086,11 +1066,6 @@ enum L10n {
     }
     static func markClose(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("settings.markClose", defaultValue: "\(time) close", bundle: L10n.bundle)
-    }
-    static func addressFootnote(_ example: String) -> LocalizedStringResource {
-      LocalizedStringResource("settings.addressFootnote",
-        defaultValue: "The bot's address on this Mac or your Tailscale address, for example \(example)",
-        bundle: L10n.bundle)
     }
     static func lastShort(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("settings.lastShort", defaultValue: "last \(time)", bundle: L10n.bundle)

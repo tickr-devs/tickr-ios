@@ -183,7 +183,7 @@ final class OverviewCommandsUITests: XCTestCase {
       app.terminate()
       XCTAssertTrue(app.wait(for: .notRunning, timeout: Self.timeout), "the earlier instance did not quit")
     }
-    app.launchArguments = arguments
+    app.launchArguments = arguments + TickrUITests.developmentAddress
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
     app.launchEnvironment[Self.smallestKey] = Self.fixturesOn
     app.launchEnvironment[Self.safetyFirstKey] = Self.fixturesOn

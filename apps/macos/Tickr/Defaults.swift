@@ -3,7 +3,9 @@ import TickrKit
 
 /// User-default keys of the app (Settings window).
 enum Defaults {
-  /// Base URL of the bot's local API.
+  /// An address that replaces the bot's (`BotAddress`): never set by the app, only for development
+  /// (`defaults write … apiBaseURL http://127.0.0.1:8766` for a bot on this Mac, or a UI test's
+  /// launch argument). It gets no token.
   static let apiBaseURL = "apiBaseURL"
   /// Whether the demo day is shown instead of the bot (Settings › General, `AppModel.demoDay`).
   static let demoDay = "demoDay"
@@ -18,11 +20,11 @@ enum Defaults {
 }
 
 extension Defaults {
-  /// The bot's API address saved in Settings › General, else this Mac's own API.
+  /// The bot's API (`BotAddress`), unless a development address replaces it.
   static func baseURL() -> URL {
-    if let text = UserDefaults.standard.string(forKey: apiBaseURL), let url = URL(string: text) {
+    if let text = UserDefaults.standard.string(forKey: apiBaseURL), let url = URL(string: text), url.host() != nil {
       return url
     }
-    return APIClient.defaultBaseURL
+    return BotAddress.url
   }
 }

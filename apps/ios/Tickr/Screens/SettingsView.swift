@@ -9,8 +9,7 @@ struct SettingsView: View {
   static let versionKey = "CFBundleShortVersionString"
   /// Symbols of the rows' icons.
   static let statusSymbol = "antenna.radiowaves.left.and.right"
-  static let pairSymbol = "qrcode"
-  static let forgetSymbol = "minus.circle"
+  static let signOutSymbol = "rectangle.portrait.and.arrow.right"
   static let stateSymbol = "power"
   static let startSymbol = "play.fill"
   static let configSymbol = "doc.plaintext.fill"
@@ -28,10 +27,8 @@ struct SettingsView: View {
   @Environment(AppModel.self) private var model
   @Environment(\.dismiss) private var dismiss
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var draft = ""
-  @FocusState private var editing: Bool
-  @State private var showPairing = false
-  @State private var confirmForget = false
+  @State private var confirmSignOut = false
+  @State private var signIn = Container.shared.signInState()
   @State private var showControl = false
   @State private var confirmStart = false
 
@@ -88,13 +85,10 @@ struct SettingsView: View {
     // The header row is the top: no extra form margin above it.
     .contentMargins(.top, 0, for: .scrollContent)
     .pushedScreen(L10n.Settings.title)
-    .onAppear { draft = model.connection.address }
     .task(id: model.connection.url) { await model.followAccount() }
     .task(id: model.connection.url) { await model.followJobs() }
     .task(id: model.connection.url) { await model.refreshConfig() }
-    .onChange(of: model.connection.address) { _, address in draft = address }
     .botControl(isPresented: $showControl)
-    .sheet(isPresented: $showPairing) { PairingSheet() }
     .alert(Text(L10n.Control.startTitle), isPresented: $confirmStart) {
       Button {
         Task {
@@ -111,14 +105,15 @@ struct SettingsView: View {
     .onChange(of: model.canStartBot) { _, enabled in
       if !enabled { confirmStart = false }
     }
-    .confirmationDialog(Text(L10n.Pair.forgetTitle), isPresented: $confirmForget, titleVisibility: .visible) {
+    .confirmationDialog(Text(Self.isPad ? L10n.SignIn.signOutIPad : L10n.SignIn.signOutIPhone),
+      isPresented: $confirmSignOut, titleVisibility: .visible) {
       Button(role: .destructive) {
-        model.connection = Connection(address: model.connection.address, demo: model.connection.demo)
+        Task { await model.signOut() }
       } label: {
-        Text(L10n.Pair.forget)
+        Text(L10n.SignIn.signOut)
       }
     } message: {
-      Text(L10n.Pair.forgetMessage)
+      Text(L10n.SignIn.signOutMessage)
     }
   }
 
@@ -180,112 +175,40 @@ struct SettingsView: View {
     }
   }
 
-  /// Where the bot is: the address, the connection's state, pairing.
+  /// The design's "Connection" (mockup v174, IOSSystem): who this phone is signed in as, the
+  /// link's state, and Sign Out (confirmed). A development address shows only the state.
   private var connectionCard: some View {
-    SettingsCard(L10n.Settings.botOnMac, note: L10n.Settings.addressFooter) {
-      TextField(text: $draft, prompt: Text(verbatim: Connection.addressExample)) {
-        Text(L10n.Settings.botOnMac)
-      }
-      .keyboardType(.URL)
-      .textContentType(.URL)
-      .textInputAutocapitalization(.never)
-      .autocorrectionDisabled()
-      .focused($editing)
-      .submitLabel(.done)
-      .onSubmit(save)
-      .font(.body.monospaced())
-      if draft != model.connection.address {
-        Button(action: save) { Text(L10n.Settings.saveAddress) }
-          .disabled(!draft.isEmpty && Connection(address: draft).url == nil)
+    SettingsCard(L10n.SignIn.connection) {
+      if model.connection.signedIn {
+        Text(signedInLine)
+          .font(.subheadline)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
       }
       SettingsRow(L10n.Settings.status, systemImage: Self.statusSymbol, tone: connectionState.tone) {
         StatusPill(connectionState.text, tone: connectionState.tone)
       }
-      Button { showPairing = true } label: {
-        Label { Text(L10n.Pair.start) } icon: { SettingsIcon(Self.pairSymbol, tone: .info) }
-      }
-      if model.connection.token != nil {
-        Button(role: .destructive) { confirmForget = true } label: {
-          Label { Text(L10n.Pair.forget) } icon: { SettingsIcon(Self.forgetSymbol, tone: .loss) }
+      if model.connection.signedIn {
+        Button(role: .destructive) { confirmSignOut = true } label: {
+          Label { Text(L10n.SignIn.signOut) } icon: { SettingsIcon(Self.signOutSymbol, tone: .loss) }
         }
       }
     }
   }
 
-  /// Saves the typed address; the paired token stays only while the address keeps the paired origin.
-  private func save() {
-    guard draft.isEmpty || Connection(address: draft).url != nil else { return }
-    model.connection = model.connection.moved(to: draft)
-    editing = false
+  /// Whether this is an iPad (the texts name the device).
+  private static var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+
+  private var signedInLine: LocalizedStringResource {
+    guard let email = signIn.email else { return L10n.SignIn.signedInNoEmail }
+    return Self.isPad ? L10n.SignIn.signedInIPad(email) : L10n.SignIn.signedInIPhone(email)
   }
 
   private var connectionState: (text: LocalizedStringResource, tone: Tone) {
-    if !model.isConfigured { return (L10n.Settings.noAddress, .neutral) }
-    if model.connection.isRemote && model.connection.bearer == nil { return (L10n.Pair.notPaired, .warning) }
+    if !model.isConfigured { return (L10n.Settings.notReachable, .warning) }
     if model.fetchError != nil { return (L10n.Settings.notReachable, .loss) }
     if model.response == nil { return (L10n.Settings.connecting, .neutral) }
     if model.status == nil || model.response?.stale == true { return (L10n.Settings.notCurrent, .warning) }
     return (L10n.Settings.connected, .profit)
-  }
-}
-
-/// Paste the pairing link the Mac left in its pairing file. Opening the link on the phone works too.
-private struct PairingSheet: View {
-  @Environment(AppModel.self) private var model
-  @Environment(\.dismiss) private var dismiss
-  @State private var text = ""
-
-  var body: some View {
-    let pairing = Pairing.parse(text)
-    NavigationStack {
-      Form {
-        Section {
-          TextField(text: $text, prompt: Text(L10n.Pair.prompt), axis: .vertical) {
-            Text(L10n.Pair.title)
-          }
-          .textInputAutocapitalization(.never)
-          .autocorrectionDisabled()
-          .font(.footnote.monospaced())
-          PasteButton(payloadType: String.self) { strings in
-            if let first = strings.first { text = first }
-          }
-        } footer: {
-          Text(L10n.Pair.sheetFooter)
-        }
-        if let pairing {
-          Section {
-            LabeledContent {
-              Text(verbatim: Connection.displayHost(pairing.url) ?? Format.missing)
-            } label: {
-              Text(L10n.Pair.address)
-            }
-          } header: {
-            Text(L10n.Pair.mac)
-          }
-        } else if !text.isEmpty {
-          Section {
-            Text(L10n.Pair.invalid).foregroundStyle(Palette.lossText)
-          }
-        }
-      }
-      .scrollEdgeFades()
-      .navigationTitle(Text(L10n.Pair.title))
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button { dismiss() } label: { Text(L10n.Common.cancel) }
-        }
-        ToolbarItem(placement: .confirmationAction) {
-          Button {
-            if let pairing { Task { await model.pair(pairing) } }
-            dismiss()
-          } label: {
-            Text(L10n.Pair.pair)
-          }
-          .disabled(pairing == nil)
-        }
-      }
-    }
-    .sheetFitsContent()
   }
 }
