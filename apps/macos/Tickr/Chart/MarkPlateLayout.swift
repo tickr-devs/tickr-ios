@@ -36,8 +36,10 @@ enum MarkPlateLayout {
 
   /// Farthest a plate's nearest edge is from its mark's centre, in the plate's own heights:
   /// farther, it no longer reads as the mark's (r4: "BUY" 230 px above its arrow; r5: three
-  /// heights still read as far).
-  static let reach: CGFloat = 2
+  /// heights still read as far). Candles between the mark and the plate do not count as room
+  /// (see `room`); even so the third plate of KXTR's cluster, stacked past the tall candle, needs
+  /// 2.14 heights (iPad retest 2026-11-27), so the reach sits between that and 3.
+  static let reach: CGFloat = 2.5
 
   /// Sideways steps in one plate width: a place slides a quarter plate at a time, up to a whole
   /// plate either way (r6: a free place half a plate further right was missed).
@@ -56,8 +58,10 @@ enum MarkPlateLayout {
     let candles = obstacles.candles.filter { $0.intersects(frame) }
     let glyphs = obstacles.glyphs.filter { $0.intersects(frame) }
     let options: [Options] = items.filter { frame.contains($0.anchor) }.map { item in
-      let around = candles + glyphs.filter { !$0.contains(item.anchor) }
-      let places = candidates(item, offset: offset, in: inside).map { (rect: $0, cover: covered($0, by: around, gap: gap)) }
+      let others = Obstacles(candles: candles, glyphs: glyphs.filter { !$0.contains(item.anchor) })
+      let around = others.candles + others.glyphs
+      let places = candidates(item, offset: offset, gap: gap, near: others, in: inside)
+        .map { (rect: $0, cover: covered($0, by: around, gap: gap)) }
       return Options(id: item.id, places: places)
     }
     let ranked = greedy(options, gap: gap)
@@ -102,10 +106,14 @@ enum MarkPlateLayout {
 
   /// The places near a mark, nearest first (by the room between the mark's centre and the plate):
   /// rows on its own side, the other side and at its price, each slid a quarter plate at a time
-  /// up to a whole plate either way, and rows a half plate further above and below. A place over
+  /// up to a whole plate either way, and rows a half plate further above and below. Each row also
+  /// has places flush beside each candle or mark near it, a `gap` off its edge: the quarter-plate
+  /// steps of a wide plate overshoot the nearest clear place (KXTR). A place over
   /// the mark's own glyph, out of `frame`, or farther than `reach` plates is dropped. Among
   /// equally near places the own side comes first, then the other, then the mark's price.
-  private static func candidates(_ item: Item, offset: CGFloat, in frame: CGRect) -> [CGRect] {
+  private static func candidates(
+    _ item: Item, offset: CGFloat, gap: CGFloat, near obstacles: Obstacles, in frame: CGRect
+  ) -> [CGRect] {
     let size = item.size
     let step = size.height / 2
     let steps = Int((reach * size.height / step).rounded())
@@ -124,6 +132,13 @@ enum MarkPlateLayout {
       shifts += [shift, -shift]
     }
     let centred = item.anchor.x - size.width / 2
+    let span = size.width + reach * size.height
+    let beside = (obstacles.candles + obstacles.glyphs).filter {
+      $0.maxX >= item.anchor.x - span && $0.minX <= item.anchor.x + span
+    }
+    for obstacle in beside {
+      shifts += [obstacle.maxX + gap - centred, obstacle.minX - gap - size.width - centred]
+    }
     let glyph = CGRect(x: item.anchor.x - offset, y: item.anchor.y - offset, width: offset + offset, height: offset + offset)
     let places = tops.flatMap { top in
       shifts.map { CGRect(x: centred + $0, y: top, width: size.width, height: size.height) }
@@ -131,7 +146,7 @@ enum MarkPlateLayout {
     .filter { frame.contains($0) && !overlaps($0, glyph) }
     let limit = reach * size.height
     let near: [(index: Int, rect: CGRect, room: CGFloat)] = places.enumerated().compactMap { index, rect in
-      let room = room(from: item.anchor, to: rect)
+      let room = room(from: item.anchor, to: rect, crossing: obstacles.candles)
       return room <= limit ? (index, rect, room) : nil
     }
     return near.sorted { ($0.room, $0.index) < ($1.room, $1.index) }.map { $0.rect }
@@ -143,9 +158,23 @@ enum MarkPlateLayout {
     return !shared.isNull && shared.width > 0 && shared.height > 0
   }
 
-  /// The room between a point and the nearest point of a rectangle, in points.
-  private static func room(from point: CGPoint, to rect: CGRect) -> CGFloat {
-    let across = max(rect.minX - point.x, 0, point.x - rect.maxX)
+  /// The room between a point and the nearest point of a rectangle, in points, less the width of
+  /// the candles it crosses sideways on the way: a plate just past a tall candle still reads as
+  /// its mark's.
+  /// KXTR on the iPad retests (2026-11-27): a cluster's only clear places lay past the tall candle
+  /// beside it, 2.12 to 2.56 plate heights away counting the candles, and every plate sat on it.
+  private static func room(from point: CGPoint, to rect: CGRect, crossing candles: [CGRect]) -> CGFloat {
+    let left = min(point.x, rect.maxX)
+    let right = max(point.x, rect.minX)
+    let top = min(point.y, rect.minY)
+    let bottom = max(point.y, rect.maxY)
+    let crossed = candles.reduce(0) { sum, candle in
+      // Only a candle in between: not the one under the mark, nor one the plate itself covers.
+      let under = candle.minX <= point.x && point.x <= candle.maxX
+      guard candle.maxY > top, candle.minY < bottom, !under, !overlaps(candle, rect) else { return sum }
+      return sum + max(min(candle.maxX, right) - max(candle.minX, left), 0)
+    }
+    let across = max(max(rect.minX - point.x, 0, point.x - rect.maxX) - crossed, 0)
     let along = max(rect.minY - point.y, 0, point.y - rect.maxY)
     return (across * across + along * along).squareRoot()
   }
