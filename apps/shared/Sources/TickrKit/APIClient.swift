@@ -102,10 +102,20 @@ public struct APIClient: Sendable {
   static let tradeWhatIfPath = "/trades/whatif"
   /// Query item name of the strategy folder another-version reads replay.
   static let versionQuery = "version"
-  /// Remote port only: redeem a pairing link's one-time code for the bearer token.
-  static let pairPath = "/pair"
-  /// Body key of the pairing code.
-  static let codeKey = "code"
+  /// Remote port only: POST signs this device in with a tickr.bot grant, DELETE signs it out.
+  static let sessionPath = "/session"
+  /// Where a signed-in device trades its refresh token (the body's key) for a new pair.
+  static let refreshPath = "/session/refresh"
+  static let refreshTokenKey = "refresh_token"
+  /// Body keys of a sign-in: the grant and the device's name in the bot's device list.
+  static let grantKey = "grant"
+  static let nameKey = "name"
+  /// HTTP status of a sign-out (no body).
+  static let noContent = 204
+  /// HTTP status of a request whose bearer token the bot did not take.
+  static let unauthorized = 401
+  /// The seconds to wait the bot may name on a refusal (a limit, a restart).
+  static let retryAfterHeader = "Retry-After"
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
   static let performancePath = "/performance"
@@ -123,6 +133,7 @@ public struct APIClient: Sendable {
   /// HTTP methods, header names and the media type the API speaks.
   static let get = "GET"
   static let post = "POST"
+  static let delete = "DELETE"
   static let put = "PUT"
   static let acceptHeader = "accept"
   static let contentTypeHeader = "content-type"
@@ -138,10 +149,17 @@ public struct APIClient: Sendable {
   private let transport: any APITransport
   /// Bearer token for a remote address (an HTTPS proxy in front of the API); nil on the Mac.
   private let token: String?
+  /// The signed-in device's tokens (`BotSession`): each request carries its current access token,
+  /// renewed first when it has run out. Nil for a fixed `token` or none.
+  private let session: BotSession?
 
-  public init(baseURL: URL = APIClient.defaultBaseURL, token: String? = nil, transport: any APITransport = URLSession.shared) {
+  public init(
+    baseURL: URL = APIClient.defaultBaseURL, token: String? = nil, session: BotSession? = nil,
+    transport: any APITransport = URLSession.shared
+  ) {
     self.baseURL = baseURL
     self.token = token
+    self.session = session
     self.transport = transport
   }
 
@@ -242,14 +260,6 @@ public struct APIClient: Sendable {
     return try await perform(request(path: Self.labReplayPath, body: body), expect: Self.accepted)
   }
 
-  /// Redeem a pairing link's one-time code at the Mac's HTTPS address for the bearer token the
-  /// phone keeps from then on. Sent without a token; the code works once, before it expires, and
-  /// a refused code is thrown as `APIError.refused` (401 `unauthorized`).
-  public func redeemPairing(code: String) async throws -> PairedV1 {
-    let body = try JSONSerialization.data(withJSONObject: [Self.codeKey: code], options: [.sortedKeys])
-    return try await perform(request(path: Self.pairPath, body: body), expect: Self.ok)
-  }
-
   /// Risk limits and session times from the bot's config, as the API loaded them.
   public func settings() async throws -> SettingsV1 {
     try await perform(request(path: Self.settingsPath, body: nil), expect: Self.ok)
@@ -346,6 +356,9 @@ public struct APIClient: Sendable {
   }
 
   func perform<T: Decodable>(_ request: URLRequest, expect: Int) async throws -> T {
+    var request = request
+    let sentToken = try await session?.accessToken()
+    if let sentToken { request.setValue("\(Self.bearerScheme) \(sentToken)", forHTTPHeaderField: Self.authorizationHeader) }
     let data: Data
     let response: URLResponse
     do {
@@ -359,6 +372,10 @@ public struct APIClient: Sendable {
       throw APIError.contract(String(localized: L10n.apiNotHTTP))
     }
     let decoder = Wire.decoder()
+    if http.statusCode == Self.unauthorized, let session, let sentToken {
+      // Renewed, the next request goes through; revoked, the sign-in ends (`BotSession`).
+      await session.rejected(sentToken)
+    }
     if http.statusCode != expect {
       guard let refusal = try? decoder.decode(ErrorV1.self, from: data) else {
         throw APIError.contract(String(localized: L10n.apiNoErrorBody(http.statusCode)))
@@ -370,6 +387,7 @@ public struct APIClient: Sendable {
       // The cause in the person's language, so no screen shows the bot's raw words for a known code.
       throw APIError.refused(status: http.statusCode, error: refusal.error, cause: refusal.causeText)
     }
+    if T.self == Empty.self, let empty = Empty() as? T { return empty }
     do {
       return try decoder.decode(T.self, from: data)
     } catch {
@@ -377,3 +395,6 @@ public struct APIClient: Sendable {
     }
   }
 }
+
+/// The answer of a request whose success has no body (204).
+struct Empty: Decodable {}

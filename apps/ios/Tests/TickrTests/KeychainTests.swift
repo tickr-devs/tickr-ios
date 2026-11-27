@@ -3,14 +3,15 @@ import Security
 import Synchronization
 import Testing
 @testable import Tickr
+import TickrKit
 
-/// The paired token is stored with one confirmed Keychain write: an update of the item, an add only
+/// The bot token is stored with one confirmed Keychain write: an update of the item, an add only
 /// when there is none, never a delete first, and success only when the Keychain holds the token.
 @Suite struct KeychainTests {
   private static let first = "token-first"
   private static let second = "token-second"
 
-  @Test func firstPairingAddsTheToken() {
+  @Test func firstSignInAddsTheToken() {
     let items = MemoryItems()
     let keychain = Keychain(items: items)
     #expect(keychain.saveToken(Self.first))
@@ -18,7 +19,7 @@ import Testing
     #expect(items.calls == [.update, .add])
   }
 
-  @Test func pairingAgainUpdatesInPlace() {
+  @Test func signingInAgainUpdatesInPlace() {
     let items = MemoryItems(stored: Self.first)
     let keychain = Keychain(items: items)
     #expect(keychain.saveToken(Self.second))
@@ -40,60 +41,16 @@ import Testing
     #expect(!items.calls.contains(.delete))
   }
 
-  @Test func aFailedAddIsNoPairing() {
+  @Test func aFailedAddIsNoSignIn() {
     let items = MemoryItems(addStatus: errSecNotAvailable)
     let keychain = Keychain(items: items)
     #expect(!keychain.saveToken(Self.first))
     #expect(keychain.readToken() == nil)
   }
 
-  @Test func aWriteTheKeychainDidNotKeepIsNoPairing() {
+  @Test func aWriteTheKeychainDidNotKeepIsNoSignIn() {
     let items = MemoryItems(stored: Self.first, keepsWrites: false)
     #expect(!Keychain(items: items).saveToken(Self.second))
-  }
-}
-
-/// Saving a connection deletes the token only when it has none to keep: a write the Keychain
-/// refuses leaves the earlier pairing whole.
-@Suite(.serialized) struct ConnectionSaveTests {
-  private static let mac = "https://mac.tailnet.ts.net"
-  private static let earlier = "token-earlier"
-  private static let later = "token-later"
-  /// UserDefaults suite of these tests only.
-  private static let suite = "ConnectionSaveTests"
-
-  private func defaults() throws -> UserDefaults {
-    let defaults = try #require(UserDefaults(suiteName: Self.suite))
-    defaults.removePersistentDomain(forName: Self.suite)
-    defaults.set(Self.mac, forKey: Connection.pairedKey)
-    return defaults
-  }
-
-  @Test func aRefusedWriteKeepsTheEarlierPairing() throws {
-    let items = MemoryItems(stored: Self.earlier, updateStatus: errSecInteractionNotAllowed)
-    let defaults = try defaults()
-    Connection(paired: try #require(URL(string: Self.mac)), token: Self.later)
-      .save(defaults, keychain: Keychain(items: items))
-    #expect(Keychain(items: items).readToken() == Self.earlier)
-    #expect(defaults.string(forKey: Connection.pairedKey) == Self.mac)
-    #expect(!items.calls.contains(.delete))
-  }
-
-  @Test func aSavedTokenKeepsItsPairing() throws {
-    let items = MemoryItems(stored: Self.earlier)
-    let defaults = try defaults()
-    Connection(paired: try #require(URL(string: Self.mac)), token: Self.later)
-      .save(defaults, keychain: Keychain(items: items))
-    #expect(Keychain(items: items).readToken() == Self.later)
-    #expect(defaults.string(forKey: Connection.pairedKey) == Self.mac)
-  }
-
-  @Test func noTokenToKeepDeletesThePairing() throws {
-    let items = MemoryItems(stored: Self.earlier)
-    let defaults = try defaults()
-    Connection(address: Self.mac).save(defaults, keychain: Keychain(items: items))
-    #expect(Keychain(items: items).readToken() == nil)
-    #expect(defaults.string(forKey: Connection.pairedKey) == nil)
   }
 }
 

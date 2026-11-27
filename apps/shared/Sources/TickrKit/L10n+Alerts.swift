@@ -152,5 +152,10 @@ extension L10n {
     LocalizedStringResource("kit.alert.risk-command-used",
       defaultValue: "A device turned the entry stop off or started the bot", bundle: bundle)
   }
+  /// An alert the owner can receive: device-session
+  static var alertDeviceSession: LocalizedStringResource {
+    LocalizedStringResource("kit.alert.device-session",
+      defaultValue: "A device signed in or out of the bot", bundle: bundle)
+  }
   // END Bot codes
 }

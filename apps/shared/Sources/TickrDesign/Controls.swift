@@ -202,6 +202,14 @@ public struct WarningBanner: View {
     self.tone = tone
   }
 
+  /// A banner whose detail is built by the caller: words of the server, or one of several texts.
+  public init(_ title: LocalizedStringResource, detail: Text, systemImage: String, tone: Tone = .warning) {
+    self.symbol = systemImage
+    self.title = Text(title)
+    self.detail = detail
+    self.tone = tone
+  }
+
   public var body: some View {
     let shape = RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
     HStack(alignment: .top, spacing: Tokens.Space.m) {

@@ -4,7 +4,8 @@ import TickrKit
 
 /// The app's opening: it starts exactly as the system's launch screen (the window background with
 /// the mark centred in the safe area, Support/Info.plist `UILaunchScreen`), flashes the spark once,
-/// then flies the mark into Home's title while the background fades and the screen shows through.
+/// then flies the mark into Home's title (or onto the sign-in's mark, when the phone has no sign-in)
+/// while the background fades and the screen shows through.
 /// Home's cards rise right after the mark lands (the board's `lrise` after `lfly`). Under Reduce
 /// Motion it only cross-fades. Design: the "Бренд Tickr" board.
 struct LaunchHandoff: View {
@@ -41,7 +42,7 @@ struct LaunchHandoff: View {
               .scaleEffect(flashing ? Tokens.Motion.pulseScale : 1)
               .offset(x: level.minX, y: level.minY)
           }
-          .scaleEffect(flown ? Tokens.Size.logoSmall / Tokens.Size.launchMark : 1)
+          .scaleEffect(flown ? model.homeMarkSide / Tokens.Size.launchMark : 1)
           .position(flown ? target ?? estimate : centre)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
