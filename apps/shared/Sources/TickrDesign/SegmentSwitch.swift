@@ -74,6 +74,10 @@ public struct SegmentSwitch<Value: Hashable>: View {
     .overlay(shape.strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin))
     .fixedSize(horizontal: fit, vertical: false)
     .animation(Tokens.Motion.quick, value: selection)
+    #if os(iOS)
+    // A light tick on each change of segment, as the system's segmented control gives.
+    .sensoryFeedback(.selection, trigger: selection)
+    #endif
   }
 
   @ViewBuilder

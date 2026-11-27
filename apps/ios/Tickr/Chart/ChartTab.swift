@@ -477,7 +477,7 @@ private struct DayBar: View {
       let change = day ?? fromOpen
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
         Text(verbatim: Money.price(price))
-          .font(.headline.monospaced().bold())
+          .font(Tokens.Typography.figure)
           .contentTransition(.numericText(value: price))
         Text(verbatim: Percent.signed(fraction: change))
           .font(Tokens.Typography.captionMono)
@@ -488,7 +488,7 @@ private struct DayBar: View {
       // The price and change in their own fonts, as skeleton: the same height and place.
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
         Text(verbatim: Money.price(SkeletonSample.price))
-          .font(.headline.monospaced().bold())
+          .font(Tokens.Typography.figure)
           .skeleton(true, .value)
         Text(verbatim: Percent.signed(fraction: SkeletonSample.change))
           .font(Tokens.Typography.captionMono)

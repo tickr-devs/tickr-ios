@@ -6,6 +6,7 @@ import TickrKit
 /// journal. Today is live from the status; the day capsule opens the calendar, which picks a recorded
 /// past day, shown read-only from the bot's history.
 struct ActivityView: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   enum Pane: String, CaseIterable, Identifiable {
     case trades, skipped, journal
     var id: String { rawValue }
@@ -45,7 +46,7 @@ struct ActivityView: View {
     } content: {
       if showsCalendar, let url = model.connection.url {
         DayPicker(activity: activity, url: url)
-          .transition(.move(edge: .top).combined(with: .opacity))
+          .transition(.moving(from: .top, reduceMotion: reduceMotion))
       }
       if let selected = activity.selectedDay {
         pastDay(selected)
@@ -244,7 +245,7 @@ struct ActivityView: View {
         }
       }
     }
-    .transition(.opacity.combined(with: .move(edge: .bottom)))
+    .transition(.moving(from: .bottom, reduceMotion: reduceMotion))
     .id(section)
   }
 }
@@ -382,7 +383,7 @@ private struct DayPicker: View {
 
   private var backToToday: some View {
     TodayButton(L10n.Activity.backToToday) { activity.showToday() }
-      .transition(.scale.combined(with: .opacity))
+      .transition(.scale(scale: Tokens.Motion.enterScale).combined(with: .opacity))
   }
 
   /// Short weekday names, Monday to Friday, in the phone's language.
@@ -565,7 +566,7 @@ private struct DayCard: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textTertiary)
         Text(verbatim: Money.signedUSD(shown))
-          .font(.title.monospaced().bold())
+          .font(Tokens.Typography.titleMonoBold)
           .foregroundStyle(Palette.result(figures.result))
           .contentTransition(.numericText(value: NSDecimalNumber(decimal: shown).doubleValue))
           .accessibilityLabel(Text(verbatim: Money.signedUSD(figures.result)))
@@ -608,7 +609,8 @@ private struct DayCard: View {
     if reduceMotion {
       shown = result
     } else {
-      withAnimation(Tokens.Motion.fill) { shown = result }
+      // The first count fills in; a new result of the live day keeps up with it.
+      withAnimation(shown == 0 ? Tokens.Motion.fill : Tokens.Motion.live) { shown = result }
     }
   }
 }
@@ -1199,7 +1201,7 @@ private struct Journal: View {
     Group {
       if events.isEmpty {
         Text(L10n.Activity.nothingYet)
-          .font(.subheadline)
+          .font(Tokens.Typography.subheadline)
           .foregroundStyle(Palette.textTertiary)
           .frame(maxWidth: .infinity, alignment: .leading)
       } else {

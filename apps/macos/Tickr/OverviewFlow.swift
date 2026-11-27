@@ -332,7 +332,7 @@ struct WatchingRow: View {
       }
     }
     .frame(height: Tokens.Size.barThin)
-    .animation(reduceMotion ? nil : Tokens.Motion.fill, value: share)
+    .animation(reduceMotion ? nil : Tokens.Motion.live, value: share)
     .tip(WatchingCheck.scale(row, prices: .money).map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness))
     .accessibilityLabel(Text(L10n.Watching.closeness))
     .accessibilityValue(Text(share, format: .percent))

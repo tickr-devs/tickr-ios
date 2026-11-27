@@ -74,7 +74,7 @@ struct FunnelCard: View {
         Label { Text(verbatim: Board.fenceText(fence, status: status)) } icon: {
           Image(systemName: Symbols.failure)
         }
-        .font(.caption)
+        .font(Tokens.Typography.caption)
         .foregroundStyle(Palette.warningText)
       }
     }
@@ -92,13 +92,13 @@ struct FunnelCard: View {
   private var summary: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
       Text(L10n.Flow.foundBought(figure(count(.screeners)), figure(bought)))
-        .font(.subheadline)
+        .font(Tokens.Typography.subheadline)
         .foregroundStyle(Palette.textPrimary)
         .fixedSize(horizontal: false, vertical: true)
         .skeleton((current || recorded) && flowPending)
       if let protection {
         Label { Text(protection.text) } icon: { Image(systemName: protection.symbol) }
-          .font(.footnote.weight(.semibold))
+          .font(Tokens.Typography.footnoteStrong)
           .foregroundStyle(protection.tone.text)
           .fixedSize(horizontal: false, vertical: true)
       }

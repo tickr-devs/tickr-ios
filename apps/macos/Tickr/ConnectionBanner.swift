@@ -9,6 +9,7 @@ import TickrKit
 /// (address, port, the API's own words) is behind "Details"; commands stay off while it shows
 /// (`commandsEnabled`).
 struct ConnectionBanner: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(AppModel.self) private var model
   /// A Retry is on its way: the button waits for it.
   @State private var retrying = false
@@ -36,7 +37,7 @@ struct ConnectionBanner: View {
         #endif
       }
       .padding([.horizontal, .top], Tokens.Space.l)
-      .transition(.move(edge: .top).combined(with: .opacity))
+      .transition(.moving(from: .top, reduceMotion: reduceMotion))
     }
   }
 

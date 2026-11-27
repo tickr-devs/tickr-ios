@@ -67,6 +67,15 @@ extension Tokens.Motion {
   /// how many times its vertical move the sideways one must be (a scroll never changes the day).
   public static let daySwipeDistance: CGFloat = 70
   public static let daySwipeDominance: CGFloat = 2
+  /// Share of the page's width a swipe (or its fling, `predictedEndTranslation`) must reach to
+  /// change the day; a shorter one springs back.
+  public static let daySwipeCommitShare: CGFloat = 0.25
+  /// Points a page can be pulled toward a day that does not exist at most (rubber band).
+  public static let daySwipeStretch: CGFloat = 60
+  /// The page sliding out and the next day's sliding in after a swipe.
+  public static let daySlide = Animation.smooth(duration: daySlideSeconds)
+  /// Seconds of each half of `daySlide`.
+  public static let daySlideSeconds = 0.22
 }
 
 extension Tokens {

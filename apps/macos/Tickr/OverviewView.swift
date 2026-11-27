@@ -348,6 +348,7 @@ struct AlarmPulse: ViewModifier {
 private struct DayResult: View {
   @Environment(AppModel.self) private var model
   @Environment(\.overviewLayout) private var layout
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var counted: Decimal = 0
   /// The day `counted` is of: another day's result lands at once, never counting through values
   /// no day had.
@@ -433,9 +434,12 @@ private struct DayResult: View {
 
   private func countUp() {
     // Only today's live result counts on; a recorded day's lands at once when read.
-    let sameDay = countedDay == nil || countedDay == model.shownDay
+    // The first count fills in; each later change of the live result keeps up with it.
+    let first = countedDay == nil
+    let sameDay = first || countedDay == model.shownDay
     countedDay = model.shownDay
-    withAnimation(sameDay && model.isLive ? Tokens.Motion.fill : nil) { counted = model.shownResult }
+    let motion = first ? Tokens.Motion.fill : Tokens.Motion.live
+    withAnimation(sameDay && model.isLive && !reduceMotion ? motion : nil) { counted = model.shownResult }
   }
 }
 
@@ -797,7 +801,7 @@ private struct Pipeline: View {
       ForEach(here.prefix(Self.poolCap)) { mark in
         MarkDot(mark: mark, color: color)
           .matchedGeometryEffect(id: mark.id, in: board)
-          .transition(.scale.combined(with: .opacity))
+          .transition(.scale(scale: Tokens.Motion.enterScale).combined(with: .opacity))
       }
       if here.count > Self.poolCap {
         Text(L10n.Flow.more(here.count - Self.poolCap))
@@ -1261,7 +1265,7 @@ private struct EmptyPositions: View {
         Group {
           if model.isLive { Text(L10n.Position.noPosition) } else { Text(L10n.Position.recordedDay) }
         }
-        .font(.title3.weight(.semibold))
+        .font(Tokens.Typography.title3Strong)
         Group {
           if model.isLive {
             Text(L10n.Position.waitingForSetup)
@@ -1328,11 +1332,11 @@ private struct WorkingEntryPanel: View {
         .padding(Self.ringInset)
       switch row.phase {
       case .working:
-        Image(systemName: EntryLook.workingSymbol).font(.largeTitle).foregroundStyle(color)
+        Image(systemName: EntryLook.workingSymbol).font(Tokens.Typography.symbolLarge).foregroundStyle(color)
       case .cancelling:
         Spinner()
       case .cancelled:
-        Image(systemName: EntryLook.doneSymbol).font(.largeTitle).foregroundStyle(Palette.profitText)
+        Image(systemName: EntryLook.doneSymbol).font(Tokens.Typography.symbolLarge).foregroundStyle(Palette.profitText)
       }
     }
     .frame(width: Self.ring, height: Self.ring)

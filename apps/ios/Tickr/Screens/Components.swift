@@ -291,7 +291,7 @@ struct HeaderIcon: View {
     .background {
       if glass {
         Circle().fill(.clear)
-          .glassSurface(in: Circle(), shadow: Tokens.Opacity.wash)
+          .glassSurface(in: Circle())
       }
     }
     .frame(minWidth: Tokens.Size.touchTarget, minHeight: Tokens.Size.touchTarget)
@@ -480,10 +480,6 @@ struct TickrTabBar: View {
   static let selectedWash = 0.08
   /// The pill's identity in `pill`.
   static let pillID = "selected"
-  /// Shadow under the capsule: share of `shadow`, blur and drop, in points.
-  static let shadowShare = 0.25
-  static let shadowBlur: CGFloat = 15
-  static let shadowDrop: CGFloat = 10
   /// At a compact height (an iPhone in landscape, IOS2Landscape board): the capsule's height and
   /// width, its distance from the screen's bottom edge, in points; each glyph beside its name.
   static let compactHeight: CGFloat = 46
@@ -510,18 +506,17 @@ struct TickrTabBar: View {
     // `safeAreaInset` offers. Without this the bar grew to the whole screen at large text sizes,
     // and the screen above it went wide, pushing the first tab off the left edge (layout sweep).
     .fixedSize(horizontal: false, vertical: true)
-    // Only the bar animates a switch (the pill slides); the screens change at once.
-    .animation(Tokens.Motion.standard, value: model.selectedTab)
+    // Only the bar animates a switch (the pill springs across, overshooting a little as the
+    // system's does); the screens change at once.
+    .animation(Tokens.Motion.pill, value: model.selectedTab)
     // The pill keeps this margin from the bar's edge on every side.
     .padding(Tokens.Space.xxs)
     .frame(minHeight: compact ? Self.compactHeight : Self.height)
     // In landscape a capsule in the middle, as on the board; a name that needs more than its
     // tab's width wraps to a second line beside its glyph, never cut.
     .frame(maxWidth: compact ? Self.compactWidth : .infinity)
-    .background(.ultraThinMaterial, in: Capsule())
-    .background(Palette.surface.opacity(Tokens.Opacity.overlay), in: Capsule())
-    .overlay(Capsule().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-    .shadow(color: Palette.shadow.opacity(Self.shadowShare), radius: Self.shadowBlur, y: Self.shadowDrop)
+    // The system's Liquid Glass, as the system tab bar: it bends and lights the screen under it.
+    .glassEffect(.regular, in: Capsule())
     .padding(.horizontal, Self.sideInset)
     // From the screen's bottom edge, not from the top of the home indicator's strip.
     .padding(.bottom, (compact ? Self.compactBottomGap : Self.bottomGap) - bottomInset)
@@ -613,35 +608,53 @@ struct ConnectionPrompt: View {
   }
 }
 
-/// The command notice floating at the top of the screen, with haptics, gone after a few seconds.
+/// The command notice floating at the top of the screen, with haptics. A success or an info leaves
+/// by itself after a few seconds; a failure stays until it is dismissed. A swipe up dismisses it,
+/// following the finger (and resisting a pull down); a touch holds it while the finger is on it; a
+/// tap dismisses it too.
 struct NoticeOverlay: ViewModifier {
-  /// Seconds a notice stays on screen.
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  /// Seconds a success or an info stays on screen once nobody touches it.
   static let seconds = 4.0
+  /// Points of upward travel that dismiss the notice when the finger lifts.
+  static let dismissDistance: CGFloat = 24
+  /// Upward speed, in points per second, that dismisses it even after a short swipe (a flick).
+  static let dismissVelocity: CGFloat = 300
+  /// Points a pull down can stretch the notice at most (rubber band).
+  static let stretchLimit: CGFloat = 40
+  /// Points a touch may move and still count as a tap.
+  static let tapSlop: CGFloat = 4
 
   @Environment(AppModel.self) private var model
+  /// Vertical offset of the notice while the finger drags it.
+  @State private var offset: CGFloat = 0
+  /// Whether a finger is on the notice (its timer waits meanwhile).
+  @State private var touching = false
 
   func body(content: Content) -> some View {
     content
       .overlay(alignment: .top) {
         if let notice = model.notice {
           Text(verbatim: notice.text)
-            .font(.subheadline.weight(.semibold))
+            .font(Tokens.Typography.subheadlineStrong)
             .foregroundStyle(color(notice.tone))
             .multilineTextAlignment(.center)
             .padding(.horizontal, Tokens.Space.l)
             .padding(.vertical, Tokens.Space.m)
-            .background(.regularMaterial, in: Capsule())
-            .shadow(color: Palette.shadow.opacity(Tokens.Opacity.shadow), radius: Tokens.Size.shadowRadius,
-              y: Tokens.Size.shadowOffset)
+            .glassEffect(.regular, in: Capsule())
             .padding(.horizontal, Tokens.Space.xl)
             .padding(.top, Tokens.Space.s)
-            .transition(.move(edge: .top).combined(with: .opacity))
+            .offset(y: offset)
+            .gesture(drag)
+            .transition(.moving(from: .top, reduceMotion: reduceMotion))
             .id(notice.id)
-            .task(id: notice.id) {
+            .task(id: touching) {
+              guard notice.tone != .failure, !touching else { return }
               try? await Task.sleep(for: .seconds(Self.seconds))
-              if model.notice?.id == notice.id { model.notice = nil }
+              if !Task.isCancelled, model.notice?.id == notice.id { model.notice = nil }
             }
-            .onTapGesture { model.notice = nil }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { model.notice = nil }
             .accessibilityIdentifier(AccessibilityID.notice)
         }
       }
@@ -652,6 +665,28 @@ struct NoticeOverlay: ViewModifier {
         case .failure: return .error
         case .info: return .impact(weight: .light)
         case nil: return nil
+        }
+      }
+  }
+
+  /// Follows the finger 1:1 upward and stretches less and less downward; on release a far enough
+  /// or fast enough swipe up (or a tap) dismisses, anything else springs back.
+  private var drag: some Gesture {
+    DragGesture(minimumDistance: 0)
+      .onChanged { value in
+        touching = true
+        let dy = value.translation.height
+        offset = dy < 0 ? dy : Self.stretchLimit * dy / (dy + Self.stretchLimit)
+      }
+      .onEnded { value in
+        touching = false
+        let dy = value.translation.height
+        let tapped = abs(dy) < Self.tapSlop && abs(value.translation.width) < Self.tapSlop
+        if tapped || dy < -Self.dismissDistance || value.velocity.height < -Self.dismissVelocity {
+          model.notice = nil
+          offset = 0
+        } else {
+          withAnimation(Tokens.Motion.quick) { offset = 0 }
         }
       }
   }

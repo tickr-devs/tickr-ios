@@ -132,6 +132,7 @@ private struct TodayResult: View {
 
 /// The bot's open positions, each with where its price sits on a scale from the stop up.
 private struct MenuPositions: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(AppModel.self) private var model
 
   var body: some View {
@@ -153,7 +154,7 @@ private struct MenuPositions: View {
       VStack(spacing: Tokens.Space.s) {
         ForEach(positions, id: \.symbol) { position in
           MenuPosition(position: position, row: model.positions.first { $0.id == position.symbol })
-            .transition(.move(edge: .top).combined(with: .opacity))
+            .transition(.moving(from: .top, reduceMotion: reduceMotion))
         }
       }
       .animation(Tokens.Motion.standard, value: positions.map(\.symbol))
@@ -276,7 +277,7 @@ private struct StopTargetBar: View {
       .opacity(muted ? Tokens.Opacity.medium : 1)
     }
     .frame(height: Self.knobWithRing)
-    .animation(Tokens.Motion.fill, value: progress)
+    .animation(Tokens.Motion.live, value: progress)
   }
 }
 

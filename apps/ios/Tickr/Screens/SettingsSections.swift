@@ -184,7 +184,7 @@ struct PreflightSection: View {
       ForEach(results) { result in
         HStack(spacing: Tokens.Space.m) {
           icon(result.outcome)
-            .transition(.scale.combined(with: .opacity))
+            .transition(.scale(scale: Tokens.Motion.enterScale).combined(with: .opacity))
           Text(title(result.check))
           Spacer()
           Text(detail(result.check))
@@ -197,7 +197,7 @@ struct PreflightSection: View {
       }
       if let mismatch = model.account?.account.mismatch {
         Text(verbatim: mismatch)
-          .font(.footnote)
+          .font(Tokens.Typography.footnote)
           .foregroundStyle(Palette.lossText)
       } else if let failure = model.accountError {
         ReadFailureNote(L10n.Settings.accountFailed, detail: failure)

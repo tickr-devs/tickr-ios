@@ -7,6 +7,7 @@ import TickrKit
 /// 3.95", `Board.journal`). An event the bot adds while the list is on screen washes its line
 /// once. At the accessibility text sizes time and dot go on top, so the words keep the width.
 public struct JournalLines: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var arrived: Set<String> = []
   let events: [Board.Event]
 
@@ -18,7 +19,7 @@ public struct JournalLines: View {
     VStack(alignment: .leading, spacing: 0) {
       ForEach(events) { event in
         JournalLine(event, arrived: arrived.contains(event.id))
-          .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
+          .transition(.asymmetric(insertion: .moving(from: .top, reduceMotion: reduceMotion), removal: .opacity))
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)

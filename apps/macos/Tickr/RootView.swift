@@ -139,7 +139,11 @@ struct RootView: View {
 /// unattended banner and the command toast over it: the Mac window's detail column, and the
 /// iPad's (`RegularScreens`).
 struct ScreenColumn: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(AppModel.self) private var model
+  /// Sections already shown since launch: going back to one shows its cards in place, without
+  /// their entrance again (a sidebar is used many times a day; the rise is for the first look).
+  @State private var opened: Set<AppSection> = []
 
   private var section: AppSection { model.section }
 
@@ -161,6 +165,7 @@ struct ScreenColumn: View {
           // screen's own cards then rise in. Sliding whole screens in and out kept two of them
           // (one maybe the chart) laid out and animating together, and stuttered.
           .id(section)
+          .environment(\.arrivesInPlace, opened.contains(section))
           // A fixed least size for every screen, scrolled to when the window leaves less (a
           // window capped to a small display, `WindowFit`): a screen whose least size
           // followed its content (a row of controls wider than the column, a layout that
@@ -176,12 +181,12 @@ struct ScreenColumn: View {
         UnattendedBanner(unattended: unattended)
           .padding(Tokens.Space.l)
           .frame(maxHeight: .infinity, alignment: .top)
-          .transition(.move(edge: .top).combined(with: .opacity))
+          .transition(.moving(from: .top, reduceMotion: reduceMotion))
       }
       if let toast = model.toast {
         CommandToast(command: toast)
           .padding(.bottom, Tokens.Space.xl)
-          .transition(.move(edge: .bottom).combined(with: .opacity))
+          .transition(.moving(from: .bottom, reduceMotion: reduceMotion))
       }
     }
     // The title bar's hairline over the screen (the sidebar draws its own).
@@ -189,6 +194,7 @@ struct ScreenColumn: View {
     .animation(Tokens.Motion.standard, value: model.toast)
     .animation(Tokens.Motion.standard, value: model.unattendedPositions)
     .animation(Tokens.Motion.standard, value: model.connectionState)
+    .onChange(of: section) { old, _ in opened.insert(old) }
     // Hints of the screen, the banner and the toast, drawn above all of them.
     .hintHost()
   }
@@ -853,7 +859,7 @@ struct UnattendedBanner: View {
       Spacer(minLength: 0)
     }
     .padding(Tokens.Space.m)
-    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
+    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: Tokens.Radius.medium))
     .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.medium).strokeBorder(Palette.loss.opacity(Tokens.Opacity.border)))
     .accessibilityElement(children: .combine)
   }
@@ -865,9 +871,6 @@ struct CommandToast: View {
 
   /// Accessibility id of the toast, for the UI tests: a sent command always shows it.
   static let id = "command-toast"
-
-  /// Blur of the floating shadow under the toast, in points (its offset is the cards').
-  static let shadowRadius: CGFloat = 12
 
   var body: some View {
     HStack(spacing: Tokens.Space.m) {
@@ -881,9 +884,8 @@ struct CommandToast: View {
     }
     .padding(.horizontal, Tokens.Space.l)
     .padding(.vertical, Tokens.Space.m)
-    .background(.regularMaterial, in: Capsule())
+    .glassEffect(.regular, in: Capsule())
     .overlay(Capsule().strokeBorder(color.opacity(Tokens.Opacity.border)))
-    .shadow(radius: Self.shadowRadius, y: Tokens.Size.shadowOffset)
     .accessibilityElement(children: .combine)
     .accessibilityIdentifier(Self.id)
   }
