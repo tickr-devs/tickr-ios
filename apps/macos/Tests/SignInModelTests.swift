@@ -2,6 +2,7 @@ import FactoryTesting
 import Foundation
 import Synchronization
 import Testing
+import TickrDesign
 import TickrKit
 @testable import TickrScreens
 
