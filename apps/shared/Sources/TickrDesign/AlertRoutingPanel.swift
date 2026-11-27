@@ -160,7 +160,8 @@ public struct AlertRoutingPanel: View {
     }
     .toggleStyle(.designSwitch(tint: Palette.accent))
     .labelsHidden()
-    .disabled(waiting || !alerts.canChange(channel))
+    // One change at a time: every switch waits for the bot's answer to the one sent.
+    .disabled(!routing.pending.isEmpty || !alerts.canChange(channel))
     .opacity(waiting ? Tokens.Opacity.medium : 1)
     .gridColumnAlignment(.center)
   }

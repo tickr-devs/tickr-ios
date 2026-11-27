@@ -147,6 +147,24 @@ private final class AlertsAnswers: APITransport {
     #expect(routing.alerts != nil)
   }
 
+  @Test func oneChangeAtATime() async throws {
+    let kinds = try alerts().kinds.filter { !$0.locked }
+    let first = try #require(kinds.first)
+    let second = try #require(kinds.dropFirst().first)
+    let transport = AlertsAnswers(
+      read: (200, try fixture("alerts-v1.json")),
+      write: (200, try answer(kind: first.kind, channel: .telegram, on: !first.channels.telegram)))
+    let routing = AlertRouting()
+    let client = try client(transport)
+    async let one: Void = routing.set(
+      AlertCell(kind: first.kind, channel: .telegram), on: !first.channels.telegram, client: client)
+    async let two: Void = routing.set(
+      AlertCell(kind: second.kind, channel: .telegram), on: !second.channels.telegram, client: client)
+    _ = await (one, two)
+    #expect(transport.requests.filter { $0.httpMethod == APIClient.put }.count == 1)
+    #expect(routing.pending.isEmpty)
+  }
+
   @Test func clearingDropsEverything() async throws {
     let transport = AlertsAnswers(read: (200, try fixture("alerts-v1.json")), write: nil)
     let routing = AlertRouting()

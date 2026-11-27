@@ -71,6 +71,8 @@ public final class AlertRouting {
   public private(set) var pending: [AlertCell: Bool] = [:]
   /// Bumped by `clear()`, so an answer from the old address is dropped.
   @ObservationIgnored private var generation = 0
+  /// Bumped by each change sent, so a read that crossed it never puts an older routing back.
+  @ObservationIgnored private var changes = 0
 
   public init() {}
 
@@ -91,9 +93,10 @@ public final class AlertRouting {
   /// Read the settings; a failed read clears them, so an old routing never reads as current.
   public func refresh(_ client: APIClient) async {
     let asked = generation
+    let sentBefore = changes
     do {
       let read = try await client.alerts()
-      guard asked == generation else { return }
+      guard asked == generation, sentBefore == changes else { return }
       alerts = read
       readError = nil
     } catch is CancellationError {
@@ -105,12 +108,14 @@ public final class AlertRouting {
     }
   }
 
-  /// Turn one cell on or off: sent once; the answer replaces the settings. A refusal or a failed
-  /// send is kept as `changeError` and the settings are read again, so the screen shows what the
-  /// bot holds, never a guess.
+  /// Turn one cell on or off: sent once; the answer replaces the settings. One change at a time,
+  /// so answers can never arrive out of order and leave an older routing on screen. A refusal or
+  /// a failed send is kept as `changeError` and the settings are read again, so the screen shows
+  /// what the bot holds, never a guess.
   public func set(_ cell: AlertCell, on: Bool, client: APIClient) async {
-    guard pending[cell] == nil else { return }
+    guard pending.isEmpty else { return }
     let asked = generation
+    changes += 1
     pending[cell] = on
     changeError = nil
     do {
