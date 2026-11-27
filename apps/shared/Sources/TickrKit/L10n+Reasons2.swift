@@ -51,6 +51,21 @@ extension L10n {
       // swiftlint:disable:next line_length
       defaultValue: "Realized {realized} + reserved {reserved} + this trade {new} = {total} USD, over the daily limit of {ceiling} USD", bundle: bundle)
   }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN
+  static var refusalReasonEquityUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.EQUITY_UNKNOWN",
+      defaultValue: "No equity read yet", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN age (values: age, limit)
+  static var refusalReasonEquityUnknownAge: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.EQUITY_UNKNOWN.age",
+      defaultValue: "Equity read {age} s ago, limit {limit} s", bundle: bundle)
+  }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN value (values: value)
+  static var refusalReasonEquityUnknownValue: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.EQUITY_UNKNOWN.value",
+      defaultValue: "Equity figure {value} is not usable", bundle: bundle)
+  }
   /// A refused entry's detail (`refusal.params`), after the rule's title. BUYING_POWER_UNKNOWN
   static var refusalReasonBuyingPowerUnknown: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.BUYING_POWER_UNKNOWN",

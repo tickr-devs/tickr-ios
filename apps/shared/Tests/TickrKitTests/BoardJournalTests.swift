@@ -48,6 +48,22 @@ import Testing
     #expect(line.text == "ABCD · " + String(localized: L10n.exitEntryNotFilled))
   }
 
+  /// The journal shows a tag in plain words ("Stop set"), never the ticker's capitals.
+  @Test func tagsReadInPlainWords() throws {
+    let byID = Dictionary(uniqueKeysWithValues: try lines().map { ($0.id, $0) })
+    #expect(byID["journal-736"]?.plainTag == "Stop set")
+    #expect(byID["journal-733"]?.plainTag == "Bought")
+  }
+
+  /// An exit reason this app has no words for is left out of the line, never shown as the code.
+  @Test func anUnknownExitReasonIsLeftOut() throws {
+    var json = try #require(String(data: fixture("day-events-v1.json"), encoding: .utf8))
+    json = json.replacingOccurrences(of: "\"cause\": \"stopped-out\"", with: "\"cause\": \"something-new\"")
+    let document = try Wire.decoder().decode(DayEventsV1.self, from: Data(json.utf8))
+    let line = try #require(Board.journal(document, price: { "\($0)" }).first { $0.id == "journal-746" })
+    #expect(line.text == "ABCD")
+  }
+
   @Test func anUnknownKindIsLeftOut() throws {
     var json = try #require(String(data: fixture("day-events-v1.json"), encoding: .utf8))
     json = json.replacingOccurrences(of: "\"bot-started\"", with: "\"something-new\"")

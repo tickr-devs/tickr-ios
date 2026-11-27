@@ -444,7 +444,8 @@ private struct SymbolTagBadge: View {
 
 /// One fast mover on Home, as on the Mac Overview (mockup Main, IOSHome): the symbol, its one main
 /// signal (`SymbolsBoard.mainReason`, the one furthest past its rule) and the bar's time. Texts
-/// wrap, never cut; the three figures are on the Symbols screen's Fast movers tab.
+/// wrap, never cut; the three figures are on the Symbols screen's Fast movers tab. No badge: the
+/// row says why it moved, nothing more.
 struct FastMoverLine: View {
   let mover: FastMoverV1
   let rules: FastMoverRulesV1?
@@ -454,7 +455,6 @@ struct FastMoverLine: View {
       SymbolText(mover.symbol)
         .font(Tokens.Typography.chip)
         .foregroundStyle(Palette.textPrimary)
-      if mover.watching { Badge(Verdict.watch.title, color: Palette.infoText) }
       Text(verbatim: SymbolsBoard.mainReason(mover, rules: rules))
         .font(.subheadline)
         .foregroundStyle(Palette.warningText)
@@ -470,21 +470,42 @@ struct FastMoverLine: View {
 
 // MARK: - the Fast movers card on Home
 
-/// The day's fast movers on Home: the newest few rows, then "Show all N ›" pushing the Symbols
-/// screen on its Fast movers tab (where the thresholds are). A new mover rises in as
-/// it arrives, a real event of the bot.
+/// The day's fast movers on Home (mockup IOSHome): the newest few rows, one main reason each,
+/// then "Show all N ›" pushing the Symbols screen on its Fast movers tab. The rule that flags a
+/// fast mover is behind the "i" beside the title, shown in place. A new mover rises in as it
+/// arrives, a real event of the bot.
 struct FastMoversCard: View {
   let movers: MoversV1?
   let failure: String?
   /// The Symbols screen on its Fast movers tab is pushed.
   @State private var showsAll = false
+  /// The rule is shown under the title.
+  @State private var showsRule = false
 
   /// Rows the card shows; the rest are on the Symbols screen.
   static let rowCap = 3
 
+  /// The fast mover rule in one sentence, or why the bot sent none; nil before the movers are read.
+  private var rule: String? {
+    guard let movers else { return nil }
+    return movers.rules.map(SymbolsBoard.fastRule) ?? movers.rulesCauseText
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      CardLabel(L10n.FastMovers.title)
+      HStack(alignment: .center, spacing: Tokens.Space.s) {
+        CardLabel(L10n.FastMovers.title)
+        Spacer(minLength: 0)
+        // Always there, so the header keeps its height while the movers load; dimmed until then.
+        ruleButton
+      }
+      if showsRule, let rule {
+        Text(verbatim: rule)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
+          .transition(.opacity)
+      }
       if let movers {
         if movers.movers.isEmpty {
           Text(verbatim: movers.rulesCauseText ?? String(localized: L10n.FastMovers.none))
@@ -514,6 +535,23 @@ struct FastMoversCard: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard()
     .navigationDestination(isPresented: $showsAll) { SymbolsView(tab: .fastMovers) }
+  }
+
+  /// The "i" beside the title: shows or hides the rule, as on the Symbols screen.
+  private var ruleButton: some View {
+    Button {
+      withAnimation(Tokens.Motion.quick) { showsRule.toggle() }
+    } label: {
+      Image(systemName: InfoCaption.infoSymbol)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(showsRule ? Palette.infoText : Palette.textTertiary)
+        .frame(width: Tokens.Size.touchTarget, height: Tokens.Size.touchTarget)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .disabled(rule == nil)
+    .accessibilityLabel(Text(SymbolsText.fastRuleLabel))
+    .accessibilityAddTraits(showsRule ? .isSelected : [])
   }
 }
 

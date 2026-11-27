@@ -137,6 +137,11 @@ extension RefusalReason {
       ReasonSentence(L10n.refusalReasonDailyCeiling, [.room, .minRoom, .ceiling, .realized, .reserved]),
       ReasonSentence(L10n.refusalReasonDailyCeilingTotal, [.realized, .reserved, .new, .total, .ceiling]),
     ]
+    case .equityUnknown: [
+      ReasonSentence(L10n.refusalReasonEquityUnknown, []),
+      ReasonSentence(L10n.refusalReasonEquityUnknownAge, [.age, .limit]),
+      ReasonSentence(L10n.refusalReasonEquityUnknownValue, [.value]),
+    ]
     case .buyingPowerUnknown: [
       ReasonSentence(L10n.refusalReasonBuyingPowerUnknown, []),
       ReasonSentence(L10n.refusalReasonBuyingPowerUnknownAge, [.age, .limit]),

@@ -1,10 +1,11 @@
 import SwiftUI
 import TickrKit
 
-// The System card's content on both apps (GET /system, mockup v120): the Webull link, the
-// morning check and model training, then under "This Mac" the watchdog with its restarts and the
-// no-sleep hold. Each app wraps it in its own card with `SystemText.title` and `SystemPill`;
-// everything inside is this one view. The Mac rows come only from the API's `host` block, so a
+// The System card's content on both apps (GET /system, mockup v134): the broker connection, the
+// morning check and the next model version's training, then under "This Mac" the watchdog with its
+// restarts and the no-sleep hold. A row says its value; a note under it appears only when the row
+// needs a look (v134 "simple"), so an all-good card is a short list of values. Each app wraps it
+// in its own card with `SystemText.title` and `SystemPill`; everything inside is this one view. The Mac rows come only from the API's `host` block, so a
 // bot on a server shows the same card without them.
 
 extension SystemCard.Health {
@@ -79,9 +80,7 @@ public struct SystemPanel: View {
   private var linkRow: some View {
     let link = system.brokerLink
     let health = SystemCard.link(system)
-    return SystemRow(SystemText.link, symbol: Self.linkSymbol, health: health,
-      note: link.causeText.map { Text(verbatim: $0) }
-        ?? Text(SystemText.linkNote(Money.plain(link.maxAgeSeconds.value, fractionDigits: 0)))) {
+    return SystemRow(SystemText.link, symbol: Self.linkSymbol, health: health, note: Self.linkNote(link, health)) {
       VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
         if let read = link.lastReadAt {
           Text(SystemText.ago(SystemCard.Age(since: read.date, now: now)))
@@ -89,11 +88,20 @@ public struct SystemPanel: View {
         } else {
           Text(SystemText.unknown).foregroundStyle(Palette.textQuaternary)
         }
-        if let stream = link.stream {
+        if let stream = link.stream, stream != .fresh {
           Text(Self.stream(stream)).font(Tokens.Typography.annotation).foregroundStyle(Palette.textQuaternary)
         }
       }
     }
+  }
+
+  /// Under the link only when it needs a look: why it is unknown, or the read age new entries need
+  /// (blocked once the read is past it).
+  static func linkNote(_ link: BrokerLinkV1, _ health: SystemCard.Health) -> Text? {
+    if let cause = link.causeText { return Text(verbatim: cause) }
+    guard health == .attention else { return nil }
+    let seconds = Money.plain(link.maxAgeSeconds.value, fractionDigits: 0)
+    return Text(link.state == .stale ? SystemText.linkBlocked(seconds) : SystemText.linkNote(seconds))
   }
 
   static func stream(_ health: StreamHealth) -> LocalizedStringResource {
@@ -109,13 +117,23 @@ public struct SystemPanel: View {
     let health = SystemCard.morningCheck(system)
     let check = system.morningCheck
     return SystemRow(SystemText.morningCheck, symbol: Self.checkSymbol, health: health,
-      note: check.map { Text(Self.ranBy($0)) } ?? system.morningCheckCauseText.map { Text(verbatim: $0) }) {
+      note: Self.morningNote(check, health) ?? system.morningCheckCauseText.map { Text(verbatim: $0) }) {
       if let check {
         Text(Self.outcome(check)).foregroundStyle(health.tone.text)
       } else {
         Text(SystemText.unknown).foregroundStyle(Palette.textQuaternary)
       }
     }
+  }
+
+  /// Under the check: nothing on today's pass; today's failure names the check (and that the bot
+  /// will not start on it); any other result says which job ran it and when.
+  static func morningNote(_ check: MorningCheckV1?, _ health: SystemCard.Health) -> Text? {
+    guard let check, health != .good else { return nil }
+    // An earlier day's result is history (idle): its day matters more than its check.
+    guard check.outcome == .failed, health != .idle else { return Text(ranBy(check)) }
+    let name = String(localized: SystemText.check(check.failedCheck?.name ?? ""))
+    return Text(check.blocksStart ? SystemText.willNotStart(name) : SystemText.checkFailed(name))
   }
 
   static func ranBy(_ check: MorningCheckV1) -> LocalizedStringResource {
@@ -129,31 +147,27 @@ public struct SystemPanel: View {
     case .ready: return SystemText.passed(ClockText.minutes(check.finishedAt.date))
     case .noSession: return SystemText.noSession
     case .configInvalid: return SystemText.configInvalid
-    case .failed:
-      return SystemText.failed(String(localized: SystemText.check(check.failedCheck?.name ?? "")))
+    case .failed: return SystemText.failed(ClockText.minutes(check.finishedAt.date))
     }
   }
 
   private var trainingRow: some View {
     let health = SystemCard.training(system)
     let training = system.training
-    let note: Text? = training.map {
-      Text(SystemText.trainingNote($0.job, $0.done, $0.total,
-        String(localized: SystemText.ago(SystemCard.Age(since: $0.updatedAt.date, now: now)))))
-    } ?? system.trainingCauseText.map { Text(verbatim: $0) }
+    let note = training == nil ? system.trainingCauseText.map { Text(verbatim: $0) } : nil
     return VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       SystemRow(SystemText.training, symbol: Self.trainingSymbol, health: health,
         tone: training?.state == .running ? .highlight : nil, note: note) {
         if let training {
           switch training.state {
           case .running:
-            Text(verbatim: Percent.plain(fraction: Decimal(training.fraction)))
+            Text(SystemText.trainingPercent(Percent.plain(fraction: Decimal(training.fraction))))
               .foregroundStyle(Tone.highlight.text)
           case .done: Text(SystemText.trainingDone).foregroundStyle(Tone.profit.text)
           case .failed: Text(SystemText.trainingFailed).foregroundStyle(Tone.warning.text)
           }
         } else {
-          Text(SystemText.idle).foregroundStyle(Palette.textQuaternary)
+          Text(SystemText.notTraining).foregroundStyle(Palette.textQuaternary)
         }
       }
       if let training, training.state == .running {
@@ -170,43 +184,35 @@ public struct SystemPanel: View {
     let today = SystemCard.today(system)
     let health = SystemCard.watchdog(mac, today: today)
     return SystemRow(SystemText.watchdog, symbol: Self.watchdogSymbol, health: health,
-      note: watchdog.causeText.map { Text(verbatim: $0) } ?? Text(Self.lastCheck(watchdog))) {
+      note: watchdog.causeText.map { Text(verbatim: $0) } ?? Self.lastCheck(watchdog).map { Text($0) }) {
       if watchdog.cause != nil {
         Text(SystemText.unknown).foregroundStyle(Palette.textQuaternary)
       } else {
-        Text(watchdog.startedDay == today ? SystemText.startedToday : SystemText.notStartedToday)
+        Text(watchdog.startedDay == today ? SystemText.watching : SystemText.notStartedToday)
           .foregroundStyle(watchdog.startedDay == today ? Tone.profit.text : Palette.textTertiary)
       }
     }
   }
 
-  static func lastCheck(_ watchdog: WatchdogV1) -> LocalizedStringResource {
-    guard let at = watchdog.lastCheckAt else { return SystemText.noCheckYet }
+  /// Its latest broker check, only when it found something: the read failed or a trade was left
+  /// open. A check that found the account flat, or none yet, says nothing.
+  static func lastCheck(_ watchdog: WatchdogV1) -> LocalizedStringResource? {
+    guard let at = watchdog.lastCheckAt else { return nil }
     let time = DayText.day(at.date) + SystemPanel.separator + ClockText.minutes(at.date)
     if watchdog.lastCheckRead != true { return SystemText.lastCheckFailed(time) }
-    return watchdog.lastCheckFlat == true ? SystemText.lastCheckFlat(time) : SystemText.lastCheckOpen(time)
+    return watchdog.lastCheckFlat == true ? nil : SystemText.lastCheckOpen(time)
   }
 
   private func sleepRow(_ mac: HostV1) -> some View {
     let sleep = mac.sleep
     let health = SystemCard.sleep(mac, botRunning: system.botRunning)
-    let note = Self.sleepNote(sleep, botRunning: system.botRunning)
-    return SystemRow(SystemText.sleep, symbol: Self.sleepSymbol, health: health, note: note) {
+    return SystemRow(SystemText.sleep, symbol: Self.sleepSymbol, health: health,
+      note: sleep.causeText.map { Text(verbatim: $0) }) {
       switch sleep.state {
       case .held: Text(SystemText.keptAwake).foregroundStyle(health.tone.text)
       case .notHeld: Text(SystemText.maySleep).foregroundStyle(health.tone.text)
       case .unknown: Text(SystemText.unknown).foregroundStyle(Palette.textQuaternary)
       }
-    }
-  }
-
-  /// Under the hold: why it is unknown, how many processes hold it, or that it is not needed now.
-  static func sleepNote(_ sleep: SleepV1, botRunning: Bool) -> Text? {
-    if let cause = sleep.causeText { return Text(verbatim: cause) }
-    switch sleep.state {
-    case .held: return sleep.holds.map { Text(SystemText.holds($0)) }
-    case .notHeld: return botRunning ? nil : Text(SystemText.notNeededNow)
-    case .unknown: return nil
     }
   }
 
@@ -236,20 +242,23 @@ struct RestartRow: View {
 
   var body: some View {
     let tone = Self.tone(restart.outcome)
+    // One line as on the design: when, why (it wraps, never cut), then the outcome.
     HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
       Circle().fill(tone.fill).frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        HStack(alignment: .firstTextBaseline) {
-          Text(verbatim: DayText.day(restart.at.date) + SystemPanel.separator + ClockText.minutes(restart.at.date))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textSecondary)
-          Spacer(minLength: Tokens.Space.s)
-          Text(Self.outcome(restart.outcome)).font(Tokens.Typography.captionMono).foregroundStyle(tone.text)
-        }
-        if let why = Self.why(restart) {
-          why.font(Tokens.Typography.caption).foregroundStyle(Palette.textTertiary)
-        }
+      Text(verbatim: DayText.day(restart.at.date) + SystemPanel.separator + ClockText.minutes(restart.at.date))
+        .font(Tokens.Typography.captionMono)
+        .foregroundStyle(Palette.textSecondary)
+        .fixedSize()
+      if let why = Self.why(restart) {
+        why.font(Tokens.Typography.caption)
+          .foregroundStyle(Palette.textTertiary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .fixedSize(horizontal: false, vertical: true)
+      } else {
+        Spacer(minLength: Tokens.Space.s)
       }
+      Text(Self.outcome(restart.outcome)).font(Tokens.Typography.captionMono).foregroundStyle(tone.text)
+        .fixedSize()
     }
     .accessibilityElement(children: .combine)
   }

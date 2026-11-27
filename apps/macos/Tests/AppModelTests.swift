@@ -665,6 +665,25 @@ struct AppModelTests {
     #expect(!BotAction.pauseEntries.needsConfirmation && !BotAction.resumeEntries.needsConfirmation)
   }
 
+  @Test("A working entry shows on the live day; Cancel entry asks, then cancels only its symbol")
+  func workingEntryAndCancelEntry() async throws {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = try? Data(contentsOf:
+      fixturesDir.appendingPathComponent("status-response-v1.working-entry.json")) }
+    await model.refreshStatus()
+    let row = try #require(model.entryRows.first)
+    #expect(model.entryRows.count == 1)
+    #expect(row.symbol == "KLMN" && row.phase == .working)
+    let action = BotAction.cancelEntry(row)
+    #expect(action.command == .cancelEntry("KLMN"))
+    #expect(action.needsConfirmation && action.isDestructive && action.tier == .destructive)
+    #expect(action.keepLabel.key == EntryText.keep.key)
+    #expect(BotAction.stopBot.keepLabel.key == L10n.Common.cancel.key)
+    #expect(action.question == String(localized: EntryText.question("KLMN")))
+    #expect(action.inFlightTitle.key == OperatorCommand.cancelEntry("KLMN").inFlightTitle.key)
+    RouteProtocol.routes.withLock { $0.bodies["/status"] = nil }
+  }
+
   @Test("Close all says it is closing the positions while it is on its way")
   func closeAllInFlightTitle() {
     #expect(BotAction.closeAll.inFlightTitle.key == OperatorCommand.flatten.inFlightTitle.key)

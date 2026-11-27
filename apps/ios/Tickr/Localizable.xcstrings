@@ -256,6 +256,23 @@
         }
       }
     },
+    "activity.bestWhileOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best while open, at least"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mejor mientras estuvo abierta, como mínimo"
+          }
+        }
+      }
+    },
     "activity.calendar" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -358,23 +375,6 @@
         }
       }
     },
-    "activity.codeVersion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bot code %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "código del bot %@"
-          }
-        }
-      }
-    },
     "activity.counts" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -439,23 +439,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La API del bot no envió las operaciones de este día."
-          }
-        }
-      }
-    },
-    "activity.excursion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MAE %1$@ · MFE %2$@ (at least)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MAE %1$@ · MFE %2$@ (como mínimo)"
           }
         }
       }
@@ -545,23 +528,6 @@
         }
       }
     },
-    "activity.hintLast" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last price"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Último precio"
-          }
-        }
-      }
-    },
     "activity.hintLosses" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -575,40 +541,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Operaciones con pérdida"
-          }
-        }
-      }
-    },
-    "activity.hintMae" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MAE: worst move against, at least"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MAE: peor movimiento en contra, como mínimo"
-          }
-        }
-      }
-    },
-    "activity.hintMfe" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MFE: best move in favour, at least"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MFE: mejor movimiento a favor, como mínimo"
           }
         }
       }
@@ -630,23 +562,6 @@
         }
       }
     },
-    "activity.hintOpened" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filled at"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ejecutada a"
-          }
-        }
-      }
-    },
     "activity.hintQuantity" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -660,57 +575,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cantidad"
-          }
-        }
-      }
-    },
-    "activity.hintResultR" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Result in R"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resultado en R"
-          }
-        }
-      }
-    },
-    "activity.hintSends" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Times the entry was sent"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Veces que se envió la entrada"
-          }
-        }
-      }
-    },
-    "activity.hintStop" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Broker stop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop en el bróker"
           }
         }
       }
@@ -732,57 +596,6 @@
         }
       }
     },
-    "activity.hintWhatIfEntry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What-if entry"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrada hipotética"
-          }
-        }
-      }
-    },
-    "activity.hintWhatIfStop" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What-if stop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop hipotético"
-          }
-        }
-      }
-    },
-    "activity.hintWhen" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When, and how many times"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuándo y cuántas veces"
-          }
-        }
-      }
-    },
     "activity.hintWins" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -800,6 +613,40 @@
         }
       }
     },
+    "activity.ifTaken" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If taken:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si se tomaran:"
+          }
+        }
+      }
+    },
+    "activity.ifTakenResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If taken: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si se tomara: %@"
+          }
+        }
+      }
+    },
     "activity.journal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -813,6 +660,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diario"
+          }
+        }
+      }
+    },
+    "activity.lastPrice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "last %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "último %@"
           }
         }
       }
@@ -1021,6 +885,23 @@
         }
       }
     },
+    "activity.notRecorded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not recorded"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin registrar"
+          }
+        }
+      }
+    },
     "activity.notTaken" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1034,6 +915,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No tomadas"
+          }
+        }
+      }
+    },
+    "activity.notTakenCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld not taken"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld no tomadas"
           }
         }
       }
@@ -1102,6 +1000,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Señales no tomadas"
+          }
+        }
+      }
+    },
+    "activity.nowPrice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "now %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ahora %@"
           }
         }
       }
@@ -1208,6 +1123,23 @@
         }
       }
     },
+    "activity.positionOpenHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the position"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la posición"
+          }
+        }
+      }
+    },
     "activity.previousMonth" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1221,23 +1153,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mes anterior"
-          }
-        }
-      }
-    },
-    "activity.refusedTag" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "REFUSED"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "RECHAZADA"
           }
         }
       }
@@ -1344,19 +1259,19 @@
         }
       }
     },
-    "activity.sends" : {
+    "activity.sentTimes" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "×%lld"
+            "value" : "sent ×%lld"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "×%lld"
+            "value" : "enviada ×%lld"
           }
         }
       }
@@ -1378,23 +1293,6 @@
         }
       }
     },
-    "activity.stopAfter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "stop confirmed in %@ s"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "stop confirmado en %@ s"
-          }
-        }
-      }
-    },
     "activity.stopDetail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1412,19 +1310,87 @@
         }
       }
     },
-    "activity.tooLateTag" : {
+    "activity.tooLateDetail" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TOO LATE"
+            "value" : "Decided after its minute, while the bot protected a new position"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TARDE"
+            "value" : "Decidida después de su minuto, mientras el bot protegía una posición nueva"
+          }
+        }
+      }
+    },
+    "activity.tooLateTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too late to act on"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Llegó demasiado tarde"
+          }
+        }
+      }
+    },
+    "activity.tradeDetails" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles"
+          }
+        }
+      }
+    },
+    "activity.tradeExit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salida"
+          }
+        }
+      }
+    },
+    "activity.tradeOpenHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the trade's details"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre los detalles de la operación"
           }
         }
       }
@@ -1446,53 +1412,70 @@
         }
       }
     },
-    "activity.whatIf" : {
+    "activity.whatIfLevels" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "what-if entry %1$@ · stop %2$@"
+            "value" : "What-if %@ · stop %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "entrada hipotética %1$@ · stop %2$@"
+            "value" : "Simulada %@ · stop %@"
           }
         }
       }
     },
-    "activity.whatIfTag" : {
+    "activity.whatIfNote" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "what-if"
+            "value" : "Replayed once on the day's bars with the stop and exit rule, gross before fees"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "hipotética"
+            "value" : "Simulada una vez con las barras del día, el stop y la regla de salida, antes de comisiones"
           }
         }
       }
     },
-    "activity.wouldHaveMade" : {
+    "activity.whatIfNoteRepeats" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "would have made %@"
+            "value" : "Repeats are one card, replayed once on the day's bars with the stop and exit rule, gross before fees"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "habría ganado %@"
+            "value" : "Las repeticiones son una tarjeta, simulada una vez con las barras del día, el stop y la regla de salida, antes de comisiones"
+          }
+        }
+      }
+    },
+    "activity.worstWhileOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Worst while open, at least"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peor mientras estuvo abierta, como mínimo"
           }
         }
       }
@@ -2228,6 +2211,23 @@
         }
       }
     },
+    "chart.activity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activity"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actividad"
+          }
+        }
+      }
+    },
     "chart.axis.line" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2309,6 +2309,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Velas no disponibles"
+          }
+        }
+      }
+    },
+    "chart.bought" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bought %1$@ @ %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compradas %1$@ @ %2$@"
+          }
+        }
+      }
+    },
+    "chart.boughtSold" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bought %1$@ @ %2$@ → sold %3$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compradas %1$@ @ %2$@ → vendidas %3$@"
           }
         }
       }
@@ -3329,13 +3363,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No closed trades on this symbol this day."
+            "value" : "No trades this day"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No hay operaciones cerradas en este símbolo este día."
+            "value" : "Sin operaciones este día"
+          }
+        }
+      }
+    },
+    "chart.openResult" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "abierta"
           }
         }
       }
@@ -3846,6 +3897,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Operaciones"
+          }
+        }
+      }
+    },
+    "chart.tradesIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trades in %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operaciones en %@"
           }
         }
       }
@@ -4468,13 +4536,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot ends gracefully: entry orders are cancelled and broker stops stay. Open positions stay open under DAY stops, and nothing closes them at the session's end. Start it again from Settings."
+            "value" : "It stays stopped, also tomorrow, until you press Start bot in Settings. Refused while a trade is open or entering: close it first. Face ID confirms."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El bot termina de forma ordenada: se cancelan las órdenes de entrada y los stops del bróker se quedan. Las posiciones abiertas siguen abiertas con stops DAY, y nada las cierra al final de la sesión. Vuelve a iniciarlo desde Ajustes."
+            "value" : "Sigue detenido, también mañana, hasta que pulses Iniciar bot en Ajustes. Se rechaza mientras haya una operación abierta o entrando: ciérrala primero. Face ID lo confirma."
           }
         }
       }
