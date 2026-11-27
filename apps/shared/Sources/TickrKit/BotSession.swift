@@ -58,6 +58,13 @@ public struct BotTokens: Codable, Hashable, Sendable {
 }
 
 /// Why a sign-in ended on its own (not by signing out here): what the sign-in screen says.
+extension BotTokens {
+  /// The pair kept in `keychain`; nil without one, or for a token the pairing left (not a pair).
+  public static func kept(in keychain: Keychain) -> BotTokens? {
+    keychain.readToken().flatMap { try? JSONDecoder().decode(BotTokens.self, from: Data($0.utf8)) }
+  }
+}
+
 public enum SignInEnd: Equatable, Sendable {
   /// It ran out, or a renewal's answer was lost.
   case expired
@@ -152,7 +159,7 @@ public actor BotSession {
   private func current() -> BotTokens? {
     if !loaded {
       loaded = true
-      tokens = keychain.readToken().flatMap { try? JSONDecoder().decode(BotTokens.self, from: Data($0.utf8)) }
+      tokens = BotTokens.kept(in: keychain)
     }
     return tokens
   }

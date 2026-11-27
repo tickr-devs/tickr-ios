@@ -54,61 +54,6 @@ import TickrKit
   }
 }
 
-/// Saving a connection deletes the token only when it has none to keep (a sign-out): a write the
-/// Keychain refuses leaves the earlier sign-in whole, and a token is loaded only for the address
-/// it was issued by.
-@Suite(.serialized) struct ConnectionSaveTests {
-  private static let earlier = "token-earlier"
-  private static let later = "token-later"
-  /// UserDefaults suite of these tests only.
-  private static let suite = "ConnectionSaveTests"
-
-  private func defaults() throws -> UserDefaults {
-    let defaults = try #require(UserDefaults(suiteName: Self.suite))
-    defaults.removePersistentDomain(forName: Self.suite)
-    return defaults
-  }
-
-  @Test func aRefusedWriteKeepsTheEarlierSignIn() throws {
-    let items = MemoryItems(stored: Self.earlier, updateStatus: errSecInteractionNotAllowed)
-    let defaults = try defaults()
-    Connection(token: Self.later).save(defaults, keychain: Keychain(items: items))
-    #expect(Keychain(items: items).readToken() == Self.earlier)
-    #expect(defaults.string(forKey: Connection.tokenAddressKey) == nil)
-    #expect(!items.calls.contains(.delete))
-  }
-
-  @Test func aSavedTokenLoadsForTheBot() throws {
-    let items = MemoryItems(stored: Self.earlier)
-    let defaults = try defaults()
-    Connection(token: Self.later).save(defaults, keychain: Keychain(items: items))
-    let loaded = Connection.load(defaults, keychain: Keychain(items: items))
-    #expect(loaded.token == Self.later && loaded.bearer == Self.later)
-    #expect(loaded.url == BotAddress.url)
-  }
-
-  @Test func signingOutDeletesTheToken() throws {
-    let items = MemoryItems(stored: Self.earlier)
-    let defaults = try defaults()
-    Connection(token: Self.earlier).save(defaults, keychain: Keychain(items: items))
-    Connection().save(defaults, keychain: Keychain(items: items))
-    #expect(Keychain(items: items).readToken() == nil)
-    #expect(defaults.string(forKey: Connection.tokenAddressKey) == nil)
-  }
-
-  /// A phone that paired with the Mac keeps that token in the Keychain with no bot address saved:
-  /// it is deleted, never sent to the bot.
-  @Test func aPairingTokenIsDeletedNotSentToTheBot() throws {
-    let items = MemoryItems(stored: Self.earlier)
-    let defaults = try defaults()
-    defaults.set("https://mac.tailnet.ts.net", forKey: "apiPairedAddress")
-    let loaded = Connection.load(defaults, keychain: Keychain(items: items))
-    #expect(loaded.token == nil && loaded.url == nil)
-    #expect(Keychain(items: items).readToken() == nil)
-    #expect(defaults.string(forKey: "apiPairedAddress") == nil)
-  }
-}
-
 /// One generic-password item in memory, with the status each write answers.
 private final class MemoryItems: KeychainItems {
   enum Call: Equatable { case update, add, delete }

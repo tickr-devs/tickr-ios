@@ -9848,155 +9848,70 @@
         }
       }
     },
-    "signin.account" : {
+    "signin.connection" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Account"
+            "value" : "Connection"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuenta"
+            "value" : "Conexión"
           }
         }
       }
     },
-    "signin.address" : {
+    "signin.signedInIPad" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot"
+            "value" : "Signed in as %@ on this iPad"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot"
+            "value" : "Sesión iniciada como %@ en este iPad"
           }
         }
       }
     },
-    "signin.footer" : {
+    "signin.signedInIPhone" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign in once with your tickr.bot account and passkey. This phone then keeps its own key to the bot in its Keychain; signing out removes it here and on the bot."
+            "value" : "Signed in as %@ on this iPhone"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inicia sesión una vez con tu cuenta de tickr.bot y tu llave de acceso. Este teléfono guarda entonces su propia clave del bot en su Llavero; al cerrar sesión se borra aquí y en el bot."
+            "value" : "Sesión iniciada como %@ en este iPhone"
           }
         }
       }
     },
-    "signin.notSaved" : {
+    "signin.signedInNoEmail" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Not signed in: the phone's Keychain did not keep the key. Unlock the phone and try again."
+            "value" : "Signed in on this device"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sin sesión: el Llavero del teléfono no guardó la clave. Desbloquea el teléfono e inténtalo de nuevo."
-          }
-        }
-      }
-    },
-    "signin.refused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not signed in: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin sesión: %@"
-          }
-        }
-      }
-    },
-    "signin.signedIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Signed in to the bot"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sesión iniciada en el bot"
-          }
-        }
-      }
-    },
-    "signin.signedOut" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not signed in"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin sesión"
-          }
-        }
-      }
-    },
-    "signin.signIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in with tickr.bot"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Iniciar sesión con tickr.bot"
-          }
-        }
-      }
-    },
-    "signin.signingIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Signing in"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Iniciando sesión"
+            "value" : "Sesión iniciada en este dispositivo"
           }
         }
       }
@@ -10007,7 +9922,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign out"
+            "value" : "Sign Out"
           }
         },
         "es" : {
@@ -10018,36 +9933,53 @@
         }
       }
     },
+    "signin.signOutIPad" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out of tickr.bot on this iPad?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cerrar la sesión de tickr.bot en este iPad?"
+          }
+        }
+      }
+    },
+    "signin.signOutIPhone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out of tickr.bot on this iPhone?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cerrar la sesión de tickr.bot en este iPhone?"
+          }
+        }
+      }
+    },
     "signin.signOutMessage" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The bot forgets this phone's key. Sign in again to read the bot."
+            "value" : "The bot revokes this device's key. Other devices stay signed in, and the bot keeps running."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El bot olvida la clave de este teléfono. Vuelve a iniciar sesión para ver el bot."
-          }
-        }
-      }
-    },
-    "signin.signOutTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign this phone out?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Cerrar sesión en este teléfono?"
+            "value" : "El bot revoca la clave de este dispositivo. Los demás dispositivos siguen conectados y el bot sigue funcionando."
           }
         }
       }

@@ -108,9 +108,9 @@ extension L10n {
     LocalizedStringResource("kit.signIn.unreachable",
       defaultValue: "tickr.bot cannot be reached; check the connection and try again", bundle: bundle)
   }
-  /// Why a sign-in ended: tickr.bot's token endpoint did not take the code.
-  static var signInCodeRefused: LocalizedStringResource {
-    LocalizedStringResource("kit.signIn.codeRefused",
-      defaultValue: "tickr.bot did not accept the sign-in code; sign in again", bundle: bundle)
+  /// Why an emailed code was refused for good: the third wrong try ended it.
+  static var accountCodeSpent: LocalizedStringResource {
+    LocalizedStringResource("kit.signIn.codeSpent",
+      defaultValue: "This code can't be used any more; send a new one", bundle: bundle)
   }
 }

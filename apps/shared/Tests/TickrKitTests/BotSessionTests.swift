@@ -193,6 +193,12 @@ final class Ends: Sendable {
     #expect(ends.all == [.revoked] && items.text == nil)
   }
 
+  @Test func aTokenThePairingLeftIsNoSignIn() async {
+    #expect(Keychain(items: items).saveToken("a-pairing-token"))
+    #expect(BotTokens.kept(in: Keychain(items: items)) == nil)
+    await #expect(throws: BotSessionError.signInAgain) { try await session(ScriptedTransport([])).accessToken() }
+  }
+
   @Test func theClientCarriesTheCurrentAccessToken() async throws {
     let transport = ScriptedTransport([.http(204, "")])
     let bot = session(transport)

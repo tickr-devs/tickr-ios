@@ -65,10 +65,10 @@ extension Container {
   }
 
   /// Whether the screens show the sign-in (`SignInState`): signed in when the Keychain holds the
-  /// bot's tokens at launch.
+  /// bot's pair of tokens at launch (a token the pairing left is no sign-in).
   @MainActor
   public var signInState: Factory<SignInState> {
-    self { SignInState(signedIn: self.keychain().readToken() != nil) }.cached
+    self { SignInState(signedIn: BotTokens.kept(in: self.keychain()) != nil) }.cached
   }
 
   /// A new sign-in with the owner's tickr.bot account for this app (`AccountSignIn`).

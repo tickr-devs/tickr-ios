@@ -27,9 +27,4 @@ extension Defaults {
     }
     return BotAddress.url
   }
-
-  /// This Mac's token for `url`: the one in its Keychain, for the bot's address only.
-  static func token(for url: URL) -> String? {
-    url == BotAddress.url ? Container.shared.keychain().readToken() : nil
-  }
 }

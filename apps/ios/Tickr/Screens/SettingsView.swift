@@ -1,4 +1,3 @@
-import AuthenticationServices
 import SwiftUI
 import TickrDesign
 import TickrKit
@@ -10,8 +9,6 @@ struct SettingsView: View {
   static let versionKey = "CFBundleShortVersionString"
   /// Symbols of the rows' icons.
   static let statusSymbol = "antenna.radiowaves.left.and.right"
-  static let addressSymbol = "server.rack"
-  static let signInSymbol = "person.badge.key.fill"
   static let signOutSymbol = "rectangle.portrait.and.arrow.right"
   static let stateSymbol = "power"
   static let startSymbol = "play.fill"
@@ -30,8 +27,8 @@ struct SettingsView: View {
   @Environment(AppModel.self) private var model
   @Environment(\.dismiss) private var dismiss
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @Environment(\.webAuthenticationSession) private var webAuthenticationSession
   @State private var confirmSignOut = false
+  @State private var signIn = Container.shared.signInState()
   @State private var showControl = false
   @State private var confirmStart = false
 
@@ -108,7 +105,8 @@ struct SettingsView: View {
     .onChange(of: model.canStartBot) { _, enabled in
       if !enabled { confirmStart = false }
     }
-    .confirmationDialog(Text(L10n.SignIn.signOutTitle), isPresented: $confirmSignOut, titleVisibility: .visible) {
+    .confirmationDialog(Text(Self.isPad ? L10n.SignIn.signOutIPad : L10n.SignIn.signOutIPhone),
+      isPresented: $confirmSignOut, titleVisibility: .visible) {
       Button(role: .destructive) {
         Task { await model.signOut() }
       } label: {
@@ -177,13 +175,15 @@ struct SettingsView: View {
     }
   }
 
-  /// Where the bot is: its address (built into the app), the connection's state, and signing
-  /// this phone in or out with the owner's tickr.bot account.
+  /// The design's "Connection" (mockup v174, IOSSystem): who this phone is signed in as, the
+  /// link's state, and Sign Out (confirmed). A development address shows only the state.
   private var connectionCard: some View {
-    SettingsCard(L10n.SignIn.account, note: L10n.SignIn.footer) {
-      SettingsRow(L10n.SignIn.address, systemImage: Self.addressSymbol, tone: .info) {
-        Text(verbatim: model.connection.address.host() ?? model.connection.address.absoluteString)
-          .font(.body.monospaced())
+    SettingsCard(L10n.SignIn.connection) {
+      if model.connection.signedIn {
+        Text(signedInLine)
+          .font(.subheadline)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
       }
       SettingsRow(L10n.Settings.status, systemImage: Self.statusSymbol, tone: connectionState.tone) {
         StatusPill(connectionState.text, tone: connectionState.tone)
@@ -192,30 +192,20 @@ struct SettingsView: View {
         Button(role: .destructive) { confirmSignOut = true } label: {
           Label { Text(L10n.SignIn.signOut) } icon: { SettingsIcon(Self.signOutSymbol, tone: .loss) }
         }
-      } else {
-        Button(action: signIn) {
-          Label { Text(L10n.SignIn.signIn) } icon: { Image(systemName: Self.signInSymbol) }
-        }
-        .buttonStyle(.command(.primary))
-        .fixedSize(horizontal: false, vertical: true)
-        .inFlight(model.signingIn ? Text(L10n.SignIn.signingIn) : nil)
       }
     }
   }
 
-  /// Opens tickr.bot's sign-in in the system's sheet, which comes back to the app's own scheme.
-  private func signIn() {
-    let session = webAuthenticationSession
-    Task {
-      await model.signIn { page in
-        try await session.authenticate(using: page, callback: .customScheme(SignIn.callbackScheme),
-          additionalHeaderFields: [:])
-      }
-    }
+  /// Whether this is an iPad (the texts name the device).
+  private static var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+
+  private var signedInLine: LocalizedStringResource {
+    guard let email = signIn.email else { return L10n.SignIn.signedInNoEmail }
+    return Self.isPad ? L10n.SignIn.signedInIPad(email) : L10n.SignIn.signedInIPhone(email)
   }
 
   private var connectionState: (text: LocalizedStringResource, tone: Tone) {
-    if !model.isConfigured { return (L10n.SignIn.signedOut, .warning) }
+    if !model.isConfigured { return (L10n.Settings.notReachable, .warning) }
     if model.fetchError != nil { return (L10n.Settings.notReachable, .loss) }
     if model.response == nil { return (L10n.Settings.connecting, .neutral) }
     if model.status == nil || model.response?.stale == true { return (L10n.Settings.notCurrent, .warning) }

@@ -1,6 +1,5 @@
 #if os(macOS)
 import AppKit
-import AuthenticationServices
 import SwiftUI
 import TickrDesign
 import TickrKit
@@ -92,15 +91,10 @@ struct SettingsView: View {
 
 private struct GeneralSettings: View {
   @Environment(AppModel.self) private var model
-  @Environment(\.webAuthenticationSession) private var webAuthenticationSession
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
-  /// A sign-in is under way: its button waits.
-  @State private var signingIn = false
-  /// Why the last sign-in ended without a token; nil after a sign-in or a sign-out.
-  @State private var signInFailure: String?
-
-  /// The name the bot lists a Mac under when the system gives it none.
-  static let macName = "mac"
+  @State private var signIn = Container.shared.signInState()
+  /// The sign-out question is open.
+  @State private var askingSignOut = false
 
   var body: some View {
     Group {
@@ -119,92 +113,56 @@ private struct GeneralSettings: View {
     }
   }
 
-  /// The design's "Bot connection": the bot's address (built into the app) with Sign in or Sign
-  /// out, the connection's state under it with a dot; how the sign-in works is the label's tooltip.
+  /// The design's "Connection" (mockup v174, MacSystem > General): who this Mac is signed in as,
+  /// the bot's address (built into the app) with the link's state, and Sign Out with what it
+  /// does. A development address shows only its address and state.
   private var connection: some View {
     let reachable = model.fetchError == nil
-    let signedIn = model.token != nil
-    return SettingsCard(L10n.Settings.botConnection, info: L10n.Settings.signInFootnote) {
+    let ownAddress = model.address == BotAddress.url
+    return SettingsCard(L10n.SignIn.connection) {
+      if ownAddress, model.signedIn {
+        Text(signIn.email.map { L10n.SignIn.signedInMac($0) } ?? L10n.SignIn.signedInNoEmail)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textPrimary)
+      }
       HStack(spacing: Tokens.Space.s) {
-        Text(L10n.Settings.apiAddress)
+        Text(L10n.SignIn.bot)
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.textTertiary)
           .fixedSize()
         Text(verbatim: model.address.host() ?? model.address.absoluteString)
           .font(Tokens.Typography.calloutMono)
           .textSelection(.enabled)
-        Spacer()
-        if model.address == BotAddress.url {
-          if signedIn {
-            Button(String(localized: L10n.Settings.signOut)) { Task { await signOut() } }
-              .buttonStyle(.action(.secondary, size: .compact))
-          } else {
-            Button(String(localized: L10n.Settings.signIn)) { Task { await signIn() } }
-              .buttonStyle(.action(.primary, size: .compact))
-              .keyboardShortcut(.defaultAction)
-              .disabled(signingIn)
-          }
-        }
-      }
-      HStack(spacing: Tokens.Space.s) {
-        if let failure = signInFailure {
-          PulseDot(Palette.loss, event: failure)
-          Text(L10n.Settings.signInFailed(failure))
-            .foregroundStyle(Palette.lossText)
-        } else if !signedIn && model.address == BotAddress.url {
-          PulseDot(Palette.warning, event: signedIn)
-          Text(L10n.Settings.signedOut)
-            .foregroundStyle(Palette.warningText)
-        } else {
-          // One pulse when the bot becomes reachable or unreachable, never per read.
+        Spacer(minLength: Tokens.Space.s)
+        // One pulse when the bot becomes reachable or unreachable, never per read.
+        HStack(spacing: Tokens.Space.xs) {
           PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
-          Group {
-            if let error = model.fetchError {
-              ReadFailureNote(L10n.Settings.notReachable, detail: error, tone: .loss, defersToConnection: false)
-            } else {
-              Text(L10n.Settings.connectedTo(model.baseURL.absoluteString))
-            }
+          if let error = model.fetchError {
+            ReadFailureNote(L10n.Settings.notReachable, detail: error, tone: .loss, defersToConnection: false)
+          } else {
+            Text(L10n.Settings.connectedTo(model.baseURL.absoluteString))
           }
-          .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
+        }
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
+      }
+      if ownAddress, model.signedIn {
+        HStack(spacing: Tokens.Space.m) {
+          Button(String(localized: L10n.SignIn.signOut)) { askingSignOut = true }
+            .buttonStyle(.action(.secondary, size: .compact))
+          Text(L10n.SignIn.outHintMac)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
         }
       }
-      .font(Tokens.Typography.callout)
     }
-  }
-
-  /// Signs this Mac in with the owner's tickr.bot account (`SignIn`): the system's sheet, the
-  /// grant, then this Mac's token from the bot, kept in the Keychain. Closing the sheet says nothing.
-  private func signIn() async {
-    signingIn = true
-    defer { signingIn = false }
-    let signIn = SignIn(client: .mac)
-    do {
-      let callback = try await webAuthenticationSession.authenticate(using: signIn.authorizeURL,
-        callback: .customScheme(SignIn.callbackScheme), additionalHeaderFields: [:])
-      let token = try await signIn.deviceToken(callback: callback,
-        name: Host.current().localizedName ?? Self.macName)
-      guard Container.shared.keychain().saveToken(token) else {
-        signInFailure = String(localized: L10n.Settings.keychainRefused)
-        return
-      }
-      signInFailure = nil
-      model.use(token: token)
-    } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
-      return
-    } catch let error as SignInError {
-      signInFailure = String(localized: error.reason)
-    } catch {
-      signInFailure = ErrorText.text(error)
+    .alert(Text(L10n.SignIn.outQuestionMac), isPresented: $askingSignOut) {
+      Button(role: .destructive) { Task { await DeviceSignOut.run() } } label: { Text(L10n.SignIn.signOut) }
+      Button(role: .cancel) {} label: { Text(L10n.SignIn.cancel) }
+    } message: {
+      Text(L10n.SignIn.outBody)
     }
-  }
-
-  /// Signs this Mac out: the bot forgets its token (DELETE /session) and the Keychain drops it,
-  /// even when the bot cannot be reached, so the Mac never keeps a token the owner let go of.
-  private func signOut() async {
-    try? await Container.shared.apiClient(model.endpoint).signOut()
-    Container.shared.keychain().deleteToken()
-    signInFailure = nil
-    model.use(token: nil)
   }
 }
 

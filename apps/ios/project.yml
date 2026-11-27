@@ -97,6 +97,8 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
+        # tickr.bot's passkeys for the native sign-in (associated domain webcredentials:tickr.bot).
+        CODE_SIGN_ENTITLEMENTS: Support/Tickr.entitlements
         ENABLE_PREVIEWS: YES
   # Swift Testing tests of the screens' logic (Tests/TickrTests), hosted in the app so they can
   # reach its internal types with @testable import.

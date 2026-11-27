@@ -48,6 +48,8 @@ public actor AccountSignIn {
   static let pending = 401
   static let badRequest = 400
   static let forbidden = 403
+  /// A code flow that is gone: the third wrong code ended it, so a new code is needed.
+  static let conflict = 409
   /// The flows a 401 names as pending.
   static let codeFlow = "login_by_code"
   static let secondFactorFlow = "mfa_authenticate"
@@ -123,7 +125,7 @@ public actor AccountSignIn {
     do {
       let grant = try await self.grant()
       let answer = try await APIClient(baseURL: BotAddress.url, transport: transport)
-        .signIn(grant: grant.grant, name: SignIn.deviceName(name))
+        .signIn(grant: grant.grant, name: DeviceName.of(name))
       await signOutOfSite()
       return (answer, grant.email)
     } catch {
@@ -173,10 +175,14 @@ public actor AccountSignIn {
 
   private func send(_ path: String, body: Data?) async throws(AccountError) -> Envelope {
     let (data, status) = try await exchange(request(path, body: body))
-    guard let envelope = try? JSONDecoder().decode(Envelope.self, from: data) else { throw .unreadable }
+    guard let envelope = try? JSONDecoder().decode(Envelope.self, from: data) else {
+      if status == Self.conflict, path == Self.codeConfirmPath { throw .codeSpent }
+      throw .unreadable
+    }
     if let token = envelope.meta?.sessionToken { sessionToken = token }
     if status == Self.ok || status == Self.pending { return envelope.with(status: status) }
-    if let message = envelope.errors?.first?.message { throw .message(message) }
+    if status == Self.conflict, path == Self.codeConfirmPath { throw .codeSpent }
+    if let failure = envelope.errors?.first { throw .refused(code: failure.code, message: failure.message) }
     throw .unreadable
   }
 
@@ -242,7 +248,11 @@ struct HeadlessMeta: Decodable {
   enum CodingKeys: String, CodingKey { case sessionToken = "session_token" }
 }
 
-struct HeadlessFailure: Decodable { let message: String }
+struct HeadlessFailure: Decodable {
+  let message: String
+  /// allauth's code of the refusal (`AccountError.Refusal`); absent in some answers.
+  let code: String?
+}
 
 struct HeadlessFlow: Decodable {
   let id: String
@@ -305,8 +315,11 @@ public enum SecondFactor: String, Equatable, Sendable {
 
 /// Why a sign-in step did not go through.
 public enum AccountError: Error, Equatable, Sendable {
-  /// tickr.bot's own words, already in the person's language (a wrong password, a wrong code).
-  case message(String)
+  /// tickr.bot refused a value: allauth's code (`Refusal`) and its own words, already in the
+  /// person's language.
+  case refused(code: String?, message: String)
+  /// The emailed code can no longer be confirmed (the third wrong try ended it): send a new one.
+  case codeSpent
   /// The sign-in used a password or a code only: the bot needs a passkey or an authenticator.
   case needsPasskeyOrAuthenticator
   /// This account may not reach the bot.
@@ -321,11 +334,46 @@ extension AccountError {
   /// What the person reads.
   public var text: String {
     switch self {
-    case .message(let words): words
+    case .refused(_, let words): words
+    case .codeSpent: String(localized: L10n.accountCodeSpent)
     case .needsPasskeyOrAuthenticator: String(localized: L10n.accountNeedsStrongFactor)
     case .notAllowed: String(localized: L10n.signInAccountRefused)
     case .unreachable: String(localized: L10n.accountUnreachable)
     case .unreadable: String(localized: L10n.signInBadAnswer)
     }
+  }
+}
+
+extension AccountError {
+  /// The refusals the sign-in screen tells apart, by allauth's codes.
+  public enum Refusal: Equatable, Sendable {
+    case wrongPassword, tooMany, wrongCode, other
+
+    /// allauth's codes (headless `errors[].code`).
+    static let wrongPasswordCodes: Set<String> = ["email_password_mismatch", "password_mismatch"]
+    static let tooManyCodes: Set<String> = ["too_many_login_attempts", "rate_limited"]
+    static let wrongCodeCodes: Set<String> = ["incorrect_code", "invalid_code"]
+
+    init(_ code: String?) {
+      guard let code else {
+        self = .other
+        return
+      }
+      if Self.wrongPasswordCodes.contains(code) {
+        self = .wrongPassword
+      } else if Self.tooManyCodes.contains(code) {
+        self = .tooMany
+      } else if Self.wrongCodeCodes.contains(code) {
+        self = .wrongCode
+      } else {
+        self = .other
+      }
+    }
+  }
+
+  /// Which refusal this is, for a refused value; nil for every other error.
+  public var refusal: Refusal? {
+    guard case .refused(let code, _) = self else { return nil }
+    return Refusal(code)
   }
 }

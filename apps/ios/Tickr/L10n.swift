@@ -104,49 +104,38 @@ enum L10n {
     }
   }
 
+  /// Settings' Connection card (mockup v174, board IOSSystem); the sign-in itself is TickrScreens'.
   enum SignIn {
-    static var signingIn: LocalizedStringResource {
-      LocalizedStringResource("signin.signingIn", defaultValue: "Signing in", bundle: L10n.bundle)
+    static var connection: LocalizedStringResource {
+      LocalizedStringResource("signin.connection", defaultValue: "Connection", bundle: L10n.bundle)
     }
-    static var account: LocalizedStringResource {
-      LocalizedStringResource("signin.account", defaultValue: "Account", bundle: L10n.bundle)
-    }
-    static var address: LocalizedStringResource {
-      LocalizedStringResource("signin.address", defaultValue: "Bot", bundle: L10n.bundle)
-    }
-    static var footer: LocalizedStringResource {
-      LocalizedStringResource("signin.footer",
-        // swiftlint:disable:next line_length
-        defaultValue: "Sign in once with your tickr.bot account and passkey. This phone then keeps its own key to the bot in its Keychain; signing out removes it here and on the bot.",
+    static func signedInIPhone(_ email: String) -> LocalizedStringResource {
+      LocalizedStringResource("signin.signedInIPhone", defaultValue: "Signed in as \(email) on this iPhone",
         bundle: L10n.bundle)
     }
-    static var signIn: LocalizedStringResource {
-      LocalizedStringResource("signin.signIn", defaultValue: "Sign in with tickr.bot", bundle: L10n.bundle)
+    static func signedInIPad(_ email: String) -> LocalizedStringResource {
+      LocalizedStringResource("signin.signedInIPad", defaultValue: "Signed in as \(email) on this iPad",
+        bundle: L10n.bundle)
+    }
+    /// When the account's email was not kept.
+    static var signedInNoEmail: LocalizedStringResource {
+      LocalizedStringResource("signin.signedInNoEmail", defaultValue: "Signed in on this device", bundle: L10n.bundle)
     }
     static var signOut: LocalizedStringResource {
-      LocalizedStringResource("signin.signOut", defaultValue: "Sign out", bundle: L10n.bundle)
+      LocalizedStringResource("signin.signOut", defaultValue: "Sign Out", bundle: L10n.bundle)
     }
-    static var signOutTitle: LocalizedStringResource {
-      LocalizedStringResource("signin.signOutTitle", defaultValue: "Sign this phone out?", bundle: L10n.bundle)
+    static var signOutIPhone: LocalizedStringResource {
+      LocalizedStringResource("signin.signOutIPhone", defaultValue: "Sign out of tickr.bot on this iPhone?",
+        bundle: L10n.bundle)
+    }
+    static var signOutIPad: LocalizedStringResource {
+      LocalizedStringResource("signin.signOutIPad", defaultValue: "Sign out of tickr.bot on this iPad?",
+        bundle: L10n.bundle)
     }
     static var signOutMessage: LocalizedStringResource {
       LocalizedStringResource("signin.signOutMessage",
-        defaultValue: "The bot forgets this phone's key. Sign in again to read the bot.",
+        defaultValue: "The bot revokes this device's key. Other devices stay signed in, and the bot keeps running.",
         bundle: L10n.bundle)
-    }
-    static var signedOut: LocalizedStringResource {
-      LocalizedStringResource("signin.signedOut", defaultValue: "Not signed in", bundle: L10n.bundle)
-    }
-    static var signedIn: LocalizedStringResource {
-      LocalizedStringResource("signin.signedIn", defaultValue: "Signed in to the bot", bundle: L10n.bundle)
-    }
-    static var notSaved: LocalizedStringResource {
-      LocalizedStringResource("signin.notSaved",
-        defaultValue: "Not signed in: the phone's Keychain did not keep the key. Unlock the phone and try again.",
-        bundle: L10n.bundle)
-    }
-    static func refused(_ why: String) -> LocalizedStringResource {
-      LocalizedStringResource("signin.refused", defaultValue: "Not signed in: \(why)", bundle: L10n.bundle)
     }
   }
 

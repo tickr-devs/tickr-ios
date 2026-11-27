@@ -383,6 +383,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				CODE_SIGN_ENTITLEMENTS = Support/Tickr.entitlements;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -506,6 +507,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				CODE_SIGN_ENTITLEMENTS = Support/Tickr.entitlements;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

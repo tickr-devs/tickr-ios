@@ -74,9 +74,20 @@ import Testing
 
   @Test func aWrongPasswordShowsTickrBotsOwnWords() async {
     let account = AccountSignIn(client: .ios, transport: ScriptedTransport([.http(400, Self.wrongPassword)]))
-    await #expect(throws: AccountError.message("The email address and/or password you specified are not correct.")) {
+    let words = "The email address and/or password you specified are not correct."
+    await #expect(throws: AccountError.refused(code: "email_password_mismatch", message: words)) {
       try await account.signIn(email: "owner@example.com", password: "no")
     }
+    #expect(AccountError.refused(code: "email_password_mismatch", message: words).refusal == .wrongPassword)
+    #expect(AccountError.refused(code: "too_many_login_attempts", message: "").refusal == .tooMany)
+    #expect(AccountError.refused(code: nil, message: "").refusal == .other)
+  }
+
+  @Test func aSpentCodeAsksForANewOne() async throws {
+    let transport = ScriptedTransport([.http(401, Self.codeSent), .http(409, #"{"status":409}"#)])
+    let account = AccountSignIn(client: .ios, transport: transport)
+    _ = try await account.requestCode(email: "owner@example.com")
+    await #expect(throws: AccountError.codeSpent) { try await account.confirmCode("123456") }
   }
 
   @Test func anEmailedCodeIsRequestedThenConfirmed() async throws {

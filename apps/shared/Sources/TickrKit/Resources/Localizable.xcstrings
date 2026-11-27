@@ -11563,19 +11563,19 @@
         }
       }
     },
-    "kit.signIn.codeRefused" : {
+    "kit.signIn.codeSpent" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "tickr.bot did not accept the sign-in code; sign in again"
+            "value" : "This code can't be used any more; send a new one"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "tickr.bot no aceptó el código de inicio de sesión; vuelve a iniciar sesión"
+            "value" : "Este código ya no se puede usar; envía uno nuevo"
           }
         }
       }
