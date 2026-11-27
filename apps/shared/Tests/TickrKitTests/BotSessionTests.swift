@@ -52,7 +52,6 @@ final class ScriptedTransport: APITransport {
   ) -> (Data, URLResponse) {
     let url = request.url ?? BotAddress.url
     let response = HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: headers)
-    return (Data(body.utf8), response ?? URLResponse())
     }
   }
 }
