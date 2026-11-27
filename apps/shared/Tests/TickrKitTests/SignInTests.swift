@@ -27,7 +27,7 @@ import Testing
     #expect(items(url) == [
       "response_type": "code", "client_id": "tickr-ios", "redirect_uri": "tickr://signin", "scope": "bot",
       "state": Self.state, "code_challenge": Self.challenge, "code_challenge_method": "S256",
-      "resource": "https://bot.tickr.bot",
+      "resource": "https://api.tickr.bot",
     ])
   }
 
@@ -63,7 +63,7 @@ import Testing
     let sent = Dictionary(uniqueKeysWithValues: (form.queryItems ?? []).map { ($0.name, $0.value ?? "") })
     #expect(sent == [
       "grant_type": "authorization_code", "code": "a+b&c", "redirect_uri": "tickr://signin",
-      "client_id": "tickr-ios", "code_verifier": Self.verifier, "resource": "https://bot.tickr.bot",
+      "client_id": "tickr-ios", "code_verifier": Self.verifier, "resource": "https://api.tickr.bot",
     ])
   }
 

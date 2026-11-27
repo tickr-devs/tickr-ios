@@ -32,7 +32,7 @@ open apps/ios/Tickr.xcodeproj
 (or open the root `Tickr.xcworkspace` to have the iOS and macOS apps side by side).
 
 Pick the `Tickr iOS` scheme and an iPhone Simulator, Run. The app reads the bot at
-`https://bot.tickr.bot`, built in, once you sign in with your tickr.bot account (Settings ›
+`https://api.tickr.bot`, built in, once you sign in with your tickr.bot account (Settings ›
 Sign in with tickr.bot). To read a bot running on this Mac instead, run
 `python -m tickr.api pair-simulator` and put the file path it prints in `Config/Local.xcconfig`
 (`TICKR_SIMULATOR_TOKEN_FILE`). To try Face ID in the Simulator: Features ›

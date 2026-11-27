@@ -207,7 +207,7 @@ final class StubProtocol: URLProtocol {
     #expect(paired.token == "example-token-not-a-secret_0123456789-abcdef")
     let sent = try #require(StubProtocol.seen.first)
     #expect(sent.httpMethod == "POST")
-    #expect(sent.url?.absoluteString == "https://bot.tickr.bot/session")
+    #expect(sent.url?.absoluteString == "https://api.tickr.bot/session")
     #expect(sent.value(forHTTPHeaderField: "Authorization") == nil)
     let body = try JSONSerialization.jsonObject(with: StubProtocol.seenBodies[0]) as? [String: String]
     #expect(body == ["grant": "grant", "name": "iPhone"])
@@ -229,7 +229,7 @@ final class StubProtocol: URLProtocol {
     try await remote.signOut()
     let sent = try #require(StubProtocol.seen.first)
     #expect(sent.httpMethod == "DELETE")
-    #expect(sent.url?.absoluteString == "https://bot.tickr.bot/session")
+    #expect(sent.url?.absoluteString == "https://api.tickr.bot/session")
     #expect(sent.value(forHTTPHeaderField: "Authorization") == "Bearer t")
   }
 

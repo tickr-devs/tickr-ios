@@ -6,7 +6,7 @@ import Foundation
 /// tickr.bot account (`SignIn`) and the bot gives this device its own token.
 public enum BotAddress {
   /// The bot's API.
-  public static let url = URL(string: "https://bot.tickr.bot")!
+  public static let url = URL(string: "https://api.tickr.bot")!
 }
 
 /// Signing a device in with the owner's tickr.bot account (docs/api.md, POST /session): OAuth 2.0
