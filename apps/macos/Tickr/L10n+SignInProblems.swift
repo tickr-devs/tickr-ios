@@ -15,8 +15,13 @@ extension L10n.SignIn {
   static var manyTitle: LocalizedStringResource {
     LocalizedStringResource("signIn.manyTitle", defaultValue: "Too many attempts.", bundle: L10n.bundle)
   }
-  static var manyDetail: LocalizedStringResource {
-    LocalizedStringResource("signIn.manyDetail", defaultValue: "Try again in 5 min.", bundle: L10n.bundle)
+  /// `wait`: the time the server named, formatted ("15 min").
+  static func manyWait(_ wait: String) -> LocalizedStringResource {
+    LocalizedStringResource("signIn.manyWait", defaultValue: "Try again in \(wait).", bundle: L10n.bundle)
+  }
+  /// When the server named no time.
+  static var manyLater: LocalizedStringResource {
+    LocalizedStringResource("signIn.manyLater", defaultValue: "Try again later.", bundle: L10n.bundle)
   }
   /// Banner: the grant or the bot refused the account.
   static var noAccountTitle: LocalizedStringResource {

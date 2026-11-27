@@ -9,6 +9,8 @@ import Testing
 final class ScriptedTransport: APITransport {
   enum Answer: Sendable {
     case http(Int, String)
+    /// An answer with these headers too.
+    case headed(Int, String, [String: String])
     case failure(URLError.Code)
   }
 
@@ -39,9 +41,18 @@ final class ScriptedTransport: APITransport {
     case .failure(let code):
       throw URLError(code)
     case .http(let status, let body):
-      let url = request.url ?? BotAddress.url
-      let response = HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: nil)
-      return (Data(body.utf8), response ?? URLResponse())
+      return Self.answer(status, body, nil, to: request)
+    case .headed(let status, let body, let headers):
+      return Self.answer(status, body, headers, to: request)
+    }
+  }
+
+  private static func answer(
+    _ status: Int, _ body: String, _ headers: [String: String]?, to request: URLRequest
+  ) -> (Data, URLResponse) {
+    let url = request.url ?? BotAddress.url
+    let response = HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: headers)
+    return (Data(body.utf8), response ?? URLResponse())
     }
   }
 }

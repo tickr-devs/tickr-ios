@@ -31,6 +31,8 @@ public actor AccountSignIn {
   /// Header and body keys of the API.
   static let sessionHeader = "X-Session-Token"
   static let languageHeader = "Accept-Language"
+  /// The seconds to wait a refusal may name (tickr.bot's rate limit).
+  static let retryAfterHeader = "Retry-After"
   static let contentTypeHeader = "Content-Type"
   static let acceptHeader = "accept"
   static let json = "application/json"
@@ -174,7 +176,7 @@ public actor AccountSignIn {
   }
 
   private func send(_ path: String, body: Data?) async throws(AccountError) -> Envelope {
-    let (data, status) = try await exchange(request(path, body: body))
+    let (data, status, retryAfter) = try await exchange(request(path, body: body))
     guard let envelope = try? JSONDecoder().decode(Envelope.self, from: data) else {
       if status == Self.conflict, path == Self.codeConfirmPath { throw .codeSpent }
       throw .unreadable
@@ -182,15 +184,18 @@ public actor AccountSignIn {
     if let token = envelope.meta?.sessionToken { sessionToken = token }
     if status == Self.ok || status == Self.pending { return envelope.with(status: status) }
     if status == Self.conflict, path == Self.codeConfirmPath { throw .codeSpent }
-    if let failure = envelope.errors?.first { throw .refused(code: failure.code, message: failure.message) }
+    if let failure = envelope.errors?.first {
+      throw .refused(code: failure.code, message: failure.message, retryAfter: retryAfter)
+    }
     throw .unreadable
   }
 
-  private func exchange(_ request: URLRequest) async throws(AccountError) -> (Data, Int) {
+  /// The answer's body, status and `Retry-After` seconds (absent, or not a number of seconds: nil).
+  private func exchange(_ request: URLRequest) async throws(AccountError) -> (Data, Int, Int?) {
     do {
       let (data, response) = try await transport.response(to: request)
       guard let http = response as? HTTPURLResponse else { throw AccountError.unreadable }
-      return (data, http.statusCode)
+      return (data, http.statusCode, http.value(forHTTPHeaderField: Self.retryAfterHeader).flatMap { Int($0) })
     } catch let error as AccountError {
       throw error
     } catch {
@@ -316,8 +321,8 @@ public enum SecondFactor: String, Equatable, Sendable {
 /// Why a sign-in step did not go through.
 public enum AccountError: Error, Equatable, Sendable {
   /// tickr.bot refused a value: allauth's code (`Refusal`) and its own words, already in the
-  /// person's language.
-  case refused(code: String?, message: String)
+  /// person's language; `retryAfter`, the seconds of its `Retry-After` header when it sent one.
+  case refused(code: String?, message: String, retryAfter: Int? = nil)
   /// The emailed code can no longer be confirmed (the third wrong try ended it): send a new one.
   case codeSpent
   /// The sign-in used a password or a code only: the bot needs a passkey or an authenticator.
@@ -334,7 +339,7 @@ extension AccountError {
   /// What the person reads.
   public var text: String {
     switch self {
-    case .refused(_, let words): words
+    case .refused(_, let words, _): words
     case .codeSpent: String(localized: L10n.accountCodeSpent)
     case .needsPasskeyOrAuthenticator: String(localized: L10n.accountNeedsStrongFactor)
     case .notAllowed: String(localized: L10n.signInAccountRefused)
@@ -373,7 +378,7 @@ extension AccountError {
 
   /// Which refusal this is, for a refused value; nil for every other error.
   public var refusal: Refusal? {
-    guard case .refused(let code, _) = self else { return nil }
+    guard case .refused(let code, _, _) = self else { return nil }
     return Refusal(code)
   }
 }

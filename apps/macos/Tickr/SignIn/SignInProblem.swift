@@ -6,7 +6,10 @@ import TickrKit
 /// glyph and tone by cause (mockup v174): pink for a refused value, amber for something to wait
 /// out or fix on the device, blue for a sign-in that ended on its own.
 enum SignInProblem: Equatable {
-  case wrongPassword, tooMany, noAccount, needsStrongFactor, offline, noPasskey, unreadable, keychain
+  case wrongPassword, noAccount, needsStrongFactor, offline, noPasskey, unreadable, keychain
+  /// A rate limit: `wait`, the seconds the server's answer named (`Retry-After`); nil when it
+  /// named none, and the banner then names no time.
+  case tooMany(wait: Int?)
   case codeWrong, authenticatorWrong, codeExpired
   /// A kept sign-in ended on its own (`SignInEnd`).
   case ended(SignInEnd)
@@ -27,7 +30,7 @@ enum SignInProblem: Equatable {
       switch api {
       case .refused(let status, _, let cause):
         if status == unauthorized { return .noAccount }
-        return status == rateLimited ? .tooMany : .refused(cause)
+        return status == rateLimited ? .tooMany(wait: nil) : .refused(cause)
       case .unreachable: return .offline
       default: return .unreadable
       }
@@ -39,10 +42,10 @@ enum SignInProblem: Equatable {
   /// What one of tickr.bot's account errors means; its own name, so `of` can never call itself.
   private static func ofAccount(_ error: AccountError, secondStep: Bool) -> SignInProblem {
     switch error {
-    case .refused(_, let words):
+    case .refused(_, let words, let retryAfter):
       switch error.refusal {
       case .wrongPassword: .wrongPassword
-      case .tooMany: .tooMany
+      case .tooMany: .tooMany(wait: retryAfter)
       case .wrongCode: secondStep ? .authenticatorWrong : .codeWrong
       case .other, nil: .refused(words)
       }
@@ -75,7 +78,10 @@ enum SignInProblem: Equatable {
   func detail(on device: SignInDevice) -> Text {
     switch self {
     case .wrongPassword: Text(L10n.SignIn.wrongDetail)
-    case .tooMany: Text(L10n.SignIn.manyDetail)
+    case .tooMany(let wait?):
+      Text(L10n.SignIn.manyWait(Duration.seconds(wait).formatted(
+        .units(allowed: [.hours, .minutes], width: .abbreviated, fractionalPart: .hide(rounded: .up)))))
+    case .tooMany(nil): Text(L10n.SignIn.manyLater)
     case .noAccount: Text(L10n.SignIn.noAccountDetail)
     case .needsStrongFactor: Text(L10n.SignIn.strongDetail)
     case .offline:

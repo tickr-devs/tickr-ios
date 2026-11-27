@@ -103,6 +103,16 @@ struct SignInModelTests {
     #expect(model.problem == nil && model.step == .main)
   }
 
+  @Test("A rate limit's banner waits as long as tickr.bot said, and names no time when it said none")
+  func rateLimitWait() {
+    let named = AccountError.refused(code: "too_many_login_attempts", message: "", retryAfter: Self.fifteenMinutes)
+    #expect(SignInProblem.of(named) == .tooMany(wait: Self.fifteenMinutes))
+    #expect(SignInProblem.of(AccountError.refused(code: "too_many_login_attempts", message: "")) == .tooMany(wait: nil))
+  }
+
+  /// tickr.bot's login_failed window (5 per 15 min), in seconds.
+  static let fifteenMinutes = 900
+
   @Test("A kept sign-in that ended says why, in blue")
   func endedSignIn() {
     let model = SignInModel(device: .iPad, ended: .revoked)

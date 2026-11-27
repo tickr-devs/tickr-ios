@@ -12490,19 +12490,19 @@
         }
       }
     },
-    "signIn.manyDetail" : {
+    "signIn.manyLater" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Try again in 5 min."
+            "value" : "Try again later."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inténtalo de nuevo en 5 min."
+            "value" : "Inténtalo de nuevo más tarde."
           }
         }
       }
@@ -12520,6 +12520,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Demasiados intentos."
+          }
+        }
+      }
+    },
+    "signIn.manyWait" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again in %@."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inténtalo de nuevo en %@."
           }
         }
       }

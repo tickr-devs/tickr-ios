@@ -83,6 +83,21 @@ import Testing
     #expect(AccountError.refused(code: nil, message: "").refusal == .other)
   }
 
+  @Test func aRateLimitCarriesTheWaitTickrBotNamed() async {
+    let body = #"{"status":429,"errors":[{"message":"Too many failed login attempts.","#
+      + #""code":"too_many_login_attempts"}]}"#
+    let named = AccountSignIn(client: .ios, transport: ScriptedTransport([.headed(429, body, ["Retry-After": "900"])]))
+    await #expect(throws: AccountError.refused(code: "too_many_login_attempts",
+      message: "Too many failed login attempts.", retryAfter: 900)) {
+      try await named.signIn(email: "owner@example.com", password: "no")
+    }
+    let unnamed = AccountSignIn(client: .ios, transport: ScriptedTransport([.http(429, body)]))
+    await #expect(throws: AccountError.refused(code: "too_many_login_attempts",
+      message: "Too many failed login attempts.", retryAfter: nil)) {
+      try await unnamed.signIn(email: "owner@example.com", password: "no")
+    }
+  }
+
   @Test func aSpentCodeAsksForANewOne() async throws {
     let transport = ScriptedTransport([.http(401, Self.codeSent), .http(409, #"{"status":409}"#)])
     let account = AccountSignIn(client: .ios, transport: transport)
