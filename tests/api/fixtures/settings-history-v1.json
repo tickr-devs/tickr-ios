@@ -1,0 +1,112 @@
+{
+  "versions": [
+    {
+      "version": 1,
+      "kind": "apply",
+      "at": "2026-11-16T15:00:00.123Z",
+      "device": "phone",
+      "biometric_confirmed": true,
+      "rollback_to": null,
+      "state": "done",
+      "files": [
+        {
+          "owner": "platform",
+          "file": "config/bot.toml",
+          "digest_before": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "digest_after": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ],
+      "changes": [
+        {
+          "owner": "platform",
+          "key": "risk.max_open_positions",
+          "before": "2",
+          "after": "1",
+          "applies": "at_once",
+          "state": "written",
+          "effective_after": null,
+          "settled_by": null
+        },
+        {
+          "owner": "platform",
+          "key": "risk.max_daily_loss_usd",
+          "before": "50",
+          "after": "60",
+          "applies": "next_session",
+          "state": "promoted",
+          "effective_after": "2026-11-16",
+          "settled_by": 2
+        }
+      ]
+    },
+    {
+      "version": 2,
+      "kind": "promote",
+      "at": "2026-11-17T15:00:00.123Z",
+      "device": "bot",
+      "biometric_confirmed": false,
+      "rollback_to": null,
+      "state": "done",
+      "files": [
+        {
+          "owner": "platform",
+          "file": "config/bot.toml",
+          "digest_before": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "digest_after": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "changes": [
+        {
+          "owner": "platform",
+          "key": "risk.max_daily_loss_usd",
+          "before": "50",
+          "after": "60",
+          "applies": "next_session",
+          "state": "written",
+          "effective_after": null,
+          "settled_by": null
+        }
+      ]
+    },
+    {
+      "version": 3,
+      "kind": "rollback",
+      "at": "2026-11-17T16:00:00.123Z",
+      "device": "local",
+      "biometric_confirmed": false,
+      "rollback_to": 0,
+      "state": "done",
+      "files": [
+        {
+          "owner": "platform",
+          "file": "config/bot.toml",
+          "digest_before": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "digest_after": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "changes": [
+        {
+          "owner": "platform",
+          "key": "risk.max_open_positions",
+          "before": "1",
+          "after": "2",
+          "applies": "at_once",
+          "state": "written",
+          "effective_after": null,
+          "settled_by": null
+        },
+        {
+          "owner": "platform",
+          "key": "risk.max_daily_loss_usd",
+          "before": "60",
+          "after": "50",
+          "applies": "at_once",
+          "state": "written",
+          "effective_after": null,
+          "settled_by": null
+        }
+      ]
+    }
+  ],
+  "api_version": 1
+}

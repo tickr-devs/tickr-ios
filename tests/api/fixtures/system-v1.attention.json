@@ -1,0 +1,89 @@
+{
+  "served_at": "2026-11-16T15:00:00.123Z",
+  "bot_state": "running",
+  "status_stale": false,
+  "broker_link": {
+    "last_read_at": "2026-11-16T14:57:46.123Z",
+    "warn_seconds": "30",
+    "max_age_seconds": "90",
+    "state": "stale",
+    "stream": "lost",
+    "cause": null,
+    "cause_codes": []
+  },
+  "morning_check": {
+    "job": "bot-start",
+    "started_at": "2026-11-16T09:00:00.123Z",
+    "finished_at": "2026-11-16T09:05:00.123Z",
+    "day": "2026-11-16",
+    "outcome": "failed",
+    "blocks_start": true,
+    "cause": "token-unusable",
+    "checks": [
+      {
+        "name": "config",
+        "passed": true,
+        "cause": null
+      },
+      {
+        "name": "token",
+        "passed": false,
+        "cause": "token-unusable"
+      }
+    ]
+  },
+  "morning_check_cause": null,
+  "training": null,
+  "training_cause": "no training job is reporting",
+  "host": {
+    "kind": "mac",
+    "watchdog": {
+      "started_day": null,
+      "last_check_at": "2026-11-13T15:00:00.123Z",
+      "last_check_read": true,
+      "last_check_flat": false,
+      "restarts": [
+        {
+          "at": "2026-11-13T14:45:00.123Z",
+          "outcome": "failed",
+          "early": true,
+          "open_trades": 1,
+          "cause": "restart command exited 113",
+          "cause_codes": [
+            {
+              "code": "restart_command_exited",
+              "params": {
+                "code": "113"
+              }
+            }
+          ]
+        }
+      ],
+      "restart_count": 1,
+      "cause": null,
+      "cause_codes": []
+    },
+    "sleep": {
+      "state": "not_held",
+      "holds": 0,
+      "cause": null,
+      "cause_codes": []
+    }
+  },
+  "host_cause": null,
+  "api_version": 1,
+  "model": {
+    "enabled": false,
+    "bundle": "l1-2026-12-01a",
+    "state": "off",
+    "cause": null
+  },
+  "morning_check_cause_codes": [],
+  "training_cause_codes": [
+    {
+      "code": "no_training_job",
+      "params": {}
+    }
+  ],
+  "host_cause_codes": []
+}

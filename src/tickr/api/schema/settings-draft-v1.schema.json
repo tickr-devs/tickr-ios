@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:settings-draft-v1",
+  "title": "SettingsDraftV1",
+  "type": "object",
+  "properties": {
+    "valid": {
+      "type": "boolean"
+    },
+    "refusals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "cause": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN_KEY",
+              "WRONG_TYPE",
+              "BELOW_MINIMUM",
+              "ABOVE_MAXIMUM",
+              "OFF_STEP",
+              "RULE_BROKEN",
+              "VALUE_MISSING",
+              "ENGINEERING_KEY",
+              "CLOSED_KEY"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner",
+          "key",
+          "cause",
+          "detail"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "current": {
+            "type": "string"
+          },
+          "draft": {
+            "type": "string"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "applies": {
+            "type": "string",
+            "enum": [
+              "at_once",
+              "when_flat",
+              "next_session"
+            ]
+          },
+          "needs_face_id": {
+            "type": "boolean"
+          },
+          "requires_retraining": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "owner",
+          "key",
+          "current",
+          "draft",
+          "changed",
+          "applies",
+          "needs_face_id",
+          "requires_retraining"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "valid",
+    "refusals",
+    "changes",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

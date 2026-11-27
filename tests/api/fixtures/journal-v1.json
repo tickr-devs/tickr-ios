@@ -1,0 +1,31 @@
+{
+  "last_seq": 731,
+  "rows": [
+    {
+      "seq": 728,
+      "at": "2026-11-16T14:59:51.123Z",
+      "kind": "order-intent",
+      "symbol": "ABCD"
+    },
+    {
+      "seq": 729,
+      "at": "2026-11-16T14:59:52.123Z",
+      "kind": "trade-opened",
+      "symbol": "ABCD"
+    },
+    {
+      "seq": 730,
+      "at": "2026-11-16T14:59:56.123Z",
+      "kind": "reconcile-checked",
+      "symbol": null
+    },
+    {
+      "seq": 731,
+      "at": "2026-11-16T15:00:00.123Z",
+      "kind": "stop-from-fill",
+      "symbol": "ABCD"
+    }
+  ],
+  "cause": null,
+  "api_version": 1
+}

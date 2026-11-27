@@ -1,0 +1,44 @@
+{
+  "symbol": "ABCD",
+  "interval": "5m",
+  "range": "1d",
+  "source": "webull",
+  "cached_at": "2026-11-16T14:41:02.250Z",
+  "cause": null,
+  "bars": [
+    {
+      "start": "2026-11-16T14:20:00.000Z",
+      "open": "12.10",
+      "high": "12.18",
+      "low": "12.05",
+      "close": "12.16",
+      "volume": "3120",
+      "extended": true,
+      "session": "pre"
+    },
+    {
+      "start": "2026-11-16T14:25:00.000Z",
+      "open": "12.16",
+      "high": "12.31",
+      "low": "12.15",
+      "close": "12.30",
+      "volume": "5410",
+      "extended": true,
+      "session": "pre"
+    },
+    {
+      "start": "2026-11-16T14:30:00.000Z",
+      "open": "12.30",
+      "high": "12.52",
+      "low": "12.28",
+      "close": "12.47",
+      "volume": "182300",
+      "extended": false,
+      "session": "regular"
+    }
+  ],
+  "pending": null,
+  "previous_after_candles": null,
+  "api_version": 1,
+  "cause_codes": []
+}

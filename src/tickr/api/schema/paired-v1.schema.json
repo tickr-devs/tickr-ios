@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:paired-v1",
+  "title": "PairedV1",
+  "type": "object",
+  "properties": {
+    "token": {
+      "type": "string"
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "token",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

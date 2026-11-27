@@ -1,0 +1,427 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:jobs-v1",
+  "title": "JobsV1",
+  "type": "object",
+  "properties": {
+    "served_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "bot_state": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "starting",
+            "running",
+            "stopping",
+            "stopped"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status_stale": {
+      "type": "boolean"
+    },
+    "bot_started_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reconcile": {
+      "type": "object",
+      "properties": {
+        "interval_seconds": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "last_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "interval_seconds",
+        "last_at",
+        "next_at"
+      ],
+      "additionalProperties": false
+    },
+    "backup": {
+      "type": "object",
+      "properties": {
+        "last_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_failed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_failed_error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cause_codes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "code",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "last_at",
+        "last_failed_at",
+        "last_failed_error",
+        "cause"
+      ],
+      "additionalProperties": false
+    },
+    "launchd": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "local_time": {
+            "type": "string"
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "local_time",
+          "weekdays"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "session": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "day": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+            },
+            "regular_open": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "last_entry_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "flatten_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "regular_close": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "premarket_open": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "extended_close": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            }
+          },
+          "required": [
+            "day",
+            "regular_open",
+            "last_entry_at",
+            "flatten_at",
+            "regular_close",
+            "premarket_open",
+            "extended_close"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "session_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nightly_fetch": {
+      "type": "object",
+      "properties": {
+        "finished_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_day": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "new_sessions": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cause_codes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "code",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "finished_at",
+        "last_day",
+        "new_sessions",
+        "cause"
+      ],
+      "additionalProperties": false
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "session_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "next_session": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "day": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+            },
+            "regular_open": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "regular_close": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "half_day"
+              ]
+            }
+          },
+          "required": [
+            "day",
+            "regular_open",
+            "regular_close",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "next_session_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "next_session_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "served_at",
+    "bot_state",
+    "status_stale",
+    "bot_started_at",
+    "reconcile",
+    "backup",
+    "launchd",
+    "session",
+    "session_cause",
+    "nightly_fetch",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

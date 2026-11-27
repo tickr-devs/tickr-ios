@@ -1,0 +1,195 @@
+{
+  "environment": "sandbox",
+  "day": "2026-11-16",
+  "chips": [
+    {
+      "symbol": "ABCD",
+      "sources": [
+        "GAINERS",
+        "TOP_ACTIVES"
+      ],
+      "change_pct": "12.40",
+      "change_cause": null,
+      "excluded_cause": null,
+      "ranks": [
+        {
+          "kind": "GAINERS",
+          "rank": 3
+        },
+        {
+          "kind": "TOP_ACTIVES",
+          "rank": 11
+        }
+      ],
+      "price": "4.12",
+      "change_cause_codes": [],
+      "excluded_cause_codes": []
+    },
+    {
+      "symbol": "SPY",
+      "sources": [
+        "TOP_ACTIVES"
+      ],
+      "change_pct": "0.31",
+      "change_cause": null,
+      "excluded_cause": "SECURITY_TYPE_NOT_ALLOWED: ETF",
+      "ranks": [
+        {
+          "kind": "TOP_ACTIVES",
+          "rank": 1
+        }
+      ],
+      "price": null,
+      "change_cause_codes": [],
+      "excluded_cause_codes": [
+        {
+          "code": "universe_type",
+          "params": {
+            "measured": "ETF"
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "WXYZ",
+      "sources": [
+        "GAINERS"
+      ],
+      "change_pct": null,
+      "change_cause": "the captured row has no pre_close",
+      "excluded_cause": null,
+      "ranks": [
+        {
+          "kind": "GAINERS",
+          "rank": 7
+        }
+      ],
+      "price": null,
+      "change_cause_codes": [
+        {
+          "code": "row_without_pre_close",
+          "params": {}
+        }
+      ],
+      "excluded_cause_codes": []
+    },
+    {
+      "symbol": "EFGH",
+      "sources": [
+        "LOSERS"
+      ],
+      "change_pct": "-8.05",
+      "change_cause": null,
+      "excluded_cause": null,
+      "ranks": [
+        {
+          "kind": "LOSERS",
+          "rank": 2
+        }
+      ],
+      "price": "0.8125",
+      "change_cause_codes": [],
+      "excluded_cause_codes": []
+    }
+  ],
+  "stages": [
+    {
+      "stage": "screeners",
+      "count": 4,
+      "symbols": [
+        "ABCD",
+        "EFGH",
+        "SPY",
+        "WXYZ"
+      ]
+    },
+    {
+      "stage": "universe",
+      "count": 3,
+      "symbols": [
+        "ABCD",
+        "EFGH",
+        "WXYZ"
+      ]
+    },
+    {
+      "stage": "strategy",
+      "count": 3,
+      "symbols": [
+        "ABCD",
+        "EFGH",
+        "WXYZ"
+      ]
+    },
+    {
+      "stage": "risk",
+      "count": 3,
+      "symbols": [
+        "ABCD",
+        "EFGH",
+        "WXYZ"
+      ]
+    },
+    {
+      "stage": "order",
+      "count": 3,
+      "symbols": [
+        "ABCD",
+        "EFGH",
+        "WXYZ"
+      ]
+    },
+    {
+      "stage": "stop",
+      "count": 1,
+      "symbols": [
+        "WXYZ"
+      ]
+    }
+  ],
+  "stops": [
+    {
+      "trade_id": "t-0001",
+      "symbol": "WXYZ",
+      "state": "verified",
+      "filled_at": null,
+      "stop_confirmed_at": null,
+      "closed_at": null
+    },
+    {
+      "trade_id": "t-0002",
+      "symbol": "EFGH",
+      "state": "never_verified",
+      "filled_at": null,
+      "stop_confirmed_at": null,
+      "closed_at": null
+    },
+    {
+      "trade_id": "t-0003",
+      "symbol": "ABCD",
+      "state": "pending",
+      "filled_at": null,
+      "stop_confirmed_at": null,
+      "closed_at": null
+    }
+  ],
+  "reconcile": {
+    "agreement": "match",
+    "agreement_cause": null,
+    "read_at": "2026-11-16T15:00:00.123Z",
+    "mismatch": null,
+    "fences": [
+      {
+        "kind": "foreign-position:EFGH",
+        "since": "2026-11-16T15:00:00.123Z",
+        "text": "position not opened by this bot",
+        "code": "foreign_position",
+        "params": {}
+      }
+    ],
+    "fences_cause": null,
+    "agreement_cause_codes": [],
+    "fences_cause_codes": []
+  },
+  "api_version": 1
+}
