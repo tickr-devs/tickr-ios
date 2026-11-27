@@ -48,6 +48,11 @@ extension Container {
     self { LiveQuotes() }.cached
   }
 
+  /// Where this device's bot token lives: its Keychain (`Keychain`). Tests give one in memory.
+  public var keychain: Factory<Keychain> {
+    self { Keychain() }
+  }
+
   /// The current moment. Tests pin it.
   public var now: Factory<@Sendable () -> Date> {
     self { { Date() } }
@@ -55,7 +60,7 @@ extension Container {
 }
 
 extension APIClient {
-  /// Where to reach the API: its address and, for a remote address, the pairing token.
+  /// Where to reach the API: its address and, for the bot's address, this device's token.
   public struct Endpoint: Hashable, Sendable {
     public let baseURL: URL
     public let token: String?

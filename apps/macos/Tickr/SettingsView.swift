@@ -1,5 +1,6 @@
 #if os(macOS)
 import AppKit
+import AuthenticationServices
 import SwiftUI
 import TickrDesign
 import TickrKit
@@ -91,16 +92,15 @@ struct SettingsView: View {
 
 private struct GeneralSettings: View {
   @Environment(AppModel.self) private var model
-  @AppStorage(Defaults.apiBaseURL) private var apiBaseURL = APIClient.defaultBaseURL.absoluteString
+  @Environment(\.webAuthenticationSession) private var webAuthenticationSession
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
-  @State private var draft = ""
-  @State private var invalid = false
-  @FocusState private var editing: Bool
+  /// A sign-in is under way: its button waits.
+  @State private var signingIn = false
+  /// Why the last sign-in ended without a token; nil after a sign-in or a sign-out.
+  @State private var signInFailure: String?
 
-  /// URL schemes the local API address may use.
-  static let schemes: Set = ["http", "https"]
-  /// How long after the pane appears the address field's automatic focus is released.
-  static let focusRelease: Duration = .milliseconds(150)
+  /// The name the bot lists a Mac under when the system gives it none.
+  static let macName = "mac"
 
   var body: some View {
     Group {
@@ -117,71 +117,94 @@ private struct GeneralSettings: View {
       MorningCheckSection()
       SystemSection()
     }
-    .onAppear { draft = model.address.absoluteString }
-    .alert(String(localized: L10n.Settings.invalidAddress), isPresented: $invalid) {
-      Button(String(localized: L10n.Settings.ok), role: .cancel) {}
-    } message: {
-      Text(L10n.Settings.enterAddress(APIClient.defaultBaseURL.absoluteString))
-    }
   }
 
-  /// The design's "Bot connection": the address in a mono field with Use Default and Connect, the
-  /// connection's state under it with a dot; what the address may be is the label's tooltip.
+  /// The design's "Bot connection": the bot's address (built into the app) with Sign in or Sign
+  /// out, the connection's state under it with a dot; how the sign-in works is the label's tooltip.
   private var connection: some View {
     let reachable = model.fetchError == nil
-    return SettingsCard(L10n.Settings.botConnection,
-      info: L10n.Settings.addressFootnote(APIClient.defaultBaseURL.absoluteString)) {
+    let signedIn = model.token != nil
+    return SettingsCard(L10n.Settings.botConnection, info: L10n.Settings.signInFootnote) {
       HStack(spacing: Tokens.Space.s) {
         Text(L10n.Settings.apiAddress)
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.textTertiary)
           .fixedSize()
-        TextField(String(localized: L10n.Settings.apiAddress), text: $draft)
-          .labelsHidden()
-          .textFieldStyle(.roundedBorder)
+        Text(verbatim: model.address.host() ?? model.address.absoluteString)
           .font(Tokens.Typography.calloutMono)
-          .focused($editing)
-          .onSubmit(apply)
-        Button(String(localized: L10n.Settings.useDefault)) {
-          draft = APIClient.defaultBaseURL.absoluteString
-          apply()
-        }
-        .buttonStyle(.action(.secondary, size: .compact))
-        // Connect with the same address reads the bot again at once, so it is never off.
-        Button(String(localized: L10n.Settings.connect), action: apply)
-          .buttonStyle(.action(.primary, size: .compact))
-          .keyboardShortcut(.defaultAction)
-      }
-      HStack(spacing: Tokens.Space.s) {
-        // One pulse when the bot becomes reachable or unreachable, never per read.
-        PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
-        Group {
-          if let error = model.fetchError {
-            ReadFailureNote(L10n.Settings.notReachable, detail: error, tone: .loss, defersToConnection: false)
+          .textSelection(.enabled)
+        Spacer()
+        if model.address == BotAddress.url {
+          if signedIn {
+            Button(String(localized: L10n.Settings.signOut)) { Task { await signOut() } }
+              .buttonStyle(.action(.secondary, size: .compact))
           } else {
-            Text(L10n.Settings.connectedTo(model.baseURL.absoluteString))
+            Button(String(localized: L10n.Settings.signIn)) { Task { await signIn() } }
+              .buttonStyle(.action(.primary, size: .compact))
+              .keyboardShortcut(.defaultAction)
+              .disabled(signingIn)
           }
         }
-        .font(Tokens.Typography.callout)
-        .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
       }
-    }
-    // Settings opens with nothing in focus, so the address is not selected under the cursor:
-    // AppKit gives the field focus once the window is up, so it is taken back just after.
-    .task {
-      try? await Task.sleep(for: Self.focusRelease)
-      editing = false
+      HStack(spacing: Tokens.Space.s) {
+        if let failure = signInFailure {
+          PulseDot(Palette.loss, event: failure)
+          Text(L10n.Settings.signInFailed(failure))
+            .foregroundStyle(Palette.lossText)
+        } else if !signedIn && model.address == BotAddress.url {
+          PulseDot(Palette.warning, event: signedIn)
+          Text(L10n.Settings.signedOut)
+            .foregroundStyle(Palette.warningText)
+        } else {
+          // One pulse when the bot becomes reachable or unreachable, never per read.
+          PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
+          Group {
+            if let error = model.fetchError {
+              ReadFailureNote(L10n.Settings.notReachable, detail: error, tone: .loss, defersToConnection: false)
+            } else {
+              Text(L10n.Settings.connectedTo(model.baseURL.absoluteString))
+            }
+          }
+          .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
+        }
+      }
+      .font(Tokens.Typography.callout)
     }
   }
 
-  private func apply() {
-    guard let url = URL(string: draft.trimmingCharacters(in: .whitespaces)),
-      Self.schemes.contains(url.scheme ?? ""), url.host() != nil else {
-      invalid = true
+  /// Signs this Mac in with the owner's tickr.bot account (`SignIn`): the system's sheet, the
+  /// grant, then this Mac's token from the bot, kept in the Keychain. Closing the sheet says nothing.
+  private func signIn() async {
+    signingIn = true
+    defer { signingIn = false }
+    let signIn = SignIn(client: .mac)
+    do {
+      let callback = try await webAuthenticationSession.authenticate(using: signIn.authorizeURL,
+        callback: .customScheme(SignIn.callbackScheme), additionalHeaderFields: [:])
+      let token = try await signIn.deviceToken(callback: callback,
+        name: Host.current().localizedName ?? Self.macName)
+      guard Container.shared.keychain().saveToken(token) else {
+        signInFailure = String(localized: L10n.Settings.keychainRefused)
+        return
+      }
+      signInFailure = nil
+      model.use(token: token)
+    } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
       return
+    } catch let error as SignInError {
+      signInFailure = String(localized: error.reason)
+    } catch {
+      signInFailure = ErrorText.text(error)
     }
-    apiBaseURL = url.absoluteString
-    model.connect(to: url)
+  }
+
+  /// Signs this Mac out: the bot forgets its token (DELETE /session) and the Keychain drops it,
+  /// even when the bot cannot be reached, so the Mac never keeps a token the owner let go of.
+  private func signOut() async {
+    try? await Container.shared.apiClient(model.endpoint).signOut()
+    Container.shared.keychain().deleteToken()
+    signInFailure = nil
+    model.use(token: nil)
   }
 }
 

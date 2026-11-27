@@ -51,9 +51,4 @@ extension Container {
   var homeDayModel: Factory<HomeDayModel> {
     self { HomeDayModel() }.singleton
   }
-
-  /// Where the paired API token lives: this phone's Keychain.
-  var keychain: Factory<Keychain> {
-    self { Keychain() }
-  }
 }

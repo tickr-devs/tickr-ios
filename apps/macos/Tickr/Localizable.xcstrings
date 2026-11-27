@@ -9712,23 +9712,6 @@
         }
       }
     },
-    "settings.addressFootnote" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The bot's address on this Mac or your Tailscale address, for example %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La dirección del bot en esta Mac o tu dirección de Tailscale, por ejemplo %@"
-          }
-        }
-      }
-    },
     "settings.advanced" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10426,23 +10409,6 @@
         }
       }
     },
-    "settings.connect" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connect"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conectar"
-          }
-        }
-      }
-    },
     "settings.connected" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10558,23 +10524,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Muestra el día demo ficticio que trae esta app, y solo ese día; la dirección del bot se queda como está."
-          }
-        }
-      }
-    },
-    "settings.enterAddress" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter an http address of the bot's local API, such as %@."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Introduce una dirección http de la API local del bot, como %@."
           }
         }
       }
@@ -10800,23 +10749,6 @@
         }
       }
     },
-    "settings.invalidAddress" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invalid address"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dirección no válida"
-          }
-        }
-      }
-    },
     "settings.job.bot" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10949,6 +10881,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "inicio: hora local de la Mac · otras horas ET"
+          }
+        }
+      }
+    },
+    "settings.keychainRefused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the Mac's Keychain did not keep the key"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el Llavero de la Mac no guardó la clave"
           }
         }
       }
@@ -11616,6 +11565,91 @@
         }
       }
     },
+    "settings.signedOut" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not signed in: sign in with your tickr.bot account to read the bot."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin sesión: inicia sesión con tu cuenta de tickr.bot para ver el bot."
+          }
+        }
+      }
+    },
+    "settings.signIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión"
+          }
+        }
+      }
+    },
+    "settings.signInFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not signed in: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin sesión: %@"
+          }
+        }
+      }
+    },
+    "settings.signInFootnote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's server, built into the app. Sign in once with your tickr.bot account and passkey; this Mac then keeps its own key to the bot in its Keychain, and signing out removes it here and on the bot."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servidor del bot, integrado en la app. Inicia sesión una vez con tu cuenta de tickr.bot y tu llave de acceso; esta Mac guarda entonces su propia clave del bot en su Llavero, y al cerrar sesión se borra aquí y en el bot."
+          }
+        }
+      }
+    },
+    "settings.signOut" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar sesión"
+          }
+        }
+      }
+    },
     "settings.since" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11969,23 +12003,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "no disponible"
-          }
-        }
-      }
-    },
-    "settings.useDefault" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use Default"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usar predeterminado"
           }
         }
       }

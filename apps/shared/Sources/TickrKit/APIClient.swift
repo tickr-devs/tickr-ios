@@ -102,10 +102,13 @@ public struct APIClient: Sendable {
   static let tradeWhatIfPath = "/trades/whatif"
   /// Query item name of the strategy folder another-version reads replay.
   static let versionQuery = "version"
-  /// Remote port only: redeem a pairing link's one-time code for the bearer token.
-  static let pairPath = "/pair"
-  /// Body key of the pairing code.
-  static let codeKey = "code"
+  /// Remote port only: POST signs this device in with a tickr.bot grant, DELETE signs it out.
+  static let sessionPath = "/session"
+  /// Body keys of a sign-in: the grant and the device's name in the bot's device list.
+  static let grantKey = "grant"
+  static let nameKey = "name"
+  /// HTTP status of a sign-out (no body).
+  static let noContent = 204
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
   static let performancePath = "/performance"
@@ -123,6 +126,7 @@ public struct APIClient: Sendable {
   /// HTTP methods, header names and the media type the API speaks.
   static let get = "GET"
   static let post = "POST"
+  static let delete = "DELETE"
   static let acceptHeader = "accept"
   static let contentTypeHeader = "content-type"
   /// HTTP header that makes a repeated command send answer the first send instead of queueing again.
@@ -241,12 +245,20 @@ public struct APIClient: Sendable {
     return try await perform(request(path: Self.labReplayPath, body: body), expect: Self.accepted)
   }
 
-  /// Redeem a pairing link's one-time code at the Mac's HTTPS address for the bearer token the
-  /// phone keeps from then on. Sent without a token; the code works once, before it expires, and
-  /// a refused code is thrown as `APIError.refused` (401 `unauthorized`).
-  public func redeemPairing(code: String) async throws -> PairedV1 {
-    let body = try JSONSerialization.data(withJSONObject: [Self.codeKey: code], options: [.sortedKeys])
-    return try await perform(request(path: Self.pairPath, body: body), expect: Self.ok)
+  /// Trade a tickr.bot grant (`SignIn`) for this device's own bearer token, kept from then on.
+  /// Sent without a token; a grant works once, for a minute, and a refused one is thrown as
+  /// `APIError.refused` (401 `unauthorized`, with the check that failed as its cause).
+  public func signIn(grant: String, name: String) async throws -> PairedV1 {
+    let body = try JSONSerialization.data(withJSONObject: [Self.grantKey: grant, Self.nameKey: name],
+      options: [.sortedKeys])
+    return try await perform(request(path: Self.sessionPath, body: body), expect: Self.ok)
+  }
+
+  /// Sign this device out: the bot revokes the token this client carries.
+  public func signOut() async throws {
+    var signOut = request(path: Self.sessionPath, body: nil)
+    signOut.httpMethod = Self.delete
+    let _: Empty = try await perform(signOut, expect: Self.noContent)
   }
 
   /// Risk limits and session times from the bot's config, as the API loaded them.
@@ -368,6 +380,7 @@ public struct APIClient: Sendable {
       // The cause in the person's language, so no screen shows the bot's raw words for a known code.
       throw APIError.refused(status: http.statusCode, error: refusal.error, cause: refusal.causeText)
     }
+    if T.self == Empty.self, let empty = Empty() as? T { return empty }
     do {
       return try decoder.decode(T.self, from: data)
     } catch {
@@ -375,3 +388,6 @@ public struct APIClient: Sendable {
     }
   }
 }
+
+/// The answer of a request whose success has no body (204).
+struct Empty: Decodable {}

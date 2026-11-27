@@ -847,11 +847,30 @@ enum L10n {
     static var apiAddress: LocalizedStringResource {
       LocalizedStringResource("settings.apiAddress", defaultValue: "Address", bundle: L10n.bundle)
     }
-    static var useDefault: LocalizedStringResource {
-      LocalizedStringResource("settings.useDefault", defaultValue: "Use Default", bundle: L10n.bundle)
+    static var signIn: LocalizedStringResource {
+      LocalizedStringResource("settings.signIn", defaultValue: "Sign In", bundle: L10n.bundle)
     }
-    static var connect: LocalizedStringResource {
-      LocalizedStringResource("settings.connect", defaultValue: "Connect", bundle: L10n.bundle)
+    static var signOut: LocalizedStringResource {
+      LocalizedStringResource("settings.signOut", defaultValue: "Sign Out", bundle: L10n.bundle)
+    }
+    static var signedOut: LocalizedStringResource {
+      LocalizedStringResource("settings.signedOut",
+        defaultValue: "Not signed in: sign in with your tickr.bot account to read the bot.",
+        bundle: L10n.bundle)
+    }
+    static var keychainRefused: LocalizedStringResource {
+      LocalizedStringResource("settings.keychainRefused",
+        defaultValue: "the Mac's Keychain did not keep the key",
+        bundle: L10n.bundle)
+    }
+    static var signInFootnote: LocalizedStringResource {
+      LocalizedStringResource("settings.signInFootnote",
+        // swiftlint:disable:next line_length
+        defaultValue: "The bot's server, built into the app. Sign in once with your tickr.bot account and passkey; this Mac then keeps its own key to the bot in its Keychain, and signing out removes it here and on the bot.",
+        bundle: L10n.bundle)
+    }
+    static func signInFailed(_ why: String) -> LocalizedStringResource {
+      LocalizedStringResource("settings.signInFailed", defaultValue: "Not signed in: \(why)", bundle: L10n.bundle)
     }
     static var botConnection: LocalizedStringResource {
       LocalizedStringResource("settings.botConnection", defaultValue: "Bot connection", bundle: L10n.bundle)
@@ -884,16 +903,8 @@ enum L10n {
     static var theme: LocalizedStringResource {
       LocalizedStringResource("settings.theme", defaultValue: "Theme", bundle: L10n.bundle)
     }
-    static var invalidAddress: LocalizedStringResource {
-      LocalizedStringResource("settings.invalidAddress", defaultValue: "Invalid address", bundle: L10n.bundle)
-    }
     static var ok: LocalizedStringResource {
       LocalizedStringResource("settings.ok", defaultValue: "OK", bundle: L10n.bundle)
-    }
-    static func enterAddress(_ example: String) -> LocalizedStringResource {
-      LocalizedStringResource("settings.enterAddress",
-        defaultValue: "Enter an http address of the bot's local API, such as \(example).",
-        bundle: L10n.bundle)
     }
     static var activeStrategy: LocalizedStringResource {
       LocalizedStringResource("settings.activeStrategy", defaultValue: "Active strategy", bundle: L10n.bundle)
@@ -1168,11 +1179,6 @@ enum L10n {
     }
     static func markClose(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("settings.markClose", defaultValue: "\(time) close", bundle: L10n.bundle)
-    }
-    static func addressFootnote(_ example: String) -> LocalizedStringResource {
-      LocalizedStringResource("settings.addressFootnote",
-        defaultValue: "The bot's address on this Mac or your Tailscale address, for example \(example)",
-        bundle: L10n.bundle)
     }
     static func lastShort(_ time: String) -> LocalizedStringResource {
       LocalizedStringResource("settings.lastShort", defaultValue: "last \(time)", bundle: L10n.bundle)

@@ -1,10 +1,11 @@
 import Foundation
 import Security
 
-/// The paired API token, kept in the Keychain on this phone only: never synced, never backed up to
-/// another device, and readable after the first unlock so polling works when the app reopens.
-/// Registered on the container (`Container.keychain`); nothing else stores the token.
-struct Keychain: Sendable {
+/// This device's bot token (`APIClient.signIn`), kept in the Keychain on this device only: never
+/// synced, and on the phone never backed up to another device and readable after the first unlock
+/// so polling works when the app reopens. Registered on the container (`Container.keychain`);
+/// nothing else stores the token.
+public struct Keychain: Sendable {
   /// Keychain service and account of the token item. The item already belongs to this app alone
   /// (its team and bundle id), so the service names only what it holds.
   static let service = "api-token"
@@ -13,7 +14,7 @@ struct Keychain: Sendable {
   /// The Security calls the token goes through (`SecItems` on the phone; tests give their own).
   let items: any KeychainItems
 
-  init(items: any KeychainItems = SecItems()) {
+  public init(items: any KeychainItems = SecItems()) {
     self.items = items
   }
 
@@ -23,7 +24,7 @@ struct Keychain: Sendable {
       kSecAttrAccount as String: Self.account]
   }
 
-  func readToken() -> String? {
+  public func readToken() -> String? {
     var search = query
     search[kSecReturnData as String] = true
     search[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -34,16 +35,17 @@ struct Keychain: Sendable {
   /// Puts `token` in place of any earlier one in one Keychain write (an update of the item, an add
   /// only when there is none), then reads it back. True only when the Keychain holds exactly
   /// `token` afterwards: a failed write never deletes the earlier token first, so it can neither
-  /// report a pairing that a restart would lose nor lose the pairing that worked before. Nothing
+  /// report a sign-in that a restart would lose nor lose the sign-in that worked before. Nothing
   /// is written when the Keychain already holds `token`.
   @discardableResult
-  func saveToken(_ token: String) -> Bool {
+  public func saveToken(_ token: String) -> Bool {
     if readToken() == token { return true }
     let value = Data(token.utf8)
-    let attributes: [String: Any] = [
-      kSecValueData as String: value,
-      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-    ]
+    var attributes: [String: Any] = [kSecValueData as String: value]
+    #if os(iOS)
+    // The Mac's login keychain is this Mac's alone already and takes no data-protection class.
+    attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+    #endif
     var status = items.update(query, attributes)
     if status == errSecItemNotFound {
       var add = query
@@ -53,13 +55,13 @@ struct Keychain: Sendable {
     return status == errSecSuccess && readToken() == token
   }
 
-  func deleteToken() {
+  public func deleteToken() {
     items.delete(query)
   }
 }
 
 /// The four Keychain calls the token needs, so tests can run them in memory and make one fail.
-protocol KeychainItems: Sendable {
+public protocol KeychainItems: Sendable {
   /// The data of the item `query` finds, or nil when there is none or it cannot be read.
   func copy(_ query: [String: Any]) -> Data?
   /// `SecItemUpdate`: the item `query` finds takes `attributes`.
@@ -71,24 +73,26 @@ protocol KeychainItems: Sendable {
   func delete(_ query: [String: Any]) -> OSStatus
 }
 
-/// This phone's Keychain.
-struct SecItems: KeychainItems {
-  func copy(_ query: [String: Any]) -> Data? {
+/// This device's Keychain.
+public struct SecItems: KeychainItems {
+  public init() {}
+
+  public func copy(_ query: [String: Any]) -> Data? {
     var item: CFTypeRef?
     guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess else { return nil }
     return item as? Data
   }
 
-  func update(_ query: [String: Any], _ attributes: [String: Any]) -> OSStatus {
+  public func update(_ query: [String: Any], _ attributes: [String: Any]) -> OSStatus {
     SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
   }
 
-  func add(_ item: [String: Any]) -> OSStatus {
+  public func add(_ item: [String: Any]) -> OSStatus {
     SecItemAdd(item as CFDictionary, nil)
   }
 
   @discardableResult
-  func delete(_ query: [String: Any]) -> OSStatus {
+  public func delete(_ query: [String: Any]) -> OSStatus {
     SecItemDelete(query as CFDictionary)
   }
 }

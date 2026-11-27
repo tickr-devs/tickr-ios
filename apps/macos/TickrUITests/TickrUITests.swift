@@ -205,7 +205,7 @@ final class TickrUITests: XCTestCase {
     // the separate FIXTURES badge: one badge, no second tag beside it).
     XCTAssertTrue(app.staticTexts[Self.environmentBadge].firstMatch.waitForExistence(timeout: Self.timeout),
       "environment badge\n\(app.debugDescription)")
-    // The title bar names the bot's address (the fixture API answers as 127.0.0.1).
+    // The title bar names the bot's address (the fixture API answers whatever address the app reads).
     let connection = app.descendants(matching: .any)[Self.connectionItem].firstMatch
     XCTAssertTrue(connection.waitForExistence(timeout: Self.timeout), "connection\n\(app.debugDescription)")
   }

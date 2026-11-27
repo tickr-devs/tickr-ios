@@ -30,27 +30,24 @@ extension L10n {
     LocalizedStringResource("kit.connection.nothingYet",
       defaultValue: "nothing received yet · retrying every \(seconds) s · commands off", bundle: bundle)
   }
-  /// Title of the banner when the bot answers but refuses this app's address or token.
+  /// Title of the banner when the bot answers but refuses this device's token.
   static var connectionRefusedTitle: LocalizedStringResource {
-    LocalizedStringResource("kit.connection.refusedTitle", defaultValue: "The bot refuses this address", bundle: bundle)
+    LocalizedStringResource("kit.connection.refusedTitle", defaultValue: "The bot refuses this device", bundle: bundle)
   }
-  /// The banner's line when the bot refuses this app's address or token: no retry fixes it.
+  /// The banner's line when the bot refuses this device's token: no retry fixes it.
   static var connectionRefusedBody: LocalizedStringResource {
     LocalizedStringResource("kit.connection.refusedBody",
-      defaultValue: "the address or pairing is wrong, retrying will not help · commands off", bundle: bundle)
+      defaultValue: "this device is not signed in to the bot, retrying will not help: sign in again in Settings · commands off",
+      bundle: bundle)
   }
-  /// The banner's action that goes back to the default address; argument: that address.
-  static func connectionUseAddress(_ address: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.connection.useAddress", defaultValue: "Use \(address)", bundle: bundle)
-  }
-  /// Title of the empty state before an address is set.
+  /// Title of the empty state before this device is signed in.
   static var connectionNotConfiguredTitle: LocalizedStringResource {
-    LocalizedStringResource("kit.connection.notConfiguredTitle", defaultValue: "Connect to your Mac", bundle: bundle)
+    LocalizedStringResource("kit.connection.notConfiguredTitle", defaultValue: "Sign in to your bot", bundle: bundle)
   }
-  /// The empty state's sentence before an address is set.
+  /// The empty state's sentence before this device is signed in.
   static var connectionNotConfiguredBody: LocalizedStringResource {
     LocalizedStringResource("kit.connection.notConfiguredBody",
-      defaultValue: "pair this device with the Mac in Settings", bundle: bundle)
+      defaultValue: "sign in with your tickr.bot account in Settings", bundle: bundle)
   }
   /// Title when the API answers but the bot has written no status.
   static var connectionNoBotStatusTitle: LocalizedStringResource {
@@ -60,7 +57,7 @@ extension L10n {
   /// Sentence when the API answers but the bot has written no status.
   static var connectionNoBotStatusBody: LocalizedStringResource {
     LocalizedStringResource("kit.connection.noBotStatusBody",
-      defaultValue: "the Mac answers, the bot has no status · entries not possible", bundle: bundle)
+      defaultValue: "the server answers, the bot has no status · entries not possible", bundle: bundle)
   }
   /// The banner's action that reads again now.
   static var connectionRetry: LocalizedStringResource {
@@ -86,5 +83,23 @@ extension L10n {
   static var headlineNoConnection: LocalizedStringResource {
     LocalizedStringResource("kit.headline.noConnection", defaultValue: "Can't reach the bot. Entry status unknown.",
       bundle: bundle)
+  }
+
+  // MARK: Signing in (SignIn)
+
+  /// Why a sign-in ended: tickr.bot turned the account away.
+  static var signInAccountRefused: LocalizedStringResource {
+    LocalizedStringResource("kit.signIn.accountRefused",
+      defaultValue: "this tickr.bot account may not reach the bot", bundle: bundle)
+  }
+  /// Why a sign-in ended: the sheet came back with an answer that is not this sign-in's.
+  static var signInBadAnswer: LocalizedStringResource {
+    LocalizedStringResource("kit.signIn.badAnswer",
+      defaultValue: "tickr.bot sent an answer this sign-in does not expect", bundle: bundle)
+  }
+  /// Why a sign-in ended: tickr.bot's token endpoint did not take the code.
+  static var signInCodeRefused: LocalizedStringResource {
+    LocalizedStringResource("kit.signIn.codeRefused",
+      defaultValue: "tickr.bot did not accept the sign-in code; sign in again", bundle: bundle)
   }
 }

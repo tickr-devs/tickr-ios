@@ -104,13 +104,59 @@ enum L10n {
     }
   }
 
+  enum SignIn {
+    static var signingIn: LocalizedStringResource {
+      LocalizedStringResource("signin.signingIn", defaultValue: "Signing in", bundle: L10n.bundle)
+    }
+    static var account: LocalizedStringResource {
+      LocalizedStringResource("signin.account", defaultValue: "Account", bundle: L10n.bundle)
+    }
+    static var address: LocalizedStringResource {
+      LocalizedStringResource("signin.address", defaultValue: "Bot", bundle: L10n.bundle)
+    }
+    static var footer: LocalizedStringResource {
+      LocalizedStringResource("signin.footer",
+        // swiftlint:disable:next line_length
+        defaultValue: "Sign in once with your tickr.bot account and passkey. This phone then keeps its own key to the bot in its Keychain; signing out removes it here and on the bot.",
+        bundle: L10n.bundle)
+    }
+    static var signIn: LocalizedStringResource {
+      LocalizedStringResource("signin.signIn", defaultValue: "Sign in with tickr.bot", bundle: L10n.bundle)
+    }
+    static var signOut: LocalizedStringResource {
+      LocalizedStringResource("signin.signOut", defaultValue: "Sign out", bundle: L10n.bundle)
+    }
+    static var signOutTitle: LocalizedStringResource {
+      LocalizedStringResource("signin.signOutTitle", defaultValue: "Sign this phone out?", bundle: L10n.bundle)
+    }
+    static var signOutMessage: LocalizedStringResource {
+      LocalizedStringResource("signin.signOutMessage",
+        defaultValue: "The bot forgets this phone's key. Sign in again to read the bot.",
+        bundle: L10n.bundle)
+    }
+    static var signedOut: LocalizedStringResource {
+      LocalizedStringResource("signin.signedOut", defaultValue: "Not signed in", bundle: L10n.bundle)
+    }
+    static var signedIn: LocalizedStringResource {
+      LocalizedStringResource("signin.signedIn", defaultValue: "Signed in to the bot", bundle: L10n.bundle)
+    }
+    static var notSaved: LocalizedStringResource {
+      LocalizedStringResource("signin.notSaved",
+        defaultValue: "Not signed in: the phone's Keychain did not keep the key. Unlock the phone and try again.",
+        bundle: L10n.bundle)
+    }
+    static func refused(_ why: String) -> LocalizedStringResource {
+      LocalizedStringResource("signin.refused", defaultValue: "Not signed in: \(why)", bundle: L10n.bundle)
+    }
+  }
+
   enum Connect {
     static var title: LocalizedStringResource {
-      LocalizedStringResource("connect.title", defaultValue: "Connect to your Mac", bundle: L10n.bundle)
+      LocalizedStringResource("connect.title", defaultValue: "Sign in to your bot", bundle: L10n.bundle)
     }
     static var body: LocalizedStringResource {
       LocalizedStringResource("connect.body",
-        defaultValue: "Enter the address of the bot's API in Settings.",
+        defaultValue: "Sign in with your tickr.bot account in Settings.",
         bundle: L10n.bundle)
     }
     static var openSettings: LocalizedStringResource {
@@ -121,7 +167,7 @@ enum L10n {
     }
     static var notConnected: LocalizedStringResource {
       LocalizedStringResource("connect.notConnected",
-        defaultValue: "Not connected. Add your Mac's address in Settings.",
+        defaultValue: "Not signed in. Sign in with your tickr.bot account in Settings.",
         bundle: L10n.bundle)
     }
     static var faceIDUnavailable: LocalizedStringResource {
@@ -1601,80 +1647,6 @@ enum L10n {
     }
   }
 
-  enum Pair {
-    static var title: LocalizedStringResource {
-      LocalizedStringResource("pair.title", defaultValue: "Pair with Mac", bundle: L10n.bundle)
-    }
-    static var start: LocalizedStringResource {
-      LocalizedStringResource("pair.start", defaultValue: "Pair with Mac…", bundle: L10n.bundle)
-    }
-    static var pair: LocalizedStringResource {
-      LocalizedStringResource("pair.pair", defaultValue: "Pair", bundle: L10n.bundle)
-    }
-    static var forget: LocalizedStringResource {
-      LocalizedStringResource("pair.forget", defaultValue: "Forget Pairing", bundle: L10n.bundle)
-    }
-    static var forgetTitle: LocalizedStringResource {
-      LocalizedStringResource("pair.forgetTitle", defaultValue: "Forget the pairing?", bundle: L10n.bundle)
-    }
-    static var forgetMessage: LocalizedStringResource {
-      LocalizedStringResource("pair.forgetMessage",
-        defaultValue: "The phone deletes its token and can no longer reach the bot remotely until you pair again.",
-        bundle: L10n.bundle)
-    }
-    static func ask(_ host: String) -> LocalizedStringResource {
-      LocalizedStringResource("pair.ask", defaultValue: "Pair with \(host)?", bundle: L10n.bundle)
-    }
-    static var askMessage: LocalizedStringResource {
-      LocalizedStringResource("pair.askMessage",
-        // swiftlint:disable:next line_length
-        defaultValue: "The phone will read the bot's status from this address and can send commands. Any earlier pairing is replaced.",
-        bundle: L10n.bundle)
-    }
-    static var thisMac: LocalizedStringResource {
-      LocalizedStringResource("pair.thisMac", defaultValue: "this Mac", bundle: L10n.bundle)
-    }
-    static func paired(_ host: String) -> LocalizedStringResource {
-      LocalizedStringResource("pair.paired", defaultValue: "Paired with \(host).", bundle: L10n.bundle)
-    }
-    static var notALink: LocalizedStringResource {
-      LocalizedStringResource("pair.notALink",
-        defaultValue: "That link is not a Tickr pairing link.",
-        bundle: L10n.bundle)
-    }
-    static func notRedeemed(_ cause: String) -> LocalizedStringResource {
-      LocalizedStringResource("pair.notRedeemed", defaultValue: "Not paired: \(cause)", bundle: L10n.bundle)
-    }
-    static var notSaved: LocalizedStringResource {
-      LocalizedStringResource("pair.notSaved",
-        defaultValue: "Not paired: the phone could not keep the token in its Keychain. Run pair on the Mac again.",
-        bundle: L10n.bundle)
-    }
-    static var invalid: LocalizedStringResource {
-      LocalizedStringResource("pair.invalid",
-        defaultValue: "This is not a pairing link.",
-        bundle: L10n.bundle)
-    }
-    static var prompt: LocalizedStringResource {
-      LocalizedStringResource("pair.prompt", defaultValue: "tickr://pair?…", bundle: L10n.bundle)
-    }
-    static var sheetFooter: LocalizedStringResource {
-      LocalizedStringResource("pair.sheetFooter",
-        // swiftlint:disable:next line_length
-        defaultValue: "On the Mac run `python -m tickr.api --config config/bot.toml pair`, then AirDrop the pairing file it names to this phone and paste the link here.",
-        bundle: L10n.bundle)
-    }
-    static var mac: LocalizedStringResource {
-      LocalizedStringResource("pair.mac", defaultValue: "Mac", bundle: L10n.bundle)
-    }
-    static var address: LocalizedStringResource {
-      LocalizedStringResource("pair.address", defaultValue: "Address", bundle: L10n.bundle)
-    }
-    static var notPaired: LocalizedStringResource {
-      LocalizedStringResource("pair.notPaired", defaultValue: "Not paired", bundle: L10n.bundle)
-    }
-  }
-
   enum Settings {
     static var demoDay: LocalizedStringResource {
       LocalizedStringResource("settings.demoDay", defaultValue: "Demo day", bundle: L10n.bundle)
@@ -1810,20 +1782,8 @@ enum L10n {
     static var title: LocalizedStringResource {
       LocalizedStringResource("settings.title", defaultValue: "Settings", bundle: L10n.bundle)
     }
-    static var saveAddress: LocalizedStringResource {
-      LocalizedStringResource("settings.saveAddress", defaultValue: "Save Address", bundle: L10n.bundle)
-    }
     static var status: LocalizedStringResource {
       LocalizedStringResource("settings.status", defaultValue: "Status", bundle: L10n.bundle)
-    }
-    static var botOnMac: LocalizedStringResource {
-      LocalizedStringResource("settings.botOnMac", defaultValue: "Bot on your Mac", bundle: L10n.bundle)
-    }
-    static var addressFooter: LocalizedStringResource {
-      LocalizedStringResource("settings.addressFooter",
-        // swiftlint:disable:next line_length
-        defaultValue: "In the Simulator the Mac's own address works. On the phone, pair with the link that `python -m tickr.api pair` leaves on the Mac; it reaches the Mac through Tailscale over HTTPS. The token stays in this phone's Keychain and goes only to the paired address.",
-        bundle: L10n.bundle)
     }
     static var bot: LocalizedStringResource {
       LocalizedStringResource("settings.bot", defaultValue: "Bot", bundle: L10n.bundle)
@@ -1902,9 +1862,6 @@ enum L10n {
     }
     static func contractVersion(_ version: Int) -> LocalizedStringResource {
       LocalizedStringResource("settings.contractVersion", defaultValue: "v\(version)", bundle: L10n.bundle)
-    }
-    static var noAddress: LocalizedStringResource {
-      LocalizedStringResource("settings.noAddress", defaultValue: "No address", bundle: L10n.bundle)
     }
     static var notReachable: LocalizedStringResource {
       LocalizedStringResource("settings.notReachable", defaultValue: "Not reachable", bundle: L10n.bundle)

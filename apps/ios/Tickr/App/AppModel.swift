@@ -1,6 +1,8 @@
+import AuthenticationServices
 import Foundation
 import Observation
 import TickrKit
+import UIKit
 
 enum AppTab: Hashable { case home, positions, chart, activity, lab }
 
@@ -108,8 +110,8 @@ final class AppModel {
   /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
   @ObservationIgnored var homeMarkCentre: CGPoint?
   var selectedSymbol: String?
-  /// A pairing link opened from outside (AirDrop), waiting for the owner to confirm.
-  var pendingPairing: Pairing?
+  /// A sign-in is under way (Settings' button shows the spinner).
+  private(set) var signingIn = false
 
   /// How far the bot's clock is ahead of this phone's, from the last status's `served_at`. The
   /// bot's clock decides what "today" is: the phone's clock can drift, and `tickr demo` plays a
@@ -707,26 +709,60 @@ final class AppModel {
     await refresh()
   }
 
-  /// Uses a pairing link: redeems its one-time code at the Mac's HTTPS address for the bearer
-  /// token, then that address and token replace the current connection. Refused, with the earlier
-  /// connection kept, when the Mac refuses the code (used, expired, or another pairing started) or
-  /// the Keychain does not take the token.
-  func pair(_ pairing: Pairing) async {
-    let redeemed: PairedV1
+  /// Signs this phone in with the owner's tickr.bot account: `authenticate` shows tickr.bot's
+  /// sign-in sheet for the page it is given and returns the address the sheet came back with;
+  /// then the grant, then this phone's token from the bot, kept in the Keychain. Refused, with
+  /// nothing changed, when tickr.bot or the bot refuse or the Keychain does not take the token;
+  /// nothing is said when the owner closed the sheet.
+  func signIn(_ authenticate: (URL) async throws -> URL) async {
+    guard !signingIn else { return }
+    signingIn = true
+    defer { signingIn = false }
+    let signIn = SignIn(client: .ios)
+    let token: String
     do {
-      redeemed = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: pairing.url))
-        .redeemPairing(code: pairing.code)
+      token = try await signIn.deviceToken(callback: authenticate(signIn.authorizeURL), name: Self.deviceName)
     } catch {
-      notice = Notice(L10n.Pair.notRedeemed(ErrorText.text(error)), tone: .failure)
+      if Self.closedByOwner(error) { return }
+      notice = Notice(L10n.SignIn.refused(Self.signInText(error)), tone: .failure)
       return
     }
-    guard Container.shared.keychain().saveToken(redeemed.token) else {
-      notice = Notice(L10n.Pair.notSaved, tone: .failure)
+    guard Container.shared.keychain().saveToken(token) else {
+      notice = Notice(L10n.SignIn.notSaved, tone: .failure)
       return
     }
-    connection = Connection(paired: pairing.url, token: redeemed.token)
-    notice = Notice(L10n.Pair.paired(Connection.displayHost(pairing.url) ?? String(localized: L10n.Pair.thisMac)),
-      tone: .success)
+    connection = connection.token(token)
+    notice = Notice(L10n.SignIn.signedIn, tone: .success)
+  }
+
+  /// Signs this phone out: the bot forgets its token (DELETE /session) and the Keychain drops it.
+  /// The token is dropped here even when the bot cannot be reached, so the phone never keeps one
+  /// the owner asked to forget; the bot then still lists the device until it is revoked there.
+  func signOut() async {
+    if let url = connection.url, !connection.demo {
+      try? await Container.shared.apiClient(connection.endpoint(for: url)).signOut()
+    }
+    connection = connection.token(nil)
+  }
+
+  /// The name the bot lists this phone under: its model and the start of this app's id for it,
+  /// so two phones never share a name (signing in again under one name replaces its token).
+  static var deviceName: String {
+    let id = UIDevice.current.identifierForVendor?.uuidString.prefix(deviceIdLength) ?? ""
+    return "\(UIDevice.current.model) \(id)"
+  }
+
+  /// How much of the vendor id the device name keeps: enough to tell the owner's devices apart.
+  static let deviceIdLength = 8
+
+  /// Whether the sign-in sheet ended because the owner closed it.
+  static func closedByOwner(_ error: any Error) -> Bool {
+    (error as? ASWebAuthenticationSessionError)?.code == .canceledLogin
+  }
+
+  /// What a refused sign-in says: tickr.bot's error code is not shown raw.
+  static func signInText(_ error: any Error) -> String {
+    (error as? SignInError).map { String(localized: $0.reason) } ?? ErrorText.text(error)
   }
 
   private func resolveAwaited(_ fresh: StatusResponseV1) {

@@ -127,8 +127,8 @@ public final class AppModel {
   public private(set) var demoDay: Bool
   /// The address the app talks to: `address`, or the demo day's (`DemoDay.address`).
   public var baseURL: URL { DemoDay.address(address, demo: demoDay) }
-  /// The paired token of a remote address (iPad: from the pairing in its Settings); nil on the
-  /// Mac, whose API is this machine's own.
+  /// This device's token for the bot (`SignIn`): the Mac's from its Keychain, the iPad's from
+  /// its Settings; nil until the device is signed in, or for a development address.
   public private(set) var token: String?
   /// Proves the owner is the one pressing (Face ID or the passcode on iPad) before a command is
   /// sent, `nil` for starting the bot, with the command's title as the reason; false refuses the
@@ -314,10 +314,12 @@ public final class AppModel {
   /// The title each lost send was pressed under ("Close ABCD position"), by its key.
   @ObservationIgnored private var lostTitles: [String: String] = [:]
 
-  public init(baseURL: URL, demoDay: Bool = false) {
+  public init(baseURL: URL, token: String? = nil, demoDay: Bool = false) {
     self.address = baseURL
+    self.token = token
     self.demoDay = demoDay
-    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: DemoDay.address(baseURL, demo: demoDay)))
+    let shown = DemoDay.address(baseURL, demo: demoDay)
+    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: shown, token: demoDay ? nil : token))
   }
 
   // MARK: derived
@@ -550,13 +552,21 @@ public final class AppModel {
   }
 
   /// Point the screens at `endpoint` as it is, address and token (the iPad's connection after a
-  /// pairing or a change in its Settings). The same endpoint again changes nothing.
+  /// sign-in or a change in its Settings). The same endpoint again changes nothing.
   public func connect(to endpoint: APIClient.Endpoint) {
     guard endpoint != self.endpoint else { return }
     address = endpoint.baseURL
     token = endpoint.token
     demoDay = false
     selectedDay = nil
+    reconnect()
+  }
+
+  /// Use `token` for the bot from now on (the Mac signed in), or none (signed out): the screens
+  /// read the bot again from nothing.
+  public func use(token: String?) {
+    guard token != self.token else { return }
+    self.token = token
     reconnect()
   }
 
