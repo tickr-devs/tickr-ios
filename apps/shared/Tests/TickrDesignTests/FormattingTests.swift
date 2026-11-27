@@ -36,6 +36,9 @@ func d(_ text: String) -> Decimal { Decimal(string: text, locale: Locale(identif
     #expect(Money.price(d("57.1099")) == "57.11")
     #expect(Money.price(d("9.6300")) == "9.63")
     #expect(Money.price(d("57.10")) == "57.10")
+    // With its dollar sign (the Live Activity's stops).
+    #expect(Money.usdPrice(d("11.9")) == "$11.90")
+    #expect(Money.usdPrice(d("0.4567")) == "$0.4567")
   }
 
   @Test("A distance between prices takes the price's decimals and never rounds down to zero")

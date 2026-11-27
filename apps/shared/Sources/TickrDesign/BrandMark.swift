@@ -63,6 +63,11 @@ public struct BrandMark: View {
     self.tone = tone
     self.drawing = drawing
     self.sparkPop = sparkPop
+    // Without a draw the mark starts drawn, so it shows where nothing appears or animates (the
+    // Live Activity, which never runs `onAppear`).
+    _drawn = State(initialValue: drawing == nil ? 1 : 0)
+    _popped = State(initialValue: drawing == nil ? 1 : 0)
+    _settled = State(initialValue: drawing == nil)
   }
 
   /// The level's frame in a tile of side `size`.

@@ -148,6 +148,8 @@ public final class AppModel {
   /// The bot's live quotes (GET /quotes), read every `settings.quotes_poll_seconds`: every live
   /// price the app shows comes from here.
   @ObservationIgnored @Injected(\.liveQuotes) public var quotes
+  /// Sends this Mac's push token to the bot once a status read there has answered.
+  @ObservationIgnored @Injected(\.pushRegistrar) private var pushRegistrar
   /// How far the bot's clock is ahead of this Mac's, from the last status's `served_at`. The
   /// bot's clock decides what "today" is and how old its reads are: the Mac's clock can drift,
   /// and `tickr demo` plays a past day on a clock of its own.
@@ -667,6 +669,7 @@ public final class AppModel {
         await refreshHistory()
       }
       resolveSentCommands()
+      pushRegistrar.reached(endpoint)
       await settleLost()
       // Today's session and the next one for the headline's countdown: read once per bot day,
       // and again once the next session has opened (it then names the one after).

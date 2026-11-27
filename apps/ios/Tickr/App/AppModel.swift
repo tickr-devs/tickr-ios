@@ -130,6 +130,8 @@ final class AppModel {
   /// The bot's live quotes (GET /quotes), read every `settings.quotes_poll_seconds` while the app
   /// runs: every live price the app shows comes from here.
   @ObservationIgnored @Injected(\.liveQuotes) var quotes
+  /// Sends this phone's push tokens to the bot once a status read there has answered.
+  @ObservationIgnored @Injected(\.pushRegistrar) private var pushRegistrar
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
@@ -328,6 +330,7 @@ final class AppModel {
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
       resolveAwaited(fresh)
+      pushRegistrar.reached(connection.endpoint(for: url))
     } catch {
       if asked == link { reads.failed(error, hadAnswer: lastReadAt != nil) }
       return false

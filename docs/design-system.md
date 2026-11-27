@@ -398,6 +398,28 @@ size unchanged.
 | `trackOpacity` | 0.18 | The track: the fill's colour at this opacity |
 | `reasonRows` | 5 | Most reasons a `SignedReasonList` draws |
 
+## Live Activity (`Tokens.LiveActivity`, mockup v138)
+
+The iPhone's Lock Screen card and Dynamic Island (`apps/ios/Widgets`), drawn from the content-state
+the bot pushes (TickrKit `TickrActivityAttributes`). The dot is teal (`accent`) while every stop
+is protected, amber (`warning`) while entries are paused, red (`loss`) only for a stop not
+confirmed, grey (`neutral`) once flat; the day's result takes `Palette.result`. The island is
+always black (the system's); the Lock Screen card is `surface`. Rows use the shared
+`StopTargetBar` (thinner, no ring), or "stop $X" while the bot has no target.
+
+| Token | Value | Use |
+|---|---|---|
+| `compactSize` | 14 pt | The compact island's count, "Flat" and day result (semibold; the result mono) |
+| `headerFigureSize` | 16 pt | The day result in the expanded island and on the Lock Screen (mono), "Tickr" |
+| `rowSize` | 13 pt | A row's symbol and result, the state line |
+| `footnoteSize` | 11 pt | "Stops confirmed at broker 2 s ago" (mono; the time counts on its own) |
+| `mark` | 18 pt | The mark beside "Tickr" |
+| `symbolColumn` | 48 pt | Least width of a row's symbol, so the bars line up |
+| `figureColumn` | 64 pt | Least width of a row's result, so the bars end together |
+| `barHeight` | 6 pt | The bar's track and fill |
+| `knob` | 12 pt | The knob at the last price |
+| `dotRing` | 14 pt | The ring around the dot (open and alarm) |
+
 ## Candle charts (`Tokens.Chart`)
 
 | Token | Value | Use |

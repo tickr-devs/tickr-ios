@@ -71,6 +71,7 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
   "quotes-v1": { try roundTrip(QuotesV1.self, $0) },
   "quotes-response-v1": { try roundTrip(QuotesResponseV1.self, $0) },
   "session-v1": { try roundTrip(SessionV1.self, $0) },
+  "push-token-v1": { try roundTrip(PushTokenV1.self, $0) },
 ]
 
 @Suite struct ContractTests {
@@ -101,7 +102,7 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
       "chart-v1", "jobs-v1", "journal-v1", "lab-replay-v1", "bot-start-v1", "config-v1", "trade-whatif-v1",
       "quotes-v1", "quotes-response-v1", "day-events-v1", "system-v1",
       "settings-schema-v1", "settings-values-v1", "settings-draft-v1", "settings-history-v1",
-      "settings-applied-v1", "alerts-v1", "readiness-v1", "session-v1"])
+      "settings-applied-v1", "alerts-v1", "readiness-v1", "push-token-v1", "session-v1"])
   }
 
   @Test func flowStagesChipsAndCauses() throws {

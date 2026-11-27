@@ -79,11 +79,26 @@ private final class AlertsAnswers: APITransport {
   }
 
   @Test func aChannelNotBuiltIsNoChoice() throws {
+    // The bot now builds push; a channel it has not built yet (an older bot's push) is no choice.
+    var object = try #require(try JSONSerialization.jsonObject(with: fixture("alerts-v1.json")) as? [String: Any])
+    let channels = try #require(object["channels"] as? [[String: Any]])
+    object["channels"] = channels.map { channel in
+      var channel = channel
+      if channel["channel"] as? String == "push" { channel["cause"] = "not-built" }
+      return channel
+    }
+    let older = try Wire.decoder().decode(AlertsV1.self, from: try JSONSerialization.data(withJSONObject: object))
+    #expect(older.channel(.push)?.cause == .notBuilt)
+    #expect(!older.canChange(.push))
+    #expect(older.channel(.telegram)?.configured == true)
+    #expect(older.canChange(.telegram))
+  }
+
+  @Test func aChannelBuiltButNotConfiguredIsStillAChoice() throws {
     let alerts = try alerts()
-    #expect(alerts.channel(.push)?.cause == .notBuilt)
-    #expect(!alerts.canChange(.push))
-    #expect(alerts.channel(.telegram)?.configured == true)
-    #expect(alerts.canChange(.telegram))
+    #expect(alerts.channel(.push)?.configured == false)
+    #expect(alerts.channel(.push)?.cause == .notConfigured)
+    #expect(alerts.canChange(.push))
   }
 
   @Test func theColumnsAreTheChannelsTheBotAnswers() throws {

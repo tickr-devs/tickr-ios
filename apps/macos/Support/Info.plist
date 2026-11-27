@@ -16,6 +16,11 @@
 	<!-- The bot's alerts stay on screen until dismissed (System Settings can still change it). -->
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
+	<!-- The APNs environment of this build's push token (TICKR_APS_ENVIRONMENT in
+	     apps/Config/Identity.xcconfig), which the app tells the bot. A make-app.sh build leaves
+	     it unexpanded, so it registers no token. -->
+	<key>TickrApsEnvironment</key>
+	<string>$(TICKR_APS_ENVIRONMENT)</string>
 	<!-- Keys Xcode cannot generate from build settings; the rest is generated (GENERATE_INFOPLIST_FILE). -->
 	<!-- The bot's API is plain HTTP on 127.0.0.1 only. -->
 	<key>NSAppTransportSecurity</key>

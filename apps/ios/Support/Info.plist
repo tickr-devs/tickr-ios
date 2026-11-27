@@ -25,6 +25,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
@@ -32,6 +34,10 @@
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Confirms commands that cancel orders or close positions.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>TickrApsEnvironment</key>
+	<string>$(TICKR_APS_ENVIRONMENT)</string>
 	<key>TickrSimulatorTokenFile</key>
 	<string>$(TICKR_SIMULATOR_FILE)</string>
 	<key>UILaunchScreen</key>

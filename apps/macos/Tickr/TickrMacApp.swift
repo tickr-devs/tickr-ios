@@ -32,6 +32,8 @@ struct TickrMacApp: App {
   static let defaultWidth: CGFloat = 1440
   static let defaultHeight: CGFloat = 920
 
+  /// Receives the push token the system gives this Mac (MacAppDelegate.swift).
+  @NSApplicationDelegateAdaptor(MacAppDelegate.self) private var appDelegate
   @State private var model: AppModel
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
 
@@ -45,6 +47,13 @@ struct TickrMacApp: App {
     LayoutSweep.startIfAsked(model: model)
     LayoutSweep.smallestIfAsked(model: model)
     #endif
+    // Ask once, here, where the question can be seen, to show the bot's push (APNs). Not in the
+    // UI tests' fixture mode, where nobody could answer, nor without an app bundle (`swift run`).
+    var asksForNotifications = MacAppDelegate.isBundled
+    #if DEBUG
+    asksForNotifications = asksForNotifications && !PreviewAPI.servesFixtures
+    #endif
+    if asksForNotifications { Task { await MacAppDelegate.registerForPushIfAllowed() } }
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.
     NSApplication.shared.setActivationPolicy(.regular)

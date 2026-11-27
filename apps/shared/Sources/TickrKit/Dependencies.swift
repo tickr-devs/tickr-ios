@@ -49,6 +49,13 @@ extension Container {
     self { LiveQuotes() }.cached
   }
 
+  /// Hands this device's APNs tokens to the bot (POST /push-token): one per app run, so a token
+  /// is sent once whichever delegate or model reports it. Tests register one with an identity.
+  @MainActor
+  public var pushRegistrar: Factory<PushRegistrar> {
+    self { PushRegistrar(identity: PushIdentity.of(.main, platform: .current)) }.cached
+  }
+
   /// Where this device's bot token lives: its Keychain (`Keychain`). Tests give one in memory.
   public var keychain: Factory<Keychain> {
     self { Keychain() }

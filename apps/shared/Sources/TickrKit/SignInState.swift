@@ -22,8 +22,10 @@ public final class SignInState {
     email = signedIn ? defaults.string(forKey: Self.emailKey) : nil
   }
 
-  /// The bot gave this device its tokens (kept by `BotSession`) for the account `email`.
+  /// The bot gave this device its tokens (kept by `BotSession`) for the account `email`. The bot
+  /// holds no push token of a new sign-in, so `PushRegistrar` sends them all again.
   public func signedIn(email: String) {
+    Container.shared.pushRegistrar().signedIn()
     self.email = email
     defaults.set(email, forKey: Self.emailKey)
     ended = nil
