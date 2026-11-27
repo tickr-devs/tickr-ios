@@ -2,7 +2,7 @@ import SwiftUI
 
 // The pieces of a symbol's row and detail on the Symbols screen and the Fast movers card (mockups
 // v89, MacSymbols), drawn the same on both apps: a fast mover's figure, the stage track, the
-// detail's headline, its disclosures and path steps. They take plain texts and colours; each app
+// detail's headline and path steps. They take plain texts and colours; each app
 // maps the API's rows onto them.
 
 /// One figure of a fast mover ("vol 6.4×", "+2.1 ATR", "$vol 4.1×"). The criterion the row met
@@ -141,66 +141,6 @@ public struct SymbolHeadline: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .accessibilityElement(children: .combine)
   }
-}
-
-/// A section of a detail that opens in place (mockups MacSymbols, MacChart, "Steps today ▾"):
-/// its label, a short summary on the right and a chevron that turns; the content shows under it
-/// while open. A real button, the whole row its touch target; `id` names it for the UI tests.
-public struct DetailDisclosure<Content: View>: View {
-  let title: Text
-  let summary: String?
-  @Binding var isOpen: Bool
-  let id: String?
-  let content: Content
-
-  public init(
-    _ title: LocalizedStringResource, summary: String?, isOpen: Binding<Bool>, id: String? = nil,
-    @ViewBuilder content: () -> Content
-  ) {
-    self.title = Text(title)
-    self.summary = summary
-    _isOpen = isOpen
-    self.id = id
-    self.content = content()
-  }
-
-  public var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      Button {
-        withAnimation(Tokens.Motion.quick) { isOpen.toggle() }
-      } label: {
-        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-          title
-            .textCase(.uppercase)
-            .font(Tokens.Typography.label)
-            .tracking(Tokens.Typography.labelTracking)
-            .foregroundStyle(Palette.textQuaternary)
-          Spacer(minLength: Tokens.Space.s)
-          if let summary {
-            Text(verbatim: summary)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(Palette.textTertiary)
-          }
-          Image(systemName: Symbols.next)
-            .font(Tokens.Typography.chevron)
-            .foregroundStyle(Palette.textQuaternary)
-            .rotationEffect(isOpen ? .degrees(DisclosureLook.openDegrees) : .zero)
-        }
-        .frame(minHeight: Tokens.Size.footerLink)
-        .contentShape(Rectangle())
-      }
-      .buttonStyle(.plain)
-      .accessibilityAddTraits(isOpen ? .isSelected : [])
-      .accessibilityIdentifier(id ?? "")
-      if isOpen { content }
-    }
-  }
-}
-
-/// The look of `DetailDisclosure` (a generic type keeps no stored constants).
-private enum DisclosureLook {
-  /// How far the chevron turns when open, in degrees: from pointing on to pointing down.
-  static let openDegrees: Double = 90
 }
 
 /// One stage of a symbol's path today in the detail (mockup v101): a small icon in the step's

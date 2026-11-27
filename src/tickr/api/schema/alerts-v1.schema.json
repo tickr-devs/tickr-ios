@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:alerts-v1",
+  "title": "AlertsV1",
+  "type": "object",
+  "properties": {
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "telegram",
+              "push"
+            ]
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "cause": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "no-preflight",
+                  "preflight-unreadable",
+                  "check-failed",
+                  "not-built",
+                  "not-configured"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "channel",
+          "configured",
+          "cause"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "kinds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "trading",
+              "day",
+              "lab"
+            ]
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "channels": {
+            "type": "object",
+            "properties": {
+              "telegram": {
+                "type": "boolean"
+              },
+              "push": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "telegram",
+              "push"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "kind",
+          "group",
+          "locked",
+          "channels"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "routing_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "channels",
+    "kinds",
+    "routing_cause",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

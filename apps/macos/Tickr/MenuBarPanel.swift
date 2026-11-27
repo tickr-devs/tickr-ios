@@ -1,9 +1,10 @@
+#if os(macOS)
 import SwiftUI
 import TickrDesign
 import TickrKit
 
 /// The menu-bar extra: what the bot is doing, today's result, the open positions against their
-/// stops, the bot's flow and Pause entries, without opening the main window. It always
+/// stops and pausing entries, without opening the main window (the other commands are there). It always
 /// shows today, even while the main window shows a recorded day. Drawn as the design's solid card:
 /// the panel's own surface replaces the window's translucent material, which greyed it out.
 struct MenuBarPanel: View {
@@ -12,7 +13,7 @@ struct MenuBarPanel: View {
 
   /// Entrance order of the panel's parts.
   private enum Order: Int {
-    case status = 0, result, positions, flow, controls, footer
+    case status = 0, result, positions, controls, footer
   }
 
   /// SF Symbol of the demo day banner.
@@ -29,18 +30,7 @@ struct MenuBarPanel: View {
       StatusBanner().rise(step: Order.status.rawValue)
       TodayResult().rise(step: Order.result.rawValue)
       MenuPositions().rise(step: Order.positions.rawValue)
-      FlowDots().rise(step: Order.flow.rawValue)
-      // Only Pause entries (Resume while paused), as designed; closing positions and stopping the
-      // bot are in the main window, and the line under it says so.
-      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-        BotCommandButton(action: model.pauseAction, place: .menuBar, size: .compact)
-        Text(L10n.MenuBar.moreInApp)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textQuaternary)
-          .fixedSize(horizontal: false, vertical: true)
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .rise(step: Order.controls.rawValue)
+      MenuControls().rise(step: Order.controls.rawValue)
       Rectangle()
         .fill(Palette.separator)
         .frame(height: Tokens.Stroke.thin)
@@ -96,11 +86,18 @@ private struct TodayResult: View {
             .font(Tokens.Typography.panelFigure)
             .foregroundStyle(Palette.result(result))
             .tracking(Tokens.Typography.panelFigureTracking)
-          // Wraps rather than being cut short (Spanish runs longer).
-          Text(summary(status))
+          // Each wraps rather than being cut short (Spanish runs longer).
+          Text(trades(status))
             .font(Tokens.Typography.subheadlineMono)
             .foregroundStyle(Palette.textQuaternary)
             .fixedSize(horizontal: false, vertical: true)
+          // The room is the bot's own number; without it (or the limit) the line is left out.
+          if let limit = model.settings?.risk.maxDailyLossUsd.value, let room = status.dailyRoomUsd?.value {
+            Text(L10n.MenuBar.room(Money.usd(room), Money.usd(limit)))
+              .font(Tokens.Typography.subheadlineMono)
+              .foregroundStyle(Palette.textTertiary)
+              .fixedSize(horizontal: false, vertical: true)
+          }
         } else {
           Text(verbatim: Format.missing)
             .font(Tokens.Typography.panelFigure)
@@ -116,15 +113,11 @@ private struct TodayResult: View {
     }
   }
 
-  private func summary(_ status: StatusV1) -> LocalizedStringResource {
+  private func trades(_ status: StatusV1) -> LocalizedStringResource {
     let results = status.tradesToday.map(\.resultUsd.value)
     let wins = results.filter { $0 > 0 }.count
     let losses = results.filter { $0 < 0 }.count
-    // The room is the bot's own number; without it (or the limit) the line shows trades only.
-    guard let limit = model.settings?.risk.maxDailyLossUsd.value, let room = status.dailyRoomUsd?.value else {
-      return L10n.MenuBar.trades(results.count, wins, losses)
-    }
-    return L10n.MenuBar.tradesAndRoom(results.count, wins, losses, Money.usd(room), Money.usd(limit))
+    return L10n.MenuBar.trades(results.count, wins, losses)
   }
 
   /// The running sum of today's closed trades, from zero.
@@ -220,12 +213,12 @@ struct MenuPosition: View {
         }
       }
       StopTargetBar(progress: progress, muted: row?.isStale ?? false)
-      // As designed: shield and stop | entry mark and entry | last; the words are the hints.
+      // As designed: shield and Stop | Entry | Now, each word with its price.
       HStack {
         HStack(spacing: Tokens.Space.xs + Tokens.Space.xxs) {
           StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
           if let stop = position.stop.price?.value {
-            Text(verbatim: Format.price(stop))
+            Text(L10n.MenuBar.stop(Format.price(stop)))
               .hint(L10n.Position.stopLevel(Format.price(stop)))
           }
         }
@@ -233,7 +226,7 @@ struct MenuPosition: View {
         Text(L10n.MenuBar.entry(Format.price(position.entryPrice.value)))
           .hint(L10n.Position.entryLevel(Format.price(position.entryPrice.value)))
         Spacer()
-        Text(verbatim: Format.price(row?.price ?? row?.latestClose))
+        Text(L10n.MenuBar.now(Format.price(row?.price ?? row?.latestClose)))
           .hint(row?.live == nil ? L10n.Position.lastBarClose : L10n.Position.bid)
       }
       .font(Tokens.Typography.annotation)
@@ -287,55 +280,23 @@ private struct StopTargetBar: View {
   }
 }
 
-/// The stages a setup passes, as glowing dots over one-word names: bright while the bot runs,
-/// dim otherwise. They move only when the bot's state changes (one pulse), never on a timer.
-private struct FlowDots: View {
+/// The panel's one command, as designed: pause entries (or resume them), sent at once as on
+/// Overview; closing positions and stopping the bot are left to the window, and a line says so.
+private struct MenuControls: View {
   @Environment(AppModel.self) private var model
 
-  private struct Stage: Identifiable {
-    let id: Int
-    let name: LocalizedStringResource
-    let color: Color
-  }
-
-  private var stages: [Stage] {
-    let stops = model.status.map(Board.positions)?.map(\.stop.state) ?? []
-    // The one stage rule of both apps, as on Overview (`StopState.stageTone`).
-    let stopColor = StopState.stageTone(open: stops, day: (model.flow?.stops ?? []).map(\.state)).fill
-    let items: [(LocalizedStringResource, Color)] = [
-      (L10n.MenuBar.flowScreen, Palette.accent),
-      (L10n.MenuBar.flowStrategy, Palette.highlight),
-      (L10n.MenuBar.flowRisk, Palette.warning),
-      (L10n.MenuBar.flowOrder, Palette.info),
-      (L10n.MenuBar.flowStop, stopColor),
-      (L10n.MenuBar.flowReconcile, Palette.infoText),
-    ]
-    return items.enumerated().map { Stage(id: $0.offset, name: $0.element.0, color: $0.element.1) }
-  }
-
-  private var moving: Bool {
-    model.status?.botState == .running && model.fetchError == nil
-  }
-
   var body: some View {
-    HStack(alignment: .top, spacing: 0) {
-      ForEach(stages) { stage in
-        if stage.id > 0 { Spacer(minLength: Tokens.Space.xs) }
-        VStack(spacing: Tokens.Space.xs) {
-          // Still unless the bot's state changes: the dots show the stages, not activity.
-          PulseDot(stage.color, size: Tokens.Size.flowMark, pulsing: moving, event: model.status?.botState)
-            .shadow(color: stage.color, radius: Tokens.Size.flowMark / 2)
-            .opacity(moving ? 1 : Tokens.Opacity.medium)
-          // One short word on one line, as drawn.
-          Text(stage.name)
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
-            .fixedSize()
-        }
+    VStack(alignment: .leading, spacing: Tokens.Space.s) {
+      // Pause or Resume only once the status says which applies: never guessed while unknown.
+      if model.status != nil {
+        BotCommandButton(action: model.pauseAction, place: .menuBar, size: .compact)
+          .frame(maxWidth: .infinity)
       }
+      Text(L10n.MenuBar.moreInApp)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+        .fixedSize(horizontal: false, vertical: true)
     }
-    .padding(.horizontal, Tokens.Space.xs + Tokens.Space.xxs)
-    .padding(.vertical, Tokens.Space.xxs)
   }
 }
 
@@ -456,4 +417,5 @@ private struct MenuFooter: View {
   MenuBarPanel()
     .environment(PreviewAPI.model())
 }
+#endif
 #endif

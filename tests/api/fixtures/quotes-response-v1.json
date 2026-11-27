@@ -1,0 +1,26 @@
+{
+  "served_at": "2026-11-16T15:00:02.123Z",
+  "quotes": {
+    "written_at": "2026-11-16T15:00:01.823Z",
+    "quotes": [
+      {
+        "symbol": "ABCD",
+        "bid": "12.50",
+        "ask": "12.52",
+        "quoted_at": "2026-11-16T15:00:01.123Z",
+        "received_at": "2026-11-16T15:00:01.323Z"
+      },
+      {
+        "symbol": "EFGH",
+        "bid": "3.4100",
+        "ask": "3.4300",
+        "quoted_at": "2026-11-16T14:58:00.123Z",
+        "received_at": "2026-11-16T14:58:00.423Z"
+      }
+    ],
+    "schema_version": 1,
+    "stream_received_at": "2026-11-16T15:00:01.323Z",
+    "stream_connected_at": "2026-11-16T14:50:00.123Z"
+  },
+  "api_version": 1
+}

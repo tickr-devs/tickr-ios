@@ -200,23 +200,15 @@ struct CandleChart: View {
               .font(Tokens.Typography.annotation)
               .foregroundStyle(mark.color)
           }
-          .annotation(position: .top, overflowResolution: Self.keepInside) {
-            if labelsDecisions {
-              ChartMarkPlate(mark.label, color: mark.color, textColor: mark.color)
-            }
-          }
       }
-      // The trades after the decisions: drawn later, their plates ("EXIT −$42.23") sit over a
-      // decision's diamond on the same bar instead of under it.
+      // The trades after the decisions: drawn later, over a decision's diamond on the same bar.
+      // The plates of both are drawn over the chart, placed apart (`ChartMarkPlates`).
       ForEach(marks) { mark in
         PointMark(x: .value(Plot.time, mark.time), y: .value(Plot.price, mark.price))
           .symbol {
             Image(systemName: mark.kind == .entry ? Self.entrySymbol : Self.exitSymbol)
               .font(Tokens.Typography.annotation)
               .foregroundStyle(mark.color)
-          }
-          .annotation(position: mark.kind == .entry ? .bottom : .top, overflowResolution: Self.keepInside) {
-            ChartMarkPlate(mark.label, color: mark.color, textColor: mark.textColor)
           }
       }
       if let last = candles.last {
@@ -402,6 +394,28 @@ struct CandleChart: View {
     }
   }
 
+  /// The price pane's plates, placed apart over the chart: an exit's first, then an entry's,
+  /// then the decisions' while few are on screen. A fill's plate goes under its mark, the others
+  /// above; all keep clear of the candles and marks where they can.
+  func markPlates(_ proxy: ChartProxy) -> ChartMarkPlates {
+    let exits = marks.filter { $0.kind != .entry }
+    let entries = marks.filter { $0.kind == .entry }
+    let trades = (exits + entries).map { mark in
+      ChartMarkPlates.Plate(time: mark.time, price: mark.price, label: mark.label, color: mark.color,
+        textColor: mark.textColor, side: mark.kind == .entry ? .below : .above)
+    }
+    let labelled = labelsDecisions ? decisions : []
+    let verdicts = labelled.map { mark in
+      ChartMarkPlates.Plate(time: mark.time, price: mark.price, label: mark.label, color: mark.color,
+        textColor: mark.color, side: .above)
+    }
+    let columns = candles[drawn].map { candle in
+      ChartMarkPlates.Column(start: bodyStart(candle), end: bodyEnd(candle), low: candle.low, high: candle.high)
+    }
+    let glyphs = marks.map { (time: $0.time, price: $0.price) } + decisions.map { (time: $0.time, price: $0.price) }
+    return ChartMarkPlates(plates: trades + verdicts, columns: columns, glyphs: glyphs, proxy: proxy)
+  }
+
   /// Whether the decisions on screen are few enough to label.
   private var labelsDecisions: Bool {
     let shown = windowStart...windowStart.addingTimeInterval(visibleLength)
@@ -419,8 +433,8 @@ struct CandleChart: View {
       case .stochastic: Text(L10n.Chart.stochastic)
       case .atr:
         if let value = plot.atr.last(where: { $0 != nil }) ?? nil {
-          Text(L10n.Chart.atr(Indicators.atrPeriod)) + Text(verbatim: Format.itemSeparator)
-            + Text(verbatim: Money.value(value)).foregroundStyle(Palette.seriesATRText)
+          Text.joined(Text(L10n.Chart.atr(Indicators.atrPeriod)), Text(verbatim: Format.itemSeparator),
+            Text(verbatim: Money.value(value)).foregroundStyle(Palette.seriesATRText))
         } else {
           Text(L10n.Chart.atr(Indicators.atrPeriod))
         }
@@ -641,7 +655,7 @@ struct CandleChart: View {
       least: Double(Tokens.Chart.hourLabelSpacing))
     let labels = sessions.labels(
       range: plot.range, candles: plot.real, extendedClose: plot.extendedClose, hourStep: step)
-    let font = NSFont.monospacedSystemFont(ofSize: Tokens.Chart.sessionAxisLabelSize, weight: .regular)
+    let font = PlatformFont.monospacedSystemFont(ofSize: Tokens.Chart.sessionAxisLabelSize, weight: .regular)
     let texts = labels.map { SessionAxisText.texts($0.kind, dayName: Format.chartSessionDay) }
     let items = zip(labels, texts).map { label, forms in
       AxisLabelPlacer.Item(
@@ -705,7 +719,7 @@ struct CandleChart: View {
   /// Whether a band's caption fits inside it on screen, with its inset on both sides.
   private func fits(_ caption: String, from start: Date, to end: Date) -> Bool {
     guard plotWidth > 0, visibleLength > 0 else { return false }
-    let font = NSFont.monospacedSystemFont(ofSize: Tokens.Chart.bandCaptionSize, weight: .semibold)
+    let font = PlatformFont.monospacedSystemFont(ofSize: Tokens.Chart.bandCaptionSize, weight: .semibold)
     let width = TextMeasure.width(caption, font: font, kern: Tokens.Chart.bandCaptionSize * Tokens.Chart.bandCaptionTracking)
     let shown = Double(plotWidth) * end.timeIntervalSince(start) / visibleLength
     return shown >= Double(width + Tokens.Chart.bandCaptionInset + Tokens.Chart.bandCaptionInset)
@@ -989,8 +1003,19 @@ private struct SharedAxis: ViewModifier {
     let pointer = chart.pointerModel
     scrolling(content)
       .chartXSelection(value: chart.selection)
+      #if os(macOS)
       // A click holds the crosshair on its candle; the next click lets it go.
       .simultaneousGesture(TapGesture().onEnded { pointer.togglePin() })
+      #else
+      // A touch screen has no pointer to rest on a candle: a tap selects the tapped candle and
+      // holds the crosshair on it, the next tap lets it go. Dragging still scrolls the chart.
+      .chartGesture { proxy in
+        SpatialTapGesture().onEnded { tap in
+          proxy.selectXValue(at: tap.location.x)
+          pointer.touch(in: pane, at: tap.location)
+        }
+      }
+      #endif
       .onContinuousHover { phase in
         switch phase {
         case .active(let location): pointer.move(in: pane, to: location)
@@ -999,6 +1024,7 @@ private struct SharedAxis: ViewModifier {
       }
       .chartOverlay { proxy in
         ZStack {
+          if pane == .price { chart.markPlates(proxy) }
           AxisTags(tags: tags, proxy: proxy)
           Crosshair(pointer: pointer, plot: chart.plot, pane: pane, showsTime: showsTime, proxy: proxy,
             marks: { chart.pointedMarks(pane, $0) })

@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:performance-v1",
+  "title": "PerformanceV1",
+  "type": "object",
+  "properties": {
+    "environment": {
+      "type": "string"
+    },
+    "from_day": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "to_day": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "trades": {
+      "type": "integer"
+    },
+    "wins": {
+      "type": "integer"
+    },
+    "losses": {
+      "type": "integer"
+    },
+    "scratches": {
+      "type": "integer"
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cause": {
+            "type": "string"
+          },
+          "trades": {
+            "type": "integer"
+          },
+          "cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "cause",
+          "trades"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "win_rate": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "win_rate_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expectancy_gross_r": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expectancy_gross_r_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expectancy_gross_usd": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expectancy_gross_usd_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "average_win_gross_r": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "average_win_gross_r_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "average_loss_gross_r": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "average_loss_gross_r_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "profit_factor_gross": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "profit_factor_gross_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "max_drawdown_gross_r": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "max_drawdown_gross_usd": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "result_gross_r": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "result_gross_usd": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "days": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "trades": {
+            "type": "integer"
+          },
+          "result_gross_r": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "result_gross_usd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "cumulative_gross_r": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          }
+        },
+        "required": [
+          "day",
+          "trades",
+          "result_gross_r",
+          "result_gross_usd",
+          "cumulative_gross_r"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "win_rate_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "expectancy_gross_r_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "expectancy_gross_usd_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "average_win_gross_r_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "average_loss_gross_r_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "profit_factor_gross_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "environment",
+    "from_day",
+    "to_day",
+    "trades",
+    "wins",
+    "losses",
+    "scratches",
+    "exclusions",
+    "win_rate",
+    "win_rate_cause",
+    "expectancy_gross_r",
+    "expectancy_gross_r_cause",
+    "expectancy_gross_usd",
+    "expectancy_gross_usd_cause",
+    "average_win_gross_r",
+    "average_win_gross_r_cause",
+    "average_loss_gross_r",
+    "average_loss_gross_r_cause",
+    "profit_factor_gross",
+    "profit_factor_gross_cause",
+    "max_drawdown_gross_r",
+    "max_drawdown_gross_usd",
+    "result_gross_r",
+    "result_gross_usd",
+    "days",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

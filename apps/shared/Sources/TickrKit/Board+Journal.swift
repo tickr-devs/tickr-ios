@@ -72,7 +72,7 @@ extension Board {
       let stop = event.cause.flatMap(BotStop.init(rawValue:))
       return (L10n.journalBotOff, String(localized: stopTitle(stop)), stop?.calm ?? true ? .muted : .amber)
     case .exitRequested:
-      return (L10n.journalExit, joined(symbol, exitReasonTitle(cause)), exitKind(cause) == .ordinary ? .blue : .amber)
+      return (L10n.journalExit, joined(symbol, journalReason(cause)), exitKind(cause) == .ordinary ? .blue : .amber)
     case .fenceSet, .fenceCleared:
       let title = String(localized: event.subject.flatMap(ApiText.fenceKindCase)?.title ?? L10n.fenceOther)
       return kind == .fenceSet
@@ -86,8 +86,14 @@ extension Board {
       // A trade closed (the order kinds are `orderParts`').
       // An entry that never filled bought nothing: it did not close a position.
       let notFilled = ExitReason(rawValue: cause).map { [.entryNotFilled, .entryNotFilledInTime].contains($0) } ?? false
-      return (notFilled ? L10n.journalNotFilled : L10n.journalClosed, joined(symbol, exitReasonTitle(cause)), closedTone(cause))
+      return (notFilled ? L10n.journalNotFilled : L10n.journalClosed, joined(symbol, journalReason(cause)), closedTone(cause))
     }
+  }
+
+  /// An exit reason in words, nil for one this app has no words for: a line never shows the
+  /// bot's code ("stopped-out"), it leaves the reason out.
+  static func journalReason(_ raw: String) -> String? {
+    ExitReason(rawValue: raw).map { String(localized: $0.title) }
   }
 
   static func filledTone(_ leg: OrderLeg?) -> Event.Tone {

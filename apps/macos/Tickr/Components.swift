@@ -5,6 +5,7 @@ import TickrKit
 // The macOS app's building blocks. Every size, colour and curve comes from the design system
 // (docs/design-system.md); screens compose these and do not restyle them.
 
+#if os(macOS)
 extension Severity {
   /// SF Symbols of the menu-bar extra when the bot needs a look; calm shows the brand glyph.
   static let attentionSymbol = "pause.circle"
@@ -35,6 +36,7 @@ enum MenuBarMark {
     return image
   }()
 }
+#endif
 
 extension Badge {
   /// BACKLOG: something planned and not built yet (docs/backlog.md), the shared dashed `planned`
@@ -422,11 +424,6 @@ enum Format {
     guard let code = status.codeVersion else { return strategy(status.strategy) }
     return String(localized: L10n.Common.strategyCode(status.strategy.name, status.strategy.version,
       CodeVersion.short(code)))
-  }
-
-  /// The same for a strategy named in a decision record.
-  static func strategy(_ strategy: StrategyRefV1) -> String {
-    String(localized: L10n.Common.strategyVersion(strategy.name, strategy.version))
   }
 
   static func quantity(_ value: Decimal) -> String {

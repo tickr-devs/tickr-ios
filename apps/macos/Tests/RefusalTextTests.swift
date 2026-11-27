@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Why a signal was refused, as the app shows it")
 struct RefusalTextTests {

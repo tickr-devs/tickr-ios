@@ -1,6 +1,7 @@
 import XCTest
 
-/// Layout sweep: every tab, Risk, Settings and Activity's panes, scrolled to their end, in
+/// Layout sweep: every tab, Risk, Settings, Home's funnel and day sheets and Activity's panes,
+/// scrolled to their end, then Home and Chart in landscape with the chart options sheet, in
 /// English and Spanish at the default and at large Dynamic Type sizes, for checking that nothing
 /// slides under the bars, overlaps or gets clipped. CI reads every picture for truncated text
 /// (apps/scripts/find_truncated_text.swift). Run on each iPhone size (CI: .github/workflows/layout-sweep.yml runs it
@@ -32,11 +33,23 @@ final class LayoutSweepUITests: XCTestCase {
   private static let homeScreens = ["home.risk", "home.settings"]
   private static let back = "nav.back"
   private static let activitySection = "activity.section"
+  /// Home's sheets: the funnel row and the day capsule (a button only where the day can change),
+  /// in the order the sweep opens them; and the X that closes every card sheet
+  /// (TickrDesign's `ListCap.closeID`).
+  private static let homeSheets = ["home.funnel", "home.daySwitch"]
+  private static let sheetClose = "card-sheet.close"
+  /// The Chart top bar's button for the "Chart options" sheet, there only in landscape.
+  private static let chartOptions = "chart.options"
+  /// Indices of Home, Chart and Activity in `tabs`.
+  private static let homeTab = 0
+  private static let chartTab = 2
+  private static let activityTab = 3
   /// Most extra pictures taken while scrolling one tab down.
   private static let maxScrolls = 6
 
   override func setUp() async throws {
     continueAfterFailure = true
+    XCUIDevice.shared.orientation = .portrait
     guard ProcessInfo.processInfo.environment["SWEEP_API"] != nil else {
       throw XCTSkip("SWEEP_API is not set: the layout sweep needs `tickr demo`")
     }
@@ -63,16 +76,26 @@ final class LayoutSweepUITests: XCTestCase {
           tab.tap()
           sleep(Self.settle)
           capture(app, "\(prefix)-tab\(index)")
-          if index == 0 { home(app, prefix) }
-          if index == 3 { activity(app, prefix) }
+          if index == Self.homeTab { home(app, prefix) }
+          if index == Self.activityTab { activity(app, prefix) }
         }
+        landscape(app, prefix)
         app.terminate()
       }
     }
   }
 
-  /// Risk and Settings, each scrolled through, then back to Home.
+  /// The funnel and day sheets, each scrolled through and closed; then Risk and Settings, each
+  /// scrolled through, then back to Home.
   private func home(_ app: XCUIApplication, _ prefix: String) {
+    for (index, id) in Self.homeSheets.enumerated() {
+      let button = app.buttons[id].firstMatch
+      guard reach(button, in: app) else { continue }
+      button.tap()
+      sleep(Self.settle)
+      capture(app, "\(prefix)-tab0-sheet\(index)")
+      closeSheet(app, id)
+    }
     for (index, id) in Self.homeScreens.enumerated() {
       let button = app.buttons[id]
       guard reach(button, in: app) else { continue }
@@ -84,6 +107,49 @@ final class LayoutSweepUITests: XCTestCase {
       if reach(back, in: app) { back.tap() }
       sleep(Self.settle)
     }
+  }
+
+  /// Home and Chart in landscape, each scrolled through, and the chart options sheet; then back
+  /// to portrait.
+  private func landscape(_ app: XCUIApplication, _ prefix: String) {
+    XCUIDevice.shared.orientation = .landscapeLeft
+    defer {
+      XCUIDevice.shared.orientation = .portrait
+      sleep(Self.settle)
+    }
+    sleep(Self.settle)
+    for index in [Self.homeTab, Self.chartTab] {
+      let tab = app.buttons[Self.tabs[index]]
+      guard tab.waitForExistence(timeout: Self.wait) else {
+        XCTFail("no tab bar in landscape (\(prefix))")
+        return
+      }
+      tab.tap()
+      sleep(Self.settle)
+      capture(app, "\(prefix)-landscape-tab\(index)")
+    }
+    let options = app.buttons[Self.chartOptions].firstMatch
+    guard reach(options, in: app) else {
+      XCTFail("Chart has no options button in landscape (\(prefix))")
+      return
+    }
+    options.tap()
+    sleep(Self.settle)
+    capture(app, "\(prefix)-landscape-tab\(Self.chartTab)-options")
+    closeSheet(app, Self.chartOptions)
+  }
+
+  /// Closes the open card sheet with its X; fails if the X is missing or the sheet stays (the
+  /// next pictures would show the sheet, not the screen).
+  private func closeSheet(_ app: XCUIApplication, _ opener: String) {
+    let close = app.buttons[Self.sheetClose].firstMatch
+    guard close.waitForExistence(timeout: Self.wait), close.isHittable else {
+      XCTFail("the sheet of \(opener) has no close button")
+      return
+    }
+    close.tap()
+    XCTAssertTrue(close.waitForNonExistence(timeout: Self.wait), "the sheet of \(opener) stayed open")
+    sleep(Self.settle)
   }
 
   /// Scrolls back up until `element` is on the screen; false when it never is.

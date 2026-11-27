@@ -14,10 +14,8 @@ struct ChartExplainCard: View {
   let error: String?
   /// The chart shows one day: decisions are recorded per day, so a longer range has none to read.
   let showsDay: Bool
-  /// The checks behind the decision are open.
-  @State private var showsWhy = false
 
-  /// Accessibility ids of the card's content and of its "Why" disclosure, for the UI tests.
+  /// Accessibility ids of the card's content and of its "Why" footer link, for the UI tests.
   static let contentID = "chart-decisions-list"
   static let whyID = "chart-decision-why"
 
@@ -25,7 +23,8 @@ struct ChartExplainCard: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       content.offlineOutline(lines: Tokens.Loading.fewLines)
     }
-    .padding(Tokens.Space.m)
+    // Every card's padding: the "Why" footer link reaches its edges.
+    .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard(radius: Tokens.Radius.large)
     .accessibilityElement(children: .contain)
@@ -41,9 +40,9 @@ struct ChartExplainCard: View {
       }
       summary(decision)
       if !decision.checks.isEmpty {
-        DetailDisclosure(L10n.Chart.explainWhy,
+        FooterDetail(L10n.Chart.explainWhy,
           summary: String(localized: L10n.Chart.checksPassed(decision.checks.filter(\.passed).count, decision.checks.count)),
-          isOpen: $showsWhy, id: Self.whyID) {
+          id: Self.whyID) {
           ForEach(Array(decision.checks.enumerated()), id: \.offset) { _, check in
             CheckRow(check: check)
           }
@@ -143,7 +142,7 @@ private struct CheckRow: View {
         .foregroundStyle(Palette.textQuaternary)
         .fixedSize()
     }
-    .help(Text(verbatim: help))
+    .tip(Text(verbatim: help))
     .accessibilityElement(children: .combine)
   }
 

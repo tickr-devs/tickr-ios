@@ -1,0 +1,30 @@
+{
+  "valid": false,
+  "refusals": [
+    {
+      "owner": "platform",
+      "key": "risk.min_daily_room_usd",
+      "cause": "RULE_BROKEN",
+      "detail": "daily_room_below_ceiling: risk.min_daily_room_usd 60 must be < risk.max_daily_loss_usd 50"
+    },
+    {
+      "owner": "platform",
+      "key": "risk.max_open_positions",
+      "cause": "WRONG_TYPE",
+      "detail": "expected int as TOML text, got '1.5'"
+    }
+  ],
+  "changes": [
+    {
+      "owner": "platform",
+      "key": "risk.min_daily_room_usd",
+      "current": "10",
+      "draft": "60",
+      "changed": true,
+      "applies": "at_once",
+      "needs_face_id": false,
+      "requires_retraining": false
+    }
+  ],
+  "api_version": 1
+}

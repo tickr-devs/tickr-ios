@@ -20,6 +20,17 @@ struct DailyRoomTests {
     #expect(DailyRoom.left(limit: 300, netResult: -340) == 0)
   }
 
+  @Test("A dash for the room is explained only when the bot's status has no room")
+  func roomNote() throws {
+    var raw = try #require(JSONSerialization.jsonObject(with: fixture("status-v1.example.json")) as? [String: Any])
+    let known = try Wire.decoder().decode(StatusV1.self, from: JSONSerialization.data(withJSONObject: raw))
+    raw["daily_room_usd"] = NSNull()
+    let unknown = try Wire.decoder().decode(StatusV1.self, from: JSONSerialization.data(withJSONObject: raw))
+    #expect(RiskRoomText.roomNote(known) == nil)
+    #expect(RiskRoomText.roomNote(unknown)?.key == RiskRoomText.unknownRoom.key)
+    #expect(RiskRoomText.roomNote(nil) == nil)
+  }
+
   @Test("Profits offset losses: the net result counts")
   func netCounts() {
     #expect(DailyRoom.left(limit: 300, netResult: Decimal(string: "-40.5")!) == Decimal(string: "259.5")!)

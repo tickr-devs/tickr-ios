@@ -34,6 +34,13 @@ extension Container {
     }.cached
   }
 
+  /// The app's command keys, one store for every model that sends commands (`CommandKeyStore`).
+  /// Tests get a fresh one under `@Suite(.container)`.
+  @MainActor
+  public var commandKeys: Factory<CommandKeyStore> {
+    self { CommandKeyStore() }.cached
+  }
+
   /// The bot's live quotes as last read (GET /quotes): one per app run, so every screen shows the
   /// same price for one symbol at one moment. The app model reads it every second.
   @MainActor

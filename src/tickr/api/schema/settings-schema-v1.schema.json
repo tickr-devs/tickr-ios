@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:settings-schema-v1",
+  "title": "SettingsSchemaV1",
+  "type": "object",
+  "properties": {
+    "settings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "int",
+              "decimal",
+              "bool"
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "usd",
+              "seconds",
+              "minutes",
+              "count",
+              "bars",
+              "sessions",
+              "multiple",
+              "ratio",
+              "atr",
+              "spreads",
+              "percent",
+              "switch"
+            ]
+          },
+          "group": {
+            "type": "string"
+          },
+          "description_en": {
+            "type": "string"
+          },
+          "description_es": {
+            "type": "string"
+          },
+          "applies": {
+            "type": "string",
+            "enum": [
+              "at_once",
+              "when_flat",
+              "next_session"
+            ]
+          },
+          "loosens": {
+            "type": "string",
+            "enum": [
+              "raise",
+              "lower",
+              "never",
+              "raise_or_off"
+            ]
+          },
+          "needs_face_id": {
+            "type": "boolean"
+          },
+          "requires_retraining": {
+            "type": "boolean"
+          },
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "minimum_inclusive": {
+            "type": "boolean"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "step": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "owner",
+          "key",
+          "kind",
+          "unit",
+          "group",
+          "description_en",
+          "description_es",
+          "applies",
+          "loosens",
+          "needs_face_id",
+          "requires_retraining",
+          "minimum",
+          "minimum_inclusive",
+          "maximum",
+          "step"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "left": {
+            "type": "string"
+          },
+          "compare": {
+            "type": "string",
+            "enum": [
+              "<",
+              "<="
+            ]
+          },
+          "right": {
+            "type": "string"
+          },
+          "description_en": {
+            "type": "string"
+          },
+          "description_es": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner",
+          "name",
+          "left",
+          "compare",
+          "right",
+          "description_en",
+          "description_es"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "settings",
+    "rules",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

@@ -349,6 +349,11 @@ private struct Stat<Value: View>: View {
 /// The shown day's closed trades. Double-click or the context menu opens a trade on the Chart.
 private struct TradesTable: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.dynamicTypeSize) private var typeSize
+  #if os(iOS)
+  /// The card's width for the table, in points: the table scrolls sideways only below its least.
+  @State private var cardWidth = CGFloat.infinity
+  #endif
   @Binding var selection: DayTrade.ID?
   /// The row under the pointer, tinted as one.
   @State private var hovered: TradeRow.ID?
@@ -390,6 +395,16 @@ private struct TradesTable: View {
   /// are cut.
   static let leastWidth: CGFloat = Column.leastWidths.reduce(0, +)
     + cellSpacing * CGFloat(Column.leastWidths.count - 1) + edgeInset * CardArrangement.paddedEdges
+
+  #if os(iOS)
+  /// How much larger iOS draws the table's text (callout, at the screen's Dynamic Type size) than
+  /// the Mac's 12 points it was measured in: the table's least width grows with it.
+  static func typeGrowth(_ size: DynamicTypeSize) -> CGFloat {
+    TextMeasure.pointSize(.callout, at: size) / macCalloutSize
+  }
+  /// The Mac's callout size, in points (Apple's macOS type sizes), the table's values' font there.
+  static let macCalloutSize: CGFloat = 12
+  #endif
 
   /// Height of the "no trades" message in place of the table, in points.
   static let emptyHeight: CGFloat = 280
@@ -433,8 +448,29 @@ private struct TradesTable: View {
         .frame(height: Self.emptyHeight)
         .accessibilityIdentifier(Self.emptyID)
       } else {
+        #if os(macOS)
         table
           .frame(height: tableHeight)
+        #else
+        // iOS draws the table's text a little larger than the Mac its columns were measured on:
+        // where the card is narrower than the columns need (an iPad in portrait), the table
+        // scrolls sideways at an exact size rather than cut a column. A table left to size itself
+        // inside the sideways scroll view drew nothing on an iPad (2026-11-26).
+        let least = Self.leastWidth * Self.typeGrowth(typeSize)
+        Group {
+          if cardWidth >= least {
+            table
+          } else {
+            ScrollView(.horizontal) {
+              table.frame(width: least, height: tableHeight)
+            }
+            .withoutScrollIndicators()
+          }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: tableHeight)
+        .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { cardWidth = $0 })
+        #endif
       }
     })
   }
@@ -479,7 +515,7 @@ private struct TradesTable: View {
               }
             }
             .buttonStyle(.plain)
-            .help(Text(L10n.Trades.showOnChart))
+            .tip(Text(L10n.Trades.showOnChart))
             .accessibilityLabel(Text(L10n.Trades.openPosition(position.id)))
             .accessibilityIdentifier(TradeRow.openID)
           case .closed(let trade):
@@ -625,19 +661,20 @@ private struct OpenLine: View {
     .font(Tokens.Typography.captionMono)
     .foregroundStyle(state.isProtected ? Palette.textSecondary : state.tone.text)
     .fixedSize()
-    .help(Text(verbatim: state.title))
+    .tip(Text(verbatim: state.title))
   }
 }
 
 /// The selected trade (MacTrades v134): its symbol and time, the result big with its R, one line
 /// with its size, prices, stop and 1 R, and how it exited; its risk, stop timing, price excursion
-/// and what came after are one click away under "Details". "Other versions" replays it.
+/// and what came after are one click away behind "Details ›", in a popover. "Other versions" replays it.
 private struct TradeDetailCard: View {
   let trade: DayTrade?
   @State private var anotherShown = false
 
-  /// Accessibility id of the card, for the UI tests.
+  /// Accessibility ids of the card and of its "Details" footer link, for the UI tests.
   static let id = "trades-detail"
+  static let detailsID = "trades-detail-more"
   /// Symbol of the "Other versions" button.
   static let anotherSymbol = "arrow.triangle.branch"
 
@@ -654,7 +691,7 @@ private struct TradeDetailCard: View {
           .buttonStyle(.chip(selected: true))
           // Full label in either language, never cut.
           .fixedSize()
-          .help(Text(L10n.Trades.anotherHelp))
+          .tip(Text(L10n.Trades.anotherHelp))
           .popover(isPresented: $anotherShown, arrowEdge: .bottom) {
             AnotherStrategyView(trade: trade)
           }
@@ -675,10 +712,10 @@ private struct TradeDetailCard: View {
               Badge(verbatim: Board.exitReasonTitle(trade.exitReason), tone: Tone.exit(trade.exitReason))
             }
             .font(Tokens.Typography.callout)
-            DisclosureLine(L10n.Trades.details) {
+            Spacer(minLength: 0)
+            FooterDetail(L10n.Trades.details, id: Self.detailsID) {
               details(trade)
             }
-            Spacer(minLength: 0)
           }
           .frame(maxHeight: .infinity, alignment: .top)
         })
@@ -718,7 +755,7 @@ private struct TradeDetailCard: View {
         Text(L10n.Trades.stopConfirmedAfter).foregroundStyle(Palette.textSecondary)
           .frame(maxWidth: .infinity, alignment: .leading)
           .fixedSize(horizontal: false, vertical: true)
-          .help(Text(L10n.Trades.stopConfirmedHelp))
+          .tip(Text(L10n.Trades.stopConfirmedHelp))
         if let seconds = trade.stopConfirmedAfterSeconds {
           Text(verbatim: Format.seconds(seconds.value)).font(Tokens.Typography.calloutMono)
             // The values line up on the right, as in the design; the labels take the rest.
@@ -735,9 +772,12 @@ private struct TradeDetailCard: View {
         let value = Text(verbatim: sent.text)
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(sent.color)
+          // "Once · acknowledged" wraps under itself in a narrow card, never cut.
+          .multilineTextAlignment(.trailing)
+          .fixedSize(horizontal: false, vertical: true)
         // A tooltip only when there is something to add (the bot's cause of a missing record).
         if let help = sent.help {
-          value.help(Text(verbatim: help))
+          value.tip(Text(verbatim: help))
         } else {
           value
         }
@@ -750,7 +790,7 @@ private struct TradeDetailCard: View {
           .fixedSize(horizontal: false, vertical: true)
         if let code = trade.codeVersion {
           Text(verbatim: CodeVersion.short(code)).font(Tokens.Typography.calloutMono)
-            .help(Text(L10n.Trades.codeVersionHelp(code)))
+            .tip(Text(L10n.Trades.codeVersionHelp(code)))
         } else {
           notRecorded
         }
@@ -759,7 +799,7 @@ private struct TradeDetailCard: View {
         Text(L10n.Trades.overshoot).foregroundStyle(Palette.textSecondary)
           .frame(maxWidth: .infinity, alignment: .leading)
           .fixedSize(horizontal: false, vertical: true)
-          .help(Text(L10n.Trades.overshootHelp))
+          .tip(Text(L10n.Trades.overshootHelp))
         if let usd = trade.overshootUsd?.value {
           Text(L10n.Trades.overshootValue(Money.signedUSD(usd), trade.overshootR.map { Risk.text($0.value) }
             ?? Format.missing))
@@ -768,7 +808,7 @@ private struct TradeDetailCard: View {
             .foregroundStyle(Palette.textPrimary)
         } else {
           Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
-            .help(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
+            .tip(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
         }
       }
     }
@@ -778,7 +818,7 @@ private struct TradeDetailCard: View {
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textTertiary)
         .fixedSize(horizontal: false, vertical: true)
-        .help(Text(L10n.Trades.priceAfterExit))
+        .tip(Text(L10n.Trades.priceAfterExit))
     }
     Footnote(L10n.Trades.excursionLowerBound)
   }
@@ -961,14 +1001,16 @@ private struct AnotherStrategyView: View {
 
 /// The active strategy's entry signals of the shown day that did not become a position: refused
 /// by the platform (the rule in words, with its detail) or never evaluated, each with what it
-/// would have made, and the day's total in the header (MacTrades v134). A click opens a row's
-/// what-if levels and the price after. Repeats on one symbol for one reason are one row, as on iOS.
+/// would have made, and the day's total in the header (MacTrades v139): the latest three, then
+/// "Show all N ›" with every row in a sheet. A click opens a row's what-if levels and the price after. Repeats on one symbol for one reason are one row, as on iOS.
 private struct NotTakenCard: View {
   @Environment(AppModel.self) private var model
   /// Runs of signals the bot added in the latest read: each flashes once.
   @State private var arrived: Set<SkippedGroup.ID> = []
   let showOnChart: (String) -> Void
 
+  /// Rows the card shows before "Show all N ›" (owner, MacTrades v139).
+  static let rows = 3
   /// A new row's flash reaches a little past it, as the design's row background does.
   static let rowOutset = EdgeInsets(
     top: Tokens.Space.xxs, leading: Tokens.Space.xs, bottom: Tokens.Space.xxs, trailing: Tokens.Space.xs)
@@ -988,14 +1030,15 @@ private struct NotTakenCard: View {
             .foregroundStyle(Palette.result(summary.resultUsd))
         }
         // How the total was worked out, and how many it counts, on hover.
-        .help(Text(L10n.Trades.whatIfHelp) + Text(verbatim: Format.itemSeparator)
-          + Text(L10n.Trades.whatIfCounts(summary.wins, summary.losses, summary.notReplayed)))
+        .tip(Text.joined(Text(L10n.Trades.whatIfHelp), Text(verbatim: Format.itemSeparator),
+          Text(L10n.Trades.whatIfCounts(summary.wins, summary.losses, summary.notReplayed))))
       }
     }, content: {
       if let signals = model.skipped?.signals, !signals.isEmpty {
         let groups = SkippedGroup.make(signals)
         // The latest runs (newest first), then "Show all N ›": refusals add up all day.
-        CappedList(groups, id: \.id, title: L10n.Trades.notTaken) { index, group in
+        // Two-line rows, capped at three as on the board (MacTrades v139), however tall the card.
+        CappedList(groups, id: \.id, title: L10n.Trades.notTaken, limit: Self.rows, fills: false) { index, group in
           VStack(alignment: .leading, spacing: Tokens.Space.s) {
             if index > 0 { Divider() }
             SkippedRow(group: group, showOnChart: showOnChart)
@@ -1016,9 +1059,9 @@ private struct NotTakenCard: View {
   }
 }
 
-/// One run of skipped signals: the symbol, the rule that refused it with its detail and time,
-/// and what it would have made. A click opens the what-if levels and the price after; the context
-/// menu opens the Chart on its symbol.
+/// One run of skipped signals in two lines (MacTrades v139): the symbol, the rule that refused it
+/// and what it would have made, then when (with the repeats) and the rule's detail. A click opens
+/// the what-if levels and the price after under it; the context menu opens the Chart on its symbol.
 private struct SkippedRow: View {
   let group: SkippedGroup
   let showOnChart: (String) -> Void
@@ -1026,9 +1069,6 @@ private struct SkippedRow: View {
 
   /// Width of the symbol column, in points: a five-letter symbol in 13-point mono.
   static let symbolWidth: CGFloat = 56
-  /// Symbols of the row's disclosure, closed and open.
-  static let closedSymbol = "chevron.down"
-  static let openSymbol = "chevron.up"
 
   /// "16:27" or, for repeats, "16:27–16:29 · ×3"; repeats within one minute (or on one bar)
   /// read "16:27 · ×3", never "16:27–16:27".
@@ -1044,6 +1084,7 @@ private struct SkippedRow: View {
     let signal = group.latest
     // The what-if is the setup's first signal: a repeat would not have been a second trade.
     let setup = group.first
+    let cause = group.cause.map(CauseWords.init)
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       Button { withAnimation(Tokens.Motion.standard) { open.toggle() } } label: {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
@@ -1051,31 +1092,28 @@ private struct SkippedRow: View {
             .font(Tokens.Typography.calloutMono.weight(.semibold))
             .frame(width: Self.symbolWidth, alignment: .leading)
           VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            HStack(spacing: Tokens.Space.s) {
-              admission
-              Text(verbatim: when)
-                .font(Tokens.Typography.captionMono)
-                .foregroundStyle(Palette.textTertiary)
-            }
-            if let cause = group.cause {
-              CauseText(cause: cause)
-            }
+            Text(cause?.title ?? (signal.admission == .refused ? L10n.Cause.other : L10n.Trades.notEvaluated))
+              .font(Tokens.Typography.callout.weight(.semibold))
+              .foregroundStyle(Palette.textPrimary)
+            Text(verbatim: ([when] + [cause?.detail].compactMap { $0 }).joined(separator: Format.itemSeparator))
+              .font(Tokens.Typography.captionMono)
+              .foregroundStyle(Palette.textTertiary)
+              .tip(cause?.help.map { Text(verbatim: $0) } ?? Text(verbatim: when))
           }
+          .fixedSize(horizontal: false, vertical: true)
           .frame(maxWidth: .infinity, alignment: .leading)
           HStack(spacing: Tokens.Space.xs) {
             Text(verbatim: setup.whatIf.resultR.map { Risk.text($0.value) } ?? Format.missing)
               .font(Tokens.Typography.captionMono.bold())
               .foregroundStyle(setup.whatIf.resultR.map { Palette.result($0.value) } ?? Palette.textQuaternary)
-            Image(systemName: open ? Self.openSymbol : Self.closedSymbol)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(Palette.textQuaternary)
-              .accessibilityHidden(true)
+            ExpandChevron(open: open)
           }
           .fixedSize()
         }
         .contentShape(.rect)
       }
       .buttonStyle(.plain)
+      .accessibilityAddTraits(open ? .isSelected : [])
       .contextMenu {
         Button { showOnChart(signal.symbol) } label: {
           Label { Text(L10n.Trades.showOnChart) } icon: { Image(systemName: "chart.xyaxis.line") }
@@ -1099,53 +1137,39 @@ private struct SkippedRow: View {
       }
     }
   }
-
-  @ViewBuilder private var admission: some View {
-    if group.latest.admission == .refused {
-      Badge(L10n.Trades.refused, tone: Tone.refused)
-    } else {
-      Badge(L10n.Trades.notEvaluated, tone: Tone.notEvaluated)
-    }
-  }
 }
 
-/// A refusal in words: the rule, then the bot's detail with its times in New York.
-private struct CauseText: View {
-  let cause: RefusalCause
+/// A refusal in words: the rule's title, and the bot's detail with its times in New York.
+private struct CauseWords {
+  /// The rule; nil for prose the bot wrote without a code (its detail says it all).
+  let title: LocalizedStringResource?
+  /// The rule's detail in the person's language where the app has a sentence for it, else as the
+  /// bot wrote it with its times made readable; nil when there is none.
+  let detail: String?
+  /// The detail as the bot wrote it, times made readable: the tooltip of a sentence the app wrote.
+  var help: String?
 
-  var body: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-      Group {
-        if let code = cause.known {
-          Text(L10n.Cause.title(code))
-        } else if cause.hasCode {
-          // A code this app has no words for is never shown; its detail follows.
-          Text(L10n.Cause.other)
-        }
-      }
-      .font(Tokens.Typography.callout)
-      .foregroundStyle(Palette.textPrimary)
-      Group {
-        if let cooldown = cause.cooldown {
-          Text(L10n.Cause.cooldownDetail(Format.marketMinute(cooldown.loss), Format.marketMinute(cooldown.until)))
-        } else if cause.known == nil, !cause.hasCode {
-          // Prose the bot wrote without a code: as written, times made readable.
-          Text(verbatim: cause.detail.isEmpty ? cause.code
-            : cause.code + RefusalCause.separator + cause.readable(time: Format.marketMinute))
-        } else if cause.known == nil {
-          if !cause.detail.isEmpty {
-            Text(verbatim: cause.readable(time: Format.marketMinute))
-          }
-        } else if let phrase = cause.phrase {
-          Text(verbatim: phrase)
-            .help(Text(verbatim: cause.readable(time: Format.marketMinute)))
-        } else if !cause.detail.isEmpty {
-          Text(verbatim: cause.readable(time: Format.marketMinute))
-        }
-      }
-      .font(Tokens.Typography.captionMono)
-      .foregroundStyle(Palette.textTertiary)
-      .fixedSize(horizontal: false, vertical: true)
+  init(_ cause: RefusalCause) {
+    let readable = cause.readable(time: Format.marketMinute)
+    if let code = cause.known {
+      title = L10n.Cause.title(code)
+    } else if cause.hasCode {
+      // A code this app has no words for is never shown; its detail follows.
+      title = L10n.Cause.other
+    } else {
+      title = nil
+    }
+    if let cooldown = cause.cooldown {
+      detail = String(localized: L10n.Cause.cooldownDetail(Format.marketMinute(cooldown.loss),
+        Format.marketMinute(cooldown.until)))
+    } else if !cause.hasCode {
+      // Prose the bot wrote without a code: as written, times made readable.
+      detail = cause.detail.isEmpty ? cause.code : cause.code + RefusalCause.separator + readable
+    } else if cause.known != nil, let phrase = cause.phrase {
+      detail = phrase
+      help = readable
+    } else {
+      detail = cause.detail.isEmpty ? nil : readable
     }
   }
 }

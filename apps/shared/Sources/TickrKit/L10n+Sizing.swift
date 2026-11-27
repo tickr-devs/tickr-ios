@@ -158,6 +158,19 @@ extension RiskRoomText {
   static var mismatch: LocalizedStringResource {
     LocalizedStringResource("kit.riskRoom.mismatch", defaultValue: "mismatch", bundle: L10n.bundle)
   }
+  /// Under the room's dash when the bot's status has no room: today's money is unknown, so the
+  /// bot refuses entries (DAILY_MONEY_UNKNOWN; docs/api.md, daily loss money).
+  static var unknownRoom: LocalizedStringResource {
+    LocalizedStringResource("kit.riskRoom.unknownRoom",
+      defaultValue: "Unknown until every trade closed today has its fill prices and fees. New entries wait.",
+      bundle: L10n.bundle)
+  }
+  /// The caption under the room: `unknownRoom` when the bot's status was read without a room
+  /// (never while the status itself is unread), else nil.
+  public static func roomNote(_ status: StatusV1?) -> LocalizedStringResource? {
+    guard let status, status.dailyRoomUsd == nil else { return nil }
+    return unknownRoom
+  }
   /// Fences are up now: "fences: 2".
   static func fences(_ count: Int) -> LocalizedStringResource {
     LocalizedStringResource("kit.riskRoom.fences", defaultValue: "fences: \(count)", bundle: L10n.bundle)

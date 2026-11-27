@@ -15,7 +15,39 @@ public extension View {
     contentShape(Rectangle())
     #endif
   }
+
+  /// A small drawn control's tap area: on iOS it reaches past the drawing up to
+  /// `Size.touchTarget` each way (Apple HIG) while the layout keeps the drawn size, so a Mac-sized
+  /// control on the iPad is as easy to hit as the phone's; the Mac clicks the drawing only.
+  @ViewBuilder
+  func touchReach() -> some View {
+    #if os(iOS)
+    modifier(TouchReach())
+    #else
+    self
+    #endif
+  }
 }
+
+#if os(iOS)
+/// The tap area of `touchReach()`: the drawn size measured, padded out to a touch target for the
+/// hit shape only, and the padding taken back for the layout.
+private struct TouchReach: ViewModifier {
+  @State private var drawn = CGSize.zero
+
+  func body(content: Content) -> some View {
+    let vertical = max(Tokens.Size.touchTarget - drawn.height, 0) / 2
+    let horizontal = max(Tokens.Size.touchTarget - drawn.width, 0) / 2
+    content
+      .onGeometryChange(for: CGSize.self) { $0.size } action: { drawn = $0 }
+      .padding(.vertical, vertical)
+      .padding(.horizontal, horizontal)
+      .contentShape(Rectangle())
+      .padding(.vertical, -vertical)
+      .padding(.horizontal, -horizontal)
+  }
+}
+#endif
 
 /// A button whose label is its own face: a header icon (`HeaderIcon`), a bare symbol in a row,
 /// a calendar's month arrows. No chrome and no colour of its own (the label keeps the one it is
@@ -27,6 +59,7 @@ public struct GlyphButtonStyle: ButtonStyle {
   public func makeBody(configuration: Configuration) -> some View {
     configuration.label
       .contentShape(Rectangle())
+      .touchReach()
       .opacity(configuration.isPressed ? Tokens.Opacity.medium : 1)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
@@ -74,11 +107,11 @@ public extension ButtonStyle where Self == WashPressStyle {
   static func washPress(_ color: Color) -> WashPressStyle { WashPressStyle(color) }
 }
 
-#if os(macOS)
 /// The Mac title bar's small bordered buttons (the sidebar, ‹ › and Today), as on every Mac board
 /// (`.tbtn`): the chip fill, a strong hairline and the label in `textTertiary`. One size for every
 /// title-bar button: an icon-only button `width` × `height`, a titled one as tall with side
-/// padding.
+/// padding. Built on iOS too, for the Mac screens an iPad shows in regular width (TickrScreens);
+/// the iPad's own navigation bar uses system buttons.
 public struct TitleBarButtonStyle: ButtonStyle {
   /// An icon-only button of the fixed size; otherwise the title with side padding.
   let square: Bool
@@ -116,6 +149,7 @@ private struct TitleBarButtonBody: View {
       .background(shape.fill(Palette.chipFill))
       .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
       .contentShape(shape)
+      .touchReach()
       .opacity(isEnabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
   }
@@ -125,11 +159,10 @@ public extension ButtonStyle where Self == TitleBarButtonStyle {
   /// `.buttonStyle(.titleBar(square: true))` (`TitleBarButtonStyle`).
   static func titleBar(square: Bool) -> TitleBarButtonStyle { TitleBarButtonStyle(square: square) }
 }
-#endif
 
 /// The way back to today from another day, the same control wherever a day can be changed: the
-/// Mac title bar's Today (a titled `TitleBarButtonStyle`, as on the boards), the iPhone's Home
-/// day line and Activity calendar (a compact ghost button). The app passes its own words.
+/// Mac title bar's Today (a titled `TitleBarButtonStyle`, as on the boards) and the iPhone's
+/// Activity calendar (a compact ghost button); the iPhone's `DaySwitch` has its own Today row. The app passes its own words.
 public struct TodayButton: View {
   let title: Text
   let action: () -> Void

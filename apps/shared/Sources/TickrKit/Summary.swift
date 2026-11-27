@@ -15,6 +15,12 @@ public struct Headline: Equatable, Sendable {
   /// state. Not `text`: a stale status's text counts its age, which grows with every read of the
   /// same stale status.
   public let pulse: Pulse
+  /// Whether the bot's entry block is the unprotected-position fence itself, which the headline's
+  /// "has no verified stop" already says.
+  static func blocksForThisFence(_ status: StatusV1) -> Bool {
+    status.entryBlock.map { FenceKind(rawValue: $0.cause) == .unprotected } ?? false
+  }
+
   /// The line after the headline about a trusted status: the open positions (`detail(_:)`), "stops
   /// verified" after the holding headline, or why entries are off; nil without a trusted status.
   public let detail: String?
@@ -50,9 +56,10 @@ public struct Headline: Equatable, Sendable {
       return Headline(text: text, severity: .alarm, pulse: response.stale ? .stale : .text(text))
     }
     if let position = status.positions.first(where: { !$0.stop.state.isProtected }) {
+      // The bot's block is usually this same fence ("A position has no verified stop"): said once.
+      let start = String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
       return Headline(
-        text: String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
-          + summary(response),
+        text: blocksForThisFence(status) ? start.trimmingCharacters(in: .whitespaces) : start + summary(response),
         severity: .alarm, detail: detail(status))
     }
     // Below an alarm (mockup v109): a block that needs the operator, then held positions, then a
@@ -79,12 +86,27 @@ public struct Headline: Equatable, Sendable {
   }
 
   /// The line after the headline about a trusted status: how many positions are open and how
-  /// many a verified broker stop protects, or that none is open.
+  /// many a verified broker stop protects, then how many own entry orders work (mockup v162); with
+  /// none open, how many entry orders work, or that none is open.
   static func detail(_ status: StatusV1) -> String {
     let positions = Board.positions(status)
-    guard !positions.isEmpty else { return String(localized: L10n.headlineNoOpenPosition) }
+    guard !positions.isEmpty else {
+      switch status.workingEntries.count {
+      case 0: return String(localized: L10n.headlineNoOpenPosition)
+      case 1: return String(localized: L10n.headlineEntryWorking)
+      case let count: return String(localized: L10n.headlineEntriesWorking(count))
+      }
+    }
     let protected = positions.filter { $0.stop.state.isProtected }.count
-    return String(localized: L10n.headlineProtectedPositions(positions.count, protected))
+    let entries = status.workingEntries.count
+    guard entries > 0 else { return String(localized: L10n.headlineProtectedPositions(positions.count, protected)) }
+    // With entries working the positions' part is the board's short one while every stop is
+    // verified; otherwise it keeps saying how many are protected.
+    let held = String(localized: protected < positions.count
+      ? L10n.headlineProtectedPositions(positions.count, protected)
+      : positions.count == 1 ? L10n.headlinePositionProtected : L10n.headlinePositionsProtected(positions.count))
+    let working = String(localized: entries == 1 ? L10n.headlineEntryWorkingShort : L10n.headlineEntriesWorkingShort(entries))
+    return String(localized: L10n.headlineWithEntries(held, working))
   }
 
   /// The bot's one-line summary in the person's language, built from the status as the bot builds

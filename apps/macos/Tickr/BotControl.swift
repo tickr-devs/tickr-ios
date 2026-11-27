@@ -5,6 +5,8 @@ import TickrKit
 /// An operator action as the app offers it. Each maps to one local-API command.
 enum BotAction: Identifiable, Equatable {
   case pauseEntries, resumeEntries, flatten(symbol: String), closeAll, stopBot
+  /// Cancel one working entry order (mockup v160): the row it was pressed on.
+  case cancelEntry(EntryRow)
 
   /// Ids of the actions (SwiftUI identity only); a flatten action's id ends with its symbol.
   static let pauseID = "pause"
@@ -12,6 +14,7 @@ enum BotAction: Identifiable, Equatable {
   static let flattenPrefix = "flatten-"
   static let closeAllID = "close-all"
   static let stopID = "stop"
+  static let cancelEntryPrefix = "cancel-entry-"
 
   var id: String {
     switch self {
@@ -20,6 +23,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return Self.flattenPrefix + symbol
     case .closeAll: return Self.closeAllID
     case .stopBot: return Self.stopID
+    case .cancelEntry(let row): return Self.cancelEntryPrefix + row.symbol
     }
   }
 
@@ -32,6 +36,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return .flattenSymbol(symbol)
     case .closeAll: return .emergency
     case .stopBot: return .stopBot
+    case .cancelEntry(let row): return .cancelEntry(row.symbol)
     }
   }
 
@@ -43,10 +48,16 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return L10n.Bot.flatten(symbol)
     case .closeAll: return L10n.Bot.flattenAll
     case .stopBot: return L10n.Bot.stopBot
+    case .cancelEntry: return EntryText.cancel
     }
   }
 
   var title: String { String(localized: label) }
+
+  /// Whether `command` is this action's send: Stop bot's also with a mode.
+  func sends(_ command: OperatorCommand) -> Bool {
+    command == self.command || (self == .stopBot && command.kind == .stopBot)
+  }
 
   /// What the button says while the command is on its way: Close all is closing the positions
   /// (its pause and cancel come first and are quick), the rest as the command says it.
@@ -68,6 +79,7 @@ enum BotAction: Identifiable, Equatable {
     case .resumeEntries: return Self.resumeSymbol
     case .flatten, .closeAll: return Self.flattenSymbol
     case .stopBot: return Self.stopSymbol
+    case .cancelEntry: return EntryLook.cancelSymbol
     }
   }
 
@@ -77,13 +89,13 @@ enum BotAction: Identifiable, Equatable {
     switch self {
     case .resumeEntries: return .secondary(.accent)
     case .pauseEntries: return .secondary(.warning)
-    case .flatten, .closeAll, .stopBot: return .destructive
+    case .flatten, .closeAll, .stopBot, .cancelEntry: return .destructive
     }
   }
 
   var isDestructive: Bool {
     switch self {
-    case .flatten, .closeAll, .stopBot: return true
+    case .flatten, .closeAll, .stopBot, .cancelEntry: return true
     case .pauseEntries, .resumeEntries: return false
     }
   }
@@ -98,6 +110,7 @@ enum BotAction: Identifiable, Equatable {
     case .flatten(let symbol): return String(localized: L10n.Bot.flattenQuestion(symbol))
     case .closeAll: return String(localized: L10n.Bot.flattenAllQuestion)
     case .stopBot: return String(localized: L10n.Bot.stopQuestion)
+    case .cancelEntry(let row): return String(localized: EntryText.question(row.symbol))
     }
   }
 
@@ -113,7 +126,16 @@ enum BotAction: Identifiable, Equatable {
       return String(localized: L10n.Bot.closeAllExplanation)
     case .stopBot:
       return String(localized: L10n.Bot.stopExplanation)
+    case .cancelEntry(let row):
+      return String(localized: EntryText.explanation(Shares.text(row.quantity), Money.price(row.limitPrice)))
     }
+  }
+
+  /// The question's answer that sends nothing: Keep for a working entry (mockup v160), Cancel
+  /// for the rest.
+  var keepLabel: LocalizedStringResource {
+    if case .cancelEntry = self { return EntryText.keep }
+    return L10n.Common.cancel
   }
 }
 
@@ -129,6 +151,9 @@ struct PendingConfirmation: Identifiable, Equatable {
   let id = UUID()
   let action: BotAction
   let place: CommandPlace
+  /// Stop bot with positions open asks to choose (Close and stop, Leave open); every other
+  /// question is a plain yes.
+  var stop: StopQuestion = .confirm
 }
 
 /// The Safety card's two commands side by side, as the design draws them: Pause entries (Resume
@@ -162,11 +187,23 @@ struct CloseAllButton: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    if !model.positions.isEmpty {
+    // Not on a stopped bot's positions: its panel stands in their place.
+    if !model.positions.isEmpty && model.stoppedPositions == nil {
       BotCommandButton(action: .closeAll, place: .window, size: .small)
         // A few words: always whole, on one line.
         .fixedSize()
     }
+  }
+}
+
+/// Cancel entry (mockup v160): asks first, then sends cancel-own-orders for the entry's symbol
+/// (`BotAction.cancelEntry`). Off while its cancel is on its way.
+struct CancelEntryButton: View {
+  let row: EntryRow
+
+  var body: some View {
+    BotCommandButton(action: .cancelEntry(row), place: .window, size: .small)
+      .disabled(row.phase != .working)
   }
 }
 
@@ -191,10 +228,16 @@ struct BotCommandButton: View {
     }
     .buttonStyle(.command(action.tier, size: size, tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
     .disabled(!model.commandsEnabled || !applicable)
-    .inFlight(model.inFlight == action.command ? Text(action.inFlightTitle) : nil)
+    .inFlight(inFlightTitle.map { Text($0) })
     // An off close command says why; the rest say what they do.
     .hint(verbatim: applicable ? action.explanation : String(localized: L10n.Bot.noPositions))
     .accessibilityIdentifier(identifier ?? action.id)
+  }
+
+  /// What the button says while its command is on its way: Stop bot says its mode's words.
+  private var inFlightTitle: LocalizedStringResource? {
+    guard let command = model.inFlight, action.sends(command) else { return nil }
+    return action == .stopBot ? command.inFlightTitle : action.inFlightTitle
   }
 
   private var applicable: Bool {
@@ -213,7 +256,8 @@ private struct BotCommandQuestions: ViewModifier {
   let place: CommandPlace
 
   func body(content: Content) -> some View {
-    let question = model.confirming.flatMap { $0.place == place ? $0 : nil }
+    let question = model.confirming.flatMap { $0.place == place && $0.stop == .confirm ? $0 : nil }
+    let choice = model.confirming.flatMap { $0.place == place && $0.stop != .confirm ? $0 : nil }
     content
       // The alert closes its binding around its buttons' actions, in an order SwiftUI does not
       // promise; the question is closed by its buttons instead (Escape is the cancel button), so
@@ -223,11 +267,22 @@ private struct BotCommandQuestions: ViewModifier {
         Button(role: asked.action.isDestructive ? .destructive : nil) {
           model.accept(asked)
         } label: { Text(asked.action.label) }
-        Button(String(localized: L10n.Common.cancel), role: .cancel) { model.withdraw(asked) }
+        Button(role: .cancel) { model.withdraw(asked) } label: { Text(asked.action.keepLabel) }
       } message: { asked in
         // Where the command goes, named in every confirmation: a demo switch left on must never
         // swallow a real command unnoticed.
         Text(BotControls.confirmation(asked.action.explanation, demo: model.demoDay))
+      }
+      // Stop bot with positions open (boards Main, MainNarrow): three buttons, Escape cancels.
+      .alert(Text(verbatim: choice.map { StopChoice.title($0.stop) } ?? ""), isPresented: Binding(get: { choice != nil },
+        set: { _ in }), presenting: choice) { asked in
+        Button(role: .destructive) { model.accept(asked, mode: .closeAndStop) } label: { Text(StopText.closeAndStop) }
+          .accessibilityIdentifier(StopChoice.closeAndStopID)
+        Button { model.accept(asked, mode: .leaveOpen) } label: { Text(StopText.leaveOpen) }
+          .accessibilityIdentifier(StopChoice.leaveOpenID)
+        Button(String(localized: L10n.Common.cancel), role: .cancel) { model.withdraw(asked) }
+      } message: { asked in
+        Text(BotControls.confirmation(StopChoice.explanation(asked.stop), demo: model.demoDay))
       }
       // A question lives only while its window or panel does: closed, or opened anew, it holds no
       // question from before (a question never reappears without a new press).
@@ -247,4 +302,15 @@ extension AppModel {
   /// Pause entries, or Resume entries while the operator's pause is on: the one pause command
   /// of the Safety card and the menu bar.
   var pauseAction: BotAction { status?.entryStop == true ? .resumeEntries : .pauseEntries }
+
+  /// The bot's working entries on the live day, with where each one's cancel stands, and those
+  /// just cancelled (`EntryCancelWatch`).
+  var entryRows: [EntryRow] { isLive ? entryWatch.rows(status, inFlight: inFlight) : [] }
+
+  /// The slots in use of `limit`, a working entry holding one as the engine counts it, with how
+  /// many are pending: "2 of 3 · 1 pending".
+  func slotsText(_ limit: Int) -> String {
+    guard isLive, let status else { return String(localized: L10n.Common.countOf(positions.count, limit)) }
+    return Slots.withPending(String(localized: L10n.Common.countOf(Slots.used(status), limit)), status)
+  }
 }

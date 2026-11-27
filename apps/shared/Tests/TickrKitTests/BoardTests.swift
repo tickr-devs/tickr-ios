@@ -82,6 +82,29 @@ import Testing
     #expect(headline.text.contains("EFGH"))
   }
 
+  /// The bot's block is then the unprotected fence itself: the headline says the missing stop
+  /// once, not again as "A position has no verified stop" (simulator check, 2026-11-26).
+  @Test("A missing stop that is also the entry block is said once")
+  func missingStopSaidOnce() throws {
+    var response = try #require(try JSONSerialization.jsonObject(with: fixture("status-response-v1.json")) as? [String: Any])
+    var status = try #require(response["status"] as? [String: Any])
+    var positions = try #require(status["positions"] as? [[String: Any]])
+    var stop = try #require(positions[0]["stop"] as? [String: Any])
+    stop["state"] = "pending"
+    positions[0]["stop"] = stop
+    status["positions"] = positions
+    var block = try #require(status["entry_block"] as? [String: Any])
+    block["cause"] = FenceKind.unprotected.rawValue
+    block["attention"] = true
+    status["entry_block"] = block
+    response["status"] = status
+    let decoded = try Wire.decoder().decode(StatusResponseV1.self, from: JSONSerialization.data(withJSONObject: response))
+    let headline = Headline.make(response: decoded, readFailed: false)
+    #expect(headline.severity == .alarm)
+    #expect(!headline.text.contains(String(localized: L10n.fenceUnprotected)))
+    #expect(!headline.text.hasSuffix(" "))
+  }
+
   @Test func eventsCoverEverythingNewestFirst() throws {
     let events = Board.events(try status("status-response-v1.json"))
     // The fixture's trade closed with the replay word "stop": the shared map reads it as stopped out.

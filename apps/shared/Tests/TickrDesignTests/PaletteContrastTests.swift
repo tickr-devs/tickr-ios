@@ -93,6 +93,7 @@ import TickrKit
   func meaningTextsPassAA(_ appearance: Appearance) {
     let surface = RGB(Swatch.surface, appearance)
     let texts: [(String, Swatch)] = Tone.allCases.map { ("tone \($0)", $0.textSwatch) }
+      + [("cyan", Swatch.cyanText), ("orange", .orangeText), ("lime", .limeText)]
       + [Verdict.enter, .hold, .watch, .ignore, .exit].map { ("verdict \($0.rawValue)", $0.textSwatch) }
     for (name, swatch) in texts {
       let ratio = Self.ratio(RGB(swatch, appearance), surface)

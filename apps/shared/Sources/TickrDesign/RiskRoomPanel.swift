@@ -56,9 +56,12 @@ public struct RiskRoomPanel: View {
   /// The last entry as one line with "Limits ›" opening every limit (`EntrySizingSummary`,
   /// mockup Main); false lists the limits on the card (`EntrySizingSection`).
   let summary: Bool
+  /// Why the room shows a dash, under the bar (`RiskRoomText.roomNote`).
+  let roomNote: LocalizedStringResource?
 
   public init(
-    room: Decimal?, limit: Decimal, reserved: Decimal?, facts: [RiskFact], sizing: EntrySizing?, summary: Bool = false
+    room: Decimal?, limit: Decimal, reserved: Decimal?, facts: [RiskFact], sizing: EntrySizing?, summary: Bool = false,
+    roomNote: LocalizedStringResource? = nil
   ) {
     self.room = room
     self.limit = limit
@@ -66,6 +69,7 @@ public struct RiskRoomPanel: View {
     self.facts = facts
     self.sizing = sizing
     self.summary = summary
+    self.roomNote = roomNote
   }
 
   public var body: some View {
@@ -83,6 +87,10 @@ public struct RiskRoomPanel: View {
           .fixedSize(horizontal: false, vertical: true)
       }
       RoomBar(room: share(room), reserved: share(reserved))
+      if let roomNote {
+        InfoCaption(roomNote)
+          .fixedSize(horizontal: false, vertical: true)
+      }
       FactGrid(facts: facts)
       if let sizing {
         if summary { EntrySizingSummary(sizing: sizing) } else { EntrySizingSection(sizing: sizing) }

@@ -57,6 +57,7 @@ private struct ActionButtonBody: View {
       .shadow(color: kind == .primary && enabled ? Palette.accent.opacity(Tokens.Opacity.faint) : .clear,
         radius: Tokens.Size.glowRadius, y: Tokens.Space.xxs)
       .contentShape(shape)
+      .touchReach()
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       // Under the pointer an enabled button lifts a point, as the design's buttons do.
@@ -215,6 +216,8 @@ public struct ChipFace: ViewModifier {
   let selected: Bool
   let tone: Tone
   let small: Bool
+  /// A dashed outline: a chip for something not yet held (a working entry beside the positions).
+  let dashed: Bool
 
   /// Side padding of a small chip, in points (`.u-chip.sm`).
   public static let smallSide: CGFloat = 6
@@ -226,10 +229,11 @@ public struct ChipFace: ViewModifier {
   public static let minHeight: CGFloat = 0
   #endif
 
-  public init(selected: Bool, tone: Tone = .info, small: Bool = false) {
+  public init(selected: Bool, tone: Tone = .info, small: Bool = false, dashed: Bool = false) {
     self.selected = selected
     self.tone = tone
     self.small = small
+    self.dashed = dashed
   }
 
   /// Under the pointer: only a regular, enabled chip answers it.
@@ -249,7 +253,8 @@ public struct ChipFace: ViewModifier {
       .padding(.vertical, small ? Tokens.Space.xxs : Tokens.Space.xs)
       .frame(minHeight: small ? nil : Self.minHeight)
       .background(selected ? tone.fill.opacity(Tokens.Opacity.wash) : Palette.surfaceSunken, in: shape)
-      .overlay(shape.strokeBorder(outline, lineWidth: Tokens.Stroke.thin))
+      .overlay(shape.strokeBorder(outline,
+        style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: dashed ? Tokens.Stroke.dashFine : [])))
       .animation(Tokens.Motion.quick, value: selected)
       .animation(Tokens.Motion.quick, value: lit)
       .onHover { hovered = $0 }
@@ -275,15 +280,17 @@ public struct ChipButtonStyle: ButtonStyle {
   @Environment(\.isEnabled) private var enabled
   let selected: Bool
   let tone: Tone
+  let dashed: Bool
 
-  public init(selected: Bool, tone: Tone = .info) {
+  public init(selected: Bool, tone: Tone = .info, dashed: Bool = false) {
     self.selected = selected
     self.tone = tone
+    self.dashed = dashed
   }
 
   public func makeBody(configuration: Configuration) -> some View {
     configuration.label
-      .modifier(ChipFace(selected: selected, tone: tone))
+      .modifier(ChipFace(selected: selected, tone: tone, dashed: dashed))
       .opacity(enabled ? 1 : Tokens.Opacity.faint)
       .scaleEffect(configuration.isPressed ? Tokens.Motion.pressScale : 1)
       .animation(Tokens.Motion.quick, value: configuration.isPressed)
@@ -327,9 +334,9 @@ public extension ButtonStyle where Self == IconButtonStyle {
 }
 
 public extension ButtonStyle where Self == ChipButtonStyle {
-  /// `.buttonStyle(.chip(selected: isShown))`.
-  static func chip(selected: Bool, tone: Tone = .info) -> ChipButtonStyle {
-    ChipButtonStyle(selected: selected, tone: tone)
+  /// `.buttonStyle(.chip(selected: isShown))`; `dashed` for a working entry's chip.
+  static func chip(selected: Bool, tone: Tone = .info, dashed: Bool = false) -> ChipButtonStyle {
+    ChipButtonStyle(selected: selected, tone: tone, dashed: dashed)
   }
 }
 

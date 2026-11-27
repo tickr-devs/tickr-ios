@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:bars-v1",
+  "title": "BarsV1",
+  "type": "object",
+  "properties": {
+    "environment": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "day": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "bars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "open": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "high": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "low": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "close": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "volume": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          }
+        },
+        "required": [
+          "start",
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "environment",
+    "symbol",
+    "day",
+    "bars",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

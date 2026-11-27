@@ -400,6 +400,11 @@ GROUPS = [
                 "{working} entradas activas, límite {limit}",
             ),
             (
+                "STOP_OUT_STREAK",
+                "{count} stop-outs in a row today, limit {limit}; no new entries today",
+                "{count} stops ejecutados seguidos hoy, límite {limit}; sin nuevas entradas hoy",
+            ),
+            (
                 "SYMBOL_COOLDOWN",
                 "{symbol} closed at a loss; no entry before {until}",
                 "{symbol} cerró con pérdida; sin entradas antes de {until}",
@@ -496,6 +501,30 @@ GROUPS = [
                 "Realizado {realized} + reservado {reserved} + esta operación {new} = {total} "
                 "USD, por encima del límite diario de {ceiling} USD",
                 "total",
+            ),
+            (
+                "WEEKLY_CEILING",
+                "This week {realized} + reserved {reserved} + this trade {new} = {total} USD, "
+                "over the weekly limit of {ceiling} USD",
+                "Esta semana {realized} + reservado {reserved} + esta operación {new} = {total} "
+                "USD, por encima del límite semanal de {ceiling} USD",
+            ),
+            (
+                "EQUITY_UNKNOWN",
+                "No equity read yet",
+                "Aún no se ha leído el capital",
+            ),
+            (
+                "EQUITY_UNKNOWN",
+                "Equity read {age} s ago, limit {limit} s",
+                "Capital leído hace {age} s, límite {limit} s",
+                "age",
+            ),
+            (
+                "EQUITY_UNKNOWN",
+                "Equity figure {value} is not usable",
+                "La cifra de capital {value} no es utilizable",
+                "value",
             ),
             (
                 "BUYING_POWER_UNKNOWN",

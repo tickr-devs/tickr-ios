@@ -1,6 +1,6 @@
 import Foundation
 
-/// Texts of the System card on both apps (GET /system, mockup v120).
+/// Texts of the System card on both apps (GET /system, mockup v134).
 public enum SystemText {
   static var bundle: LocalizedStringResource.BundleDescription { L10n.bundle }
 
@@ -50,12 +50,17 @@ public enum SystemText {
   // MARK: Webull link
 
   public static var link: LocalizedStringResource {
-    LocalizedStringResource("kit.system.link", defaultValue: "Webull link", bundle: bundle)
+    LocalizedStringResource("kit.system.link", defaultValue: "Broker connection", bundle: bundle)
   }
-  /// Under the link: the last broker read and the age past which entries are blocked.
+  /// Under an aging link: the read age new entries need.
   public static func linkNote(_ seconds: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.system.linkNote",
-      defaultValue: "Last broker read · new entries need it under \(seconds) s", bundle: bundle)
+      defaultValue: "New entries need a broker read under \(seconds) s", bundle: bundle)
+  }
+  /// Under a stale link: new entries are blocked until a read is that young again.
+  public static func linkBlocked(_ seconds: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.system.linkBlocked",
+      defaultValue: "New entries blocked: needs a broker read under \(seconds) s", bundle: bundle)
   }
   public static var streamFresh: LocalizedStringResource {
     LocalizedStringResource("kit.system.streamFresh", defaultValue: "Quotes live", bundle: bundle)
@@ -78,8 +83,9 @@ public enum SystemText {
   public static func passed(_ time: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.system.passed", defaultValue: "Passed \(time)", bundle: bundle)
   }
-  public static func failed(_ check: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.system.failed", defaultValue: "Failed: \(check)", bundle: bundle)
+  /// A failed check, with the time it finished (New York).
+  public static func failed(_ time: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.system.failed", defaultValue: "Failed \(time)", bundle: bundle)
   }
   public static var noSession: LocalizedStringResource {
     LocalizedStringResource("kit.system.noSession", defaultValue: "No session that day", bundle: bundle)
@@ -95,10 +101,13 @@ public enum SystemText {
     LocalizedStringResource("kit.system.ranByBotStart", defaultValue: "Before the bot started · \(day) · \(time) ET",
       bundle: bundle)
   }
-  /// Beside a failed check that stops the bot from starting.
-  public static var botWillNotStart: LocalizedStringResource {
-    LocalizedStringResource("kit.system.botWillNotStart", defaultValue: "The bot does not start on this result",
-      bundle: bundle)
+  /// Under a failed check that stops the bot from starting: the check that failed.
+  public static func willNotStart(_ check: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.system.willNotStart", defaultValue: "Bot will not start: \(check)", bundle: bundle)
+  }
+  /// Under a failed check the bot starts anyway: the check that failed.
+  public static func checkFailed(_ check: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.system.checkFailed", defaultValue: "Failed check: \(check)", bundle: bundle)
   }
 
   /// A preflight check's name in the person's language; an unknown one reads "Another check".
@@ -141,12 +150,11 @@ public enum SystemText {
   // MARK: training
 
   public static var training: LocalizedStringResource {
-    LocalizedStringResource("kit.system.training", defaultValue: "Model training", bundle: bundle)
+    LocalizedStringResource("kit.system.training", defaultValue: "Next model version", bundle: bundle)
   }
-  /// Under the bar: the job's own name, its steps and when it last reported.
-  public static func trainingNote(_ job: String, _ done: Int, _ total: Int, _ updated: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.system.trainingNote", defaultValue: "\(job) · \(done) of \(total) · updated \(updated)",
-      bundle: bundle)
+  /// A running training job's share of its steps: "Training 62%".
+  public static func trainingPercent(_ percent: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.system.trainingPercent", defaultValue: "Training \(percent)", bundle: bundle)
   }
   public static var trainingDone: LocalizedStringResource {
     LocalizedStringResource("kit.system.trainingDone", defaultValue: "Done", bundle: bundle)
@@ -154,8 +162,9 @@ public enum SystemText {
   public static var trainingFailed: LocalizedStringResource {
     LocalizedStringResource("kit.system.trainingFailed", defaultValue: "Stopped", bundle: bundle)
   }
-  public static var idle: LocalizedStringResource {
-    LocalizedStringResource("kit.system.idle", defaultValue: "Idle", bundle: bundle)
+  /// No training job reports.
+  public static var notTraining: LocalizedStringResource {
+    LocalizedStringResource("kit.system.notTraining", defaultValue: "Not training", bundle: bundle)
   }
 
   // MARK: watchdog
@@ -163,16 +172,14 @@ public enum SystemText {
   public static var watchdog: LocalizedStringResource {
     LocalizedStringResource("kit.system.watchdog", defaultValue: "Watchdog", bundle: bundle)
   }
-  public static var startedToday: LocalizedStringResource {
-    LocalizedStringResource("kit.system.startedToday", defaultValue: "Started today", bundle: bundle)
+  /// The watchdog started today and watches the bot.
+  public static var watching: LocalizedStringResource {
+    LocalizedStringResource("kit.system.watching", defaultValue: "Watching", bundle: bundle)
   }
   public static var notStartedToday: LocalizedStringResource {
     LocalizedStringResource("kit.system.notStartedToday", defaultValue: "Not started today", bundle: bundle)
   }
-  /// Its latest broker check after the flatten time.
-  public static func lastCheckFlat(_ time: String) -> LocalizedStringResource {
-    LocalizedStringResource("kit.system.lastCheckFlat", defaultValue: "Last check \(time) ET · nothing open", bundle: bundle)
-  }
+  /// Its latest broker check after the flatten time, when it found a trade left open.
   public static func lastCheckOpen(_ time: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.system.lastCheckOpen", defaultValue: "Last check \(time) ET · something left open",
       bundle: bundle)
@@ -181,15 +188,12 @@ public enum SystemText {
     LocalizedStringResource("kit.system.lastCheckFailed", defaultValue: "Last check \(time) ET · broker read failed",
       bundle: bundle)
   }
-  public static var noCheckYet: LocalizedStringResource {
-    LocalizedStringResource("kit.system.noCheckYet", defaultValue: "No broker check recorded yet", bundle: bundle)
-  }
   public static var restarts: LocalizedStringResource {
     LocalizedStringResource("kit.system.restarts", defaultValue: "Watchdog restarts", bundle: bundle)
   }
   public static var noRestarts: LocalizedStringResource {
     LocalizedStringResource("kit.system.noRestarts",
-      defaultValue: "None yet: the bot was never found down with an open trade", bundle: bundle)
+      defaultValue: "None yet", bundle: bundle)
   }
   public static var restartStarted: LocalizedStringResource {
     LocalizedStringResource("kit.system.restartStarted", defaultValue: "Started", bundle: bundle)
@@ -212,20 +216,13 @@ public enum SystemText {
   // MARK: sleep
 
   public static var sleep: LocalizedStringResource {
-    LocalizedStringResource("kit.system.sleep", defaultValue: "Sleep prevention", bundle: bundle)
+    LocalizedStringResource("kit.system.sleep", defaultValue: "Stays awake", bundle: bundle)
   }
+  /// The no-sleep hold is in place.
   public static var keptAwake: LocalizedStringResource {
-    LocalizedStringResource("kit.system.keptAwake", defaultValue: "Kept awake", bundle: bundle)
+    LocalizedStringResource("kit.system.keptAwake", defaultValue: "Yes", bundle: bundle)
   }
   public static var maySleep: LocalizedStringResource {
     LocalizedStringResource("kit.system.maySleep", defaultValue: "Mac may sleep", bundle: bundle)
-  }
-  /// Under the hold: how many caffeinate processes hold it.
-  public static func holds(_ count: Int) -> LocalizedStringResource {
-    LocalizedStringResource("kit.system.holds", defaultValue: "caffeinate holds: \(count)", bundle: bundle)
-  }
-  public static var notNeededNow: LocalizedStringResource {
-    LocalizedStringResource("kit.system.notNeededNow", defaultValue: "Not needed while the bot is not running",
-      bundle: bundle)
   }
 }

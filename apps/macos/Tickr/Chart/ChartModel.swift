@@ -89,8 +89,8 @@ final class ChartModel {
   /// changes nothing; a refusal (503 while market data is off) shows its cause. Returns how long
   /// to wait before asking again while the answer is `pending` (the chart's budget fills it).
   @discardableResult
-  func loadRange(baseURL: URL, symbol: String, interval: Timeframe, range: ChartRange) async -> TimeInterval? {
-    let client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
+  func loadRange(endpoint: APIClient.Endpoint, symbol: String, interval: Timeframe, range: ChartRange) async -> TimeInterval? {
+    let client = Container.shared.apiClient(endpoint)
     loading = true
     defer { loading = false }
     do {
@@ -121,8 +121,8 @@ final class ChartModel {
   /// unavailable or the latest session is not `day` yet. Returns how long to wait before asking
   /// again while the answer is `pending`.
   @discardableResult
-  func loadToday(baseURL: URL, symbol: String, interval: Timeframe, day: WireDate) async -> TimeInterval? {
-    let client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
+  func loadToday(endpoint: APIClient.Endpoint, symbol: String, interval: Timeframe, day: WireDate) async -> TimeInterval? {
+    let client = Container.shared.apiClient(endpoint)
     loading = true
     defer { loading = false }
     do {
@@ -147,10 +147,10 @@ final class ChartModel {
     }
   }
 
-  /// Reads the M1 bars of `symbol` on `day` from the API at `baseURL` (the bot's capture). A
+  /// Reads the M1 bars of `symbol` on `day` from the API at `endpoint` (the bot's capture). A
   /// cancelled read changes nothing.
-  func load(baseURL: URL, symbol: String, day: WireDate) async {
-    let client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
+  func load(endpoint: APIClient.Endpoint, symbol: String, day: WireDate) async {
+    let client = Container.shared.apiClient(endpoint)
     loading = true
     defer { loading = false }
     do {
@@ -170,8 +170,8 @@ final class ChartModel {
 
   /// Reads the strategy decisions on `symbol` on `day`. A failed read clears the earlier answer,
   /// so the inspector never shows an old list as current; a cancelled read changes nothing.
-  func loadDecisions(baseURL: URL, symbol: String, day: WireDate) async {
-    let client = Container.shared.apiClient(APIClient.Endpoint(baseURL: baseURL))
+  func loadDecisions(endpoint: APIClient.Endpoint, symbol: String, day: WireDate) async {
+    let client = Container.shared.apiClient(endpoint)
     do {
       let fresh = try await client.decisions(symbol: symbol, day: day)
       guard !Task.isCancelled else { return }

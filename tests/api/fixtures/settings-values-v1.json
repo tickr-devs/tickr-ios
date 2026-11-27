@@ -1,0 +1,32 @@
+{
+  "files": [
+    {
+      "owner": "platform",
+      "file": "config/bot.toml",
+      "digest": "9999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "owner": "price-action-v3",
+      "file": "strategies/price-action-v3/strategy.toml",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "values": [
+    {
+      "owner": "platform",
+      "key": "risk.max_daily_loss_usd",
+      "value": "50"
+    },
+    {
+      "owner": "platform",
+      "key": "risk.max_entry_rest_bars",
+      "value": null
+    },
+    {
+      "owner": "price-action-v3",
+      "key": "indicators.refuse_when_relative_volume_unavailable",
+      "value": "true"
+    }
+  ],
+  "api_version": 1
+}

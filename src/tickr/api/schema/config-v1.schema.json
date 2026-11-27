@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:config-v1",
+  "title": "ConfigV1",
+  "type": "object",
+  "properties": {
+    "file": {
+      "type": "string"
+    },
+    "digest": {
+      "type": "string"
+    },
+    "changed_since_start": {
+      "type": "boolean"
+    },
+    "valid": {
+      "type": "boolean"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "comment": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "key",
+                "value",
+                "comment"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "name",
+          "keys"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "file",
+    "digest",
+    "changed_since_start",
+    "valid",
+    "error",
+    "sections",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import TickrDesign
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("One send per decision, as the app shows it")
 struct EntrySentTests {

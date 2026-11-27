@@ -15,9 +15,10 @@ func fixture(_ name: String) throws -> Data {
   try Data(contentsOf: fixturesDir.appendingPathComponent(name))
 }
 
-/// Schemas of endpoints the apps no longer call, so they keep no Swift model of them: the shadow
-/// strategies' day and the AI advisor's runs (re-scoped to the trained model, docs/backlog.md).
-let unmirroredSchemas: Set<String> = ["observers-v1", "advisor-runs-v1"]
+/// Schemas the apps never read, so they keep no Swift model of them: the shadow strategies' day and the AI
+/// advisor's runs (endpoints the apps no longer call, re-scoped to the trained model, docs/backlog.md), and the
+/// bot's run facts file, which only the API reads (GET /status serves its facts inside `status`).
+let unmirroredSchemas: Set<String> = ["observers-v1", "advisor-runs-v1", "run-facts-v1"]
 
 /// Decode with the Swift model, encode again, and compare as JSON values.
 /// Equality proves every key and value of the fixture is modelled, including nulls.
@@ -46,6 +47,8 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
   "settings-schema-v1": { try roundTrip(SettingsSchemaV1.self, $0) },
   "settings-values-v1": { try roundTrip(SettingsValuesV1.self, $0) },
   "settings-draft-v1": { try roundTrip(SettingsDraftV1.self, $0) },
+  "settings-history-v1": { try roundTrip(SettingsHistoryV1.self, $0) },
+  "settings-applied-v1": { try roundTrip(SettingsAppliedV1.self, $0) },
   "explain-v1": { try roundTrip(ExplainV1.self, $0) },
   "decisions-v1": { try roundTrip(DecisionsV1.self, $0) },
   "skipped-v1": { try roundTrip(SkippedV1.self, $0) },
@@ -60,6 +63,7 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
   "jobs-v1": { try roundTrip(JobsV1.self, $0) },
   "journal-v1": { try roundTrip(JournalV1.self, $0) },
   "system-v1": { try roundTrip(SystemV1.self, $0) },
+  "readiness-v1": { try roundTrip(ReadinessV1.self, $0) },
   "alerts-v1": { try roundTrip(AlertsV1.self, $0) },
   "day-events-v1": { try roundTrip(DayEventsV1.self, $0) },
   "lab-replay-v1": { try roundTrip(LabReplayV1.self, $0) },
@@ -95,7 +99,8 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
       "flow-v1", "watching-v1", "symbols-v1", "movers-v1", "account-v1", "account-response-v1",
       "chart-v1", "jobs-v1", "journal-v1", "lab-replay-v1", "bot-start-v1", "config-v1", "trade-whatif-v1",
       "quotes-v1", "quotes-response-v1", "day-events-v1", "system-v1",
-      "settings-schema-v1", "settings-values-v1", "settings-draft-v1", "alerts-v1"])
+      "settings-schema-v1", "settings-values-v1", "settings-draft-v1", "settings-history-v1",
+      "settings-applied-v1", "alerts-v1", "readiness-v1"])
   }
 
   @Test func flowStagesChipsAndCauses() throws {
@@ -268,6 +273,18 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
     #expect(status.positions.map(\.symbol) == ["ABCD"])
     let settings = try Wire.decoder().decode(SettingsV1.self, from: fixture("settings-v1.json"))
     #expect(settings.risk.minDailyRoomUsd.text == "10")
+  }
+
+  @Test func lossLockValues() throws {
+    let file = try Wire.decoder().decode(StatusV1.self, from: fixture("status-v1.example.json"))
+    #expect(file.realizedLossWeekUsd == nil && file.stopOutStreak == nil)  // run facts, not status.json
+    let response = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json"))
+    let status = try #require(response.status)
+    #expect(status.realizedLossWeekUsd?.text == "41.20")
+    #expect(status.stopOutStreak == 1)
+    let settings = try Wire.decoder().decode(SettingsV1.self, from: fixture("settings-v1.json"))
+    #expect(settings.risk.maxWeeklyLossUsd?.text == "0")
+    #expect(settings.risk.stopOutStreakLimit == 3)
   }
 
   @Test func settingsValues() throws {

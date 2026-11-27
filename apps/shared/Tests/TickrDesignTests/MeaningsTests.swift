@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 @testable import TickrDesign
 import TickrKit
@@ -34,10 +35,10 @@ import TickrKit
     #expect(StopState.allProtected([]))
   }
 
-  @Test("The broker-stop stage: neutral with no position on every screen, unless a day's trade lost its stop")
+  @Test("The broker-stop stage: green with no position on every screen, unless a day's trade lost its stop")
   func stopStage() {
-    #expect(StopState.stageTone(open: []) == .neutral)
-    #expect(StopState.stageTone(open: [], day: [.verified, .pending]) == .neutral)
+    #expect(StopState.stageTone(open: []) == .profit)
+    #expect(StopState.stageTone(open: [], day: [.verified, .pending]) == .profit)
     #expect(StopState.stageTone(open: [], day: [.verified, .neverVerified]) == .loss)
     #expect(StopState.stageTone(open: [.verified], day: [.verified]) == .profit)
     #expect(StopState.stageTone(open: [.verified], day: [.pending]) == .warning)
@@ -98,8 +99,6 @@ import TickrKit
     #expect(Tone.exit("strategy_exit") == .accent)
     #expect(Tone.exit("flatten") == .neutral)
     #expect(Tone.openPosition == .accent)
-    #expect(Tone.refused == .warning)
-    #expect(Tone.notEvaluated == .neutral)
   }
 
   @Test("Every bot tone maps to one design tone")
@@ -131,5 +130,28 @@ import TickrKit
     #expect(Tone.result(d("-0.005")) == .series)
     // R results shown to one decimal: −0.04 R reads "0.0 R".
     #expect(Tone.result(d("-0.04"), fractionDigits: 1) == .neutral)
+  }
+}
+
+/// The live flow's stage colours (StageColour.swift), compared by their light and dark values:
+/// no SwiftUI colour is resolved off the main thread (a `Color.resolve(in:)` here hung the whole
+/// test run on CI, #853 and #855, 2026-11-27).
+@Suite struct StageColourTests {
+  @Test("Nine stages, nine different hues, in the approved order")
+  func distinct() {
+    let stages = PipelineStage.allCases
+    #expect(stages.count == 9)
+    for value in [\Swatch.light, \Swatch.dark] {
+      #expect(Set(stages.map { $0.fillSwatch[keyPath: value] }).count == stages.count)
+      #expect(Set(stages.map { $0.textSwatch[keyPath: value] }).count == stages.count)
+    }
+  }
+
+  @Test("Priced cyan, Bought orange and Checked lime are the new palette colours")
+  func newColours() {
+    #expect(PipelineStage.quote.fillSwatch == .cyan)
+    #expect(PipelineStage.order.fillSwatch == .orange)
+    #expect(PipelineStage.reconcile.fillSwatch == .lime)
+    #expect(PipelineStage.stop.fillSwatch == .profit)
   }
 }

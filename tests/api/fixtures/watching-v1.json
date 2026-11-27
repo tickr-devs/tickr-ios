@@ -1,0 +1,131 @@
+{
+  "day": "2026-11-16",
+  "total": 3,
+  "rows": [
+    {
+      "symbol": "ABCD",
+      "at": "2026-11-16T15:00:00.000Z",
+      "strategy": {
+        "name": "price-action-v1",
+        "version": "1",
+        "settings_version": null
+      },
+      "verdict": "WATCH",
+      "decisive_check": {
+        "rule": "ask_above_trigger",
+        "measured": "12.33",
+        "operator": ">",
+        "threshold": "12.35",
+        "passed": false,
+        "note": "",
+        "against_trigger": true
+      },
+      "closeness": "0.9200",
+      "closeness_cause": null,
+      "quote_age_seconds": null,
+      "quote_age_cause": "not recorded: decision records hold no quote time",
+      "trigger": "12.35",
+      "invalidation": "12.10",
+      "closeness_cause_codes": [],
+      "quote_age_cause_codes": [
+        {
+          "code": "quote_age_not_recorded",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "symbol": "WXYZ",
+      "at": "2026-11-16T15:00:00.000Z",
+      "strategy": {
+        "name": "price-action-v1",
+        "version": "1",
+        "settings_version": null
+      },
+      "verdict": "IGNORE",
+      "decisive_check": {
+        "rule": "spread_ratio",
+        "measured": "0.0031",
+        "operator": "<=",
+        "threshold": "0.002",
+        "passed": false,
+        "note": "",
+        "against_trigger": false
+      },
+      "closeness": "0.6451",
+      "closeness_cause": null,
+      "quote_age_seconds": null,
+      "quote_age_cause": "not recorded: decision records hold no quote time",
+      "trigger": null,
+      "invalidation": null,
+      "closeness_cause_codes": [],
+      "quote_age_cause_codes": [
+        {
+          "code": "quote_age_not_recorded",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "symbol": "EFGH",
+      "at": "2026-11-16T15:00:00.000Z",
+      "strategy": {
+        "name": "price-action-v1",
+        "version": "1",
+        "settings_version": null
+      },
+      "verdict": "IGNORE",
+      "decisive_check": {
+        "rule": "quote_valid",
+        "measured": null,
+        "operator": "is",
+        "threshold": null,
+        "passed": false,
+        "note": "own symbol, 0 < bid <= ask",
+        "against_trigger": false
+      },
+      "closeness": null,
+      "closeness_cause": "quote_valid: a yes/no check has no measured value",
+      "quote_age_seconds": null,
+      "quote_age_cause": "not recorded: decision records hold no quote time",
+      "trigger": null,
+      "invalidation": null,
+      "closeness_cause_codes": [
+        {
+          "code": "yes_no_check",
+          "params": {
+            "rule": "quote_valid"
+          }
+        }
+      ],
+      "quote_age_cause_codes": [
+        {
+          "code": "quote_age_not_recorded",
+          "params": {}
+        }
+      ]
+    }
+  ],
+  "latest_size": {
+    "symbol": "QRST",
+    "at": "2026-11-16T14:57:00.000Z",
+    "strategy": {
+      "name": "price-action-v1",
+      "version": "1",
+      "settings_version": null
+    },
+    "verdict": "ENTER",
+    "quantity": "200",
+    "binding": null,
+    "binding_cause": "not proven by the record: the planned loss, the notional cap or the daily room",
+    "binding_cause_codes": [
+      {
+        "code": "binding_not_proven",
+        "params": {}
+      }
+    ],
+    "price": null,
+    "limits": []
+  },
+  "api_version": 1
+}

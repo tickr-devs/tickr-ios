@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import QuartzCore
 import TickrDesign
@@ -72,3 +73,4 @@ enum ThemeFade {
     return cover
   }
 }
+#endif

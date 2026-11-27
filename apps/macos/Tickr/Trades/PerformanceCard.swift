@@ -64,19 +64,19 @@ struct PerformanceCard: View {
           Text(verbatim: Format.missing)
             .font(Tokens.Typography.metric)
             .foregroundStyle(Palette.textQuaternary)
-            .help(expectancy.cause.map { Text(verbatim: $0) } ?? Text(verbatim: Format.missing))
+            .tip(expectancy.cause.map { Text(verbatim: $0) } ?? Text(verbatim: Format.missing))
         }
         Text(L10n.Trades.perTrade)
           .font(Tokens.Typography.caption)
           .foregroundStyle(Palette.textTertiary)
       }
-      .help(Text(L10n.Trades.oneRNote))
+      .tip(Text(L10n.Trades.oneRNote))
       Text(L10n.Trades.performanceLine(factor ?? Format.missing, Risk.text(-performance.maxDrawdownGrossR.value),
         performance.wins, performance.losses, performance.scratches))
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textTertiary)
         .fixedSize(horizontal: false, vertical: true)
-        .help(Text(verbatim: ApiText.prose(performance.profitFactorGrossCauseCodes,
+        .tip(Text(verbatim: ApiText.prose(performance.profitFactorGrossCauseCodes,
           text: performance.profitFactorGross.cause) ?? String()))
       if performance.days.count > 1 {
         Curve(days: performance.days)

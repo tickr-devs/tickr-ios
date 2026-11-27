@@ -1,0 +1,17 @@
+{
+  "served_at": "2026-11-16T15:00:02.123Z",
+  "status": null,
+  "age_seconds": null,
+  "stale": false,
+  "unavailable_cause": "the bot has not written a status file",
+  "summary": "Bot status unavailable: the bot has not written a status file. Entries are not possible.",
+  "poll_seconds": "3",
+  "api_version": 1,
+  "api_started_at": "2026-11-16T14:00:00.123Z",
+  "unavailable_cause_codes": [
+    {
+      "code": "no_status_file",
+      "params": {}
+    }
+  ]
+}

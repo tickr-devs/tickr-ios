@@ -1,7 +1,7 @@
 import CoreGraphics
 import Testing
 import TickrDesign
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("The Mac chart's panes share the card's height (mockup v103)")
 struct PaneStackTests {

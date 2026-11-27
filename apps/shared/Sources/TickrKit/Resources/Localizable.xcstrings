@@ -1316,6 +1316,24 @@
         }
       }
     },
+    "kit.block.stop_out_streak" : {
+      "comment" : "Why entries are blocked: stop_out_streak",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many stop-outs in a row today: no new entries until tomorrow."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiados stops ejecutados seguidos hoy: sin nuevas entradas hasta mañana."
+          }
+        }
+      }
+    },
     "kit.block.strategy_not_loaded" : {
       "comment" : "Why entries are blocked: strategy_not_loaded",
       "extractionState" : "manual",
@@ -1348,6 +1366,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La puerta de trading está cerrada."
+          }
+        }
+      }
+    },
+    "kit.block.weekly_ceiling" : {
+      "comment" : "Why entries are blocked: weekly_ceiling",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No room left under the weekly loss limit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No queda margen bajo el límite de pérdida semanal."
+          }
+        }
+      }
+    },
+    "kit.block.weekly_money_unknown" : {
+      "comment" : "Why entries are blocked: weekly_money_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A trade closed this week has fills without a known price."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una operación cerrada esta semana tiene ejecuciones sin precio conocido."
           }
         }
       }
@@ -2032,6 +2086,108 @@
         }
       }
     },
+    "kit.day.label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Día: %@"
+          }
+        }
+      }
+    },
+    "kit.day.next" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next trading day"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Día siguiente"
+          }
+        }
+      }
+    },
+    "kit.day.previous" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous trading day"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Día anterior"
+          }
+        }
+      }
+    },
+    "kit.day.swipeHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can also swipe the page left or right."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También puedes deslizar la página a izquierda o derecha."
+          }
+        }
+      }
+    },
+    "kit.day.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading day"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Día de trading"
+          }
+        }
+      }
+    },
+    "kit.day.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoy"
+          }
+        }
+      }
+    },
     "kit.demo.format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2295,6 +2451,363 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rechazado por el proveedor de datos"
+          }
+        }
+      }
+    },
+    "kit.entry.buy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buy %1$@ @ %2$@ limit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compra %1$@ @ %2$@ límite"
+          }
+        }
+      }
+    },
+    "kit.entry.buying" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buying %1$@ @ %2$@ limit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprando %1$@ @ %2$@ límite"
+          }
+        }
+      }
+    },
+    "kit.entry.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel entry"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar entrada"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelFor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel the entry for %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar la entrada de %@"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancels the entry order at the broker"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancela la orden de entrada en el bróker"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry cancelled"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada cancelada"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelledAtBroker" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelled at broker"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelada en el bróker"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelling" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelling…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelando…"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
+          }
+        }
+      }
+    },
+    "kit.entry.chipLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Working entry %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada en curso %@"
+          }
+        }
+      }
+    },
+    "kit.entry.chipWord" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entry"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entrada"
+          }
+        }
+      }
+    },
+    "kit.entry.explanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot asks the broker to cancel the buy of %1$@ shares at %2$@. Nothing has filled, so no position opens. Entries stay on."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot pide al bróker cancelar la compra de %1$@ acciones a %2$@. No se ha ejecutado nada, así que no se abre ninguna posición. Las entradas siguen activas."
+          }
+        }
+      }
+    },
+    "kit.entry.keep" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener"
+          }
+        }
+      }
+    },
+    "kit.entry.maxLoss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "max loss %@ if filled"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pérdida máx. %@ si se ejecuta"
+          }
+        }
+      }
+    },
+    "kit.entry.noPosition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No position opened"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se abrió ninguna posición"
+          }
+        }
+      }
+    },
+    "kit.entry.question" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel the %@ entry order?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cancelar la orden de entrada de %@?"
+          }
+        }
+      }
+    },
+    "kit.entry.sentWaiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sent %@ · waiting for fill"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "enviada %@ · esperando ejecución"
+          }
+        }
+      }
+    },
+    "kit.entry.sentWaitingShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sent %@ · waiting for fill"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "enviada %@ · sin ejecutar"
+          }
+        }
+      }
+    },
+    "kit.entry.stopPlanned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop %@ planned"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stop %@ previsto"
+          }
+        }
+      }
+    },
+    "kit.entry.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "waiting for fill"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "esperando ejecución"
+          }
+        }
+      }
+    },
+    "kit.entry.working" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Working entry"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada en curso"
           }
         }
       }
@@ -4352,6 +4865,74 @@
         }
       }
     },
+    "kit.headline.entriesWorking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entry orders working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld órdenes de entrada activas"
+          }
+        }
+      }
+    },
+    "kit.headline.entriesWorkingShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entries working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entradas activas"
+          }
+        }
+      }
+    },
+    "kit.headline.entryWorking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 entry order working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 orden de entrada activa"
+          }
+        }
+      }
+    },
+    "kit.headline.entryWorkingShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 entry working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 entrada activa"
+          }
+        }
+      }
+    },
     "kit.headline.gateClosedInConfig" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4454,6 +5035,40 @@
         }
       }
     },
+    "kit.headline.positionProtected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 position protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 posición protegida"
+          }
+        }
+      }
+    },
+    "kit.headline.positionsProtected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld positions protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld posiciones protegidas"
+          }
+        }
+      }
+    },
     "kit.headline.protectedPositions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4539,6 +5154,40 @@
         }
       }
     },
+    "kit.headline.withEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "kit.inFlight.cancelEntry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelling…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelando…"
+          }
+        }
+      }
+    },
     "kit.inFlight.cancelOrders" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4552,6 +5201,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancelando las órdenes del bot"
+          }
+        }
+      }
+    },
+    "kit.inFlight.closeAndStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closing and stopping"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrando y deteniendo"
           }
         }
       }
@@ -5707,6 +6373,159 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tipo desconocido"
+          }
+        }
+      }
+    },
+    "kit.pipeline.bars" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Líquidas"
+          }
+        }
+      }
+    },
+    "kit.pipeline.order" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bought"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compradas"
+          }
+        }
+      }
+    },
+    "kit.pipeline.quote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priced"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con precio"
+          }
+        }
+      }
+    },
+    "kit.pipeline.reconcile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checked"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisado"
+          }
+        }
+      }
+    },
+    "kit.pipeline.risk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riesgo"
+          }
+        }
+      }
+    },
+    "kit.pipeline.screeners" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Found"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halladas"
+          }
+        }
+      }
+    },
+    "kit.pipeline.stop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protegidas"
+          }
+        }
+      }
+    },
+    "kit.pipeline.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modelo"
+          }
+        }
+      }
+    },
+    "kit.pipeline.universe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stocks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acciones"
           }
         }
       }
@@ -10516,6 +11335,60 @@
         }
       }
     },
+    "kit.refusal.EQUITY_UNKNOWN" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No equity read yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no se ha leído el capital"
+          }
+        }
+      }
+    },
+    "kit.refusal.EQUITY_UNKNOWN.age" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN age",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equity read {age} s ago, limit {limit} s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capital leído hace {age} s, límite {limit} s"
+          }
+        }
+      }
+    },
+    "kit.refusal.EQUITY_UNKNOWN.value" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. EQUITY_UNKNOWN value",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equity figure {value} is not usable"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cifra de capital {value} no es utilizable"
+          }
+        }
+      }
+    },
     "kit.refusal.HALF_DAY" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. HALF_DAY",
       "extractionState" : "manual",
@@ -10822,6 +11695,24 @@
         }
       }
     },
+    "kit.refusal.STOP_OUT_STREAK" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. STOP_OUT_STREAK",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{count} stop-outs in a row today, limit {limit}; no new entries today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{count} stops ejecutados seguidos hoy, límite {limit}; sin nuevas entradas hoy"
+          }
+        }
+      }
+    },
     "kit.refusal.SYMBOL_COOLDOWN" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. SYMBOL_COOLDOWN",
       "extractionState" : "manual",
@@ -10836,6 +11727,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "{symbol} cerró con pérdida; sin entradas antes de {until}"
+          }
+        }
+      }
+    },
+    "kit.refusal.WEEKLY_CEILING" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. WEEKLY_CEILING",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week {realized} + reserved {reserved} + this trade {new} = {total} USD, over the weekly limit of {ceiling} USD"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta semana {realized} + reservado {reserved} + esta operación {new} = {total} USD, por encima del límite semanal de {ceiling} USD"
           }
         }
       }
@@ -11041,6 +11950,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reservas abiertas"
+          }
+        }
+      }
+    },
+    "kit.riskRoom.unknownRoom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown until every trade closed today has its fill prices and fees. New entries wait."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocido hasta que cada operación cerrada hoy tenga sus precios de ejecución y comisiones. Las nuevas entradas esperan."
           }
         }
       }
@@ -12132,6 +13058,57 @@
         }
       }
     },
+    "kit.slots.pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pending"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pendientes"
+          }
+        }
+      }
+    },
+    "kit.slots.pendingOne" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 pending"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 pendiente"
+          }
+        }
+      }
+    },
+    "kit.slots.withPending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "kit.stage.actives" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13033,6 +14010,183 @@
         }
       }
     },
+    "kit.stop.chooseBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose what happens to %@."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige qué pasa con %@."
+          }
+        }
+      }
+    },
+    "kit.stop.chooseTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Stop the bot with %lld position open?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Stop the bot with %lld positions open?"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "¿Detener el bot con %lld posición abierta?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "¿Detener el bot con %lld posiciones abiertas?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "kit.stop.closeAndStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close and stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar y detener"
+          }
+        }
+      }
+    },
+    "kit.stop.closeAndStopDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot closes %@ at market, then stops."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot cierra %@ a mercado y luego se detiene."
+          }
+        }
+      }
+    },
+    "kit.stop.closingPositions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closing positions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrando posiciones"
+          }
+        }
+      }
+    },
+    "kit.stop.lastKnown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last known from the broker at %@ ET. On start the bot reads the broker again and takes them back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Último dato leído del bróker a las %@ ET. Al iniciar, el bot vuelve a leer el bróker y retoma la vigilancia."
+          }
+        }
+      }
+    },
+    "kit.stop.lastKnownUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot's last status has no broker read time. On start the bot reads the broker again and takes them back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El último estado del bot no tiene hora de lectura del bróker. Al iniciar, el bot vuelve a leer el bróker y retoma la vigilancia."
+          }
+        }
+      }
+    },
+    "kit.stop.leaveOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dejar abiertas"
+          }
+        }
+      }
+    },
+    "kit.stop.leaveOpenDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot stops at once and nothing closes them. Positions stay open. They close only at the broker, by their stop or your own orders. Broker stops are day orders and expire at 4:00 PM ET, so a position can stay overnight without a stop."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot se detiene ya y nada las cierra. Las posiciones siguen abiertas. Solo se cierran en el bróker, por su stop o por tus propias órdenes. Los stops del bróker son órdenes del día y vencen a las 4:00 PM ET, así que una posición puede quedar abierta de noche sin stop."
+          }
+        }
+      }
+    },
     "kit.stop.missing" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13063,6 +14217,217 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "STOP PENDIENTE"
+          }
+        }
+      }
+    },
+    "kit.stop.positionsClosed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Positions closed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posiciones cerradas"
+          }
+        }
+      }
+    },
+    "kit.stop.quantityColumn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantity"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cantidad"
+          }
+        }
+      }
+    },
+    "kit.stop.refused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close and stop refused: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar y detener rechazado: %@"
+          }
+        }
+      }
+    },
+    "kit.stop.shares" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ shares"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ acciones"
+          }
+        }
+      }
+    },
+    "kit.stop.stopColumn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop en el bróker"
+          }
+        }
+      }
+    },
+    "kit.stop.stopped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot stopped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot detenido"
+          }
+        }
+      }
+    },
+    "kit.stop.stoppedAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "stopped at %@ ET"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "detenido a las %@ ET"
+          }
+        }
+      }
+    },
+    "kit.stop.stoppedBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot no longer watches these positions. They close only at the broker, by their stop or your own orders. Broker stops are day orders and expire at 4:00 PM ET, so a position can stay overnight without a stop."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot ya no vigila estas posiciones. Solo se cierran en el bróker, por su stop o por tus propias órdenes. Los stops del bróker son órdenes del día y vencen a las 4:00 PM ET, así que una posición puede quedar abierta de noche sin stop."
+          }
+        }
+      }
+    },
+    "kit.stop.stoppedOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot stopped · %lld position open"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot stopped · %lld positions open"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot detenido · %lld posición abierta"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Bot detenido · %lld posiciones abiertas"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "kit.stop.stopping" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopping bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deteniendo el bot"
+          }
+        }
+      }
+    },
+    "kit.stop.symbolColumn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Símbolo"
           }
         }
       }
@@ -14359,23 +15724,6 @@
         }
       }
     },
-    "kit.system.botWillNotStart" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The bot does not start on this result"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Con este resultado el bot no inicia"
-          }
-        }
-      }
-    },
     "kit.system.check.alertChannel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14580,6 +15928,23 @@
         }
       }
     },
+    "kit.system.checkFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed check: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprobación fallida: %@"
+          }
+        }
+      }
+    },
     "kit.system.configInvalid" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14603,30 +15968,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed: %@"
+            "value" : "Failed %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Falló: %@"
-          }
-        }
-      }
-    },
-    "kit.system.holds" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "caffeinate holds: %lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bloqueos de caffeinate: %lld"
+            "value" : "Falló %@"
           }
         }
       }
@@ -14648,36 +15996,19 @@
         }
       }
     },
-    "kit.system.idle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Idle"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inactivo"
-          }
-        }
-      }
-    },
     "kit.system.keptAwake" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kept awake"
+            "value" : "Yes"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Despierto"
+            "value" : "Sí"
           }
         }
       }
@@ -14695,23 +16026,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Última revisión %@ ET · falló la lectura del bróker"
-          }
-        }
-      }
-    },
-    "kit.system.lastCheckFlat" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last check %@ ET · nothing open"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Última revisión %@ ET · nada abierto"
           }
         }
       }
@@ -14739,13 +16053,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Webull link"
+            "value" : "Broker connection"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Conexión con Webull"
+            "value" : "Conexión con el bróker"
+          }
+        }
+      }
+    },
+    "kit.system.linkBlocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New entries blocked: needs a broker read under %@ s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entradas nuevas bloqueadas: hace falta una lectura del bróker de menos de %@ s"
           }
         }
       }
@@ -14756,13 +16087,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last broker read · new entries need it under %@ s"
+            "value" : "New entries need a broker read under %@ s"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Última lectura del bróker · las entradas nuevas la piden en menos de %@ s"
+            "value" : "Las entradas nuevas necesitan una lectura del bróker de menos de %@ s"
           }
         }
       }
@@ -14835,36 +16166,19 @@
         }
       }
     },
-    "kit.system.noCheckYet" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No broker check recorded yet"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aún no hay revisiones del bróker"
-          }
-        }
-      }
-    },
     "kit.system.noRestarts" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "None yet: the bot was never found down with an open trade"
+            "value" : "None yet"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ninguno: nunca se encontró el bot caído con una operación abierta"
+            "value" : "Ninguno aún"
           }
         }
       }
@@ -14886,23 +16200,6 @@
         }
       }
     },
-    "kit.system.notNeededNow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not needed while the bot is not running"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hace falta mientras el bot no funciona"
-          }
-        }
-      }
-    },
     "kit.system.notStartedToday" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14916,6 +16213,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No iniciado hoy"
+          }
+        }
+      }
+    },
+    "kit.system.notTraining" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not training"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin entrenamiento"
           }
         }
       }
@@ -15113,30 +16427,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sleep prevention"
+            "value" : "Stays awake"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Evitar el reposo"
-          }
-        }
-      }
-    },
-    "kit.system.startedToday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Started today"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Iniciado hoy"
+            "value" : "Se mantiene despierto"
           }
         }
       }
@@ -15249,13 +16546,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Model training"
+            "value" : "Next model version"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entrenamiento del modelo"
+            "value" : "Próxima versión del modelo"
           }
         }
       }
@@ -15294,19 +16591,19 @@
         }
       }
     },
-    "kit.system.trainingNote" : {
+    "kit.system.trainingPercent" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$lld of %3$lld · updated %4$@"
+            "value" : "Training %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$lld de %3$lld · actualizado %4$@"
+            "value" : "Entrenando %@"
           }
         }
       }
@@ -15341,6 +16638,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Watchdog"
+          }
+        }
+      }
+    },
+    "kit.system.watching" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watching"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vigilando"
+          }
+        }
+      }
+    },
+    "kit.system.willNotStart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot will not start: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot no arrancará: %@"
           }
         }
       }

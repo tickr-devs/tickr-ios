@@ -11,6 +11,8 @@ struct BotControl: ViewModifier {
   @State private var severe: OperatorCommand?
   /// The action chosen in the sheet, run once the sheet has gone so its alert can show.
   @State private var chosen: (() -> Void)?
+  /// Stop bot pressed with positions open: the sheet asks Close and stop or Leave open.
+  @State private var choosing = false
 
   func body(content: Content) -> some View {
     content
@@ -24,6 +26,7 @@ struct BotControl: ViewModifier {
       // A sheet, not a confirmation dialog: on iOS 26 a dialog turns into a popover without its
       // Cancel button, pointing away from the power button.
       .sheet(isPresented: $isPresented, onDismiss: {
+        choosing = false
         chosen?()
         chosen = nil
       }, content: {
@@ -42,46 +45,83 @@ struct BotControl: ViewModifier {
         if model.connection.demo {
           WarningBanner(L10n.Home.demoTitle, detail: L10n.Home.demoDetail, systemImage: SettingsView.demoSymbol)
         }
-        HStack(spacing: Tokens.Space.s) {
-          StateGlyph(stateSymbol, tone: stateTone, label: title, live: model.status?.botState == .running,
-            event: model.status?.botState, style: .round)
-          Text(title)
-            .font(.headline)
-            .foregroundStyle(Palette.textPrimary)
-        }
-        Label { Text(L10n.Control.stopsStay) } icon: { Image(systemName: StopState.levelSymbol) }
-          .font(.footnote)
-          .foregroundStyle(Palette.textTertiary)
-          .fixedSize(horizontal: false, vertical: true)
-        if let status = model.status, model.canCommand {
-          // As on the board: pausing (or resuming) entries, then stopping the bot. Closing
-          // positions lives on the Positions tab (Close position, Close all).
-          VStack(spacing: Tokens.Space.s) {
-            if status.entryStop {
-              action(L10n.Control.resume, symbol: Self.resumeSymbol, tier: .secondary(.accent)) {
-                run(.entryStop(on: false))
-              }
-            } else {
-              action(L10n.Control.pause, symbol: Symbols.pause, tier: .secondary(.warning)) {
-                run(.entryStop(on: true))
-              }
-            }
-            if status.botState == .running {
-              action(L10n.Control.stopBot, symbol: Self.stopSymbol, tier: .destructive) { severe = .stopBot }
-            }
+        if let rows = model.stopSteps {
+          StopStepsPane(rows: rows) { isPresented = false }
+        } else if choosing, case .choose(let symbols) = StopQuestion.asked(positions: model.status?.positions ?? []) {
+          StopChoicePane(symbols: symbols, tag: tag, enabled: model.canCommand,
+            closing: model.inFlight == .stopBotMode(.closeAndStop)) {
+            // Face ID over the sheet, which then shows the steps as the bot reports them.
+            run(.stopBotMode(.closeAndStop))
+          } leaveOpen: {
+            chosen = { run(.stopBotMode(.leaveOpen)) }
+            isPresented = false
+          } cancel: {
+            isPresented = false
           }
+        } else {
+          controls
         }
-        Button(role: .cancel) { isPresented = false } label: {
-          Text(L10n.Common.cancel)
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.action(.ghost, size: .large))
-        .accessibilityIdentifier(AccessibilityID.botControlCancel)
       }
       .padding(Tokens.Space.l)
     }
     .scrollEdgeHints()
     .background(Palette.background)
+  }
+
+  /// The bot's state, one line on broker stops, Pause (or Resume) and Stop bot, then Cancel.
+  @ViewBuilder private var controls: some View {
+    HStack(spacing: Tokens.Space.s) {
+      StateGlyph(stateSymbol, tone: stateTone, label: title, live: model.status?.botState == .running,
+        event: model.status?.botState, style: .round)
+      Text(title)
+        .font(.headline)
+        .foregroundStyle(Palette.textPrimary)
+    }
+    Label { Text(L10n.Control.stopsStay) } icon: { Image(systemName: StopState.levelSymbol) }
+      .font(.footnote)
+      .foregroundStyle(Palette.textTertiary)
+      .fixedSize(horizontal: false, vertical: true)
+    if let refusal = model.stopRefusal {
+      // A refused close-and-stop: its cause, and the controls are back.
+      Text(verbatim: refusal)
+        .font(.footnote)
+        .foregroundStyle(Palette.lossText)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    if let status = model.status, model.canCommand {
+      // As on the board: pausing (or resuming) entries, then stopping the bot. Closing
+      // positions lives on the Positions tab (Close position, Close all).
+      VStack(spacing: Tokens.Space.s) {
+        if status.entryStop {
+          action(L10n.Control.resume, symbol: Self.resumeSymbol, tier: .secondary(.accent)) {
+            run(.entryStop(on: false))
+          }
+        } else {
+          action(L10n.Control.pause, symbol: Symbols.pause, tier: .secondary(.warning)) {
+            run(.entryStop(on: true))
+          }
+        }
+        if status.botState == .running {
+          if status.positions.isEmpty {
+            action(L10n.Control.stopBot, symbol: Self.stopSymbol, tier: .destructive) { severe = .stopBot }
+          } else {
+            // With positions open the sheet asks what happens to them (boards IOSHome).
+            Button(role: .destructive) { choosing = true } label: {
+              Label { Text(L10n.Control.stopBot) } icon: { Image(systemName: Self.stopSymbol) }
+            }
+            .buttonStyle(.command(.destructive, tag: tag))
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityIdentifier(AccessibilityID.botControlStop)
+          }
+        }
+      }
+    }
+    Button(role: .cancel) { isPresented = false } label: {
+      Text(L10n.Common.cancel)
+        .frame(maxWidth: .infinity)
+    }
+    .buttonStyle(.action(.ghost, size: .large))
+    .accessibilityIdentifier(AccessibilityID.botControlCancel)
   }
 
   /// One action across the sheet, in its tier; it runs once the sheet has closed.
@@ -157,7 +197,7 @@ struct BotControl: ViewModifier {
   static func needsOwner(_ command: OperatorCommand) -> Bool {
     switch command {
     case .entryStop(let on): return !on
-    case .cancelOwnOrders, .flatten, .flattenSymbol, .stopBot, .emergency: return true
+    case .cancelOwnOrders, .cancelEntry, .flatten, .flattenSymbol, .stopBot, .stopBotMode, .emergency: return true
     }
   }
 }

@@ -18,6 +18,9 @@ public enum BlockCode: String, CaseIterable, Sendable {
   case afterLastEntry = "after_last_entry"
   case dailyMoneyUnknown = "daily_money_unknown"
   case dailyCeiling = "daily_ceiling"
+  case weeklyMoneyUnknown = "weekly_money_unknown"
+  case weeklyCeiling = "weekly_ceiling"
+  case stopOutStreak = "stop_out_streak"
 
   public var title: LocalizedStringResource {
     switch self {
@@ -35,6 +38,9 @@ public enum BlockCode: String, CaseIterable, Sendable {
     case .afterLastEntry: L10n.blockAfterLastEntry
     case .dailyMoneyUnknown: L10n.blockDailyMoneyUnknown
     case .dailyCeiling: L10n.blockDailyCeiling
+    case .weeklyMoneyUnknown: L10n.blockWeeklyMoneyUnknown
+    case .weeklyCeiling: L10n.blockWeeklyCeiling
+    case .stopOutStreak: L10n.blockStopOutStreak
     }
   }
 }

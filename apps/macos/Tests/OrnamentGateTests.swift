@@ -1,6 +1,6 @@
 import Testing
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Looping ornaments: radar, event strip, screeners, brand halo")
 struct OrnamentGateTests {

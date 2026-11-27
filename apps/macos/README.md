@@ -36,6 +36,11 @@ on this Mac only; with it (copy `Team.xcconfig.example`, see `apps/Config/Identi
 team's Apple Development certificate signs it as `bot.tickr.mac`. New Swift files dropped into `apps/macos/Tickr/` are picked up without
 editing the project. Start the API first (below), or the app shows "unavailable".
 
+The screens in `apps/macos/Tickr/` are also the library `TickrScreens` (Package.swift), which the
+iOS app shows on an iPad in regular width. Keep them building for iOS: whatever only a Mac has
+(windows, the menu bar, AppKit views, `NSFont`) goes inside `#if os(macOS)` or behind the helpers
+in `Platform.swift`. The `swift build` app's entry point is `Launch/TickrMacMain.swift`.
+
 ## Run without Xcode
 
 Needs Swift 6.2+ command line tools (Xcode 26) and macOS 26.

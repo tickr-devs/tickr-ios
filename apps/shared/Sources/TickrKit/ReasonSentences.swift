@@ -101,6 +101,7 @@ extension RefusalReason {
     case .ownOrderWorking: [ReasonSentence(L10n.refusalReasonOwnOrderWorking, [.count])]
     case .positionLimitReached: [ReasonSentence(L10n.refusalReasonPositionLimitReached, [.open, .limit])]
     case .workingEntryLimitReached: [ReasonSentence(L10n.refusalReasonWorkingEntryLimitReached, [.working, .limit])]
+    case .stopOutStreak: [ReasonSentence(L10n.refusalReasonStopOutStreak, [.count, .limit])]
     case .symbolCooldown: [ReasonSentence(L10n.refusalReasonSymbolCooldown, [.symbol, .until])]
     case .decisionNotEnter: [ReasonSentence(L10n.refusalReasonDecisionNotEnter, [.verdict])]
     case .decisionNotActive: [ReasonSentence(L10n.refusalReasonDecisionNotActive, [.strategy, .version, .active])]
@@ -136,6 +137,12 @@ extension RefusalReason {
     case .dailyCeiling: [
       ReasonSentence(L10n.refusalReasonDailyCeiling, [.room, .minRoom, .ceiling, .realized, .reserved]),
       ReasonSentence(L10n.refusalReasonDailyCeilingTotal, [.realized, .reserved, .new, .total, .ceiling]),
+    ]
+    case .weeklyCeiling: [ReasonSentence(L10n.refusalReasonWeeklyCeiling, [.realized, .reserved, .new, .total, .ceiling])]
+    case .equityUnknown: [
+      ReasonSentence(L10n.refusalReasonEquityUnknown, []),
+      ReasonSentence(L10n.refusalReasonEquityUnknownAge, [.age, .limit]),
+      ReasonSentence(L10n.refusalReasonEquityUnknownValue, [.value]),
     ]
     case .buyingPowerUnknown: [
       ReasonSentence(L10n.refusalReasonBuyingPowerUnknown, []),

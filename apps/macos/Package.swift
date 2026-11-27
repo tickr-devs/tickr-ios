@@ -3,15 +3,21 @@
 // In Xcode open Tickr.xcworkspace at the repository root instead: TickrMac.xcodeproj builds
 // the same sources (folder Tickr/) as a signed app. Contract models, API client and design
 // pieces come from the shared package in apps/shared (also used by the iOS app in apps/ios).
+//
+// The screens (folder Tickr/) are the library TickrScreens, which the iOS app also takes: an iPad
+// or an unfolded iPhone in regular width shows these same screens (mockup v156, board
+// IPadLandscape). What only a Mac has (the menu bar, windows, notifications of the bot's
+// alerts) is inside `#if os(macOS)`. The executable TickrMac (folder Launch/) only starts them.
 import PackageDescription
 
 let package = Package(
   name: "TickrApp",
   // Text a person reads is English in Tickr/L10n.swift, translated in Tickr/Localizable.xcstrings.
   defaultLocalization: "en",
-  platforms: [.macOS(.v26)],
+  platforms: [.macOS(.v26), .iOS(.v26)],
   products: [
     .executable(name: "TickrMac", targets: ["TickrMac"]),
+    .library(name: "TickrScreens", targets: ["TickrScreens"]),
   ],
   dependencies: [
     .package(name: "TickrShared", path: "../shared"),
@@ -22,6 +28,15 @@ let package = Package(
   targets: [
     .executableTarget(
       name: "TickrMac",
+      dependencies: ["TickrScreens"],
+      path: "Launch",
+      swiftSettings: [
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+        .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]),
+    .target(
+      name: "TickrScreens",
       dependencies: [
         .product(name: "TickrKit", package: "TickrShared"),
         .product(name: "TickrDesign", package: "TickrShared"),
@@ -40,7 +55,7 @@ let package = Package(
     // Swift Testing tests of the screens' logic (zoom, marks, levels, scales), run by `swift test`.
     .testTarget(
       name: "TickrMacTests",
-      dependencies: ["TickrMac", .product(name: "FactoryTesting", package: "Factory")],
+      dependencies: ["TickrScreens", .product(name: "FactoryTesting", package: "Factory")],
       path: "Tests",
       swiftSettings: [
         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),

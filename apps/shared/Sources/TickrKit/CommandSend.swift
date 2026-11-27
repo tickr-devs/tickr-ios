@@ -120,6 +120,47 @@ public struct CommandKeys: Sendable, Equatable {
   }
 }
 
+/// The one place an app keeps its command keys (`CommandKeys`), shared by every model that sends
+/// commands. On iPad the iPhone screens (compact width) and the Mac screens (regular width) each
+/// have a model, and the person can switch between them by resizing the window: a send lost in
+/// one layout and pressed again in the other must re-send under the same key, never a new one
+/// (hard rule 3: one send per decision). The keys belong to one server: pointing at another one
+/// (`use(_:)`) drops them.
+@MainActor
+public final class CommandKeyStore {
+  /// The keys of sends whose outcome is unknown, on `server`.
+  public var keys = CommandKeys()
+  /// The server the keys were made for; nil before the first send.
+  public private(set) var server: URL?
+  /// Commands being sent now, by any model: a second press of one in the other layout while its
+  /// first send has no answer yet would go out under a new key (the first is not lost yet), so it
+  /// is refused instead (Fable on #847, 2026-11-26).
+  public private(set) var sending: Set<OperatorCommand> = []
+
+  public init() {}
+
+  /// Starts a send of `command`; false while another send of it is under way.
+  public func begin(_ command: OperatorCommand) -> Bool {
+    sending.insert(command).inserted
+  }
+
+  /// The send of `command` has its outcome (or never went out).
+  public func end(_ command: OperatorCommand) {
+    sending.remove(command)
+  }
+
+  /// The models now talk to `server`: keys made for another server mean nothing there and go.
+  /// The same server again keeps them, so a second model joining it never forgets a lost send.
+  /// A send under way stays marked until it ends. Both models follow the one connection; a demo
+  /// day in one model alone would drop the real server's keys, which the iPad does not offer (its
+  /// settings are the iPhone screens').
+  public func use(_ server: URL) {
+    guard server != self.server else { return }
+    keys.clear()
+    self.server = server
+  }
+}
+
 /// Sends an operator command and reads a lost send's receipt, the same way in both apps.
 public enum CommandSend {
   /// The first HTTP status of a server error. The API refuses with a 4xx before it queues

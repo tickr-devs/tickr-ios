@@ -1,7 +1,8 @@
 name: swift-rules
 # The apps' Swift code rules (CLAUDE.md, "Swift code rules"): no words in code outside L10n.swift,
 # no magic numbers, 2-space indentation, Spanish translation for every key, and SwiftLint. Also the
-# check for git conflict markers in any tracked file. Runs on every pull request, whatever it
+# check for git conflict markers in any tracked file, and the Python tests of the rule scripts and
+# of the translations against the bot's contract (tests/). Runs on every pull request, whatever it
 # touches, so it can be a required check.
 on:
   pull_request:
@@ -28,6 +29,14 @@ jobs:
         run: python3 .github/scripts/check_conflict_markers.py
       - name: Swift code rules (apps/scripts/check_swift_rules.py)
         run: python3 apps/scripts/check_swift_rules.py
+      # The tests of the rule scripts, brand assets and translations (tests/): stdlib plus pytest,
+      # pinned so a new release can't fail an unrelated pull request. Action pinned by commit.
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.11.32"
+          python-version: "3.12"
+      - name: Python checks (tests/)
+        run: uv run --no-project --with pytest==9.1.1 pytest -q -p no:cacheprovider tests
       # SwiftLint's own Linux image, pinned so a new release can't fail an unrelated pull request.
       # No --config: the root .swiftlint.yml is found from here, and each app's own .swiftlint.yml
       # is merged for its files.

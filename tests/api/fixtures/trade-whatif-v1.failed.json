@@ -1,0 +1,22 @@
+{
+  "day": "2026-11-13",
+  "symbol": "ABCD",
+  "folder": "volume-shock-v1",
+  "strategy": "volume-shock-v1",
+  "version": "1",
+  "signals": null,
+  "trades": [],
+  "result_r": null,
+  "result_gross_usd": null,
+  "cause": "no cached prior sessions for ABCD on 2026-11-13",
+  "api_version": 1,
+  "cause_codes": [
+    {
+      "code": "no_cached_history",
+      "params": {
+        "symbol": "ABCD",
+        "day": "2026-11-13"
+      }
+    }
+  ]
+}

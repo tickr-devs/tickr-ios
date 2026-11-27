@@ -1,0 +1,50 @@
+{
+  "served_at": "2026-11-16T15:00:00.123Z",
+  "bot_state": null,
+  "status_stale": false,
+  "broker_link": {
+    "last_read_at": null,
+    "warn_seconds": "30",
+    "max_age_seconds": "90",
+    "state": "unknown",
+    "stream": null,
+    "cause": "the bot has not written a status file",
+    "cause_codes": [
+      {
+        "code": "no_status_file",
+        "params": {}
+      }
+    ]
+  },
+  "morning_check": null,
+  "morning_check_cause": "no preflight recorded yet",
+  "training": null,
+  "training_cause": "no training job is reporting",
+  "host": null,
+  "host_cause": "no machine services on this host ([api] system_services = none)",
+  "api_version": 1,
+  "model": {
+    "enabled": true,
+    "bundle": null,
+    "state": null,
+    "cause": "model_load_not_recorded"
+  },
+  "morning_check_cause_codes": [
+    {
+      "code": "no_preflight_record",
+      "params": {}
+    }
+  ],
+  "training_cause_codes": [
+    {
+      "code": "no_training_job",
+      "params": {}
+    }
+  ],
+  "host_cause_codes": [
+    {
+      "code": "no_host_services",
+      "params": {}
+    }
+  ]
+}

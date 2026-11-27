@@ -1,0 +1,21 @@
+{
+  "written_at": "2026-11-16T15:00:00.123Z",
+  "run_id": "run-1",
+  "protection_in_force": [
+    {
+      "key": "risk.max_daily_loss_usd",
+      "value": "300",
+      "adopted_at": null
+    },
+    {
+      "key": "risk.max_open_positions",
+      "value": "1",
+      "adopted_at": "2026-11-16T14:55:00.123Z"
+    }
+  ],
+  "realized_loss_week_usd": "41.20",
+  "stop_out_streak": 1,
+  "schema_version": 1,
+  "settings_version": null,
+  "trade_settings_versions": []
+}

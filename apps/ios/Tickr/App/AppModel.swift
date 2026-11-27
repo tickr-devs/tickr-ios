@@ -101,6 +101,11 @@ final class AppModel {
   private(set) var sending = false
   /// The command being sent, while it is: its button shows the spinner (`.inFlight`).
   private(set) var inFlight: OperatorCommand?
+  /// The close-and-stop the bot reports, followed across reads for its steps' times and its
+  /// refusal (`StopWatch`, the bot-control sheet's steps).
+  private(set) var stopWatch = StopWatch()
+  /// The working entries followed across reads, for "Cancelled at broker" (`EntryCancelWatch`).
+  private(set) var entryWatch = EntryCancelWatch()
   var notice: Notice?
   var selectedTab: AppTab = .home
   /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
@@ -125,9 +130,15 @@ final class AppModel {
   @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
   @ObservationIgnored private var awaited: [String: CommandKind] = [:]
-  /// The idempotency key of each command whose send lost its answer (backlog A3): kept until the
-  /// API's receipt says whether it was queued, and used again if the owner presses it again.
-  @ObservationIgnored private var keys = CommandKeys()
+  /// The idempotency key of each command whose send lost its answer (backlog A3), kept until the
+  /// API's receipt says whether it was queued and used again if the owner presses it again. In
+  /// the app's one store (`CommandKeyStore`): on iPad the Mac screens' model sends from the
+  /// same keys, so a press after a lost send is never a second send under a new key.
+  @ObservationIgnored @Injected(\.commandKeys) private var keyStore
+  private var keys: CommandKeys {
+    get { keyStore.keys }
+    set { keyStore.keys = newValue }
+  }
   /// Counts connections: every answer is applied only while the connection it was asked on is
   /// still this one (backlog A4), so a late answer from the address before never shows as this one's.
   @ObservationIgnored private var link = 0
@@ -238,8 +249,9 @@ final class AppModel {
     stop()
     link += 1
     // Keys and queued commands of the address before mean nothing at this one.
-    keys.clear()
+    if let url = connection.url { keyStore.use(url) }
     awaited = [:]
+    entryWatch.forget()
     response = nil
     reads = ReadFailures()
     lastReadAt = nil
@@ -306,6 +318,8 @@ final class AppModel {
       fresh = try await Container.shared.apiClient(connection.endpoint(for: url)).status()
       guard asked == link else { return false }
       response = fresh
+      stopWatch.read(fresh.status)
+      entryWatch.read(fresh.status, now: now())
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
@@ -580,12 +594,20 @@ final class AppModel {
       notice = Notice(L10n.Notice.notCurrent(title), tone: .failure)
       return
     }
+    // One send of a command at a time across both iPad layouts' models (`CommandKeyStore`).
+    guard keyStore.begin(command) else {
+      notice = Notice(L10n.Notice.busy(title), tone: .failure)
+      return
+    }
     let asked = link
     sending = true
     inFlight = command
+    // A new command: an earlier close-and-stop's refusal is no longer the news.
+    stopWatch.forget()
     defer {
       sending = false
       inFlight = nil
+      keyStore.end(command)
     }
     if let confirmOwner {
       switch await confirmOwner() {
@@ -622,6 +644,7 @@ final class AppModel {
   /// A queued command: awaited in recent_commands, and said so.
   private func queued(_ accepted: CommandAcceptedV1, title: String) {
     awaited[accepted.command.commandId] = accepted.command.kind
+    entryWatch.queued(accepted.command)
     if let warning = accepted.warning {
       notice = Notice(L10n.Notice.queuedWarning(title, warning), tone: .failure)
     } else {
@@ -638,7 +661,7 @@ final class AppModel {
   /// or one whose receipt the API cannot serve, is dropped with a notice to check the status
   /// before sending again. Not while a send is under way, which settles its own command.
   private func settleLost(_ url: URL) async {
-    guard !sending else { return }
+    guard !sending, keyStore.sending.isEmpty else { return }
     for command in keys.expire(now: now(), keepSeconds: keepSeconds) {
       notice = Notice(L10n.Notice.outcomeNotKnown(Board.commandTitle(command.kind)), tone: .failure)
     }
@@ -682,6 +705,7 @@ final class AppModel {
     }
     botStarting = true
     defer { botStarting = false }
+    stopWatch.forget()
     switch await confirmOwner() {
     case .confirmed: break
     case .declined: return

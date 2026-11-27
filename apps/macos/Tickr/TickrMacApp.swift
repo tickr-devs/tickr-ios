@@ -1,27 +1,14 @@
+#if os(macOS)
 import AppKit
+#endif
 import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// User-default keys of the app (Settings window).
-enum Defaults {
-  /// Base URL of the bot's local API.
-  static let apiBaseURL = "apiBaseURL"
-  /// Whether the demo day is shown instead of the bot (Settings › General, `AppModel.demoDay`).
-  static let demoDay = "demoDay"
-  /// Whether the menu-bar extra is shown.
-  static let showMenuBarExtra = "showMenuBarExtra"
-  /// Appearance forced for every window, `light` or `dark`; unset or empty follows the system.
-  /// Chosen in Settings › General (Appearance · theme); the screen tour sets it as a launch
-  /// argument (`-appearance light`), which wins over the stored choice.
-  static let appearance = "appearance"
-  static let light = "light"
-  static let dark = "dark"
-}
-
+#if os(macOS)
 /// macOS shell: the main window with a sidebar, the standard Settings window (⌘,) and a
 /// menu-bar extra. Appearance follows the system (Defaults.appearance can force one for the tour).
-@main
+/// Started by `Launcher` (Launcher.swift).
 @MainActor
 struct TickrMacApp: App {
   /// Narrowest window at which no screen breaks, in points: the sidebar at its widest (the person
@@ -72,13 +59,6 @@ struct TickrMacApp: App {
     case Defaults.dark: NSAppearance(named: .darkAqua)
     default: nil
     }
-  }
-
-  static func baseURL() -> URL {
-    if let text = UserDefaults.standard.string(forKey: Defaults.apiBaseURL), let url = URL(string: text) {
-      return url
-    }
-    return APIClient.defaultBaseURL
   }
 
   var body: some Scene {
@@ -217,6 +197,8 @@ private struct MainWindow: View {
     }
   }
 }
+
+#endif
 
 /// The main window's content at the window's size, never smaller than `minSize`.
 ///

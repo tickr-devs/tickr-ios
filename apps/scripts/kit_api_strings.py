@@ -63,6 +63,21 @@ for code, en, es in [
         "Too little room left under the daily loss limit.",
         "Queda muy poco margen bajo el límite de pérdida diaria.",
     ),
+    (
+        "weekly_money_unknown",
+        "A trade closed this week has fills without a known price.",
+        "Una operación cerrada esta semana tiene ejecuciones sin precio conocido.",
+    ),
+    (
+        "weekly_ceiling",
+        "No room left under the weekly loss limit.",
+        "No queda margen bajo el límite de pérdida semanal.",
+    ),
+    (
+        "stop_out_streak",
+        "Too many stop-outs in a row today: no new entries until tomorrow.",
+        "Demasiados stops ejecutados seguidos hoy: sin nuevas entradas hasta mañana.",
+    ),
 ]:
     add("block_" + code, "kit.block." + code, en, es, B + code)
 

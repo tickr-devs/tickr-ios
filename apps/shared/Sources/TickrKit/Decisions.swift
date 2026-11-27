@@ -3,12 +3,6 @@ import Foundation
 // Swift mirrors of decisions-v1 and skipped-v1 in src/tickr/api/contract.py: every decision on
 // one symbol with its checks, and the active strategy's ENTERs that did not become a position.
 
-/// The strategy that made a decision, by name and version.
-public struct StrategyRefV1: Codable, Hashable, Sendable {
-  public let name: String
-  public let version: String
-}
-
 /// Why the platform refused an entry: a code from the schema's closed list, the bot's message,
 /// and the window the refusal covers when it has one (a cooldown has both ends).
 public struct RefusalV1: Codable, Hashable, Sendable {
@@ -45,7 +39,7 @@ public struct RefusalV1: Codable, Hashable, Sendable {
 public struct DecisionV1: Codable, Hashable, Sendable {
   public let at: WireTime
   public let action: Verdict
-  public let strategy: StrategyRefV1
+  public let strategy: StrategyId
   /// True when a shadow strategy (an "observer" in the bot's config) made the decision; it never
   /// trades, and the apps leave its decisions out.
   public let observer: Bool
@@ -60,9 +54,11 @@ public struct DecisionV1: Codable, Hashable, Sendable {
   public let refusalCause: String?
   /// The structured refusal; nil unless the platform refused the entry.
   public let refusal: RefusalV1?
+  /// Who decided (docs/api.md, "Decider"); nil from an older API.
+  public let decider: DeciderV1?
 
   enum CodingKeys: String, CodingKey {
-    case at, action, strategy, observer, checks, admission
+    case at, action, strategy, observer, checks, admission, decider
     case entryPrice = "entry_price"
     case stopPrice = "stop_price"
     case refusalCause = "refusal_cause"
@@ -73,7 +69,7 @@ public struct DecisionV1: Codable, Hashable, Sendable {
     let c = try decoder.container(keyedBy: CodingKeys.self)
     at = try c.decode(WireTime.self, forKey: .at)
     action = try c.decode(Verdict.self, forKey: .action)
-    strategy = try c.decode(StrategyRefV1.self, forKey: .strategy)
+    strategy = try c.decode(StrategyId.self, forKey: .strategy)
     observer = try c.decode(Bool.self, forKey: .observer)
     checks = try c.decode([CheckV1].self, forKey: .checks)
     entryPrice = try c.decodeNullable(DecimalString.self, forKey: .entryPrice)
@@ -81,6 +77,7 @@ public struct DecisionV1: Codable, Hashable, Sendable {
     admission = try c.decode(Admission.self, forKey: .admission)
     refusalCause = try c.decodeNullable(String.self, forKey: .refusalCause)
     refusal = try c.decodeNullable(RefusalV1.self, forKey: .refusal)
+    decider = try c.decodeIfPresent(DeciderV1.self, forKey: .decider)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -95,6 +92,7 @@ public struct DecisionV1: Codable, Hashable, Sendable {
     try c.encode(admission, forKey: .admission)
     try c.encodeNullable(refusalCause, forKey: .refusalCause)
     try c.encodeNullable(refusal, forKey: .refusal)
+    try c.encodeNullable(decider, forKey: .decider)
   }
 }
 
@@ -131,7 +129,7 @@ public struct DecisionsV1: Codable, Hashable, Sendable {
 public struct SkippedSignalV1: Codable, Hashable, Sendable {
   public let at: WireTime
   public let symbol: String
-  public let strategy: StrategyRefV1
+  public let strategy: StrategyId
   /// `refused` or `notEvaluated`.
   public let admission: Admission
   /// The single "CAUSE: detail" of a refusal; nil otherwise.
@@ -149,9 +147,11 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
   public let whatIf: WhatIfV1
   /// `prices_after_cause` as codes (docs/api.md, "Reason codes"); empty when there is none.
   public let pricesAfterCauseCodes: [ReasonV1]
+  /// Who decided (docs/api.md, "Decider"); nil from an older API.
+  public let decider: DeciderV1?
 
   enum CodingKeys: String, CodingKey {
-    case at, symbol, strategy, admission, checks
+    case at, symbol, strategy, admission, checks, decider
     case refusalCause = "refusal_cause"
     case refusal
     case entryPrice = "entry_price"
@@ -166,7 +166,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     let c = try decoder.container(keyedBy: CodingKeys.self)
     at = try c.decode(WireTime.self, forKey: .at)
     symbol = try c.decode(String.self, forKey: .symbol)
-    strategy = try c.decode(StrategyRefV1.self, forKey: .strategy)
+    strategy = try c.decode(StrategyId.self, forKey: .strategy)
     admission = try c.decode(Admission.self, forKey: .admission)
     refusalCause = try c.decodeNullable(String.self, forKey: .refusalCause)
     refusal = try c.decodeNullable(RefusalV1.self, forKey: .refusal)
@@ -177,6 +177,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     pricesAfterCause = try c.decodeNullable(String.self, forKey: .pricesAfterCause)
     whatIf = try c.decode(WhatIfV1.self, forKey: .whatIf)
     pricesAfterCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .pricesAfterCauseCodes) ?? []
+    decider = try c.decodeIfPresent(DeciderV1.self, forKey: .decider)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -194,6 +195,7 @@ public struct SkippedSignalV1: Codable, Hashable, Sendable {
     try c.encodeNullable(pricesAfterCause, forKey: .pricesAfterCause)
     try c.encode(whatIf, forKey: .whatIf)
     try c.encode(pricesAfterCauseCodes, forKey: .pricesAfterCauseCodes)
+    try c.encodeNullable(decider, forKey: .decider)
   }
 }
 

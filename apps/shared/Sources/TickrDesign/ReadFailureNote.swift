@@ -66,9 +66,7 @@ public struct ReadFailureNote: View {
             withAnimation(Tokens.Motion.quick) { showsDetails.toggle() }
           } label: {
             HStack(spacing: Tokens.Space.xs) {
-              Image(systemName: Symbols.next)
-                .font(Tokens.Typography.chevron)
-                .rotationEffect(showsDetails ? .degrees(ConnectionNoticeLook.openDegrees) : .zero)
+              ExpandChevron(open: showsDetails)
               Text(label)
             }
             .font(Tokens.Typography.caption.weight(.semibold))

@@ -1,0 +1,59 @@
+{
+  "served_at": "2026-11-16T15:00:02.123Z",
+  "status": {
+    "written_at": "2026-11-16T15:00:00.123Z",
+    "bot_state": "running",
+    "run_id": null,
+    "environment": "sandbox",
+    "trading_gate": {
+      "open": true,
+      "cause": "trading enabled by configuration",
+      "code": "unrecorded",
+      "params": {}
+    },
+    "strategy": {
+      "name": "price-action-v1",
+      "version": "1",
+      "settings_version": null
+    },
+    "entry_stop": false,
+    "entry_block": null,
+    "fences": [],
+    "position": null,
+    "trades_today": [],
+    "result_today_gross_usd": "0",
+    "freshness": {
+      "last_broker_read_at": "2026-11-16T15:00:00.123Z",
+      "last_quote_at": null,
+      "stream": "fresh"
+    },
+    "recent_commands": [],
+    "realized_loss_today_usd": null,
+    "open_reservations_usd": "0",
+    "daily_room_usd": null,
+    "positions": [],
+    "code_version": null,
+    "fees_today_usd": "0.07",
+    "result_today_net_usd": "-1.67",
+    "result_today_broker_usd": "-1.64",
+    "stop_progress": null,
+    "working_entries": [],
+    "schema_version": 1,
+    "decider": {
+      "kind": "strategy",
+      "name": "price-action-v1",
+      "version": "1"
+    },
+    "protection_in_force": [],
+    "realized_loss_week_usd": null,
+    "stop_out_streak": null
+  },
+  "age_seconds": "0.250",
+  "stale": false,
+  "unavailable_cause": null,
+  "summary": "Entries allowed.",
+  "poll_seconds": "3",
+  "api_version": 1,
+  "api_started_at": "2026-11-16T14:00:00.123Z",
+  "unavailable_cause_codes": []
+}

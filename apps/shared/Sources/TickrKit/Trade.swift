@@ -31,12 +31,14 @@ public struct Trade: Codable, Hashable, Sendable {
   /// The exact result after fees from the account's cash activities; nil until every fill's
   /// activity is listed (the order rows round sub-dollar prices).
   public let resultExactUsd: DecimalString?
+  /// Who decided the entry (docs/api.md, "Decider"); nil with `strategy` and from an older API.
+  public let decider: DeciderV1?
 
   /// The result as shown: exact once known, else the gross from the order rows.
   public var resultUsd: DecimalString { resultExactUsd ?? resultGrossUsd }
 
   enum CodingKeys: String, CodingKey {
-    case symbol, quantity, strategy
+    case symbol, quantity, strategy, decider
     case codeVersion = "code_version"
     case resultExactUsd = "result_exact_usd"
     case entryPrice = "entry_price"
@@ -72,6 +74,7 @@ public struct Trade: Codable, Hashable, Sendable {
     // Added after version 1 shipped as well.
     codeVersion = try c.decodeIfPresent(String.self, forKey: .codeVersion)
     resultExactUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultExactUsd)
+    decider = try c.decodeIfPresent(DeciderV1.self, forKey: .decider)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -92,5 +95,7 @@ public struct Trade: Codable, Hashable, Sendable {
     try c.encodeNullable(strategy, forKey: .strategy)
     try c.encodeNullable(codeVersion, forKey: .codeVersion)
     try c.encodeNullable(resultExactUsd, forKey: .resultExactUsd)
+    // Only the API's answer carries `decider`; the bot's status file has none (docs/api.md, "Decider").
+    try c.encodeIfPresent(decider, forKey: .decider)
   }
 }

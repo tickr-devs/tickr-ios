@@ -78,12 +78,11 @@ private final class AlertsAnswers: APITransport {
     }
   }
 
-  @Test func aChannelNotBuiltIsNoChoiceOneNotSetUpIs() throws {
+  @Test func aChannelNotBuiltIsNoChoice() throws {
     let alerts = try alerts()
     #expect(alerts.channel(.push)?.cause == .notBuilt)
     #expect(!alerts.canChange(.push))
-    // A channel the owner has not set up yet stays a choice: the routing is a preference.
-    #expect(alerts.channel(.telegram)?.cause == .notConfigured)
+    #expect(alerts.channel(.telegram)?.configured == true)
     #expect(alerts.canChange(.telegram))
   }
 

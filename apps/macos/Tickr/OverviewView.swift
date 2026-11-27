@@ -39,6 +39,9 @@ struct OverviewView: View {
   static let bottomRowMinHeight: CGFloat = 150
   /// Padding around the cards on each side: the screen's widths above are the grid's plus twice this.
   static let padding = Tokens.Space.l
+  /// Name of the cards' own coordinate space inside the scroll view: a card's place in it moves
+  /// only when the cards above it change, never with the scroll offset.
+  nonisolated static let contentSpace = "overview-content"
   /// Narrowest grid, in points, with the cards in two columns: two of the least grid column
   /// (`Tokens.Size.gridColumnMin`) and the gap between. Narrower (a window capped to a small
   /// display, `WindowFit`), the cards stack in one column, the Safety · bot card first after the
@@ -132,10 +135,17 @@ struct OverviewView: View {
             LiveFlowCard().rise(step: Order.flow.rawValue)
             WatchingCard().filling().rise(step: Order.watching.rawValue)
             PositionsCard().filling().rise(step: Order.positions.rawValue).id(PositionsCard.id)
+              .onGeometryChange(for: CGFloat.self) { $0.frame(in: .named(Self.contentSpace)).minY } action: { _ in
+                showSafetyFirstIfAsked(proxy)
+              }
             SafetyCard().filling().rise(step: Order.middle.rawValue).id(SafetyCard.id)
               // Also when a card above it changes height while the page's height stays the same
-              // (the bottom row fills the rest), which moves it without a content-size change.
-              .onGeometryChange(for: CGFloat.self) { $0.frame(in: .scrollView).minY } action: { _ in
+              // (the bottom row fills the rest), which moves it without a content-size change. Its
+              // place among the cards, not on screen: measured in the scroll view's space, the
+              // scroll to the Positions card moved the Safety card, which scrolled again, a layout
+              // pass after each until AppKit aborted the app ("bot.tickr.mac crashed" in the UI
+              // tests, -[NSWindow _postWindowNeedsLayout] raising inside a layout pass).
+              .onGeometryChange(for: CGFloat.self) { $0.frame(in: .named(Self.contentSpace)).minY } action: { _ in
                 showSafetyFirstIfAsked(proxy)
               }
             Group {
@@ -146,15 +156,20 @@ struct OverviewView: View {
             .rise(step: Order.right.rawValue)
           }
           .padding(Self.padding)
+          .coordinateSpace(.named(Self.contentSpace))
           // The cards that change with the board (the day's result, Watching closely) read it
           // from the same width the grid picks its arrangement from.
           .environment(\.overviewLayout,
             Self.layout(gridWidth: viewport.size.width - Self.padding * CardArrangement.paddedEdges))
         }
         .scrollEdgeHints()
-        // Also when the cards below grow: until they load, the page can be too short to bring the
-        // card to the top.
-        .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, _ in
+        // Also when the cards below grow (until they load, the page can be too short to bring the
+        // card to the top) and when the window or its toolbar inset changes size (a display-sized
+        // window lays the cards out again). Never on the scroll offset, so a scroll cannot ask
+        // for another.
+        .onScrollGeometryChange(for: [CGFloat].self) {
+          [$0.contentSize.height, $0.containerSize.width, $0.containerSize.height, $0.contentInsets.top]
+        } action: { _, _ in
           showSafetyFirstIfAsked(proxy)
         }
       }
@@ -169,14 +184,14 @@ struct OverviewView: View {
 
   /// UI tests (`LayoutSweep.safetyFirst`, `LayoutSweep.positionsFirst`): the Safety · bot card
   /// or the Positions card at the top of the screen, kept there while the cards above it load, so
-  /// a test clicks its commands without a scroll.
+  /// a test clicks its commands without a scroll. The scroll runs after the layout pass that
+  /// noticed the change, on the settled cards: asked inside that pass, it scrolled to where the
+  /// card was before the pass (the card above the window on a display-sized window).
   private func showSafetyFirstIfAsked(_ proxy: ScrollViewProxy) {
-    #if DEBUG
-    if LayoutSweep.positionsFirst {
-      proxy.scrollTo(PositionsCard.id, anchor: .top)
-    } else if LayoutSweep.safetyFirst {
-      proxy.scrollTo(SafetyCard.id, anchor: .top)
-    }
+    #if DEBUG && os(macOS)
+    guard LayoutSweep.positionsFirst || LayoutSweep.safetyFirst else { return }
+    let target = LayoutSweep.positionsFirst ? PositionsCard.id : SafetyCard.id
+    Task { proxy.scrollTo(target, anchor: .top) }
     #endif
   }
 }
@@ -485,22 +500,34 @@ private struct LiveFlowCard: View {
     let positions = status.map(Board.positions) ?? []
     // An open position whose stop is not verified outranks the day's count of verified stops.
     let unprotected = positions.first { !$0.stop.state.isProtected }
-    // The one stage rule of both apps (`StopState.stageTone`): neutral with no position, else the
+    // The one stage rule of both apps (`StopState.stageTone`): green with no position, else the
     // worst of the open and the day's stops.
     let stopTone = StopState.stageTone(open: positions.map(\.stop.state), day: (model.flow?.stops ?? []).map(\.state))
+    // Checked lime only while the broker agrees; red on a mismatch or a fence; quiet while nothing
+    // has been compared yet (never a healthy colour for an unknown state), as on iOS.
+    let reconcileFill: Color = switch reconcile.agrees {
+    case true?: PipelineStage.reconcile.fill
+    case false?: Palette.loss
+    case nil: Palette.textQuaternary
+    }
+    let reconcileText: Color = switch reconcile.agrees {
+    case true?: PipelineStage.reconcile.text
+    case false?: Palette.lossText
+    case nil: Palette.textQuaternary
+    }
     return [
       .init(id: .screeners, name: L10n.Flow.screeners, value: count(.screeners),
-        glyph: .screeners, color: Palette.accent, text: Palette.accentText),
+        glyph: .screeners, color: PipelineStage.screeners.fill, text: PipelineStage.screeners.text),
       .init(id: .universe, name: L10n.Flow.universe, value: count(.universe), drop: funnel[1],
-        glyph: .universe, color: Palette.seriesUniverse, text: Palette.seriesATRText),
+        glyph: .universe, color: PipelineStage.universe.fill, text: PipelineStage.universe.text),
       // Quote and bars come from GET /symbols only (the flow keeps its six stages for older apps).
       .init(id: .quote, name: L10n.Flow.quote, value: reached(.quote), note: model.symbolsError, drop: funnel[2],
-        glyph: .quote, color: Palette.accent, text: Palette.accentText),
+        glyph: .quote, color: PipelineStage.quote.fill, text: PipelineStage.quote.text),
       .init(id: .bars, name: L10n.Flow.bars, value: reached(.bars), note: model.symbolsError, drop: funnel[3],
-        glyph: .bars, color: Palette.info, text: Palette.infoText),
+        glyph: .bars, color: PipelineStage.bars.fill, text: PipelineStage.bars.text),
       .init(id: .strategy, name: L10n.Common.strategy,
         value: count(.strategy) ?? status.map { Format.strategy($0.strategy) },
-        glyph: .strategy, color: Palette.highlight, text: Palette.highlightText),
+        glyph: .strategy, color: PipelineStage.strategy.fill, text: PipelineStage.strategy.text),
       // The day's count, as in the design; only an entry block that needs the operator outranks
       // it. A calm pause ("not now") shows only when there is no count yet.
       .init(id: .risk, name: L10n.Common.risk,
@@ -509,17 +536,17 @@ private struct LiveFlowCard: View {
           ?? status?.entryBlock.map { _ in String(localized: L10n.Flow.waiting) }
           ?? status.map { _ in String(localized: L10n.Flow.entriesAllowed) },
         drop: refused > 0 ? String(localized: L10n.Flow.refusedCount(refused)) : nil,
-        glyph: .risk, color: Palette.warning, text: Palette.warningText),
+        glyph: .risk, color: PipelineStage.risk.fill, text: PipelineStage.risk.text),
       .init(id: .order, name: L10n.Flow.order,
         value: count(.order) ?? status.map { String(localized: L10n.Flow.closedCount($0.tradesToday.count)) },
-        glyph: .order, color: Palette.info, text: Palette.infoText),
+        glyph: .order, color: PipelineStage.order.fill, text: PipelineStage.order.text),
       .init(id: .stop, name: L10n.Flow.brokerStop,
         value: unprotected.map { $0.stop.state.title } ?? count(.stop)
           ?? positions.first.map { $0.stop.state.title }
           ?? status.map { _ in String(localized: L10n.Common.noPosition) },
         glyph: .brokerStop, color: stopTone.fill, text: stopTone.text),
       .init(id: .reconcile, name: L10n.Flow.reconcile, value: reconcile.value, note: reconcile.note,
-        glyph: .reconcile, color: Palette.infoText, text: Palette.infoText),
+        glyph: .reconcile, color: reconcileFill, text: reconcileText),
     ]
   }
 }
@@ -684,7 +711,7 @@ private struct Pipeline: View {
         .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.medium))
     }
     .buttonStyle(.plain)
-    .pointerStyle(.link)
+    .linkPointer()
     .onHover { inside in
       if inside {
         hovered = stage.id
@@ -734,7 +761,7 @@ private struct Pipeline: View {
         Text(verbatim: Format.missing)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .help(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
+          .tip(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
       }
       // How many the stage dropped or refused, small; the symbols left out and why on hover.
       if let drop = stage.drop {
@@ -857,23 +884,33 @@ private struct PositionsCard: View {
   @Environment(AppModel.self) private var model
   @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   @State private var selected: String?
+  /// The working entry whose chip is chosen (mockup v162), by symbol; nil shows a position.
+  @State private var selectedEntry: String?
 
   var body: some View {
     let rows = model.positions
-    let shown = rows.first(where: { $0.id == selected }) ?? rows.first
+    let entries = model.entryRows
+    // A chosen entry's chip wins; with no position open the first entry is shown.
+    let entry = entries.first(where: { $0.symbol == selectedEntry }) ?? (rows.isEmpty ? entries.first : nil)
+    let shown = entry == nil ? rows.first(where: { $0.id == selected }) ?? rows.first : nil
     Card(title) {
       HStack(spacing: Tokens.Space.s) {
-        // One tab per open position with its result, as in the design; a single position needs none.
+        // One tab per open position with its result, as in the design, then one dashed chip per
+        // working entry (mockup v162); a single position or entry alone needs none.
         // A tab never wraps or cuts its words (owner report 2026-11-18: five positions stacked
         // "+$17.42" one character per line): when the results do not fit, the tabs show the
         // symbols alone, tinted by their result; when even those do not, they scroll sideways.
-        if rows.count > 1 {
+        if rows.count + entries.count > 1 && model.stoppedPositions == nil {
           ViewThatFits(in: .horizontal) {
-            tabs(rows, shown: shown, results: true)
-            tabs(rows, shown: shown, results: false)
-            ScrollView(.horizontal) { tabs(rows, shown: shown, results: false) }
+            tabs(rows, entries, shown: shown, entry: entry, results: true)
+            tabs(rows, entries, shown: shown, entry: entry, results: false)
+            ScrollView(.horizontal) { tabs(rows, entries, shown: shown, entry: entry, results: false) }
               .withoutScrollIndicators()
           }
+        }
+        // Cancel entry for the entry shown (mockups v160, v162), beside Close all.
+        if let entry, entry.phase != .cancelled, model.stoppedPositions == nil {
+          CancelEntryButton(row: entry)
         }
         // Close all beside the tabs (mockup Main): it pauses entries, cancels the working entry
         // orders and closes every position; shown only while one is open.
@@ -886,7 +923,15 @@ private struct PositionsCard: View {
         .disabled(rows.isEmpty)
       }
     } content: {
-      if let row = rows.first(where: { $0.id == selected }) ?? rows.first {
+      if model.isLive, let stopped = model.stoppedPositions {
+        // Bot stopped with positions open (boards Main, MainNarrow): the stopped bot's last
+        // knowledge of them, in place of the live position view, with Start bot.
+        StoppedPositionsPanel(stopped) { OverviewStartButton() }
+      } else if let entry {
+        WorkingEntryPanel(row: entry)
+          .id(WorkingEntryPanel.idPrefix + entry.symbol)
+          .transition(.opacity.combined(with: .scale(scale: PositionsCard.switchScale)))
+      } else if let row = shown {
         PositionDetail(row: row)
           .id(row.id)
           .transition(.opacity.combined(with: .scale(scale: PositionsCard.switchScale)))
@@ -895,6 +940,8 @@ private struct PositionsCard: View {
       }
     }
     .animation(Tokens.Motion.standard, value: selected)
+    .animation(Tokens.Motion.standard, value: selectedEntry)
+    .animation(Tokens.Motion.standard, value: entries)
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(Self.id)
   }
@@ -905,11 +952,20 @@ private struct PositionsCard: View {
   /// Scale a position's detail starts from when the selection changes.
   static let switchScale = 0.98
 
-  /// The positions' tabs in one row at their own width, with or without their results.
-  private func tabs(_ rows: [PositionRow], shown: PositionRow?, results: Bool) -> some View {
+  /// The positions' tabs then the working entries' chips, in one row at their own width, the
+  /// tabs with or without their results.
+  private func tabs(
+    _ rows: [PositionRow], _ entries: [EntryRow], shown: PositionRow?, entry: EntryRow?, results: Bool
+  ) -> some View {
     HStack(spacing: Tokens.Space.s) {
       ForEach(rows) { row in
-        PositionTab(row: row, selected: row.id == shown?.id, showsResult: results) { selected = row.id }
+        PositionTab(row: row, selected: row.id == shown?.id, showsResult: results) {
+          selected = row.id
+          selectedEntry = nil
+        }
+      }
+      ForEach(entries) { row in
+        EntryTab(row: row, selected: row.symbol == entry?.symbol) { selectedEntry = row.symbol }
       }
     }
     .fixedSize()
@@ -953,8 +1009,35 @@ private struct PositionTab: View {
     // narrow tab may not write.
     .accessibilityValue(Text(verbatim: [Board.stopStateTitle(row.position.stop.state),
       row.unrealized.map(Money.signedUSD)].compactMap { $0 }.joined(separator: Format.itemSeparator)))
-    .help(Text(verbatim: row.unrealized.map(Money.signedUSD) ?? row.position.symbol))
+    .tip(Text(verbatim: row.unrealized.map(Money.signedUSD) ?? row.position.symbol))
   }
+}
+
+/// A working entry's chip beside the positions' tabs (mockup v162): dashed, its dot pulsing while
+/// the order works, "QRST · entry".
+private struct EntryTab: View {
+  let row: EntryRow
+  let selected: Bool
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: Tokens.Space.xs) {
+        EntryDot(row.phase)
+        SymbolText(row.symbol).foregroundStyle(Palette.textPrimary)
+        Text(verbatim: Format.itemSeparator.trimmingCharacters(in: .whitespaces))
+          .foregroundStyle(Palette.textTertiary)
+        Text(EntryText.chipWord).foregroundStyle(Palette.textTertiary)
+      }
+      .fixedSize()
+    }
+    .buttonStyle(.chip(selected: selected, dashed: true))
+    .accessibilityLabel(Text(EntryText.chipLabel(row.symbol)))
+    .accessibilityIdentifier(Self.idPrefix + row.symbol)
+  }
+
+  /// Accessibility id prefix of an entry's chip, for the UI tests.
+  static let idPrefix = "entry-tab-"
 }
 
 /// The selected position (mockup Main): its price line beside the symbol, the open result in
@@ -1016,7 +1099,7 @@ private struct PositionDetail: View {
       now
       line(Text(L10n.Position.maxLoss), value: Risk.plannedLoss(entry: row.entry, stop: row.stop,
         quantity: row.quantity).map(Money.usd) ?? Format.missing)
-        .help(Text(L10n.Position.maxLossHelp))
+        .tip(Text(L10n.Position.maxLossHelp))
       Spacer(minLength: Tokens.Space.s)
       BotCommandButton(action: .flatten(symbol: symbol), place: .window, size: .regular,
         title: L10n.Bot.closeSymbol(symbol), identifier: Self.closePrefix + symbol)
@@ -1051,7 +1134,7 @@ private struct PositionDetail: View {
     let label = stale ? row.lastBarAt.map { Text(L10n.Position.lastBarCloseAt(Format.marketMinute($0))) }
       ?? Text(L10n.Position.lastBarClose) : Text(L10n.Position.now)
     return line(label, value: [price, result].joined(separator: Format.itemSeparator), muted: stale)
-      .help(stale ? row.lastBarAt.map { Text(L10n.Position.staleHelp(Format.marketMinute($0))) }
+      .tip(stale ? row.lastBarAt.map { Text(L10n.Position.staleHelp(Format.marketMinute($0))) }
         ?? Text(L10n.Position.lastBarClose) : Text(L10n.Position.now))
   }
 
@@ -1199,6 +1282,64 @@ private struct EmptyPositions: View {
   }
 }
 
+/// An own entry order working with nothing filled (mockups v160, v162), the one shown: in place
+/// of the empty state, or of a position's detail when its chip is chosen. A ring with the order's
+/// state (a clock while it works, a spinner while its cancel is on its way, a tick once the broker
+/// cancelled it) beside its words; its Cancel entry sits in the card's header.
+private struct WorkingEntryPanel: View {
+  let row: EntryRow
+
+  /// Size of the ring and its inner dashed ring's inset, in points.
+  static let ring: CGFloat = 120
+  static let ringInset: CGFloat = 20
+  /// Size of the inner ring's dashes, in points.
+  static let dash: [CGFloat] = [4, 4]
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.xl) {
+      ring(row)
+      VStack(alignment: .leading, spacing: Tokens.Space.s) {
+        HStack(spacing: Tokens.Space.s) {
+          EntryDot(row.phase)
+          SymbolText(row.symbol)
+            .font(Tokens.Typography.figure)
+            .foregroundStyle(Palette.textPrimary)
+        }
+        EntryFacts(row)
+      }
+      Spacer(minLength: 0)
+    }
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier(Self.idPrefix + row.symbol)
+    // Fills the card the row stretches, centred in it, as the empty state does.
+    .frame(maxWidth: .infinity, minHeight: EmptyPositions.minHeight, maxHeight: .infinity)
+  }
+
+  /// Accessibility id prefix of an entry's row, for the UI tests.
+  static let idPrefix = "working-entry-"
+
+  private func ring(_ row: EntryRow) -> some View {
+    let color = EntryLook.color(row.phase)
+    return ZStack {
+      Circle().fill(Palette.surfaceSunken)
+      Circle().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin)
+      Circle()
+        .stroke(color.opacity(Tokens.Opacity.border), style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Self.dash))
+        .padding(Self.ringInset)
+      switch row.phase {
+      case .working:
+        Image(systemName: EntryLook.workingSymbol).font(.largeTitle).foregroundStyle(color)
+      case .cancelling:
+        Spinner()
+      case .cancelled:
+        Image(systemName: EntryLook.doneSymbol).font(.largeTitle).foregroundStyle(Palette.profitText)
+      }
+    }
+    .frame(width: Self.ring, height: Self.ring)
+    .accessibilityHidden(true)
+  }
+}
+
 /// A radar sweep with two blips while the bot scans for setups (ornament, as on the design).
 private struct Radar: View {
   @Environment(AppModel.self) private var model
@@ -1263,8 +1404,17 @@ private struct BotSection: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       // While the link is down the controls are off and quiet grey, and the connection banner
       // says "commands off": no red line repeats it here (owner, 2026-11-18).
-      BotControls()
-        .grayscale(linkDown ? 1 : 0)
+      // A close-and-stop shows its steps in place of the buttons (boards Main, MainNarrow),
+      // driven only by the bot's status; a refusal brings the buttons back with its cause.
+      if model.isLive, let rows = model.stopSteps {
+        StopStepsSection(rows: rows)
+      } else {
+        BotControls()
+          .grayscale(linkDown ? 1 : 0)
+      }
+      if model.isLive, let refusal = model.stopRefusal {
+        Footnote(verbatim: refusal, color: Palette.lossText)
+      }
       if !model.isLive {
         Footnote(L10n.Safety.offWhileRecorded)
       } else if model.response?.stale == true && !linkDown {
@@ -1297,13 +1447,12 @@ private struct RiskRoomCard: View {
             color: Palette.result(model.shownResult)),
           RiskFact(.reservations, RiskRoomText.reservations, value: reservations.map(Money.usd) ?? Format.missing,
             color: reservations.map { Tone.amount($0, .warning).text } ?? Palette.textQuaternary),
-          RiskFact(.positions, RiskRoomText.positions,
-            value: String(localized: L10n.Common.countOf(model.positions.count, risk.maxOpenPositions))),
+          RiskFact(.positions, RiskRoomText.positions, value: model.slotsText(risk.maxOpenPositions)),
         ], sizing: model.watching.map { watching in
           EntrySizing(size: watching.latestSize, configured: SizingLimits(
             plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
             dailyRoomUsd: model.dailyRoom), text: .money)
-        }, summary: true)
+        }, summary: true, roomNote: RiskRoomText.roomNote(model.status))
         Spacer(minLength: 0)
       } else if let error = model.settingsError {
         ReadFailureNote(L10n.ReadFailed.settings, detail: error)
@@ -1326,7 +1475,7 @@ private struct RiskRoomCard: View {
         let records = model.shownReconcile
         StatLine(L10n.RiskRoom.recordsAgree, value: records.value ?? Format.missing,
           color: records.agrees.map { $0 ? Palette.profitText : Palette.warningText } ?? Palette.textQuaternary)
-          .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
+          .tip(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
       }
       if let size = model.watching?.latestSize {
         EntrySizingSummary(sizing: EntrySizing(size: size, configured: nil, text: .money))

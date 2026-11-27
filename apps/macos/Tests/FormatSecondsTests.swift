@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Seconds as the app shows them")
 struct FormatSecondsTests {

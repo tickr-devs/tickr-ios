@@ -7,12 +7,18 @@ import FoundationNetworking
 public enum OperatorCommand: Hashable, Sendable {
   case entryStop(on: Bool)
   case cancelOwnOrders
+  /// Cancel only the bot's working entry order in one symbol (nothing filled yet). The bot
+  /// refuses it when that symbol has no working entry.
+  case cancelEntry(String)
   /// Close every position the bot holds.
   case flatten
   /// Close only the bot's position in one symbol.
   case flattenSymbol(String)
-  /// Graceful stop that sticks until the owner starts the bot again.
+  /// Graceful stop that sticks until the owner starts the bot again; refused while a trade is open.
   case stopBot
+  /// The same stop with what to do with the open positions (backlog V4): close them first, or
+  /// leave them open under their broker stops.
+  case stopBotMode(StopMode)
   /// Entry stop on, cancel own orders, flatten everything.
   case emergency
 
@@ -22,8 +28,10 @@ public enum OperatorCommand: Hashable, Sendable {
   static let flattenPath = "/commands/flatten"
   static let stopBotPath = "/commands/stop-bot"
   static let emergencyPath = "/commands/emergency"
-  /// The flatten body's key for one symbol.
+  /// The flatten and cancel-own-orders bodies' key for one symbol.
   static let symbolKey = "symbol"
+  /// The stop-bot body's key for its mode.
+  static let modeKey = "mode"
   /// The entry-stop body's key and its two values.
   static let stateKey = "state"
   static let on = "on"
@@ -32,9 +40,9 @@ public enum OperatorCommand: Hashable, Sendable {
   public var path: String {
     switch self {
     case .entryStop: return Self.entryStopPath
-    case .cancelOwnOrders: return Self.cancelOwnOrdersPath
+    case .cancelOwnOrders, .cancelEntry: return Self.cancelOwnOrdersPath
     case .flatten, .flattenSymbol: return Self.flattenPath
-    case .stopBot: return Self.stopBotPath
+    case .stopBot, .stopBotMode: return Self.stopBotPath
     case .emergency: return Self.emergencyPath
     }
   }
@@ -43,7 +51,8 @@ public enum OperatorCommand: Hashable, Sendable {
   public var body: [String: String] {
     switch self {
     case .entryStop(let on): return [Self.stateKey: on ? Self.on : Self.off]
-    case .flattenSymbol(let symbol): return [Self.symbolKey: symbol]
+    case .flattenSymbol(let symbol), .cancelEntry(let symbol): return [Self.symbolKey: symbol]
+    case .stopBotMode(let mode): return [Self.modeKey: mode.rawValue]
     case .cancelOwnOrders, .flatten, .stopBot, .emergency: return [:]
     }
   }
@@ -51,9 +60,9 @@ public enum OperatorCommand: Hashable, Sendable {
   public var kind: CommandKind {
     switch self {
     case .entryStop(let on): return on ? .entryStopOn : .entryStopOff
-    case .cancelOwnOrders: return .cancelOwnOrders
+    case .cancelOwnOrders, .cancelEntry: return .cancelOwnOrders
     case .flatten, .flattenSymbol: return .flatten
-    case .stopBot: return .stopBot
+    case .stopBot, .stopBotMode: return .stopBot
     case .emergency: return .emergency
     }
   }
