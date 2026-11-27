@@ -127,7 +127,7 @@ private struct RoomCard: View {
           RiskFact(.positions, RiskRoomText.positions,
             value: String(localized: L10n.Risk.positionsOf(status.positions.count, risk.maxOpenPositions))),
           .records(RecordsAgreement(fences: status.fences, latest: model.isLive ? model.flow?.reconcile : nil)),
-        ], sizing: nil)
+        ], sizing: nil, roomNote: RiskRoomText.roomNote(status))
       } else {
         RiskLine(label: L10n.Risk.room, value: RiskFormat.amount(status.dailyRoomUsd?.value))
       }

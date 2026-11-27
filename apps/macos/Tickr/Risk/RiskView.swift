@@ -246,8 +246,8 @@ private struct LossRoomCard: View {
           FigureRow(L10n.Risk.reservations(model.positions.count), value: amount(model.status?.openReservationsUsd),
             color: reservedTone.text)
         }
-        if model.status != nil && room == nil {
-          Footnote(L10n.Risk.roomNotReported, color: Palette.warningText)
+        if let note = RiskRoomText.roomNote(model.status) {
+          Footnote(note, color: Palette.warningText)
         }
       }
     })

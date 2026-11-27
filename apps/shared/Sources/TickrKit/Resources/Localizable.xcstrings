@@ -10646,6 +10646,23 @@
         }
       }
     },
+    "kit.riskRoom.unknownRoom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown until every trade closed today has its fill prices and fees. New entries wait."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocido hasta que cada operación cerrada hoy tenga sus precios de ejecución y comisiones. Las nuevas entradas esperan."
+          }
+        }
+      }
+    },
     "kit.rule.ask_above_trigger" : {
       "comment" : "Strategy check: ask_above_trigger",
       "extractionState" : "manual",

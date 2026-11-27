@@ -885,6 +885,23 @@
         }
       }
     },
+    "cause.beforeFirstEntry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Before the first entry time"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes de la hora de la primera entrada"
+          }
+        }
+      }
+    },
     "cause.brokerReadMissing" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -953,6 +970,57 @@
         }
       }
     },
+    "cause.calendarDayMismatch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market calendar is for another day"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El calendario del mercado es de otro día"
+          }
+        }
+      }
+    },
+    "cause.calendarUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market calendar unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendario del mercado desconocido"
+          }
+        }
+      }
+    },
+    "cause.clockInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clock check failed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falló la comprobación del reloj"
+          }
+        }
+      }
+    },
     "cause.cooldown" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -987,6 +1055,23 @@
         }
       }
     },
+    "cause.countInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position or order count invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conteo de posiciones u órdenes no válido"
+          }
+        }
+      }
+    },
     "cause.dailyCeiling" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1000,6 +1085,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Límite de pérdida diaria alcanzado"
+          }
+        }
+      }
+    },
+    "cause.dailyMoneyInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's loss figures invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifras de pérdida de hoy no válidas"
+          }
+        }
+      }
+    },
+    "cause.dailyMoneyUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's loss figures unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifras de pérdida de hoy desconocidas"
+          }
+        }
+      }
+    },
+    "cause.decisionIncomplete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signal missing prices or size"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A la señal le faltan precios o tamaño"
+          }
+        }
+      }
+    },
+    "cause.decisionInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signal prices or size invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precios o tamaño de la señal no válidos"
+          }
+        }
+      }
+    },
+    "cause.decisionNotActive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signal from a strategy not in use"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Señal de una estrategia que no está en uso"
+          }
+        }
+      }
+    },
+    "cause.decisionNotEnter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signal is not an entry"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La señal no es una entrada"
+          }
+        }
+      }
+    },
+    "cause.engineRefused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refused when opening the trade"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechazada al abrir la operación"
           }
         }
       }
@@ -1034,6 +1238,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entradas pausadas por ti"
+          }
+        }
+      }
+    },
+    "cause.equityUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equity not read"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capital no leído"
           }
         }
       }
@@ -1089,6 +1310,74 @@
         }
       }
     },
+    "cause.instrumentCloseOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker allows closing only"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bróker solo permite cerrar"
+          }
+        }
+      }
+    },
+    "cause.instrumentDenied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker denies trading this stock"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bróker no permite negociar esta acción"
+          }
+        }
+      }
+    },
+    "cause.instrumentHalted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading halted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Negociación detenida"
+          }
+        }
+      }
+    },
+    "cause.instrumentNotTradable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stock not tradable now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acción no negociable ahora"
+          }
+        }
+      }
+    },
     "cause.notionalOverCap" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1119,6 +1408,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aún no conciliado con el bróker"
+          }
+        }
+      }
+    },
+    "cause.orderPricesInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order prices invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precios de la orden no válidos"
+          }
+        }
+      }
+    },
+    "cause.orderPricesMissing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order prices not computed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precios de la orden sin calcular"
           }
         }
       }
@@ -1225,6 +1548,40 @@
         }
       }
     },
+    "cause.priceCollarBreach" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit too far from the last price"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límite demasiado lejos del último precio"
+          }
+        }
+      }
+    },
+    "cause.priceCollarUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price collar prices missing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faltan precios del collar de precio"
+          }
+        }
+      }
+    },
     "cause.priceOutside" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1255,6 +1612,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamaño menor a una acción"
+          }
+        }
+      }
+    },
+    "cause.quantityNotWhole" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size not whole shares"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamaño sin acciones enteras"
+          }
+        }
+      }
+    },
+    "cause.quoteInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote prices unusable"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precios de la cotización no utilizables"
           }
         }
       }
@@ -1293,6 +1684,57 @@
         }
       }
     },
+    "cause.quoteSymbolMismatch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote for another symbol"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cotización de otro símbolo"
+          }
+        }
+      }
+    },
+    "cause.quoteTimeInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote time invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hora de la cotización no válida"
+          }
+        }
+      }
+    },
+    "cause.sessionTimesInvalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session hours invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Horario de la sesión no válido"
+          }
+        }
+      }
+    },
     "cause.setupInvalidated" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1310,6 +1752,23 @@
         }
       }
     },
+    "cause.spreadTooWide" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spread too wide"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spread demasiado amplio"
+          }
+        }
+      }
+    },
     "cause.stopBudget" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1323,6 +1782,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sin cupo de solicitudes para el stop"
+          }
+        }
+      }
+    },
+    "cause.strategyNotExtended" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strategy may not enter outside regular hours"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La estrategia no puede entrar fuera del horario regular"
+          }
+        }
+      }
+    },
+    "cause.tradabilityBudget" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No request budget for the tradability check"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin presupuesto de solicitudes para la comprobación de negociabilidad"
+          }
+        }
+      }
+    },
+    "cause.tradabilityUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tradability not known"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Negociabilidad desconocida"
           }
         }
       }
@@ -8399,23 +8909,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "margen restante hoy"
-          }
-        }
-      }
-    },
-    "risk.roomNotReported" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The bot did not report the room left."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El bot no reportó el margen restante."
           }
         }
       }

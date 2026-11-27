@@ -15,6 +15,12 @@ public struct Headline: Equatable, Sendable {
   /// state. Not `text`: a stale status's text counts its age, which grows with every read of the
   /// same stale status.
   public let pulse: Pulse
+  /// Whether the bot's entry block is the unprotected-position fence itself, which the headline's
+  /// "has no verified stop" already says.
+  static func blocksForThisFence(_ status: StatusV1) -> Bool {
+    status.entryBlock.map { FenceKind(rawValue: $0.cause) == .unprotected } ?? false
+  }
+
   /// The line after the headline about a trusted status: the open positions (`detail(_:)`), "stops
   /// verified" after the holding headline, or why entries are off; nil without a trusted status.
   public let detail: String?
@@ -50,9 +56,10 @@ public struct Headline: Equatable, Sendable {
       return Headline(text: text, severity: .alarm, pulse: response.stale ? .stale : .text(text))
     }
     if let position = status.positions.first(where: { !$0.stop.state.isProtected }) {
+      // The bot's block is usually this same fence ("A position has no verified stop"): said once.
+      let start = String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
       return Headline(
-        text: String(localized: L10n.headlineNoVerifiedStop(position.symbol, Board.stopStateTitle(position.stop.state)))
-          + summary(response),
+        text: blocksForThisFence(status) ? start.trimmingCharacters(in: .whitespaces) : start + summary(response),
         severity: .alarm, detail: detail(status))
     }
     // Below an alarm (mockup v109): a block that needs the operator, then held positions, then a

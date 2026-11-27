@@ -1,40 +1,75 @@
 import Foundation
 
-/// Refusal codes the apps put in words (src/tickr/risk/causes.py, AdmissionCause). The bot
-/// has more; a code not listed here is shown as the bot wrote it.
+/// Refusal codes the apps put in words: every `AdmissionCause` (src/tickr/risk/causes.py) and
+/// ENGINE_REFUSED, so every code GET /skipped sends (tests/test_api_codes.py checks this). The
+/// API's UNKNOWN, and a code from a newer bot, have no case: they read as "Other reason".
 public enum RefusalCode: String, Sendable, CaseIterable {
   case gateClosed = "GATE_CLOSED"
+  case clockInvalid = "CLOCK_INVALID"
   case notReconciled = "RECONCILIATION_NOT_DONE"
   case brokerReadMissing = "BROKER_READ_MISSING"
   case brokerReadStale = "BROKER_READ_STALE"
   case unresolvedExposure = "UNRESOLVED_EXPOSURE"
   case foreignExposure = "FOREIGN_EXPOSURE"
   case entryStop = "ENTRY_STOP_SET"
+  case calendarUnknown = "CALENDAR_UNKNOWN"
+  case calendarDayMismatch = "CALENDAR_DAY_MISMATCH"
   case halfDay = "HALF_DAY"
   case outsideSession = "OUTSIDE_REGULAR_SESSION"
+  case beforeFirstEntry = "BEFORE_FIRST_ENTRY"
+  case sessionTimesInvalid = "SESSION_TIMES_INVALID"
   case afterLastEntry = "AFTER_LAST_ENTRY"
+  case countInvalid = "COUNT_INVALID"
   case ownPosition = "OWN_POSITION_OPEN"
   case ownOrder = "OWN_ORDER_WORKING"
   case positionLimit = "POSITION_LIMIT_REACHED"
   case workingEntryLimit = "WORKING_ENTRY_LIMIT_REACHED"
   case cooldown = "SYMBOL_COOLDOWN"
+  case decisionNotEnter = "DECISION_NOT_ENTER"
+  case decisionNotActive = "DECISION_NOT_ACTIVE"
+  case strategyNotExtended = "STRATEGY_NOT_EXTENDED"
+  case decisionIncomplete = "DECISION_INCOMPLETE"
+  case decisionInvalid = "DECISION_INVALID"
+  case orderPricesMissing = "ORDER_PRICES_MISSING"
+  case orderPricesInvalid = "ORDER_PRICES_INVALID"
   case setupInvalidated = "SETUP_INVALIDATED"
   case quoteMissing = "QUOTE_MISSING"
+  case quoteSymbolMismatch = "QUOTE_SYMBOL_MISMATCH"
+  case quoteInvalid = "QUOTE_INVALID"
+  case quoteTimeInvalid = "QUOTE_TIME_INVALID"
   case quoteStale = "QUOTE_STALE"
+  case spreadTooWide = "SPREAD_TOO_WIDE"
   case priceOutside = "PRICE_OUTSIDE_WINDOW"
+  case priceCollarUnknown = "PRICE_COLLAR_UNKNOWN"
+  case priceCollarBreach = "PRICE_COLLAR_BREACH"
   case quantityBelowOne = "QUANTITY_BELOW_ONE"
+  case quantityNotWhole = "QUANTITY_NOT_WHOLE"
   case notionalOverCap = "NOTIONAL_OVER_CAP"
   case plannedLossOver = "PLANNED_LOSS_OVER_LIMIT"
+  case dailyMoneyUnknown = "DAILY_MONEY_UNKNOWN"
+  case dailyMoneyInvalid = "DAILY_MONEY_INVALID"
   case dailyCeiling = "DAILY_CEILING"
   case buyingPowerUnknown = "BUYING_POWER_UNKNOWN"
   case buyingPowerShort = "BUYING_POWER_SHORT"
+  /// The account equity the percent-of-equity limits need (`[risk]`, off unless configured).
+  case equityUnknown = "EQUITY_UNKNOWN"
   case entryBudget = "ENTRY_BUDGET_UNAVAILABLE"
   case stopBudget = "STOP_BUDGET_UNAVAILABLE"
+  case tradabilityBudget = "TRADABILITY_BUDGET_UNAVAILABLE"
+  /// The broker's tradability answer (backlog T8, only with the check on in config).
+  case tradabilityUnknown = "TRADABILITY_UNKNOWN"
+  case instrumentHalted = "INSTRUMENT_HALTED"
+  case instrumentCloseOnly = "INSTRUMENT_CLOSE_ONLY"
+  case instrumentDenied = "INSTRUMENT_DENIED"
+  case instrumentNotTradable = "INSTRUMENT_NOT_TRADABLE"
+  /// Admission passed but the engine refused to open the trade (src/tickr/runtime/entries.py).
+  case engineRefused = "ENGINE_REFUSED"
 
-  /// SF Symbols of the refusal families: the gate or an operator pause, a broker read or
-  /// reconciliation, exposure the bot did not open, the session's hours, the bot's own position or
-  /// order, a pause after a loss, a setup gone, the quote, the price window, size and loss limits,
-  /// and the request budget; and of a cause this app has no words for.
+  /// SF Symbols of the refusal families: the gate, an operator pause or the engine's last check,
+  /// a broker read, reconciliation or the clock, exposure the bot did not open, the session's hours
+  /// and calendar, the bot's own positions and orders, a pause after a loss, the signal or its
+  /// setup, the quote, the order's prices, size and loss limits, and the request budget; and of a
+  /// cause this app has no words for.
   public static let gateSymbol = "lock.fill"
   public static let brokerSymbol = "arrow.triangle.2.circlepath"
   public static let exposureSymbol = "person.crop.circle.badge.questionmark"
@@ -51,18 +86,26 @@ public enum RefusalCode: String, Sendable, CaseIterable {
   /// The symbol of this refusal's family, for a row or a glyph next to its words.
   public var symbol: String {
     switch self {
-    case .gateClosed, .entryStop: return Self.gateSymbol
-    case .notReconciled, .brokerReadMissing, .brokerReadStale, .buyingPowerUnknown: return Self.brokerSymbol
+    case .gateClosed, .entryStop, .engineRefused: return Self.gateSymbol
+    case .clockInvalid, .notReconciled, .brokerReadMissing, .brokerReadStale, .buyingPowerUnknown, .equityUnknown,
+      .tradabilityUnknown, .instrumentHalted, .instrumentCloseOnly, .instrumentDenied, .instrumentNotTradable:
+      return Self.brokerSymbol
     case .unresolvedExposure, .foreignExposure: return Self.exposureSymbol
-    case .halfDay, .outsideSession, .afterLastEntry: return Self.sessionSymbol
-    case .ownPosition, .ownOrder, .positionLimit, .workingEntryLimit: return Self.ownSymbol
+    case .calendarUnknown, .calendarDayMismatch, .halfDay, .outsideSession, .beforeFirstEntry, .sessionTimesInvalid,
+      .afterLastEntry, .strategyNotExtended:
+      return Self.sessionSymbol
+    case .countInvalid, .ownPosition, .ownOrder, .positionLimit, .workingEntryLimit: return Self.ownSymbol
     case .cooldown: return Self.cooldownSymbol
-    case .setupInvalidated: return Self.setupSymbol
-    case .quoteMissing, .quoteStale: return Self.quoteSymbol
-    case .priceOutside: return Self.priceSymbol
-    case .quantityBelowOne, .notionalOverCap, .plannedLossOver, .dailyCeiling, .buyingPowerShort:
+    case .decisionNotEnter, .decisionNotActive, .decisionIncomplete, .decisionInvalid, .setupInvalidated:
+      return Self.setupSymbol
+    case .quoteMissing, .quoteSymbolMismatch, .quoteInvalid, .quoteTimeInvalid, .quoteStale, .spreadTooWide:
+      return Self.quoteSymbol
+    case .orderPricesMissing, .orderPricesInvalid, .priceOutside, .priceCollarUnknown, .priceCollarBreach:
+      return Self.priceSymbol
+    case .quantityBelowOne, .quantityNotWhole, .notionalOverCap, .plannedLossOver, .dailyMoneyUnknown,
+      .dailyMoneyInvalid, .dailyCeiling, .buyingPowerShort:
       return Self.sizeSymbol
-    case .entryBudget, .stopBudget: return Self.budgetSymbol
+    case .entryBudget, .stopBudget, .tradabilityBudget: return Self.budgetSymbol
     }
   }
 }

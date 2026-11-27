@@ -1425,7 +1425,7 @@ private struct RiskRoomCard: View {
           EntrySizing(size: watching.latestSize, configured: SizingLimits(
             plannedLossUsd: risk.plannedLossUsd.value, notionalCapUsd: risk.positionNotionalCapUsd.value,
             dailyRoomUsd: model.dailyRoom), text: .money)
-        }, summary: true)
+        }, summary: true, roomNote: RiskRoomText.roomNote(model.status))
         Spacer(minLength: 0)
       } else if let error = model.settingsError {
         ReadFailureNote(L10n.ReadFailed.settings, detail: error)

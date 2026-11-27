@@ -2276,6 +2276,8 @@ enum L10n {
       switch code {
       case .gateClosed: LocalizedStringResource("cause.gateClosed",
         defaultValue: "Trading gate closed", bundle: L10n.bundle)
+      case .clockInvalid: LocalizedStringResource("cause.clockInvalid",
+        defaultValue: "Clock check failed", bundle: L10n.bundle)
       case .notReconciled: LocalizedStringResource("cause.notReconciled",
         defaultValue: "Not yet reconciled with the broker", bundle: L10n.bundle)
       case .brokerReadMissing: LocalizedStringResource("cause.brokerReadMissing",
@@ -2288,12 +2290,22 @@ enum L10n {
         defaultValue: "Someone else's position or order at the broker", bundle: L10n.bundle)
       case .entryStop: LocalizedStringResource("cause.entryStop",
         defaultValue: "Entries paused by you", bundle: L10n.bundle)
+      case .calendarUnknown: LocalizedStringResource("cause.calendarUnknown",
+        defaultValue: "Market calendar unknown", bundle: L10n.bundle)
+      case .calendarDayMismatch: LocalizedStringResource("cause.calendarDayMismatch",
+        defaultValue: "Market calendar is for another day", bundle: L10n.bundle)
       case .halfDay: LocalizedStringResource("cause.halfDay",
         defaultValue: "Half day: entries off", bundle: L10n.bundle)
       case .outsideSession: LocalizedStringResource("cause.outsideSession",
         defaultValue: "Outside regular hours", bundle: L10n.bundle)
+      case .beforeFirstEntry: LocalizedStringResource("cause.beforeFirstEntry",
+        defaultValue: "Before the first entry time", bundle: L10n.bundle)
+      case .sessionTimesInvalid: LocalizedStringResource("cause.sessionTimesInvalid",
+        defaultValue: "Session hours invalid", bundle: L10n.bundle)
       case .afterLastEntry: LocalizedStringResource("cause.afterLastEntry",
         defaultValue: "After the last entry time", bundle: L10n.bundle)
+      case .countInvalid: LocalizedStringResource("cause.countInvalid",
+        defaultValue: "Position or order count invalid", bundle: L10n.bundle)
       case .ownPosition: LocalizedStringResource("cause.ownPosition",
         defaultValue: "Already holding this symbol", bundle: L10n.bundle)
       case .ownOrder: LocalizedStringResource("cause.ownOrder",
@@ -2304,30 +2316,78 @@ enum L10n {
         defaultValue: "Too many entries working at once", bundle: L10n.bundle)
       case .cooldown: LocalizedStringResource("cause.cooldown",
         defaultValue: "Pause after a loss", bundle: L10n.bundle)
+      case .decisionNotEnter: LocalizedStringResource("cause.decisionNotEnter",
+        defaultValue: "Signal is not an entry", bundle: L10n.bundle)
+      case .decisionNotActive: LocalizedStringResource("cause.decisionNotActive",
+        defaultValue: "Signal from a strategy not in use", bundle: L10n.bundle)
+      case .strategyNotExtended: LocalizedStringResource("cause.strategyNotExtended",
+        defaultValue: "Strategy may not enter outside regular hours", bundle: L10n.bundle)
+      case .decisionIncomplete: LocalizedStringResource("cause.decisionIncomplete",
+        defaultValue: "Signal missing prices or size", bundle: L10n.bundle)
+      case .decisionInvalid: LocalizedStringResource("cause.decisionInvalid",
+        defaultValue: "Signal prices or size invalid", bundle: L10n.bundle)
+      case .orderPricesMissing: LocalizedStringResource("cause.orderPricesMissing",
+        defaultValue: "Order prices not computed", bundle: L10n.bundle)
+      case .orderPricesInvalid: LocalizedStringResource("cause.orderPricesInvalid",
+        defaultValue: "Order prices invalid", bundle: L10n.bundle)
       case .setupInvalidated: LocalizedStringResource("cause.setupInvalidated",
         defaultValue: "Setup no longer valid", bundle: L10n.bundle)
       case .quoteMissing: LocalizedStringResource("cause.quoteMissing",
         defaultValue: "No quote", bundle: L10n.bundle)
+      case .quoteSymbolMismatch: LocalizedStringResource("cause.quoteSymbolMismatch",
+        defaultValue: "Quote for another symbol", bundle: L10n.bundle)
+      case .quoteInvalid: LocalizedStringResource("cause.quoteInvalid",
+        defaultValue: "Quote prices unusable", bundle: L10n.bundle)
+      case .quoteTimeInvalid: LocalizedStringResource("cause.quoteTimeInvalid",
+        defaultValue: "Quote time invalid", bundle: L10n.bundle)
       case .quoteStale: LocalizedStringResource("cause.quoteStale",
         defaultValue: "Quote too old", bundle: L10n.bundle)
+      case .spreadTooWide: LocalizedStringResource("cause.spreadTooWide",
+        defaultValue: "Spread too wide", bundle: L10n.bundle)
       case .priceOutside: LocalizedStringResource("cause.priceOutside",
         defaultValue: "Price left the entry window", bundle: L10n.bundle)
       case .quantityBelowOne: LocalizedStringResource("cause.quantityBelowOne",
         defaultValue: "Size under one share", bundle: L10n.bundle)
+      case .quantityNotWhole: LocalizedStringResource("cause.quantityNotWhole",
+        defaultValue: "Size not whole shares", bundle: L10n.bundle)
       case .notionalOverCap: LocalizedStringResource("cause.notionalOverCap",
         defaultValue: "Position value over the cap", bundle: L10n.bundle)
       case .plannedLossOver: LocalizedStringResource("cause.plannedLossOver",
         defaultValue: "Planned loss over the limit", bundle: L10n.bundle)
+      case .dailyMoneyUnknown: LocalizedStringResource("cause.dailyMoneyUnknown",
+        defaultValue: "Today's loss figures unknown", bundle: L10n.bundle)
+      case .dailyMoneyInvalid: LocalizedStringResource("cause.dailyMoneyInvalid",
+        defaultValue: "Today's loss figures invalid", bundle: L10n.bundle)
       case .dailyCeiling: LocalizedStringResource("cause.dailyCeiling",
         defaultValue: "Daily loss limit reached", bundle: L10n.bundle)
       case .buyingPowerUnknown: LocalizedStringResource("cause.buyingPowerUnknown",
         defaultValue: "Buying power not read", bundle: L10n.bundle)
       case .buyingPowerShort: LocalizedStringResource("cause.buyingPowerShort",
         defaultValue: "Not enough buying power", bundle: L10n.bundle)
+      case .equityUnknown: LocalizedStringResource("cause.equityUnknown",
+        defaultValue: "Equity not read", bundle: L10n.bundle)
       case .entryBudget: LocalizedStringResource("cause.entryBudget",
         defaultValue: "No request budget for the entry", bundle: L10n.bundle)
       case .stopBudget: LocalizedStringResource("cause.stopBudget",
         defaultValue: "No request budget for the stop", bundle: L10n.bundle)
+      case .priceCollarUnknown: LocalizedStringResource("cause.priceCollarUnknown",
+        defaultValue: "Price collar prices missing", bundle: L10n.bundle)
+      case .priceCollarBreach: LocalizedStringResource("cause.priceCollarBreach",
+        defaultValue: "Limit too far from the last price", bundle: L10n.bundle)
+      case .tradabilityBudget: LocalizedStringResource("cause.tradabilityBudget",
+        defaultValue: "No request budget for the tradability check", bundle: L10n.bundle)
+      case .tradabilityUnknown: LocalizedStringResource("cause.tradabilityUnknown",
+        defaultValue: "Tradability not known", bundle: L10n.bundle)
+      case .instrumentHalted: LocalizedStringResource("cause.instrumentHalted",
+        defaultValue: "Trading halted", bundle: L10n.bundle)
+      case .instrumentCloseOnly: LocalizedStringResource("cause.instrumentCloseOnly",
+        defaultValue: "Broker allows closing only", bundle: L10n.bundle)
+      case .instrumentDenied: LocalizedStringResource("cause.instrumentDenied",
+        defaultValue: "Broker denies trading this stock", bundle: L10n.bundle)
+      case .instrumentNotTradable: LocalizedStringResource("cause.instrumentNotTradable",
+        defaultValue: "Stock not tradable now", bundle: L10n.bundle)
+      case .engineRefused: LocalizedStringResource("cause.engineRefused",
+        defaultValue: "Refused when opening the trade", bundle: L10n.bundle)
       }
     }
     /// Detail of a pause after a loss: when the losing trade closed and when entries may resume.
@@ -2375,10 +2435,6 @@ enum L10n {
     static func reservations(_ positions: Int) -> LocalizedStringResource {
       LocalizedStringResource("risk.reservations", defaultValue: "Held for open orders · \(positions) open",
         bundle: L10n.bundle)
-    }
-    /// The status has no daily room value.
-    static var roomNotReported: LocalizedStringResource {
-      LocalizedStringResource("risk.roomNotReported", defaultValue: "The bot did not report the room left.", bundle: L10n.bundle)
     }
     /// Configured minimum daily room for an entry.
     static var minRoom: LocalizedStringResource {
