@@ -57,7 +57,7 @@ public struct SignInScreen: View {
         columns
       }
     }
-    .background(Palette.background.ignoresSafeArea())
+    .background(background)
     .keepsContentOffline()
     .environment(model)
     .task {
@@ -65,6 +65,17 @@ public struct SignInScreen: View {
         online = path.status == .satisfied
       }
     }
+  }
+
+  /// The screen's background: on iPhone and iPad also under the status bar and the home
+  /// indicator. On the Mac it stays inside the content area under the title bar, as every screen's
+  /// root does: the window's least size is worked out from that area (`WindowFit.room`).
+  @ViewBuilder private var background: some View {
+    #if os(macOS)
+    Palette.background
+    #else
+    Palette.background.ignoresSafeArea()
+    #endif
   }
 
   // MARK: Layouts

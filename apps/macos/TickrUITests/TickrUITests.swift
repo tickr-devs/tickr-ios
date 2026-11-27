@@ -16,6 +16,12 @@ final class TickrUITests: XCTestCase {
   static let languageArguments = [
     "-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-ApplePersistenceIgnoreState", "YES",
   ]
+  /// A development address (Defaults.apiBaseURL in the app), which needs no sign-in: the screens
+  /// show the fixtures at once. Without it the app reads the bot's own address and shows the
+  /// sign-in first.
+  static let developmentAddress = ["-apiBaseURL", "http://127.0.0.1:8766"]
+  /// The sign-in screen's title (signIn.title) as its English text reads.
+  static let signInTitle = "Sign in to tickr.bot"
   /// Sidebar sections (AppSection raw values) and the accessibility id prefixes of their rows
   /// and screens (AppSection.rowIDPrefix, AppSection.screenIDPrefix).
   static let sections = ["overview", "chart", "trades", "risk", "lab"]
@@ -103,7 +109,7 @@ final class TickrUITests: XCTestCase {
   @MainActor
   private func launch(settings: [String] = [], environment: [String: String] = [:]) -> XCUIApplication {
     let app = XCUIApplication()
-    app.launchArguments = Self.languageArguments + settings
+    app.launchArguments = Self.languageArguments + Self.developmentAddress + settings
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
     app.launchEnvironment.merge(environment) { _, given in given }
     app.launch()
@@ -156,6 +162,21 @@ final class TickrUITests: XCTestCase {
       }
     }
     XCTFail("\(name) kept moving\n\(app.debugDescription)")
+  }
+
+  /// At the bot's own address with no sign-in kept, the window opens on the sign-in and stays
+  /// up (no development address, no sign-in in the Keychain of a fresh runner).
+  @MainActor
+  func testTheBotsAddressOpensOnTheSignIn() {
+    let app = XCUIApplication()
+    app.launchArguments = Self.languageArguments
+    app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
+    app.launch()
+    XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.timeout), "no window after launch")
+    let title = app.staticTexts[Self.signInTitle].firstMatch
+    XCTAssertTrue(title.waitForExistence(timeout: Self.timeout), "sign-in title\n\(app.debugDescription)")
+    waitUntilStill(app.windows.firstMatch, "sign-in window", in: app)
+    XCTAssertEqual(app.state, .runningForeground, "the app quit on the sign-in")
   }
 
   @MainActor
