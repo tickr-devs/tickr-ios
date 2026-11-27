@@ -11,6 +11,8 @@ import SwiftUI
 /// wrapped letter by letter) and is covered or clipped by whatever its container draws after it.
 public struct Hint: ViewModifier {
   #if os(macOS)
+  /// A hint showed a moment ago: the next one comes at once, as the system's tooltips do.
+  @Environment(\.hintWarm) private var warm
   @State private var shown = false
   @State private var waiting: Task<Void, Never>?
   #endif
@@ -23,7 +25,9 @@ public struct Hint: ViewModifier {
     content
       .onHover { inside in
         waiting?.cancel()
-        if inside {
+        if inside, warm {
+          shown = true
+        } else if inside {
           waiting = Task {
             try? await Task.sleep(for: .seconds(Tokens.Motion.hintDelay))
             if !Task.isCancelled { shown = true }
@@ -66,27 +70,50 @@ struct HintRequestKey: PreferenceKey {
 }
 
 /// Draws the showing hint over the whole window: above the view it explains, or below it when
-/// there is no room above, and moved sideways to stay inside the window.
+/// there is no room above, and moved sideways to stay inside the window. While a hint shows, and
+/// for `Motion.hintWarmSeconds` after it goes, the next hint skips its delay and its entrance:
+/// moving along a row of icons reads each at once, as with the system's tooltips.
 struct HintHost: ViewModifier {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var showing = false
+  @State private var warm = false
 
   func body(content: Content) -> some View {
     content
+      .environment(\.hintWarm, warm)
       .overlayPreferenceValue(HintRequestKey.self) { request in
         GeometryReader { proxy in
-          HintPlacement(target: request.map { proxy[$0.target] }) {
+          let target = request.map { proxy[$0.target] }
+          HintPlacement(target: target) {
             if let request {
               HintBubble(text: request.text)
-                // It leaves at once: while it faded out it would have no view to stand by.
-                .transition(.asymmetric(insertion: reduceMotion ? .opacity
-                  : .opacity.combined(with: .scale(scale: Tokens.Motion.pressScale)), removal: .identity))
+                // It grows from the side of the view it explains (above it, or below it near the
+                // window's top), and leaves at once: fading out, it would have no view to stand by.
+                .transition(.asymmetric(insertion: reduceMotion || warm ? .opacity
+                  : .opacity.combined(with: .scale(scale: Tokens.Motion.pressScale,
+                    anchor: HintPlacement.above(target) ? .bottom : .top)),
+                  removal: .identity))
             }
           }
-          .animation(Tokens.Motion.quick, value: request != nil)
+          .animation(warm ? nil : Tokens.Motion.quick, value: request != nil)
+          .onChange(of: request != nil) { _, now in showing = now }
         }
         .allowsHitTesting(false)
       }
+      .task(id: showing) {
+        if showing {
+          warm = true
+        } else if warm {
+          try? await Task.sleep(for: .seconds(Tokens.Motion.hintWarmSeconds))
+          if !Task.isCancelled { warm = false }
+        }
+      }
   }
+}
+
+extension EnvironmentValues {
+  /// A hint showed a moment ago under this `hintHost()` (`Hint` then shows at once).
+  @Entry var hintWarm = false
 }
 
 /// Places a hint bubble next to `target` inside the space it is given.
@@ -95,6 +122,13 @@ struct HintPlacement: Layout {
   let target: CGRect?
   /// Where along its width the bubble lines up with the middle of the explained view.
   static let anchorFraction: CGFloat = 0.5
+
+  /// Whether a bubble for `target` goes above it: there is room for a two-line bubble
+  /// (`Size.hintRoomAbove`) between it and the top of the window.
+  static func above(_ target: CGRect?) -> Bool {
+    guard let target else { return true }
+    return target.minY >= Tokens.Size.hintRoomAbove
+  }
 
   func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
     proposal.replacingUnspecifiedDimensions()

@@ -58,6 +58,6 @@ public struct StopTargetBar: View {
       .opacity(muted ? Tokens.Opacity.medium : 1)
     }
     .frame(height: ring ?? knob)
-    .animation(Tokens.Motion.fill, value: progress)
+    .animation(Tokens.Motion.live, value: progress)
   }
 }

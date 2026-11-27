@@ -26,7 +26,7 @@ struct JobsSection: View {
         ForEach(jobs.launchd, id: \.name) { job in
           LabeledContent {
             Text(verbatim: job.localTime + Format.separator + Self.days(job.weekdays))
-              .font(.body.monospaced())
+              .font(Tokens.Typography.bodyMono)
           } label: {
             Label { Text(verbatim: Self.title(job.name)) } icon: { SettingsIcon(Self.launchdSymbol, tone: .info) }
           }
@@ -84,7 +84,7 @@ struct JobsSection: View {
           Text(verbatim: Format.missing)
         }
       }
-      .font(.body.monospaced())
+      .font(Tokens.Typography.bodyMono)
     }
   }
 
@@ -107,7 +107,7 @@ struct JobsSection: View {
         StatusPill(L10n.Settings.backupFailed(Format.time(at.date)), tone: .loss)
       } else if let at = job.lastAt {
         Text(verbatim: DayText.day(at.date) + Format.separator + Format.time(at.date))
-          .font(.body.monospaced())
+          .font(Tokens.Typography.bodyMono)
       } else {
         Text(verbatim: Format.missing)
       }

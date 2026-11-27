@@ -51,6 +51,8 @@ public struct LoadingSlot<Value, Content: View, Placeholder: View>: View {
 
 /// Content that takes a skeleton's place arrives in place (see `View.loadsInPlace(_:)`).
 struct LoadsInPlace: ViewModifier {
+  /// The screen around already arrives in place (a Mac section opened before): so does this.
+  @Environment(\.arrivesInPlace) private var screenInPlace
   let loaded: Bool
   /// The skeleton has been on screen: what replaces it shows at once, without rising. Content
   /// already read when the place appears still rises in with its screen.
@@ -58,7 +60,7 @@ struct LoadsInPlace: ViewModifier {
 
   func body(content: Content) -> some View {
     content
-      .environment(\.arrivesInPlace, stoodIn || !loaded)
+      .environment(\.arrivesInPlace, screenInPlace || stoodIn || !loaded)
       .onAppear { if !loaded { stoodIn = true } }
       .onChange(of: loaded) { _, now in if !now { stoodIn = true } }
       // Whatever animation the screen runs as the data arrives, the swap itself is not animated.

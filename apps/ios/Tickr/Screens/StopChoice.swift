@@ -39,12 +39,12 @@ struct StopChoicePane: View {
     let list = symbols.formatted(.list(type: .and))
     VStack(spacing: Tokens.Space.m) {
       Text(StopText.chooseTitle(symbols.count))
-        .font(.headline)
+        .font(Tokens.Typography.headline)
         .foregroundStyle(Palette.textPrimary)
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
       Text(StopText.chooseBody(list))
-        .font(.subheadline)
+        .font(Tokens.Typography.subheadline)
         .foregroundStyle(Palette.textTertiary)
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -87,7 +87,7 @@ struct StopStepsPane: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
       Text(StopText.closeAndStop)
-        .font(.headline)
+        .font(Tokens.Typography.headline)
         .foregroundStyle(Palette.textPrimary)
       StopStepsList(rows, event: model.status?.writtenAt)
       if rows.last?.phase == .done {

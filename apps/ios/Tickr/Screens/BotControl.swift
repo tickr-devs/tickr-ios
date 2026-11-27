@@ -74,17 +74,17 @@ struct BotControl: ViewModifier {
       StateGlyph(stateSymbol, tone: stateTone, label: title, live: model.status?.botState == .running,
         event: model.status?.botState, style: .round)
       Text(title)
-        .font(.headline)
+        .font(Tokens.Typography.headline)
         .foregroundStyle(Palette.textPrimary)
     }
     Label { Text(L10n.Control.stopsStay) } icon: { Image(systemName: StopState.levelSymbol) }
-      .font(.footnote)
+      .font(Tokens.Typography.footnote)
       .foregroundStyle(Palette.textTertiary)
       .fixedSize(horizontal: false, vertical: true)
     if let refusal = model.stopRefusal {
       // A refused close-and-stop: its cause, and the controls are back.
       Text(verbatim: refusal)
-        .font(.footnote)
+        .font(Tokens.Typography.footnote)
         .foregroundStyle(Palette.lossText)
         .fixedSize(horizontal: false, vertical: true)
     }

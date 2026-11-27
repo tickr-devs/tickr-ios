@@ -70,7 +70,7 @@ struct SettingsView: View {
       SettingsCard(L10n.Settings.about) {
         SettingsRow(L10n.Settings.app, systemImage: Self.appSymbol, tone: .accent) {
           Text(verbatim: Bundle.main.object(forInfoDictionaryKey: Self.versionKey) as? String ?? Format.missing)
-            .font(.body.monospaced())
+            .font(Tokens.Typography.bodyMono)
         }
         SettingsRow(L10n.Settings.contract, systemImage: Self.contractSymbol, tone: .info) {
           Text(L10n.Settings.contractVersion(Wire.apiVersion))
@@ -181,7 +181,7 @@ struct SettingsView: View {
     SettingsCard(L10n.SignIn.connection) {
       if model.connection.signedIn {
         Text(signedInLine)
-          .font(.subheadline)
+          .font(Tokens.Typography.subheadline)
           .foregroundStyle(Palette.textSecondary)
           .fixedSize(horizontal: false, vertical: true)
       }

@@ -8,6 +8,7 @@ import TickrKit
 /// card. Beside it, the rail: the symbols to pick from, what the strategy decided at the pointed
 /// candle, and the open position. Live days refresh as new M1 bars arrive.
 struct ChartView: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(AppModel.self) private var model
   @Environment(ChartModel.self) private var chart
   @State private var viewport = Viewport.opening
@@ -153,7 +154,7 @@ struct ChartView: View {
           position: model.positions.first { $0.id == symbol })
           .frame(width: ChartRail.width)
           .frame(maxHeight: .infinity, alignment: .top)
-          .transition(.move(edge: .trailing).combined(with: .opacity))
+          .transition(.moving(from: .trailing, reduceMotion: reduceMotion))
       }
     }
     .padding(Tokens.Space.l)
@@ -523,8 +524,8 @@ struct ChartView: View {
   /// candles (and disabled) while the whole range is shown.
   private var historyScroller: some View {
     let total = candleCount
-    let shown = viewport.shown(total: total) ?? total
-    let last = Double(max(total - shown, 0))
+    let shown = viewport.shown(total: total) ?? Double(total)
+    let last = max(Double(total) - shown, 0).rounded(.down)
     return HStack(spacing: Tokens.Space.m) {
       Text(L10n.Chart.scrollHistory)
         .font(Tokens.Typography.annotation)
@@ -768,8 +769,8 @@ enum ChartStyle: String, CaseIterable, Sendable {
 
 /// The visible window of the chart: how many candles fit, and where it is scrolled.
 struct Viewport: Equatable {
-  /// Candles on screen; nil shows the whole day.
-  var visible: Int?
+  /// Candles on screen, fractional while a pinch follows the fingers; nil shows the whole day.
+  var visible: Double?
   /// Opening time of the first candle on screen; nil follows the newest candle.
   var position: Date?
 
@@ -781,8 +782,8 @@ struct Viewport: Equatable {
 
   /// Candles on screen out of `total`; nil when the window holds them all (a range shorter than
   /// the window shows whole).
-  func shown(total: Int) -> Int? {
-    guard let visible, visible < total else { return nil }
+  func shown(total: Int) -> Double? {
+    guard let visible, visible < Double(total) else { return nil }
     return visible
   }
   /// Key equivalents of the zoom buttons (with ⌘), as in Apple's apps.
@@ -791,15 +792,15 @@ struct Viewport: Equatable {
   static let fitKey: KeyEquivalent = "0"
 
   /// Zoom in would show fewer candles: more than `minimumVisible` are on screen.
-  func canZoomIn(total: Int) -> Bool { (shown(total: total) ?? total) > Self.minimumVisible }
+  func canZoomIn(total: Int) -> Bool { (shown(total: total) ?? Double(total)) > Double(Self.minimumVisible) }
 
   /// Fit would change the window: it is zoomed in or scrolled back from the newest candle.
   func canFit(total: Int) -> Bool { shown(total: total) != nil || position != nil }
 
   /// Shows fewer candles, down to `minimumVisible`.
   mutating func zoomIn(total: Int) {
-    let next = max(Self.minimumVisible, Int((Double(shown(total: total) ?? total) / Tokens.Chart.zoomStep).rounded()))
-    visible = next >= total ? nil : next
+    let next = max(Self.minimumVisible, Int(((shown(total: total) ?? Double(total)) / Tokens.Chart.zoomStep).rounded()))
+    visible = next >= total ? nil : Double(next)
   }
 
   /// Shows more candles, up to the whole day.
@@ -808,14 +809,15 @@ struct Viewport: Equatable {
       visible = nil
       return
     }
-    let next = Int((Double(visible) * Tokens.Chart.zoomStep).rounded())
-    self.visible = next >= total ? nil : next
+    let next = Int((visible * Tokens.Chart.zoomStep).rounded())
+    self.visible = next >= total ? nil : Double(next)
   }
 
-  /// Shows `count` candles (a pinch), within `minimumVisible` and the whole day.
-  mutating func show(_ count: Int, total: Int) {
-    let next = max(Self.minimumVisible, count)
-    visible = next >= total ? nil : next
+  /// Shows `count` candles (a pinch, so a fraction of a candle too: the window follows the fingers
+  /// smoothly), within `minimumVisible` and the whole day.
+  mutating func show(_ count: Double, total: Int) {
+    let next = max(Double(Self.minimumVisible), count)
+    visible = next >= Double(total) ? nil : next
   }
 
   /// Shows the whole day.

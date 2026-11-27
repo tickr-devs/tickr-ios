@@ -46,12 +46,12 @@ public struct ResultRing<Center: View>: View {
         .trim(from: drawn ? fraction : 0, to: drawn ? fraction + trailing : 0)
         .stroke(trailingColor, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
         .rotationEffect(RingGeometry.startAngle)
-        .animation(Tokens.Motion.fill, value: [fraction, trailing])
+        .animation(Tokens.Motion.live, value: [fraction, trailing])
       Circle()
         .trim(from: 0, to: drawn ? fraction : 0)
         .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
         .rotationEffect(RingGeometry.startAngle)
-        .animation(Tokens.Motion.fill, value: fraction)
+        .animation(Tokens.Motion.live, value: fraction)
       center
     }
     .padding(lineWidth / 2)

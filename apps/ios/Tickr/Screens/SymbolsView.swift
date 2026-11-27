@@ -456,7 +456,7 @@ struct FastMoverLine: View {
         .font(Tokens.Typography.chip)
         .foregroundStyle(Palette.textPrimary)
       Text(verbatim: SymbolsBoard.mainReason(mover, rules: rules))
-        .font(.subheadline)
+        .font(Tokens.Typography.subheadline)
         .foregroundStyle(Palette.warningText)
         .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: 0)

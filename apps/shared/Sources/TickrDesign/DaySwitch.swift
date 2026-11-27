@@ -75,7 +75,7 @@ public struct DaySwitch: View {
       }
       if steps.visible {
         Text(DayWords.swipeHint)
-          .font(.footnote)
+          .font(Tokens.Typography.footnote)
           .foregroundStyle(Palette.textQuaternary)
           .multilineTextAlignment(.center)
           .fixedSize(horizontal: false, vertical: true)
@@ -91,7 +91,7 @@ public struct DaySwitch: View {
     } label: {
       HStack(spacing: Tokens.Space.s) {
         Text(title)
-          .font(.body.weight(.medium))
+          .font(Tokens.Typography.bodyMedium)
           .foregroundStyle(Palette.textPrimary)
           .multilineTextAlignment(.leading)
           .fixedSize(horizontal: false, vertical: true)
@@ -163,19 +163,83 @@ public struct DayButtonStyle: ButtonStyle {
 public extension View {
   /// A sideways swipe across the page changes the shown day, as on the IOS2 boards: to the right
   /// the day before (`back`), to the left the day after (`forward`), each only where `steps` leads
-  /// somewhere. Only a move mostly sideways and `Motion.daySwipeDistance` long counts, so a scroll
-  /// never changes the day.
+  /// somewhere. The page follows the finger 1:1 (and stretches less and less toward a day that
+  /// does not exist); a swipe past a quarter of the page, or a fling, slides it out and the new day
+  /// in, with a light tick; anything shorter springs back. Only a move mostly sideways and
+  /// `Motion.daySwipeDistance` long counts, so a scroll never changes the day.
   func daySwipe(
     _ steps: DayArrows, back: @escaping @MainActor () -> Void, forward: @escaping @MainActor () -> Void
   ) -> some View {
-    simultaneousGesture(DragGesture(minimumDistance: Tokens.Motion.daySwipeDistance).onEnded { drag in
-      let sideways = drag.translation.width
-      guard abs(sideways) > abs(drag.translation.height) * Tokens.Motion.daySwipeDominance else { return }
-      if sideways > 0, steps.canGoBack {
-        back()
-      } else if sideways < 0, steps.canGoForward {
-        forward()
+    modifier(DaySwipe(steps: steps, back: back, forward: forward))
+  }
+}
+
+/// The gesture and the page's motion of `daySwipe`.
+private struct DaySwipe: ViewModifier {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  let steps: DayArrows
+  let back: @MainActor () -> Void
+  let forward: @MainActor () -> Void
+  /// How far the page is moved sideways.
+  @State private var offset: CGFloat = 0
+  @State private var width: CGFloat = 0
+  /// The drag in progress is a day swipe (true), a scroll (false), or not decided yet (nil).
+  @State private var sideways: Bool?
+  /// Counts the day changes made by a swipe, for the haptic tick.
+  @State private var changes = 0
+
+  func body(content: Content) -> some View {
+    content
+      .offset(x: offset)
+      .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+      .simultaneousGesture(drag, including: steps.visible ? .all : .subviews)
+      .sensoryFeedback(.selection, trigger: changes)
+  }
+
+  private var drag: some Gesture {
+    DragGesture(minimumDistance: Tokens.Motion.daySwipeDistance)
+      .onChanged { drag in
+        if sideways == nil {
+          sideways = abs(drag.translation.width) > abs(drag.translation.height) * Tokens.Motion.daySwipeDominance
+        }
+        guard sideways == true else { return }
+        // From where the swipe was recognised, so the page does not jump by the start distance.
+        let dx = drag.translation.width - (drag.translation.width > 0 ? 1 : -1) * Tokens.Motion.daySwipeDistance
+        let open = dx > 0 ? steps.canGoBack : steps.canGoForward
+        let stretch = Tokens.Motion.daySwipeStretch
+        offset = open ? dx : dx * stretch / (abs(dx) + stretch)
       }
-    }, including: steps.visible ? .all : .subviews)
+      .onEnded { drag in
+        defer { sideways = nil }
+        guard sideways == true else { return }
+        let reach = width * Tokens.Motion.daySwipeCommitShare
+        let dx = drag.translation.width
+        let fling = drag.predictedEndTranslation.width
+        if dx > 0, steps.canGoBack, max(dx, fling) > reach {
+          change(towards: 1, step: back)
+        } else if dx < 0, steps.canGoForward, min(dx, fling) < -reach {
+          change(towards: -1, step: forward)
+        } else {
+          withAnimation(Tokens.Motion.quick) { offset = 0 }
+        }
+      }
+  }
+
+  /// Slides the page out towards `direction` (1 right, -1 left), changes the day, and slides the
+  /// new day in from the other side. With Reduce Motion the day changes in place.
+  private func change(towards direction: CGFloat, step: @escaping @MainActor () -> Void) {
+    changes += 1
+    guard !reduceMotion else {
+      offset = 0
+      step()
+      return
+    }
+    withAnimation(Tokens.Motion.daySlide) {
+      offset = direction * width
+    } completion: {
+      step()
+      offset = -direction * width
+      withAnimation(Tokens.Motion.daySlide) { offset = 0 }
+    }
   }
 }
