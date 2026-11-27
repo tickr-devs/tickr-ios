@@ -43,6 +43,12 @@ public enum EntryText {
   public static func maxLoss(_ amount: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.entry.maxLoss", defaultValue: "max loss \(amount) if filled", bundle: L10n.bundle)
   }
+  /// A cancel the bot never picked up and can no longer run: "Cancel not picked up by the bot
+  /// within 120 s". The entry still works.
+  public static func cancelLapsed(_ seconds: String) -> LocalizedStringResource {
+    LocalizedStringResource("kit.entry.cancelLapsed",
+      defaultValue: "Cancel not picked up by the bot within \(seconds) s", bundle: L10n.bundle)
+  }
   /// Under a cancelled entry.
   public static var noPosition: LocalizedStringResource {
     LocalizedStringResource("kit.entry.noPosition", defaultValue: "No position opened", bundle: L10n.bundle)

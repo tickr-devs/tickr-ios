@@ -633,7 +633,7 @@ public final class AppModel {
       let dayBefore = today
       response = fresh
       stopWatch.read(fresh.status)
-      entryWatch.read(fresh.status, now: now())
+      entryWatch.read(fresh.status, now: now(), commandMaxAge: keepSeconds)
       reads.answered()
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
