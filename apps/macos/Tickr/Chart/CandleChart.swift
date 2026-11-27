@@ -40,7 +40,7 @@ struct CandleChart: View {
   /// Width of the price pane's plot area, in whole points, for placing the session axis's labels
   /// and the bands' captions (mockup v113).
   @State private var plotWidth: CGFloat = 0
-  @State private var pinchStart: Int?
+  @State private var pinchStart: Double?
   /// The price pane's height, in points: where the tags sit on its axis, so the axis's own
   /// labels they would cover give way (`AxisLabels`).
   @State private var priceHeight: CGFloat = 0
@@ -125,7 +125,8 @@ struct CandleChart: View {
       withAnimation(Tokens.Motion.entrance) { appeared = true }
     }
     .animation(Tokens.Motion.standard, value: lines)
-    .animation(Tokens.Motion.quick, value: viewport.visible)
+    // The zoom buttons ease the window; a pinch moves it with the fingers, 1:1.
+    .animation(pinchStart == nil ? Tokens.Motion.quick : nil, value: viewport.visible)
     .gesture(pinch)
     // Esc lets a held crosshair go: the chart takes the keyboard while it is held.
     .focusable(pointer.pinned)
@@ -828,7 +829,7 @@ struct CandleChart: View {
   /// Seconds of time on screen.
   var visibleLength: TimeInterval {
     guard let visible = viewport.shown(total: candles.count) else { return lastEnd.timeIntervalSince(firstStart) }
-    return TimeInterval(visible) * series.timeframe.seconds
+    return visible * series.timeframe.seconds
   }
 
   /// Opening time of the window on screen; while not scrolled it follows the newest candle.
@@ -923,9 +924,9 @@ struct CandleChart: View {
   private var pinch: some Gesture {
     MagnifyGesture()
       .onChanged { value in
-        let start = pinchStart ?? viewport.shown(total: candles.count) ?? candles.count
+        let start = pinchStart ?? viewport.shown(total: candles.count) ?? Double(candles.count)
         pinchStart = start
-        viewport.show(Int((Double(start) / value.magnification).rounded()), total: candles.count)
+        viewport.show(start / value.magnification, total: candles.count)
       }
       .onEnded { _ in pinchStart = nil }
   }

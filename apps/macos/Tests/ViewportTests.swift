@@ -10,7 +10,7 @@ struct ViewportTests {
     viewport.zoomIn(total: 100)
     #expect(viewport.visible == 67)
     for _ in 0..<20 { viewport.zoomIn(total: 100) }
-    #expect(viewport.visible == Viewport.minimumVisible)
+    #expect(viewport.visible == Double(Viewport.minimumVisible))
   }
 
   @Test("Zooming out reaches the whole day and stays there")
@@ -35,16 +35,19 @@ struct ViewportTests {
   func pinch() {
     var viewport = Viewport()
     viewport.show(3, total: 100)
-    #expect(viewport.visible == Viewport.minimumVisible)
+    #expect(viewport.visible == Double(Viewport.minimumVisible))
     viewport.show(150, total: 100)
     #expect(viewport.visible == nil)
+    // A pinch keeps a fraction of a candle, so the window follows the fingers without steps.
+    viewport.show(20.5, total: 100)
+    #expect(viewport.visible == 20.5)
   }
 
   @Test("Zoom in is offered only while more than the minimum is on screen")
   func canZoomIn() {
     #expect(Viewport().canZoomIn(total: 100))
-    #expect(Viewport(visible: Viewport.minimumVisible + 1).canZoomIn(total: 100))
-    #expect(!Viewport(visible: Viewport.minimumVisible).canZoomIn(total: 100))
+    #expect(Viewport(visible: Double(Viewport.minimumVisible + 1)).canZoomIn(total: 100))
+    #expect(!Viewport(visible: Double(Viewport.minimumVisible)).canZoomIn(total: 100))
     // A range no longer than the minimum is shown whole and cannot be zoomed into.
     #expect(!Viewport().canZoomIn(total: Viewport.minimumVisible))
     var viewport = Viewport()
@@ -78,6 +81,6 @@ struct ViewportTests {
     let total = Viewport.minimumVisible * 2
     var zooming = Viewport.opening
     zooming.zoomIn(total: total)
-    #expect((zooming.visible ?? total) < total)
+    #expect((zooming.visible ?? Double(total)) < Double(total))
   }
 }
