@@ -377,6 +377,11 @@ for code, en, es in [
         "A device turned the entry stop off or started the bot",
         "Un dispositivo desactivó la parada de entradas o arrancó el bot",
     ),
+    (
+        "device-session",
+        "A device signed in or out of the bot",
+        "Un dispositivo inició o cerró sesión en el bot",
+    ),
 ]:
     add("alert_" + code, "kit.alert." + code, en, es, AK + code)
 

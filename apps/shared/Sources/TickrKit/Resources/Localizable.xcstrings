@@ -145,6 +145,24 @@
         }
       }
     },
+    "kit.alert.device-session" : {
+      "comment" : "An alert the owner can receive: device-session",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A device signed in or out of the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dispositivo inició o cerró sesión en el bot"
+          }
+        }
+      }
+    },
     "kit.alert.disk-low" : {
       "comment" : "An alert the owner can receive: disk-low",
       "extractionState" : "manual",
