@@ -140,7 +140,7 @@ public struct SignIn: Sendable {
     let (data, response) = try await Container.shared.urlSession().data(for: grantRequest(code: answer))
     let grant = try Self.grant(from: data, status: (response as? HTTPURLResponse)?.statusCode ?? .zero)
     return try await Container.shared.apiClient(APIClient.Endpoint(baseURL: BotAddress.url))
-      .signIn(grant: grant, name: Self.deviceName(name)).token
+      .signIn(grant: grant, name: Self.deviceName(name)).accessToken
   }
 
   /// The name the bot lists this device under: `raw` (the system's name for the device) with only

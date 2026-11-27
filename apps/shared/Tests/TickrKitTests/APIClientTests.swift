@@ -202,9 +202,9 @@ final class StubProtocol: URLProtocol {
 
   @Test func signInPostsTheGrantAndNameWithoutAToken() async throws {
     let remote = APIClient(baseURL: BotAddress.url, transport: StubProtocol.session())
-    StubProtocol.answer = try (200, fixture("paired-v1.json"))
-    let paired = try await remote.signIn(grant: "grant", name: "iPhone")
-    #expect(paired.token == "example-token-not-a-secret_0123456789-abcdef")
+    StubProtocol.answer = (200, Data(sessionJSON("a1", "r1").utf8))
+    let session = try await remote.signIn(grant: "grant", name: "iPhone")
+    #expect(session.accessToken == "a1" && session.refreshToken == "r1" && session.accessExpiresIn == 900)
     let sent = try #require(StubProtocol.seen.first)
     #expect(sent.httpMethod == "POST")
     #expect(sent.url?.absoluteString == "https://api.tickr.bot/session")

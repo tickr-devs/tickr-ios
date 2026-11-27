@@ -97,6 +97,17 @@ extension L10n {
     LocalizedStringResource("kit.signIn.badAnswer",
       defaultValue: "tickr.bot sent an answer this sign-in does not expect", bundle: bundle)
   }
+  /// Why a sign-in stopped short of the bot: it used a password or an emailed code only.
+  static var accountNeedsStrongFactor: LocalizedStringResource {
+    LocalizedStringResource("kit.signIn.needsStrongFactor",
+      defaultValue: "Reaching the bot needs your passkey or authenticator app; sign in with one of them",
+      bundle: bundle)
+  }
+  /// Why a sign-in step failed: tickr.bot could not be reached.
+  static var accountUnreachable: LocalizedStringResource {
+    LocalizedStringResource("kit.signIn.unreachable",
+      defaultValue: "tickr.bot cannot be reached; check the connection and try again", bundle: bundle)
+  }
   /// Why a sign-in ended: tickr.bot's token endpoint did not take the code.
   static var signInCodeRefused: LocalizedStringResource {
     LocalizedStringResource("kit.signIn.codeRefused",

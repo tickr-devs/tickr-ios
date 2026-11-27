@@ -11580,6 +11580,40 @@
         }
       }
     },
+    "kit.signIn.needsStrongFactor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reaching the bot needs your passkey or authenticator app; sign in with one of them"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para llegar al bot necesitas tu llave de acceso o tu app de autenticación; inicia sesión con una de ellas"
+          }
+        }
+      }
+    },
+    "kit.signIn.unreachable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr.bot cannot be reached; check the connection and try again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede conectar con tickr.bot; revisa la conexión e inténtalo de nuevo"
+          }
+        }
+      }
+    },
     "kit.sizing.exampleLead" : {
       "extractionState" : "manual",
       "localizations" : {

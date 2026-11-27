@@ -104,6 +104,10 @@ public struct APIClient: Sendable {
   static let versionQuery = "version"
   /// Remote port only: POST signs this device in with a tickr.bot grant, DELETE signs it out.
   static let sessionPath = "/session"
+  /// Where a signed-in device trades its refresh token for a new pair (no bearer token).
+  static let refreshPath = "/session/refresh"
+  /// The refresh body's key.
+  static let refreshTokenKey = "refresh_token"
   /// Body keys of a sign-in: the grant and the device's name in the bot's device list.
   static let grantKey = "grant"
   static let nameKey = "name"
@@ -141,10 +145,17 @@ public struct APIClient: Sendable {
   private let transport: any APITransport
   /// Bearer token for a remote address (an HTTPS proxy in front of the API); nil on the Mac.
   private let token: String?
+  /// The signed-in device's tokens (`BotSession`): each request carries its current access token,
+  /// renewed first when it has run out. Nil for a fixed `token` or none.
+  private let session: BotSession?
 
-  public init(baseURL: URL = APIClient.defaultBaseURL, token: String? = nil, transport: any APITransport = URLSession.shared) {
+  public init(
+    baseURL: URL = APIClient.defaultBaseURL, token: String? = nil, session: BotSession? = nil,
+    transport: any APITransport = URLSession.shared
+  ) {
     self.baseURL = baseURL
     self.token = token
+    self.session = session
     self.transport = transport
   }
 
@@ -245,22 +256,6 @@ public struct APIClient: Sendable {
     return try await perform(request(path: Self.labReplayPath, body: body), expect: Self.accepted)
   }
 
-  /// Trade a tickr.bot grant (`SignIn`) for this device's own bearer token, kept from then on.
-  /// Sent without a token; a grant works once, for a minute, and a refused one is thrown as
-  /// `APIError.refused` (401 `unauthorized`, with the check that failed as its cause).
-  public func signIn(grant: String, name: String) async throws -> PairedV1 {
-    let body = try JSONSerialization.data(withJSONObject: [Self.grantKey: grant, Self.nameKey: name],
-      options: [.sortedKeys])
-    return try await perform(request(path: Self.sessionPath, body: body), expect: Self.ok)
-  }
-
-  /// Sign this device out: the bot revokes the token this client carries.
-  public func signOut() async throws {
-    var signOut = request(path: Self.sessionPath, body: nil)
-    signOut.httpMethod = Self.delete
-    let _: Empty = try await perform(signOut, expect: Self.noContent)
-  }
-
   /// Risk limits and session times from the bot's config, as the API loaded them.
   public func settings() async throws -> SettingsV1 {
     try await perform(request(path: Self.settingsPath, body: nil), expect: Self.ok)
@@ -356,6 +351,11 @@ public struct APIClient: Sendable {
   }
 
   func perform<T: Decodable>(_ request: URLRequest, expect: Int) async throws -> T {
+    var request = request
+    if let session {
+      request.setValue("\(Self.bearerScheme) \(try await session.accessToken())",
+        forHTTPHeaderField: Self.authorizationHeader)
+    }
     let data: Data
     let response: URLResponse
     do {
