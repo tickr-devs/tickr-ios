@@ -147,4 +147,19 @@ struct MarkPlateLayoutTests {
     #expect(centre.y < 170)
     #expect(centre.x - size.width / 2 >= candle.maxX + gap)
   }
+
+  @Test("In a cluster, a plate with few clear places is not crowded onto a candle by an earlier one")
+  func cluster() throws {
+    // A fill's plate below its mark and the next mark's above, 10 points apart, between two
+    // candles: in priority order the first takes the second's one clear place (KXTR).
+    let candles = [CGRect(x: 220, y: 150, width: 10, height: 40), CGRect(x: 290, y: 130, width: 10, height: 70)]
+    let centres = place([
+      .init(id: 0, anchor: CGPoint(x: 270, y: 150), size: size, side: .below),
+      .init(id: 1, anchor: CGPoint(x: 270, y: 160), size: size, side: .above),
+    ], candles: candles)
+    #expect(Set(centres.keys) == [0, 1])
+    for centre in centres.values {
+      #expect(candles.allSatisfy { clear(centre, of: $0) })
+    }
+  }
 }
