@@ -353,6 +353,24 @@
         }
       }
     },
+    "kit.block.stop_out_streak" : {
+      "comment" : "Why entries are blocked: stop_out_streak",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many stop-outs in a row today: no new entries until tomorrow."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiados stops ejecutados seguidos hoy: sin nuevas entradas hasta mañana."
+          }
+        }
+      }
+    },
     "kit.block.strategy_not_loaded" : {
       "comment" : "Why entries are blocked: strategy_not_loaded",
       "extractionState" : "manual",
@@ -385,6 +403,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La puerta de trading está cerrada."
+          }
+        }
+      }
+    },
+    "kit.block.weekly_ceiling" : {
+      "comment" : "Why entries are blocked: weekly_ceiling",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No room left under the weekly loss limit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No queda margen bajo el límite de pérdida semanal."
+          }
+        }
+      }
+    },
+    "kit.block.weekly_money_unknown" : {
+      "comment" : "Why entries are blocked: weekly_money_unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A trade closed this week has fills without a known price."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una operación cerrada esta semana tiene ejecuciones sin precio conocido."
           }
         }
       }
@@ -10678,6 +10732,24 @@
         }
       }
     },
+    "kit.refusal.STOP_OUT_STREAK" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. STOP_OUT_STREAK",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{count} stop-outs in a row today, limit {limit}; no new entries today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{count} stops ejecutados seguidos hoy, límite {limit}; sin nuevas entradas hoy"
+          }
+        }
+      }
+    },
     "kit.refusal.SYMBOL_COOLDOWN" : {
       "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. SYMBOL_COOLDOWN",
       "extractionState" : "manual",
@@ -10692,6 +10764,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "{symbol} cerró con pérdida; sin entradas antes de {until}"
+          }
+        }
+      }
+    },
+    "kit.refusal.WEEKLY_CEILING" : {
+      "comment" : "A refused entry's detail (`refusal.params`), after the rule's title. WEEKLY_CEILING",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week {realized} + reserved {reserved} + this trade {new} = {total} USD, over the weekly limit of {ceiling} USD"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta semana {realized} + reservado {reserved} + esta operación {new} = {total} USD, por encima del límite semanal de {ceiling} USD"
           }
         }
       }

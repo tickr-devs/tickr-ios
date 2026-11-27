@@ -2286,6 +2286,14 @@ enum L10n {
         defaultValue: "Today's loss figures invalid", bundle: L10n.bundle)
       case .dailyCeiling: LocalizedStringResource("cause.dailyCeiling",
         defaultValue: "Daily loss limit reached", bundle: L10n.bundle)
+      case .weeklyMoneyUnknown: LocalizedStringResource("cause.weeklyMoneyUnknown",
+        defaultValue: "This week's loss figures unknown", bundle: L10n.bundle)
+      case .weeklyMoneyInvalid: LocalizedStringResource("cause.weeklyMoneyInvalid",
+        defaultValue: "This week's loss figures invalid", bundle: L10n.bundle)
+      case .weeklyCeiling: LocalizedStringResource("cause.weeklyCeiling",
+        defaultValue: "Weekly loss limit reached", bundle: L10n.bundle)
+      case .stopOutStreak: LocalizedStringResource("cause.stopOutStreak",
+        defaultValue: "Too many stop-outs in a row today", bundle: L10n.bundle)
       case .buyingPowerUnknown: LocalizedStringResource("cause.buyingPowerUnknown",
         defaultValue: "Buying power not read", bundle: L10n.bundle)
       case .buyingPowerShort: LocalizedStringResource("cause.buyingPowerShort",

@@ -275,6 +275,18 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
     #expect(settings.risk.minDailyRoomUsd.text == "10")
   }
 
+  @Test func lossLockValues() throws {
+    let file = try Wire.decoder().decode(StatusV1.self, from: fixture("status-v1.example.json"))
+    #expect(file.realizedLossWeekUsd == nil && file.stopOutStreak == nil)  // run facts, not status.json
+    let response = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json"))
+    let status = try #require(response.status)
+    #expect(status.realizedLossWeekUsd?.text == "41.20")
+    #expect(status.stopOutStreak == 1)
+    let settings = try Wire.decoder().decode(SettingsV1.self, from: fixture("settings-v1.json"))
+    #expect(settings.risk.maxWeeklyLossUsd?.text == "0")
+    #expect(settings.risk.stopOutStreakLimit == 3)
+  }
+
   @Test func settingsValues() throws {
     let settings = try Wire.decoder().decode(SettingsV1.self, from: fixture("settings-v1.json"))
     #expect(settings.risk.maxDailyLossUsd.text == "300")

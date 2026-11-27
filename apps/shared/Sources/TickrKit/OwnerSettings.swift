@@ -20,7 +20,8 @@ public struct SettingSpecV1: Codable, Hashable, Sendable {
   public let descriptionEs: String
   /// When a change that does not loosen protection applies: `at_once`, `when_flat`, `next_session`.
   public let applies: String
-  /// The direction that loosens protection (`raise`, `lower`, `never`): next session, Face ID.
+  /// The direction that loosens protection (`raise`, `lower`, `never`, or `raise_or_off` for a limit
+  /// where 0 = off, which raising or setting to 0 loosens): next session, Face ID.
   public let loosens: String
   public let needsFaceId: Bool
   public let requiresRetraining: Bool
