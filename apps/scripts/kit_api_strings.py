@@ -357,6 +357,26 @@ for code, en, es in [
         "The API holds keys it must not have",
         "La API tiene claves que no debe tener",
     ),
+    (
+        "strategy-not-loaded",
+        "The strategy was refused at start: no entries this run",
+        "La estrategia se rechazó al arrancar: sin entradas en esta ejecución",
+    ),
+    (
+        "protection-change-ignored",
+        "A settings change the bot did not adopt",
+        "Un cambio de ajustes que el bot no adoptó",
+    ),
+    (
+        "remote-auth-blocked",
+        "Too many failed sign-ins from one address",
+        "Demasiados accesos fallidos desde una dirección",
+    ),
+    (
+        "risk-command-used",
+        "A device turned the entry stop off or started the bot",
+        "Un dispositivo desactivó la parada de entradas o arrancó el bot",
+    ),
 ]:
     add("alert_" + code, "kit.alert." + code, en, es, AK + code)
 

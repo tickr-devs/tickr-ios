@@ -325,6 +325,60 @@
         }
       }
     },
+    "kit.alert.protection-change-ignored" : {
+      "comment" : "An alert the owner can receive: protection-change-ignored",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A settings change the bot did not adopt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un cambio de ajustes que el bot no adoptó"
+          }
+        }
+      }
+    },
+    "kit.alert.remote-auth-blocked" : {
+      "comment" : "An alert the owner can receive: remote-auth-blocked",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many failed sign-ins from one address"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiados accesos fallidos desde una dirección"
+          }
+        }
+      }
+    },
+    "kit.alert.risk-command-used" : {
+      "comment" : "An alert the owner can receive: risk-command-used",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A device turned the entry stop off or started the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dispositivo desactivó la parada de entradas o arrancó el bot"
+          }
+        }
+      }
+    },
     "kit.alert.stop-rejected" : {
       "comment" : "An alert the owner can receive: stop-rejected",
       "extractionState" : "manual",
@@ -339,6 +393,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El bróker rechazó un stop"
+          }
+        }
+      }
+    },
+    "kit.alert.strategy-not-loaded" : {
+      "comment" : "An alert the owner can receive: strategy-not-loaded",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The strategy was refused at start: no entries this run"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La estrategia se rechazó al arrancar: sin entradas en esta ejecución"
           }
         }
       }

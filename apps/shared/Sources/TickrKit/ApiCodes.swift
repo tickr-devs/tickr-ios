@@ -316,6 +316,10 @@ public enum AlertKindCode: String, CaseIterable, Sendable {
   case feesUnknown = "fees-unknown"
   case feesCorrected = "fees-corrected"
   case apiCredentialsUnexpected = "api-credentials-unexpected"
+  case strategyNotLoaded = "strategy-not-loaded"
+  case protectionChangeIgnored = "protection-change-ignored"
+  case remoteAuthBlocked = "remote-auth-blocked"
+  case riskCommandUsed = "risk-command-used"
 
   public var title: LocalizedStringResource {
     switch self {
@@ -347,6 +351,10 @@ public enum AlertKindCode: String, CaseIterable, Sendable {
     case .feesUnknown: L10n.alertFeesUnknown
     case .feesCorrected: L10n.alertFeesCorrected
     case .apiCredentialsUnexpected: L10n.alertApiCredentialsUnexpected
+    case .strategyNotLoaded: L10n.alertStrategyNotLoaded
+    case .protectionChangeIgnored: L10n.alertProtectionChangeIgnored
+    case .remoteAuthBlocked: L10n.alertRemoteAuthBlocked
+    case .riskCommandUsed: L10n.alertRiskCommandUsed
     }
   }
 }

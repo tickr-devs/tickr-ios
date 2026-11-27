@@ -132,5 +132,25 @@ extension L10n {
     LocalizedStringResource("kit.alert.api-credentials-unexpected",
       defaultValue: "The API holds keys it must not have", bundle: bundle)
   }
+  /// An alert the owner can receive: strategy-not-loaded
+  static var alertStrategyNotLoaded: LocalizedStringResource {
+    LocalizedStringResource("kit.alert.strategy-not-loaded",
+      defaultValue: "The strategy was refused at start: no entries this run", bundle: bundle)
+  }
+  /// An alert the owner can receive: protection-change-ignored
+  static var alertProtectionChangeIgnored: LocalizedStringResource {
+    LocalizedStringResource("kit.alert.protection-change-ignored",
+      defaultValue: "A settings change the bot did not adopt", bundle: bundle)
+  }
+  /// An alert the owner can receive: remote-auth-blocked
+  static var alertRemoteAuthBlocked: LocalizedStringResource {
+    LocalizedStringResource("kit.alert.remote-auth-blocked",
+      defaultValue: "Too many failed sign-ins from one address", bundle: bundle)
+  }
+  /// An alert the owner can receive: risk-command-used
+  static var alertRiskCommandUsed: LocalizedStringResource {
+    LocalizedStringResource("kit.alert.risk-command-used",
+      defaultValue: "A device turned the entry stop off or started the bot", bundle: bundle)
+  }
   // END Bot codes
 }
