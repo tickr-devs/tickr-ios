@@ -1,0 +1,27 @@
+{
+  "valid": true,
+  "refusals": [],
+  "changes": [
+    {
+      "owner": "platform",
+      "key": "risk.max_daily_loss_usd",
+      "current": "50",
+      "draft": "60",
+      "changed": true,
+      "applies": "next_session",
+      "needs_face_id": true,
+      "requires_retraining": false
+    },
+    {
+      "owner": "platform",
+      "key": "risk.max_open_positions",
+      "current": "2",
+      "draft": "1",
+      "changed": true,
+      "applies": "at_once",
+      "needs_face_id": false,
+      "requires_retraining": false
+    }
+  ],
+  "api_version": 1
+}

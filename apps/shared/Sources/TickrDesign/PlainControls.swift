@@ -161,8 +161,8 @@ public extension ButtonStyle where Self == TitleBarButtonStyle {
 }
 
 /// The way back to today from another day, the same control wherever a day can be changed: the
-/// Mac title bar's Today (a titled `TitleBarButtonStyle`, as on the boards), the iPhone's Home
-/// day line and Activity calendar (a compact ghost button). The app passes its own words.
+/// Mac title bar's Today (a titled `TitleBarButtonStyle`, as on the boards) and the iPhone's
+/// Activity calendar (a compact ghost button); the iPhone's `DaySwitch` has its own Today row. The app passes its own words.
 public struct TodayButton: View {
   let title: Text
   let action: () -> Void

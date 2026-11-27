@@ -426,11 +426,6 @@ enum Format {
       CodeVersion.short(code)))
   }
 
-  /// The same for a strategy named in a decision record.
-  static func strategy(_ strategy: StrategyRefV1) -> String {
-    String(localized: L10n.Common.strategyVersion(strategy.name, strategy.version))
-  }
-
   static func quantity(_ value: Decimal) -> String {
     NSDecimalNumber(decimal: value).stringValue
   }

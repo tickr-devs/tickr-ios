@@ -154,5 +154,16 @@ struct SkippedGroupsTests {
     #expect(RefusalCode.cooldown.symbol == RefusalCode.cooldownSymbol)
     #expect(RefusalCode.quoteStale.symbol == RefusalCode.quoteSymbol)
     #expect(RefusalCode.dailyCeiling.symbol == RefusalCode.sizeSymbol)
+    #expect(RefusalCode.dailyMoneyUnknown.symbol == RefusalCode.sizeSymbol)
+    #expect(RefusalCode.spreadTooWide.symbol == RefusalCode.quoteSymbol)
+    #expect(RefusalCode.engineRefused.symbol == RefusalCode.gateSymbol)
+  }
+
+  @Test("The API's UNKNOWN and a newer bot's code have no case, so they read as Other reason")
+  func unknownCodes() {
+    #expect(RefusalCause("UNKNOWN: odd text").known == nil)
+    #expect(RefusalCause("NEWER_CAUSE: x").known == nil)
+    #expect(RefusalCause("NEWER_CAUSE: x").hasCode)
+    #expect(RefusalCause("DAILY_MONEY_UNKNOWN: unknown: realized loss").known == .dailyMoneyUnknown)
   }
 }

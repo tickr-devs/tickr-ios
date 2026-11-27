@@ -1,0 +1,50 @@
+{
+  "settings": [
+    {
+      "owner": "platform",
+      "key": "risk.max_daily_loss_usd",
+      "kind": "decimal",
+      "unit": "usd",
+      "group": "risk.daily_loss",
+      "description_en": "Daily loss ceiling.",
+      "description_es": "Límite de pérdida diaria.",
+      "applies": "at_once",
+      "loosens": "raise",
+      "needs_face_id": true,
+      "requires_retraining": false,
+      "minimum": "0",
+      "minimum_inclusive": false,
+      "maximum": null,
+      "step": "1"
+    },
+    {
+      "owner": "price-action-v3",
+      "key": "indicators.refuse_when_relative_volume_unavailable",
+      "kind": "bool",
+      "unit": "switch",
+      "group": "strategy.indicators",
+      "description_en": "Refuse a symbol whose volume history is missing.",
+      "description_es": "Rechazar un símbolo sin historial de volumen.",
+      "applies": "when_flat",
+      "loosens": "never",
+      "needs_face_id": false,
+      "requires_retraining": false,
+      "minimum": null,
+      "minimum_inclusive": true,
+      "maximum": null,
+      "step": null
+    }
+  ],
+  "rules": [
+    {
+      "owner": "platform",
+      "name": "daily_room_below_ceiling",
+      "left": "risk.min_daily_room_usd",
+      "compare": "<",
+      "right": "risk.max_daily_loss_usd",
+      "description_en": "The smallest daily room must be below the daily loss ceiling.",
+      "description_es": "El margen diario mínimo debe ser inferior al límite de pérdida diaria."
+    }
+  ],
+  "api_version": 1
+}

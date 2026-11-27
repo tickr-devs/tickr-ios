@@ -82,13 +82,21 @@ jobs:
         with:
           version: "0.11.32"
           python-version: "3.12"
+      # The bot lives in tickr-bot (public): its main serves the demo the apps are swept against.
+      - uses: actions/checkout@v7
+        with:
+          repository: tickr-devs/tickr-bot
+          path: bot
       - name: Install the bot
+        working-directory: bot
         run: uv sync --frozen
-      # A fresh runner has no demo fixture (it is never committed; docs/demo.md): build it here,
-      # as its own step, so the start below only copies it and serves within seconds.
+      # A fresh runner has no demo fixture (it is never committed; tickr-bot docs/demo.md): build
+      # it here, as its own step, so the start below only copies it and serves within seconds.
       - name: Build the demo fixture
+        working-directory: bot
         run: uv run --no-sync tickr demo --build-fixture
-      - name: Start the demo bot API (port 8776, bot.toml [api] demo_port)
+      - name: Start the demo bot API (port 8776, tickr-bot bot.toml [api] demo_port)
+        working-directory: bot
         run: |
           uv run --no-sync tickr demo > "$RUNNER_TEMP/demo.log" 2>&1 &
           for _ in $(seq 60); do

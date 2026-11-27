@@ -87,16 +87,19 @@ public extension ButtonStyle where Self == HeaderLinkStyle {
   }
 }
 
-/// A card's footer link ("Show all"): the last row of the card, across its whole width under a
-/// hairline: the title and a count capsule on the left, an optional hint ("closest 3 of 7") and a
-/// round chevron chip on the right. The whole row is one button, `Size.footerLink` tall (on iOS
-/// the touch target, `Size.touchTarget`); VoiceOver reads its title, count and hint as one. Under
-/// the pointer the row tints and the chip moves on a little. Place it last in a card padded by
-/// `Space.l` (every card is): it reaches the card's edges.
+/// A card's footer link ("Show all", "Details", "More balances"): the last row of the card, across
+/// its whole width under a hairline: the title and a count capsule on the left, an optional hint
+/// ("closest 3 of 7") or summary ("2 · +$3.55") and a round chevron chip on the right. The whole
+/// row is one button, `Size.footerLink` tall (on iOS the touch target, `Size.touchTarget`);
+/// VoiceOver reads its title, count and hint as one. Under the pointer the row tints and the chip
+/// moves on a little. Place it last in a card padded by `Space.l` (every card is): it reaches the
+/// card's edges. It always opens something else (a popover or a sheet, `FooterDetail`,
+/// `CappedList`), never grows the card in place.
 public struct CardFooterLink: View {
   let title: Text
   let count: Int?
   let hint: Text?
+  let hintColor: Color
   let action: () -> Void
 
   public init(
@@ -106,6 +109,19 @@ public struct CardFooterLink: View {
     self.title = Text(title)
     self.count = count
     self.hint = hint.map { Text($0) }
+    self.hintColor = Palette.textQuaternary
+    self.action = action
+  }
+
+  /// `summary`: data the bot sent, shown as it is ("2 · +$3.55"), in `summaryColor`.
+  public init(
+    _ title: LocalizedStringResource, count: Int? = nil, summary: String?,
+    summaryColor: Color = Palette.textQuaternary, action: @escaping () -> Void
+  ) {
+    self.title = Text(title)
+    self.count = count
+    self.hint = summary.map { Text(verbatim: $0) }
+    self.hintColor = summaryColor
     self.action = action
   }
 
@@ -131,7 +147,7 @@ public struct CardFooterLink: View {
         if let hint {
           hint
             .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
+            .foregroundStyle(hintColor)
             .multilineTextAlignment(.trailing)
             .fixedSize(horizontal: false, vertical: true)
         }
@@ -145,11 +161,14 @@ public struct CardFooterLink: View {
   public static var rowHeight: CGFloat { Tokens.Size.footerLink }
 }
 
-/// The round chip at the end of a footer link, holding the chevron in `infoText`.
-struct FooterChevronChip: View {
+/// The round chip at the end of a footer link, holding the chevron in `infoText`; also the end of
+/// any row that opens something (the funnel line, the day picker's rows).
+public struct FooterChevronChip: View {
   @Environment(\.footerLinkHovered) private var hovered
 
-  var body: some View {
+  public init() {}
+
+  public var body: some View {
     Chevron()
       .foregroundStyle(Palette.infoText)
       .frame(width: Tokens.Size.footerChip, height: Tokens.Size.footerChip)

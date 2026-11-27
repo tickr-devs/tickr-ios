@@ -2,11 +2,13 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// The Lab's replay: a strategy version SIMULATED over the last sessions of data fetched on the
-/// Mac, or over one of its days, optionally compared with a second version over the same days
-/// (GET/POST /lab/replay), started here and read while the Lab is open. While the regular session
-/// refuses a start (`LabReplayV1.availableAt`), the button rests with the time it opens and a
-/// countdown; any other refusal (a run going, no data) reads as a calm reason in words that clears
+/// "Compare two versions" (IOS2Lab): a strategy version SIMULATED over the last sessions of data
+/// fetched on the Mac, or over one of its days, optionally compared with a second version over the
+/// same days (GET/POST /lab/replay), started here and read while the Lab is open. A run's result is
+/// each version's net with the bot's limits and its trades side by side, a line saying which earned
+/// more, and "Win rate and more ›" with every figure in a sheet; the "i" says how it runs. While
+/// the regular session refuses a start (`LabReplayV1.availableAt`), the button rests with the time
+/// it opens and a countdown; any other refusal (a run going, no data) reads as a calm reason in words that clears
 /// once the replay moves on or after `LabModel.replaySeconds`; the bot never reads the replay.
 struct LabReplayCard: View {
   @Environment(AppModel.self) private var model
@@ -28,6 +30,7 @@ struct LabReplayCard: View {
   @State private var compare: String?
   @State private var day: WireDate?
   @State private var oneDay = false
+  @State private var showsInfo = false
 
   @ScaledMetric(relativeTo: .body) private var figureWidth = LabReplayCard.figureMinWidth
 
@@ -57,14 +60,14 @@ struct LabReplayCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      HStack(alignment: .firstTextBaseline) {
-        if let sessions = replay?.sessions {
-          CardLabel(L10n.Lab.replayLast(sessions))
-        } else {
-          CardLabel(L10n.Lab.replayRecent)
-        }
-        Spacer()
-        if let replay { pill(replay) }
+      HStack(spacing: 0) {
+        CardLabel(L10n.Lab.compare)
+        InfoToggle(shown: $showsInfo, label: L10n.Lab.compareAbout)
+        Spacer(minLength: 0)
+      }
+      if showsInfo {
+        InfoCaption(L10n.Lab.replayNote)
+          .transition(.opacity)
       }
       choices
       status
@@ -80,6 +83,7 @@ struct LabReplayCard: View {
         HStack(spacing: Tokens.Space.s) {
           if lab.replayStarting { Spinner() }
           Text(lab.replayStarting ? InFlightText.replayStarting
+            : replay?.state == .done ? L10n.Lab.replayRunAgain
             : second == nil ? L10n.Lab.replayStart : L10n.Lab.replayStartCompare)
         }
         .font(Tokens.Typography.button)
@@ -97,7 +101,6 @@ struct LabReplayCard: View {
       if let waitsUntil, !running {
         availability(waitsUntil)
       }
-      InfoCaption(L10n.Lab.replayNote)
     }
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -233,15 +236,6 @@ struct LabReplayCard: View {
     }
   }
 
-  private func pill(_ replay: LabReplayV1) -> some View {
-    switch replay.state {
-    case .idle: StatusPill(L10n.Lab.replayStateIdle, tone: .neutral)
-    case .running: StatusPill(L10n.Lab.replayStateRunning, tone: .accent, live: true, event: replay.runId)
-    case .done: StatusPill(L10n.Lab.replayStateDone, tone: .profit)
-    case .failed: StatusPill(L10n.Lab.replayStateFailed, tone: .loss)
-    }
-  }
-
   @ViewBuilder private var status: some View {
     if let replay {
       switch replay.state {
@@ -260,10 +254,8 @@ struct LabReplayCard: View {
             .foregroundStyle(Palette.textTertiary)
         }
       case .done:
-        if let second = replay.compare, let summary = replay.summary {
-          comparison(replay, summary, second)
-        } else if let summary = replay.summary {
-          result(summary)
+        if let summary = replay.summary {
+          outcome(replay, summary)
         }
         if let cause = replay.causeText {
           InfoCaption(verbatim: cause)
@@ -284,6 +276,82 @@ struct LabReplayCard: View {
     } else if url != nil {
       Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.lines) }
     }
+  }
+
+  /// A run's result on the card (IOS2Lab): each version's net with the bot's limits and its trades,
+  /// side by side while they fit, which one earned more, then "Win rate and more ›"
+  /// with every figure in a sheet.
+  @ViewBuilder private func outcome(_ replay: LabReplayV1, _ summary: LabReplaySummaryV1) -> some View {
+    let firstName = L10n.Lab.versionName(replay.strategy ?? Format.missing, replay.version ?? Format.missing)
+    let second = replay.compare
+    ViewThatFits(in: .horizontal) {
+      HStack(alignment: .top, spacing: Tokens.Space.s) { netColumns(firstName, summary, second) }
+      VStack(alignment: .leading, spacing: Tokens.Space.s) { netColumns(firstName, summary, second) }
+    }
+    if let second {
+      if let other = second.summary {
+        Text(verdict(L10n.Lab.versionName(second.strategy, second.version), summary, other, oneDay: replay.day != nil))
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
+      } else {
+        InfoCaption(L10n.Lab.replayCompareFailed(String(localized: L10n.Lab.versionName(second.strategy,
+          second.version)), second.causeText ?? Format.missing), systemImage: LabView.warningSymbol, tone: .warning)
+      }
+    }
+    FooterDetail(L10n.Lab.replayDetails, endsCard: false) {
+      if let second {
+        comparison(replay, summary, second)
+      } else {
+        result(summary)
+      }
+    }
+  }
+
+  /// The first version's column, then the second's when there is one.
+  @ViewBuilder private func netColumns(
+    _ firstName: LocalizedStringResource, _ summary: LabReplaySummaryV1, _ second: LabReplayLegV1?
+  ) -> some View {
+    netColumn(firstName, summary, tone: .accent)
+    if let second {
+      netColumn(L10n.Lab.versionName(second.strategy, second.version), second.summary, tone: .highlight)
+    }
+  }
+
+  /// One version: its name in its chip's colour, its net with the bot's limits big, its trades.
+  private func netColumn(_ name: LocalizedStringResource, _ summary: LabReplaySummaryV1?, tone: Tone) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
+      Text(name)
+        .font(Tokens.Typography.captionMono.weight(.semibold))
+        .foregroundStyle(tone.text)
+        .fixedSize(horizontal: false, vertical: true)
+      Text(verbatim: summary.map { Money.signedUSD($0.botTotalUsd.value) } ?? Format.missing)
+        .font(Tokens.Typography.metric)
+        .foregroundStyle(summary.map { Palette.result($0.botTotalUsd.value) } ?? Palette.textQuaternary)
+        .fixedSize()
+      if let summary {
+        Text(L10n.Lab.replayTradesCount(summary.botTrades))
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textTertiary)
+      }
+    }
+    .padding(Tokens.Space.m)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(Palette.surfaceSunken, in: RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous))
+    .accessibilityElement(children: .combine)
+  }
+
+  /// Which version earned more with the bot's limits: "v2 earned +$69.00 more · not proven yet",
+  /// "v2 earned $3.10 less", or that one day is only an example.
+  private func verdict(
+    _ name: LocalizedStringResource, _ first: LabReplaySummaryV1, _ other: LabReplaySummaryV1, oneDay: Bool
+  ) -> LocalizedStringResource {
+    if oneDay { return L10n.Lab.verdictOneDay }
+    let difference = other.botTotalUsd.value - first.botTotalUsd.value
+    let title = String(localized: name)
+    if difference > 0 { return L10n.Lab.verdictMore(title, Money.signedUSD(difference)) }
+    if difference < 0 { return L10n.Lab.verdictLess(title, Money.usd(-difference)) }
+    return L10n.Lab.verdictSame
   }
 
   private func result(_ summary: LabReplaySummaryV1) -> some View {

@@ -1,0 +1,697 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:advisor-runs-v1",
+  "title": "AdvisorRunsV1",
+  "type": "object",
+  "properties": {
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "backtest"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "proposed",
+              "idea",
+              "no_change",
+              "refused"
+            ]
+          },
+          "base": {
+            "type": "string"
+          },
+          "proposed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "tuned_on": {
+            "type": "string"
+          },
+          "judge_on": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "section": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "now": {
+                  "type": "string"
+                },
+                "proposed": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "section",
+                "key",
+                "now",
+                "proposed",
+                "reason",
+                "evidence"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "expected_effect": {
+            "type": "string"
+          },
+          "risks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "no_change_reason": {
+            "type": "string"
+          },
+          "cause": {
+            "type": "string"
+          },
+          "idea": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "hypothesis": {
+                    "type": "string"
+                  },
+                  "entry_rule": {
+                    "type": "string"
+                  },
+                  "exit_rule": {
+                    "type": "string"
+                  },
+                  "filters": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "string"
+                  },
+                  "test_plan": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "hypothesis",
+                  "entry_rule",
+                  "exit_rule",
+                  "filters",
+                  "evidence",
+                  "test_plan"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "judges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "candidate": {
+                  "type": "string"
+                },
+                "base": {
+                  "type": "string"
+                },
+                "holdout_starts": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+                },
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "edge",
+                    "negative_edge",
+                    "no_evidence",
+                    "too_few"
+                  ]
+                },
+                "base_verdict": {
+                  "type": "string",
+                  "enum": [
+                    "edge",
+                    "negative_edge",
+                    "no_evidence",
+                    "too_few"
+                  ]
+                },
+                "holdout": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "trades": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "win_rate_percent": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "median_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "total_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profit_factor": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r_interval_low": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r_interval_high": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "trades",
+                        "win_rate_percent",
+                        "mean_r",
+                        "median_r",
+                        "total_r",
+                        "profit_factor",
+                        "mean_r_interval_low",
+                        "mean_r_interval_high"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "base_holdout": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "trades": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "win_rate_percent": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "median_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "total_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profit_factor": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r_interval_low": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r_interval_high": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "trades",
+                        "win_rate_percent",
+                        "mean_r",
+                        "median_r",
+                        "total_r",
+                        "profit_factor",
+                        "mean_r_interval_low",
+                        "mean_r_interval_high"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fitting": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "trades": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "win_rate_percent": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "median_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "total_r": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profit_factor": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r_interval_low": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "mean_r_interval_high": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "trades",
+                        "win_rate_percent",
+                        "mean_r",
+                        "median_r",
+                        "total_r",
+                        "profit_factor",
+                        "mean_r_interval_low",
+                        "mean_r_interval_high"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "candidate",
+                "base",
+                "holdout_starts",
+                "verdict",
+                "base_verdict",
+                "holdout",
+                "base_holdout",
+                "fitting"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "verdict": {
+                    "type": "string",
+                    "enum": [
+                      "accepted",
+                      "rejected"
+                    ]
+                  },
+                  "at": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  }
+                },
+                "required": [
+                  "verdict",
+                  "at"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "mode",
+          "status",
+          "base",
+          "proposed",
+          "model",
+          "evidence",
+          "tuned_on",
+          "judge_on",
+          "summary",
+          "changes",
+          "expected_effect",
+          "risks",
+          "no_change_reason",
+          "cause",
+          "idea",
+          "judges",
+          "decision"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "unreadable": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cause": {
+            "type": "string"
+          },
+          "cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "cause"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "awaiting_review": {
+      "type": "integer"
+    },
+    "cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "runs",
+    "unreadable",
+    "awaiting_review",
+    "cause",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

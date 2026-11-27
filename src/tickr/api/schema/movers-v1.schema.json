@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:movers-v1",
+  "title": "MoversV1",
+  "type": "object",
+  "properties": {
+    "day": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "rules": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "lookback_bars": {
+              "type": "integer"
+            },
+            "min_volume_ratio": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "min_move_atr": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "min_dollar_volume_ratio": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "min_bar_dollar_volume_usd": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            }
+          },
+          "required": [
+            "lookback_bars",
+            "min_volume_ratio",
+            "min_move_atr",
+            "min_dollar_volume_ratio",
+            "min_bar_dollar_volume_usd"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rules_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "movers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "close": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "bar_dollar_volume": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "volume_ratio": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "move_atr": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "dollar_volume_ratio": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "fired": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "spike_up": {
+            "type": "boolean"
+          },
+          "watching": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "symbol",
+          "at",
+          "close",
+          "bar_dollar_volume",
+          "volume_ratio",
+          "move_atr",
+          "dollar_volume_ratio",
+          "fired",
+          "spike_up",
+          "watching"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "rules_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "day",
+    "rules",
+    "rules_cause",
+    "movers",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

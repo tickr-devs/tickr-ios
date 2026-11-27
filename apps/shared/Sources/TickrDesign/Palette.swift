@@ -63,7 +63,7 @@ public enum Palette {
   // MARK: meanings
 
   /// Live and brand: running bot, live flow, the logo, focus.
-  public static let accent = Color(light: 0x0EA5A0, dark: 0x2DD4BF)
+  public static let accent = Color(Swatch.accent)
   public static let accentText = Color(Swatch.accentText)
   /// Fill of a primary button, and the text drawn on it (4.5:1 in both appearances).
   public static let accentFill = Color(light: 0x0B766F, dark: 0x2DD4BF)
@@ -71,7 +71,7 @@ public enum Palette {
   /// The light sheen across the top of a filled control.
   public static let sheen = Color(light: 0xFFFFFF, dark: 0xFFFFFF)
   /// Money gained, a verified stop, healthy state.
-  public static let profit = Color(light: 0x10B981, dark: 0x34D399)
+  public static let profit = Color(Swatch.profit)
   public static let profitText = Color(Swatch.profitText)
   /// Money lost, a missing stop, an alarm, destructive actions.
   public static let loss = Color(Swatch.loss)
@@ -83,13 +83,13 @@ public enum Palette {
   /// Text and symbols on a solid `lossFill`.
   public static let onLoss = Color(Swatch.onLoss)
   /// Attention: paused, blocked, stale, a closed gate.
-  public static let warning = Color(light: 0xF59E0B, dark: 0xFBBF24)
+  public static let warning = Color(Swatch.warning)
   public static let warningText = Color(Swatch.warningText)
   /// Information and orders: entries, commands in flight, reconciliation.
   public static let info = Color(Swatch.info)
   public static let infoText = Color(Swatch.infoText)
   /// Context that is not live: environment, recorded days, planned (BACKLOG) features.
-  public static let highlight = Color(light: 0x8B5CF6, dark: 0xA78BFA)
+  public static let highlight = Color(Swatch.highlight)
   public static let highlightText = Color(Swatch.highlightText)
 
   /// An unselected chip's fill (ranges, intervals, studies; selected chips take `selection`).
@@ -112,13 +112,29 @@ public enum Palette {
   /// Slow EMA line.
   public static let seriesSlowEMA = highlight
   /// ATR line and its label.
-  public static let seriesATR = Color(light: 0xEC4899, dark: 0xF472B6)
+  public static let seriesATR = Color(Swatch.seriesATR)
   public static let seriesATRText = Color(Swatch.seriesATRText)
   /// Universe filter stage in the live flow.
   public static let seriesUniverse = seriesATR
+  /// The live-flow stages that no meaning above colours (mockup v151: nine stages, nine hues). Each
+  /// has a fill (dots, rings, bars, glows) and a `Text` variant for words (4.5:1 on `surface`).
+  /// Priced.
+  public static let cyan = Color(Swatch.cyan)
+  public static let cyanText = Color(Swatch.cyanText)
+  /// Bought.
+  public static let orange = Color(Swatch.orange)
+  public static let orangeText = Color(Swatch.orangeText)
+  /// Checked (the broker matches our records).
+  public static let lime = Color(Swatch.lime)
+  public static let limeText = Color(Swatch.limeText)
+
   /// A symbol the funnel dropped (mockup v100: pink; red stays for danger).
   public static let dropped = seriesATR
   public static let droppedText = seriesATRText
+  /// The ticker dots falling through the funnel sheet's bars (`FunnelDrops`, mockup v159): white
+  /// with a glow of it, in both appearances, and their dark rim (at `Opacity.funnelDropRim`).
+  public static let funnelDrop = Color(light: 0xFFFFFF, dark: 0xFFFFFF)
+  public static let funnelDropRim = Color(light: 0x000000, dark: 0x000000)
 
   // MARK: light-mode depth
 
@@ -185,8 +201,20 @@ public struct Swatch: Sendable, Hashable {
   public static let infoText = Swatch(light: 0x1D4ED8, dark: 0x93C5FD)
   public static let highlightText = Swatch(light: 0x6D28D9, dark: 0xC4B5FD)
   public static let seriesATRText = Swatch(light: 0xBE185D, dark: 0xF9A8D4)
+  public static let cyanText = Swatch(light: 0x0E7490, dark: 0x22D3EE)
+  public static let orangeText = Swatch(light: 0xC2410C, dark: 0xFB923C)
+  public static let limeText = Swatch(light: 0x4D7C0F, dark: 0xA3E635)
   /// `info` itself, a fill: below 4.5:1 on `surface` in light mode, so never text (a test proves it).
   public static let info = Swatch(light: 0x3B82F6, dark: 0x60A5FA)
+  /// The fills of the live flow's nine stages (`PipelineStage.fillSwatch`), with `info`.
+  public static let accent = Swatch(light: 0x0EA5A0, dark: 0x2DD4BF)
+  public static let profit = Swatch(light: 0x10B981, dark: 0x34D399)
+  public static let warning = Swatch(light: 0xF59E0B, dark: 0xFBBF24)
+  public static let highlight = Swatch(light: 0x8B5CF6, dark: 0xA78BFA)
+  public static let seriesATR = Swatch(light: 0xEC4899, dark: 0xF472B6)
+  public static let cyan = Swatch(light: 0x0891B2, dark: 0x22D3EE)
+  public static let orange = Swatch(light: 0xEA580C, dark: 0xFB923C)
+  public static let lime = Swatch(light: 0x65A30D, dark: 0xA3E635)
   public static let lossFill = Swatch(light: 0xB91C1C, dark: 0x991B1B)
   public static let onLoss = Swatch(light: 0xFFFFFF, dark: 0xFFFFFF)
   public static let scrim = Swatch(light: 0x080C1E, dark: 0x080C1E)

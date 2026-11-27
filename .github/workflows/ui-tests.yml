@@ -43,6 +43,28 @@ jobs:
           xcodebuild -workspace Tickr.xcworkspace -scheme "Tickr macOS" \
             -destination "platform=macOS" -derivedDataPath apps/macos/build/xcode \
             CODE_SIGN_IDENTITY=- test
+      # A launch that ends with the app not running (#883: "no window after launch, app state 1")
+      # is a crash or an exit at launch; the crash report says which and where. Only the app's
+      # own reports are kept (exception, backtrace; they hold no environment).
+      - name: Keep the app's crash reports
+        if: failure()
+        run: |
+          mkdir -p "$RUNNER_TEMP/crashes"
+          find "$HOME/Library/Logs/DiagnosticReports" -maxdepth 1 -name 'Tickr*' -newer Tickr.xcworkspace \
+            -exec cp {} "$RUNNER_TEMP/crashes/" \; 2>/dev/null || true
+          for report in "$RUNNER_TEMP"/crashes/*; do
+            [ -f "$report" ] || continue
+            echo "== $(basename "$report")"
+            head -c 6000 "$report"
+            echo
+          done
+      - name: Upload the crash reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-ui-tests-crashes
+          path: ${{ runner.temp }}/crashes
+          if-no-files-found: ignore
   # No text is ever cut (owner rule 2026-11-16): every screen, Settings pane and the menu-bar panel
   # drawn offscreen at the window's least and first sizes on the fixtures, in English and Spanish,
   # each in the light and the dark appearance (Tests/ScreenPicturesTests.swift), then read for a

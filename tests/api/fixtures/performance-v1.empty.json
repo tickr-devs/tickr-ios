@@ -1,0 +1,64 @@
+{
+  "environment": "sandbox",
+  "from_day": "2026-11-10",
+  "to_day": "2026-11-16",
+  "trades": 0,
+  "wins": 0,
+  "losses": 0,
+  "scratches": 0,
+  "exclusions": [],
+  "win_rate": null,
+  "win_rate_cause": "no counted trades in the range",
+  "expectancy_gross_r": null,
+  "expectancy_gross_r_cause": "no counted trades in the range",
+  "expectancy_gross_usd": null,
+  "expectancy_gross_usd_cause": "no counted trades in the range",
+  "average_win_gross_r": null,
+  "average_win_gross_r_cause": "no counted trades in the range",
+  "average_loss_gross_r": null,
+  "average_loss_gross_r_cause": "no counted trades in the range",
+  "profit_factor_gross": null,
+  "profit_factor_gross_cause": "no counted trades in the range",
+  "max_drawdown_gross_r": "0.0000",
+  "max_drawdown_gross_usd": "0",
+  "result_gross_r": "0.0000",
+  "result_gross_usd": "0",
+  "days": [],
+  "api_version": 1,
+  "win_rate_cause_codes": [
+    {
+      "code": "no_trades",
+      "params": {}
+    }
+  ],
+  "expectancy_gross_r_cause_codes": [
+    {
+      "code": "no_trades",
+      "params": {}
+    }
+  ],
+  "expectancy_gross_usd_cause_codes": [
+    {
+      "code": "no_trades",
+      "params": {}
+    }
+  ],
+  "average_win_gross_r_cause_codes": [
+    {
+      "code": "no_trades",
+      "params": {}
+    }
+  ],
+  "average_loss_gross_r_cause_codes": [
+    {
+      "code": "no_trades",
+      "params": {}
+    }
+  ],
+  "profit_factor_gross_cause_codes": [
+    {
+      "code": "no_trades",
+      "params": {}
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "file": "config/bot.toml",
+  "digest": "9999999999999999999999999999999999999999999999999999999999999999",
+  "changed_since_start": false,
+  "valid": true,
+  "error": null,
+  "sections": [
+    {
+      "name": "run",
+      "keys": [
+        {
+          "key": "environment",
+          "value": "\"sandbox\"",
+          "comment": "Active environment; must be a table under [environments]; read by config.load and the trading gate."
+        },
+        {
+          "key": "maintain_keep_sessions",
+          "value": "20",
+          "comment": "Closed sessions whose capture and decision folders `tickr maintain` leaves uncompressed; read by maintain."
+        }
+      ]
+    },
+    {
+      "name": "environments.sandbox",
+      "keys": [
+        {
+          "key": "app_key_variable",
+          "value": "\"WEBULL_SANDBOX_APP_KEY\"",
+          "comment": "Name of the variable holding the app key (never the value)."
+        },
+        {
+          "key": "route_limits",
+          "value": "{}",
+          "comment": "Route-specific limits; empty = every route uses requests_per_route_per_minute."
+        }
+      ]
+    }
+  ],
+  "api_version": 1
+}

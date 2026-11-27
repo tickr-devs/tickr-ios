@@ -633,15 +633,13 @@ private struct SymbolsOutcomeBadge: View {
 /// The selected symbol (mockup MacSymbols, 300 pt, as tall as its content): the symbol, its price
 /// and change, the screeners that found it and when, today's line, what happened in one word and
 /// one caption, its fast bar's signals, every stage of its steps today with the time and the
-/// measured value behind a disclosure, and links to its chart and days.
+/// measured value behind its footer link, and links to its chart and days.
 private struct SymbolsDetailPanel: View {
   @Environment(AppModel.self) private var model
   @AppStorage(ChartView.Keys.symbol) private var chartSymbol = ""
   /// Today's price line, kept while the same symbol's line is read again.
   @State private var dayLine: SymbolDayLine?
   @State private var shownLineSymbol: String?
-  /// The steps today are open.
-  @State private var showsSteps = false
   let line: SymbolsLine
 
   /// SF Symbols of the chart link, the fast mover's bolt and the path steps.
@@ -703,15 +701,13 @@ private struct SymbolsDetailPanel: View {
         .foregroundStyle(Palette.warningText)
       }
       if let row {
-        DetailDisclosure(SymbolsText.stepsToday,
+        FooterDetail(SymbolsText.stepsToday,
           summary: String(localized: SymbolsText.stepsPassed(SymbolsBoard.stepsPassed(row), SymbolStage.allCases.count)),
-          isOpen: $showsSteps) {
+          endsCard: false) {
           VStack(alignment: .leading, spacing: 0) {
             ForEach(SymbolsBoard.path(row)) { step in pathStep(step, row: row) }
           }
         }
-        .padding(.top, Tokens.Space.s)
-        .overlay(alignment: .top) { Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin) }
       }
       ChipFlow(spacing: Tokens.Space.s) {
         HeaderLink(L10n.Symbols.openChart, systemImage: Self.chartSymbol) {

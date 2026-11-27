@@ -1,0 +1,142 @@
+{
+  "day": "2026-11-16",
+  "observers": [
+    {
+      "name": "price-action-v1",
+      "version": "2",
+      "decisions": [
+        {
+          "at": "2026-11-16T15:00:00.000Z",
+          "symbol": "ABCD",
+          "action": "WATCH",
+          "reasons": [
+            "ask_above_trigger"
+          ]
+        },
+        {
+          "at": "2026-11-16T15:01:00.000Z",
+          "symbol": "ABCD",
+          "action": "ENTER",
+          "reasons": []
+        },
+        {
+          "at": "2026-11-16T15:04:00.000Z",
+          "symbol": "ABCD",
+          "action": "ENTER",
+          "reasons": []
+        }
+      ],
+      "result_gross_usd": "-12.4000",
+      "result_cause": null,
+      "trades": [
+        {
+          "symbol": "ABCD",
+          "at": "2026-11-16T15:01:00.000Z",
+          "opened_at": "2026-11-16T15:02:00.000Z",
+          "entry_price": "10.0700",
+          "closed_at": "2026-11-16T15:09:00.000Z",
+          "exit_price": "9.9460",
+          "quantity": "100",
+          "exit_reason": "stop",
+          "result_gross_usd": "-12.4000",
+          "result_r": "-1.0333",
+          "cause": null,
+          "cause_codes": []
+        },
+        {
+          "symbol": "ABCD",
+          "at": "2026-11-16T15:04:00.000Z",
+          "opened_at": null,
+          "entry_price": null,
+          "closed_at": null,
+          "exit_price": null,
+          "quantity": null,
+          "exit_reason": null,
+          "result_gross_usd": null,
+          "result_r": null,
+          "cause": "skipped_overlap: an earlier simulated trade of ABCD was still open",
+          "cause_codes": [
+            {
+              "code": "skipped_overlap",
+              "params": {
+                "symbol": "ABCD"
+              }
+            }
+          ]
+        }
+      ],
+      "trades_cause": null,
+      "trades_truncated": false,
+      "watching_since": "2026-11-16T14:59:02.000Z",
+      "settings_differences": [
+        {
+          "key": "indicators.minimum_relative_volume",
+          "value": "1.5",
+          "active_value": "2.0"
+        }
+      ],
+      "result_cause_codes": [],
+      "trades_cause_codes": []
+    },
+    {
+      "name": "price-action-v2",
+      "version": "1",
+      "decisions": [],
+      "result_gross_usd": null,
+      "result_cause": "no decisions recorded that day",
+      "trades": null,
+      "trades_cause": "no decisions recorded that day",
+      "trades_truncated": false,
+      "watching_since": null,
+      "settings_differences": null,
+      "result_cause_codes": [
+        {
+          "code": "no_decisions",
+          "params": {}
+        }
+      ],
+      "trades_cause_codes": [
+        {
+          "code": "no_decisions",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "name": "price-action-v2",
+      "version": "2",
+      "decisions": [
+        {
+          "at": "2026-11-16T15:02:00.000Z",
+          "symbol": "WXYZ",
+          "action": "ENTER",
+          "reasons": []
+        }
+      ],
+      "result_gross_usd": null,
+      "result_cause": "no captured bars for 2026-11-16",
+      "trades": null,
+      "trades_cause": "no captured bars for 2026-11-16",
+      "trades_truncated": false,
+      "watching_since": "2026-11-16T15:02:01.000Z",
+      "settings_differences": [],
+      "result_cause_codes": [
+        {
+          "code": "no_captured_bars",
+          "params": {
+            "day": "2026-11-16"
+          }
+        }
+      ],
+      "trades_cause_codes": [
+        {
+          "code": "no_captured_bars",
+          "params": {
+            "day": "2026-11-16"
+          }
+        }
+      ]
+    }
+  ],
+  "api_version": 1
+}

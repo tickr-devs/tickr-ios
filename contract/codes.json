@@ -1,0 +1,1842 @@
+{
+ "admission_causes": [
+  "AFTER_LAST_ENTRY",
+  "BEFORE_FIRST_ENTRY",
+  "BROKER_READ_MISSING",
+  "BROKER_READ_STALE",
+  "BUYING_POWER_SHORT",
+  "BUYING_POWER_UNKNOWN",
+  "CALENDAR_DAY_MISMATCH",
+  "CALENDAR_UNKNOWN",
+  "CLOCK_INVALID",
+  "COUNT_INVALID",
+  "DAILY_CEILING",
+  "DAILY_MONEY_INVALID",
+  "DAILY_MONEY_UNKNOWN",
+  "DECISION_INCOMPLETE",
+  "DECISION_INVALID",
+  "DECISION_NOT_ACTIVE",
+  "DECISION_NOT_ENTER",
+  "ENTRY_BUDGET_UNAVAILABLE",
+  "ENTRY_STOP_SET",
+  "EQUITY_UNKNOWN",
+  "FOREIGN_EXPOSURE",
+  "GATE_CLOSED",
+  "HALF_DAY",
+  "INSTRUMENT_CLOSE_ONLY",
+  "INSTRUMENT_DENIED",
+  "INSTRUMENT_HALTED",
+  "INSTRUMENT_NOT_TRADABLE",
+  "NOTIONAL_OVER_CAP",
+  "ORDER_PRICES_INVALID",
+  "ORDER_PRICES_MISSING",
+  "OUTSIDE_REGULAR_SESSION",
+  "OWN_ORDER_WORKING",
+  "OWN_POSITION_OPEN",
+  "PLANNED_LOSS_OVER_LIMIT",
+  "POSITION_LIMIT_REACHED",
+  "PRICE_COLLAR_BREACH",
+  "PRICE_COLLAR_UNKNOWN",
+  "PRICE_OUTSIDE_WINDOW",
+  "QUANTITY_BELOW_ONE",
+  "QUANTITY_NOT_WHOLE",
+  "QUOTE_INVALID",
+  "QUOTE_MISSING",
+  "QUOTE_STALE",
+  "QUOTE_SYMBOL_MISMATCH",
+  "QUOTE_TIME_INVALID",
+  "RECONCILIATION_NOT_DONE",
+  "SESSION_TIMES_INVALID",
+  "SETUP_INVALIDATED",
+  "SPREAD_TOO_WIDE",
+  "STOP_BUDGET_UNAVAILABLE",
+  "STOP_OUT_STREAK",
+  "STRATEGY_NOT_EXTENDED",
+  "SYMBOL_COOLDOWN",
+  "TRADABILITY_BUDGET_UNAVAILABLE",
+  "TRADABILITY_UNKNOWN",
+  "UNRESOLVED_EXPOSURE",
+  "WEEKLY_CEILING",
+  "WEEKLY_MONEY_INVALID",
+  "WEEKLY_MONEY_UNKNOWN",
+  "WORKING_ENTRY_LIMIT_REACHED"
+ ],
+ "discovery_causes": [
+  "CONFLICTING_ROWS",
+  "CURRENCY_NOT_ALLOWED",
+  "EXCHANGE_NOT_ALLOWED",
+  "NO_BARS",
+  "NO_QUOTE",
+  "QUOTE_FROM_FUTURE",
+  "QUOTE_INVALID",
+  "QUOTE_STALE",
+  "SECURITY_TYPE_NOT_ALLOWED",
+  "SECURITY_TYPE_UNKNOWN",
+  "STRATEGY_LIQUIDITY",
+  "SYMBOL_REFUSED"
+ ],
+ "entry_block_causes": [
+  "after_last_entry",
+  "bot_starting",
+  "bot_stopped",
+  "bot_stopping",
+  "calendar_unknown",
+  "daily_ceiling",
+  "daily_money_unknown",
+  "entries_not_wired",
+  "entry_stop",
+  "no_session_today",
+  "outside_regular_session",
+  "own_trade_open",
+  "stop_out_streak",
+  "strategy_not_loaded",
+  "trading_gate_closed",
+  "weekly_ceiling",
+  "weekly_money_unknown"
+ ],
+ "fence_kinds": [
+  "broker_read_failed",
+  "cancel_failed",
+  "cancel_not_sent",
+  "cancel_unknown",
+  "detail_budget",
+  "detail_unreadable",
+  "disk_low",
+  "entry_stop",
+  "exit_not_filled",
+  "exit_refused",
+  "foreign_order",
+  "foreign_position",
+  "market_closed",
+  "order_conflict",
+  "order_missing",
+  "over_protected",
+  "quantity_mismatch",
+  "replace_unresolved",
+  "resurrected",
+  "shutting_down",
+  "startup_reconcile",
+  "status_unknown",
+  "stop_held",
+  "stop_rejected",
+  "unknown_order",
+  "unprotected",
+  "unprotected_timeout",
+  "watchdog_started"
+ ],
+ "fence_reasons": {
+  "broker_fill_contradicts": [
+   [
+    "filled",
+    "quantity",
+    "sent",
+    "symbol"
+   ]
+  ],
+  "cancel_crashed": [
+   []
+  ],
+  "cancel_failed": [
+   []
+  ],
+  "cancel_not_sent": [
+   [
+    "seconds"
+   ]
+  ],
+  "cancel_outcome_unknown": [
+   [
+    "outcome"
+   ]
+  ],
+  "close_not_sent": [
+   [
+    "close",
+    "cutoff",
+    "cutoff_seconds",
+    "day",
+    "expected",
+    "open",
+    "quantity",
+    "session",
+    "symbol"
+   ]
+  ],
+  "crashed_during_send": [
+   []
+  ],
+  "detail_budget": [
+   []
+  ],
+  "detail_unreadable": [
+   [
+    "seconds"
+   ]
+  ],
+  "disk_low": [
+   [
+    "mb"
+   ]
+  ],
+  "disk_unknown": [
+   [
+    "error"
+   ]
+  ],
+  "exit_not_filled": [
+   [
+    "filled",
+    "order",
+    "quantity",
+    "seconds",
+    "state",
+    "symbol"
+   ]
+  ],
+  "exit_refused_no_stop": [
+   []
+  ],
+  "exit_refused_stop_again": [
+   []
+  ],
+  "foreign_order": [
+   []
+  ],
+  "foreign_position": [
+   []
+  ],
+  "given_up_order_filled": [
+   []
+  ],
+  "held_after_replace": [
+   []
+  ],
+  "held_untracked_sell": [
+   [
+    "orders",
+    "symbol"
+   ]
+  ],
+  "limit_changed_at_broker": [
+   [
+    "price",
+    "quantity",
+    "sent",
+    "sent_price"
+   ]
+  ],
+  "open_orders_read_failed": [
+   [
+    "error"
+   ]
+  ],
+  "operator_command": [
+   []
+  ],
+  "operator_emergency": [
+   []
+  ],
+  "order_missing": [
+   []
+  ],
+  "order_not_listed": [
+   []
+  ],
+  "positions_read_failed": [
+   [
+    "error"
+   ]
+  ],
+  "quantity_changed_at_broker": [
+   [
+    "quantity",
+    "sent"
+   ]
+  ],
+  "quantity_mismatch": [
+   [
+    "expected",
+    "held"
+   ]
+  ],
+  "replace_unresolved": [
+   [
+    "stop_price"
+   ]
+  ],
+  "send_outcome_unknown": [
+   []
+  ],
+  "shutting_down": [
+   []
+  ],
+  "startup_reconcile_pending": [
+   []
+  ],
+  "status_unmapped": [
+   [
+    "status"
+   ]
+  ],
+  "stop_cancel_unconfirmed": [
+   [
+    "seconds"
+   ]
+  ],
+  "stop_changed_at_broker": [
+   [
+    "price",
+    "quantity",
+    "sent",
+    "sent_price"
+   ]
+  ],
+  "stop_covers_part": [
+   [
+    "expected",
+    "verified"
+   ]
+  ],
+  "stop_rejected_exiting": [
+   []
+  ],
+  "stops_over_position": [
+   [
+    "covered",
+    "held"
+   ]
+  ],
+  "unprotected_close_by_hand": [
+   [
+    "seconds"
+   ]
+  ],
+  "unprotected_exiting": [
+   [
+    "seconds"
+   ]
+  ],
+  "unprotected_stop_unreadable": [
+   [
+    "seconds"
+   ]
+  ],
+  "watchdog_record_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "watchdog_started": [
+   [
+    "time"
+   ]
+  ],
+  "working_not_in_records": [
+   []
+  ]
+ },
+ "format": 1,
+ "gate_reasons": {
+  "authorization_digest_mismatch": [
+   []
+  ],
+  "authorization_file_missing": [
+   [
+    "file"
+   ]
+  ],
+  "authorization_file_not_set": [
+   []
+  ],
+  "authorization_keys_wrong": [
+   [
+    "keys"
+   ]
+  ],
+  "authorization_not_toml": [
+   []
+  ],
+  "authorization_other_environment": [
+   []
+  ],
+  "authorization_valid": [
+   []
+  ],
+  "trading_disabled": [
+   [
+    "environment"
+   ]
+  ],
+  "trading_enabled": [
+   []
+  ]
+ },
+ "not_reached_causes": [
+  "DELAYED_DATA",
+  "REQUEST_BUDGET"
+ ],
+ "prose_reasons": {
+  "account_file_invalid": [
+   [
+    "detail"
+   ]
+  ],
+  "advisor_refused": [
+   [
+    "detail"
+   ]
+  ],
+  "all_checks_passed": [
+   []
+  ],
+  "answer_empty": [
+   []
+  ],
+  "answer_not_json": [
+   [
+    "detail"
+   ]
+  ],
+  "answer_off_schema": [
+   []
+  ],
+  "api_without_config": [
+   []
+  ],
+  "backtest_refused": [
+   [
+    "detail"
+   ]
+  ],
+  "bars_end": [
+   [
+    "time"
+   ]
+  ],
+  "bars_end_before": [
+   [
+    "time",
+    "until"
+   ]
+  ],
+  "binding_not_proven": [
+   []
+  ],
+  "bot_not_stopped": [
+   [
+    "state"
+   ]
+  ],
+  "broker_read_other_day": [
+   [
+    "day"
+   ]
+  ],
+  "cached_history_empty": [
+   [
+    "symbol"
+   ]
+  ],
+  "cached_history_overlaps": [
+   []
+  ],
+  "cached_history_refused": [
+   [
+    "detail"
+   ]
+  ],
+  "calendar_error": [
+   [
+    "detail"
+   ]
+  ],
+  "calendar_file_unreadable": [
+   [
+    "detail"
+   ]
+  ],
+  "calendar_holiday": [
+   [
+    "day"
+   ]
+  ],
+  "calendar_invalid": [
+   [
+    "detail"
+   ]
+  ],
+  "calendar_invalid_offset": [
+   [
+    "detail"
+   ]
+  ],
+  "calendar_naive_time": [
+   [
+    "detail"
+   ]
+  ],
+  "calendar_not_covered": [
+   [
+    "day"
+   ]
+  ],
+  "calendar_refuses": [
+   [
+    "day",
+    "detail"
+   ]
+  ],
+  "calendar_unreadable": [
+   [
+    "detail"
+   ]
+  ],
+  "calendar_weekend": [
+   [
+    "day"
+   ]
+  ],
+  "capture_refused": [
+   [
+    "detail"
+   ]
+  ],
+  "change_fixed_section": [
+   [
+    "key",
+    "section"
+   ]
+  ],
+  "change_malformed": [
+   [
+    "detail"
+   ]
+  ],
+  "change_not_toml": [
+   [
+    "key",
+    "section",
+    "value"
+   ]
+  ],
+  "change_other_kind": [
+   [
+    "current_kind",
+    "key",
+    "kind",
+    "section",
+    "value"
+   ]
+  ],
+  "change_same_value": [
+   [
+    "key",
+    "section",
+    "value"
+   ]
+  ],
+  "change_twice": [
+   [
+    "key",
+    "section"
+   ]
+  ],
+  "change_unknown_key": [
+   [
+    "key",
+    "section"
+   ]
+  ],
+  "changes_not_list": [
+   []
+  ],
+  "chart_bar_outside_sessions": [
+   [
+    "day",
+    "symbol",
+    "time"
+   ]
+  ],
+  "chart_bar_session_differs": [
+   [
+    "calendar",
+    "provider",
+    "symbol",
+    "time"
+   ]
+  ],
+  "chart_bars_out_of_order": [
+   [
+    "symbol"
+   ]
+  ],
+  "chart_check_error": [
+   [
+    "error"
+   ]
+  ],
+  "chart_check_not_passed": [
+   [
+    "environment",
+    "verdict"
+   ]
+  ],
+  "chart_check_not_run": [
+   [
+    "environment"
+   ]
+  ],
+  "chart_check_unreadable": [
+   [
+    "error",
+    "folder"
+   ]
+  ],
+  "chart_client_failed": [
+   [
+    "detail",
+    "error"
+   ],
+   [
+    "error"
+   ]
+  ],
+  "chart_daily_out_of_order": [
+   [
+    "day",
+    "symbol"
+   ]
+  ],
+  "chart_data_delayed": [
+   [
+    "detail"
+   ],
+   [
+    "minutes",
+    "symbols"
+   ]
+  ],
+  "chart_interval_invalid": [
+   [
+    "allowed"
+   ]
+  ],
+  "chart_off": [
+   []
+  ],
+  "chart_pair_not_served": [
+   [
+    "interval",
+    "range"
+   ]
+  ],
+  "chart_range_invalid": [
+   [
+    "allowed"
+   ]
+  ],
+  "chart_read_budget": [
+   [
+    "detail"
+   ]
+  ],
+  "chart_read_failed": [
+   [
+    "detail",
+    "error"
+   ]
+  ],
+  "chart_request_too_short": [
+   [
+    "count",
+    "day"
+   ]
+  ],
+  "chart_starting": [
+   []
+  ],
+  "chart_symbol_invalid": [
+   [
+    "symbol"
+   ]
+  ],
+  "chart_symbol_unknown": [
+   [
+    "detail"
+   ]
+  ],
+  "chart_too_few_sessions": [
+   [
+    "count",
+    "day",
+    "days"
+   ]
+  ],
+  "chart_year_too_many_bars": [
+   [
+    "count"
+   ]
+  ],
+  "check_contradicts_record": [
+   [
+    "rule"
+   ]
+  ],
+  "close_held_outside_session": [
+   [
+    "trades"
+   ]
+  ],
+  "close_in_progress": [
+   []
+  ],
+  "close_not_sent_now": [
+   [
+    "close",
+    "cutoff",
+    "cutoff_seconds",
+    "day",
+    "open",
+    "session"
+   ]
+  ],
+  "close_refused_before": [
+   [
+    "trades"
+   ]
+  ],
+  "command_after_stop": [
+   [
+    "command"
+   ]
+  ],
+  "command_expired": [
+   [
+    "limit",
+    "seconds"
+   ]
+  ],
+  "command_file_misnamed": [
+   []
+  ],
+  "command_file_unreadable": [
+   [
+    "detail"
+   ]
+  ],
+  "command_from_future": [
+   [
+    "seconds"
+   ]
+  ],
+  "compare_same_version": [
+   []
+  ],
+  "database_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "day_end_not_clean": [
+   [
+    "agree",
+    "broker_flat",
+    "open_trades"
+   ]
+  ],
+  "day_end_unknown": [
+   []
+  ],
+  "day_not_over": [
+   []
+  ],
+  "emergency_command": [
+   [
+    "outcome"
+   ]
+  ],
+  "enters_not_simulated": [
+   [
+    "count"
+   ]
+  ],
+  "entry_cancels_requested": [
+   [
+    "count"
+   ]
+  ],
+  "entry_orders_count": [
+   [
+    "count"
+   ]
+  ],
+  "every_step_ran": [
+   []
+  ],
+  "fence_still_set": [
+   [
+    "fence"
+   ]
+  ],
+  "half_day_off": [
+   [
+    "day"
+   ]
+  ],
+  "history_too_short": [
+   [
+    "bot",
+    "folder",
+    "need"
+   ]
+  ],
+  "host_not_allowed": [
+   [
+    "host"
+   ]
+  ],
+  "idea_incomplete": [
+   [
+    "fields"
+   ]
+  ],
+  "idea_name_wrong": [
+   [
+    "name"
+   ]
+  ],
+  "idea_off_schema": [
+   []
+  ],
+  "identity_differs": [
+   [
+    "folder"
+   ]
+  ],
+  "invalidation_wrong_side": [
+   [
+    "rule"
+   ]
+  ],
+  "journal_unreadable": [
+   [
+    "detail"
+   ]
+  ],
+  "lock_held": [
+   [
+    "pid"
+   ]
+  ],
+  "lock_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "module_entry_malformed": [
+   [
+    "detail"
+   ]
+  ],
+  "module_listed_twice": [
+   [
+    "strategy"
+   ]
+  ],
+  "module_not_importable": [
+   [
+    "detail",
+    "folder",
+    "module"
+   ]
+  ],
+  "module_without_create": [
+   [
+    "folder",
+    "module"
+   ]
+  ],
+  "modules_malformed": [
+   []
+  ],
+  "needs_positive_measured": [
+   [
+    "rule"
+   ]
+  ],
+  "needs_positive_threshold": [
+   [
+    "rule"
+   ]
+  ],
+  "never_attempted": [
+   []
+  ],
+  "nightly_file_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "nightly_in_session": [
+   []
+  ],
+  "nightly_low_disk": [
+   [
+    "free_mb",
+    "min_mb"
+   ]
+  ],
+  "nightly_never_ran": [
+   []
+  ],
+  "nightly_no_pool": [
+   []
+  ],
+  "nightly_no_session_ahead": [
+   [
+    "day",
+    "days"
+   ]
+  ],
+  "nightly_pool_empty": [
+   []
+  ],
+  "nightly_refused": [
+   [
+    "detail"
+   ]
+  ],
+  "nightly_stopped_before_open": [
+   []
+  ],
+  "nightly_too_many_missing": [
+   [
+    "count",
+    "day",
+    "max"
+   ]
+  ],
+  "no_account_file": [
+   []
+  ],
+  "no_advisor_runs": [
+   []
+  ],
+  "no_backtest_data": [
+   []
+  ],
+  "no_backup": [
+   []
+  ],
+  "no_bar_after_exit": [
+   [
+    "until"
+   ]
+  ],
+  "no_bar_for_minute": [
+   [
+    "time"
+   ]
+  ],
+  "no_bars_for_symbol": [
+   [
+    "symbol"
+   ]
+  ],
+  "no_bars_for_symbol_on": [
+   [
+    "day",
+    "symbol"
+   ]
+  ],
+  "no_broker_read": [
+   []
+  ],
+  "no_cached_history": [
+   [
+    "day",
+    "symbol"
+   ]
+  ],
+  "no_calendar": [
+   []
+  ],
+  "no_captured_bars": [
+   [
+    "day"
+   ]
+  ],
+  "no_chart_bars": [
+   [
+    "interval",
+    "range",
+    "source",
+    "symbol"
+   ]
+  ],
+  "no_database": [
+   []
+  ],
+  "no_day_end": [
+   []
+  ],
+  "no_decisions": [
+   []
+  ],
+  "no_direction": [
+   [
+    "operator",
+    "rule"
+   ]
+  ],
+  "no_fast_mover_rules": [
+   []
+  ],
+  "no_fill_row": [
+   []
+  ],
+  "no_history_need": [
+   [
+    "folder"
+   ]
+  ],
+  "no_host_services": [
+   []
+  ],
+  "no_intent_row": [
+   []
+  ],
+  "no_invalidation": [
+   [
+    "rule"
+   ]
+  ],
+  "no_losses": [
+   []
+  ],
+  "no_minute_before_close": [
+   [
+    "time"
+   ]
+  ],
+  "no_module": [
+   [
+    "strategy"
+   ]
+  ],
+  "no_next_session": [
+   [
+    "day",
+    "days"
+   ]
+  ],
+  "no_open_position": [
+   [
+    "symbol"
+   ]
+  ],
+  "no_pairing_waiting": [
+   []
+  ],
+  "no_phone_paired": [
+   []
+  ],
+  "no_preflight_record": [
+   []
+  ],
+  "no_quotes_file": [
+   []
+  ],
+  "no_reference_price": [
+   []
+  ],
+  "no_start_command": [
+   []
+  ],
+  "no_status_file": [
+   []
+  ],
+  "no_strategy_folder": [
+   [
+    "folder"
+   ]
+  ],
+  "no_strategy_named": [
+   [
+    "folder",
+    "strategy"
+   ]
+  ],
+  "no_trades": [
+   []
+  ],
+  "no_training_job": [
+   []
+  ],
+  "no_wins": [
+   []
+  ],
+  "no_working_entry": [
+   [
+    "symbol"
+   ]
+  ],
+  "not_a_data_day": [
+   [
+    "day"
+   ]
+  ],
+  "not_computed": [
+   []
+  ],
+  "not_read": [
+   []
+  ],
+  "nothing_open": [
+   []
+  ],
+  "origin_not_allowed": [
+   [
+    "origin"
+   ]
+  ],
+  "outside_session_only": [
+   [
+    "until"
+   ]
+  ],
+  "pairing_code_wrong": [
+   []
+  ],
+  "pairing_expired": [
+   []
+  ],
+  "past_day_reconciliation": [
+   []
+  ],
+  "past_day_status": [
+   []
+  ],
+  "past_invalidation": [
+   [
+    "rule"
+   ]
+  ],
+  "planned_loss_not_positive": [
+   [
+    "planned_loss"
+   ]
+  ],
+  "planned_loss_not_positive_r": [
+   []
+  ],
+  "pre_close_not_number": [
+   [
+    "value"
+   ]
+  ],
+  "pre_close_not_positive": [
+   [
+    "value"
+   ]
+  ],
+  "preflight_record_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "price_not_number": [
+   [
+    "value"
+   ]
+  ],
+  "proposals_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "query_malformed": [
+   [
+    "detail"
+   ]
+  ],
+  "query_parameter_empty": [
+   [
+    "name"
+   ]
+  ],
+  "query_parameter_twice": [
+   [
+    "name"
+   ]
+  ],
+  "query_parameters_missing": [
+   [
+    "names"
+   ]
+  ],
+  "query_unknown_parameter": [
+   [
+    "name"
+   ]
+  ],
+  "quote_age_not_recorded": [
+   []
+  ],
+  "quotes_file_invalid": [
+   [
+    "detail"
+   ]
+  ],
+  "reconcile_gap": [
+   [
+    "max_gap",
+    "seconds",
+    "since",
+    "until"
+   ]
+  ],
+  "reconcile_mismatch": [
+   [
+    "detail"
+   ]
+  ],
+  "reconcile_not_recorded": [
+   []
+  ],
+  "replay_after_last_entry": [
+   []
+  ],
+  "replay_before_open": [
+   []
+  ],
+  "replay_entry_pending": [
+   []
+  ],
+  "replay_half_day": [
+   []
+  ],
+  "replay_no_further_bars": [
+   []
+  ],
+  "replay_position_open": [
+   []
+  ],
+  "replay_price_outside": [
+   []
+  ],
+  "replay_running": [
+   []
+  ],
+  "replay_settings_unreadable": [
+   [
+    "detail"
+   ]
+  ],
+  "restart_command_exited": [
+   [
+    "code"
+   ]
+  ],
+  "restart_command_failed": [
+   [
+    "error"
+   ]
+  ],
+  "restart_refused_operator_stop": [
+   []
+  ],
+  "result_in_r_only": [
+   []
+  ],
+  "row_without_pre_close": [
+   []
+  ],
+  "row_without_price": [
+   []
+  ],
+  "run_file_invalid": [
+   [
+    "error",
+    "file"
+   ]
+  ],
+  "run_file_missing": [
+   [
+    "file"
+   ]
+  ],
+  "run_file_unreadable": [
+   [
+    "error",
+    "file"
+   ]
+  ],
+  "run_file_wrong_schema": [
+   [
+    "file",
+    "schema"
+   ]
+  ],
+  "run_folder_misnamed": [
+   []
+  ],
+  "run_folder_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "run_without_report": [
+   []
+  ],
+  "safety_exit": [
+   [
+    "exit",
+    "trade"
+   ]
+  ],
+  "session_ended": [
+   [
+    "time"
+   ]
+  ],
+  "simulation_failed": [
+   [
+    "detail",
+    "error"
+   ]
+  ],
+  "simulation_refused": [
+   [
+    "detail"
+   ]
+  ],
+  "skipped_overlap": [
+   [
+    "symbol"
+   ]
+  ],
+  "skipped_same_signal": [
+   [
+    "setup",
+    "symbol",
+    "trigger"
+   ]
+  ],
+  "sleep_check_exited": [
+   [
+    "code"
+   ]
+  ],
+  "sleep_check_failed": [
+   [
+    "error"
+   ]
+  ],
+  "start_exited": [
+   [
+    "code"
+   ]
+  ],
+  "start_exited_cleared": [
+   [
+    "code"
+   ]
+  ],
+  "start_failed": [
+   [
+    "error"
+   ]
+  ],
+  "start_failed_cleared": [
+   [
+    "error"
+   ]
+  ],
+  "start_timeout": [
+   [
+    "seconds"
+   ]
+  ],
+  "start_timeout_cleared": [
+   [
+    "seconds"
+   ]
+  ],
+  "status_file_invalid": [
+   [
+    "detail"
+   ]
+  ],
+  "status_from_future": [
+   []
+  ],
+  "status_other_day": [
+   [
+    "day"
+   ]
+  ],
+  "step_done": [
+   []
+  ],
+  "steps_done": [
+   [
+    "steps"
+   ]
+  ],
+  "steps_not_run": [
+   [
+    "steps"
+   ]
+  ],
+  "stop_already_running": [
+   [
+    "command"
+   ]
+  ],
+  "stop_close_failed": [
+   [
+    "fences",
+    "trades"
+   ]
+  ],
+  "stop_close_kept": [
+   []
+  ],
+  "stop_close_not_filled": [
+   [
+    "trades"
+   ]
+  ],
+  "stop_close_not_sent": [
+   [
+    "trades"
+   ]
+  ],
+  "stop_close_refused": [
+   [
+    "trades"
+   ]
+  ],
+  "stop_interrupted": [
+   []
+  ],
+  "stop_new_trade": [
+   [
+    "trades"
+   ]
+  ],
+  "stop_not_cleared": [
+   [
+    "error"
+   ]
+  ],
+  "strategy_file_unreadable": [
+   [
+    "detail",
+    "folder"
+   ]
+  ],
+  "strategy_unreadable": [
+   [
+    "folder"
+   ]
+  ],
+  "strategy_without_module": [
+   [
+    "folder",
+    "strategy"
+   ]
+  ],
+  "strategy_without_name": [
+   [
+    "folder"
+   ]
+  ],
+  "strategy_without_version": [
+   [
+    "folder"
+   ]
+  ],
+  "token_not_paired": [
+   []
+  ],
+  "token_required": [
+   []
+  ],
+  "too_many_changes": [
+   [
+    "count",
+    "max"
+   ]
+  ],
+  "trades_left_open": [
+   [
+    "count"
+   ]
+  ],
+  "trades_still_open": [
+   [
+    "count"
+   ]
+  ],
+  "trades_without_quantity": [
+   [
+    "count"
+   ]
+  ],
+  "training_progress_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "universe_conflicting_rows": [
+   [
+    "measured"
+   ]
+  ],
+  "universe_currency": [
+   [
+    "measured"
+   ]
+  ],
+  "universe_exchange": [
+   [
+    "measured"
+   ]
+  ],
+  "universe_type": [
+   [
+    "measured"
+   ]
+  ],
+  "universe_type_unknown": [
+   [
+    "measured"
+   ]
+  ],
+  "unprotected_alert": [
+   [
+    "detail"
+   ]
+  ],
+  "values_refused": [
+   [
+    "detail",
+    "folder",
+    "module"
+   ]
+  ],
+  "version_never_started": [
+   []
+  ],
+  "version_not_whole": [
+   [
+    "file",
+    "version"
+   ]
+  ],
+  "watchdog_journal_unreadable": [
+   [
+    "error"
+   ]
+  ],
+  "yes_no_check": [
+   [
+    "rule"
+   ]
+  ]
+ },
+ "refusal_codes": [
+  "AFTER_LAST_ENTRY",
+  "BEFORE_FIRST_ENTRY",
+  "BROKER_READ_MISSING",
+  "BROKER_READ_STALE",
+  "BUYING_POWER_SHORT",
+  "BUYING_POWER_UNKNOWN",
+  "CALENDAR_DAY_MISMATCH",
+  "CALENDAR_UNKNOWN",
+  "CLOCK_INVALID",
+  "COUNT_INVALID",
+  "DAILY_CEILING",
+  "DAILY_MONEY_INVALID",
+  "DAILY_MONEY_UNKNOWN",
+  "DECISION_INCOMPLETE",
+  "DECISION_INVALID",
+  "DECISION_NOT_ACTIVE",
+  "DECISION_NOT_ENTER",
+  "ENGINE_REFUSED",
+  "ENTRY_BUDGET_UNAVAILABLE",
+  "ENTRY_STOP_SET",
+  "EQUITY_UNKNOWN",
+  "FOREIGN_EXPOSURE",
+  "GATE_CLOSED",
+  "HALF_DAY",
+  "INSTRUMENT_CLOSE_ONLY",
+  "INSTRUMENT_DENIED",
+  "INSTRUMENT_HALTED",
+  "INSTRUMENT_NOT_TRADABLE",
+  "NOTIONAL_OVER_CAP",
+  "ORDER_PRICES_INVALID",
+  "ORDER_PRICES_MISSING",
+  "OUTSIDE_REGULAR_SESSION",
+  "OWN_ORDER_WORKING",
+  "OWN_POSITION_OPEN",
+  "PLANNED_LOSS_OVER_LIMIT",
+  "POSITION_LIMIT_REACHED",
+  "PRICE_COLLAR_BREACH",
+  "PRICE_COLLAR_UNKNOWN",
+  "PRICE_OUTSIDE_WINDOW",
+  "QUANTITY_BELOW_ONE",
+  "QUANTITY_NOT_WHOLE",
+  "QUOTE_INVALID",
+  "QUOTE_MISSING",
+  "QUOTE_STALE",
+  "QUOTE_SYMBOL_MISMATCH",
+  "QUOTE_TIME_INVALID",
+  "RECONCILIATION_NOT_DONE",
+  "SESSION_TIMES_INVALID",
+  "SETUP_INVALIDATED",
+  "SPREAD_TOO_WIDE",
+  "STOP_BUDGET_UNAVAILABLE",
+  "STOP_OUT_STREAK",
+  "STRATEGY_NOT_EXTENDED",
+  "SYMBOL_COOLDOWN",
+  "TRADABILITY_BUDGET_UNAVAILABLE",
+  "TRADABILITY_UNKNOWN",
+  "UNRESOLVED_EXPOSURE",
+  "WEEKLY_CEILING",
+  "WEEKLY_MONEY_INVALID",
+  "WEEKLY_MONEY_UNKNOWN",
+  "WORKING_ENTRY_LIMIT_REACHED"
+ ],
+ "refusal_reasons": {
+  "AFTER_LAST_ENTRY": [
+   [
+    "time"
+   ]
+  ],
+  "BROKER_READ_STALE": [
+   [
+    "age",
+    "limit"
+   ]
+  ],
+  "BUYING_POWER_SHORT": [
+   [
+    "buying_power",
+    "committed",
+    "free",
+    "value"
+   ]
+  ],
+  "BUYING_POWER_UNKNOWN": [
+   [],
+   [
+    "age",
+    "limit"
+   ]
+  ],
+  "CALENDAR_DAY_MISMATCH": [
+   [
+    "calendar_day",
+    "today"
+   ]
+  ],
+  "CLOCK_INVALID": [
+   [
+    "seconds"
+   ]
+  ],
+  "DAILY_CEILING": [
+   [
+    "ceiling",
+    "min_room",
+    "realized",
+    "reserved",
+    "room"
+   ],
+   [
+    "ceiling",
+    "new",
+    "realized",
+    "reserved",
+    "total"
+   ]
+  ],
+  "DECISION_INCOMPLETE": [
+   [
+    "fields"
+   ]
+  ],
+  "DECISION_INVALID": [
+   [
+    "entry_high",
+    "entry_low",
+    "stop"
+   ]
+  ],
+  "DECISION_NOT_ACTIVE": [
+   [
+    "active",
+    "strategy",
+    "version"
+   ]
+  ],
+  "DECISION_NOT_ENTER": [
+   [
+    "verdict"
+   ]
+  ],
+  "ENTRY_STOP_SET": [
+   []
+  ],
+  "EQUITY_UNKNOWN": [
+   [],
+   [
+    "age",
+    "limit"
+   ],
+   [
+    "value"
+   ]
+  ],
+  "HALF_DAY": [
+   [
+    "day"
+   ]
+  ],
+  "NOTIONAL_OVER_CAP": [
+   [
+    "cap",
+    "notional"
+   ]
+  ],
+  "ORDER_PRICES_INVALID": [
+   [
+    "entry_high",
+    "entry_low",
+    "limit"
+   ],
+   [
+    "limit",
+    "stop"
+   ]
+  ],
+  "OUTSIDE_REGULAR_SESSION": [
+   [
+    "close",
+    "open"
+   ]
+  ],
+  "OWN_ORDER_WORKING": [
+   [
+    "count"
+   ]
+  ],
+  "OWN_POSITION_OPEN": [
+   [
+    "count"
+   ]
+  ],
+  "PLANNED_LOSS_OVER_LIMIT": [
+   [
+    "limit",
+    "planned_loss"
+   ]
+  ],
+  "POSITION_LIMIT_REACHED": [
+   [
+    "limit",
+    "open"
+   ]
+  ],
+  "PRICE_COLLAR_BREACH": [
+   [
+    "bar_close",
+    "bar_distance",
+    "bar_max",
+    "limit",
+    "previous_ask",
+    "quote_distance",
+    "quote_max"
+   ]
+  ],
+  "PRICE_OUTSIDE_WINDOW": [
+   [
+    "ask",
+    "entry_low",
+    "limit"
+   ]
+  ],
+  "QUANTITY_BELOW_ONE": [
+   [
+    "maximum",
+    "quantity"
+   ]
+  ],
+  "QUANTITY_NOT_WHOLE": [
+   [
+    "quantity"
+   ]
+  ],
+  "QUOTE_INVALID": [
+   [
+    "ask",
+    "bid"
+   ]
+  ],
+  "QUOTE_STALE": [
+   [
+    "age",
+    "limit"
+   ]
+  ],
+  "QUOTE_SYMBOL_MISMATCH": [
+   [
+    "quote_symbol",
+    "symbol"
+   ]
+  ],
+  "QUOTE_TIME_INVALID": [
+   [
+    "limit",
+    "seconds"
+   ]
+  ],
+  "STOP_OUT_STREAK": [
+   [
+    "count",
+    "limit"
+   ]
+  ],
+  "SYMBOL_COOLDOWN": [
+   [
+    "symbol",
+    "until"
+   ]
+  ],
+  "WEEKLY_CEILING": [
+   [
+    "ceiling",
+    "new",
+    "realized",
+    "reserved",
+    "total"
+   ]
+  ],
+  "WORKING_ENTRY_LIMIT_REACHED": [
+   [
+    "limit",
+    "working"
+   ]
+  ]
+ },
+ "spike_rules": [
+  "spike_age_bars",
+  "spike_invalidation_below_trigger",
+  "spike_low_held",
+  "spike_move_atr",
+  "spike_volume_ratio"
+ ]
+}

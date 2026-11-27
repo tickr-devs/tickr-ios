@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:error-v1",
+  "title": "ErrorV1",
+  "type": "object",
+  "properties": {
+    "error": {
+      "type": "string"
+    },
+    "cause": {
+      "type": "string"
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "error",
+    "cause",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

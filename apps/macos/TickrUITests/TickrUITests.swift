@@ -39,6 +39,8 @@ final class TickrUITests: XCTestCase {
   static let refusalCause = "1 open, limit 1"
   /// The selected trade's detail card and a label it shows only for a selected trade.
   static let tradeDetail = "trades-detail"
+  /// The selected trade's "Details" footer link (TradeDetailCard.detailsID).
+  static let tradeDetails = "trades-detail-more"
   static let stopConfirmedAfter = "Stop confirmed after"
   /// The first trade in day-v1.json.
   static let tradeSymbol = "WXYZ"
@@ -212,13 +214,17 @@ final class TickrUITests: XCTestCase {
   func testChartShowsTheDecisions() {
     let app = launch()
     open(Self.sections[1], in: app)
-    // The rail is shown by default: its decision card's "Why" opens the latest decision's checks.
-    // A check row reads as one accessibility element, so its rule is part of a longer value.
+    // The rail is shown by default: its decision card's "Why" opens the latest decision's checks
+    // in a popover. A check row reads as one accessibility element, so its rule is part of a
+    // longer value.
     let why = app.buttons[Self.decisionWhy].firstMatch
     XCTAssertTrue(why.waitForExistence(timeout: Self.timeout), "decision why\n\(app.debugDescription)")
     why.click()
     let check = app.staticTexts.matching(NSPredicate(format: "value CONTAINS %@", Self.decisionRule)).firstMatch
     XCTAssertTrue(check.waitForExistence(timeout: Self.timeout), "decision check\n\(app.debugDescription)")
+    // Esc closes the popover; the card never grew to hold the checks.
+    app.typeKey(.escape, modifierFlags: [])
+    XCTAssertTrue(check.waitForNonExistence(timeout: Self.timeout), "popover still open\n\(app.debugDescription)")
     // The open rail fits beside the chart: nothing is pushed off screen.
     XCTAssertTrue(app.descendants(matching: .any)[Self.rowPrefix + Self.sections[0]].firstMatch.isHittable,
       "sidebar pushed off screen\n\(app.debugDescription)")
@@ -226,7 +232,7 @@ final class TickrUITests: XCTestCase {
     let toggle = app.descendants(matching: .any)[Self.decisionsToggle].firstMatch
     XCTAssertTrue(toggle.waitForExistence(timeout: Self.timeout))
     toggle.click()
-    XCTAssertTrue(check.waitForNonExistence(timeout: Self.timeout), "rail still shown\n\(app.debugDescription)")
+    XCTAssertTrue(why.waitForNonExistence(timeout: Self.timeout), "rail still shown\n\(app.debugDescription)")
     toggle.click()
     XCTAssertTrue(why.waitForExistence(timeout: Self.timeout), "rail not shown again\n\(app.debugDescription)")
   }
@@ -261,11 +267,11 @@ final class TickrUITests: XCTestCase {
     waitUntilStill(symbol, "trade row", in: app)
     symbol.click()
     let detail = app.descendants(matching: .any)[Self.tradeDetail].firstMatch
-    // The stop's timing is under the card's "Details" line, closed until clicked.
-    let details = detail.disclosureTriangles.firstMatch
-    XCTAssertTrue(details.waitForExistence(timeout: Self.timeout), "details line\n\(app.debugDescription)")
+    // The stop's timing is behind the card's "Details" footer link, in a popover.
+    let details = detail.buttons[Self.tradeDetails].firstMatch
+    XCTAssertTrue(details.waitForExistence(timeout: Self.timeout), "details link\n\(app.debugDescription)")
     details.click()
-    XCTAssertTrue(detail.staticTexts[Self.stopConfirmedAfter].waitForExistence(timeout: Self.timeout),
+    XCTAssertTrue(app.staticTexts[Self.stopConfirmedAfter].waitForExistence(timeout: Self.timeout),
       "trade detail\n\(app.debugDescription)")
   }
 
