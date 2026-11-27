@@ -43,7 +43,8 @@ import Testing
     #expect(try signIn.code(from: answer) == "abc")
     for other in ["tickr://signin?code=abc&state=other", "tickr://pair?code=abc&state=\(Self.state)",
       "https://signin?code=abc&state=\(Self.state)", "tickr://signin?state=\(Self.state)"] {
-      #expect(throws: SignInError.notThisSignIn) { try signIn.code(from: try #require(URL(string: other))) }
+      let url = try #require(URL(string: other))
+      #expect(throws: SignInError.notThisSignIn) { try signIn.code(from: url) }
     }
   }
 
@@ -57,7 +58,8 @@ import Testing
     #expect(request.httpMethod == "POST")
     #expect(request.url?.absoluteString == "https://tickr.bot/identity/o/api/token")
     #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/x-www-form-urlencoded")
-    let body = try #require(String(bytes: try #require(request.httpBody), encoding: .utf8))
+    let data = try #require(request.httpBody)
+    let body = try #require(String(bytes: data, encoding: .utf8))
     var form = URLComponents()
     form.percentEncodedQuery = body
     let sent = Dictionary(uniqueKeysWithValues: (form.queryItems ?? []).map { ($0.name, $0.value ?? "") })
