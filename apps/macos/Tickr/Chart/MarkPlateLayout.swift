@@ -58,7 +58,8 @@ enum MarkPlateLayout {
     let glyphs = obstacles.glyphs.filter { $0.intersects(frame) }
     let options: [Options] = items.filter { frame.contains($0.anchor) }.map { item in
       let around = candles + glyphs.filter { !$0.contains(item.anchor) }
-      let places = candidates(item, offset: offset, gap: gap, beside: around, in: inside).map { (rect: $0, cover: covered($0, by: around, gap: gap)) }
+      let places = candidates(item, offset: offset, gap: gap, beside: around, in: inside)
+        .map { (rect: $0, cover: covered($0, by: around, gap: gap)) }
       return Options(id: item.id, places: places)
     }
     let ranked = greedy(options, gap: gap)
