@@ -139,7 +139,7 @@ struct WatchingAllPanel: View {
       }
       .buttonStyle(.icon(compact: true))
       .keyboardShortcut(.cancelAction)
-      .help(Text(L10n.Watching.closeHelp))
+      .tip(Text(L10n.Watching.closeHelp))
       .accessibilityLabel(Text(L10n.Watching.close))
     }
     .padding([.horizontal, .top], Tokens.Space.l)

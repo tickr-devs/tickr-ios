@@ -4,7 +4,7 @@ import Synchronization
 import Testing
 import TickrDesign
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// Answers the API reads the app model makes from canned bodies by path, and records the
 /// symbols whose bars were asked for. Shared state, so the suite runs one test at a time.
@@ -266,12 +266,12 @@ struct AppModelTests {
     let day = try WireDate("2026-11-16")
     RouteProtocol.routes.withLock { $0.bodies["/decisions"] = try? Data(contentsOf:
       fixturesDir.appendingPathComponent("decisions-v1.json")) }
-    await chart.loadDecisions(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.loadDecisions(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.decisions?.decisions.map(\.action) == [.watch, .enter, .enter])
     #expect(chart.decisions?.decisions[1].observer == true)
     #expect(chart.decisions?.decisions.last?.admission == .refused)
     RouteProtocol.routes.withLock { $0.bodies["/decisions"] = nil }
-    await chart.loadDecisions(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.loadDecisions(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.decisions == nil)
     #expect(chart.decisionsError != nil)
   }
@@ -406,6 +406,31 @@ struct AppModelTests {
     await model.send(.entryStop(on: true), title: "Pause entries")
     #expect(Self.sentCount() == 0)
     #expect(model.toast?.outcome == .refused)
+  }
+
+  @Test("A command being sent by one model is refused in the other (iPad layouts), never sent under a new key")
+  func oneSendAcrossModels() async throws {
+    let accepted = try Data(contentsOf: fixturesDir.appendingPathComponent("command-accepted-v1.json"))
+    RouteProtocol.routes.withLock { $0.bodies["/commands/flatten"] = accepted }
+    // The first layout's send waits at the owner check, so it is under way with no answer yet.
+    let (gate, open) = AsyncStream.makeStream(of: Void.self)
+    let first = AppModel(baseURL: APIClient.defaultBaseURL)
+    first.ownerCheck = { _, _ in
+      for await _ in gate { return true }
+      return false
+    }
+    let second = AppModel(baseURL: APIClient.defaultBaseURL)
+    await first.refreshStatus()
+    await second.refreshStatus()
+    let sending = Task { await first.send(.flattenSymbol("ABCD"), title: "Close ABCD position") }
+    while Container.shared.commandKeys().sending.isEmpty { await Task.yield() }
+    await second.send(.flattenSymbol("ABCD"), title: "Close ABCD position")
+    #expect(second.toast?.outcome == .refused)
+    #expect(Self.sentCount() == 0, "the other layout sent while the first send was under way")
+    open.yield()
+    await sending.value
+    #expect(Self.sentCount() == 1)
+    #expect(Container.shared.commandKeys().sending.isEmpty)
   }
 
   @Test("A late answer from the server before a switch never shows as the new server's")
@@ -679,15 +704,15 @@ struct AppModelTests {
     let chart = ChartModel()
     let day = try WireDate("2026-11-16")
     #expect(chart.plot(timeframe: .m1) == nil)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     let first = try #require(chart.plot(timeframe: .m1))
     #expect(chart.plot(timeframe: .m1)?.revision == first.revision)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.revision == first.revision, "the same bars read again must not redraw the chart")
     #expect(chart.plot(timeframe: .m5)?.timeframe == .m5)
     chart.clear()
     #expect(chart.plot(timeframe: .m1) == nil)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(try #require(chart.plot(timeframe: .m1)).revision > first.revision)
   }
   @Test("Ornaments move only while the bot runs with fresh live status, and never with Reduce Motion")
@@ -748,9 +773,9 @@ struct AppModelTests {
     let chart = ChartModel()
     let day = try WireDate("2026-11-16")
     #expect(chart.newestBar == nil)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     let first = try #require(chart.newestBar)
-    await chart.load(baseURL: APIClient.defaultBaseURL, symbol: "ABCD", day: day)
+    await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.newestBar == first)
   }
 }

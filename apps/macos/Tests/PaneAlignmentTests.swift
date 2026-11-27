@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 import Testing
-@testable import TickrMac
+@testable import TickrScreens
 
 /// Every pane below the price pane takes the stretch of time the price pane really draws, so a
 /// minute sits at the same x in each (owner, 2026-11-18: gridlines, candles and the crosshair

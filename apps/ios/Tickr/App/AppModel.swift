@@ -127,9 +127,15 @@ final class AppModel {
   @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
   @ObservationIgnored private var awaited: [String: CommandKind] = [:]
-  /// The idempotency key of each command whose send lost its answer (backlog A3): kept until the
-  /// API's receipt says whether it was queued, and used again if the owner presses it again.
-  @ObservationIgnored private var keys = CommandKeys()
+  /// The idempotency key of each command whose send lost its answer (backlog A3), kept until the
+  /// API's receipt says whether it was queued and used again if the owner presses it again. In
+  /// the app's one store (`CommandKeyStore`): on iPad the Mac screens' model sends from the
+  /// same keys, so a press after a lost send is never a second send under a new key.
+  @ObservationIgnored @Injected(\.commandKeys) private var keyStore
+  private var keys: CommandKeys {
+    get { keyStore.keys }
+    set { keyStore.keys = newValue }
+  }
   /// Counts connections: every answer is applied only while the connection it was asked on is
   /// still this one (backlog A4), so a late answer from the address before never shows as this one's.
   @ObservationIgnored private var link = 0
@@ -240,7 +246,7 @@ final class AppModel {
     stop()
     link += 1
     // Keys and queued commands of the address before mean nothing at this one.
-    keys.clear()
+    if let url = connection.url { keyStore.use(url) }
     awaited = [:]
     entryWatch.forget()
     response = nil
@@ -571,6 +577,11 @@ final class AppModel {
       notice = Notice(L10n.Notice.notCurrent(title), tone: .failure)
       return
     }
+    // One send of a command at a time across both iPad layouts' models (`CommandKeyStore`).
+    guard keyStore.begin(command) else {
+      notice = Notice(L10n.Notice.busy(title), tone: .failure)
+      return
+    }
     let asked = link
     sending = true
     inFlight = command
@@ -579,6 +590,7 @@ final class AppModel {
     defer {
       sending = false
       inFlight = nil
+      keyStore.end(command)
     }
     if let confirmOwner {
       switch await confirmOwner() {
@@ -632,7 +644,7 @@ final class AppModel {
   /// or one whose receipt the API cannot serve, is dropped with a notice to check the status
   /// before sending again. Not while a send is under way, which settles its own command.
   private func settleLost(_ url: URL) async {
-    guard !sending else { return }
+    guard !sending, keyStore.sending.isEmpty else { return }
     for command in keys.expire(now: now(), keepSeconds: keepSeconds) {
       notice = Notice(L10n.Notice.outcomeNotKnown(Board.commandTitle(command.kind)), tone: .failure)
     }

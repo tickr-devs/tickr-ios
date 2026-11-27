@@ -349,6 +349,11 @@ private struct Stat<Value: View>: View {
 /// The shown day's closed trades. Double-click or the context menu opens a trade on the Chart.
 private struct TradesTable: View {
   @Environment(AppModel.self) private var model
+  @Environment(\.dynamicTypeSize) private var typeSize
+  #if os(iOS)
+  /// The card's width for the table, in points: the table scrolls sideways only below its least.
+  @State private var cardWidth = CGFloat.infinity
+  #endif
   @Binding var selection: DayTrade.ID?
   /// The row under the pointer, tinted as one.
   @State private var hovered: TradeRow.ID?
@@ -390,6 +395,16 @@ private struct TradesTable: View {
   /// are cut.
   static let leastWidth: CGFloat = Column.leastWidths.reduce(0, +)
     + cellSpacing * CGFloat(Column.leastWidths.count - 1) + edgeInset * CardArrangement.paddedEdges
+
+  #if os(iOS)
+  /// How much larger iOS draws the table's text (callout, at the screen's Dynamic Type size) than
+  /// the Mac's 12 points it was measured in: the table's least width grows with it.
+  static func typeGrowth(_ size: DynamicTypeSize) -> CGFloat {
+    TextMeasure.pointSize(.callout, at: size) / macCalloutSize
+  }
+  /// The Mac's callout size, in points (Apple's macOS type sizes), the table's values' font there.
+  static let macCalloutSize: CGFloat = 12
+  #endif
 
   /// Height of the "no trades" message in place of the table, in points.
   static let emptyHeight: CGFloat = 280
@@ -433,8 +448,29 @@ private struct TradesTable: View {
         .frame(height: Self.emptyHeight)
         .accessibilityIdentifier(Self.emptyID)
       } else {
+        #if os(macOS)
         table
           .frame(height: tableHeight)
+        #else
+        // iOS draws the table's text a little larger than the Mac its columns were measured on:
+        // where the card is narrower than the columns need (an iPad in portrait), the table
+        // scrolls sideways at an exact size rather than cut a column. A table left to size itself
+        // inside the sideways scroll view drew nothing on an iPad (2026-11-26).
+        let least = Self.leastWidth * Self.typeGrowth(typeSize)
+        Group {
+          if cardWidth >= least {
+            table
+          } else {
+            ScrollView(.horizontal) {
+              table.frame(width: least, height: tableHeight)
+            }
+            .withoutScrollIndicators()
+          }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: tableHeight)
+        .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { cardWidth = $0 })
+        #endif
       }
     })
   }
@@ -479,7 +515,7 @@ private struct TradesTable: View {
               }
             }
             .buttonStyle(.plain)
-            .help(Text(L10n.Trades.showOnChart))
+            .tip(Text(L10n.Trades.showOnChart))
             .accessibilityLabel(Text(L10n.Trades.openPosition(position.id)))
             .accessibilityIdentifier(TradeRow.openID)
           case .closed(let trade):
@@ -625,7 +661,7 @@ private struct OpenLine: View {
     .font(Tokens.Typography.captionMono)
     .foregroundStyle(state.isProtected ? Palette.textSecondary : state.tone.text)
     .fixedSize()
-    .help(Text(verbatim: state.title))
+    .tip(Text(verbatim: state.title))
   }
 }
 
@@ -654,7 +690,7 @@ private struct TradeDetailCard: View {
           .buttonStyle(.chip(selected: true))
           // Full label in either language, never cut.
           .fixedSize()
-          .help(Text(L10n.Trades.anotherHelp))
+          .tip(Text(L10n.Trades.anotherHelp))
           .popover(isPresented: $anotherShown, arrowEdge: .bottom) {
             AnotherStrategyView(trade: trade)
           }
@@ -718,7 +754,7 @@ private struct TradeDetailCard: View {
         Text(L10n.Trades.stopConfirmedAfter).foregroundStyle(Palette.textSecondary)
           .frame(maxWidth: .infinity, alignment: .leading)
           .fixedSize(horizontal: false, vertical: true)
-          .help(Text(L10n.Trades.stopConfirmedHelp))
+          .tip(Text(L10n.Trades.stopConfirmedHelp))
         if let seconds = trade.stopConfirmedAfterSeconds {
           Text(verbatim: Format.seconds(seconds.value)).font(Tokens.Typography.calloutMono)
             // The values line up on the right, as in the design; the labels take the rest.
@@ -735,9 +771,12 @@ private struct TradeDetailCard: View {
         let value = Text(verbatim: sent.text)
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(sent.color)
+          // "Once · acknowledged" wraps under itself in a narrow card, never cut.
+          .multilineTextAlignment(.trailing)
+          .fixedSize(horizontal: false, vertical: true)
         // A tooltip only when there is something to add (the bot's cause of a missing record).
         if let help = sent.help {
-          value.help(Text(verbatim: help))
+          value.tip(Text(verbatim: help))
         } else {
           value
         }
@@ -750,7 +789,7 @@ private struct TradeDetailCard: View {
           .fixedSize(horizontal: false, vertical: true)
         if let code = trade.codeVersion {
           Text(verbatim: CodeVersion.short(code)).font(Tokens.Typography.calloutMono)
-            .help(Text(L10n.Trades.codeVersionHelp(code)))
+            .tip(Text(L10n.Trades.codeVersionHelp(code)))
         } else {
           notRecorded
         }
@@ -759,7 +798,7 @@ private struct TradeDetailCard: View {
         Text(L10n.Trades.overshoot).foregroundStyle(Palette.textSecondary)
           .frame(maxWidth: .infinity, alignment: .leading)
           .fixedSize(horizontal: false, vertical: true)
-          .help(Text(L10n.Trades.overshootHelp))
+          .tip(Text(L10n.Trades.overshootHelp))
         if let usd = trade.overshootUsd?.value {
           Text(L10n.Trades.overshootValue(Money.signedUSD(usd), trade.overshootR.map { Risk.text($0.value) }
             ?? Format.missing))
@@ -768,7 +807,7 @@ private struct TradeDetailCard: View {
             .foregroundStyle(Palette.textPrimary)
         } else {
           Text(L10n.Trades.unknown).foregroundStyle(Palette.textQuaternary)
-            .help(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
+            .tip(Text(verbatim: ApiText.prose(trade.overshootCauseCodes, text: trade.overshootCause) ?? Format.missing))
         }
       }
     }
@@ -778,7 +817,7 @@ private struct TradeDetailCard: View {
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textTertiary)
         .fixedSize(horizontal: false, vertical: true)
-        .help(Text(L10n.Trades.priceAfterExit))
+        .tip(Text(L10n.Trades.priceAfterExit))
     }
     Footnote(L10n.Trades.excursionLowerBound)
   }
@@ -988,7 +1027,7 @@ private struct NotTakenCard: View {
             .foregroundStyle(Palette.result(summary.resultUsd))
         }
         // How the total was worked out, and how many it counts, on hover.
-        .help(Text.joined(Text(L10n.Trades.whatIfHelp), Text(verbatim: Format.itemSeparator),
+        .tip(Text.joined(Text(L10n.Trades.whatIfHelp), Text(verbatim: Format.itemSeparator),
           Text(L10n.Trades.whatIfCounts(summary.wins, summary.losses, summary.notReplayed))))
       }
     }, content: {
@@ -1138,7 +1177,7 @@ private struct CauseText: View {
           }
         } else if let phrase = cause.phrase {
           Text(verbatim: phrase)
-            .help(Text(verbatim: cause.readable(time: Format.marketMinute)))
+            .tip(Text(verbatim: cause.readable(time: Format.marketMinute)))
         } else if !cause.detail.isEmpty {
           Text(verbatim: cause.readable(time: Format.marketMinute))
         }

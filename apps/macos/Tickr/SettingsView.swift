@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import SwiftUI
 import TickrDesign
@@ -342,7 +343,7 @@ private struct FeaturesCard: View {
       Circle()
         .fill(on ? Palette.accent : Palette.separatorStrong)
         .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
-        .help(Text(on ? L10n.Common.on : L10n.Common.off))
+        .tip(Text(on ? L10n.Common.on : L10n.Common.off))
         .accessibilityLabel(Text(on ? L10n.Common.on : L10n.Common.off))
       Text(title)
         .font(Tokens.Typography.callout)
@@ -468,7 +469,7 @@ private struct EnvironmentSettings: View {
         if let gate = model.status?.tradingGate {
           let shown: EntryGate = gate.open ? .open : .closed
           Badge(shown.title, symbol: shown.symbol, tone: shown.tone)
-            .help(Text(verbatim: ApiText.gate(gate)))
+            .tip(Text(verbatim: ApiText.gate(gate)))
         }
         Spacer(minLength: 0)
       }
@@ -1141,3 +1142,4 @@ struct BackupSection: View {
     DayText.day(WireDate(newYorkDateOf: date)) + dayTimeSeparator + Format.marketMinute(date)
   }
 }
+#endif

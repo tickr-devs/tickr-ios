@@ -19,7 +19,7 @@ struct CleanMark: View {
       }
     }
     .font(Tokens.Typography.caption)
-    .help(Text(verbatim: Self.text(clean)))
+    .tip(Text(verbatim: Self.text(clean)))
     .accessibilityLabel(Text(verbatim: Self.text(clean)))
   }
 
@@ -66,7 +66,7 @@ struct CleanBadge: View {
           .foregroundStyle(Palette.textQuaternary)
       }
     }
-    .help(Text(verbatim: CleanMark.text(clean)))
+    .tip(Text(verbatim: CleanMark.text(clean)))
     .accessibilityElement(children: .combine)
     .accessibilityIdentifier(Self.id)
   }

@@ -41,12 +41,21 @@ struct ChartTab: View {
           // On Liquid Glass, as the system's own bars: the chart scrolling under it never shows
           // through the symbol and its price.
           .glassEffect(.regular, in: .rect(cornerRadius: Tokens.Radius.large))
+          // In an iPad window (Stage Manager, a narrow window shows this layout) the window
+          // controls sit in the top leading corner: the bar moves past them and narrows to fit.
+          // On iPhone there are no controls and nothing moves.
+          .containerCornerOffset(.leading, sizeToFit: true)
           .padding(.horizontal, Tokens.Space.s)
       }
     }
     .task(id: app.connection.url) {
       guard let url = app.connection.url else { return }
       await chart.load(url, preferring: app.selectedSymbol ?? app.status?.positions.first?.symbol)
+    }
+    // The symbol shown is the app's selected one, so the iPad and the unfolded Duo's Mac screens
+    // open on it after a resize or a fold (`AdaptiveRoot`).
+    .onChange(of: chart.symbol) { _, symbol in
+      if let symbol, app.selectedSymbol != symbol { app.selectedSymbol = symbol }
     }
     // The app's one shown day: another tab's pick shows here.
     .task(id: app.shownDay) {

@@ -1,7 +1,7 @@
 import CoreGraphics
 import Testing
 import TickrDesign
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The main window fits the screen (owner decision 2026-11-16, option A): its least size is capped
 /// to the room the screen leaves it, and the Overview stacks its cards there with the Safety · bot

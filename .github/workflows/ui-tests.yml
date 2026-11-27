@@ -74,7 +74,7 @@ jobs:
           path: |
             apps/shared/.build
             apps/macos/.build
-          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
+          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**', 'apps/macos/Launch/**') }}
           restore-keys: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-
       - name: Draw every screen in English and Spanish, light and dark
         working-directory: apps/macos

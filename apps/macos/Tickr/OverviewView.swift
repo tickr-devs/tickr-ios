@@ -171,7 +171,7 @@ struct OverviewView: View {
   /// or the Positions card at the top of the screen, kept there while the cards above it load, so
   /// a test clicks its commands without a scroll.
   private func showSafetyFirstIfAsked(_ proxy: ScrollViewProxy) {
-    #if DEBUG
+    #if DEBUG && os(macOS)
     if LayoutSweep.positionsFirst {
       proxy.scrollTo(PositionsCard.id, anchor: .top)
     } else if LayoutSweep.safetyFirst {
@@ -684,7 +684,7 @@ private struct Pipeline: View {
         .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.medium))
     }
     .buttonStyle(.plain)
-    .pointerStyle(.link)
+    .linkPointer()
     .onHover { inside in
       if inside {
         hovered = stage.id
@@ -734,7 +734,7 @@ private struct Pipeline: View {
         Text(verbatim: Format.missing)
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .help(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
+          .tip(stage.note.map { Text(verbatim: $0) } ?? Text(L10n.Flow.notReported))
       }
       // How many the stage dropped or refused, small; the symbols left out and why on hover.
       if let drop = stage.drop {
@@ -982,7 +982,7 @@ private struct PositionTab: View {
     // narrow tab may not write.
     .accessibilityValue(Text(verbatim: [Board.stopStateTitle(row.position.stop.state),
       row.unrealized.map(Money.signedUSD)].compactMap { $0 }.joined(separator: Format.itemSeparator)))
-    .help(Text(verbatim: row.unrealized.map(Money.signedUSD) ?? row.position.symbol))
+    .tip(Text(verbatim: row.unrealized.map(Money.signedUSD) ?? row.position.symbol))
   }
 }
 
@@ -1072,7 +1072,7 @@ private struct PositionDetail: View {
       now
       line(Text(L10n.Position.maxLoss), value: Risk.plannedLoss(entry: row.entry, stop: row.stop,
         quantity: row.quantity).map(Money.usd) ?? Format.missing)
-        .help(Text(L10n.Position.maxLossHelp))
+        .tip(Text(L10n.Position.maxLossHelp))
       Spacer(minLength: Tokens.Space.s)
       BotCommandButton(action: .flatten(symbol: symbol), place: .window, size: .regular,
         title: L10n.Bot.closeSymbol(symbol), identifier: Self.closePrefix + symbol)
@@ -1107,7 +1107,7 @@ private struct PositionDetail: View {
     let label = stale ? row.lastBarAt.map { Text(L10n.Position.lastBarCloseAt(Format.marketMinute($0))) }
       ?? Text(L10n.Position.lastBarClose) : Text(L10n.Position.now)
     return line(label, value: [price, result].joined(separator: Format.itemSeparator), muted: stale)
-      .help(stale ? row.lastBarAt.map { Text(L10n.Position.staleHelp(Format.marketMinute($0))) }
+      .tip(stale ? row.lastBarAt.map { Text(L10n.Position.staleHelp(Format.marketMinute($0))) }
         ?? Text(L10n.Position.lastBarClose) : Text(L10n.Position.now))
   }
 
@@ -1448,7 +1448,7 @@ private struct RiskRoomCard: View {
         let records = model.shownReconcile
         StatLine(L10n.RiskRoom.recordsAgree, value: records.value ?? Format.missing,
           color: records.agrees.map { $0 ? Palette.profitText : Palette.warningText } ?? Palette.textQuaternary)
-          .help(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
+          .tip(records.note.map { Text(verbatim: $0) } ?? Text(L10n.RiskRoom.recordsAgree))
       }
       if let size = model.watching?.latestSize {
         EntrySizingSummary(sizing: EntrySizing(size: size, configured: nil, text: .money))

@@ -1,4 +1,4 @@
-import AppKit
+import SwiftUI
 import TickrDesign
 
 /// The width the title bar needs to show everything whole: the sidebar at its widest, the window
@@ -67,14 +67,14 @@ enum TitleBarWidth {
     return lines.map { TextMeasure.width($0, font: Fonts.line) }.max() ?? 0
   }
 
-  /// The AppKit fonts the title bar's texts are drawn in (`Tokens.Typography` on the Mac).
+  /// The platform fonts the title bar's texts are drawn in (`Tokens.Typography` on the Mac).
   enum Fonts {
     /// `calloutMono`: the window line.
-    static var line: NSFont { NSFont.monospacedSystemFont(ofSize: callout, weight: .regular) }
+    static var line: PlatformFont { PlatformFont.monospacedSystemFont(ofSize: callout, weight: .regular) }
     /// `buttonCompact`: the title of Today.
-    static var button: NSFont { NSFont.systemFont(ofSize: callout, weight: .semibold) }
+    static var button: PlatformFont { PlatformFont.systemFont(ofSize: callout, weight: .semibold) }
     /// `dayStepper`: the shown day.
-    static var day: NSFont { NSFont.monospacedSystemFont(ofSize: Tokens.Typography.dayStepperSize, weight: .regular) }
-    private static var callout: CGFloat { NSFont.preferredFont(forTextStyle: .callout).pointSize }
+    static var day: PlatformFont { PlatformFont.monospacedSystemFont(ofSize: Tokens.Typography.dayStepperSize, weight: .regular) }
+    private static var callout: CGFloat { PlatformFont.preferredFont(forTextStyle: .callout).pointSize }
   }
 }

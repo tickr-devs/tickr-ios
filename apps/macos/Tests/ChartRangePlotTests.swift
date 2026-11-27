@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Chart plot over a range beyond one day")
 struct ChartRangePlotTests {

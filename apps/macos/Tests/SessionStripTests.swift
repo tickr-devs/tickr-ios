@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The Settings session strip's pre-market label comes from the bot's calendar.
 @MainActor

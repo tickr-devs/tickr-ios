@@ -98,7 +98,7 @@ jobs:
           path: |
             apps/shared/.build
             apps/macos/.build
-          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
+          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**', 'apps/macos/Launch/**') }}
           restore-keys: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-
       - name: Shared package (contract models, design) tests
         working-directory: apps/shared
@@ -121,7 +121,7 @@ jobs:
           path: |
             apps/shared/.build
             apps/macos/.build
-          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**') }}
+          key: spm-v2-${{ runner.os }}-${{ env.XCODE_ID }}-${{ hashFiles('apps/shared/Package.swift', 'apps/macos/Package.swift', 'apps/shared/Sources/**', 'apps/macos/Tickr/**', 'apps/macos/Launch/**') }}
       # The release bundle (scripts/make-app.sh, ~2 min) is checked nightly on main and on manual
       # runs, not on every push.
       - name: Release app bundle carries its icon
@@ -130,6 +130,9 @@ jobs:
         run: |
           scripts/make-app.sh
           scripts/check-app-bundle.sh build/Tickr.app
+          # The bot's and the watchdog's alerts go through the app binary's notify mode: it must
+          # exit on its own, never open the app (both entry points, AlertCommand.swift).
+          scripts/check-notify-mode.sh build/Tickr.app/Contents/MacOS/Tickr
       # Builds the app and its UI test runner as the owner does in Xcode, without running them: the
       # UI tests (~8 min) run in ui-tests.yml on the `ui-tests` label and nightly on main.
       - name: Xcode workspace builds the macOS app and its UI tests
@@ -142,3 +145,5 @@ jobs:
             CODE_SIGN_IDENTITY=- build-for-testing 2>&1 | tee "$RUNNER_TEMP/xcode-macos.log"
           # Our own Swift warnings fail the job: the owner's Xcode stops on them (own-warnings.sh).
           apps/scripts/own-warnings.sh "$RUNNER_TEMP/xcode-macos.log"
+          apps/macos/scripts/check-notify-mode.sh \
+            apps/macos/build/xcode/Build/Products/Debug/Tickr.app/Contents/MacOS/Tickr

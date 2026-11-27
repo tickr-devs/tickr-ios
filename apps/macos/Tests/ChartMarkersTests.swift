@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import TickrDesign
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Trade marks and position levels on the chart")
 struct ChartMarkersTests {

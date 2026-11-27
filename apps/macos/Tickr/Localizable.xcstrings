@@ -171,6 +171,23 @@
         }
       }
     },
+    "bot.alreadySending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not sent: this command is already being sent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no enviado: este comando ya se está enviando"
+          }
+        }
+      }
+    },
     "bot.checksCount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -541,6 +558,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "no se sabe si se puso en cola. Revisa el estado del bot antes de enviarlo de nuevo."
+          }
+        }
+      }
+    },
+    "bot.ownerNotConfirmed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not sent: Face ID or the passcode did not confirm the owner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no enviado: Face ID o el código no confirmaron al propietario"
           }
         }
       }
@@ -12547,6 +12581,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Día de trading anterior (⌘[)"
+          }
+        }
+      }
+    },
+    "toolbar.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
           }
         }
       }

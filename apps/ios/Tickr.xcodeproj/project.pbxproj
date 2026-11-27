@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0053F15DE4FC863E9C8EE886 /* LabReplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */; };
 		1705B6E6B9DB3B544EB8482D /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C246950A083E7740FFC9B3 /* KeychainTests.swift */; };
+		1997DB604A67D62901E19A17 /* TickrScreens in Frameworks */ = {isa = PBXBuildFile; productRef = 9E9F98AAE447733501CB3D98 /* TickrScreens */; };
 		23E6F8CDFC60B4C7E7A3392A /* DemoDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB52AFE460A1850034F6D918 /* DemoDayTests.swift */; };
 		27CEFA4A2D48B4F273E8B0A2 /* TickrKit in Frameworks */ = {isa = PBXBuildFile; productRef = 86B51C088C14AA5D96ACD6BA /* TickrKit */; };
 		3F866FEB0A2FA91E6E8B686C /* TickrDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 4AA495158B683614736F354B /* TickrDesign */; };
@@ -19,6 +20,7 @@
 		A5A0D3F103F66BB6EA29091C /* SettingsLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */; };
 		BCF5F0DD9CD326D009134257 /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */; };
 		C546EC1D46CDFFB3EFDFA9AB /* ActivityDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F64E02FE4CCE52C70E1FFC /* ActivityDayTests.swift */; };
+		E514DEA6B04F48F81C1734E9 /* ScreenLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BB995A57154ACACE515962 /* ScreenLayoutTests.swift */; };
 		EF0B7AF46ABFCBFE7F693157 /* HomeLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A0BE654C494944100CB943 /* HomeLogicTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		18BB995A57154ACACE515962 /* ScreenLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenLayoutTests.swift; sourceTree = "<group>"; };
 		305EC8E6FFF84288AEEE3CA6 /* AfterLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AfterLineTests.swift; sourceTree = "<group>"; };
 		445FB381029F292DF0F650AC /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		57F64E02FE4CCE52C70E1FFC /* ActivityDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityDayTests.swift; sourceTree = "<group>"; };
@@ -52,6 +55,7 @@
 		BA7D9B1FCD415F0FA14ABDCB /* Fixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixtures.swift; sourceTree = "<group>"; };
 		CB52AFE460A1850034F6D918 /* DemoDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDayTests.swift; sourceTree = "<group>"; };
 		CCBF14049F8F57EDFC1AADE2 /* Tickr.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Tickr.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD70E693B022AE3BEA065291 /* macos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = macos; path = ../macos; sourceTree = SOURCE_ROOT; };
 		D3E4290BF0B075822E3AB8FC /* LayoutSweepUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSweepUITests.swift; sourceTree = "<group>"; };
 		D91F7F564FD5E92E54BA9BEF /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
 		F2A0BE654C494944100CB943 /* HomeLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLogicTests.swift; sourceTree = "<group>"; };
@@ -77,6 +81,7 @@
 			files = (
 				27CEFA4A2D48B4F273E8B0A2 /* TickrKit in Frameworks */,
 				3F866FEB0A2FA91E6E8B686C /* TickrDesign in Frameworks */,
+				1997DB604A67D62901E19A17 /* TickrScreens in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,6 +128,7 @@
 				A8C246950A083E7740FFC9B3 /* KeychainTests.swift */,
 				AA0AB47BADE76C9D8E1636BF /* LabReplayTests.swift */,
 				A0E977B53CF21942EADDAD4F /* OrnamentGateTests.swift */,
+				18BB995A57154ACACE515962 /* ScreenLayoutTests.swift */,
 				60F5A42EE37116CEBED625E4 /* SettingsLogicTests.swift */,
 			);
 			path = TickrTests;
@@ -140,6 +146,7 @@
 		CB4BC9FDA91A98BE8B3D7382 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				CD70E693B022AE3BEA065291 /* macos */,
 				B5E62E73C277781A649F0A49 /* shared */,
 			);
 			name = Packages;
@@ -212,6 +219,7 @@
 			packageProductDependencies = (
 				86B51C088C14AA5D96ACD6BA /* TickrKit */,
 				4AA495158B683614736F354B /* TickrDesign */,
+				9E9F98AAE447733501CB3D98 /* TickrScreens */,
 			);
 			productName = Tickr;
 			productReference = CCBF14049F8F57EDFC1AADE2 /* Tickr.app */;
@@ -249,6 +257,7 @@
 			mainGroup = 497FC29AB0BE0BAAE3F7C8B6;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				B888EEF56723FE9DA9B38D56 /* XCLocalSwiftPackageReference "../macos" */,
 				B82AAD336AC555CCD1EAC44E /* XCLocalSwiftPackageReference "../shared" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -302,6 +311,7 @@
 				1705B6E6B9DB3B544EB8482D /* KeychainTests.swift in Sources */,
 				0053F15DE4FC863E9C8EE886 /* LabReplayTests.swift in Sources */,
 				7CB084A02679E090C7142A0C /* OrnamentGateTests.swift in Sources */,
+				E514DEA6B04F48F81C1734E9 /* ScreenLayoutTests.swift in Sources */,
 				A5A0D3F103F66BB6EA29091C /* SettingsLogicTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -375,7 +385,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios";
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -498,7 +508,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(TICKR_BUNDLE_ID_PREFIX).ios";
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -621,6 +631,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../shared;
 		};
+		B888EEF56723FE9DA9B38D56 /* XCLocalSwiftPackageReference "../macos" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../macos;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -631,6 +645,10 @@
 		86B51C088C14AA5D96ACD6BA /* TickrKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TickrKit;
+		};
+		9E9F98AAE447733501CB3D98 /* TickrScreens */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TickrScreens;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

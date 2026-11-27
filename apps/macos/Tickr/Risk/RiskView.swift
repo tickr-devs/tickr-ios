@@ -203,15 +203,15 @@ private struct LossRoomCard: View {
       Image(systemName: Self.infoSymbol)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-        .help(Text(L10n.Risk.lossRoomNote))
+        .tip(Text(L10n.Risk.lossRoomNote))
         .accessibilityLabel(Text(L10n.Risk.lossRoomNote))
       if let status = model.status {
         // Why entries wait or are blocked, in the bot's words, on hover.
         StatusPill(gate.entriesTitle, tone: gate.tone, live: gate == .allowed, event: gate)
-          .help(Text(verbatim: Self.gateCause(status)))
+          .tip(Text(verbatim: Self.gateCause(status)))
       } else {
         StatusPill(L10n.Risk.entriesUnknown, tone: .warning)
-          .help(Text(verbatim: model.fetchError ?? model.response?.unavailableCauseText ?? String()))
+          .tip(Text(verbatim: model.fetchError ?? model.response?.unavailableCauseText ?? String()))
       }
     }, content: {
       VStack(spacing: Tokens.Space.m) {
@@ -604,7 +604,7 @@ private struct ReconciliationCard: View {
       .foregroundStyle(on ? Palette.warningText : switched ? Palette.textQuaternary : Palette.profitText)
     }
     // What each active fence says, and since when, on hover: it often says what to do.
-    .help(Text(verbatim: active.map(detail).joined(separator: Format.lineSeparator)))
+    .tip(Text(verbatim: active.map(detail).joined(separator: Format.lineSeparator)))
     .accessibilityElement(children: .combine)
   }
 
@@ -733,7 +733,7 @@ private struct PositionSlots: View {
       .foregroundStyle(colors.text)
     }
     // The state in words too, not only in colour: read by VoiceOver and shown on hover.
-    .help(Text(verbatim: state.title))
+    .tip(Text(verbatim: state.title))
     .accessibilityElement(children: .combine)
     .accessibilityValue(Text(verbatim: state.title))
   }
@@ -892,7 +892,7 @@ private struct AccountCard: View {
           .joined(separator: Format.itemSeparator))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .help(Text(L10n.Risk.accountKindHelp))
+          .tip(Text(L10n.Risk.accountKindHelp))
       }
     }, content: {
       if let response = model.account {

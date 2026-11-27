@@ -1,3 +1,4 @@
+#if os(macOS)
 import SwiftUI
 import TickrDesign
 import TickrKit
@@ -456,4 +457,5 @@ private struct MenuFooter: View {
   MenuBarPanel()
     .environment(PreviewAPI.model())
 }
+#endif
 #endif

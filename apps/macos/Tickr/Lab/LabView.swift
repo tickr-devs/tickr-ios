@@ -212,7 +212,7 @@ private struct RefusalsCard: View {
         .foregroundStyle(Palette.textPrimary)
         .frame(width: Self.countWidth, alignment: .trailing)
     }
-    .help(help(count.cause))
+    .tip(help(count.cause))
     .accessibilityElement(children: .combine)
   }
 
@@ -312,7 +312,7 @@ private struct ReplayCard: View {
         .foregroundStyle(Palette.textQuaternary)
         .multilineTextAlignment(.trailing)
         .frame(maxWidth: Self.noteWidth, alignment: .trailing)
-        .help(Text(L10n.Lab.replayNote))
+        .tip(Text(L10n.Lab.replayNote))
     }, content: {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         choices
@@ -395,7 +395,7 @@ private struct ReplayCard: View {
         } label: {
           chip(first.flatMap(item).map(name) ?? Format.missing, tone: .accent)
         }
-        .menuStyle(.button)
+        .buttonMenuStyle()
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
@@ -420,7 +420,7 @@ private struct ReplayCard: View {
             chip(String(localized: L10n.Lab.replayCompareNone), tone: nil)
           }
         }
-        .menuStyle(.button)
+        .buttonMenuStyle()
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
@@ -444,7 +444,7 @@ private struct ReplayCard: View {
         } label: {
           chip(DayText.day(chosenDay ?? days[0]), tone: .accent)
         }
-        .menuStyle(.button)
+        .buttonMenuStyle()
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
@@ -790,7 +790,7 @@ private struct ExplainCard: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
     }
-    .help(check.note.isEmpty ? Text(verbatim: ApiText.rule(check.rule)) : Text(verbatim: check.note))
+    .tip(check.note.isEmpty ? Text(verbatim: ApiText.rule(check.rule)) : Text(verbatim: check.note))
     .accessibilityElement(children: .combine)
     .accessibilityValue(Text(check.passed ? L10n.Chart.checkPassed : L10n.Chart.checkFailed))
   }
@@ -828,7 +828,7 @@ private struct ExplainCard: View {
   private func load() {
     guard !wanted.isEmpty else { return }
     symbol = wanted
-    explain.load(symbol: wanted, day: model.shownDay, baseURL: model.baseURL)
+    explain.load(symbol: wanted, day: model.shownDay, endpoint: model.endpoint)
   }
 }
 

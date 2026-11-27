@@ -9,7 +9,7 @@ extension Container {
   /// the demo day the app carries when its switch was left on.
   @MainActor
   var appModel: Factory<AppModel> {
-    self { AppModel(baseURL: TickrMacApp.baseURL(), demoDay: UserDefaults.standard.bool(forKey: Defaults.demoDay)) }
+    self { AppModel(baseURL: Defaults.baseURL(), demoDay: UserDefaults.standard.bool(forKey: Defaults.demoDay)) }
       .singleton
   }
 

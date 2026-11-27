@@ -286,6 +286,16 @@ enum L10n {
         defaultValue: "Open positions: \(count). The bot's status is stale: it may have stopped. Each position stays under its broker stop, a DAY order: nothing closes it at the session's end. Check the bot on this Mac or close the positions in Webull.",
         bundle: L10n.bundle)
     }
+    static var ownerNotConfirmed: LocalizedStringResource {
+      LocalizedStringResource("bot.ownerNotConfirmed",
+        defaultValue: "not sent: Face ID or the passcode did not confirm the owner",
+        bundle: L10n.bundle)
+    }
+    static var alreadySending: LocalizedStringResource {
+      LocalizedStringResource("bot.alreadySending",
+        defaultValue: "not sent: this command is already being sent",
+        bundle: L10n.bundle)
+    }
     static var notSentUntrusted: LocalizedStringResource {
       LocalizedStringResource("bot.notSentUntrusted",
         defaultValue: "not sent: the app cannot trust the bot's status right now",
@@ -356,6 +366,10 @@ enum L10n {
   }
 
   enum Toolbar {
+    /// The iPad navigation bar's gear: the iPad's settings (connection, pairing, notifications).
+    static var settings: LocalizedStringResource {
+      LocalizedStringResource("toolbar.settings", defaultValue: "Settings", bundle: L10n.bundle)
+    }
     /// The title bar's line before the first status.
     static var windowLineEmpty: LocalizedStringResource {
       LocalizedStringResource("toolbar.windowLineEmpty", defaultValue: "tickr", bundle: L10n.bundle)

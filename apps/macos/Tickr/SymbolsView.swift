@@ -44,7 +44,9 @@ struct SymbolsView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .accessibilityIdentifier(Self.id)
     // Esc goes back to the Overview, as the back capsule does.
+    #if os(macOS)
     .onExitCommand { close() }
+    #endif
   }
 
   private func close() {
@@ -209,11 +211,13 @@ struct SymbolsView: View {
         .scrollBounceBehavior(.basedOnSize)
         .focusable()
         .focusEffectDisabled()
+        #if os(macOS)
         .onMoveCommand { direction in
           guard let moved = SymbolsGrid.step(shown, from: current, direction) else { return }
           selected = moved
           withAnimation(Tokens.Motion.quick) { proxy.scrollTo(moved) }
         }
+        #endif
       }
       Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
@@ -433,6 +437,7 @@ private struct SymbolsGrid: View {
     }
   }
 
+  #if os(macOS)
   /// The symbol after or before `current` for an arrow key; nil at an end.
   static func step(_ lines: [SymbolsLine], from current: String?, _ direction: MoveCommandDirection) -> String? {
     guard let index = lines.firstIndex(where: { $0.symbol == current }) else { return lines.first?.symbol }
@@ -442,6 +447,7 @@ private struct SymbolsGrid: View {
     default: return nil
     }
   }
+  #endif
 
   var body: some View {
     HStack(spacing: 0) {
@@ -587,8 +593,8 @@ private struct FastRuleButton: View {
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .pointerStyle(.link)
-    .help(Text(SymbolsText.fastRuleLabel))
+    .linkPointer()
+    .tip(Text(SymbolsText.fastRuleLabel))
     .accessibilityLabel(Text(SymbolsText.fastRuleLabel))
     .popover(isPresented: $open, arrowEdge: .bottom) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
