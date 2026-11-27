@@ -1,0 +1,7 @@
+{
+  "access_token": "example-access-not-a-secret_0123456789-abcdef",
+  "access_expires_in": 900,
+  "refresh_token": "0123456789abcdef0123456789abcdef.example-refresh-not-a-secret_0123",
+  "refresh_expires_in": 2592000,
+  "api_version": 1
+}

@@ -8,7 +8,7 @@
     {
       "channel": "push",
       "configured": false,
-      "cause": "not-built"
+      "cause": "no-preflight"
     }
   ],
   "kinds": [
@@ -293,6 +293,15 @@
     },
     {
       "kind": "risk-command-used",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "device-session",
       "group": "critical",
       "locked": true,
       "channels": {
