@@ -10,8 +10,6 @@ extension APIClient {
   static let pushTokenPath = "/push-token"
   /// Query item name of the kind a DELETE removes.
   static let kindQuery = "kind"
-  /// HTTP method that removes a registration.
-  static let delete = "DELETE"
 
   /// Store this device's token of one kind at the bot, replacing only that kind's earlier one.
   /// The bot refuses a token that is not hex, an unknown environment, bundle id or kind with 400
