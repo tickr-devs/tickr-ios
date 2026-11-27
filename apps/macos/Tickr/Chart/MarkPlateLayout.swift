@@ -36,8 +36,9 @@ enum MarkPlateLayout {
 
   /// Farthest a plate's nearest edge is from its mark's centre, in the plate's own heights:
   /// farther, it no longer reads as the mark's (r4: "BUY" 230 px above its arrow; r5: three
-  /// heights still read as far).
-  static let reach: CGFloat = 2
+  /// heights still read as far). KXTR, iPad retest 2026-11-27: every clear place for a cluster
+  /// on a tall candle lay at 2.12 to 2.38 heights, so 2 left all three plates over the candle.
+  static let reach: CGFloat = 2.5
 
   /// Sideways steps in one plate width: a place slides a quarter plate at a time, up to a whole
   /// plate either way (r6: a free place half a plate further right was missed).
@@ -57,7 +58,7 @@ enum MarkPlateLayout {
     let glyphs = obstacles.glyphs.filter { $0.intersects(frame) }
     let options: [Options] = items.filter { frame.contains($0.anchor) }.map { item in
       let around = candles + glyphs.filter { !$0.contains(item.anchor) }
-      let places = candidates(item, offset: offset, in: inside).map { (rect: $0, cover: covered($0, by: around, gap: gap)) }
+      let places = candidates(item, offset: offset, gap: gap, beside: around, in: inside).map { (rect: $0, cover: covered($0, by: around, gap: gap)) }
       return Options(id: item.id, places: places)
     }
     let ranked = greedy(options, gap: gap)
@@ -102,10 +103,14 @@ enum MarkPlateLayout {
 
   /// The places near a mark, nearest first (by the room between the mark's centre and the plate):
   /// rows on its own side, the other side and at its price, each slid a quarter plate at a time
-  /// up to a whole plate either way, and rows a half plate further above and below. A place over
+  /// up to a whole plate either way, and rows a half plate further above and below. Each row also
+  /// has places flush beside each candle or mark near it, a `gap` off its edge: the quarter-plate
+  /// steps of a wide plate overshoot the nearest clear place (KXTR). A place over
   /// the mark's own glyph, out of `frame`, or farther than `reach` plates is dropped. Among
   /// equally near places the own side comes first, then the other, then the mark's price.
-  private static func candidates(_ item: Item, offset: CGFloat, in frame: CGRect) -> [CGRect] {
+  private static func candidates(
+    _ item: Item, offset: CGFloat, gap: CGFloat, beside obstacles: [CGRect], in frame: CGRect
+  ) -> [CGRect] {
     let size = item.size
     let step = size.height / 2
     let steps = Int((reach * size.height / step).rounded())
@@ -124,6 +129,10 @@ enum MarkPlateLayout {
       shifts += [shift, -shift]
     }
     let centred = item.anchor.x - size.width / 2
+    let span = size.width + reach * size.height
+    for obstacle in obstacles where obstacle.maxX >= item.anchor.x - span && obstacle.minX <= item.anchor.x + span {
+      shifts += [obstacle.maxX + gap - centred, obstacle.minX - gap - size.width - centred]
+    }
     let glyph = CGRect(x: item.anchor.x - offset, y: item.anchor.y - offset, width: offset + offset, height: offset + offset)
     let places = tops.flatMap { top in
       shifts.map { CGRect(x: centred + $0, y: top, width: size.width, height: size.height) }

@@ -41,8 +41,9 @@ struct MarkPlateLayoutTests {
 
   @Test("A plate with no free side is left out; plates far apart all stay")
   func leftOut() {
-    // A plot just two plates high: the third plate on the same spot finds no free place.
-    let low = CGRect(x: 0, y: 0, width: 400, height: 48)
+    // A plot just two plates high and too narrow for a plate beside the marks within reach: the
+    // third plate on the same spot finds no free place.
+    let low = CGRect(x: 0, y: 0, width: 200, height: 48)
     let crowded = MarkPlateLayout.place([
       .init(id: 0, anchor: CGPoint(x: 100, y: 24), size: size, side: .above),
       .init(id: 1, anchor: CGPoint(x: 100, y: 24), size: size, side: .below),
@@ -160,6 +161,40 @@ struct MarkPlateLayoutTests {
     #expect(Set(centres.keys) == [0, 1])
     for centre in centres.values {
       #expect(candles.allSatisfy { clear(centre, of: $0) })
+    }
+  }
+
+  @Test("A cluster on a tall candle stacks its plates clear of it, as measured on the iPad")
+  func tallCandleCluster() throws {
+    // KXTR on the iPad in landscape, 2026-11-27, measured from the screenshot in points: a fill,
+    // an entry decision and a watch at one price on a short candle, two candles before a tall one.
+    // Every clear place lay 2.12 to 2.38 plate heights away, and the fill's quarter-plate steps
+    // overshot the nearest clear place beside the tall candle.
+    let line: CGFloat = 13.5
+    let plot = CGRect(x: 261, y: 406.75, width: 609, height: 232.25)
+    let candles = [
+      CGRect(x: 278, y: 425.5, width: 4.5, height: 56), CGRect(x: 293.5, y: 421, width: 4.5, height: 8),
+      CGRect(x: 301.5, y: 421, width: 4.5, height: 8), CGRect(x: 309, y: 421.25, width: 4.5, height: 198.75),
+      CGRect(x: 317, y: 613, width: 4.5, height: 8),
+    ]
+    let marks = [CGPoint(x: 276.4, y: 479.4), CGPoint(x: 274.5, y: 479.5), CGPoint(x: 272.75, y: 479.5)]
+    let glyphs = marks.map { CGRect(x: $0.x - line / 2, y: $0.y - line / 2, width: line, height: line) }
+    let sizes = [CGSize(width: 101, height: 17.5), CGSize(width: 40.5, height: 17.5), CGSize(width: 40.5, height: 17.5)]
+    let items = (0..<marks.count).map { index in
+      MarkPlateLayout.Item(id: index, anchor: marks[index], size: sizes[index], side: index == 0 ? .below : .above)
+    }
+    let centres = MarkPlateLayout.place(
+      items, avoiding: .init(candles: candles, glyphs: glyphs), in: plot, offset: line / 2 + gap, gap: gap)
+    #expect(Set(centres.keys) == [0, 1, 2])
+    for item in items {
+      let centre = try #require(centres[item.id])
+      let rect = CGRect(
+        x: centre.x - item.size.width / 2, y: centre.y - item.size.height / 2,
+        width: item.size.width, height: item.size.height)
+      #expect(candles.allSatisfy { candle in
+        let shared = candle.insetBy(dx: -gap, dy: -gap).intersection(rect)
+        return shared.isNull || shared.width * shared.height == 0
+      })
     }
   }
 }
