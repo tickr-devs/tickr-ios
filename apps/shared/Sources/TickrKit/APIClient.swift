@@ -115,6 +115,8 @@ public struct APIClient: Sendable {
   static let noContent = 204
   /// HTTP status of a request whose bearer token the bot did not take.
   static let unauthorized = 401
+  /// The seconds to wait the bot may name on a refusal (a limit, a restart).
+  static let retryAfterHeader = "Retry-After"
   static let decisionsPath = "/decisions"
   static let skippedPath = "/skipped"
   static let performancePath = "/performance"

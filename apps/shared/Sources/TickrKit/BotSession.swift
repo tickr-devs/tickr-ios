@@ -79,6 +79,10 @@ public enum BotSessionError: Error, Equatable, Sendable {
   case signInAgain
   /// The renewal could not leave this device (no network): the tokens are kept, try later.
   case offline(String)
+  /// The bot answered the renewal with a status that retires no token (a limit, a restart, a
+  /// failure: anything but 200 and 401): the tokens are kept, try again after `retryAfter`
+  /// seconds when the bot named them (`Retry-After`).
+  case unavailable(status: Int, retryAfter: Int?)
 }
 
 /// This device's sign-in with the bot: its tokens in the Keychain, the access token handed to
@@ -94,6 +98,8 @@ public actor BotSession {
   private var tokens: BotTokens?
   private var loaded = false
   private var renewing: Task<BotTokens, any Error>?
+  /// No renewal is sent before `until`: the bot's `Retry-After` on the last one, with its status.
+  private var renewWait: (until: Date, status: Int)?
   /// Told once each time a kept sign-in ends on its own (`SignInEnd`), so the app shows the sign-in.
   private let ended: @Sendable (SignInEnd) -> Void
 
@@ -118,6 +124,10 @@ public actor BotSession {
     guard now() < held.refreshExpiresAt else {
       end(.expired)
       throw BotSessionError.signInAgain
+    }
+    if let renewWait, now() < renewWait.until {
+      throw BotSessionError.unavailable(status: renewWait.status,
+        retryAfter: Int(renewWait.until.timeIntervalSince(now()).rounded(.up)))
     }
     return try await renewOnce(held).accessToken
   }
@@ -189,11 +199,30 @@ public actor BotSession {
       end(.expired)
       throw BotSessionError.signInAgain
     }
-    guard (response as? HTTPURLResponse)?.statusCode == APIClient.ok,
-      let answer = try? Wire.decoder().decode(SessionV1.self, from: data) else {
-      end(.revoked)
+    guard let http = response as? HTTPURLResponse else {
+      end(.expired)
       throw BotSessionError.signInAgain
     }
+    switch http.statusCode {
+    case APIClient.ok:
+      break
+    case APIClient.unauthorized:
+      // The only answer that retires a refresh token without a new pair: revoked, reused or run out.
+      end(.revoked)
+      throw BotSessionError.signInAgain
+    default:
+      // A limit (429), a restart behind the proxy (502, 503, 504) or any other failure: the bot
+      // retired nothing, so the tokens stay and the renewal waits as long as the bot asked.
+      let retryAfter = http.value(forHTTPHeaderField: APIClient.retryAfterHeader).flatMap { Int($0) }
+      renewWait = retryAfter.map { (now().addingTimeInterval(TimeInterval($0)), http.statusCode) }
+      throw BotSessionError.unavailable(status: http.statusCode, retryAfter: retryAfter)
+    }
+    guard let answer = try? Wire.decoder().decode(SessionV1.self, from: data) else {
+      // The bot answered 200, so it retired the refresh token, but the new pair is unreadable.
+      end(.expired)
+      throw BotSessionError.signInAgain
+    }
+    renewWait = nil
     let renewed = BotTokens(answer, receivedAt: now())
     store(renewed)
     return renewed

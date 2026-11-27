@@ -31,8 +31,6 @@ public actor AccountSignIn {
   /// Header and body keys of the API.
   static let sessionHeader = "X-Session-Token"
   static let languageHeader = "Accept-Language"
-  /// The seconds to wait a refusal may name (tickr.bot's rate limit).
-  static let retryAfterHeader = "Retry-After"
   static let contentTypeHeader = "Content-Type"
   static let acceptHeader = "accept"
   static let json = "application/json"
@@ -195,7 +193,7 @@ public actor AccountSignIn {
     do {
       let (data, response) = try await transport.response(to: request)
       guard let http = response as? HTTPURLResponse else { throw AccountError.unreadable }
-      return (data, http.statusCode, http.value(forHTTPHeaderField: Self.retryAfterHeader).flatMap { Int($0) })
+      return (data, http.statusCode, http.value(forHTTPHeaderField: APIClient.retryAfterHeader).flatMap { Int($0) })
     } catch let error as AccountError {
       throw error
     } catch {

@@ -159,6 +159,44 @@ final class Ends: Sendable {
     #expect(await !bot.isSignedIn)
   }
 
+  @Test func onlyA401EndsTheSignIn() async throws {
+    let busy = #"{"error":"unavailable","cause":"the bot is restarting","api_version":1}"#
+    let refusal = #"{"error":"unauthorized","cause":"used already","api_version":1}"#
+    let transport = ScriptedTransport([.http(Self.unavailable, busy), .http(APIClient.unauthorized, refusal)])
+    let bot = session(transport)
+    await bot.signedIn(try signedInAnswer("a1", "r1"))
+    clock.advance(900)
+    await #expect(throws: BotSessionError.unavailable(status: Self.unavailable, retryAfter: nil)) {
+      try await bot.accessToken()
+    }
+    #expect(await bot.isSignedIn && items.text != nil)
+    await #expect(throws: BotSessionError.signInAgain) { try await bot.accessToken() }
+    #expect(await !bot.isSignedIn && items.text == nil)
+    #expect(transport.body(1)?["refresh_token"] as? String == "r1")
+  }
+
+  @Test func aLimitedRenewalWaitsAsLongAsTheBotSaid() async throws {
+    let limited = #"{"error":"auth_rate_limited","cause":"retry after 30 s","api_version":1}"#
+    let transport = ScriptedTransport([
+      .headed(Self.tooMany, limited, ["Retry-After": String(Self.wait)]), .http(APIClient.ok, sessionJSON("a2", "r2")),
+    ])
+    let bot = session(transport)
+    await bot.signedIn(try signedInAnswer("a1", "r1"))
+    clock.advance(900)
+    await #expect(throws: BotSessionError.unavailable(status: Self.tooMany, retryAfter: Self.wait)) {
+      try await bot.accessToken()
+    }
+    await #expect(throws: BotSessionError.self) { try await bot.accessToken() }
+    #expect(transport.sent.count == 1)
+    clock.advance(TimeInterval(Self.wait))
+    #expect(try await bot.accessToken() == "a2")
+  }
+
+  /// The statuses and wait of the renewal tests: the proxy while the bot restarts, the bot's limit.
+  static let unavailable = 503
+  static let tooMany = 429
+  static let wait = 30
+
   @Test func aLostAnswerIsNeverResent() async throws {
     let transport = ScriptedTransport([.failure(.networkConnectionLost)])
     let bot = session(transport)
