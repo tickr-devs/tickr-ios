@@ -17,8 +17,9 @@ func fixture(_ name: String) throws -> Data {
 
 /// Schemas the apps never read, so they keep no Swift model of them: the shadow strategies' day and the AI
 /// advisor's runs (endpoints the apps no longer call, re-scoped to the trained model, docs/backlog.md), and the
-/// bot's run facts file, which only the API reads (GET /status serves its facts inside `status`).
-let unmirroredSchemas: Set<String> = ["observers-v1", "advisor-runs-v1", "run-facts-v1"]
+/// bot's run facts file, which only the API reads (GET /status serves its facts inside `status`). session-v1
+/// (sign-in) is modelled by the sign-in pull request (tickr-ios#3), which takes it off this list.
+let unmirroredSchemas: Set<String> = ["observers-v1", "advisor-runs-v1", "run-facts-v1", "session-v1"]
 
 /// Decode with the Swift model, encode again, and compare as JSON values.
 /// Equality proves every key and value of the fixture is modelled, including nulls.
@@ -70,6 +71,7 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
   "trade-whatif-v1": { try roundTrip(TradeWhatIfV1.self, $0) },
   "quotes-v1": { try roundTrip(QuotesV1.self, $0) },
   "quotes-response-v1": { try roundTrip(QuotesResponseV1.self, $0) },
+  "push-token-v1": { try roundTrip(PushTokenV1.self, $0) },
 ]
 
 @Suite struct ContractTests {
@@ -100,7 +102,7 @@ let fixtureRoundTrips: [String: @Sendable (Data) throws -> (Any, Any)] = [
       "chart-v1", "jobs-v1", "journal-v1", "lab-replay-v1", "bot-start-v1", "config-v1", "trade-whatif-v1",
       "quotes-v1", "quotes-response-v1", "day-events-v1", "system-v1",
       "settings-schema-v1", "settings-values-v1", "settings-draft-v1", "settings-history-v1",
-      "settings-applied-v1", "alerts-v1", "readiness-v1"])
+      "settings-applied-v1", "alerts-v1", "readiness-v1", "push-token-v1"])
   }
 
   @Test func flowStagesChipsAndCauses() throws {

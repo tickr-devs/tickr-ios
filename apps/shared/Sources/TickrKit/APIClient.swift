@@ -123,6 +123,7 @@ public struct APIClient: Sendable {
   /// HTTP methods, header names and the media type the API speaks.
   static let get = "GET"
   static let post = "POST"
+  static let put = "PUT"
   static let acceptHeader = "accept"
   static let contentTypeHeader = "content-type"
   /// HTTP header that makes a repeated command send answer the first send instead of queueing again.
@@ -310,7 +311,8 @@ public struct APIClient: Sendable {
     return try await perform(request(path: Self.startBotPath, body: body), expect: Self.accepted)
   }
 
-  func request(path: String, query: [(String, String)] = [], body: Data?) -> URLRequest {
+  /// A request: GET without a body, else `method` (POST unless given) with the JSON body.
+  func request(path: String, query: [(String, String)] = [], method: String? = nil, body: Data?) -> URLRequest {
     var url = baseURL.appendingPathComponent(String(path.dropFirst()))
     if !query.isEmpty, var parts = URLComponents(url: url, resolvingAgainstBaseURL: false) {
       parts.queryItems = query.map { URLQueryItem(name: $0.0, value: $0.1) }
@@ -323,7 +325,7 @@ public struct APIClient: Sendable {
       request.setValue("\(Self.bearerScheme) \(token)", forHTTPHeaderField: Self.authorizationHeader)
     }
     if let body {
-      request.httpMethod = Self.post
+      request.httpMethod = method ?? Self.post
       request.setValue(Self.json, forHTTPHeaderField: Self.contentTypeHeader)
       request.httpBody = body
     } else {

@@ -542,14 +542,24 @@ private struct TradesTable: View {
       .width(min: Column.moneyMin, ideal: Column.money)
     }
     .withoutScrollIndicators()
-    .contextMenu(forSelectionType: TradeRow.ID.self) { ids in
-      if let row = row(ids) {
-        Button { showOnChart(row.symbol) } label: {
-          Label { Text(L10n.Trades.showOnChart) } icon: { Image(systemName: "chart.xyaxis.line") }
-        }
-      }
-    } primaryAction: { ids in
+    #if os(macOS)
+    // A double-click opens the trade's chart; a click selects it.
+    .contextMenu(forSelectionType: TradeRow.ID.self, menu: rowMenu) { ids in
       if let row = row(ids) { showOnChart(row.symbol) }
+    }
+    #else
+    // On iPad a tap is the primary action, so it would leave for the chart before the trade's
+    // details could be read: a tap selects, and the chart is in the long-press menu.
+    .contextMenu(forSelectionType: TradeRow.ID.self, menu: rowMenu)
+    #endif
+  }
+
+  /// The rows' context menu: Show on Chart for the trade the menu is on.
+  @ViewBuilder private func rowMenu(_ ids: Set<TradeRow.ID>) -> some View {
+    if let row = row(ids) {
+      Button { showOnChart(row.symbol) } label: {
+        Label { Text(L10n.Trades.showOnChart) } icon: { Image(systemName: "chart.xyaxis.line") }
+      }
     }
   }
 

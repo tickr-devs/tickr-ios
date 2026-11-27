@@ -122,7 +122,6 @@ public enum PreflightCheckName: String, Sendable {
   case config, disk, calendar, credentials, token, strategy, database
   case codeVersion = "code-version"
   case alertChannel = "alert-channel"
-  case alertRecipient = "alert-recipient"
   case tokenDir = "token-dir"
   case stopMarker = "stop-marker"
 }

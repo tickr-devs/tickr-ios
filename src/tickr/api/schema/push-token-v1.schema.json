@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:push-token-v1",
+  "title": "PushTokenV1",
+  "type": "object",
+  "properties": {
+    "registered": {
+      "type": "boolean"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "alert",
+        "activity_start",
+        "activity_update"
+      ]
+    },
+    "environment": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "bundle_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "platform": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "ios",
+            "macos"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "registered_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "registered",
+    "kind",
+    "environment",
+    "bundle_id",
+    "platform",
+    "registered_at",
+    "api_version"
+  ],
+  "additionalProperties": false
+}
