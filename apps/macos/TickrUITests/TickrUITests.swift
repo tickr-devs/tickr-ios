@@ -20,8 +20,8 @@ final class TickrUITests: XCTestCase {
   /// show the fixtures at once. Without it the app reads the bot's own address and shows the
   /// sign-in first.
   static let developmentAddress = ["-apiBaseURL", "http://127.0.0.1:8766"]
-  /// The sign-in screen's title (signIn.title) as its English text reads.
-  static let signInTitle = "Sign in to tickr.bot"
+  /// The sign-in screen's title (SignInHeading.titleID).
+  static let signInTitle = "sign-in-title"
   /// Sidebar sections (AppSection raw values) and the accessibility id prefixes of their rows
   /// and screens (AppSection.rowIDPrefix, AppSection.screenIDPrefix).
   static let sections = ["overview", "chart", "trades", "risk", "lab"]
@@ -173,7 +173,7 @@ final class TickrUITests: XCTestCase {
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
     app.launch()
     XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: Self.timeout), "no window after launch")
-    let title = app.staticTexts[Self.signInTitle].firstMatch
+    let title = app.descendants(matching: .any)[Self.signInTitle].firstMatch
     XCTAssertTrue(title.waitForExistence(timeout: Self.timeout), "sign-in title\n\(app.debugDescription)")
     waitUntilStill(app.windows.firstMatch, "sign-in window", in: app)
     XCTAssertEqual(app.state, .runningForeground, "the app quit on the sign-in")

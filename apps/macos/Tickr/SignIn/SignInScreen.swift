@@ -157,6 +157,8 @@ public struct SignInScreen: View {
 
 /// The title and line over a step.
 struct SignInHeading: View {
+  /// Accessibility id of the title (the UI tests find the sign-in by it).
+  static let titleID = "sign-in-title"
   let title: Text
   let line: Text
 
@@ -166,6 +168,7 @@ struct SignInHeading: View {
         .font(Tokens.Typography.title)
         .foregroundStyle(Palette.textPrimary)
         .accessibilityAddTraits(.isHeader)
+        .accessibilityIdentifier(Self.titleID)
       line
         .font(Tokens.Typography.callout)
         .foregroundStyle(Palette.textSecondary)
