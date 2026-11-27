@@ -5,7 +5,7 @@ import Foundation
 
 /// An owner-facing alert channel the routing switches.
 public enum AlertChannel: String, Codable, Sendable, CaseIterable {
-  case mac, imessage, telegram, push
+  case telegram, push
 }
 
 /// How the apps group alert kinds.
@@ -47,8 +47,6 @@ public struct AlertChannelV1: Codable, Hashable, Sendable {
 
 /// Whether one kind goes to each channel (a locked kind: true everywhere).
 public struct AlertRoutesV1: Codable, Hashable, Sendable {
-  public let mac: Bool
-  public let imessage: Bool
   public let telegram: Bool
   public let push: Bool
 }

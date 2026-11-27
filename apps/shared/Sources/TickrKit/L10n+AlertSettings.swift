@@ -16,14 +16,6 @@ public enum AlertText {
   public static var alerts: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.alerts", defaultValue: "Alerts", bundle: bundle)
   }
-  /// The Mac notification channel.
-  public static var macChannel: LocalizedStringResource {
-    LocalizedStringResource("kit.alerts.channel.mac", defaultValue: "Mac notification", bundle: bundle)
-  }
-  /// The iMessage channel.
-  public static var imessageChannel: LocalizedStringResource {
-    LocalizedStringResource("kit.alerts.channel.imessage", defaultValue: "iMessage", bundle: bundle)
-  }
   /// The Telegram channel.
   public static var telegramChannel: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.channel.telegram", defaultValue: "Telegram", bundle: bundle)
@@ -32,14 +24,6 @@ public enum AlertText {
   public static var pushChannel: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.channel.push", defaultValue: "iPhone push", bundle: bundle)
   }
-  /// Column of the Mac notification (short).
-  public static var macColumn: LocalizedStringResource {
-    LocalizedStringResource("kit.alerts.column.mac", defaultValue: "Mac", bundle: bundle)
-  }
-  /// Column of iMessage (short).
-  public static var imessageColumn: LocalizedStringResource {
-    LocalizedStringResource("kit.alerts.column.imessage", defaultValue: "iMessage", bundle: bundle)
-  }
   /// Column of Telegram (short).
   public static var telegramColumn: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.column.telegram", defaultValue: "Telegram", bundle: bundle)
@@ -47,15 +31,6 @@ public enum AlertText {
   /// Column of iPhone push (short).
   public static var pushColumn: LocalizedStringResource {
     LocalizedStringResource("kit.alerts.column.push", defaultValue: "Push", bundle: bundle)
-  }
-  /// Where the Mac notification shows.
-  public static var macNote: LocalizedStringResource {
-    LocalizedStringResource("kit.alerts.note.mac", defaultValue: "On the Mac that runs the bot", bundle: bundle)
-  }
-  /// Who the iMessage goes to.
-  public static var imessageNote: LocalizedStringResource {
-    LocalizedStringResource("kit.alerts.note.imessage",
-      defaultValue: "To the recipient in the bot's settings", bundle: bundle)
   }
   /// Who the Telegram message goes to.
   public static var telegramNote: LocalizedStringResource {

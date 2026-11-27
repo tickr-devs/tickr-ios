@@ -11,8 +11,6 @@ extension AlertChannel {
   /// The channel's full name, its column's short name and its symbol.
   public var title: LocalizedStringResource {
     switch self {
-    case .mac: AlertText.macChannel
-    case .imessage: AlertText.imessageChannel
     case .telegram: AlertText.telegramChannel
     case .push: AlertText.pushChannel
     }
@@ -20,8 +18,6 @@ extension AlertChannel {
 
   var column: LocalizedStringResource {
     switch self {
-    case .mac: AlertText.macColumn
-    case .imessage: AlertText.imessageColumn
     case .telegram: AlertText.telegramColumn
     case .push: AlertText.pushColumn
     }
@@ -29,8 +25,6 @@ extension AlertChannel {
 
   var note: LocalizedStringResource {
     switch self {
-    case .mac: AlertText.macNote
-    case .imessage: AlertText.imessageNote
     case .telegram: AlertText.telegramNote
     case .push: AlertText.pushNote
     }
@@ -38,8 +32,6 @@ extension AlertChannel {
 
   var symbol: String {
     switch self {
-    case .mac: AlertRoutingPanel.macSymbol
-    case .imessage: AlertRoutingPanel.imessageSymbol
     case .telegram: AlertRoutingPanel.telegramSymbol
     case .push: AlertRoutingPanel.pushSymbol
     }
@@ -83,8 +75,6 @@ extension AlertChannelV1 {
 
 public struct AlertRoutingPanel: View {
   /// Symbols of the channels, the always-on rows and the note under the grid.
-  static let macSymbol = "desktopcomputer"
-  static let imessageSymbol = "message.fill"
   static let telegramSymbol = "paperplane.fill"
   static let pushSymbol = "iphone"
   static let lockSymbol = Symbols.gateClosed
