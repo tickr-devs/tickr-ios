@@ -60,7 +60,7 @@ struct CodeFacts: View {
 
   var body: some View {
     HStack(spacing: Tokens.Space.s) {
-      TimelineView(.periodic(from: .now, by: SignInLimits.tickSeconds)) { context in
+      TimelineView(.periodic(from: .now, by: SignInLimits.tick / .seconds(1))) { context in
         let left = model.codeSecondsLeft(at: context.date)
         if left > .zero {
           StatusPill(L10n.SignIn.expiresIn(Duration.seconds(left).formatted(.time(pattern: .minuteSecond))),
