@@ -25,11 +25,16 @@ public protocol PasskeySheet {
 @MainActor
 public final class SystemPasskeySheet: NSObject, PasskeySheet {
   private var waiting: CheckedContinuation<ASAuthorization, any Error>?
+  /// The window the sheet shows over, found as a request starts.
+  private var anchor: ASPresentationAnchor?
 
   override public init() {}
 
   public func assertion(for challenge: PasskeyChallenge) async throws(PasskeyFailure) -> PasskeyAssertion {
     guard waiting == nil else { throw .closed }
+    // No window to show the sheet over: no passkey can be used here.
+    guard let window = Self.keyWindow() else { throw .noPasskey }
+    anchor = window
     let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: challenge.relyingParty)
     let request = provider.createCredentialAssertionRequest(challenge: challenge.challenge)
     let controller = ASAuthorizationController(authorizationRequests: [request])
@@ -54,9 +59,20 @@ public final class SystemPasskeySheet: NSObject, PasskeySheet {
       userID: credential.userID)
   }
 
+  /// The app's key window, or its first one.
+  private static func keyWindow() -> ASPresentationAnchor? {
+    #if os(macOS)
+    NSApp.keyWindow ?? NSApp.windows.first
+    #else
+    let windows = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+    return windows.compactMap(\.keyWindow).first ?? windows.flatMap(\.windows).first
+    #endif
+  }
+
   private func finish(_ result: Result<ASAuthorization, any Error>) {
     let continuation = waiting
     waiting = nil
+    anchor = nil
     continuation?.resume(with: result)
   }
 }
@@ -73,13 +89,10 @@ extension SystemPasskeySheet: ASAuthorizationControllerDelegate, ASAuthorization
   }
 
   nonisolated public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+    // Asked only while a request runs, and a request starts only with a window (`assertion(for:)`).
     MainActor.assumeIsolated {
-      #if os(macOS)
-      NSApp.keyWindow ?? NSApp.windows.first ?? ASPresentationAnchor()
-      #else
-      UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first
-        ?? ASPresentationAnchor()
-      #endif
+      guard let anchor else { preconditionFailure() }
+      return anchor
     }
   }
 }
