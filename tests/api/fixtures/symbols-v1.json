@@ -1,0 +1,275 @@
+{
+  "day": "2026-11-16",
+  "as_of": "2026-11-16T15:00:00.000Z",
+  "as_of_cause": null,
+  "stages": [
+    {
+      "stage": "screeners",
+      "count": 412
+    },
+    {
+      "stage": "universe",
+      "count": 268
+    },
+    {
+      "stage": "quote",
+      "count": 141
+    },
+    {
+      "stage": "bars",
+      "count": 96
+    },
+    {
+      "stage": "strategy",
+      "count": 37
+    },
+    {
+      "stage": "risk",
+      "count": 6
+    },
+    {
+      "stage": "order",
+      "count": 4
+    },
+    {
+      "stage": "stop",
+      "count": 4
+    }
+  ],
+  "rows": [
+    {
+      "symbol": "ABCD",
+      "sources": [
+        {
+          "kind": "GAINERS",
+          "rank": 3
+        },
+        {
+          "kind": "TOP_ACTIVES",
+          "rank": 11
+        }
+      ],
+      "change_pct": "18.20",
+      "first_seen": "2026-11-16T13:42:00.000Z",
+      "furthest": "stop",
+      "stage": "stop",
+      "state": "passed",
+      "cause": null,
+      "check": null,
+      "detail": null,
+      "verdict": "ENTER",
+      "setup": "breakout",
+      "at": "2026-11-16T15:00:00.000Z",
+      "price": "4.12",
+      "reached": [
+        {
+          "stage": "screeners",
+          "at": "2026-11-16T13:42:00.000Z"
+        },
+        {
+          "stage": "universe",
+          "at": "2026-11-16T13:52:00.000Z"
+        },
+        {
+          "stage": "quote",
+          "at": "2026-11-16T14:02:00.000Z"
+        },
+        {
+          "stage": "bars",
+          "at": "2026-11-16T14:12:00.000Z"
+        },
+        {
+          "stage": "strategy",
+          "at": "2026-11-16T14:22:00.000Z"
+        },
+        {
+          "stage": "risk",
+          "at": "2026-11-16T14:32:00.000Z"
+        },
+        {
+          "stage": "order",
+          "at": null
+        },
+        {
+          "stage": "stop",
+          "at": null
+        }
+      ],
+      "decided_at": "2026-11-16T14:52:00.000Z",
+      "strategy": "price-action-v3@3.0.0",
+      "checks": [
+        {
+          "rule": "close_above_vwap",
+          "measured": "4.12",
+          "operator": ">",
+          "threshold": "3.98",
+          "passed": true,
+          "note": "",
+          "against_trigger": false
+        },
+        {
+          "rule": "relative_volume",
+          "measured": "2.4",
+          "operator": ">=",
+          "threshold": "2.0",
+          "passed": true,
+          "note": "",
+          "against_trigger": false
+        }
+      ],
+      "checked_at": null
+    },
+    {
+      "symbol": "QRST",
+      "sources": [
+        {
+          "kind": "GAINERS",
+          "rank": 9
+        }
+      ],
+      "change_pct": "6.10",
+      "first_seen": "2026-11-16T14:20:00.000Z",
+      "furthest": "strategy",
+      "stage": "strategy",
+      "state": "dropped",
+      "cause": "IGNORE",
+      "check": {
+        "rule": "close_above_vwap",
+        "measured": "5.12",
+        "operator": ">",
+        "threshold": "5.2",
+        "passed": false,
+        "note": "",
+        "against_trigger": false
+      },
+      "detail": null,
+      "verdict": "IGNORE",
+      "setup": null,
+      "at": "2026-11-16T15:00:00.000Z",
+      "price": "5.12",
+      "reached": [
+        {
+          "stage": "screeners",
+          "at": "2026-11-16T14:20:00.000Z"
+        },
+        {
+          "stage": "universe",
+          "at": "2026-11-16T14:25:00.000Z"
+        },
+        {
+          "stage": "quote",
+          "at": "2026-11-16T14:30:00.000Z"
+        },
+        {
+          "stage": "bars",
+          "at": "2026-11-16T14:35:00.000Z"
+        },
+        {
+          "stage": "strategy",
+          "at": "2026-11-16T14:40:00.000Z"
+        }
+      ],
+      "decided_at": "2026-11-16T15:00:00.000Z",
+      "strategy": "price-action-v3@3.0.0",
+      "checks": [
+        {
+          "rule": "close_above_vwap",
+          "measured": "5.12",
+          "operator": ">",
+          "threshold": "5.2",
+          "passed": false,
+          "note": "",
+          "against_trigger": false
+        }
+      ],
+      "checked_at": null
+    },
+    {
+      "symbol": "WXYZ",
+      "sources": [
+        {
+          "kind": "TOP_ACTIVES",
+          "rank": 4
+        }
+      ],
+      "change_pct": null,
+      "first_seen": "2026-11-16T14:48:00.000Z",
+      "furthest": "quote",
+      "stage": "quote",
+      "state": "dropped",
+      "cause": "STRATEGY_LIQUIDITY",
+      "check": {
+        "rule": "spread_ratio",
+        "measured": "0.0031",
+        "operator": "<=",
+        "threshold": "0.002",
+        "passed": false,
+        "note": "",
+        "against_trigger": false
+      },
+      "detail": null,
+      "verdict": null,
+      "setup": null,
+      "at": "2026-11-16T15:00:00.000Z",
+      "price": null,
+      "reached": [],
+      "decided_at": null,
+      "strategy": null,
+      "checks": [],
+      "checked_at": null
+    },
+    {
+      "symbol": "SPY",
+      "sources": [
+        {
+          "kind": "TOP_ACTIVES",
+          "rank": 1
+        }
+      ],
+      "change_pct": "0.31",
+      "first_seen": "2026-11-16T13:42:00.000Z",
+      "furthest": "universe",
+      "stage": "universe",
+      "state": "dropped",
+      "cause": "SECURITY_TYPE_NOT_ALLOWED",
+      "check": null,
+      "detail": "ETF (needs COMMON_STOCK)",
+      "verdict": null,
+      "setup": null,
+      "at": "2026-11-16T15:00:00.000Z",
+      "price": null,
+      "reached": [],
+      "decided_at": null,
+      "strategy": null,
+      "checks": [],
+      "checked_at": null
+    },
+    {
+      "symbol": "SLOW",
+      "sources": [
+        {
+          "kind": "LOSERS",
+          "rank": 30
+        }
+      ],
+      "change_pct": "-4.00",
+      "first_seen": "2026-11-16T14:58:00.000Z",
+      "furthest": "bars",
+      "stage": "bars",
+      "state": "not_reached",
+      "cause": "REQUEST_BUDGET",
+      "check": null,
+      "detail": null,
+      "verdict": null,
+      "setup": null,
+      "at": "2026-11-16T15:00:00.000Z",
+      "price": null,
+      "reached": [],
+      "decided_at": null,
+      "strategy": null,
+      "checks": [],
+      "checked_at": null
+    }
+  ],
+  "api_version": 1
+}

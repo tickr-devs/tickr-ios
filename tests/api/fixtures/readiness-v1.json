@@ -1,0 +1,105 @@
+{
+  "served_at": "2026-11-16T15:00:00.123Z",
+  "environment": "sandbox",
+  "config_digest": "9a28000000000000000000000000000000000000000000000000000000000000",
+  "gate": {
+    "open": true,
+    "cause": "trading enabled by configuration",
+    "code": "trading_enabled",
+    "params": {}
+  },
+  "environments": [
+    {
+      "name": "sandbox",
+      "loaded": true,
+      "trading_enabled": true,
+      "requires_owner_authorization": false,
+      "keys_present": null,
+      "gate": {
+        "open": true,
+        "cause": "trading enabled by configuration",
+        "code": "trading_enabled",
+        "params": {}
+      },
+      "authorization": null
+    },
+    {
+      "name": "production",
+      "loaded": false,
+      "trading_enabled": false,
+      "requires_owner_authorization": true,
+      "keys_present": null,
+      "gate": {
+        "open": false,
+        "cause": "trading is disabled for environment 'production'",
+        "code": "trading_disabled",
+        "params": {
+          "environment": "production"
+        }
+      },
+      "authorization": {
+        "file": "authorization/production.toml",
+        "present": true,
+        "environment": "production",
+        "approved_on": "2026-11-20",
+        "digest_matches": false,
+        "valid": false,
+        "cause": "owner authorization does not match the current config digest",
+        "code": "authorization_digest_mismatch",
+        "params": {}
+      }
+    }
+  ],
+  "checklist": [
+    {
+      "code": "clean_days",
+      "environment": "sandbox",
+      "state": "fail",
+      "value": "3 / 5",
+      "cause": "3 clean days of 5"
+    },
+    {
+      "code": "preflight",
+      "environment": "sandbox",
+      "state": "pass",
+      "value": "2026-11-16",
+      "cause": null
+    },
+    {
+      "code": "unattended_safeguard",
+      "environment": "sandbox",
+      "state": "unknown",
+      "value": "2026-11-13",
+      "cause": "the watchdog last started on 2026-11-13, not today"
+    },
+    {
+      "code": "keys",
+      "environment": "production",
+      "state": "unknown",
+      "value": null,
+      "cause": "this process holds none of them"
+    },
+    {
+      "code": "data_probe",
+      "environment": "production",
+      "state": "fail",
+      "value": null,
+      "cause": "chart probe C1 is not recorded for production"
+    },
+    {
+      "code": "trading_enabled",
+      "environment": "production",
+      "state": "fail",
+      "value": null,
+      "cause": "[environments.production] trading_enabled is false"
+    },
+    {
+      "code": "authorization",
+      "environment": "production",
+      "state": "fail",
+      "value": null,
+      "cause": "owner authorization does not match the current config digest"
+    }
+  ],
+  "api_version": 1
+}

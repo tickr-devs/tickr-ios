@@ -1,0 +1,200 @@
+{
+  "environment": "sandbox",
+  "day": "2026-11-16",
+  "trades": [
+    {
+      "trade_id": "t-0001",
+      "symbol": "WXYZ",
+      "quantity": "20",
+      "entry_price": "5.10",
+      "exit_price": "5.02",
+      "opened_at": "2026-11-16T15:00:00.123Z",
+      "closed_at": "2026-11-16T15:07:00.123Z",
+      "exit_reason": "stop",
+      "stop_price": "5.02",
+      "planned_loss_usd": "50",
+      "result_gross_usd": "-1.60",
+      "stop_confirmed_after_seconds": "1.250",
+      "mae_usd": "-2.20",
+      "mfe_usd": "0.80",
+      "entry": {
+        "client_order_id": "ap-0002-e",
+        "intent_at": "2026-11-16T15:00:00.123Z",
+        "sent_at": "2026-11-16T15:00:00.125Z",
+        "send_outcome": "acknowledged",
+        "latest_outcome": "acknowledged",
+        "sends": 1,
+        "filled_at": "2026-11-16T15:00:01.625Z"
+      },
+      "entry_cause": null,
+      "prices_after": [
+        {
+          "minutes": 1,
+          "at": "2026-11-16T15:08:00.123Z",
+          "price": "5.00",
+          "change_usd": "-0.02",
+          "cause": null,
+          "cause_codes": []
+        },
+        {
+          "minutes": 5,
+          "at": "2026-11-16T15:12:00.123Z",
+          "price": "5.06",
+          "change_usd": "0.04",
+          "cause": null,
+          "cause_codes": []
+        },
+        {
+          "minutes": 15,
+          "at": "2026-11-16T15:22:00.123Z",
+          "price": null,
+          "change_usd": null,
+          "cause": "no bar recorded for the minute 2026-11-16T15:22:00.000Z",
+          "cause_codes": [
+            {
+              "code": "no_bar_for_minute",
+              "params": {
+                "time": "10:22"
+              }
+            }
+          ]
+        },
+        {
+          "minutes": 60,
+          "at": "2026-11-16T16:07:00.123Z",
+          "price": "5.21",
+          "change_usd": "0.19",
+          "cause": null,
+          "cause_codes": []
+        }
+      ],
+      "prices_after_cause": null,
+      "overshoot_usd": "0.24",
+      "overshoot_r": "0.0960",
+      "overshoot_cause": null,
+      "strategy": {
+        "name": "price-action-v1",
+        "version": "1",
+        "settings_version": null
+      },
+      "code_version": "6c4eec8b0f3a91d2e5b7c6a8d9e0f1a2b3c4d5e6",
+      "result_net_usd": null,
+      "entry_cause_codes": [],
+      "prices_after_cause_codes": [],
+      "overshoot_cause_codes": []
+    },
+    {
+      "trade_id": "t-0002",
+      "symbol": "ABCD",
+      "quantity": "10",
+      "entry_price": "12.34",
+      "exit_price": "12.75",
+      "opened_at": "2026-11-16T15:20:00.123Z",
+      "closed_at": "2026-11-16T15:48:00.123Z",
+      "exit_reason": "strategy_exit",
+      "stop_price": null,
+      "planned_loss_usd": "50",
+      "result_gross_usd": "4.10",
+      "stop_confirmed_after_seconds": null,
+      "mae_usd": null,
+      "mfe_usd": null,
+      "entry": {
+        "client_order_id": null,
+        "intent_at": null,
+        "sent_at": null,
+        "send_outcome": null,
+        "latest_outcome": null,
+        "sends": null,
+        "filled_at": null
+      },
+      "entry_cause": "journal unreadable: journal row 812 (order-observed ap-0003-e): KeyError: 'filled_quantity'",
+      "prices_after": [
+        {
+          "minutes": 1,
+          "at": "2026-11-16T15:49:00.123Z",
+          "price": "12.70",
+          "change_usd": "-0.05",
+          "cause": null,
+          "cause_codes": []
+        },
+        {
+          "minutes": 5,
+          "at": "2026-11-16T15:53:00.123Z",
+          "price": null,
+          "change_usd": null,
+          "cause": "the bars end at 2026-11-16T15:49:00.000Z",
+          "cause_codes": [
+            {
+              "code": "bars_end",
+              "params": {
+                "time": "10:49"
+              }
+            }
+          ]
+        },
+        {
+          "minutes": 15,
+          "at": "2026-11-16T16:03:00.123Z",
+          "price": null,
+          "change_usd": null,
+          "cause": "the bars end at 2026-11-16T15:49:00.000Z",
+          "cause_codes": [
+            {
+              "code": "bars_end",
+              "params": {
+                "time": "10:49"
+              }
+            }
+          ]
+        },
+        {
+          "minutes": 60,
+          "at": "2026-11-16T16:48:00.123Z",
+          "price": null,
+          "change_usd": null,
+          "cause": "the bars end at 2026-11-16T15:49:00.000Z",
+          "cause_codes": [
+            {
+              "code": "bars_end",
+              "params": {
+                "time": "10:49"
+              }
+            }
+          ]
+        }
+      ],
+      "prices_after_cause": null,
+      "overshoot_usd": null,
+      "overshoot_r": null,
+      "overshoot_cause": "the bars end at 2026-11-16T15:49:00.000Z, before 2026-11-16T16:48:00.000Z",
+      "strategy": null,
+      "code_version": null,
+      "result_net_usd": null,
+      "entry_cause_codes": [
+        {
+          "code": "journal_unreadable",
+          "params": {
+            "detail": "journal row 812 (order-observed ap-0003-e): KeyError: 'filled_quantity'"
+          }
+        }
+      ],
+      "prices_after_cause_codes": [],
+      "overshoot_cause_codes": [
+        {
+          "code": "bars_end_before",
+          "params": {
+            "time": "10:49",
+            "until": "11:48"
+          }
+        }
+      ]
+    }
+  ],
+  "result_gross_usd": "2.50",
+  "bar_symbols": [
+    "ABCD",
+    "WXYZ"
+  ],
+  "result_net_usd": null,
+  "api_version": 1
+}

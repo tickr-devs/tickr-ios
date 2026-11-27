@@ -1,0 +1,379 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:observers-v1",
+  "title": "ObserversV1",
+  "type": "object",
+  "properties": {
+    "day": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "observers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "at": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                },
+                "symbol": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "IGNORE",
+                    "WATCH",
+                    "ENTER",
+                    "HOLD",
+                    "EXIT"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "at",
+                "symbol",
+                "action",
+                "reasons"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "result_gross_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trades": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                    },
+                    "opened_at": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "entry_price": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "closed_at": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "exit_price": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "quantity": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "exit_reason": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "stop",
+                            "strategy_exit",
+                            "flatten",
+                            "end_of_data"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "result_gross_usd": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "result_r": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "cause": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "cause_codes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "params": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "params"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "symbol",
+                    "at",
+                    "opened_at",
+                    "entry_price",
+                    "closed_at",
+                    "exit_price",
+                    "quantity",
+                    "exit_reason",
+                    "result_gross_usd",
+                    "result_r",
+                    "cause"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trades_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trades_truncated": {
+            "type": "boolean"
+          },
+          "watching_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settings_differences": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "active_value": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "value",
+                    "active_value"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "trades_cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "decisions",
+          "result_gross_usd",
+          "result_cause",
+          "trades",
+          "trades_cause",
+          "trades_truncated"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "day",
+    "observers",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

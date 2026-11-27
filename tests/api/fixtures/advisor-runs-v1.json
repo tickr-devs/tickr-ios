@@ -1,0 +1,164 @@
+{
+  "runs": [
+    {
+      "id": "20261115T150000Z-price-action-v1",
+      "at": "2026-11-15T15:00:00.123Z",
+      "mode": "backtest",
+      "status": "proposed",
+      "base": "price-action-v1 v1",
+      "proposed": "price-action-v1 v2",
+      "model": "claude-opus-5-5",
+      "evidence": "SIMULATED backtest out/backtest-v1, fitting period 2026-08-03 .. 2026-10-02; hold-out from 2026-10-05 withheld",
+      "tuned_on": "backtest sessions 2026-08-03 .. 2026-10-02 (before the hold-out from 2026-10-05)",
+      "judge_on": "the backtest hold-out from 2026-10-05 (python -m tickr.advisor.judge) or observer days after the proposal",
+      "summary": "Stops are too tight: most stopped trades reach +1R later the same session.",
+      "changes": [
+        {
+          "section": "exit",
+          "key": "stop_buffer_atr",
+          "now": "0.25",
+          "proposed": "0.5",
+          "reason": "half of the stops are inside one minute's noise",
+          "evidence": "62% of stop exits later reached +1R"
+        },
+        {
+          "section": "entry",
+          "key": "require_vwap_above",
+          "now": "false",
+          "proposed": "true",
+          "reason": "entries below VWAP lose",
+          "evidence": "mean R -0.31 below VWAP, 0.08 above"
+        }
+      ],
+      "expected_effect": "fewer stop exits; fewer trades",
+      "risks": [
+        "wider stops make 1 R bigger: smaller size"
+      ],
+      "no_change_reason": "",
+      "cause": "",
+      "idea": null,
+      "judges": [
+        {
+          "candidate": "price-action-v1 v2",
+          "base": "price-action-v1 v1",
+          "holdout_starts": "2026-10-05",
+          "verdict": "no_evidence",
+          "base_verdict": "negative_edge",
+          "holdout": {
+            "trades": 41,
+            "win_rate_percent": "46.3",
+            "mean_r": "0.04",
+            "median_r": "0.0",
+            "total_r": "1.64",
+            "profit_factor": "1.08",
+            "mean_r_interval_low": "-0.18",
+            "mean_r_interval_high": "0.27"
+          },
+          "base_holdout": {
+            "trades": 57,
+            "win_rate_percent": "38.6",
+            "mean_r": "-0.21",
+            "median_r": "0.0",
+            "total_r": "-11.97",
+            "profit_factor": "0.71",
+            "mean_r_interval_low": "-0.39",
+            "mean_r_interval_high": "-0.03"
+          },
+          "fitting": {
+            "trades": 188,
+            "win_rate_percent": "51.1",
+            "mean_r": "0.22",
+            "median_r": "0.0",
+            "total_r": "41.36",
+            "profit_factor": "1.52",
+            "mean_r_interval_low": "0.09",
+            "mean_r_interval_high": "0.35"
+          }
+        }
+      ],
+      "decision": null,
+      "cause_codes": []
+    },
+    {
+      "id": "20261114T150000Z-price-action-v1",
+      "at": "2026-11-14T15:00:00.123Z",
+      "mode": "backtest",
+      "status": "idea",
+      "base": "price-action-v1 v1",
+      "proposed": null,
+      "model": "claude-opus-5-5",
+      "evidence": "SIMULATED backtest out/backtest-v1, fitting period 2026-08-03 .. 2026-10-02; hold-out from 2026-10-05 withheld",
+      "tuned_on": "backtest sessions 2026-08-03 .. 2026-10-02 (before the hold-out from 2026-10-05)",
+      "judge_on": "the backtest hold-out from 2026-10-05 (python -m tickr.advisor.judge) or observer days after the proposal",
+      "summary": "The entry idea itself fails; a pullback entry is worth a module.",
+      "changes": [],
+      "expected_effect": "",
+      "risks": [],
+      "no_change_reason": "no value change rescues the breakout entry",
+      "cause": "",
+      "idea": {
+        "name": "pullback-v1",
+        "hypothesis": "gainers that hold the VWAP continue",
+        "entry_rule": "buy the first higher low above VWAP after 10:00",
+        "exit_rule": "stop under the higher low; flatten at the close",
+        "filters": "price above 5 USD",
+        "evidence": "stops after +0.6R, then 2.4R after the stop",
+        "test_plan": "backtest on sessions after the window"
+      },
+      "judges": [],
+      "decision": {
+        "verdict": "accepted",
+        "at": "2026-11-15T12:00:00.123Z"
+      },
+      "cause_codes": []
+    },
+    {
+      "id": "20261114T120000Z-price-action-v1",
+      "at": "2026-11-14T12:00:00.123Z",
+      "mode": "live",
+      "status": "refused",
+      "base": "price-action-v1 v1",
+      "proposed": null,
+      "model": "claude-opus-5-5",
+      "evidence": "5 recorded days (2026-11-09 .. 2026-11-13)",
+      "tuned_on": "2026-11-09, 2026-11-10, 2026-11-11, 2026-11-12, 2026-11-13",
+      "judge_on": "days after 2026-11-13 (observers) or on replay days outside that list",
+      "summary": "",
+      "changes": [],
+      "expected_effect": "",
+      "risks": [],
+      "no_change_reason": "",
+      "cause": "4 changes proposed, at most 3 allowed",
+      "idea": null,
+      "judges": [],
+      "decision": null,
+      "cause_codes": [
+        {
+          "code": "too_many_changes",
+          "params": {
+            "count": "4",
+            "max": "3"
+          }
+        }
+      ]
+    }
+  ],
+  "unreadable": [
+    {
+      "id": "20261113T180000Z-price-action-v1",
+      "cause": "no run.json (a run written before the apps read runs, or an interrupted one)",
+      "cause_codes": [
+        {
+          "code": "run_file_missing",
+          "params": {
+            "file": "run.json"
+          }
+        }
+      ]
+    }
+  ],
+  "awaiting_review": 1,
+  "cause": null,
+  "api_version": 1,
+  "cause_codes": []
+}

@@ -1,0 +1,1333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:status-v1",
+  "title": "StatusV1",
+  "type": "object",
+  "properties": {
+    "written_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "bot_state": {
+      "type": "string",
+      "enum": [
+        "starting",
+        "running",
+        "stopping",
+        "stopped"
+      ]
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "environment": {
+      "type": "string"
+    },
+    "trading_gate": {
+      "type": "object",
+      "properties": {
+        "open": {
+          "type": "boolean"
+        },
+        "cause": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "open",
+        "cause"
+      ],
+      "additionalProperties": false
+    },
+    "strategy": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "entry_stop": {
+      "type": "boolean"
+    },
+    "entry_block": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "cause": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "attention": {
+              "type": "boolean"
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "cause",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "since": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "text": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "kind",
+          "since",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "position": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "symbol": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "entry_price": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "opened_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "stop": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "verified",
+                    "pending",
+                    "missing",
+                    "unknown"
+                  ]
+                },
+                "price": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "client_order_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "price",
+                "client_order_id"
+              ],
+              "additionalProperties": false
+            },
+            "entry": {
+              "type": "object",
+              "properties": {
+                "client_order_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "intent_at": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sent_at": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "send_outcome": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "intent",
+                        "attempted",
+                        "acknowledged",
+                        "refused",
+                        "unknown",
+                        "absent"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "latest_outcome": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "intent",
+                        "attempted",
+                        "acknowledged",
+                        "refused",
+                        "unknown",
+                        "absent"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sends": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "filled_at": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "client_order_id",
+                "intent_at",
+                "sent_at",
+                "send_outcome",
+                "latest_outcome",
+                "sends",
+                "filled_at"
+              ],
+              "additionalProperties": false
+            },
+            "entry_cause": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "entry_cause_codes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "code",
+                  "params"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "symbol",
+            "quantity",
+            "entry_price",
+            "opened_at",
+            "stop",
+            "entry",
+            "entry_cause"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "trades_today": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "entry_price": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "exit_price": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "opened_at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "closed_at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "exit_reason": {
+            "type": "string"
+          },
+          "result_gross_usd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "planned_loss_usd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "stop_confirmed_after_seconds": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entry": {
+            "type": "object",
+            "properties": {
+              "client_order_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "intent_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sent_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "send_outcome": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "intent",
+                      "attempted",
+                      "acknowledged",
+                      "refused",
+                      "unknown",
+                      "absent"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "latest_outcome": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "intent",
+                      "attempted",
+                      "acknowledged",
+                      "refused",
+                      "unknown",
+                      "absent"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sends": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "filled_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "client_order_id",
+              "intent_at",
+              "sent_at",
+              "send_outcome",
+              "latest_outcome",
+              "sends",
+              "filled_at"
+            ],
+            "additionalProperties": false
+          },
+          "entry_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strategy": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "code_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_exact_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decider": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "strategy",
+                      "model"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entry_cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "symbol",
+          "quantity",
+          "entry_price",
+          "exit_price",
+          "opened_at",
+          "closed_at",
+          "exit_reason",
+          "result_gross_usd",
+          "planned_loss_usd",
+          "stop_confirmed_after_seconds",
+          "entry",
+          "entry_cause"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result_today_gross_usd": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "freshness": {
+      "type": "object",
+      "properties": {
+        "last_broker_read_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_quote_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stream": {
+          "type": "string",
+          "enum": [
+            "fresh",
+            "quiet",
+            "lost",
+            "off"
+          ]
+        }
+      },
+      "required": [
+        "last_broker_read_at",
+        "last_quote_at",
+        "stream"
+      ],
+      "additionalProperties": false
+    },
+    "recent_commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "entry-stop-on",
+              "entry-stop-off",
+              "cancel-own-orders",
+              "flatten",
+              "stop-bot",
+              "emergency"
+            ]
+          },
+          "requested_at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "processed_at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "done",
+              "refused"
+            ]
+          },
+          "cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "command_id",
+          "kind",
+          "requested_at",
+          "processed_at",
+          "outcome",
+          "cause"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "realized_loss_today_usd": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "open_reservations_usd": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "daily_room_usd": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "positions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "entry_price": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "opened_at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "stop": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": [
+                  "verified",
+                  "pending",
+                  "missing",
+                  "unknown"
+                ]
+              },
+              "price": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "client_order_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "state",
+              "price",
+              "client_order_id"
+            ],
+            "additionalProperties": false
+          },
+          "entry": {
+            "type": "object",
+            "properties": {
+              "client_order_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "intent_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sent_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "send_outcome": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "intent",
+                      "attempted",
+                      "acknowledged",
+                      "refused",
+                      "unknown",
+                      "absent"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "latest_outcome": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "intent",
+                      "attempted",
+                      "acknowledged",
+                      "refused",
+                      "unknown",
+                      "absent"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sends": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "filled_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "client_order_id",
+              "intent_at",
+              "sent_at",
+              "send_outcome",
+              "latest_outcome",
+              "sends",
+              "filled_at"
+            ],
+            "additionalProperties": false
+          },
+          "entry_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entry_cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "symbol",
+          "quantity",
+          "entry_price",
+          "opened_at",
+          "stop",
+          "entry",
+          "entry_cause"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "code_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fees_today_usd": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result_today_net_usd": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result_today_broker_usd": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stop_progress": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "command_id": {
+              "type": "string"
+            },
+            "mode": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "close_and_stop",
+                    "leave_open"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "step": {
+              "type": "string",
+              "enum": [
+                "closing_positions",
+                "positions_closed",
+                "stopping",
+                "stopped"
+              ]
+            },
+            "since": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "open_trades": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "command_id",
+            "mode",
+            "step",
+            "since",
+            "open_trades"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "working_entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "limit_price": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "stop_price": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "planned_loss_usd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "entry": {
+            "type": "object",
+            "properties": {
+              "client_order_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "intent_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sent_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "send_outcome": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "intent",
+                      "attempted",
+                      "acknowledged",
+                      "refused",
+                      "unknown",
+                      "absent"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "latest_outcome": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "intent",
+                      "attempted",
+                      "acknowledged",
+                      "refused",
+                      "unknown",
+                      "absent"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sends": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "filled_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "client_order_id",
+              "intent_at",
+              "sent_at",
+              "send_outcome",
+              "latest_outcome",
+              "sends",
+              "filled_at"
+            ],
+            "additionalProperties": false
+          },
+          "entry_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cancel_requested": {
+            "type": "boolean"
+          },
+          "entry_cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "symbol",
+          "quantity",
+          "limit_price",
+          "stop_price",
+          "planned_loss_usd",
+          "entry",
+          "entry_cause",
+          "cancel_requested"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "decider": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "strategy",
+                "model"
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "written_at",
+    "bot_state",
+    "run_id",
+    "environment",
+    "trading_gate",
+    "strategy",
+    "entry_stop",
+    "entry_block",
+    "fences",
+    "position",
+    "trades_today",
+    "result_today_gross_usd",
+    "freshness",
+    "recent_commands",
+    "realized_loss_today_usd",
+    "open_reservations_usd",
+    "daily_room_usd",
+    "positions",
+    "schema_version"
+  ],
+  "additionalProperties": false
+}

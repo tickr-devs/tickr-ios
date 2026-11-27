@@ -1,0 +1,306 @@
+{
+  "channels": [
+    {
+      "channel": "telegram",
+      "configured": true,
+      "cause": null
+    },
+    {
+      "channel": "push",
+      "configured": false,
+      "cause": "not-built"
+    }
+  ],
+  "kinds": [
+    {
+      "kind": "unprotected-position",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "stop-rejected",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "exit-refused",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "unknown-order-status",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "foreign-exposure",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "broker-reads-failing",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "stream-lost-with-position",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "daily-ceiling-reached",
+      "group": "trading",
+      "locked": false,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "bot-crashed",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "bot-did-not-start",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "bot-did-not-stop",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "preflight-failed",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "token-needs-confirmation",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "observers-stopped",
+      "group": "day",
+      "locked": false,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "strategy-not-loaded",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "not-flat-after-flatten",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "watchdog-not-flat",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "watchdog-cannot-check",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "bot-down-with-open-trade",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "bot-down",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "disk-low",
+      "group": "day",
+      "locked": false,
+      "channels": {
+        "telegram": false,
+        "push": true
+      }
+    },
+    {
+      "kind": "watchdog-restarted-bot",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "watchdog-restart-refused",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "watchdog-restart-failed",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "exit-not-filled",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "flatten-after-close",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "fees-unknown",
+      "group": "trading",
+      "locked": false,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "fees-corrected",
+      "group": "trading",
+      "locked": false,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "api-credentials-unexpected",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "protection-change-ignored",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "remote-auth-blocked",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    },
+    {
+      "kind": "risk-command-used",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
+    }
+  ],
+  "routing_cause": null,
+  "api_version": 1
+}

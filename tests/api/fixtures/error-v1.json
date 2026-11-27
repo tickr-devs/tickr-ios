@@ -1,0 +1,13 @@
+{
+  "error": "forbidden_host",
+  "cause": "Host 'evil.example:8766' is not allowed",
+  "api_version": 1,
+  "cause_codes": [
+    {
+      "code": "host_not_allowed",
+      "params": {
+        "host": "'evil.example:8766'"
+      }
+    }
+  ]
+}

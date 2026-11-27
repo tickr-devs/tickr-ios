@@ -1,0 +1,41 @@
+{
+  "day": "2026-11-13",
+  "as_of": null,
+  "as_of_cause": "no discovery pass recorded for this day",
+  "stages": [
+    {
+      "stage": "screeners",
+      "count": 0
+    },
+    {
+      "stage": "universe",
+      "count": 0
+    },
+    {
+      "stage": "quote",
+      "count": 0
+    },
+    {
+      "stage": "bars",
+      "count": 0
+    },
+    {
+      "stage": "strategy",
+      "count": 0
+    },
+    {
+      "stage": "risk",
+      "count": 0
+    },
+    {
+      "stage": "order",
+      "count": 0
+    },
+    {
+      "stage": "stop",
+      "count": 0
+    }
+  ],
+  "rows": [],
+  "api_version": 1
+}

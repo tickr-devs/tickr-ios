@@ -1,0 +1,418 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:watching-v1",
+  "title": "WatchingV1",
+  "type": "object",
+  "properties": {
+    "day": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "total": {
+      "type": "integer"
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+          },
+          "strategy": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "settings_version": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "IGNORE",
+              "WATCH",
+              "ENTER",
+              "HOLD",
+              "EXIT"
+            ]
+          },
+          "decisive_check": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "rule": {
+                    "type": "string"
+                  },
+                  "measured": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operator": {
+                    "type": "string"
+                  },
+                  "threshold": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "passed": {
+                    "type": "boolean"
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "against_trigger": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "rule",
+                  "measured",
+                  "operator",
+                  "threshold",
+                  "passed",
+                  "note"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "closeness": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "closeness_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quote_age_seconds": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quote_age_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "invalidation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "closeness_cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "quote_age_cause_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "symbol",
+          "at",
+          "strategy",
+          "verdict",
+          "decisive_check",
+          "closeness",
+          "closeness_cause",
+          "quote_age_seconds",
+          "quote_age_cause"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "latest_size": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "symbol": {
+              "type": "string"
+            },
+            "at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "strategy": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                },
+                "settings_version": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "version"
+              ],
+              "additionalProperties": false
+            },
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "IGNORE",
+                "WATCH",
+                "ENTER",
+                "HOLD",
+                "EXIT"
+              ]
+            },
+            "quantity": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+            },
+            "binding": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "planned_loss",
+                    "notional_cap",
+                    "daily_room"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "binding_cause": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "binding_cause_codes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "code",
+                  "params"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "price": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "limits": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "string",
+                    "enum": [
+                      "planned_loss",
+                      "notional_cap",
+                      "daily_room"
+                    ]
+                  },
+                  "limit_usd": {
+                    "type": "string",
+                    "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                  },
+                  "per_share_usd": {
+                    "type": "string",
+                    "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                  },
+                  "shares": {
+                    "type": "string",
+                    "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+                  }
+                },
+                "required": [
+                  "limit",
+                  "limit_usd",
+                  "per_share_usd",
+                  "shares"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "symbol",
+            "at",
+            "strategy",
+            "verdict",
+            "quantity",
+            "binding",
+            "binding_cause"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "day",
+    "total",
+    "rows",
+    "latest_size",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

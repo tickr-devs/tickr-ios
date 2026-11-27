@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+# SwiftPM build folders and local package state of every Swift package (apps/shared, apps/macos,
+# apps/ios), wherever `swift build` or Xcode runs.
+.build/
+.swiftpm/
+# Secrets and tokens never enter the repository.
+.env
+.env.*
+# Xcode per-user state (window layout, breakpoints, schemes order).
+xcuserdata/
+# tickr-bot checked out by layout-sweep.yml to serve `tickr demo`.
+/bot/
+# SwiftPM pins Xcode writes for the root workspace; each project and package commits its own.
+/Tickr.xcworkspace/xcshareddata/swiftpm/
+
