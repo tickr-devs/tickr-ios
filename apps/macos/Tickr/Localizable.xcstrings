@@ -5404,19 +5404,19 @@
         }
       }
     },
-    "lab.activeRole" : {
+    "lab.active" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "trades · set in the bot config"
+            "value" : "Which version trades"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "opera · definida en la configuración del bot"
+            "value" : "Qué versión opera"
           }
         }
       }
@@ -5506,36 +5506,53 @@
         }
       }
     },
-    "lab.candidateNote" : {
+    "lab.compareAbout" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "candidate · replay only"
+            "value" : "How the comparison runs"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "candidata · solo repetición"
+            "value" : "Cómo se hace la comparación"
           }
         }
       }
     },
-    "lab.closedWinsLosses" : {
+    "lab.daySummary" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld · %2$lld W · %3$lld L"
+            "value" : "%1$@ · %2$lld closed, %3$lld won, %4$lld lost"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld · %2$lld G · %3$lld P"
+            "value" : "%1$@ · %2$lld cerradas, %3$lld ganadas, %4$lld perdidas"
+          }
+        }
+      }
+    },
+    "lab.decidedBy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decided by %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decidido por %@"
           }
         }
       }
@@ -5546,30 +5563,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explain a symbol"
+            "value" : "Why did the model decide that?"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Explicar un símbolo"
+            "value" : "¿Por qué decidió eso el modelo?"
           }
         }
       }
     },
-    "lab.explainBacklog" : {
+    "lab.explainCause" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "strategy blocks behind each check"
+            "value" : "Cause: %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "bloques de la estrategia detrás de cada comprobación"
+            "value" : "Causa: %@"
           }
         }
       }
@@ -5587,23 +5604,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@"
-          }
-        }
-      }
-    },
-    "lab.explainHeadline" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · cause: %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · causa: %2$@"
           }
         }
       }
@@ -5767,13 +5767,47 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Why signals were refused"
+            "value" : "Blocked by safety rules"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Por qué se rechazaron señales"
+            "value" : "Bloqueadas por reglas de seguridad"
+          }
+        }
+      }
+    },
+    "lab.refusalsAbout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What this counts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué cuenta esto"
+          }
+        }
+      }
+    },
+    "lab.refusalsInfo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Times the model wanted to enter and the platform's limits said no."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veces que el modelo quiso entrar y los límites de la plataforma dijeron que no."
           }
         }
       }
@@ -5784,13 +5818,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Why signals were refused today"
+            "value" : "today"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Por qué se rechazaron señales hoy"
+            "value" : "hoy"
           }
         }
       }
@@ -5801,13 +5835,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Replay · compare versions"
+            "value" : "Compare two versions"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Repetición · comparar versiones"
+            "value" : "Comparar dos versiones"
+          }
+        }
+      }
+    },
+    "lab.replayAllFigures" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All figures"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las cifras"
           }
         }
       }
@@ -6305,23 +6356,6 @@
         }
       }
     },
-    "lab.replaySimulated" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "simulated · fetched data"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "simulado · datos descargados"
-          }
-        }
-      }
-    },
     "lab.replayThen" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6413,13 +6447,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "with bot limits"
+            "value" : "net with bot limits"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "con los límites del bot"
+            "value" : "neto con los límites del bot"
           }
         }
       }
@@ -6475,57 +6509,6 @@
         }
       }
     },
-    "lab.screenerBacklog" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "screener source × rank → move after 15 min"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "fuente del filtro × posición → movimiento tras 15 min"
-          }
-        }
-      }
-    },
-    "lab.shownDayResult" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Result"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resultado"
-          }
-        }
-      }
-    },
-    "lab.shownDayTrades" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trades"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Operaciones"
-          }
-        }
-      }
-    },
     "lab.swapNote" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6573,6 +6556,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Candidato"
+          }
+        }
+      }
+    },
+    "lab.testedOn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tested on the last %lld sessions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probada en las últimas %lld sesiones"
           }
         }
       }
@@ -6645,6 +6645,57 @@
         }
       }
     },
+    "lab.verdictLess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ earned %2$@ less"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ ganó %2$@ menos"
+          }
+        }
+      }
+    },
+    "lab.verdictMore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ earned %2$@ more · not proven yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ ganó %2$@ más · aún sin probar"
+          }
+        }
+      }
+    },
+    "lab.verdictSame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both earned the same"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ambas ganaron lo mismo"
+          }
+        }
+      }
+    },
     "lab.verdictWatch" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6685,13 +6736,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strategy versions"
+            "value" : "Model versions"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Versiones de la estrategia"
+            "value" : "Versiones del modelo"
+          }
+        }
+      }
+    },
+    "lab.versionsAbout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How versions swap"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo se cambian las versiones"
           }
         }
       }
@@ -6821,115 +6889,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "→| %@"
+            "value" : "Entry %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "→| %@"
+            "value" : "Entrada %@"
           }
         }
       }
     },
-    "menuBar.flowOrder" : {
+    "menuBar.moreHint" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "order"
+            "value" : "To close positions or stop the bot, open Tickr."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "orden"
-          }
-        }
-      }
-    },
-    "menuBar.flowReconcile" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reconcile"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "conciliar"
-          }
-        }
-      }
-    },
-    "menuBar.flowRisk" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "risk"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "riesgo"
-          }
-        }
-      }
-    },
-    "menuBar.flowScreen" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "screen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "filtro"
-          }
-        }
-      }
-    },
-    "menuBar.flowStop" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "stop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "stop"
-          }
-        }
-      }
-    },
-    "menuBar.flowStrategy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "strategy"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "estrategia"
+            "value" : "Para cerrar posiciones o detener el bot, abre Tickr."
           }
         }
       }
@@ -6951,6 +6934,40 @@
         }
       }
     },
+    "menuBar.now" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Now %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora %@"
+          }
+        }
+      }
+    },
+    "menuBar.room" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loss room left %1$@ of %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Margen de pérdida %1$@ de %2$@"
+          }
+        }
+      }
+    },
     "menuBar.shares" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6968,36 +6985,36 @@
         }
       }
     },
+    "menuBar.stop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop %@"
+          }
+        }
+      }
+    },
     "menuBar.trades" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld closed · %2$lld W · %3$lld L"
+            "value" : "%1$lld closed · %2$lld won · %3$lld lost"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld cerradas · %2$lld G · %3$lld P"
-          }
-        }
-      }
-    },
-    "menuBar.tradesAndRoom" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld closed · %2$lld W · %3$lld L · room %4$@ of %5$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld cerradas · %2$lld G · %3$lld P · margen %4$@ de %5$@"
+            "value" : "%1$lld cerradas · %2$lld ganadas · %3$lld perdidas"
           }
         }
       }
@@ -9616,7 +9633,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strategy lab"
+            "value" : "Model lab"
           }
         },
         "es" : {
@@ -9701,13 +9718,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter an http address of the bot's local API, such as %@. Loopback or your Tailscale address only."
+            "value" : "The bot's address on this Mac or your Tailscale address, for example %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Introduce una dirección http de la API local del bot, como %@. Solo loopback o tu dirección de Tailscale."
+            "value" : "La dirección del bot en esta Mac o tu dirección de Tailscale, por ejemplo %@"
           }
         }
       }
@@ -10052,40 +10069,6 @@
         }
       }
     },
-    "settings.alwaysDark" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Always dark, whatever the system uses"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siempre oscuro, sin importar el sistema"
-          }
-        }
-      }
-    },
-    "settings.alwaysLight" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Always light, whatever the system uses"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siempre claro, sin importar el sistema"
-          }
-        }
-      }
-    },
     "settings.alwaysOn" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10109,30 +10092,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Local API address"
+            "value" : "Address"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dirección de la API local"
-          }
-        }
-      }
-    },
-    "settings.apiVersion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Local API version"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Versión de la API local"
+            "value" : "Dirección"
           }
         }
       }
@@ -10150,23 +10116,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apariencia"
-          }
-        }
-      }
-    },
-    "settings.appearanceTheme" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appearance · theme"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apariencia · tema"
           }
         }
       }
@@ -10205,70 +10154,19 @@
         }
       }
     },
-    "settings.backupFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The bot copies its database every day and checks the copy; times are New York time."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El bot copia su base de datos cada día y verifica la copia; las horas son de Nueva York."
-          }
-        }
-      }
-    },
-    "settings.backupLast" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "last: %@ · keep latest"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "última: %@ · conservar la más reciente"
-          }
-        }
-      }
-    },
-    "settings.backups" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backups · storage"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Respaldos · almacenamiento"
-          }
-        }
-      }
-    },
     "settings.backupVerified" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Daily backup verified · VACUUM INTO + integrity_check"
+            "value" : "Backup checked"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Respaldo diario verificado · VACUUM INTO + integrity_check"
+            "value" : "Respaldo verificado"
           }
         }
       }
@@ -10307,53 +10205,53 @@
         }
       }
     },
-    "settings.botService" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bot service · launchd job"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Servicio del bot · trabajo de launchd"
-          }
-        }
-      }
-    },
     "settings.botStatusInApp" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot · status in this app"
+            "value" : "Status in this app"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot · estado en esta app"
+            "value" : "Estado en esta app"
           }
         }
       }
     },
-    "settings.brokerEnvironment" : {
+    "settings.checkFailed" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Broker environment"
+            "value" : "failed"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entorno del bróker"
+            "value" : "fallida"
+          }
+        }
+      }
+    },
+    "settings.checkPassed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "passed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "superada"
           }
         }
       }
@@ -10364,13 +10262,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clean-up runs on the Mac with the bot stopped: tickr maintain (a dry run first, then --apply) compresses finished days, prunes the caches and old archives and checkpoints the database."
+            "value" : "Clean-up runs on the Mac while the bot is stopped: it compresses finished days and trims caches and old archives."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La limpieza se ejecuta en la Mac con el bot detenido: tickr maintain (primero una prueba en seco, luego --apply) comprime los días terminados, depura las cachés y los archivos antiguos y hace un checkpoint de la base de datos."
+            "value" : "La limpieza se ejecuta en la Mac con el bot detenido: comprime los días terminados y depura las cachés y los archivos antiguos."
           }
         }
       }
@@ -10426,36 +10324,19 @@
         }
       }
     },
-    "settings.configFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Read-only, as the file is on disk now. Every key with its comment. Credentials appear only as variable names."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo lectura, tal como está el archivo en disco ahora. Cada clave con su comentario. Las credenciales aparecen solo como nombres de variables."
-          }
-        }
-      }
-    },
     "settings.configFootnote" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Read from the bot's local API. Change it in config/bot.toml and restart the bot."
+            "value" : "Read-only. Change it in the config on the Mac."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Leído de la API local del bot. Cámbialo en config/bot.toml y reinicia el bot."
+            "value" : "Solo lectura. Cámbialo en la configuración de la Mac."
           }
         }
       }
@@ -10619,13 +10500,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Daily loss limit (net)"
+            "value" : "Daily loss limit"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Límite de pérdida diaria (neto)"
+            "value" : "Límite de pérdida diaria"
           }
         }
       }
@@ -10636,13 +10517,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Days with captured bars"
+            "value" : "Days with prices"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Días con velas capturadas"
+            "value" : "Días con precios"
           }
         }
       }
@@ -10698,6 +10579,57 @@
         }
       }
     },
+    "settings.entriesAllowed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "allowed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "permitidas"
+          }
+        }
+      }
+    },
+    "settings.entriesOff" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "desactivadas"
+          }
+        }
+      }
+    },
+    "settings.entriesPaused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "paused"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "en pausa"
+          }
+        }
+      }
+    },
     "settings.environment" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10721,30 +10653,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The environment is set in config/bot.toml. The app cannot switch it, by design."
+            "value" : "Set in the config on the Mac. The app cannot switch it, by design."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El entorno se define en config/bot.toml. La app no puede cambiarlo, por diseño."
-          }
-        }
-      }
-    },
-    "settings.environmentGate" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Environment · trading gate"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entorno · puerta de trading"
+            "value" : "Se define en la configuración de la Mac. La app no puede cambiarlo, por diseño."
           }
         }
       }
@@ -10766,138 +10681,19 @@
         }
       }
     },
-    "settings.featureChase" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limit-exit chase"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Persecución de salida límite"
-          }
-        }
-      }
-    },
-    "settings.featureExtendedHours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Extended hours (limit only)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Horario extendido (solo límite)"
-          }
-        }
-      }
-    },
-    "settings.featureHalfDays" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trade half days"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Operar medias jornadas"
-          }
-        }
-      }
-    },
-    "settings.features" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Features · from config"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Funciones · de la configuración"
-          }
-        }
-      }
-    },
-    "settings.featuresFootnote" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A switch here edits nothing: it shows the value in the bot's configuration; planned ones are off."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un interruptor aquí no edita nada: muestra el valor de la configuración del bot; las planeadas están apagadas."
-          }
-        }
-      }
-    },
-    "settings.featureShort" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Short selling"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Venta en corto"
-          }
-        }
-      }
-    },
-    "settings.featureTrailing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trailing stop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trailing stop"
-          }
-        }
-      }
-    },
     "settings.firstRecordedDay" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "First recorded day"
+            "value" : "First day"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Primer día registrado"
+            "value" : "Primer día"
           }
         }
       }
@@ -10915,40 +10711,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cerrar todas las posiciones"
-          }
-        }
-      }
-    },
-    "settings.followsSystem" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Follows the system appearance"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Como el sistema"
-          }
-        }
-      }
-    },
-    "settings.gateCause" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gate cause"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Causa"
           }
         }
       }
@@ -11034,23 +10796,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Historial"
-          }
-        }
-      }
-    },
-    "settings.historySource" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "History is read from the bot's database and bar captures, read-only."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El historial se lee de la base de datos del bot y de las capturas de velas, solo lectura."
           }
         }
       }
@@ -11180,13 +10925,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jobs on the Mac · launchd"
+            "value" : "Scheduled jobs"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trabajos en la Mac · launchd"
+            "value" : "Trabajos programados"
           }
         }
       }
@@ -11310,23 +11055,6 @@
         }
       }
     },
-    "settings.marketTimezone" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Market timezone"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zona horaria del mercado"
-          }
-        }
-      }
-    },
     "settings.markFlatten" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11429,19 +11157,53 @@
         }
       }
     },
-    "settings.menuBarNote" : {
+    "settings.morningAllPassed" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Day result, positions and bot actions one click away"
+            "value" : "All %lld passed"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resultado del día, posiciones y acciones del bot a un clic"
+            "value" : "Las %lld pasaron"
+          }
+        }
+      }
+    },
+    "settings.morningFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed: %1$lld of %2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fallaron: %1$lld de %2$lld"
+          }
+        }
+      }
+    },
+    "settings.newEntries" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New entries"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevas entradas"
           }
         }
       }
@@ -11486,13 +11248,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Position notional cap"
+            "value" : "Largest position"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tope nocional por posición"
+            "value" : "Posición máxima"
           }
         }
       }
@@ -11565,6 +11327,23 @@
         }
       }
     },
+    "settings.notTradedHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pre-market and after-hours are not traded yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La preapertura y el horario extendido aún no se operan"
+          }
+        }
+      }
+    },
     "settings.ok" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -11595,57 +11374,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pérdida planeada por operación"
-          }
-        }
-      }
-    },
-    "settings.postBacklog" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "POST · BACKLOG"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "POST · PENDIENTE"
-          }
-        }
-      }
-    },
-    "settings.preBacklog" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PRE · BACKLOG"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PRE · PENDIENTE"
-          }
-        }
-      }
-    },
-    "settings.preBacklogFrom" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PRE %@ · BACKLOG"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PRE %@ · PENDIENTE"
           }
         }
       }
@@ -11843,13 +11571,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Session · %@ · NYSE calendar known"
+            "value" : "Today's session · %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sesión · %@ · calendario NYSE conocido"
+            "value" : "Sesión de hoy · %@"
+          }
+        }
+      }
+    },
+    "settings.showAllChecks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show all checks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver todas las comprobaciones"
           }
         }
       }
@@ -11962,13 +11707,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Starts the bot job on this Mac through launchd. The bot runs its preflight first."
+            "value" : "Runs the morning check, then starts the bot"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inicia el trabajo del bot en esta Mac mediante launchd. El bot hace primero su verificación previa."
+            "value" : "Ejecuta la verificación matutina y luego inicia el bot"
           }
         }
       }
@@ -12020,23 +11765,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No iniciado: %@"
-          }
-        }
-      }
-    },
-    "settings.startStopFootnote" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start = launchctl kickstart of the bot job (preflight runs first), never inside the app or the API. Stop is refused while a trade is open or entering: close the position first."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Iniciar = launchctl kickstart del trabajo del bot (primero se ejecuta la verificación previa), nunca dentro de la app ni de la API. Detener se rechaza mientras haya una operación abierta o entrando: cierra primero la posición."
           }
         }
       }
@@ -12156,23 +11884,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sistema"
-          }
-        }
-      }
-    },
-    "settings.thisMac" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "this Mac"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "esta Mac"
           }
         }
       }
@@ -14475,23 +14186,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "los registros difieren"
-          }
-        }
-      }
-    },
-    "trades.refused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Refused"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechazada"
           }
         }
       }

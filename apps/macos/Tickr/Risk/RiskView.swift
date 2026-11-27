@@ -439,7 +439,7 @@ private struct ReconciliationCard: View {
         }
         if let fences {
           let active = fences.count + (model.status?.entryStop == true ? 1 : 0)
-          DisclosureLine(L10n.Risk.safetyStops,
+          FooterDetail(L10n.Risk.safetyStops,
             summary: String(localized: active == 0 ? L10n.Risk.noneActive : L10n.Common.fences(active)),
             summaryColor: active == 0 ? Palette.profitText : Palette.warningText) {
             groups(fences)
@@ -920,14 +920,9 @@ private struct AccountCard: View {
         balance(L10n.Risk.cash, b.cashUsd, font: Self.figureFont)
         balance(L10n.Risk.buyingPower, b.buyingPowerUsd, font: Self.figureFont, color: Palette.accentText)
         balance(L10n.Risk.dayResult, b.dayPlUsd, font: Self.figureFont, signed: true)
-        DisclosureLine(L10n.Risk.moreBalances) {
-          FigureRow(L10n.Risk.overnightBuyingPower, value: Money.usd(b.overnightBuyingPowerUsd.value))
-          FigureRow(L10n.Risk.positionsValue, value: Money.usd(b.positionsValueUsd.value))
-          FigureRow(L10n.Risk.unrealized, value: Money.signedUSD(b.unrealizedPlUsd.value),
-            color: Palette.result(b.unrealizedPlUsd.value))
-          FigureRow(L10n.Risk.dayTradesLeft, value: b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit))
-          FigureRow(L10n.Risk.marginCalls, value: String(localized: L10n.Risk.marginValue(String(b.marginCalls),
-            Money.usd(b.maintenanceMarginUsd.value))), color: b.marginCalls > 0 ? Palette.warningText : Palette.textSecondary)
+        let more = moreBalances(b)
+        FooterDetail(L10n.Risk.moreBalances, count: more.count, endsCard: false) {
+          ForEach(more.indices, id: \.self) { FigureRow(more[$0].label, value: more[$0].value, color: more[$0].color) }
         }
       } else {
         balance(L10n.Risk.equity, nil, font: Self.equityFont)
@@ -935,15 +930,13 @@ private struct AccountCard: View {
         Footnote(L10n.Risk.balanceNote)
       }
       let unrealized = account.positions.compactMap { $0.unrealizedPlUsd?.value }
-      DisclosureLine(L10n.Risk.brokerPositions,
+      FooterDetail(L10n.Risk.brokerPositions,
         summary: ([String(account.positions.count)] + (unrealized.isEmpty ? [] : [Money.signedUSD(unrealized.reduce(0, +))]))
-          .joined(separator: Format.itemSeparator)) {
+          .joined(separator: Format.itemSeparator), endsCard: false) {
         if account.positions.isEmpty {
           empty
         }
-        // As many as the bot's entry slots (more in a tall window), then "Show all N ›".
-        CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
-          endsCard: false) { _, position in positionRow(position) }
+        ForEach(account.positions, id: \.self) { positionRow($0) }
       }
       SectionHeader(Text(L10n.Risk.brokerOrders)) { EmptyView() }
         .padding(.top, Tokens.Space.xs)
@@ -960,6 +953,19 @@ private struct AccountCard: View {
       // The latest fills, then "Show all N ›" on the card's bottom edge: the list grows all day.
       CappedList(account.fillsLatestFirst, id: \.self, title: L10n.Risk.fillsToday) { _, fill in fillRow(fill) }
     }
+  }
+
+  /// The balances behind "More balances ›": label, value and its colour.
+  private func moreBalances(_ b: AccountBalances) -> [(label: LocalizedStringResource, value: String, color: Color)] {
+    [
+      (L10n.Risk.overnightBuyingPower, Money.usd(b.overnightBuyingPowerUsd.value), Palette.textSecondary),
+      (L10n.Risk.positionsValue, Money.usd(b.positionsValueUsd.value), Palette.textSecondary),
+      (L10n.Risk.unrealized, Money.signedUSD(b.unrealizedPlUsd.value), Palette.result(b.unrealizedPlUsd.value)),
+      (L10n.Risk.dayTradesLeft, b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit),
+        Palette.textSecondary),
+      (L10n.Risk.marginCalls, String(localized: L10n.Risk.marginValue(String(b.marginCalls),
+        Money.usd(b.maintenanceMarginUsd.value))), b.marginCalls > 0 ? Palette.warningText : Palette.textSecondary),
+    ]
   }
 
   /// A broker position: symbol, quantity, average and last price, unrealized result.

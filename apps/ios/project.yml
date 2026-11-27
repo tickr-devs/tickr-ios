@@ -65,8 +65,12 @@ targets:
           UIColorName: LaunchBackground
           UIImageName: LaunchMark
           UIImageRespectsSafeAreaInsets: true
+        # The iPhone turns to landscape too: Home and Chart lay out for the compact height
+        # (verticalSizeClass), every other screen scrolls. iPad orientations are set apart.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
         # iPad: every orientation, which Split View and Slide Over need (mockup v156, boards
         # IPadLandscape, IPadPortrait, IPadSplit).
         UISupportedInterfaceOrientations~ipad:

@@ -559,14 +559,12 @@ struct FastMoversCard: View {
 
 /// A symbol's detail, pushed from the list (mockup IOSSymbols): the symbol, when it was first seen,
 /// its price and change and today's line, then what happened in one word and one caption with
-/// its fast bar's signals, its steps today behind a disclosure, and the chart link.
+/// its fast bar's signals, its steps today behind its footer link, and the chart link.
 private struct SymbolDetailScreen: View {
   @Environment(AppModel.self) private var model
   /// Today's price line, kept while the same symbol's line is read again.
   @State private var dayLine: SymbolDayLine?
   @State private var shownLineSymbol: String?
-  /// The steps today are open.
-  @State private var showsSteps = false
   let line: SymbolsLine
 
   /// The line's price and change: live where the bot's quotes hold the symbol.
@@ -634,15 +632,14 @@ private struct SymbolDetailScreen: View {
             .font(Tokens.Typography.annotation)
             .foregroundStyle(Palette.warningText)
           }
-        }
-        .detailCard()
-      }
-      if let row {
-        DetailDisclosure(SymbolsText.stepsToday,
-          summary: String(localized: SymbolsText.stepsPassed(SymbolsBoard.stepsPassed(row), SymbolStage.allCases.count)),
-          isOpen: $showsSteps) {
-          VStack(alignment: .leading, spacing: 0) {
-            ForEach(SymbolsBoard.path(row)) { step in pathStep(step, row: row) }
+          if let row {
+            FooterDetail(SymbolsText.stepsToday,
+              summary: String(localized: SymbolsText.stepsPassed(SymbolsBoard.stepsPassed(row), SymbolStage.allCases.count)),
+              endsCard: false) {
+              VStack(alignment: .leading, spacing: 0) {
+                ForEach(SymbolsBoard.path(row)) { step in pathStep(step, row: row) }
+              }
+            }
           }
         }
         .detailCard()

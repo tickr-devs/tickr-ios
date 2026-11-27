@@ -2,10 +2,10 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Open positions (IOSPosition board): Close all in the title row, one picker chip per position,
+/// Open positions (IOS2Position board): Close all in the title row, one picker chip per position,
 /// then the selected one with its result big, its price against entry and stop, its protection
-/// (the broker stop, three figures, the steps behind a disclosure) and Close position. Prices come
-/// from the captured bars (`PositionsModel`), for display only.
+/// (the broker stop, three figures, the steps behind "How it was protected ›") and Close position.
+/// Prices come from the captured bars (`PositionsModel`), for display only.
 struct PositionsView: View {
   @Environment(AppModel.self) private var model
   @State private var prices = Container.shared.positionsModel()
@@ -212,16 +212,20 @@ private struct PositionChips: View {
         .transition(.scale.combined(with: .opacity))
       }
       ForEach(0..<freeSlots, id: \.self) { _ in
-        // Plain text, not a control: a free slot does nothing when tapped.
-        Text(L10n.Positions.freeSlot)
-          .font(.footnote.bold())
-          .fixedSize()
-          .padding(.horizontal, Tokens.Space.s)
-          .frame(maxWidth: stretch ? .infinity : nil, minHeight: Self.chipHeight)
-          .foregroundStyle(Palette.textQuaternary)
-          .overlay(
-            RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-              .strokeBorder(Palette.separatorStrong, style: StrokeStyle(lineWidth: Tokens.Stroke.thin, dash: Tokens.Stroke.dash)))
+        // Plain text beside the chips, not a chip (IOS2Position): a hollow dot, where a position's
+        // tab has its stop's dot, and "Free". A free slot does nothing when tapped.
+        HStack(spacing: Tokens.Space.xs) {
+          Circle()
+            .strokeBorder(Palette.textQuaternary, lineWidth: Tokens.Stroke.regular)
+            .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
+          Text(L10n.Positions.freeSlot)
+        }
+        .font(.footnote)
+        .fixedSize()
+        .padding(.horizontal, Tokens.Space.s)
+        .frame(maxWidth: stretch ? .infinity : nil, minHeight: Self.chipHeight)
+        .foregroundStyle(Palette.textQuaternary)
+        .accessibilityElement(children: .combine)
       }
       ForEach(0..<empty, id: \.self) { _ in
         Color.clear.frame(maxWidth: .infinity).accessibilityHidden(true)
@@ -474,12 +478,12 @@ private struct LevelsCard: View {
 
 /// The board's Protection card: the broker stop as the headline in its state's colour (`StopState`),
 /// three figures (the planned loss, the distance to the stop, the worst and best excursion), and
-/// "How it was protected ›" opening the steps the bot proved, with when it last read the broker.
+/// "How it was protected ›" opening the steps the bot proved in a sheet, with when it last read the
+/// broker.
 private struct ProtectionCard: View {
   /// Digits after the point of the distance to the stop, in percent.
   static let percentDigits = 1
 
-  @State private var open = false
   let position: Position
   let marks: PositionMarks?
   /// When the bot last read the broker, and whether that read is current (`ProtectionSteps`).
@@ -520,23 +524,13 @@ private struct ProtectionCard: View {
         } ?? Format.missing)
         figure(L10n.Positions.excursion, excursion)
       }
-      DisclosureGroup(isExpanded: $open) {
+      // When the bot last read the broker; amber while that read is not current.
+      FooterDetail(L10n.Positions.howProtected,
+        summary: String(localized: L10n.Positions.checkedAt(brokerReadAt.map(Format.clock) ?? Format.missing)),
+        summaryColor: reconciled && brokerReadAt != nil ? Palette.textQuaternary : Palette.warningText,
+        endsCard: false) {
         ProtectionSteps(position: position, brokerReadAt: brokerReadAt, reconciled: reconciled)
-          .padding(.top, Tokens.Space.s)
-      } label: {
-        HStack(spacing: Tokens.Space.s) {
-          Text(L10n.Positions.howProtected)
-            .foregroundStyle(Palette.textPrimary)
-          Spacer(minLength: Tokens.Space.s)
-          // When the bot last read the broker; amber while that read is not current.
-          Text(L10n.Positions.checkedAt(brokerReadAt.map(Format.clock) ?? Format.missing))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(reconciled && brokerReadAt != nil ? Palette.textQuaternary : Palette.warningText)
-        }
-        .font(.subheadline)
-        .frame(minHeight: Tokens.Size.touchTarget)
       }
-      .tint(Palette.textQuaternary)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.horizontal, Tokens.Space.l)

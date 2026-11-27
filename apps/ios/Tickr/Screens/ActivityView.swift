@@ -3,8 +3,8 @@ import TickrDesign
 import TickrKit
 
 /// What happened on a day: the day's result curve, closed trades, signals not taken, and the
-/// journal. Today is live from the status; the calendar button picks a recorded past day, which
-/// shows read-only from the bot's history.
+/// journal. Today is live from the status; the day capsule opens the calendar, which picks a recorded
+/// past day, shown read-only from the bot's history.
 struct ActivityView: View {
   enum Pane: String, CaseIterable, Identifiable {
     case trades, skipped, journal
@@ -32,14 +32,15 @@ struct ActivityView: View {
 
   var body: some View {
     Screen(L10n.App.activity, tab: .activity) {
+      // The day capsule ("Today ▾", IOS2Activity): it opens and closes the calendar of recorded days.
       Button {
         showsCalendar.toggle()
       } label: {
-        // Open, the calendar's button sits on a wash, as a selected chip.
-        HeaderIcon(.calendar, selected: showsCalendar)
-          .foregroundStyle(Palette.textPrimary)
+        DayCapsule(caption: dayCaption)
       }
-      .accessibilityLabel(Text(L10n.Activity.calendar))
+      .buttonStyle(DayButtonStyle())
+      .accessibilityLabel(Text(DayWords.label(fullDay)))
+      .accessibilityAddTraits(showsCalendar ? .isSelected : [])
       .accessibilityIdentifier(AccessibilityID.calendar)
     } content: {
       if showsCalendar, let url = model.connection.url {
@@ -104,6 +105,23 @@ struct ActivityView: View {
         await activity.loadJournal(url, day: day)
       }
     }
+  }
+
+  /// The capsule's caption: nil on today ("Today"), else the chosen past day or the last session
+  /// (a weekend, a day off), never called today.
+  private var dayCaption: String? {
+    if let selected = activity.selectedDay { return DayText.day(selected) }
+    guard let status = model.status, activity.sessionDay(of: status) != activity.today else { return nil }
+    return DayText.day(status.writtenAt.date)
+  }
+
+  /// The shown day in full, for VoiceOver ("Mon Nov 16 · today").
+  private var fullDay: String {
+    if let selected = activity.selectedDay { return DayText.day(selected) }
+    guard let status = model.status else { return String(localized: DayWords.today) }
+    let day = DayText.day(status.writtenAt.date)
+    return String(localized: activity.sessionDay(of: status) == activity.today
+      ? L10n.Common.today(day) : L10n.Activity.lastSession(day))
   }
 
   /// Changes when the status's session or its closed trades change, reloading the session's
@@ -953,11 +971,18 @@ private struct SkippedRow: View {
   }
 
   var body: some View {
-    DisclosureGroup(isExpanded: $isOpen) {
-      WhatIfDetails(group: group)
-        .padding(.top, Tokens.Space.xs)
-    } label: {
-      summary
+    VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+      Button {
+        withAnimation(Tokens.Motion.quick) { isOpen.toggle() }
+      } label: {
+        summary
+      }
+      .buttonStyle(.plain)
+      .accessibilityAddTraits(isOpen ? .isSelected : [])
+      if isOpen {
+        WhatIfDetails(group: group)
+          .transition(.opacity)
+      }
     }
     .tint(Palette.textTertiary)
     .padding(Tokens.Space.m)
@@ -978,11 +1003,13 @@ private struct SkippedRow: View {
           whenText
           Spacer(minLength: Tokens.Space.s)
           resultText
+          ExpandChevron(open: isOpen)
         }
         ChipFlow {
           symbolText
           whenText
           resultText
+          ExpandChevron(open: isOpen)
         }
       }
       if let cause = group.cause {

@@ -2,34 +2,39 @@ import SwiftUI
 import TickrDesign
 import TickrKit
 
-/// Strategy lab, as the design's board: the strategy versions, the replay that compares versions,
-/// why signals were refused, and one symbol's decision explained. Two equal columns in two rows,
-/// each row as tall as its tallest card (never stretched to the window, which left cards half
-/// empty).
+/// Model lab, as the design's board (MacLab, mockup v159): the version that trades and its day,
+/// the versions the bot knows, one symbol's decision explained, the replay that compares two
+/// versions and the entries the safety rules blocked. Three equal columns of stacked cards (two in
+/// a narrow window), as tall as the tallest column (never stretched to the window, which left
+/// cards half empty). The board's version chart, next version and profit by confidence need an
+/// API the bot does not have yet.
 struct LabView: View {
   /// Entrance order of the cards.
   private enum Order: Int {
-    case versions = 0, replay, refusals, explain
+    case active = 0, versions, explain, replay, refusals
   }
 
   /// Positions of the cards in the screen's `CardGrid`.
-  private enum Slot: Int { case versions = 0, replay, refusals, explain }
+  private enum Slot: Int { case active = 0, versions, replay, refusals, explain }
 
-  /// The grid: two equal columns in two rows at every width.
+  /// The grid: the board's three columns, two below the width three need.
   static let arrangements: [CardArrangement] = [
+    CardArrangement(minWidth: CardArrangement.columnsMinWidth(CardArrangement.wideColumns), rows: [
+      columns([[.active, .versions], [.explain], [.replay, .refusals]]),
+    ]),
     CardArrangement(minWidth: 0, rows: [
-      row([.versions, .replay]),
-      row([.refusals, .explain]),
+      columns([[.active, .versions, .explain], [.replay, .refusals]]),
     ]),
   ]
 
-  private static func row(_ slots: [Slot]) -> CardRow {
-    CardRow(columns: slots.map { CardColumn(width: .share(1), cards: [$0.rawValue]) })
+  private static func columns(_ stacks: [[Slot]]) -> CardRow {
+    CardRow(columns: stacks.map { CardColumn(width: .share(1), cards: $0.map(\.rawValue)) })
   }
 
   var body: some View {
     ScrollView {
       CardGrid(arrangements: Self.arrangements, spacing: Tokens.Space.l) {
+        active
         versions
         replay
         refusals
@@ -45,14 +50,15 @@ struct LabView: View {
 
   @Environment(AppModel.self) private var model
 
+  private var active: some View { ActiveVersionCard().gridColumn().rise(step: Order.active.rawValue) }
   private var versions: some View { VersionsCard().gridColumn().rise(step: Order.versions.rawValue) }
   private var replay: some View { ReplayCard().gridColumn().rise(step: Order.replay.rawValue) }
   private var refusals: some View { RefusalsCard().gridColumn().rise(step: Order.refusals.rawValue) }
   private var explain: some View { ExplainCard().gridColumn().rise(step: Order.explain.rawValue) }
 }
 
-/// Every strategy version the bot knows: the active one that trades and the candidates the replay
-/// can run; each with its role.
+/// Every model version the bot knows, as the board's rows: the active one that trades and the
+/// candidates the replay can run, each with its role's `Badge`. The "i" says how versions swap.
 private struct VersionsCard: View {
   @Environment(AppModel.self) private var model
 
@@ -64,97 +70,47 @@ private struct VersionsCard: View {
   }
 
   var body: some View {
-    Card(L10n.Lab.versions) {
-      VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        // Above the list, so the list's "Show all" ends the card.
-        Text(L10n.Lab.swapNote)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textTertiary)
-          .fixedSize(horizontal: false, vertical: true)
-        VStack(spacing: 0) {
-          row(name: activeName, version: model.status?.strategy.version,
-            tag: Badge(L10n.Lab.tagActive, tone: .accent)) {
-            Text(L10n.Lab.activeRole)
-          }
-          activePanel
-        }
+    Card(L10n.Lab.versions, trailing: {
+      LabInfoButton(label: L10n.Lab.versionsAbout, texts: [L10n.Lab.swapNote])
+    }, content: {
+      VStack(alignment: .leading, spacing: 0) {
+        row(name: activeName, version: model.status?.strategy.version, tag: Badge(L10n.Lab.tagActive, tone: .accent))
         // The candidates: the first few (more in a tall window), then "Show all N ›" on the
         // card's bottom edge; the active version above is always shown.
-        CappedList(candidates, id: \.folder, title: L10n.Lab.versions, limit: Tokens.Lists.comparedRows) { _, candidate in
+        CappedList(candidates, id: \.folder, title: L10n.Lab.versions, limit: Tokens.Lists.comparedRows,
+          spacing: 0) { _, candidate in
           row(name: candidate.strategy ?? candidate.folder, version: candidate.version,
-            tag: Badge(L10n.Lab.tagCandidate, tone: .warning)) { Text(L10n.Lab.candidateNote) }
+            tag: Badge(L10n.Lab.tagCandidate, tone: .warning))
         }
       }
       .animation(Tokens.Motion.standard, value: candidates)
-    }
+    })
   }
 
-  /// Height of the active version's curve, in points.
-  static let sparkHeight: CGFloat = 24
-
-  /// The active version's shown day under its row: trades, gross result and the day's curve.
-  private var activePanel: some View {
-    HStack(alignment: .bottom, spacing: Tokens.Space.l) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        CardLabel(L10n.Lab.shownDayTrades)
-        Text(L10n.Lab.closedWinsLosses(model.shownTradeCount, model.shownWins, model.shownLosses))
-          .font(Tokens.Typography.calloutMono.bold())
-          .foregroundStyle(Palette.textPrimary)
-      }
-      .fixedSize()
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        CardLabel(L10n.Lab.shownDayResult)
-        MoneyText(value: model.shownResult, font: Tokens.Typography.calloutMono.bold())
-      }
-      .fixedSize()
-      DrawnSparkline(values: model.cumulativeResults, color: Palette.result(model.shownResult))
-        .frame(maxWidth: .infinity)
-        .frame(height: Self.sparkHeight)
-    }
-    .padding(.horizontal, Tokens.Space.m)
-    .padding(.vertical, Tokens.Space.s)
-    .background(Palette.accent.opacity(Tokens.Opacity.wash), in: .rect(cornerRadius: Tokens.Radius.medium))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
-        .strokeBorder(Palette.accent.opacity(Tokens.Opacity.border), lineWidth: Tokens.Stroke.thin)
-    }
-  }
-
-  /// One version's row, its role's `Badge` at the end.
-  private func row(
-    name: String, version: String?, tag: Badge, @ViewBuilder note: () -> some View
-  ) -> some View {
+  /// One version's row under a hairline, its role's `Badge` at the end.
+  private func row(name: String, version: String?, tag: Badge) -> some View {
     HStack(spacing: Tokens.Space.s) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        HStack(spacing: 0) {
-          Text(verbatim: name)
-          if let version {
-            Text(L10n.Lab.versionSuffix(version))
-          }
+      HStack(spacing: 0) {
+        Text(verbatim: name)
+        if let version {
+          Text(L10n.Lab.versionSuffix(version))
         }
-        .font(Tokens.Typography.calloutMono.bold())
-        .foregroundStyle(Palette.textPrimary)
-        note()
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textQuaternary)
       }
+      .font(Tokens.Typography.calloutMono.bold())
+      .foregroundStyle(Palette.textPrimary)
+      .fixedSize(horizontal: false, vertical: true)
       Spacer(minLength: Tokens.Space.s)
       tag
     }
-    .padding(.horizontal, Tokens.Space.m)
     .padding(.vertical, Tokens.Space.s)
-    .background(Palette.surfaceSunken, in: .rect(cornerRadius: Tokens.Radius.medium))
-    .overlay {
-      RoundedRectangle(cornerRadius: Tokens.Radius.medium)
-        .strokeBorder(Palette.separator, lineWidth: Tokens.Stroke.thin)
-    }
+    .overlay(alignment: .top) { Divider() }
     .accessibilityElement(children: .combine)
   }
 }
 
-/// Why the active strategy's signals were refused on the shown day: one compact row per cause,
-/// the most frequent first, each cause in its own colour (GET /skipped, counted by
-/// `RefusalCount`).
+/// "Blocked by safety rules": how many entries the active version wanted on the shown day that the
+/// platform's limits refused, big, then one compact row per cause, the most frequent first, each
+/// cause in its own colour (GET /skipped, counted by `RefusalCount`). The "i" says what it counts.
 private struct RefusalsCard: View {
   @Environment(AppModel.self) private var model
 
@@ -165,18 +121,19 @@ private struct RefusalsCard: View {
   static let colors = [Palette.warning, Palette.info, Palette.highlight, Palette.loss, Palette.accent, Palette.profit]
 
   var body: some View {
-    Card(model.isLive ? L10n.Lab.refusalsToday : L10n.Lab.refusals) {
+    Card(L10n.Lab.refusals, trailing: {
+      LabInfoButton(label: L10n.Lab.refusalsAbout, texts: [L10n.Lab.refusalsInfo])
+    }, content: {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
-        // Above the bars, so their "Show all" ends the card.
-        PlannedLine(text: L10n.Lab.screenerBacklog)
         if let signals = model.skipped?.signals {
           let counts = RefusalCount.make(signals)
+          total(counts.reduce(0) { $0 + $1.count })
           if counts.isEmpty {
             Footnote(L10n.Lab.noRefusals)
           }
           let most = Double(counts.first?.count ?? 1)
           // The most frequent causes (more in a tall window), then "Show all N ›".
-          CappedList(counts, id: \.id, title: model.isLive ? L10n.Lab.refusalsToday : L10n.Lab.refusals) { index, count in
+          CappedList(counts, id: \.id, title: L10n.Lab.refusals) { index, count in
             row(count, share: Double(count.count) / most, color: Self.colors[index % Self.colors.count], step: index)
           }
         } else if let error = model.skippedError {
@@ -186,7 +143,27 @@ private struct RefusalsCard: View {
         }
       }
       .animation(Tokens.Motion.standard, value: model.skipped)
+    })
+  }
+
+  /// The day's total, big, with its day ("today", or the recorded day).
+  private func total(_ count: Int) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      Text(verbatim: String(count))
+        .font(Tokens.Typography.metric)
+        .foregroundStyle(Palette.textPrimary)
+        .contentTransition(.numericText())
+      Group {
+        if model.isLive {
+          Text(L10n.Lab.refusalsToday)
+        } else {
+          Text(verbatim: DayText.day(model.shownDay))
+        }
+      }
+      .font(Tokens.Typography.caption)
+      .foregroundStyle(Palette.textTertiary)
     }
+    .accessibilityElement(children: .combine)
   }
 
   private func row(_ count: RefusalCount, share: Double, color: Color, step: Int) -> some View {
@@ -229,21 +206,6 @@ private struct RefusalsCard: View {
   }
 }
 
-/// A BACKLOG tag with what is planned, as the design marks features the bot does not serve yet.
-private struct PlannedLine: View {
-  let text: LocalizedStringResource
-
-  var body: some View {
-    HStack(spacing: Tokens.Space.s) {
-      Badge.backlog
-      Text(text)
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.textTertiary)
-      Spacer(minLength: 0)
-    }
-  }
-}
-
 extension Verdict {
   /// The decision as the app names it.
   var title: LocalizedStringResource {
@@ -257,10 +219,12 @@ extension Verdict {
   }
 }
 
-/// The Lab's replay, as the design's compare card: a strategy version SIMULATED over the last
-/// sessions of data fetched on the Mac, or over one of its days, optionally against a second
-/// version over the same days (GET/POST /lab/replay), started here and read while the Lab is
-/// open. The result is a table with a column per version and their difference. While the regular
+/// "Compare two versions", the Lab's replay: a strategy version SIMULATED over the last sessions
+/// of data fetched on the Mac, or over one of its days, optionally against a second version over
+/// the same days (GET/POST /lab/replay), started here and read while the Lab is open; the "i" says
+/// how it runs. The result is each version's net with the bot's limits, win rate and trades, a
+/// line saying which earned more, and "All figures ›" with every figure and the difference of the
+/// two versions in a popover. While the regular
 /// session refuses a start (`LabReplayV1.availableAt`), the button rests with the time it opens
 /// and a countdown; any other refusal (a run going, no data) reads as a calm reason in words.
 private struct ReplayCard: View {
@@ -276,8 +240,6 @@ private struct ReplayCard: View {
   static let refusalSymbol = "info.circle"
   /// Symbol of the wait for the session to close.
   static let waitSymbol = "clock"
-  /// Width of the header's note, which wraps so the title keeps its line, in points.
-  static let noteWidth: CGFloat = 96
   /// Symbol of a chip's menu.
   static let menuSymbol = "chevron.down"
 
@@ -307,15 +269,12 @@ private struct ReplayCard: View {
 
   var body: some View {
     Card(L10n.Lab.replay, trailing: {
-      Text(L10n.Lab.replaySimulated)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-        .multilineTextAlignment(.trailing)
-        .frame(maxWidth: Self.noteWidth, alignment: .trailing)
-        .tip(Text(L10n.Lab.replayNote))
+      LabInfoButton(label: L10n.Lab.compareAbout, texts: [L10n.Lab.replayNote, L10n.Lab.replayPriority])
     }, content: {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {
         choices
+        status
+        // As the board: the button under the result.
         Button {
           Task { await model.startLabReplay(version: first, compare: second, day: chosenDay) }
         } label: {
@@ -329,11 +288,6 @@ private struct ReplayCard: View {
         if let waitsUntil, !running {
           availability(waitsUntil)
         }
-        status
-        Text(L10n.Lab.replayPriority)
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.textTertiary)
-          .fixedSize(horizontal: false, vertical: true)
       }
     })
     .task(id: model.baseURL) { await model.followLabReplay() }
@@ -508,7 +462,8 @@ private struct ReplayCard: View {
         }
       case .done:
         if let summary = replay.summary {
-          table(replay, summary)
+          glance(replay, summary)
+          FooterDetail(L10n.Lab.replayAllFigures, endsCard: false) { table(replay, summary) }
         }
         if let cause = replay.causeText { Footnote(verbatim: cause) }
         if let day = replay.day { Footnote(L10n.Lab.replayOneDayNote(DayText.day(day))) }
@@ -525,27 +480,71 @@ private struct ReplayCard: View {
     }
   }
 
+  /// The board's compare table: each version's net with the bot's limits, win rate and trades in a
+  /// column per version, then which one earned more.
+  @ViewBuilder private func glance(_ replay: LabReplayV1, _ summary: LabReplaySummaryV1) -> some View {
+    let other = replay.compare?.summary
+    Grid(alignment: .trailing, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.xs) {
+      header(replay, compared: other != nil, difference: false)
+      compareRow(L10n.Lab.replayWithBotLimits, summary.botTotalUsd.value, other?.botTotalUsd.value,
+        compared: other != nil, difference: false, format: { Money.signedUSD($0) }, delta: { Money.signedUSD($0) })
+      compareRow(L10n.Lab.replayWinRate, summary.winRatePercent?.value, other?.winRatePercent?.value,
+        compared: other != nil, colored: false, difference: false, format: { Percent.plain(points: $0) },
+        delta: { Percent.plain(points: $0) })
+      compareRow(L10n.Lab.replayTrades, Decimal(summary.trades), other.map { Decimal($0.trades) },
+        compared: other != nil, colored: false, difference: false,
+        format: { Money.plain($0, fractionDigits: .zero) }, delta: { Money.signed($0, fractionDigits: .zero) })
+    }
+    if let second = replay.compare, let verdict = LabFigures.verdict(replay) {
+      Text(verdictText(String(localized: L10n.Lab.versionName(second.strategy, second.version)), verdict))
+        .font(Tokens.Typography.callout.weight(.semibold))
+        .foregroundStyle(Palette.textSecondary)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    if let second = replay.compare, second.summary == nil {
+      Text(L10n.Lab.replayCompareFailed(String(localized: L10n.Lab.versionName(second.strategy, second.version)),
+        second.causeText ?? Format.missing))
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Palette.warningText)
+    }
+  }
+
+  /// "v2 earned +$69.00 more · not proven yet", "v2 earned $3.10 less", or that both earned the same.
+  private func verdictText(_ name: String, _ verdict: LabFigures.Verdict) -> LocalizedStringResource {
+    switch verdict {
+    case .more(let difference): L10n.Lab.verdictMore(name, Money.signedUSD(difference))
+    case .less(let difference): L10n.Lab.verdictLess(name, Money.usd(difference))
+    case .same: L10n.Lab.verdictSame
+    }
+  }
+
+  /// The tables' first row: the versions' names in their chips' colours, and "difference".
+  private func header(_ replay: LabReplayV1, compared: Bool, difference: Bool) -> some View {
+    GridRow {
+      Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+      // A version's name wider than its column wraps onto a second line, never cut.
+      Text(verbatim: String(localized: L10n.Lab.versionName(replay.strategy ?? Format.missing,
+        replay.version ?? Format.missing))).foregroundStyle(Palette.accentText)
+        .fixedSize(horizontal: false, vertical: true)
+      if let second = replay.compare, compared {
+        Text(verbatim: String(localized: L10n.Lab.versionName(second.strategy, second.version)))
+          .foregroundStyle(Palette.highlightText)
+          .fixedSize(horizontal: false, vertical: true)
+        if difference {
+          Text(L10n.Lab.replayDifference).foregroundStyle(Palette.textQuaternary)
+        }
+      }
+    }
+    .font(Tokens.Typography.annotation)
+  }
+
   /// The design's compare table: a column for the replayed version, one for the second version
   /// and their difference when there is one, a row per figure, then where the data came from.
   @ViewBuilder private func table(_ replay: LabReplayV1, _ summary: LabReplaySummaryV1) -> some View {
-    let firstName = String(localized: L10n.Lab.versionName(replay.strategy ?? Format.missing,
-      replay.version ?? Format.missing))
     let other = replay.compare?.summary
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       Grid(alignment: .trailing, horizontalSpacing: Tokens.Space.m, verticalSpacing: Tokens.Space.xs) {
-        GridRow {
-          Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
-          // A version's name wider than its column wraps onto a second line, never cut.
-          Text(verbatim: firstName).foregroundStyle(Palette.accentText)
-            .fixedSize(horizontal: false, vertical: true)
-          if let second = replay.compare, other != nil {
-            Text(verbatim: String(localized: L10n.Lab.versionName(second.strategy, second.version)))
-              .foregroundStyle(Palette.highlightText)
-              .fixedSize(horizontal: false, vertical: true)
-            Text(L10n.Lab.replayDifference).foregroundStyle(Palette.textQuaternary)
-          }
-        }
-        .font(Tokens.Typography.annotation)
+        header(replay, compared: other != nil, difference: true)
         compareRow(L10n.Lab.replayTrades, Decimal(summary.trades), other.map { Decimal($0.trades) },
           compared: other != nil, colored: false,
           format: { Money.plain($0, fractionDigits: .zero) },
@@ -574,12 +573,6 @@ private struct ReplayCard: View {
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
       }
-      if let second = replay.compare, second.summary == nil {
-        Text(L10n.Lab.replayCompareFailed(String(localized: L10n.Lab.versionName(second.strategy, second.version)),
-          second.causeText ?? Format.missing))
-          .font(Tokens.Typography.caption)
-          .foregroundStyle(Palette.warningText)
-      }
     }
   }
 
@@ -587,7 +580,7 @@ private struct ReplayCard: View {
   /// a missing number reads as a dash.
   private func compareRow(
     _ title: LocalizedStringResource, _ first: Decimal?, _ second: Decimal?, compared: Bool = false,
-    colored: Bool = true, format: (Decimal) -> String, delta: (Decimal) -> String
+    colored: Bool = true, difference: Bool = true, format: (Decimal) -> String, delta: (Decimal) -> String
   ) -> some View {
     GridRow {
       // A name longer than its column ("% de acierto" in a narrow column) wraps onto a second line, never cut.
@@ -599,11 +592,11 @@ private struct ReplayCard: View {
       cell(first, format, colored: colored)
       if compared {
         cell(second, format, colored: colored)
-        if let first, let second {
-          let difference = second - first
-          Text(verbatim: delta(difference))
-            .foregroundStyle(colored ? Palette.result(difference) : Palette.textSecondary)
-        } else {
+        if difference, let first, let second {
+          let change = second - first
+          Text(verbatim: delta(change))
+            .foregroundStyle(colored ? Palette.result(change) : Palette.textSecondary)
+        } else if difference {
           Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
         }
       }
@@ -625,20 +618,16 @@ private struct ReplayCard: View {
   }
 }
 
-/// Explain a symbol: what the active strategy last decided on a symbol on the shown day, check by
-/// check, from the decisions the bot recorded (GET /decisions). Opens on the day's latest traded
-/// symbol.
+/// "Why did the bot decide that?": what the active strategy last decided on a symbol on the
+/// shown day, the decision big, then check by check, from the decisions the bot recorded
+/// (GET /decisions). Opens on the day's latest traded symbol.
 private struct ExplainCard: View {
   @Environment(AppModel.self) private var model
   @State private var symbol = ""
   @State private var explain = ExplainModel()
-  /// Whether the list of all the decision's checks is open (the card shows as many as fit).
-  @State private var allChecksOpen = false
 
   /// Checks shown before the card's height is measured (the first layout pass).
   static let fallbackLines = 4
-  /// Width of the list of all checks, in points.
-  static let allChecksWidth: CGFloat = 340
   /// Width of the symbol field, in points.
   static let fieldWidth: CGFloat = 110
   /// Size of a check's mark, in points.
@@ -707,10 +696,7 @@ private struct ExplainCard: View {
     if let error {
       ReadFailureNote(L10n.ReadFailed.explain, detail: error)
     } else if let decision {
-      Text(headline(decision))
-        .font(Tokens.Typography.calloutMono)
-        .foregroundStyle(Palette.textSecondary)
-        .fixedSize(horizontal: false, vertical: true)
+      headline(decision)
       // As many checks as fill the card's cell (a long list never stretches the row's other
       // cards), then the footer on its bottom edge. The checks rise one after another as a
       // decision is shown; another decision rises afresh.
@@ -729,8 +715,6 @@ private struct ExplainCard: View {
       } else if symbol.isEmpty {
         Footnote(L10n.Lab.explainHint)
       }
-      Spacer(minLength: 0)
-      PlannedLine(text: L10n.Lab.explainBacklog)
     }
   }
 
@@ -746,37 +730,48 @@ private struct ExplainCard: View {
     }
   }
 
-  /// The backlog line, then "All checks N ›" when the card shows only some of them; the link
-  /// opens every check in a popover.
+  /// Which version decided, then "All checks N ›" when the card shows only some of the checks;
+  /// the link opens every check in a popover.
   @ViewBuilder
   private func footer(_ decision: DecisionV1, total: Int, shown: Int) -> some View {
-    PlannedLine(text: L10n.Lab.explainBacklog)
+    Footnote(L10n.Lab.decidedBy(String(localized: L10n.Lab.versionName(decision.strategy.name,
+      decision.strategy.version))))
     if shown < total {
-      CardFooterLink(L10n.Lab.explainShowAll, count: total) { allChecksOpen = true }
-        .popover(isPresented: $allChecksOpen, arrowEdge: .bottom) {
-          ScrollView {
-            VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-              ForEach(Self.lines(decision), id: \.self) { line in lineRow(line, of: decision) }
-            }
-            .padding(Tokens.Space.l)
-          }
-          .scrollEdgeHints()
-          .frame(width: Self.allChecksWidth)
-        }
+      FooterDetail(L10n.Lab.explainShowAll, count: total) {
+        ForEach(Self.lines(decision), id: \.self) { line in lineRow(line, of: decision) }
+      }
     }
   }
 
-  /// "KLMN · 10:43 · IGNORE · cause: round trip / ATR 0.31 > 0.25".
-  private func headline(_ decision: DecisionV1) -> LocalizedStringResource {
-    let head = [decisions?.symbol ?? symbol, Format.marketMinute(decision.at.date),
-      String(localized: decision.action.title).uppercased()].joined(separator: Format.itemSeparator)
-    if let reason = RefusalText.text(decision.refusal, cause: decision.refusalCause) {
-      return L10n.Lab.explainHeadline(head, reason)
+  /// As the board: "KLMN · 10:43" with the decision big at the end ("IGNORE"), then its cause
+  /// ("Cause: round trip / ATR 0.31 > 0.25") when it has one.
+  @ViewBuilder private func headline(_ decision: DecisionV1) -> some View {
+    let head = [decisions?.symbol ?? symbol, Format.marketMinute(decision.at.date)].joined(separator: Format.itemSeparator)
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      Text(L10n.Lab.explainHead(head))
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Tokens.Space.s)
+      Text(decision.action.title)
+        .textCase(.uppercase)
+        .font(Tokens.Typography.metric)
+        .foregroundStyle(Palette.textPrimary)
+        .fixedSize()
     }
-    if let failed = decision.checks.first(where: { !$0.passed }) {
-      return L10n.Lab.explainHeadline(head, failed.comparisonText)
+    .accessibilityElement(children: .combine)
+    if let cause = Self.cause(decision) {
+      Text(L10n.Lab.explainCause(cause))
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textSecondary)
+        .fixedSize(horizontal: false, vertical: true)
     }
-    return L10n.Lab.explainHead(head)
+  }
+
+  /// Why it was decided: the platform's refusal, else the first failed check; nil when neither.
+  private static func cause(_ decision: DecisionV1) -> String? {
+    if let reason = RefusalText.text(decision.refusal, cause: decision.refusalCause) { return reason }
+    return decision.checks.first { !$0.passed }?.comparisonText
   }
 
   private func checkRow(_ check: CheckV1) -> some View {

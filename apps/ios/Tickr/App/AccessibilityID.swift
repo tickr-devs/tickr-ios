@@ -30,4 +30,12 @@ enum AccessibilityID {
   static let back = "nav.back"
   /// Each pane chip of Activity (Trades, Not taken, Journal).
   static let activitySection = "activity.section"
+  /// Home's funnel row, the button that opens the "Funnel today" sheet.
+  static let funnel = "home.funnel"
+  /// Each stage's bar in the "Funnel today" sheet (its symbols, or the broker check's detail).
+  static let funnelStage = "funnel.stage"
+  /// Home's day capsule ("Today ▾"), the button that opens the day sheet.
+  static let daySwitch = "home.daySwitch"
+  /// The Chart top bar's button that opens the "Chart options" sheet (landscape only).
+  static let chartOptions = "chart.options"
 }

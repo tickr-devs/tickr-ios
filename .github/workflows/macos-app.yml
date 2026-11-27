@@ -113,6 +113,18 @@ jobs:
         run: |
           swift test
           scripts/check-deployment-target.sh
+      # A test run that hangs until the job's time limit cancels it (#853, 2026-11-27: 41 Swift
+      # tests started and never finished): the stacks of the test processes still alive, so the
+      # hang names the threads it waits on instead of only the tests that never ended. Runs only
+      # on a cancel; `sample` (3 s per process) prints call stacks, never the process environment.
+      - name: Stacks of a hung test run
+        if: cancelled()
+        run: |
+          for pid in $(pgrep -f 'swiftpm-testing-helper|xctest' || true); do
+            echo "::group::sample $pid"
+            sample "$pid" 3 2>&1
+            echo "::endgroup::"
+          done
       # Before the release build below, so the cache holds the debug builds pull requests reuse.
       - name: Save SwiftPM builds
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

@@ -273,23 +273,6 @@
         }
       }
     },
-    "activity.calendar" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Calendar"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Calendario"
-          }
-        }
-      }
-    },
     "activity.calendarLosses" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2925,23 +2908,6 @@
         }
       }
     },
-    "chart.day" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Day"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Día"
-          }
-        }
-      }
-    },
     "chart.dayStats" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2972,47 +2938,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Por qué actuó el bot"
-          }
-        }
-      }
-    },
-    "chart.decisions.all" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld decision"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "All %lld decisions"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld decisión"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Las %lld decisiones"
-                }
-              }
-            }
           }
         }
       }
@@ -3051,23 +2976,6 @@
         }
       }
     },
-    "chart.decisions.key" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entries and exits only"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo entradas y salidas"
-          }
-        }
-      }
-    },
     "chart.decisions.noEntries" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3098,23 +3006,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No hay decisiones registradas para este símbolo ese día."
-          }
-        }
-      }
-    },
-    "chart.decisions.noStrategy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The trading strategy recorded nothing on this symbol that day."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La estrategia de trading no registró nada en este símbolo ese día."
           }
         }
       }
@@ -3748,23 +3639,6 @@
         }
       }
     },
-    "chart.nextDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next day"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Día siguiente"
-          }
-        }
-      }
-    },
     "chart.noBars.body" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3901,19 +3775,19 @@
         }
       }
     },
-    "chart.previousDay" : {
+    "chart.options" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Previous day"
+            "value" : "Chart options"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Día anterior"
+            "value" : "Opciones del gráfico"
           }
         }
       }
@@ -4373,23 +4247,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gráfico"
-          }
-        }
-      }
-    },
-    "chart.todayLive" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "today"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hoy"
           }
         }
       }
@@ -5193,70 +5050,70 @@
         }
       }
     },
-    "flow.blocked" : {
+    "flow.allProtected" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "blocked"
+            "value" : "all protected"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "bloqueado"
+            "value" : "todas protegidas"
           }
         }
       }
     },
-    "flow.dropped" : {
+    "flow.foundBought" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "−%lld"
+            "value" : "%1$@ found → %2$@ bought"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "−%lld"
+            "value" : "%1$@ halladas → %2$@ compradas"
           }
         }
       }
     },
-    "flow.droppedCount" : {
+    "flow.funnel" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld dropped here today"
+            "value" : "Funnel"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld descartados aquí hoy"
+            "value" : "Embudo"
           }
         }
       }
     },
-    "flow.droppedKey" : {
+    "flow.funnelHint" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "−N dropped here"
+            "value" : "Shows each stage's count"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "−N descartados"
+            "value" : "Muestra el recuento de cada etapa"
           }
         }
       }
@@ -5312,19 +5169,19 @@
         }
       }
     },
-    "flow.order" : {
+    "flow.protectedOf" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "order"
+            "value" : "%1$lld of %2$lld protected"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "orden"
+            "value" : "%1$lld de %2$lld protegidas"
           }
         }
       }
@@ -5346,40 +5203,6 @@
         }
       }
     },
-    "flow.risk" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "risk"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "riesgo"
-          }
-        }
-      }
-    },
-    "flow.screen" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "screen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "filtro"
-          }
-        }
-      }
-    },
     "flow.stageDetailsHint" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5397,36 +5220,36 @@
         }
       }
     },
-    "flow.stocks" : {
+    "flow.stopMissing" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stocks"
+            "value" : "1 stop missing"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "acciones"
+            "value" : "falta 1 stop"
           }
         }
       }
     },
-    "flow.stop" : {
+    "flow.stopPending" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stop"
+            "value" : "1 stop pending"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stop"
+            "value" : "1 stop pendiente"
           }
         }
       }
@@ -5448,6 +5271,40 @@
         }
       }
     },
+    "flow.stopsMissing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld stops missing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "faltan %lld stops"
+          }
+        }
+      }
+    },
+    "flow.stopsPending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld stops pending"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld stops pendientes"
+          }
+        }
+      }
+    },
     "flow.stopsVerified" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5465,19 +5322,19 @@
         }
       }
     },
-    "flow.strategy" : {
+    "flow.symbolsAtEachStage" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "strategy"
+            "value" : "Symbols at each stage"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "estrategia"
+            "value" : "Símbolos en cada etapa"
           }
         }
       }
@@ -5512,23 +5369,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Flujo"
-          }
-        }
-      }
-    },
-    "flowStages.bars" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bars"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "velas"
           }
         }
       }
@@ -5584,40 +5424,6 @@
         }
       }
     },
-    "flowStages.quote" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "quote"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "cotización"
-          }
-        }
-      }
-    },
-    "flowStages.reconcile" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reconcile"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "conciliar"
-          }
-        }
-      }
-    },
     "flowStages.symbolsHint" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5648,23 +5454,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ · %2$@"
-          }
-        }
-      }
-    },
-    "home.backToToday" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hoy"
           }
         }
       }
@@ -5941,23 +5730,6 @@
         }
       }
     },
-    "home.nextDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next trading day"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siguiente día de trading"
-          }
-        }
-      }
-    },
     "home.noPosition" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6022,23 +5794,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ es un día registrado. Sus operaciones están en la pestaña Actividad."
-          }
-        }
-      }
-    },
-    "home.previousDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Previous trading day"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Día de trading anterior"
           }
         }
       }
@@ -6253,13 +6008,64 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Active strategy"
+            "value" : "Which version trades"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Estrategia activa"
+            "value" : "Qué versión opera"
+          }
+        }
+      }
+    },
+    "lab.activeBadge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activo"
+          }
+        }
+      }
+    },
+    "lab.compare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compare two versions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparar dos versiones"
+          }
+        }
+      }
+    },
+    "lab.compareAbout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How the comparison runs"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo se hace la comparación"
           }
         }
       }
@@ -6287,47 +6093,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "today · %1$lld closed · %2$lld W · %3$lld L · %4$lld open"
+            "value" : "Today · %1$lld closed, %2$lld won, %3$lld lost · %4$lld open"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "hoy · %1$lld cerradas · %2$lld G · %3$lld P · %4$lld abiertas"
-          }
-        }
-      }
-    },
-    "lab.later" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Replay results are simulated from the captured bars."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los resultados de la repetición se simulan con las velas capturadas."
-          }
-        }
-      }
-    },
-    "lab.modules" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategies are swappable modules: they decide, the platform sends orders and holds the risk limits."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las estrategias son módulos intercambiables: deciden, y la plataforma envía las órdenes y mantiene los límites de riesgo."
+            "value" : "Hoy · %1$lld cerradas, %2$lld ganadas, %3$lld perdidas · %4$lld abiertas"
           }
         }
       }
@@ -6372,13 +6144,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$lld closed · %3$lld W · %4$lld L"
+            "value" : "%1$@ · %2$lld closed, %3$lld won, %4$lld lost"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$lld cerradas · %3$lld G · %4$lld P"
+            "value" : "%1$@ · %2$lld cerradas, %3$lld ganadas, %4$lld perdidas"
           }
         }
       }
@@ -6389,13 +6161,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Why signals were refused today"
+            "value" : "Blocked by safety rules"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Por qué se rechazaron señales hoy"
+            "value" : "Bloqueadas por reglas de seguridad"
+          }
+        }
+      }
+    },
+    "lab.refusalsAbout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What this counts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué cuenta esto"
           }
         }
       }
@@ -6413,6 +6202,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudieron leer las señales rechazadas"
+          }
+        }
+      }
+    },
+    "lab.refusalsInfo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Times the active version wanted to enter and the platform's limits said no."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veces que la versión activa quiso entrar y los límites de la plataforma dijeron que no."
+          }
+        }
+      }
+    },
+    "lab.refusalsToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hoy"
           }
         }
       }
@@ -6570,6 +6393,23 @@
         }
       }
     },
+    "lab.replayDetails" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Win rate and more"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasa de acierto y más"
+          }
+        }
+      }
+    },
     "lab.replayDifference" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6634,23 +6474,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "R media al %@%%: %@ … %@"
-          }
-        }
-      }
-    },
-    "lab.replayLast" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Replay last %lld days"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repetir los últimos %lld días"
           }
         }
       }
@@ -6832,19 +6655,19 @@
         }
       }
     },
-    "lab.replayRecent" : {
+    "lab.replayRunAgain" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Replay recent days"
+            "value" : "Run again"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Repetir días recientes"
+            "value" : "Repetir"
           }
         }
       }
@@ -6896,74 +6719,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ejecutar y comparar"
-          }
-        }
-      }
-    },
-    "lab.replayState.done" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hecho"
-          }
-        }
-      }
-    },
-    "lab.replayState.failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Falló"
-          }
-        }
-      }
-    },
-    "lab.replayState.idle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not run"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin ejecutar"
-          }
-        }
-      }
-    },
-    "lab.replayState.running" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Running"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En curso"
           }
         }
       }
@@ -7039,6 +6794,23 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "lab.replayTradesCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trades"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld operaciones"
           }
         }
       }
@@ -7168,30 +6940,81 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strategy lab"
+            "value" : "Model lab"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laboratorio"
+            "value" : "Laboratorio del modelo"
           }
         }
       }
     },
-    "lab.trades" : {
+    "lab.verdictLess" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "trades"
+            "value" : "%1$@ earned %2$@ less"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "operaciones"
+            "value" : "%1$@ ganó %2$@ menos"
+          }
+        }
+      }
+    },
+    "lab.verdictMore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ earned %2$@ more · not proven yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ ganó %2$@ más · aún sin probar"
+          }
+        }
+      }
+    },
+    "lab.verdictOneDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One day is only an example"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un día es solo un ejemplo"
+          }
+        }
+      }
+    },
+    "lab.verdictSame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both earned the same"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ambas ganaron lo mismo"
           }
         }
       }
@@ -8563,23 +8386,6 @@
         }
       }
     },
-    "risk.allowed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allowed"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Permitido"
-          }
-        }
-      }
-    },
     "risk.balanceNote" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8610,23 +8416,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld min antes del cierre"
-          }
-        }
-      }
-    },
-    "risk.blocked" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blocked"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bloqueado"
           }
         }
       }
@@ -8716,23 +8505,6 @@
         }
       }
     },
-    "risk.entries" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New entries"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nuevas entradas"
-          }
-        }
-      }
-    },
     "risk.equity" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8763,23 +8535,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "com. %@"
-          }
-        }
-      }
-    },
-    "risk.fences" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fences"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bloqueos"
           }
         }
       }
@@ -8818,57 +8573,6 @@
         }
       }
     },
-    "risk.gateClosed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "closed"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "cerrada"
-          }
-        }
-      }
-    },
-    "risk.gateOpen" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "open"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "abierta"
-          }
-        }
-      }
-    },
-    "risk.halfDays" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Half days"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Medias jornadas"
-          }
-        }
-      }
-    },
     "risk.lastEntry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8882,40 +8586,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Última entrada"
-          }
-        }
-      }
-    },
-    "risk.limit" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daily loss limit"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Límite de pérdida diaria"
-          }
-        }
-      }
-    },
-    "risk.limits" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limits"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Límites"
           }
         }
       }
@@ -8971,23 +8641,6 @@
         }
       }
     },
-    "risk.minRoom" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No entries below room"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin entradas por debajo del margen"
-          }
-        }
-      }
-    },
     "risk.moreBalances" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9001,40 +8654,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Más saldos"
-          }
-        }
-      }
-    },
-    "risk.no" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no"
-          }
-        }
-      }
-    },
-    "risk.noFences" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No fences: the bot raised no blocks."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin bloqueos: el bot no levantó ninguno."
           }
         }
       }
@@ -9073,57 +8692,6 @@
         }
       }
     },
-    "risk.notionalCap" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Position size cap"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tope por posición"
-          }
-        }
-      }
-    },
-    "risk.notNow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not now"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ahora no"
-          }
-        }
-      }
-    },
-    "risk.openPositions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open positions at most"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Máximo de posiciones abiertas"
-          }
-        }
-      }
-    },
     "risk.overnightBuyingPower" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9137,40 +8705,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poder de compra · nocturno"
-          }
-        }
-      }
-    },
-    "risk.pausedByYou" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Operator pause"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pausa del operador"
-          }
-        }
-      }
-    },
-    "risk.plannedLoss" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Planned loss per trade"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pérdida planeada por operación"
           }
         }
       }
@@ -9205,23 +8739,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Valor de las posiciones"
-          }
-        }
-      }
-    },
-    "risk.quoteAge" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oldest usable quote"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cotización usable más antigua"
           }
         }
       }
@@ -9277,23 +8794,6 @@
         }
       }
     },
-    "risk.session" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Session · New York"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sesión · Nueva York"
-          }
-        }
-      }
-    },
     "risk.settingsFailed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9307,23 +8807,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudieron leer los ajustes del bot"
-          }
-        }
-      }
-    },
-    "risk.since" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "since %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "desde %@"
           }
         }
       }
@@ -9345,23 +8828,6 @@
         }
       }
     },
-    "risk.tradingGate" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trading gate"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puerta de trading"
-          }
-        }
-      }
-    },
     "risk.unrealized" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9375,23 +8841,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "G/P no realizada"
-          }
-        }
-      }
-    },
-    "risk.yes" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "yes"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "sí"
           }
         }
       }

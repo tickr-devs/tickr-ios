@@ -19,6 +19,7 @@ public struct CappedList<Item, ID: Hashable, Row: View>: View {
   let limit: Int
   let spacing: CGFloat
   let endsCard: Bool
+  let fills: Bool
   let row: (Int, Item) -> Row
   @State private var showsAll = false
   /// Each shown row's height as last laid out, by id.
@@ -29,9 +30,11 @@ public struct CappedList<Item, ID: Hashable, Row: View>: View {
   /// `title`: the sheet's heading (the card's or the section's title). `spacing`: between rows.
   /// `endsCard`: false for a list with another section under it (the broker's positions above
   /// its orders): the link then stops at the section's end instead of the card's bottom edge.
+  /// `fills`: false keeps the card at `limit` rows however tall it is (a board that caps the list).
   public init(
     _ items: [Item], id: KeyPath<Item, ID>, title: LocalizedStringResource, limit: Int = Tokens.Lists.cappedRows,
-    spacing: CGFloat = Tokens.Space.s, endsCard: Bool = true, @ViewBuilder row: @escaping (Int, Item) -> Row
+    spacing: CGFloat = Tokens.Space.s, endsCard: Bool = true, fills: Bool = true,
+    @ViewBuilder row: @escaping (Int, Item) -> Row
   ) {
     self.items = items
     self.id = id
@@ -39,18 +42,21 @@ public struct CappedList<Item, ID: Hashable, Row: View>: View {
     self.limit = limit
     self.spacing = spacing
     self.endsCard = endsCard
+    self.fills = fills
     self.row = row
   }
 
   public var body: some View {
     let ids = items.map { $0[keyPath: id] }
     let measured = ids.map { heights[$0].map(Double.init) }
-    let cap = ListCap(heights: measured, available: Double(available), spacing: Double(spacing), limit: limit)
+    let cap = ListCap(heights: measured, available: fills ? Double(available) : 0, spacing: Double(spacing),
+      limit: limit)
     let shown = Array(zip(ids.prefix(cap.shown), items.prefix(cap.shown)).enumerated())
     VStack(alignment: .leading, spacing: 0) {
       Color.clear
         // Never taller than every row: a window with room to spare leaves no gap under a short list.
-        .frame(maxWidth: .infinity, minHeight: CGFloat(cap.leastHeight), maxHeight: CGFloat(cap.fullHeight))
+        .frame(maxWidth: .infinity, minHeight: CGFloat(cap.leastHeight),
+          maxHeight: CGFloat(fills ? cap.fullHeight : cap.leastHeight))
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { available = $0 }
         .overlay(alignment: .top) {
           VStack(alignment: .leading, spacing: spacing) {
@@ -75,11 +81,12 @@ public struct CappedList<Item, ID: Hashable, Row: View>: View {
           .sheet(isPresented: $showsAll) {
             let open = $showsAll
             let all = Array(zip(ids, items).enumerated())
-            AllRowsSheet(title: title, count: items.count, close: { open.wrappedValue = false }, rows: {
-              VStack(alignment: .leading, spacing: spacing) {
-                ForEach(all, id: \.element.0) { index, pair in row(index, pair.1) }
-              }
-            })
+            CardSheet(title: title, subtitle: ListWords.allLatestFirst(items.count),
+              close: { open.wrappedValue = false }, rows: {
+                VStack(alignment: .leading, spacing: spacing) {
+                  ForEach(all, id: \.element.0) { index, pair in row(index, pair.1) }
+                }
+              })
           }
       }
     }
@@ -99,6 +106,9 @@ public struct ListCap: Equatable, Sendable {
   /// Accessibility ids of the "Show all" link and of its sheet, for the UI tests.
   public static let linkID = "capped-list-show-all"
   public static let sheetID = "capped-list-all"
+  /// Accessibility id of the close button of every `CardSheet` (this list's, a card's footer
+  /// sheet, the iPhone's day and funnel sheets), for the UI tests.
+  public static let closeID = "card-sheet.close"
   /// SF Symbol of the sheet's close button.
   static let closeSymbol = "xmark"
 
@@ -116,79 +126,5 @@ public struct ListCap: Equatable, Sendable {
       fallback: least)
     shown = max(least, fit)
     hidden = heights.count - shown
-  }
-}
-
-/// Every row of a capped list: the card's title, how many rows, the close button, then the rows,
-/// scrolling when they are many. On the iPhone a sheet as tall as the rows (full height when they
-/// are more than a screen), with its own navigation for rows that open a page; a sheet of
-/// `Size.allRowsWidth` on the Mac; Esc closes it.
-struct AllRowsSheet<Rows: View>: View {
-  let title: LocalizedStringResource
-  let count: Int
-  let close: @MainActor @Sendable () -> Void
-  let rows: Rows
-
-  init(
-    title: LocalizedStringResource, count: Int, close: @escaping @MainActor @Sendable () -> Void,
-    @ViewBuilder rows: () -> Rows
-  ) {
-    self.title = title
-    self.count = count
-    self.close = close
-    self.rows = rows()
-  }
-
-  var body: some View {
-    #if os(iOS)
-    NavigationStack { content.toolbar(.hidden, for: .navigationBar) }
-      .sheetFitsContent()
-      .presentationBackground(Palette.surface)
-    #else
-    content
-      .frame(minWidth: Tokens.Size.allRowsWidth, minHeight: Tokens.Size.allRowsHeight)
-      .presentationBackground(Palette.surface)
-    #endif
-  }
-
-  private var content: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      header
-      ScrollView {
-        VStack(alignment: .leading, spacing: Tokens.Space.s) { rows }
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.bottom, Tokens.Space.xl)
-      }
-      .scrollBounceBehavior(.basedOnSize)
-      // No scroll bar (#676): the edge fades and the down chevron say there is more.
-      .scrollEdgeHints()
-    }
-    .padding([.horizontal, .top], Tokens.Space.l)
-    .accessibilityElement(children: .contain)
-    .accessibilityIdentifier(ListCap.sheetID)
-  }
-
-  /// The card's title and how many rows, then a round X.
-  private var header: some View {
-    HStack(alignment: .top, spacing: Tokens.Space.s) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        Text(title)
-          .font(Tokens.Typography.heading)
-          .foregroundStyle(Palette.textPrimary)
-          .accessibilityAddTraits(.isHeader)
-        Text(ListWords.allLatestFirst(count))
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      Button(action: close) {
-        Image(systemName: ListCap.closeSymbol)
-      }
-      .buttonStyle(.icon(compact: true))
-      .keyboardShortcut(.cancelAction)
-      .help(Text(ListWords.closeHelp))
-      .accessibilityLabel(Text(ListWords.close))
-    }
   }
 }

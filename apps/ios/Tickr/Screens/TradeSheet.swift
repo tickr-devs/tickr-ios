@@ -3,7 +3,7 @@ import TickrDesign
 import TickrKit
 
 /// A closed trade's sheet from Activity (mockup IOSActivity v134): the result big with its R, the
-/// exit reason, then "Details" with the rest of what the bot recorded (entry to exit, shares, how
+/// exit reason, then "Details ›" opening a sheet with the rest of what the bot recorded (entry to exit, shares, how
 /// fast the broker confirmed the stop, worst and best while open, the code version, where the price
 /// went after the exit), and the link to replay another strategy on the same trade.
 struct TradeSheet: View {
@@ -13,7 +13,6 @@ struct TradeSheet: View {
   let url: URL?
 
   @Environment(\.dismiss) private var dismiss
-  @State private var details = false
   @State private var another = false
 
   var body: some View {
@@ -24,13 +23,7 @@ struct TradeSheet: View {
           row(L10n.Activity.tradeExit) {
             Badge(verbatim: Board.exitReasonTitle(trade.exitReason).uppercased(), tone: Tone.exit(trade.exitReason))
           }
-          DisclosureGroup(isExpanded: $details) {
-            detailRows.padding(.top, Tokens.Space.s)
-          } label: {
-            Text(L10n.Activity.tradeDetails)
-              .font(Tokens.Typography.body.weight(.semibold))
-              .foregroundStyle(Palette.textSecondary)
-          }
+          FooterDetail(L10n.Activity.tradeDetails, endsCard: false) { detailRows }
           if url != nil {
             HeaderLink(L10n.Activity.anotherHelp) { another = true }
           }

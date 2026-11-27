@@ -114,16 +114,22 @@ struct SettingsTabBar: View {
 /// optional monospaced footnote at the bottom.
 struct SettingsCard<Content: View, Trailing: View>: View {
   let title: LocalizedStringResource
+  let info: LocalizedStringResource?
   let footnote: Text?
   let footnoteColor: Color
   let content: Content
   let trailing: Trailing
 
+  /// Symbol beside the label whose tooltip explains the card (`info`).
+  static var infoSymbol: String { InfoCaption.infoSymbol }
+
   init(
-    _ title: LocalizedStringResource, footnote: Text? = nil, footnoteColor: Color = Palette.textQuaternary,
+    _ title: LocalizedStringResource, info: LocalizedStringResource? = nil, footnote: Text? = nil,
+    footnoteColor: Color = Palette.textQuaternary,
     @ViewBuilder content: () -> Content, @ViewBuilder trailing: () -> Trailing
   ) {
     self.title = title
+    self.info = info
     self.footnote = footnote
     self.footnoteColor = footnoteColor
     self.content = content()
@@ -133,7 +139,17 @@ struct SettingsCard<Content: View, Trailing: View>: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       HStack(spacing: Tokens.Space.s) {
-        CardLabel(title)
+        HStack(spacing: Tokens.Space.xs) {
+          CardLabel(title)
+          if let info {
+            // What the card is about, on hover, as the design's ⓘ beside the label.
+            Image(systemName: Self.infoSymbol)
+              .font(Tokens.Typography.annotation)
+              .foregroundStyle(Palette.textQuaternary)
+              .tip(Text(info))
+              .accessibilityLabel(Text(info))
+          }
+        }
         Spacer(minLength: Tokens.Space.s)
         trailing
       }
@@ -148,17 +164,18 @@ struct SettingsCard<Content: View, Trailing: View>: View {
     }
     // Fills the height it is offered, so cards side by side in a row end level.
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .padding(Tokens.Space.m)
+    // Every card's padding, so a footer link (`FooterDetail`) reaches the card's edges.
+    .padding(Tokens.Space.l)
     .tickrCard(radius: Tokens.Radius.large)
   }
 }
 
 extension SettingsCard where Trailing == EmptyView {
   init(
-    _ title: LocalizedStringResource, footnote: Text? = nil, footnoteColor: Color = Palette.textQuaternary,
-    @ViewBuilder content: () -> Content
+    _ title: LocalizedStringResource, info: LocalizedStringResource? = nil, footnote: Text? = nil,
+    footnoteColor: Color = Palette.textQuaternary, @ViewBuilder content: () -> Content
   ) {
-    self.init(title, footnote: footnote, footnoteColor: footnoteColor, content: content) { EmptyView() }
+    self.init(title, info: info, footnote: footnote, footnoteColor: footnoteColor, content: content) { EmptyView() }
   }
 }
 

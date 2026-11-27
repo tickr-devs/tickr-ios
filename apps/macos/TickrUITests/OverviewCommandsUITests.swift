@@ -47,8 +47,10 @@ final class OverviewCommandsUITests: XCTestCase {
   /// sidebar's widest 260, AppKit's insets 4 + 4 and gap 8, the fixtures' longest line (Overview,
   /// "tickr — paper trading", no strategy since #783) and the right-hand group (Today), each item
   /// 8.5 wider than its content. Measured by this test on CI (#783, 2026-11-25): 1392 in English,
-  /// 1409 in Spanish, whose line and group are the longer (1421 and 1446 with the strategy, #695).
-  static let minWidthEnglish: CGFloat = 1392
+  /// 1409 in Spanish, whose line and group are the longer (1421 and 1446 with the strategy, #695);
+  /// 1369 in English since the lab's line says "model lab" (#855, 2026-11-27), its Spanish line
+  /// unchanged ("laboratorio").
+  static let minWidthEnglish: CGFloat = 1369
   static let minWidthSpanish: CGFloat = 1409
   /// Environment variable that opens the window at its least size (LayoutSweep.smallestKey).
   static let smallestKey = "TICKR_SMALLEST_WINDOW"
