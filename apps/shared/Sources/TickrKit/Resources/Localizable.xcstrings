@@ -1,6 +1,1041 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "kit.alert.api-credentials-unexpected" : {
+      "comment" : "An alert the owner can receive: api-credentials-unexpected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The API holds keys it must not have"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La API tiene claves que no debe tener"
+          }
+        }
+      }
+    },
+    "kit.alert.bot-crashed" : {
+      "comment" : "An alert the owner can receive: bot-crashed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot crashed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot se cayó"
+          }
+        }
+      }
+    },
+    "kit.alert.bot-did-not-start" : {
+      "comment" : "An alert the owner can receive: bot-did-not-start",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot did not start"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot no arrancó"
+          }
+        }
+      }
+    },
+    "kit.alert.bot-did-not-stop" : {
+      "comment" : "An alert the owner can receive: bot-did-not-stop",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot did not stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot no se detuvo"
+          }
+        }
+      }
+    },
+    "kit.alert.bot-down" : {
+      "comment" : "An alert the owner can receive: bot-down",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot down"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot caído"
+          }
+        }
+      }
+    },
+    "kit.alert.bot-down-with-open-trade" : {
+      "comment" : "An alert the owner can receive: bot-down-with-open-trade",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot down with an open trade"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot caído con una operación abierta"
+          }
+        }
+      }
+    },
+    "kit.alert.broker-reads-failing" : {
+      "comment" : "An alert the owner can receive: broker-reads-failing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker reads are failing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fallan las lecturas del bróker"
+          }
+        }
+      }
+    },
+    "kit.alert.daily-ceiling-reached" : {
+      "comment" : "An alert the owner can receive: daily-ceiling-reached",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily loss limit reached"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se alcanzó el límite de pérdida diaria"
+          }
+        }
+      }
+    },
+    "kit.alert.disk-low" : {
+      "comment" : "An alert the owner can receive: disk-low",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data disk nearly full"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disco de datos casi lleno"
+          }
+        }
+      }
+    },
+    "kit.alert.exit-not-filled" : {
+      "comment" : "An alert the owner can receive: exit-not-filled",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A closing order did not fill in time"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una orden de cierre no se ejecutó a tiempo"
+          }
+        }
+      }
+    },
+    "kit.alert.exit-refused" : {
+      "comment" : "An alert the owner can receive: exit-refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A closing order was refused"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se rechazó una orden de cierre"
+          }
+        }
+      }
+    },
+    "kit.alert.fees-corrected" : {
+      "comment" : "An alert the owner can receive: fees-corrected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorded fees corrected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comisiones registradas corregidas"
+          }
+        }
+      }
+    },
+    "kit.alert.fees-unknown" : {
+      "comment" : "An alert the owner can receive: fees-unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fees of a filled order unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comisiones de una orden ejecutada desconocidas"
+          }
+        }
+      }
+    },
+    "kit.alert.flatten-after-close" : {
+      "comment" : "An alert the owner can receive: flatten-after-close",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A close was due after the session: close by hand"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un cierre llegó tras la sesión: cierra a mano"
+          }
+        }
+      }
+    },
+    "kit.alert.foreign-exposure" : {
+      "comment" : "An alert the owner can receive: foreign-exposure",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A position or order the bot did not open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una posición u orden que el bot no abrió"
+          }
+        }
+      }
+    },
+    "kit.alert.not-flat-after-flatten" : {
+      "comment" : "An alert the owner can receive: not-flat-after-flatten",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Positions still open after closing everything"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siguen posiciones abiertas tras cerrar todo"
+          }
+        }
+      }
+    },
+    "kit.alert.observers-stopped" : {
+      "comment" : "An alert the owner can receive: observers-stopped",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Observers stopped for the day"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los observadores se detuvieron por hoy"
+          }
+        }
+      }
+    },
+    "kit.alert.preflight-failed" : {
+      "comment" : "An alert the owner can receive: preflight-failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The morning check failed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falló la verificación matutina"
+          }
+        }
+      }
+    },
+    "kit.alert.protection-change-ignored" : {
+      "comment" : "An alert the owner can receive: protection-change-ignored",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A settings change the bot did not adopt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un cambio de ajustes que el bot no adoptó"
+          }
+        }
+      }
+    },
+    "kit.alert.remote-auth-blocked" : {
+      "comment" : "An alert the owner can receive: remote-auth-blocked",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many failed sign-ins from one address"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiados accesos fallidos desde una dirección"
+          }
+        }
+      }
+    },
+    "kit.alert.risk-command-used" : {
+      "comment" : "An alert the owner can receive: risk-command-used",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A device turned the entry stop off or started the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dispositivo desactivó la parada de entradas o arrancó el bot"
+          }
+        }
+      }
+    },
+    "kit.alert.stop-rejected" : {
+      "comment" : "An alert the owner can receive: stop-rejected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The broker rejected a stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bróker rechazó un stop"
+          }
+        }
+      }
+    },
+    "kit.alert.strategy-not-loaded" : {
+      "comment" : "An alert the owner can receive: strategy-not-loaded",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The strategy was refused at start: no entries this run"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La estrategia se rechazó al arrancar: sin entradas en esta ejecución"
+          }
+        }
+      }
+    },
+    "kit.alert.stream-lost-with-position" : {
+      "comment" : "An alert the owner can receive: stream-lost-with-position",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price stream lost with a position open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se perdió el flujo de precios con una posición abierta"
+          }
+        }
+      }
+    },
+    "kit.alert.token-needs-confirmation" : {
+      "comment" : "An alert the owner can receive: token-needs-confirmation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Webull token waits for your confirmation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El token de Webull espera tu confirmación"
+          }
+        }
+      }
+    },
+    "kit.alert.unknown-order-status" : {
+      "comment" : "An alert the owner can receive: unknown-order-status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An order's status is unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se desconoce el estado de una orden"
+          }
+        }
+      }
+    },
+    "kit.alert.unprotected-position" : {
+      "comment" : "An alert the owner can receive: unprotected-position",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position without a verified stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posición sin stop verificado"
+          }
+        }
+      }
+    },
+    "kit.alert.watchdog-cannot-check" : {
+      "comment" : "An alert the owner can receive: watchdog-cannot-check",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchdog cannot check the account"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El vigilante no puede revisar la cuenta"
+          }
+        }
+      }
+    },
+    "kit.alert.watchdog-not-flat" : {
+      "comment" : "An alert the owner can receive: watchdog-not-flat",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchdog: positions or orders left open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vigilante: quedaron posiciones u órdenes abiertas"
+          }
+        }
+      }
+    },
+    "kit.alert.watchdog-restart-failed" : {
+      "comment" : "An alert the owner can receive: watchdog-restart-failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchdog could not restart the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El vigilante no logró reiniciar el bot"
+          }
+        }
+      }
+    },
+    "kit.alert.watchdog-restart-refused" : {
+      "comment" : "An alert the owner can receive: watchdog-restart-refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchdog may not restart the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El vigilante no puede reiniciar el bot"
+          }
+        }
+      }
+    },
+    "kit.alert.watchdog-restarted-bot" : {
+      "comment" : "An alert the owner can receive: watchdog-restarted-bot",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchdog restarted the bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El vigilante reinició el bot"
+          }
+        }
+      }
+    },
+    "kit.alerts.alerts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertas"
+          }
+        }
+      }
+    },
+    "kit.alerts.alwaysOn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always on everywhere"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siempre activas en todas partes"
+          }
+        }
+      }
+    },
+    "kit.alerts.alwaysOnNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They need you now, so they cannot be turned off."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te necesitan ahora, así que no se pueden desactivar."
+          }
+        }
+      }
+    },
+    "kit.alerts.appliesNext" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A change applies from the next alert. The alerts feed always gets every alert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un cambio se aplica desde la próxima alerta. El registro de alertas siempre las recibe todas."
+          }
+        }
+      }
+    },
+    "kit.alerts.channel.push" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone push"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push del iPhone"
+          }
+        }
+      }
+    },
+    "kit.alerts.channel.telegram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        }
+      }
+    },
+    "kit.alerts.channels" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Channels"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Canales"
+          }
+        }
+      }
+    },
+    "kit.alerts.checkFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed the morning check"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falló en la verificación matutina"
+          }
+        }
+      }
+    },
+    "kit.alerts.column.push" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push"
+          }
+        }
+      }
+    },
+    "kit.alerts.column.telegram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telegram"
+          }
+        }
+      }
+    },
+    "kit.alerts.group.critical" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs you now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te necesita ahora"
+          }
+        }
+      }
+    },
+    "kit.alerts.group.day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day and bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Día y bot"
+          }
+        }
+      }
+    },
+    "kit.alerts.group.lab" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model lab"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laboratorio del modelo"
+          }
+        }
+      }
+    },
+    "kit.alerts.group.trading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading"
+          }
+        }
+      }
+    },
+    "kit.alerts.locked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always on"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siempre activa"
+          }
+        }
+      }
+    },
+    "kit.alerts.noPreflight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No morning check yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún sin verificación matutina"
+          }
+        }
+      }
+    },
+    "kit.alerts.notBuilt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not built yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no está hecho"
+          }
+        }
+      }
+    },
+    "kit.alerts.notChanged" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not changed: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin cambios: %@"
+          }
+        }
+      }
+    },
+    "kit.alerts.notConfigured" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not set up in the bot's settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin configurar en los ajustes del bot"
+          }
+        }
+      }
+    },
+    "kit.alerts.note.push" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To the Tickr app on your iPhone and Mac"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A la app Tickr de tu iPhone y tu Mac"
+          }
+        }
+      }
+    },
+    "kit.alerts.note.telegram" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To the chat in the bot's settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al chat de la configuración del bot"
+          }
+        }
+      }
+    },
+    "kit.alerts.otherAlert" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other alert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otra alerta"
+          }
+        }
+      }
+    },
+    "kit.alerts.preflightUnreadable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Morning check unreadable"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verificación matutina ilegible"
+          }
+        }
+      }
+    },
+    "kit.alerts.readFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification settings could not be read"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron leer los ajustes de notificaciones"
+          }
+        }
+      }
+    },
+    "kit.alerts.routingUnusable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The routing file cannot be used, so every alert goes everywhere. Delete it on the Mac to choose again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo de rutas no se puede usar, así que cada alerta va a todas partes. Bórralo en el Mac para volver a elegir."
+          }
+        }
+      }
+    },
+    "kit.alerts.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificaciones"
+          }
+        }
+      }
+    },
+    "kit.alerts.works" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Works"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funciona"
+          }
+        }
+      }
+    },
     "kit.api.contract" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1556,6 +2591,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancela la orden de entrada en el bróker"
+          }
+        }
+      }
+    },
+    "kit.entry.cancelLapsed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel not picked up by the bot within %@ s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot no recogió la cancelación en %@ s"
           }
         }
       }
@@ -14842,23 +15894,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Canal de alertas"
-          }
-        }
-      }
-    },
-    "kit.system.check.alertRecipient" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alert recipient"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Destinatario de alertas"
           }
         }
       }

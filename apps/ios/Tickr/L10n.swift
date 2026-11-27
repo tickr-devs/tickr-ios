@@ -1811,43 +1811,6 @@ enum L10n {
       LocalizedStringResource("settings.productionGateBacklog", defaultValue: "Live trading gate · backlog",
         bundle: L10n.bundle)
     }
-    /// The notifications card's label (IOSGateAlerts).
-    static var notifyPhone: LocalizedStringResource {
-      LocalizedStringResource("settings.notifyPhone", defaultValue: "Notify this iPhone", bundle: L10n.bundle)
-    }
-    /// The notifications card's backlog tag: push delivery waits for the developer membership.
-    static var pushNeedsDeveloper: LocalizedStringResource {
-      LocalizedStringResource("settings.pushNeedsDeveloper", defaultValue: "Push · needs Apple Developer",
-        bundle: L10n.bundle)
-    }
-    /// VoiceOver label of the lock beside an alarm that cannot be turned off.
-    static var alwaysOn: LocalizedStringResource {
-      LocalizedStringResource("settings.alwaysOn", defaultValue: "always on", bundle: L10n.bundle)
-    }
-    static var alertUnprotected: LocalizedStringResource {
-      LocalizedStringResource("settings.alertUnprotected", defaultValue: "Position without a stop", bundle: L10n.bundle)
-    }
-    static var alertRefused: LocalizedStringResource {
-      LocalizedStringResource("settings.alertRefused", defaultValue: "Stop or exit refused", bundle: L10n.bundle)
-    }
-    static var alertMismatch: LocalizedStringResource {
-      LocalizedStringResource("settings.alertMismatch", defaultValue: "Broker mismatch", bundle: L10n.bundle)
-    }
-    static var alertFilled: LocalizedStringResource {
-      LocalizedStringResource("settings.alertFilled", defaultValue: "Entry and exit filled", bundle: L10n.bundle)
-    }
-    static var alertTrailing: LocalizedStringResource {
-      LocalizedStringResource("settings.alertTrailing", defaultValue: "Trailing stop tightened", bundle: L10n.bundle)
-    }
-    static var alertCeiling: LocalizedStringResource {
-      LocalizedStringResource("settings.alertCeiling", defaultValue: "Daily loss ceiling", bundle: L10n.bundle)
-    }
-    static var notificationsFooter: LocalizedStringResource {
-      LocalizedStringResource("settings.notificationsFooter",
-        // swiftlint:disable:next line_length
-        defaultValue: "Alerts reach this iPhone once push notifications are set up, which needs an Apple Developer membership. Until then the switches show the planned choice and cannot be changed; the three alarms with a lock are always on.",
-        bundle: L10n.bundle)
-    }
     static var about: LocalizedStringResource {
       LocalizedStringResource("settings.about", defaultValue: "About", bundle: L10n.bundle)
     }
