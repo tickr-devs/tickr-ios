@@ -1,0 +1,91 @@
+{
+  "served_at": "2026-11-16T15:00:00.123Z",
+  "bot_state": "running",
+  "status_stale": false,
+  "bot_started_at": "2026-11-16T13:12:04.123Z",
+  "reconcile": {
+    "interval_seconds": "10",
+    "last_at": "2026-11-16T14:59:56.123Z",
+    "next_at": "2026-11-16T15:00:06.123Z"
+  },
+  "backup": {
+    "last_at": "2026-11-16T13:12:09.123Z",
+    "last_failed_at": null,
+    "last_failed_error": null,
+    "cause": null,
+    "cause_codes": []
+  },
+  "launchd": [
+    {
+      "name": "preflight",
+      "local_time": "08:30",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "bot",
+      "local_time": "09:00",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "watchdog",
+      "local_time": "09:05",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "nightly-fetch",
+      "local_time": "19:00",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "session": {
+    "day": "2026-11-16",
+    "regular_open": "2026-11-16T14:30:00.000Z",
+    "last_entry_at": "2026-11-16T20:45:00.000Z",
+    "flatten_at": "2026-11-16T20:55:00.000Z",
+    "regular_close": "2026-11-16T21:00:00.000Z",
+    "premarket_open": "2026-11-16T09:00:00.000Z",
+    "extended_close": "2026-11-17T01:00:00.000Z"
+  },
+  "session_cause": null,
+  "nightly_fetch": {
+    "finished_at": "2026-11-14T01:42:07.000Z",
+    "last_day": "2026-11-13",
+    "new_sessions": 1,
+    "cause": null,
+    "cause_codes": []
+  },
+  "api_version": 1,
+  "session_cause_codes": [],
+  "next_session": {
+    "day": "2026-11-17",
+    "regular_open": "2026-11-17T14:30:00.000Z",
+    "regular_close": "2026-11-17T21:00:00.000Z",
+    "kind": "regular"
+  },
+  "next_session_cause": null,
+  "next_session_cause_codes": []
+}

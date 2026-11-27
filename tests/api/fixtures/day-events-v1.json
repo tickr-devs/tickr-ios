@@ -1,0 +1,131 @@
+{
+  "day": "2026-11-16",
+  "events": [
+    {
+      "seq": 700,
+      "at": "2026-11-16T14:00:00.123Z",
+      "kind": "bot-started",
+      "symbol": null,
+      "leg": null,
+      "quantity": null,
+      "price": null,
+      "stop_price": null,
+      "subject": "price-action@1",
+      "cause": null,
+      "cause_codes": []
+    },
+    {
+      "seq": 729,
+      "at": "2026-11-16T14:59:51.123Z",
+      "kind": "entry-sent",
+      "symbol": "ABCD",
+      "leg": null,
+      "quantity": "100",
+      "price": "4.12",
+      "stop_price": "3.95",
+      "subject": null,
+      "cause": null,
+      "cause_codes": []
+    },
+    {
+      "seq": 733,
+      "at": "2026-11-16T14:59:52.123Z",
+      "kind": "filled",
+      "symbol": "ABCD",
+      "leg": "entry",
+      "quantity": "100",
+      "price": "4.11",
+      "stop_price": null,
+      "subject": null,
+      "cause": null,
+      "cause_codes": []
+    },
+    {
+      "seq": 736,
+      "at": "2026-11-16T14:59:54.123Z",
+      "kind": "stop-placed",
+      "symbol": "ABCD",
+      "leg": null,
+      "quantity": "100",
+      "price": null,
+      "stop_price": "3.95",
+      "subject": null,
+      "cause": null,
+      "cause_codes": []
+    },
+    {
+      "seq": 741,
+      "at": "2026-11-16T14:59:56.123Z",
+      "kind": "stop-moved",
+      "symbol": "ABCD",
+      "leg": null,
+      "quantity": null,
+      "price": null,
+      "stop_price": "4.02",
+      "subject": null,
+      "cause": null,
+      "cause_codes": []
+    },
+    {
+      "seq": 745,
+      "at": "2026-11-16T14:59:58.123Z",
+      "kind": "filled",
+      "symbol": "ABCD",
+      "leg": "stop",
+      "quantity": "100",
+      "price": "4.01",
+      "stop_price": null,
+      "subject": null,
+      "cause": null,
+      "cause_codes": []
+    },
+    {
+      "seq": 746,
+      "at": "2026-11-16T14:59:58.123Z",
+      "kind": "trade-closed",
+      "symbol": "ABCD",
+      "leg": null,
+      "quantity": null,
+      "price": null,
+      "stop_price": null,
+      "subject": null,
+      "cause": "stopped-out",
+      "cause_codes": []
+    },
+    {
+      "seq": 750,
+      "at": "2026-11-16T15:00:00.123Z",
+      "kind": "fence-set",
+      "symbol": null,
+      "leg": null,
+      "quantity": null,
+      "price": null,
+      "stop_price": null,
+      "subject": "entry-stop",
+      "cause": "operator",
+      "cause_codes": []
+    },
+    {
+      "seq": 752,
+      "at": "2026-11-16T15:00:00.123Z",
+      "kind": "command-refused",
+      "symbol": null,
+      "leg": null,
+      "quantity": null,
+      "price": null,
+      "stop_price": null,
+      "subject": "flatten",
+      "cause": "read after stop-bot cmd-7: the bot is stopping",
+      "cause_codes": [
+        {
+          "code": "command_after_stop",
+          "params": {
+            "command": "cmd-7"
+          }
+        }
+      ]
+    }
+  ],
+  "cause": null,
+  "api_version": 1
+}

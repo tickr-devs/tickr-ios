@@ -3,13 +3,28 @@ import TickrDesign
 import TickrKit
 
 /// The Chart tab: one symbol's candles on one recorded day, with the bot's indicator lines, its
-/// entry, exit and stop, and the day's trades. Pick the day with the arrows or the menu, the
-/// symbol with the chips, the timeframe under the chart; touch and hold the chart for a candle.
+/// entry, exit and stop, and the day's trades. Pick the day with the day capsule's menu (or a swipe
+/// across the top bar), the symbol with the chips, the timeframe under the chart; touch and hold the chart for a candle.
+/// In landscape (IOS2Landscape board) the chart stands on the left, as tall as the screen allows,
+/// the chips and the day's cards on the right, and the chart's controls behind one button in the
+/// top bar, in a sheet.
 struct ChartTab: View {
+  /// In landscape: the chart column's width and the price pane's height, in points (the board's
+  /// chart scaled to fit the 390-point height of a 6.1-inch iPhone under the top bar and above the
+  /// tab bar, so the chart shows whole without scrolling).
+  static let compactChartWidth: CGFloat = 268
+  static let compactPriceHeight: CGFloat = 200
+
   @Environment(AppModel.self) private var app
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
   @State private var chart = Container.shared.chartModel()
   @State private var lines = CandleChart.Lines()
   @State private var viewport = ChartViewport()
+  /// The chart's controls are open in their sheet (landscape only).
+  @State private var showsOptions = false
+
+  /// An iPhone in landscape.
+  private var compactHeight: Bool { verticalSizeClass == .compact }
 
   var body: some View {
     ScrollView {
@@ -35,18 +50,37 @@ struct ChartTab: View {
     // bar's own strip: the chart scrolled up never draws under the clock or behind the glass.
     .safeAreaBar(edge: .top) {
       if let url = app.connection.url, showsBoard {
-        DayBar(chart: chart, url: url)
+        DayBar(chart: chart, url: url, options: openOptions)
           .padding(.horizontal, Tokens.Space.m)
           .padding(.vertical, Tokens.Space.s)
           // On Liquid Glass, as the system's own bars: the chart scrolling under it never shows
           // through the symbol and its price.
           .glassEffect(.regular, in: .rect(cornerRadius: Tokens.Radius.large))
+          // In an iPad window (Stage Manager, a narrow window shows this layout) the window
+          // controls sit in the top leading corner: the bar moves past them and narrows to fit.
+          // On iPhone there are no controls and nothing moves.
+          .containerCornerOffset(.leading, sizeToFit: true)
           .padding(.horizontal, Tokens.Space.s)
       }
+    }
+    .sheet(isPresented: $showsOptions) {
+      let shown = $showsOptions
+      CardSheet(title: ChartText.options, subtitle: nil, close: { shown.wrappedValue = false }, rows: {
+        ChartControls(chart: chart, series: drawn, lines: $lines, viewport: $viewport)
+      })
+    }
+    // Back in portrait the controls stand under the chart again.
+    .onChange(of: compactHeight) { _, compact in
+      if !compact { showsOptions = false }
     }
     .task(id: app.connection.url) {
       guard let url = app.connection.url else { return }
       await chart.load(url, preferring: app.selectedSymbol ?? app.status?.positions.first?.symbol)
+    }
+    // The symbol shown is the app's selected one, so the iPad and the unfolded Duo's Mac screens
+    // open on it after a resize or a fold (`AdaptiveRoot`).
+    .onChange(of: chart.symbol) { _, symbol in
+      if let symbol, app.selectedSymbol != symbol { app.selectedSymbol = symbol }
     }
     // The app's one shown day: another tab's pick shows here.
     .task(id: app.shownDay) {
@@ -93,35 +127,72 @@ struct ChartTab: View {
   }
 
   /// The chart and everything around it, loading or read.
+  @ViewBuilder
   private func board(_ url: URL) -> some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.m) {
-      SymbolChips(chart: chart, url: url, loading: chart.day == nil && showsBoard)
-      // As on the design: the chart right under the symbols, then its range, timeframe, zoom and
-      // lines, then why the bot acted. The skeleton stands in the chart's own card, its size.
-      LoadingSlot(drawn) { series in
-        // The bot's trades, position and strategy marks belong to the chosen day: on a longer
-        // range they stay off it.
-        let oneDay = chart.range == .oneDay
-        CandleChart(series: series, times: chart.times, studies: chart.studies, readoutShapes: chart.readoutShapes,
-          atr: chart.atr, trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
-          events: oneDay ? chart.events : [], lines: lines,
-          pending: chart.pending, livePrice: oneDay ? chart.livePrice : nil, viewport: $viewport)
-          // Its panes have a fixed height: past this size the scale's tags and legends would
-          // cover each other and the candles.
-          .dynamicTypeSize(...CandleChart.largestText)
-      } placeholder: {
-        notDrawn
+    if compactHeight {
+      // Landscape, as on the board: the chart on the left; the symbols, why the bot acted and
+      // the day's trades on the right. The controls are in the top bar's sheet.
+      HStack(alignment: .top, spacing: Tokens.Space.m) {
+        chartSlot.frame(width: Self.compactChartWidth)
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+          SymbolChips(chart: chart, url: url, loading: chart.day == nil && showsBoard)
+          dayCards
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
       }
-      // The controls stay live while the bars load, as on the Mac: another range or interval
-      // never takes them away and back.
-      ChartControls(chart: chart, series: drawn, lines: $lines, viewport: $viewport)
-      if chart.symbol != nil {
-        DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
-      }
-      if chart.day != nil {
-        DayTrades(trades: chart.trades)
+    } else {
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        SymbolChips(chart: chart, url: url, loading: chart.day == nil && showsBoard)
+        // As on the design: the chart right under the symbols, then its range, timeframe, zoom and
+        // lines, then why the bot acted.
+        chartSlot
+        // The controls stay live while the bars load, as on the Mac: another range or interval
+        // never takes them away and back.
+        ChartControls(chart: chart, series: drawn, lines: $lines, viewport: $viewport)
+        dayCards
       }
     }
+  }
+
+  /// The chart, or the skeleton standing in the chart's own card, its size.
+  private var chartSlot: some View {
+    LoadingSlot(drawn) { series in
+      // The bot's trades, position and strategy marks belong to the chosen day: on a longer
+      // range they stay off it.
+      let oneDay = chart.range == .oneDay
+      CandleChart(series: series, times: chart.times, studies: chart.studies, readoutShapes: chart.readoutShapes,
+        atr: chart.atr, trades: oneDay ? chart.trades : [], position: oneDay ? chart.openPosition : nil,
+        events: oneDay ? chart.events : [], lines: lines,
+        pending: chart.pending, livePrice: oneDay ? chart.livePrice : nil, viewport: $viewport,
+        plotHeight: priceHeight)
+        // Its panes have a fixed height: past this size the scale's tags and legends would
+        // cover each other and the candles.
+        .dynamicTypeSize(...CandleChart.largestText)
+    } placeholder: {
+      notDrawn
+    }
+  }
+
+  /// Why the bot acted on the symbol, then its trades of the day.
+  @ViewBuilder
+  private var dayCards: some View {
+    if chart.symbol != nil {
+      DecisionsCard(decisions: chart.shownDecisions, failure: chart.shownDecisionsFailure)
+    }
+    if chart.day != nil {
+      DayTrades(symbol: chart.symbol, trades: chart.trades, position: chart.openPosition)
+    }
+  }
+
+  /// Opens the controls' sheet; nil in portrait, where they stand under the chart.
+  private var openOptions: (@MainActor () -> Void)? {
+    guard compactHeight else { return nil }
+    return { showsOptions = true }
+  }
+
+  /// The price pane's height: shorter in landscape, so the chart fits the screen's height.
+  private var priceHeight: CGFloat {
+    compactHeight ? Self.compactPriceHeight : CandleChart.priceHeight
   }
 
   /// The candles on screen, nil while there are none to draw.
@@ -189,7 +260,7 @@ struct ChartTab: View {
       caption: chart.pending.map(PendingText.caption) ?? chart.symbol.map {
         ChartText.loadingBars($0, interval: String(localized: ChartFormat.title(chart.timeframe)))
       } ?? L10n.Common.loading,
-      lines: lines, timeframe: chart.timeframe, pending: chart.pending)
+      lines: lines, timeframe: chart.timeframe, pending: chart.pending, plotHeight: priceHeight)
   }
 
   /// Changes whenever a different chart is on screen, restarting the reload loop.
@@ -241,14 +312,22 @@ struct ChartTab: View {
   }
 }
 
-/// The screen's top bar as on the design: the symbol with its last price and the day's change on
-/// one row, the day under it (a menu of every recorded day), and plain blue arrows to the
-/// previous and next day. At large text sizes the price goes under the symbol.
+/// The screen's top bar as on the design (IOS2Chart): the symbol with its last price and the day's
+/// change on one row, "● Live" under it while the day is today, the day's high, low and volume, and
+/// the day capsule ("Today ▾"), whose menu lists every recorded day with its result. A sideways
+/// swipe across the bar changes the day; the chart under it keeps its own drag for panning. At
+/// large text sizes the price goes under the symbol. In landscape a button before the capsule opens
+/// the chart's controls.
 private struct DayBar: View {
+  /// The controls button's glyph (the board's sliders).
+  static let optionsSymbol = "slider.horizontal.3"
+
   @Environment(AppModel.self) private var app
   @Environment(\.dynamicTypeSize) private var typeSize
   let chart: ChartModel
   let url: URL
+  /// Opens the chart's controls; nil where they stand under the chart (portrait).
+  let options: (@MainActor () -> Void)?
 
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.s) {
@@ -263,43 +342,98 @@ private struct DayBar: View {
             .skeleton(chart.symbol == nil, .value)
           quote
         }
-        dayMenu
-          .skeleton(chart.selectedDay == nil)
+        if chart.isToday { live }
       }
       Spacer(minLength: 0)
       if !typeSize.stacksRows { dayStats }
-      // The demo day is the only day, and a single recorded day has no neighbour: no arrows
-      // then. Otherwise the arrow that leads nowhere is dimmed and refuses taps; while the days
-      // are read they wait dimmed in their places.
-      if arrows.visible || (chart.days.isEmpty && !chart.dayLocked) {
-        Button {
-          if let day = chart.previousDay { Task { await chart.show(day, from: url) } }
-        } label: {
-          arrow(Symbols.previous)
+      if let options {
+        Button(action: options) {
+          Image(systemName: Self.optionsSymbol)
         }
-        .disabled(!arrows.canGoBack)
-        .accessibilityLabel(Text(ChartText.previousDay))
-        Button {
-          if let day = chart.nextDay { Task { await chart.show(day, from: url) } }
-        } label: {
-          arrow(Symbols.next)
-        }
-        .disabled(!arrows.canGoForward)
-        .accessibilityLabel(Text(ChartText.nextDay))
+        .buttonStyle(DayButtonStyle())
+        .accessibilityLabel(Text(ChartText.options))
+        .accessibilityIdentifier(AccessibilityID.chartOptions)
       }
+      dayCapsule
+        .skeleton(chart.selectedDay == nil)
     }
-    .buttonStyle(.glyph)
+    .contentShape(.rect)
+    // Only the bar: a swipe over the chart pans its candles, never the day.
+    .daySwipe(steps, back: { step(to: chart.previousDay) }, forward: { step(to: chart.nextDay) })
   }
 
-  private var arrows: DayArrows {
+  /// Where the day can go: the demo day and a single recorded day go nowhere.
+  private var steps: DayArrows {
     DayArrows(locked: chart.dayLocked, canGoBack: chart.previousDay != nil, canGoForward: chart.nextDay != nil)
   }
 
-  private func arrow(_ symbol: String) -> some View {
-    HeaderIcon(symbol: symbol).foregroundStyle(Palette.textPrimary).dimmedWhenDisabled()
+  private func step(to day: WireDate?) {
+    if let day { Task { await chart.show(day, from: url) } }
   }
 
-  /// The shown candles' high, low and volume, small and dim beside the arrows, as on the design.
+  /// "● Live" while the shown day is today: one pulse per new minute bar of the shown symbol (a
+  /// real read), still in between.
+  private var live: some View {
+    HStack(spacing: Tokens.Space.xs) {
+      PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: chart.series?.candles.last?.start)
+      Text(ChartText.live)
+    }
+    .font(Tokens.Typography.annotation)
+    .foregroundStyle(Palette.textTertiary)
+    .fixedSize()
+  }
+
+  /// The shown day in full, for VoiceOver ("Mon Nov 16 · today").
+  private func fullDay(_ day: WireDate) -> String {
+    let text = DayText.day(day.noonInNewYork)
+    return day == app.today ? String(localized: L10n.Common.today(text)) : text
+  }
+
+  /// The capsule: "Today" on today, else the shown day; a tap opens the menu of recorded days.
+  /// With one day to choose from (the demo day, the only recorded day) the day is plain text.
+  @ViewBuilder
+  private var dayCapsule: some View {
+    let caption = chart.isToday ? nil : DayText.day((chart.selectedDay ?? app.today).noonInNewYork)
+    let label = Text(DayWords.label(fullDay(chart.selectedDay ?? app.today)))
+    if steps.visible || (chart.days.isEmpty && !chart.dayLocked) {
+      Menu {
+        ForEach(chart.days) { summary in dayItem(summary) }
+      } label: {
+        DayCapsule(caption: caption)
+      }
+      .menuStyle(.button)
+      .buttonStyle(DayButtonStyle())
+      // While the days are read the capsule waits in its place.
+      .disabled(chart.days.isEmpty)
+      .accessibilityLabel(label)
+    } else {
+      DayCapsule(caption: caption, opens: false)
+        .accessibilityLabel(label)
+    }
+  }
+
+  /// One recorded day in the menu: the day, its result under it (after fees once known), and a
+  /// check on the shown one.
+  private func dayItem(_ summary: DaySummary) -> some View {
+    let shown = summary.day == chart.selectedDay
+    return Button {
+      if !shown { Task { await chart.show(summary.day, from: url) } }
+    } label: {
+      Text(verbatim: fullDay(summary.day))
+      if summary.trades > 0 {
+        Text(verbatim: Money.signedUSD(summary.resultUsd.value))
+      } else {
+        Text(ChartText.noTrades)
+      }
+      if shown { Image(systemName: Self.shownSymbol) }
+    }
+    .accessibilityAddTraits(shown ? .isSelected : [])
+  }
+
+  /// The shown day's mark in the menu.
+  static let shownSymbol = "checkmark"
+
+  /// The shown candles' high, low and volume, small and dim beside the day capsule, as on the design.
   private var dayStats: some View {
     let candles = drawnCandles ?? []
     let loading = drawnCandles == nil
@@ -361,51 +495,6 @@ private struct DayBar: View {
           .skeleton(true)
       }
     }
-  }
-
-  private func dayLabel(live: Bool) -> some View {
-    HStack(spacing: Tokens.Space.xs) {
-      // Before the day is known, a date of the same length stands as skeleton (`dayMenu`).
-      Text(verbatim: DayText.day(chart.selectedDay?.noonInNewYork ?? .now))
-      if live {
-        Text(verbatim: Format.separator.trimmingCharacters(in: .whitespaces))
-        Text(ChartText.todayLive)
-      }
-    }
-    .fixedSize()
-  }
-
-  /// The chosen day, with the live dot while it is today; a tap lists every recorded day.
-  private var dayMenu: some View {
-    Menu {
-      Picker(selection: Binding(
-        get: { chart.selectedDay },
-        set: { day in if let day { Task { await chart.show(day, from: url) } } }
-      )) {
-        ForEach(chart.days) { summary in
-          Text(verbatim: DayText.day(summary.day.noonInNewYork)).tag(Optional(summary.day))
-        }
-      } label: {
-        Text(ChartText.day)
-      }
-    } label: {
-      HStack(spacing: Tokens.Space.xs) {
-        if chart.isToday {
-          // One pulse per new minute bar of the shown symbol (a real read), still in between.
-          PulseDot(Palette.accent, size: Tokens.Size.dotSmall, event: chart.series?.candles.last?.start)
-        }
-        // One line: "today · live" gives way first, the date never wraps (the dot still says live).
-        ViewThatFits(in: .horizontal) {
-          dayLabel(live: chart.isToday)
-          dayLabel(live: false)
-        }
-      }
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(Palette.textTertiary)
-    }
-    // One day to choose from (the demo day, or the only recorded day): the menu would list just
-    // the shown day, so it stays a label.
-    .disabled(!arrows.visible)
   }
 }
 
@@ -633,57 +722,75 @@ private struct ChartControls: View {
   }
 }
 
-/// The chosen symbol's closed trades of the day.
+/// The chosen symbol's trades of the day, in words as on the board (mockup IOSChart): the open
+/// position first ("Bought 10 @ 12.34 · stop 11.90 · Verified", open), then each closed trade
+/// ("Bought 15 @ 8.71 → sold 8.95", its result). The header leads to Activity, on the same day.
 private struct DayTrades: View {
+  @Environment(AppModel.self) private var app
+  let symbol: String?
   let trades: [DayTrade]
+  let position: Position?
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      CardLabel(ChartText.trades)
-      if trades.isEmpty {
+      HStack(alignment: .center, spacing: Tokens.Space.s) {
+        CardLabel(symbol.map(ChartText.tradesIn) ?? ChartText.trades)
+        Spacer(minLength: Tokens.Space.s)
+        HeaderLink(ChartText.activity) { app.selectedTab = .activity }
+      }
+      if trades.isEmpty && position == nil {
         Text(ChartText.noTrades)
           .font(Tokens.Typography.callout)
           .foregroundStyle(Palette.textTertiary)
       }
+      if let position { openRow(position) }
       // The latest trades, then "Show all N ›": a busy symbol trades many times a day.
       CappedList(trades.sorted { $0.closedAt.date > $1.closedAt.date }, id: \.id, title: ChartText.trades,
-        limit: Tokens.Lists.comparedRows) { _, trade in tradeRow(trade) }
+        limit: Tokens.Lists.comparedRows) { _, trade in closedRow(trade) }
     }
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard()
   }
 
-  /// A trade: its times and prices, then its result in dollars and in R.
-  private func tradeRow(_ trade: DayTrade) -> some View {
-    HStack(alignment: .firstTextBaseline) {
-      VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-        HStack(spacing: Tokens.Space.xs) {
-          Text(trade.openedAt.date, format: ChartFormat.time)
-          Image(systemName: "arrow.right").imageScale(.small)
-          Text(trade.closedAt.date, format: ChartFormat.time)
-        }
+  /// The open position: when it filled, what was bought and its stop in the stop's state colour.
+  private func openRow(_ position: Position) -> some View {
+    let state = position.stop.state
+    var line = AttributedString(String(localized: ChartText.bought(position.quantity.text,
+      Money.price(position.entryPrice.value))))
+    line.swiftUI.foregroundColor = Palette.textSecondary
+    var stop = AttributedString(Format.separator + String(localized: L10n.Activity.stopDetail(
+      position.stop.price.map { Money.price($0.value) } ?? Format.missing, Board.stopStateTitle(state))))
+    stop.swiftUI.foregroundColor = state.tone.text
+    return row(time: (position.entry.filledAt ?? position.openedAt).date, what: line + stop) {
+      Text(ChartText.openResult)
+        .foregroundStyle(Tone.openPosition.text)
+    }
+  }
+
+  /// A closed trade: when it opened, what was bought and sold, its result in dollars.
+  private func closedRow(_ trade: DayTrade) -> some View {
+    var line = AttributedString(String(localized: ChartText.boughtSold(trade.quantity.text,
+      Money.price(trade.entryPrice.value), Money.price(trade.exitPrice.value))))
+    line.swiftUI.foregroundColor = Palette.textSecondary
+    return row(time: trade.openedAt.date, what: line) {
+      Text(verbatim: Money.signedUSD(trade.resultUsd.value))
+        .foregroundStyle(Palette.result(trade.resultUsd.value))
+    }
+  }
+
+  /// One line of the list: the time, the words (wrapping, never cut) and the result at the end.
+  private func row<Result: View>(time: Date, what: AttributedString, @ViewBuilder result: () -> Result) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
+      Text(time, format: ChartFormat.time)
         .font(Tokens.Typography.captionMono)
         .foregroundStyle(Palette.textTertiary)
-        HStack(spacing: Tokens.Space.xs) {
-          Text(verbatim: Money.price(trade.entryPrice.value))
-          Image(systemName: "arrow.right").imageScale(.small)
-          Text(verbatim: Money.price(trade.exitPrice.value))
-        }
-        .font(Tokens.Typography.bodyMono)
-        .foregroundStyle(Palette.textSecondary)
-      }
-      Spacer()
-      VStack(alignment: .trailing, spacing: Tokens.Space.xxs) {
-        Text(Money.signedUSD(trade.resultUsd.value))
-          .font(Tokens.Typography.bodyMono)
-          .foregroundStyle(Palette.result(trade.resultUsd.value))
-        if let r = trade.resultR {
-          Text(Risk.text(r))
-            .font(Tokens.Typography.captionMono)
-            .foregroundStyle(Palette.textTertiary)
-        }
-      }
+      Text(what)
+        .font(Tokens.Typography.callout)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Tokens.Space.s)
+      result()
+        .font(Tokens.Typography.bodyMono.bold())
     }
     .accessibilityElement(children: .combine)
   }
@@ -723,6 +830,8 @@ private struct LoadingChart: View {
   let timeframe: Timeframe
   /// How far a read the chart's request budget holds back has got, shown as a progress line.
   var pending: ChartPendingV1?
+  /// Height of the price pane, the chart's own (`CandleChart.plotHeight`).
+  var plotHeight = CandleChart.priceHeight
 
   /// The silhouette's candles and the price pane's grid lines across and down, as the board's.
   static let candles = 34
@@ -749,7 +858,7 @@ private struct LoadingChart: View {
         VStack(spacing: 0) {
           SkeletonCandles(candles: Self.candles, rows: Self.rows, columns: Self.columns,
             axisWidth: CandleChart.axisLabelWidth, showsTime: true, volume: lines.volume, builds: true)
-            .frame(height: CandleChart.priceHeight)
+            .frame(height: plotHeight)
           ForEach(lines.panes, id: \.self) { _ in
             SkeletonPane(axisWidth: CandleChart.axisLabelWidth)
               .frame(height: CandleChart.paneHeight)

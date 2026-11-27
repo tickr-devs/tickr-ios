@@ -1,6 +1,6 @@
 import CoreGraphics
 import Testing
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Screener chips row: the row's clock")
 struct MarqueeClockTests {

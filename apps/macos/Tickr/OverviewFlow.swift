@@ -247,7 +247,7 @@ struct WatchingRow: View {
             .font(Tokens.Typography.captionMono)
             .foregroundStyle(Palette.textPrimary)
             .contentTransition(.numericText())
-            .help(Text(L10n.Position.bid))
+            .tip(Text(L10n.Position.bid))
         }
         quoteAge
       }
@@ -273,7 +273,7 @@ struct WatchingRow: View {
               figures
             }
           }
-          .help(Text(verbatim: check.note))
+          .tip(Text(verbatim: check.note))
         } else {
           // No failed check: what the record holds and lacks, in place of the check.
           Text(verbatim: state)
@@ -307,10 +307,10 @@ struct WatchingRow: View {
     return Group {
       if let age = row.quoteAgeSeconds?.value {
         Text(L10n.Format.seconds(Money.plain(age, fractionDigits: WatchingRow.ageDigits)))
-          .help(Text(L10n.Watching.quoteAgeHelp(decided)))
+          .tip(Text(L10n.Watching.quoteAgeHelp(decided)))
       } else {
         Text(verbatim: Format.missing)
-          .help(Text(verbatim: [row.quoteAgeCauseText, String(localized: L10n.Watching.decidedAt(decided))]
+          .tip(Text(verbatim: [row.quoteAgeCauseText, String(localized: L10n.Watching.decidedAt(decided))]
             .compactMap { $0 }.joined(separator: Format.lineSeparator)))
       }
     }
@@ -333,7 +333,7 @@ struct WatchingRow: View {
     }
     .frame(height: Tokens.Size.barThin)
     .animation(reduceMotion ? nil : Tokens.Motion.fill, value: share)
-    .help(WatchingCheck.scale(row, prices: .money).map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness))
+    .tip(WatchingCheck.scale(row, prices: .money).map { Text(verbatim: $0) } ?? Text(L10n.Watching.closeness))
     .accessibilityLabel(Text(L10n.Watching.closeness))
     .accessibilityValue(Text(share, format: .percent))
   }
@@ -465,8 +465,8 @@ private struct MoverRuleButton: View {
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .pointerStyle(.link)
-    .help(Text(L10n.FastMovers.ruleHint))
+    .linkPointer()
+    .tip(Text(L10n.FastMovers.ruleHint))
     .accessibilityLabel(Text(L10n.FastMovers.ruleHint))
     .popover(isPresented: $open, arrowEdge: .bottom) {
       VStack(alignment: .leading, spacing: Tokens.Space.s) {

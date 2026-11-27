@@ -1,0 +1,23 @@
+{
+  "symbol": "ABCD",
+  "interval": "1d",
+  "range": "1y",
+  "source": "webull",
+  "cached_at": "2026-11-16T14:41:02.250Z",
+  "cause": "no 1d bars from webull for ABCD in range 1y",
+  "bars": [],
+  "pending": null,
+  "previous_after_candles": null,
+  "api_version": 1,
+  "cause_codes": [
+    {
+      "code": "no_chart_bars",
+      "params": {
+        "interval": "1d",
+        "source": "webull",
+        "symbol": "ABCD",
+        "range": "1y"
+      }
+    }
+  ]
+}

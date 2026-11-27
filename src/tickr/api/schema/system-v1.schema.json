@@ -1,0 +1,712 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:system-v1",
+  "title": "SystemV1",
+  "type": "object",
+  "properties": {
+    "served_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "bot_state": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "starting",
+            "running",
+            "stopping",
+            "stopped"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status_stale": {
+      "type": "boolean"
+    },
+    "broker_link": {
+      "type": "object",
+      "properties": {
+        "last_read_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "warn_seconds": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "max_age_seconds": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "fresh",
+            "aging",
+            "stale",
+            "unknown"
+          ]
+        },
+        "stream": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "fresh",
+                "quiet",
+                "lost",
+                "off"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cause_codes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "code",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "last_read_at",
+        "warn_seconds",
+        "max_age_seconds",
+        "state",
+        "stream",
+        "cause"
+      ],
+      "additionalProperties": false
+    },
+    "morning_check": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "enum": [
+                "preflight",
+                "bot-start"
+              ]
+            },
+            "started_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "finished_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "day": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+            },
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "ready",
+                "failed",
+                "config-invalid",
+                "no-session"
+              ]
+            },
+            "blocks_start": {
+              "type": "boolean"
+            },
+            "cause": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "passed": {
+                    "type": "boolean"
+                  },
+                  "cause": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "passed",
+                  "cause"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "job",
+            "started_at",
+            "finished_at",
+            "day",
+            "outcome",
+            "blocks_start",
+            "cause",
+            "checks"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "morning_check_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "training": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "running",
+                "done",
+                "failed"
+              ]
+            },
+            "done": {
+              "type": "integer"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "started_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "updated_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+            },
+            "cause": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cause_codes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "code",
+                  "params"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "job",
+            "state",
+            "done",
+            "total",
+            "started_at",
+            "updated_at",
+            "cause"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "training_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "host": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "watchdog": {
+              "type": "object",
+              "properties": {
+                "started_day": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "last_check_at": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "last_check_read": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "last_check_flat": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "restarts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "at": {
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "started",
+                          "failed",
+                          "refused"
+                        ]
+                      },
+                      "early": {
+                        "type": "boolean"
+                      },
+                      "open_trades": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "cause": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "cause_codes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "params": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "params"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "at",
+                      "outcome",
+                      "early",
+                      "open_trades",
+                      "cause"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "restart_count": {
+                  "type": "integer"
+                },
+                "cause": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "cause_codes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "params": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "params"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "started_day",
+                "last_check_at",
+                "last_check_read",
+                "last_check_flat",
+                "restarts",
+                "restart_count",
+                "cause"
+              ],
+              "additionalProperties": false
+            },
+            "sleep": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "held",
+                    "not_held",
+                    "unknown"
+                  ]
+                },
+                "holds": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "cause": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "cause_codes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "params": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "params"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "state",
+                "holds",
+                "cause"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "watchdog",
+            "sleep"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "host_cause": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "bundle": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "state": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "off",
+                    "not_loaded",
+                    "refused"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cause": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "enabled",
+            "bundle",
+            "state",
+            "cause"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "morning_check_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "training_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "host_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "params"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "served_at",
+    "bot_state",
+    "status_stale",
+    "broker_link",
+    "morning_check",
+    "morning_check_cause",
+    "training",
+    "training_cause",
+    "host",
+    "host_cause",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

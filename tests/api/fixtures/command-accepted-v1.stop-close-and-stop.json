@@ -1,0 +1,13 @@
+{
+  "command": {
+    "command_id": "5d2a7c9e-1b3f-4a6d-8e0c-7f9b2d4a6c8e",
+    "kind": "stop-bot",
+    "requested_at": "2026-11-16T15:00:00.123Z",
+    "source": "api",
+    "symbol": null,
+    "mode": "close_and_stop",
+    "schema_version": 1
+  },
+  "warning": null,
+  "api_version": 1
+}

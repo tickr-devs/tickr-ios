@@ -2,6 +2,7 @@ import CoreText
 #if canImport(AppKit)
 import AppKit
 #else
+import SwiftUI
 import UIKit
 #endif
 
@@ -19,6 +20,28 @@ public enum TextMeasure {
   public typealias PlatformFont = NSFont
   #else
   public typealias PlatformFont = UIFont
+  #endif
+
+  /// The point size a type role is drawn at: on the Mac its fixed design size `mac`; on iOS the
+  /// size of its text style `ios` now, as Dynamic Type sets it (`Tokens.Typography`'s iOS roles
+  /// follow text styles). Text measured to size a layout must use this, or the layout is cut to
+  /// the Mac's sizes while iOS draws bigger (the iPad's live flow broke "price-action-v3" at its
+  /// hyphen, 2026-11-26).
+  public static func pointSize(mac: CGFloat, ios: PlatformFont.TextStyle) -> CGFloat {
+    #if canImport(AppKit)
+    mac
+    #else
+    PlatformFont.preferredFont(forTextStyle: ios).pointSize
+    #endif
+  }
+
+  #if !canImport(AppKit)
+  /// The size of text style `style` at Dynamic Type size `size`: what a view drawn under
+  /// `.dynamicTypeSize(size)` uses, which the system-wide setting alone does not tell.
+  public static func pointSize(_ style: PlatformFont.TextStyle, at size: DynamicTypeSize) -> CGFloat {
+    let traits = UITraitCollection(preferredContentSizeCategory: UIContentSizeCategory(size))
+    return PlatformFont.preferredFont(forTextStyle: style, compatibleWith: traits).pointSize
+  }
   #endif
 
   /// Width of `string` in `font`, rounded up to whole points; `kern` adds tracking per character.

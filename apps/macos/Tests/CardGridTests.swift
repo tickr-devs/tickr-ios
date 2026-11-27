@@ -1,6 +1,6 @@
 import SwiftUI
 import Testing
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("Card grid")
 struct CardGridTests {

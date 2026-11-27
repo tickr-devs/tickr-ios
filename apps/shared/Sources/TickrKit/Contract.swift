@@ -20,11 +20,6 @@ public enum CommandKind: String, Codable, Sendable, CaseIterable {
 
 public enum CommandOutcome: String, Codable, Sendable { case done, refused }
 
-public struct StrategyId: Codable, Hashable, Sendable {
-  public let name: String
-  public let version: String
-}
-
 public struct EntryBlock: Codable, Hashable, Sendable {
   public let cause: String
   public let text: String
@@ -160,14 +155,27 @@ public struct StatusV1: Codable, Hashable, Sendable {
   public let feesTodayUsd: DecimalString?
   public let resultTodayNetUsd: DecimalString?
   public let resultTodayBrokerUsd: DecimalString?
+  /// This New York week's net realized loss after fees, as the weekly loss limit counts it; nil when
+  /// unknown or from an older bot. Only the API's answer carries it, from the bot's run facts file.
+  public let realizedLossWeekUsd: DecimalString?
+  /// Stop-outs in a row today, as the stop-out streak lock counts them; nil from an older bot.
+  public let stopOutStreak: Int?
+  /// The loss lock keys were in the decoded document (the API's answer; status.json has none).
+  private let lossLocksShown: Bool
+  /// Every live protection setting with the value new entries are admitted under now; empty from an older bot.
+  /// Only the API's answer carries it, from the bot's run facts file; status.json has none (docs/api.md, "Run facts").
+  public var protectionInForce: [ProtectionValue] { protectionInForceShown ?? [] }
+  private let protectionInForceShown: [ProtectionValue]?
   /// The stop-bot this run obeyed or is carrying out; nil while none (and from an older bot).
   public let stopProgress: StopProgress?
   /// Every own entry working at the broker with nothing filled yet; empty from an older bot.
   public let workingEntries: [WorkingEntry]
   public let schemaVersion: Int
+  /// Who decides this run's entries (docs/api.md, "Decider"); nil from an older API.
+  public let decider: DeciderV1?
 
   enum CodingKeys: String, CodingKey {
-    case environment, strategy, fences, position, freshness, positions
+    case environment, strategy, fences, position, freshness, positions, decider
     case codeVersion = "code_version"
     case writtenAt = "written_at"
     case botState = "bot_state"
@@ -184,6 +192,9 @@ public struct StatusV1: Codable, Hashable, Sendable {
     case feesTodayUsd = "fees_today_usd"
     case resultTodayNetUsd = "result_today_net_usd"
     case resultTodayBrokerUsd = "result_today_broker_usd"
+    case realizedLossWeekUsd = "realized_loss_week_usd"
+    case stopOutStreak = "stop_out_streak"
+    case protectionInForce = "protection_in_force"
     case stopProgress = "stop_progress"
     case workingEntries = "working_entries"
     case schemaVersion = "schema_version"
@@ -215,8 +226,13 @@ public struct StatusV1: Codable, Hashable, Sendable {
     feesTodayUsd = try c.decodeIfPresent(DecimalString.self, forKey: .feesTodayUsd)
     resultTodayNetUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultTodayNetUsd)
     resultTodayBrokerUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultTodayBrokerUsd)
+    lossLocksShown = c.contains(.realizedLossWeekUsd)
+    realizedLossWeekUsd = try c.decodeIfPresent(DecimalString.self, forKey: .realizedLossWeekUsd)
+    stopOutStreak = try c.decodeIfPresent(Int.self, forKey: .stopOutStreak)
+    protectionInForceShown = try c.decodeIfPresent([ProtectionValue].self, forKey: .protectionInForce)
     stopProgress = try c.decodeIfPresent(StopProgress.self, forKey: .stopProgress)
     workingEntries = try c.decodeIfPresent([WorkingEntry].self, forKey: .workingEntries) ?? []
+    decider = try c.decodeIfPresent(DeciderV1.self, forKey: .decider)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -244,8 +260,15 @@ public struct StatusV1: Codable, Hashable, Sendable {
     try c.encodeNullable(feesTodayUsd, forKey: .feesTodayUsd)
     try c.encodeNullable(resultTodayNetUsd, forKey: .resultTodayNetUsd)
     try c.encodeNullable(resultTodayBrokerUsd, forKey: .resultTodayBrokerUsd)
+    if lossLocksShown {
+      try c.encodeNullable(realizedLossWeekUsd, forKey: .realizedLossWeekUsd)
+      try c.encodeNullable(stopOutStreak, forKey: .stopOutStreak)
+    }
+    try c.encodeIfPresent(protectionInForceShown, forKey: .protectionInForce)
     try c.encodeNullable(stopProgress, forKey: .stopProgress)
     try c.encode(workingEntries, forKey: .workingEntries)
+    // Only the API's answer carries `decider`; the bot's status file has none (docs/api.md, "Decider").
+    try c.encodeIfPresent(decider, forKey: .decider)
   }
 }
 

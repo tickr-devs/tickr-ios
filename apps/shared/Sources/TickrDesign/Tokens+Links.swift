@@ -80,7 +80,7 @@ extension Tokens {
     public static let cappedRows = 5
     /// Things compared side by side: strategy versions, a symbol's trades.
     public static let comparedRows = 3
-    /// The broker's positions and open orders: as many as the bot's entry slots.
+    /// The broker's open orders on the Mac's Risk: as many as the bot's entry slots.
     public static let brokerRows = 6
     /// The journal's lines (one short line each).
     public static let journalRows = 10

@@ -2,12 +2,12 @@ import SwiftUI
 
 /// Outline glyphs the design draws itself and SF Symbols has no match for: the iOS tab bar
 /// (dashboard panels, thin lock, a bare polyline, three lines, star), the title-row actions
-/// (Home's thin power and settings gear, Activity's calendar), the chart-type buttons and
+/// (Home's thin power and settings gear), the chart-type buttons and
 /// the macOS Overview live flow's stages.
 /// Each is the design's own SVG path on its 24-point grid, stroked with round caps and joins; the
 /// path data separates numbers with "+" signs (valid SVG) rather than spaces.
 public enum DesignGlyph: Sendable, CaseIterable {
-  case home, positions, chart, activity, lab, power, settings, calendar, candles, line
+  case home, positions, chart, activity, lab, power, settings, candles, line
   /// The live flow's stages, in the order a setup passes them.
   case screeners, universe, quote, bars, strategy, risk, order, brokerStop, reconcile
 
@@ -21,7 +21,6 @@ public enum DesignGlyph: Sendable, CaseIterable {
     case .lab: return Self.labPath
     case .power: return Self.powerPath
     case .settings: return Self.settingsPath
-    case .calendar: return Self.calendarPath
     case .candles: return Self.candlesPath
     case .line: return Self.linePath
     case .screeners: return Self.screenersPath
@@ -75,8 +74,6 @@ public enum DesignGlyph: Sendable, CaseIterable {
   static let settingsPart8 = "A9.3+9.3+0+0+1+6.8+4.29L8.43+5.29"
   /// Settings gear path data, piece 9 of 9.
   static let settingsPart9 = "A7.6+7.6+0+0+1+9.78+4.73ZM15.2+12a3.2+3.2+0+1+1-6.4+0a3.2+3.2+0+1+1+6.4+0Z"
-  /// Activity's day picker.
-  static let calendarPath = "M4+6h16v14H4zM4+10h16M8+3v4M16+3v4"
   /// The chart-type buttons (the design's 16-point drawings, scaled onto the 24-point grid).
   static let candlesPath = "M7.5+3v18M16.5+4.5v15M5.25+7.5h4.5v7.5h-4.5zM14.25+9h4.5v6h-4.5z"
   static let linePath = "M3+18l6-6l4.5+3l7.5-9"

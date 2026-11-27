@@ -203,15 +203,15 @@ private struct LossRoomCard: View {
       Image(systemName: Self.infoSymbol)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-        .help(Text(L10n.Risk.lossRoomNote))
+        .tip(Text(L10n.Risk.lossRoomNote))
         .accessibilityLabel(Text(L10n.Risk.lossRoomNote))
       if let status = model.status {
         // Why entries wait or are blocked, in the bot's words, on hover.
         StatusPill(gate.entriesTitle, tone: gate.tone, live: gate == .allowed, event: gate)
-          .help(Text(verbatim: Self.gateCause(status)))
+          .tip(Text(verbatim: Self.gateCause(status)))
       } else {
         StatusPill(L10n.Risk.entriesUnknown, tone: .warning)
-          .help(Text(verbatim: model.fetchError ?? model.response?.unavailableCauseText ?? String()))
+          .tip(Text(verbatim: model.fetchError ?? model.response?.unavailableCauseText ?? String()))
       }
     }, content: {
       VStack(spacing: Tokens.Space.m) {
@@ -246,8 +246,8 @@ private struct LossRoomCard: View {
           FigureRow(L10n.Risk.reservations(model.positions.count), value: amount(model.status?.openReservationsUsd),
             color: reservedTone.text)
         }
-        if model.status != nil && room == nil {
-          Footnote(L10n.Risk.roomNotReported, color: Palette.warningText)
+        if let note = RiskRoomText.roomNote(model.status) {
+          Footnote(note, color: Palette.warningText)
         }
       }
     })
@@ -439,7 +439,7 @@ private struct ReconciliationCard: View {
         }
         if let fences {
           let active = fences.count + (model.status?.entryStop == true ? 1 : 0)
-          DisclosureLine(L10n.Risk.safetyStops,
+          FooterDetail(L10n.Risk.safetyStops,
             summary: String(localized: active == 0 ? L10n.Risk.noneActive : L10n.Common.fences(active)),
             summaryColor: active == 0 ? Palette.profitText : Palette.warningText) {
             groups(fences)
@@ -604,7 +604,7 @@ private struct ReconciliationCard: View {
       .foregroundStyle(on ? Palette.warningText : switched ? Palette.textQuaternary : Palette.profitText)
     }
     // What each active fence says, and since when, on hover: it often says what to do.
-    .help(Text(verbatim: active.map(detail).joined(separator: Format.lineSeparator)))
+    .tip(Text(verbatim: active.map(detail).joined(separator: Format.lineSeparator)))
     .accessibilityElement(children: .combine)
   }
 
@@ -615,14 +615,19 @@ private struct ReconciliationCard: View {
   }
 }
 
-/// "Positions · 2 of 3": one tile per slot the config allows (`PositionSlots`).
+/// "Positions · 2 of 3": one tile per slot the config allows (`PositionSlots`); a working entry
+/// holds one, as the engine counts it.
 private struct SlotsCard: View {
   @Environment(AppModel.self) private var model
 
+  /// The working entries, each holding a slot (one just cancelled no longer does).
+  private var entries: [EntryRow] { model.entryRows.filter { $0.phase != .cancelled } }
+
   var body: some View {
-    Card(L10n.Risk.slots(model.positions.count, model.settings.map { String($0.risk.maxOpenPositions) } ?? Format.missing)) {
+    Card(L10n.Risk.slots(model.positions.count + entries.count,
+      model.settings.map { String($0.risk.maxOpenPositions) } ?? Format.missing)) {
       if let risk = model.settings?.risk {
-        PositionSlots(limit: risk.maxOpenPositions, positions: model.positions)
+        PositionSlots(limit: risk.maxOpenPositions, positions: model.positions, entries: entries)
       } else {
         Footnote(model.settingsError == nil ? L10n.Common.unavailable : L10n.Risk.settingsUnavailable)
       }
@@ -672,6 +677,7 @@ private struct LimitsCard: View {
 private struct PositionSlots: View {
   let limit: Int
   let positions: [PositionRow]
+  let entries: [EntryRow]
 
   /// Tiles in a row, as the design draws three slots across the card.
   static let columns = 3
@@ -680,7 +686,7 @@ private struct PositionSlots: View {
   /// Symbol after a confirmed stop.
   static let confirmedSymbol = "checkmark"
 
-  private var free: Int { max(0, limit - positions.count) }
+  private var free: Int { max(0, limit - positions.count - entries.count) }
 
   var body: some View {
     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Tokens.Space.s, alignment: .top),
@@ -688,12 +694,15 @@ private struct PositionSlots: View {
       ForEach(positions) { row in
         taken(row)
       }
+      ForEach(entries) { row in
+        pending(row)
+      }
       ForEach(0..<free, id: \.self) { _ in
         freeTile
       }
     }
     .accessibilityElement(children: .contain)
-    .accessibilityLabel(Text(L10n.Risk.slots(positions.count, String(limit))))
+    .accessibilityLabel(Text(L10n.Risk.slots(positions.count + entries.count, String(limit))))
   }
 
   /// Colours of a stop state: its tone (`StopState.tone`): green verified, amber pending, red missing.
@@ -724,9 +733,23 @@ private struct PositionSlots: View {
       .foregroundStyle(colors.text)
     }
     // The state in words too, not only in colour: read by VoiceOver and shown on hover.
-    .help(Text(verbatim: state.title))
+    .tip(Text(verbatim: state.title))
     .accessibilityElement(children: .combine)
     .accessibilityValue(Text(verbatim: state.title))
+  }
+
+  /// A slot a working entry holds: its symbol and label, framed in the entry's colour.
+  private func pending(_ row: EntryRow) -> some View {
+    tile(frame: EntryLook.color(row.phase)) {
+      HStack(spacing: Tokens.Space.xs) {
+        EntryDot(row.phase)
+        SymbolText(row.symbol)
+          .font(Tokens.Typography.bodyMono.bold())
+          .foregroundStyle(Palette.textPrimary)
+      }
+      EntryBadge(row)
+    }
+    .accessibilityElement(children: .combine)
   }
 
   private var freeTile: some View {
@@ -869,7 +892,7 @@ private struct AccountCard: View {
           .joined(separator: Format.itemSeparator))
           .font(Tokens.Typography.annotation)
           .foregroundStyle(Palette.textQuaternary)
-          .help(Text(L10n.Risk.accountKindHelp))
+          .tip(Text(L10n.Risk.accountKindHelp))
       }
     }, content: {
       if let response = model.account {
@@ -897,14 +920,9 @@ private struct AccountCard: View {
         balance(L10n.Risk.cash, b.cashUsd, font: Self.figureFont)
         balance(L10n.Risk.buyingPower, b.buyingPowerUsd, font: Self.figureFont, color: Palette.accentText)
         balance(L10n.Risk.dayResult, b.dayPlUsd, font: Self.figureFont, signed: true)
-        DisclosureLine(L10n.Risk.moreBalances) {
-          FigureRow(L10n.Risk.overnightBuyingPower, value: Money.usd(b.overnightBuyingPowerUsd.value))
-          FigureRow(L10n.Risk.positionsValue, value: Money.usd(b.positionsValueUsd.value))
-          FigureRow(L10n.Risk.unrealized, value: Money.signedUSD(b.unrealizedPlUsd.value),
-            color: Palette.result(b.unrealizedPlUsd.value))
-          FigureRow(L10n.Risk.dayTradesLeft, value: b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit))
-          FigureRow(L10n.Risk.marginCalls, value: String(localized: L10n.Risk.marginValue(String(b.marginCalls),
-            Money.usd(b.maintenanceMarginUsd.value))), color: b.marginCalls > 0 ? Palette.warningText : Palette.textSecondary)
+        let more = moreBalances(b)
+        FooterDetail(L10n.Risk.moreBalances, count: more.count, endsCard: false) {
+          ForEach(more.indices, id: \.self) { FigureRow(more[$0].label, value: more[$0].value, color: more[$0].color) }
         }
       } else {
         balance(L10n.Risk.equity, nil, font: Self.equityFont)
@@ -912,15 +930,13 @@ private struct AccountCard: View {
         Footnote(L10n.Risk.balanceNote)
       }
       let unrealized = account.positions.compactMap { $0.unrealizedPlUsd?.value }
-      DisclosureLine(L10n.Risk.brokerPositions,
+      FooterDetail(L10n.Risk.brokerPositions,
         summary: ([String(account.positions.count)] + (unrealized.isEmpty ? [] : [Money.signedUSD(unrealized.reduce(0, +))]))
-          .joined(separator: Format.itemSeparator)) {
+          .joined(separator: Format.itemSeparator), endsCard: false) {
         if account.positions.isEmpty {
           empty
         }
-        // As many as the bot's entry slots (more in a tall window), then "Show all N ›".
-        CappedList(account.positions, id: \.self, title: L10n.Risk.brokerPositions, limit: Tokens.Lists.brokerRows,
-          endsCard: false) { _, position in positionRow(position) }
+        ForEach(account.positions, id: \.self) { positionRow($0) }
       }
       SectionHeader(Text(L10n.Risk.brokerOrders)) { EmptyView() }
         .padding(.top, Tokens.Space.xs)
@@ -937,6 +953,19 @@ private struct AccountCard: View {
       // The latest fills, then "Show all N ›" on the card's bottom edge: the list grows all day.
       CappedList(account.fillsLatestFirst, id: \.self, title: L10n.Risk.fillsToday) { _, fill in fillRow(fill) }
     }
+  }
+
+  /// The balances behind "More balances ›": label, value and its colour.
+  private func moreBalances(_ b: AccountBalances) -> [(label: LocalizedStringResource, value: String, color: Color)] {
+    [
+      (L10n.Risk.overnightBuyingPower, Money.usd(b.overnightBuyingPowerUsd.value), Palette.textSecondary),
+      (L10n.Risk.positionsValue, Money.usd(b.positionsValueUsd.value), Palette.textSecondary),
+      (L10n.Risk.unrealized, Money.signedUSD(b.unrealizedPlUsd.value), Palette.result(b.unrealizedPlUsd.value)),
+      (L10n.Risk.dayTradesLeft, b.dayTradesLeft.map { String($0) } ?? String(localized: L10n.Risk.noLimit),
+        Palette.textSecondary),
+      (L10n.Risk.marginCalls, String(localized: L10n.Risk.marginValue(String(b.marginCalls),
+        Money.usd(b.maintenanceMarginUsd.value))), b.marginCalls > 0 ? Palette.warningText : Palette.textSecondary),
+    ]
   }
 
   /// A broker position: symbol, quantity, average and last price, unrealized result.

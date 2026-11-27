@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import TickrKit
 
@@ -14,3 +15,4 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     Container.shared.pushRegistrar().failed(error, kind: .alert)
   }
 }
+#endif

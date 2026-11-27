@@ -47,8 +47,10 @@ final class OverviewCommandsUITests: XCTestCase {
   /// sidebar's widest 260, AppKit's insets 4 + 4 and gap 8, the fixtures' longest line (Overview,
   /// "tickr — paper trading", no strategy since #783) and the right-hand group (Today), each item
   /// 8.5 wider than its content. Measured by this test on CI (#783, 2026-11-25): 1392 in English,
-  /// 1409 in Spanish, whose line and group are the longer (1421 and 1446 with the strategy, #695).
-  static let minWidthEnglish: CGFloat = 1392
+  /// 1409 in Spanish, whose line and group are the longer (1421 and 1446 with the strategy, #695);
+  /// 1369 in English since the lab's line says "model lab" (#855, 2026-11-27), its Spanish line
+  /// unchanged ("laboratorio").
+  static let minWidthEnglish: CGFloat = 1369
   static let minWidthSpanish: CGFloat = 1409
   /// Environment variable that opens the window at its least size (LayoutSweep.smallestKey).
   static let smallestKey = "TICKR_SMALLEST_WINDOW"
@@ -169,9 +171,18 @@ final class OverviewCommandsUITests: XCTestCase {
   /// Launches the app on the fixtures at its least window, Overview showing the Safety · bot card
   /// (or, with `positionsFirst`, the Positions card) at its top, on the display `screen` pretends
   /// (`screenKey`) or the real one.
+  ///
+  /// An instance still running (a test before left it) is quit first and the launch waits until
+  /// it has gone, instead of XCUITest terminating it inside the launch: both stalls seen in CI
+  /// ("Lost connection to the application" on #787, "Unable to monitor event loop" on #805) came on
+  /// the first window check of a launch that had just terminated an earlier instance.
   @MainActor
   private func launch(_ arguments: [String], screen: String?, positionsFirst: Bool = false) -> XCUIApplication {
     let app = XCUIApplication()
+    if app.state != .notRunning {
+      app.terminate()
+      XCTAssertTrue(app.wait(for: .notRunning, timeout: Self.timeout), "the earlier instance did not quit")
+    }
     app.launchArguments = arguments
     app.launchEnvironment[Self.fixturesKey] = Self.fixturesOn
     app.launchEnvironment[Self.smallestKey] = Self.fixturesOn
@@ -180,7 +191,8 @@ final class OverviewCommandsUITests: XCTestCase {
     if let screen { app.launchEnvironment[Self.screenKey] = screen }
     app.launch()
     let window = app.windows.firstMatch
-    XCTAssertTrue(window.waitForExistence(timeout: Self.timeout), "no window after launch")
+    // The app's state in the message tells a crash at launch (notRunning) from a lost connection.
+    XCTAssertTrue(window.waitForExistence(timeout: Self.timeout), "no window after launch, app state \(app.state.rawValue)")
     waitUntilStill(window, "window", in: app)
     return app
   }

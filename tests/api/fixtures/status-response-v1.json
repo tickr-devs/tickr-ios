@@ -1,0 +1,173 @@
+{
+  "served_at": "2026-11-16T15:00:02.123Z",
+  "status": {
+    "written_at": "2026-11-16T15:00:00.123Z",
+    "bot_state": "running",
+    "run_id": "run-1",
+    "environment": "sandbox",
+    "trading_gate": {
+      "open": true,
+      "cause": "trading enabled by configuration",
+      "code": "unrecorded",
+      "params": {}
+    },
+    "strategy": {
+      "name": "price-action-v1",
+      "version": "1",
+      "settings_version": null
+    },
+    "entry_stop": false,
+    "entry_block": {
+      "cause": "own_trade_open",
+      "text": "The bot already has a trade open.",
+      "attention": false,
+      "params": {}
+    },
+    "fences": [
+      {
+        "kind": "foreign-position:EFGH",
+        "since": "2026-11-16T15:00:00.123Z",
+        "text": "position not opened by this bot",
+        "code": "foreign_position",
+        "params": {}
+      }
+    ],
+    "position": {
+      "symbol": "ABCD",
+      "quantity": "10",
+      "entry_price": "12.34",
+      "opened_at": "2026-11-16T15:00:00.123Z",
+      "stop": {
+        "state": "verified",
+        "price": "11.90",
+        "client_order_id": "ap-0001-s"
+      },
+      "entry": {
+        "client_order_id": "ap-0001-e",
+        "intent_at": "2026-11-16T15:00:00.123Z",
+        "sent_at": "2026-11-16T15:00:00.125Z",
+        "send_outcome": "acknowledged",
+        "latest_outcome": "acknowledged",
+        "sends": 1,
+        "filled_at": "2026-11-16T15:00:01.625Z"
+      },
+      "entry_cause": null,
+      "entry_cause_codes": []
+    },
+    "trades_today": [
+      {
+        "symbol": "WXYZ",
+        "quantity": "20",
+        "entry_price": "5.10",
+        "exit_price": "5.02",
+        "opened_at": "2026-11-16T15:00:00.123Z",
+        "closed_at": "2026-11-16T15:00:00.123Z",
+        "exit_reason": "stop",
+        "result_gross_usd": "-1.60",
+        "planned_loss_usd": "50",
+        "stop_confirmed_after_seconds": "1.250",
+        "entry": {
+          "client_order_id": "ap-0002-e",
+          "intent_at": "2026-11-16T15:00:00.123Z",
+          "sent_at": "2026-11-16T15:00:00.125Z",
+          "send_outcome": "unknown",
+          "latest_outcome": "acknowledged",
+          "sends": 1,
+          "filled_at": "2026-11-16T15:00:04.123Z"
+        },
+        "entry_cause": null,
+        "strategy": {
+          "name": "price-action-v1",
+          "version": "1",
+          "settings_version": null
+        },
+        "code_version": "6c4eec8b0f3a91d2e5b7c6a8d9e0f1a2b3c4d5e6-dirty",
+        "result_exact_usd": "-1.67",
+        "decider": {
+          "kind": "strategy",
+          "name": "price-action-v1",
+          "version": "1"
+        },
+        "entry_cause_codes": []
+      }
+    ],
+    "result_today_gross_usd": "-1.60",
+    "freshness": {
+      "last_broker_read_at": "2026-11-16T15:00:00.123Z",
+      "last_quote_at": null,
+      "stream": "fresh"
+    },
+    "recent_commands": [
+      {
+        "command_id": "0b6f7c1e-2f0a-4c55-9d1e-6a1d2f3e4b5c",
+        "kind": "entry-stop-on",
+        "requested_at": "2026-11-16T15:00:00.123Z",
+        "processed_at": "2026-11-16T15:00:00.123Z",
+        "outcome": "done",
+        "cause": null,
+        "cause_codes": []
+      }
+    ],
+    "realized_loss_today_usd": "1.60",
+    "open_reservations_usd": "50",
+    "daily_room_usd": "248.40",
+    "positions": [
+      {
+        "symbol": "ABCD",
+        "quantity": "10",
+        "entry_price": "12.34",
+        "opened_at": "2026-11-16T15:00:00.123Z",
+        "stop": {
+          "state": "verified",
+          "price": "11.90",
+          "client_order_id": "ap-0001-s"
+        },
+        "entry": {
+          "client_order_id": "ap-0001-e",
+          "intent_at": "2026-11-16T15:00:00.123Z",
+          "sent_at": "2026-11-16T15:00:00.125Z",
+          "send_outcome": "acknowledged",
+          "latest_outcome": "acknowledged",
+          "sends": 1,
+          "filled_at": "2026-11-16T15:00:01.625Z"
+        },
+        "entry_cause": null,
+        "entry_cause_codes": []
+      }
+    ],
+    "code_version": "6c4eec8b0f3a91d2e5b7c6a8d9e0f1a2b3c4d5e6-dirty",
+    "fees_today_usd": "0.07",
+    "result_today_net_usd": "-1.67",
+    "result_today_broker_usd": "-1.64",
+    "stop_progress": null,
+    "working_entries": [],
+    "schema_version": 1,
+    "decider": {
+      "kind": "strategy",
+      "name": "price-action-v1",
+      "version": "1"
+    },
+    "protection_in_force": [
+      {
+        "key": "risk.max_daily_loss_usd",
+        "value": "300",
+        "adopted_at": null
+      },
+      {
+        "key": "risk.max_open_positions",
+        "value": "1",
+        "adopted_at": "2026-11-16T14:55:00.123Z"
+      }
+    ],
+    "realized_loss_week_usd": "41.20",
+    "stop_out_streak": 1
+  },
+  "age_seconds": "2.000",
+  "stale": false,
+  "unavailable_cause": null,
+  "summary": "The bot already has a trade open.",
+  "poll_seconds": "3",
+  "api_version": 1,
+  "api_started_at": "2026-11-16T14:00:00.123Z",
+  "unavailable_cause_codes": []
+}

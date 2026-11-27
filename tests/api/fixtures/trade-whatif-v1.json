@@ -1,0 +1,44 @@
+{
+  "day": "2026-11-13",
+  "symbol": "ABCD",
+  "folder": "price-action-v2",
+  "strategy": "price-action-v2",
+  "version": "2",
+  "signals": {
+    "filled": 2,
+    "missed": 1,
+    "rejected": 0,
+    "ignored": 0
+  },
+  "trades": [
+    {
+      "signal_at": "2026-11-13T14:42:00.123Z",
+      "opened_at": "2026-11-13T14:44:00.123Z",
+      "entry_price": "12.3400",
+      "stop": "11.9000",
+      "closed_at": "2026-11-13T15:41:00.123Z",
+      "exit_price": "12.9100",
+      "exit_reason": "strategy_exit",
+      "result_r": "1.2955",
+      "quantity": "10",
+      "result_gross_usd": "5.7000"
+    },
+    {
+      "signal_at": "2026-11-13T16:12:00.123Z",
+      "opened_at": "2026-11-13T16:14:00.123Z",
+      "entry_price": "13.0200",
+      "stop": "12.7000",
+      "closed_at": "2026-11-13T16:20:00.123Z",
+      "exit_price": "12.6900",
+      "exit_reason": "stop",
+      "result_r": "-1.0313",
+      "quantity": null,
+      "result_gross_usd": null
+    }
+  ],
+  "result_r": "0.2642",
+  "result_gross_usd": null,
+  "cause": null,
+  "api_version": 1,
+  "cause_codes": []
+}

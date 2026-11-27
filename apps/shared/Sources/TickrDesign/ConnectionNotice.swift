@@ -4,8 +4,6 @@ import SwiftUI
 public enum ConnectionNoticeLook {
   /// Symbol of a link that is down or not set up.
   public static let offlineSymbol = "wifi.exclamationmark"
-  /// The details' disclosure turns by this when open (the chevron is `Symbols.next`), in degrees.
-  static let openDegrees: Double = 90
   /// Side of the amber glyph chip, in points (the mockup's 28 px chip).
   static let chipSide = Tokens.Size.iconButtonCompact
   /// Opacity of last known data under the banner: visibly not current (the mockup's 60%).
@@ -118,9 +116,7 @@ public struct ConnectionNotice<Actions: View>: View {
         withAnimation(Tokens.Motion.quick) { showsDetails.toggle() }
       } label: {
         HStack(spacing: Tokens.Space.xs) {
-          Image(systemName: Symbols.next)
-            .font(Tokens.Typography.chevron)
-            .rotationEffect(showsDetails ? .degrees(ConnectionNoticeLook.openDegrees) : .zero)
+          ExpandChevron(open: showsDetails)
           detailsLabel
         }
         .font(Tokens.Typography.caption.weight(.semibold))

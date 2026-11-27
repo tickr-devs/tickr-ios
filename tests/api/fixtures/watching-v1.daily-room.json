@@ -1,0 +1,22 @@
+{
+  "day": "2026-11-16",
+  "total": 0,
+  "rows": [],
+  "latest_size": {
+    "symbol": "QRST",
+    "at": "2026-11-16T15:00:00.000Z",
+    "strategy": {
+      "name": "price-action-v1",
+      "version": "1",
+      "settings_version": null
+    },
+    "verdict": "WATCH",
+    "quantity": "37",
+    "binding": "daily_room",
+    "binding_cause": null,
+    "binding_cause_codes": [],
+    "price": null,
+    "limits": []
+  },
+  "api_version": 1
+}

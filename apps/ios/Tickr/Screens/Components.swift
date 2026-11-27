@@ -131,6 +131,8 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
   let actions: Actions
   let content: Content
   @Environment(AppModel.self) private var model
+  /// How far the window's controls reach into the screen's top leading corner, in points.
+  @State private var windowControls: CGFloat = 0
 
   init(
     _ title: LocalizedStringResource, tab: AppTab? = nil, back: LocalizedStringResource? = nil,
@@ -147,11 +149,18 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
   var body: some View {
     let scroll = ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
-        if tab != nil {
-          TitleRow(title: title) { leading } actions: { actions }
-        } else {
-          PushedHeader(title: title, back: back) { leading } actions: { actions }
+        Group {
+          if tab != nil {
+            TitleRow(title: title) { leading } actions: { actions }
+          } else {
+            PushedHeader(title: title, back: back) { leading } actions: { actions }
+          }
         }
+        // In an iPad window (Stage Manager, a narrow window shows this layout) the window controls
+        // sit in the top leading corner: the header starts past them and narrows to fit. Measured
+        // on the scroll view, outside the scrolled content, which knows no window corner. On
+        // iPhone the corner is empty and nothing moves.
+        .padding(.leading, max(windowControls - Tokens.Space.l, 0))
         // The link to the bot, said the same on every screen: a banner over the last known
         // data (drawn dimmer), or an empty state in the card area when nothing was read.
         ConnectionPrompt()
@@ -163,6 +172,7 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
     .scrollEdgeHints()
     .scrollContentBackground(.hidden)
     .background(TickrBackground())
+    .onGeometryChange(for: CGFloat.self, of: { $0.containerCornerInsets.topLeading.width }, action: { windowControls = $0 })
     if let tab {
       scroll.tabRoot(tab)
     } else {
@@ -260,12 +270,9 @@ struct HeaderIcon: View {
   @ScaledMetric(relativeTo: .title3) private var circle = HeaderIcon.glassSide
   let glyph: Glyph
   var glass = true
-  /// A wash of `info` under the glyph: the button's panel is open (Activity's calendar).
-  var selected = false
 
-  init(_ glyph: DesignGlyph, selected: Bool = false) {
+  init(_ glyph: DesignGlyph) {
     self.glyph = .design(glyph)
-    self.selected = selected
   }
 
   init(symbol: String, glass: Bool = true) {
@@ -283,7 +290,7 @@ struct HeaderIcon: View {
     .frame(width: glass ? circle : nil, height: glass ? circle : nil)
     .background {
       if glass {
-        Circle().fill(selected ? Palette.info.opacity(TickrTabBar.selectedWash) : .clear)
+        Circle().fill(.clear)
           .glassSurface(in: Circle(), shadow: Tokens.Opacity.wash)
       }
     }
@@ -477,11 +484,20 @@ struct TickrTabBar: View {
   static let shadowShare = 0.25
   static let shadowBlur: CGFloat = 15
   static let shadowDrop: CGFloat = 10
+  /// At a compact height (an iPhone in landscape, IOS2Landscape board): the capsule's height and
+  /// width, its distance from the screen's bottom edge, in points; each glyph beside its name.
+  static let compactHeight: CGFloat = 46
+  static let compactWidth: CGFloat = 440
+  static let compactBottomGap: CGFloat = 4
 
   @Environment(AppModel.self) private var model
   @Environment(\.screenBottomInset) private var bottomInset
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
   /// The pill's one identity across the tabs, so a switch slides it instead of fading.
   @Namespace private var pill
+
+  /// An iPhone in landscape: a shorter capsule in the middle, each glyph beside its name.
+  private var compact: Bool { verticalSizeClass == .compact }
 
   var body: some View {
     HStack(spacing: 0) {
@@ -498,14 +514,17 @@ struct TickrTabBar: View {
     .animation(Tokens.Motion.standard, value: model.selectedTab)
     // The pill keeps this margin from the bar's edge on every side.
     .padding(Tokens.Space.xxs)
-    .frame(minHeight: Self.height)
+    .frame(minHeight: compact ? Self.compactHeight : Self.height)
+    // In landscape a capsule in the middle, as on the board; a name that needs more than its
+    // tab's width wraps to a second line beside its glyph, never cut.
+    .frame(maxWidth: compact ? Self.compactWidth : .infinity)
     .background(.ultraThinMaterial, in: Capsule())
     .background(Palette.surface.opacity(Tokens.Opacity.overlay), in: Capsule())
     .overlay(Capsule().strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
     .shadow(color: Palette.shadow.opacity(Self.shadowShare), radius: Self.shadowBlur, y: Self.shadowDrop)
     .padding(.horizontal, Self.sideInset)
     // From the screen's bottom edge, not from the top of the home indicator's strip.
-    .padding(.bottom, Self.bottomGap - bottomInset)
+    .padding(.bottom, (compact ? Self.compactBottomGap : Self.bottomGap) - bottomInset)
     // As the system tab bar: its names keep the tab label's fixed size (`Typography.tabLabel`),
     // and a long press shows a tab's name in the large-content viewer at accessibility sizes.
     .dynamicTypeSize(...Self.largestText)
@@ -518,7 +537,9 @@ struct TickrTabBar: View {
     return Button {
       model.selectedTab = tab
     } label: {
-      VStack(spacing: Tokens.Space.xs) {
+      let layout = compact ? AnyLayout(HStackLayout(spacing: Tokens.Space.xs))
+        : AnyLayout(VStackLayout(spacing: Tokens.Space.xs))
+      layout {
         DesignGlyphView(tab.glyph, side: Tokens.Size.tabGlyph)
         Text(tab.title)
           .font(Tokens.Typography.tabLabel)

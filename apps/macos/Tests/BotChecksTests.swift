@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import TickrDesign
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 @Suite("The Bot card's status line over its safety checks")
 @MainActor

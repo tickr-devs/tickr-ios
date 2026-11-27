@@ -76,9 +76,11 @@ public struct ExplainV1: Codable, Hashable, Sendable {
   public let firstFailedCheck: String?
   public let checks: [CheckV1]
   public let apiVersion: Int
+  /// Who decided (docs/api.md, "Decider"); nil from an older API.
+  public let decider: DeciderV1?
 
   enum CodingKeys: String, CodingKey {
-    case environment, day, symbol, strategy, version, verdict, setup, admission, checks
+    case environment, day, symbol, strategy, version, verdict, setup, admission, checks, decider
     case decidedAt = "decided_at"
     case barStart = "bar_start"
     case refusalCause = "refusal_cause"
@@ -102,6 +104,7 @@ public struct ExplainV1: Codable, Hashable, Sendable {
     refusalCause = try c.decodeNullable(String.self, forKey: .refusalCause)
     firstFailedCheck = try c.decodeNullable(String.self, forKey: .firstFailedCheck)
     checks = try c.decode([CheckV1].self, forKey: .checks)
+    decider = try c.decodeIfPresent(DeciderV1.self, forKey: .decider)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -120,5 +123,6 @@ public struct ExplainV1: Codable, Hashable, Sendable {
     try c.encodeNullable(firstFailedCheck, forKey: .firstFailedCheck)
     try c.encode(checks, forKey: .checks)
     try c.encode(apiVersion, forKey: .apiVersion)
+    try c.encodeNullable(decider, forKey: .decider)
   }
 }

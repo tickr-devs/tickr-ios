@@ -1,0 +1,37 @@
+{
+  "environment": "sandbox",
+  "active_strategy": "price-action-v1",
+  "observers": [
+    "price-action-v1-lookback8"
+  ],
+  "risk": {
+    "planned_loss_usd": "50",
+    "position_notional_cap_usd": "2500",
+    "max_daily_loss_usd": "300",
+    "max_open_positions": 1,
+    "max_quote_age_seconds": "5",
+    "min_daily_room_usd": "10",
+    "max_weekly_loss_usd": "0",
+    "stop_out_streak_limit": 3
+  },
+  "session": {
+    "timezone": "America/New_York",
+    "last_entry_minutes_before_close": 15,
+    "flatten_minutes_before_close": 5,
+    "half_days_enabled": false
+  },
+  "status_stale_seconds": "15",
+  "poll_seconds": "3",
+  "broker_read_max_age_seconds": "30",
+  "broker_read_warn_seconds": "15",
+  "api_version": 1,
+  "live_quote_max_age_seconds": "60",
+  "quotes_poll_seconds": "1",
+  "command_max_age_seconds": "60",
+  "decider": {
+    "kind": "strategy",
+    "name": "price-action",
+    "version": "1"
+  },
+  "decider_cause": null
+}

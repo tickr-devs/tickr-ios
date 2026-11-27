@@ -1,0 +1,71 @@
+{
+  "read_at": "2026-11-16T15:00:00.123Z",
+  "equity_usd": "100123.40",
+  "buying_power_usd": "400493.60",
+  "positions": [
+    {
+      "symbol": "ABCD",
+      "quantity": "10",
+      "avg_price": "12.34",
+      "last_price": "12.40",
+      "market_value_usd": "124.00",
+      "unrealized_pl_usd": "0.60",
+      "day_pl_usd": "0.60"
+    }
+  ],
+  "orders": [
+    {
+      "client_order_id": "ap-0001-s",
+      "symbol": "ABCD",
+      "side": "SELL",
+      "type": "STOP_LOSS",
+      "status": "ACCEPTED",
+      "quantity": "10",
+      "limit_price": null,
+      "stop_price": "11.90",
+      "ours": true
+    }
+  ],
+  "matches_records": true,
+  "mismatch": null,
+  "balance_read_at": "2026-11-16T14:59:40.123Z",
+  "cash_usd": "99999.40",
+  "positions_value_usd": "124.00",
+  "unrealized_pl_usd": "0.60",
+  "day_pl_usd": "-1.00",
+  "overnight_buying_power_usd": "200246.80",
+  "maintenance_margin_usd": "31.00",
+  "margin_calls": 0,
+  "day_trades_left": null,
+  "account_label": "Individual Margin",
+  "fills_read_at": "2026-11-16T14:59:40.123Z",
+  "fills": [
+    {
+      "client_order_id": "ap-0000-x",
+      "symbol": "WXYZ",
+      "side": "SELL",
+      "type": "STOP_LOSS",
+      "quantity": "20",
+      "price": "5.02",
+      "filled_at": "2026-11-16T14:20:00.123Z",
+      "fees_usd": "0.07",
+      "ours": true,
+      "net_amount_usd": "100.3228",
+      "exact_price": "5.01965"
+    },
+    {
+      "client_order_id": "ap-0001-e",
+      "symbol": "ABCD",
+      "side": "BUY",
+      "type": "LIMIT",
+      "quantity": "10",
+      "price": "12.34",
+      "filled_at": "2026-11-16T14:48:00.123Z",
+      "fees_usd": "0",
+      "ours": true,
+      "net_amount_usd": null,
+      "exact_price": null
+    }
+  ],
+  "schema_version": 1
+}

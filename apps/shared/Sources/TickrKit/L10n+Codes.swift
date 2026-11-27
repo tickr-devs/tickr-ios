@@ -68,6 +68,21 @@ extension L10n {
     LocalizedStringResource("kit.block.daily_ceiling",
       defaultValue: "Too little room left under the daily loss limit.", bundle: bundle)
   }
+  /// Why entries are blocked: weekly_money_unknown
+  static var blockWeeklyMoneyUnknown: LocalizedStringResource {
+    LocalizedStringResource("kit.block.weekly_money_unknown",
+      defaultValue: "A trade closed this week has fills without a known price.", bundle: bundle)
+  }
+  /// Why entries are blocked: weekly_ceiling
+  static var blockWeeklyCeiling: LocalizedStringResource {
+    LocalizedStringResource("kit.block.weekly_ceiling",
+      defaultValue: "No room left under the weekly loss limit.", bundle: bundle)
+  }
+  /// Why entries are blocked: stop_out_streak
+  static var blockStopOutStreak: LocalizedStringResource {
+    LocalizedStringResource("kit.block.stop_out_streak",
+      defaultValue: "Too many stop-outs in a row today: no new entries until tomorrow.", bundle: bundle)
+  }
   /// A fence (a block on new entries): startup_reconcile
   static var fenceStartupReconcile: LocalizedStringResource {
     LocalizedStringResource("kit.fence.startup_reconcile",

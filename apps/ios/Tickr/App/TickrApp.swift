@@ -7,7 +7,6 @@ struct TickrApp: App {
   /// Registers for the bot's push and reports the tokens (PhoneAppDelegate.swift).
   @UIApplicationDelegateAdaptor(PhoneAppDelegate.self) private var appDelegate
   @State private var model = Container.shared.appModel()
-  @Environment(\.scenePhase) private var scenePhase
   /// Until the opening animation has handed the launch screen over to Home.
   @State private var opening = true
   /// Until the flying mark has landed in Home's title: Home's cards wait to rise until then.
@@ -15,7 +14,7 @@ struct TickrApp: App {
 
   var body: some Scene {
     WindowGroup {
-      RootView()
+      AdaptiveRoot()
         .withoutScrollIndicators()
         .environment(\.risesHeld, !landed)
         .overlay {
@@ -24,10 +23,6 @@ struct TickrApp: App {
         .readFailureContext(model)
         .environment(model)
         .tint(Palette.info)
-    }
-    .onChange(of: scenePhase, initial: true) { _, phase in
-      // Poll only while the app is on screen; the bot never depends on the phone.
-      if phase == .active { model.start() } else { model.stop() }
     }
   }
 }

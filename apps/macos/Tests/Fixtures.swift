@@ -1,6 +1,6 @@
 import Foundation
 @testable import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// The repository's contract fixtures (tests/api/fixtures): the same folder the previews read.
 let fixturesDir = FixtureProtocol.folder

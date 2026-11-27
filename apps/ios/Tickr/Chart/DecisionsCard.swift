@@ -4,34 +4,30 @@ import TickrKit
 
 /// Why the bot acted here: what the trading strategy decided on the chosen symbol that day (GET
 /// /decisions), each decision with the checks behind it; the same verdict repeated bar after bar
-/// is one row with a count. Entries and exits show first; watching and holding open on request.
+/// is one row with a count. Entries and exits show on the card; "Show all N ›" opens every
+/// decision, watching and holding too, in a sheet.
 struct DecisionsCard: View {
   let decisions: DecisionsV1?
   let failure: String?
-  @State private var showsAll = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       CardLabel(ChartText.decisions)
       if let decisions {
-        let list = DecisionList(decisions.decisions, everything: showsAll)
+        let list = DecisionList(decisions.decisions, everything: false)
         if list.total == 0 {
           note(ChartText.noDecisions)
         } else {
           CardLabel(ChartText.tradingStrategy)
           if list.strategy.isEmpty {
-            note(showsAll ? ChartText.noStrategyDecisions : ChartText.noEntries)
+            note(ChartText.noEntries)
           }
         }
         runs(list.strategy)
         if list.total > list.key {
-          Button {
-            showsAll.toggle()
-          } label: {
-            Text(showsAll ? ChartText.keyDecisions : ChartText.allDecisions(list.total))
+          FooterDetail(ListWords.showAll, count: list.total) {
+            runs(DecisionList(decisions.decisions, everything: true).strategy)
           }
-          // A quiet in-card action, the apps' ghost button (never the system's borderless look).
-          .buttonStyle(.action(.ghost, size: .compact))
         }
       } else if let failure {
         ReadFailureNote(ChartText.decisionsFailed, detail: failure)
@@ -42,7 +38,6 @@ struct DecisionsCard: View {
     .padding(Tokens.Space.l)
     .frame(maxWidth: .infinity, alignment: .leading)
     .tickrCard()
-    .animation(Tokens.Motion.standard, value: showsAll)
   }
 
   private func runs(_ runs: [DecisionRun]) -> some View {
@@ -65,12 +60,11 @@ struct DecisionsCard: View {
 /// bars in a row and since when, and, when opened, the checks of the newest one.
 private struct DecisionRow: View {
   let run: DecisionRun
-  @State private var open = false
 
   private var decision: DecisionV1 { run.latest }
 
   var body: some View {
-    DisclosureGroup(isExpanded: $open) {
+    RowExpander {
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         if let entry = decision.entryPrice, let stop = decision.stopPrice {
           Text(ChartText.entryStop(Money.price(entry.value), Money.price(stop.value)))
@@ -81,7 +75,6 @@ private struct DecisionRow: View {
           CheckLine(check: check)
         }
       }
-      .padding(.top, Tokens.Space.xs)
     } label: {
       // As the design's rows: a dot in the verdict's colour, what the bot did and which strategy,
       // and the time at the end; at large text sizes the pieces wrap whole.
@@ -112,7 +105,6 @@ private struct DecisionRow: View {
           .fixedSize()
       }
     }
-    .tint(Palette.textTertiary)
   }
 }
 

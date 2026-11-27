@@ -19,7 +19,7 @@ struct ConnectionBanner: View {
     if let message = model.connectionMessage {
       ConnectionNotice(.banner, title: message.title, subtitle: message.subtitle,
         detailsLabel: ConnectionMessage.detailsLabel, details: details(message)) {
-        if message.refused && model.address != APIClient.defaultBaseURL {
+        if Self.offersOwnAddress && message.refused && model.address != APIClient.defaultBaseURL {
           // The bot refuses this address (a Host or token it does not accept): reading it again
           // never helps, going back to this Mac's own address does.
           Button {
@@ -38,12 +38,25 @@ struct ConnectionBanner: View {
             .buttonStyle(.action(.secondary, size: .compact))
             .disabled(retrying)
         }
+        #if os(macOS)
+        // On iPad the navigation bar's gear opens the settings.
         SettingsLink { Text(ConnectionMessage.settings) }
           .buttonStyle(.action(.ghost, size: .compact))
+        #endif
       }
       .padding([.horizontal, .top], Tokens.Space.l)
       .transition(.move(edge: .top).combined(with: .opacity))
     }
+  }
+
+  /// Whether a refused address is answered with "use this Mac's own address": only on the Mac. An
+  /// iPad has no bot of its own; its address and token come from pairing (the iPad's Settings).
+  static var offersOwnAddress: Bool {
+    #if os(macOS)
+    true
+    #else
+    false
+    #endif
   }
 
   /// This Mac's own API address as the banner names it ("127.0.0.1:8766").

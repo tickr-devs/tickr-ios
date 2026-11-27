@@ -18,6 +18,10 @@ attributes:
 packages:
   TickrShared:
     path: ../shared
+  # The Mac screens (apps/macos, library TickrScreens): an iPad or an unfolded iPhone in regular
+  # width shows them (mockup v156, boards IPadLandscape, IPadPortrait, IPadSplit).
+  TickrApp:
+    path: ../macos
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -46,6 +50,8 @@ targets:
         product: TickrKit
       - package: TickrShared
         product: TickrDesign
+      - package: TickrApp
+        product: TickrScreens
       # The Live Activity's widget extension, embedded in the app.
       - target: TickrWidgets
     info:
@@ -63,8 +69,19 @@ targets:
           UIColorName: LaunchBackground
           UIImageName: LaunchMark
           UIImageRespectsSafeAreaInsets: true
+        # The iPhone turns to landscape too: Home and Chart lay out for the compact height
+        # (verticalSizeClass), every other screen scrolls. iPad orientations are set apart.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        # iPad: every orientation, which Split View and Slide Over need (mockup v156, boards
+        # IPadLandscape, IPadPortrait, IPadSplit).
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
         # The bot starts, updates and ends the trading day's Live Activity by push (TickrWidgets).
         NSSupportsLiveActivities: true
@@ -104,7 +121,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(TICKR_BUNDLE_ID_PREFIX).ios
-        TARGETED_DEVICE_FAMILY: "1"
+        # iPhone and iPad (one app; the iPad in regular width shows the Mac screens).
+        TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
         ENABLE_PREVIEWS: YES

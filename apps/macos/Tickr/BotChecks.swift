@@ -119,7 +119,7 @@ struct BotStatusLine: View {
           face(checks, status: status, now: now)
         }
         .buttonStyle(.plain)
-        .pointerStyle(.link)
+        .linkPointer()
         .accessibilityHint(Text(L10n.Bot.checksHint))
         .popover(isPresented: $open, arrowEdge: .bottom) {
           BotChecksPopover(checks: checks) {

@@ -174,6 +174,7 @@ public enum RefusalReason: String, CaseIterable, Sendable {
   case ownOrderWorking = "OWN_ORDER_WORKING"
   case positionLimitReached = "POSITION_LIMIT_REACHED"
   case workingEntryLimitReached = "WORKING_ENTRY_LIMIT_REACHED"
+  case stopOutStreak = "STOP_OUT_STREAK"
   case symbolCooldown = "SYMBOL_COOLDOWN"
   case decisionNotEnter = "DECISION_NOT_ENTER"
   case decisionNotActive = "DECISION_NOT_ACTIVE"
@@ -191,6 +192,8 @@ public enum RefusalReason: String, CaseIterable, Sendable {
   case notionalOverCap = "NOTIONAL_OVER_CAP"
   case plannedLossOverLimit = "PLANNED_LOSS_OVER_LIMIT"
   case dailyCeiling = "DAILY_CEILING"
+  case weeklyCeiling = "WEEKLY_CEILING"
+  case equityUnknown = "EQUITY_UNKNOWN"
   case buyingPowerUnknown = "BUYING_POWER_UNKNOWN"
   case buyingPowerShort = "BUYING_POWER_SHORT"
 }

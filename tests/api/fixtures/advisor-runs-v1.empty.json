@@ -1,0 +1,13 @@
+{
+  "runs": [],
+  "unreadable": [],
+  "awaiting_review": 0,
+  "cause": "no advisor run yet: the proposals folder does not exist",
+  "api_version": 1,
+  "cause_codes": [
+    {
+      "code": "no_advisor_runs",
+      "params": {}
+    }
+  ]
+}

@@ -1,4 +1,6 @@
+#if os(macOS)
 import AppKit
+#endif
 import SwiftUI
 import TickrDesign
 
@@ -37,6 +39,7 @@ enum WindowFit {
     return CGRect(x: x, y: y, width: width, height: height)
   }
 
+  #if os(macOS)
   /// The visible area of the screen `window` is on (the main screen while it is on none yet).
   @MainActor
   static func visibleFrame(of window: NSWindow) -> CGRect? {
@@ -58,8 +61,10 @@ enum WindowFit {
     guard let visible = visibleFrame(of: window) else { return nil }
     return room(visible: visible.size, chrome: window.frame.height - window.contentLayoutRect.height)
   }
+  #endif
 }
 
+#if os(macOS)
 /// Reports the room the window's screen leaves its content (`WindowFit.room(of:)`) when the view
 /// joins a window, when the window moves to another screen or becomes key, and when a display
 /// changes; on joining and on a display change it also moves and shrinks the window into the
@@ -138,6 +143,7 @@ struct ScreenRoomReader: NSViewRepresentable {
     }
   }
 }
+#endif
 
 /// A screen in the room the window leaves it, at least `least` large: when the room is smaller
 /// (the window capped to a small display, `WindowFit`), the screen keeps its least size and

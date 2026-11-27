@@ -1,8 +1,10 @@
 import XCTest
 
 /// Walks every screen of the app against a running bot API (for example `tickr demo`) and
-/// keeps a screenshot of each, for comparing the app with the design. It sends no command: the
-/// bot-control sheet is opened and cancelled.
+/// keeps a screenshot of each, for comparing the app with the design: every tab (Lab among them),
+/// Risk and Settings, Home's funnel sheet and a stage's symbols, the day sheet, Activity's panes,
+/// and Home and Chart in landscape with the chart options sheet. It sends no command: the
+/// bot-control sheet is opened and cancelled, every other sheet is closed with its own X.
 ///
 /// Run on a booted Simulator (light or dark appearance set with `xcrun simctl ui`):
 ///   xcodebuild test -project apps/ios/Tickr.xcodeproj -scheme "Tickr iOS Screen Tour" \
@@ -40,7 +42,20 @@ final class ScreenTourUITests: XCTestCase {
     static let activitySection = "activity.section"
     /// A pushed screen's own back button ("‹ Home").
     static let back = "nav.back"
+    /// Home's funnel row and each stage's bar in its "Funnel today" sheet.
+    static let funnel = "home.funnel"
+    static let funnelStage = "funnel.stage"
+    /// Home's day capsule ("Today ▾"), a button only where the day can change.
+    static let daySwitch = "home.daySwitch"
+    /// The Chart top bar's button for the "Chart options" sheet, there only in landscape.
+    static let chartOptions = "chart.options"
+    /// The X of every card sheet (TickrDesign's `ListCap.closeID`).
+    static let sheetClose = "card-sheet.close"
   }
+  /// Indices of Home, Chart and Activity in `Identifier.tabs`.
+  private static let homeTab = 0
+  private static let chartTab = 2
+  private static let activityTab = 3
 
   private var app = XCUIApplication()
 
@@ -52,6 +67,8 @@ final class ScreenTourUITests: XCTestCase {
 
   override func setUp() async throws {
     continueAfterFailure = true
+    // A test that failed in landscape never leaves the next one turned.
+    XCUIDevice.shared.orientation = .portrait
     let api = Self.variable("TOUR_API") ?? Self.defaultAPI
     let language = Self.variable("TOUR_LANGUAGE") ?? Self.defaultLanguage
     // No notification question over the screens (PhoneAppDelegate.asksKey).
@@ -67,9 +84,10 @@ final class ScreenTourUITests: XCTestCase {
       tab.tap()
       sleep(Self.settle)
       capture(screen: "tab\(index)")
-      if index == 0 { homeDetails() }
-      if index == 3 { activityDetails() }
+      if index == Self.homeTab { homeDetails() }
+      if index == Self.activityTab { activityDetails() }
     }
+    landscape()
   }
 
   // MARK: - the way back and the header's touch targets
@@ -129,6 +147,11 @@ final class ScreenTourUITests: XCTestCase {
       guard dismiss() else { return }
     }
     stopChoices()
+    if tap(app.buttons[Identifier.daySwitch]) {
+      shot("tab0-day")
+      closeSheet("the day sheet")
+    }
+    funnel()
     if tap(app.buttons[Identifier.risk]) {
       capture(screen: "tab0-risk")
       back()
@@ -159,6 +182,45 @@ final class ScreenTourUITests: XCTestCase {
     guard dismiss() else { return }
     XCTAssertFalse(app.descendants(matching: .any)[Identifier.notice].firstMatch.waitForExistence(timeout: Self.noNotice),
       "a command was sent without an answer")
+  }
+
+  /// The "Funnel today" sheet, then its first stage's bar (the screeners), which closes the sheet
+  /// and pushes that stage's symbols; back to Home from there. The funnel row sits under the
+  /// fold, so Home scrolls to it first and back to the top after.
+  private func funnel() {
+    let row = app.buttons[Identifier.funnel].firstMatch
+    defer { for _ in 0..<Self.maxScrolls { app.swipeDown() } }
+    guard reveal(row), tap(row) else { return }
+    shot("tab0-funnel")
+    let stage = app.buttons.matching(identifier: Identifier.funnelStage).firstMatch
+    guard tap(stage) else {
+      closeSheet("the funnel sheet")
+      return
+    }
+    XCTAssertTrue(app.buttons[Identifier.sheetClose].waitForNonExistence(timeout: Self.wait),
+      "the funnel sheet stayed open after a stage was picked")
+    capture(screen: "tab0-funnel-stage")
+    back()
+  }
+
+  /// Home and Chart in landscape (two columns, the landscape tab bar), and the chart's options
+  /// sheet, which only landscape has; the device is turned back to portrait after.
+  private func landscape() {
+    XCUIDevice.shared.orientation = .landscapeLeft
+    defer {
+      XCUIDevice.shared.orientation = .portrait
+      sleep(Self.settle)
+    }
+    sleep(Self.settle)
+    if tap(app.buttons[Identifier.tabs[Self.homeTab]]) {
+      capture(screen: "landscape-tab\(Self.homeTab)")
+    }
+    guard tap(app.buttons[Identifier.tabs[Self.chartTab]]) else { return }
+    capture(screen: "landscape-tab\(Self.chartTab)")
+    if tap(app.buttons[Identifier.chartOptions]) {
+      shot("landscape-tab\(Self.chartTab)-options")
+      closeSheet("the chart options sheet")
+    }
   }
 
   private func activityDetails() {
@@ -210,6 +272,30 @@ final class ScreenTourUITests: XCTestCase {
       return false
     }
     return true
+  }
+
+  /// Closes the open card sheet with its X (nothing in a card sheet sends a command); fails the
+  /// step if the X is missing or the sheet stays.
+  private func closeSheet(_ name: String) {
+    let close = app.buttons[Identifier.sheetClose].firstMatch
+    guard close.waitForExistence(timeout: Self.wait) else {
+      XCTFail("\(name) has no close button")
+      return
+    }
+    close.tap()
+    XCTAssertTrue(close.waitForNonExistence(timeout: Self.wait), "\(name) stayed open after its X")
+    sleep(Self.settle)
+  }
+
+  /// Scrolls the screen down until `element` can be tapped; false when it never can.
+  private func reveal(_ element: XCUIElement) -> Bool {
+    guard element.waitForExistence(timeout: Self.wait) else { return false }
+    var scrolls = 0
+    while !element.isHittable && scrolls < Self.maxScrolls {
+      app.swipeUp()
+      scrolls += 1
+    }
+    return element.isHittable
   }
 
   /// Back with the screen's own "‹ Home" button (the app hides the system bar).

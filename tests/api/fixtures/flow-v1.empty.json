@@ -1,0 +1,59 @@
+{
+  "environment": "sandbox",
+  "day": "2026-11-13",
+  "chips": [],
+  "stages": [
+    {
+      "stage": "screeners",
+      "count": 0,
+      "symbols": []
+    },
+    {
+      "stage": "universe",
+      "count": 0,
+      "symbols": []
+    },
+    {
+      "stage": "strategy",
+      "count": 0,
+      "symbols": []
+    },
+    {
+      "stage": "risk",
+      "count": 0,
+      "symbols": []
+    },
+    {
+      "stage": "order",
+      "count": 0,
+      "symbols": []
+    },
+    {
+      "stage": "stop",
+      "count": 0,
+      "symbols": []
+    }
+  ],
+  "stops": [],
+  "reconcile": {
+    "agreement": null,
+    "agreement_cause": "only the latest reconciliation is kept; it is not recorded per day",
+    "read_at": null,
+    "mismatch": null,
+    "fences": null,
+    "fences_cause": "only the latest status is kept; it is not recorded per day",
+    "agreement_cause_codes": [
+      {
+        "code": "past_day_reconciliation",
+        "params": {}
+      }
+    ],
+    "fences_cause_codes": [
+      {
+        "code": "past_day_status",
+        "params": {}
+      }
+    ]
+  },
+  "api_version": 1
+}

@@ -2,7 +2,8 @@ import Foundation
 
 // Swift mirror of the settings API (backlog S4) in src/tickr/api/contract.py:
 // settings-schema-v1 (GET /settings/schema), settings-values-v1 (GET /settings/values) and
-// settings-draft-v1 (POST /settings/validate). Read and validate only; nothing is applied.
+// settings-draft-v1 (POST /settings/validate), settings-history-v1 (GET /settings/history) and
+// settings-applied-v1 (POST /settings/apply and /settings/rollback).
 // Kinds, units, timings and causes stay strings here until a screen needs to switch on them.
 
 /// One owner setting: its kind, unit, bounds, step, words and the effect of a change.
@@ -19,7 +20,8 @@ public struct SettingSpecV1: Codable, Hashable, Sendable {
   public let descriptionEs: String
   /// When a change that does not loosen protection applies: `at_once`, `when_flat`, `next_session`.
   public let applies: String
-  /// The direction that loosens protection (`raise`, `lower`, `never`): next session, Face ID.
+  /// The direction that loosens protection (`raise`, `lower`, `never`, or `raise_or_off` for a limit
+  /// where 0 = off, which raising or setting to 0 loosens): next session, Face ID.
   public let loosens: String
   public let needsFaceId: Bool
   public let requiresRetraining: Bool
@@ -207,5 +209,153 @@ public struct SettingsDraftV1: Codable, Hashable, Sendable {
     valid = try c.decode(Bool.self, forKey: .valid)
     refusals = try c.decode([SettingRefusalV1].self, forKey: .refusals)
     changes = try c.decode([SettingChangeV1].self, forKey: .changes)
+  }
+}
+
+/// One key a settings version changed (settings-history-v1, settings-applied-v1).
+public struct SettingsVersionChangeV1: Codable, Hashable, Sendable {
+  public let owner: String
+  public let key: String
+  /// The file's value before the change and the value set, as TOML text.
+  public let before: String
+  public let after: String
+  /// `at_once`, `when_flat` or `next_session`.
+  public let applies: String
+  /// `written`, `pending` (waits for the next session), `promoted` or `superseded`.
+  public let state: String
+  /// A pending change applies at the bot's first start after this New York date.
+  public let effectiveAfter: WireDate?
+  /// The version that promoted or superseded a pending change.
+  public let settledBy: Int?
+
+  enum CodingKeys: String, CodingKey {
+    case owner, key, before, after, applies, state
+    case effectiveAfter = "effective_after"
+    case settledBy = "settled_by"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    owner = try c.decode(String.self, forKey: .owner)
+    key = try c.decode(String.self, forKey: .key)
+    before = try c.decode(String.self, forKey: .before)
+    after = try c.decode(String.self, forKey: .after)
+    applies = try c.decode(String.self, forKey: .applies)
+    state = try c.decode(String.self, forKey: .state)
+    effectiveAfter = try c.decodeNullable(WireDate.self, forKey: .effectiveAfter)
+    settledBy = try c.decodeNullable(Int.self, forKey: .settledBy)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(owner, forKey: .owner)
+    try c.encode(key, forKey: .key)
+    try c.encode(before, forKey: .before)
+    try c.encode(after, forKey: .after)
+    try c.encode(applies, forKey: .applies)
+    try c.encode(state, forKey: .state)
+    try c.encodeNullable(effectiveAfter, forKey: .effectiveAfter)
+    try c.encodeNullable(settledBy, forKey: .settledBy)
+  }
+}
+
+/// An owner file a settings version wrote, with its SHA-256 before and after.
+public struct SettingsVersionFileV1: Codable, Hashable, Sendable {
+  public let owner: String
+  public let file: String
+  public let digestBefore: String
+  public let digestAfter: String
+
+  enum CodingKeys: String, CodingKey {
+    case owner, file
+    case digestBefore = "digest_before"
+    case digestAfter = "digest_after"
+  }
+}
+
+/// One journaled settings change: when, from which device, and what changed.
+public struct SettingsVersionV1: Codable, Hashable, Sendable {
+  public let version: Int
+  /// `apply`, `rollback` or `promote` (the bot's start wrote pending changes).
+  public let kind: String
+  public let at: WireTime
+  /// `local`, `phone`, `simulator` or `bot`, decided by the server.
+  public let device: String
+  /// The app said the owner confirmed with Face ID; the server cannot check it.
+  public let biometricConfirmed: Bool
+  public let rollbackTo: Int?
+  /// `writing`, `done`, `not_written` or `unknown`.
+  public let state: String
+  public let files: [SettingsVersionFileV1]
+  public let changes: [SettingsVersionChangeV1]
+
+  enum CodingKeys: String, CodingKey {
+    case version, kind, at, device, state, files, changes
+    case biometricConfirmed = "biometric_confirmed"
+    case rollbackTo = "rollback_to"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    version = try c.decode(Int.self, forKey: .version)
+    kind = try c.decode(String.self, forKey: .kind)
+    at = try c.decode(WireTime.self, forKey: .at)
+    device = try c.decode(String.self, forKey: .device)
+    biometricConfirmed = try c.decode(Bool.self, forKey: .biometricConfirmed)
+    rollbackTo = try c.decodeNullable(Int.self, forKey: .rollbackTo)
+    state = try c.decode(String.self, forKey: .state)
+    files = try c.decode([SettingsVersionFileV1].self, forKey: .files)
+    changes = try c.decode([SettingsVersionChangeV1].self, forKey: .changes)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: CodingKeys.self)
+    try c.encode(version, forKey: .version)
+    try c.encode(kind, forKey: .kind)
+    try c.encode(at, forKey: .at)
+    try c.encode(device, forKey: .device)
+    try c.encode(biometricConfirmed, forKey: .biometricConfirmed)
+    try c.encodeNullable(rollbackTo, forKey: .rollbackTo)
+    try c.encode(state, forKey: .state)
+    try c.encode(files, forKey: .files)
+    try c.encode(changes, forKey: .changes)
+  }
+}
+
+/// GET /settings/history, oldest first.
+public struct SettingsHistoryV1: Codable, Hashable, Sendable {
+  public let versions: [SettingsVersionV1]
+  public let apiVersion: Int
+
+  enum CodingKeys: String, CodingKey {
+    case versions
+    case apiVersion = "api_version"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
+    versions = try c.decode([SettingsVersionV1].self, forKey: .versions)
+  }
+}
+
+/// POST /settings/apply and /settings/rollback: the version just journaled.
+public struct SettingsAppliedV1: Codable, Hashable, Sendable {
+  public let version: SettingsVersionV1
+  /// A change was written while the bot may run: it reads its settings at its start.
+  public let restartNeeded: Bool
+  public let apiVersion: Int
+
+  enum CodingKeys: String, CodingKey {
+    case version
+    case restartNeeded = "restart_needed"
+    case apiVersion = "api_version"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
+    version = try c.decode(SettingsVersionV1.self, forKey: .version)
+    restartNeeded = try c.decode(Bool.self, forKey: .restartNeeded)
   }
 }

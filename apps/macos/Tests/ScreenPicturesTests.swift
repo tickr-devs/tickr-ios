@@ -3,7 +3,7 @@ import SwiftUI
 import Testing
 import TickrDesign
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// Pictures of every screen for the truncation check (owner rule 2026-11-16: no text is ever cut):
 /// each section of the main window at the window's least and first sizes and on the two narrow

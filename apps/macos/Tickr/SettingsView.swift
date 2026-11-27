@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import SwiftUI
 import TickrDesign
@@ -105,14 +106,15 @@ private struct GeneralSettings: View {
     Group {
       connection
       HStack(alignment: .top, spacing: Tokens.Space.s) {
-        SettingsCard(L10n.Settings.menuBar, footnote: Text(L10n.Settings.menuBarNote)) {
+        SettingsCard(L10n.Settings.menuBar) {
           SwitchRow(L10n.Settings.showInMenuBar, isOn: $showMenuBarExtra)
         }
         ThemeCard()
       }
       .fixedSize(horizontal: false, vertical: true)
       DemoDaySection()
-      JobsSection()
+      SessionSection()
+      MorningCheckSection()
       SystemSection()
     }
     .onAppear { draft = model.address.absoluteString }
@@ -124,11 +126,11 @@ private struct GeneralSettings: View {
   }
 
   /// The design's "Bot connection": the address in a mono field with Use Default and Connect, the
-  /// connection's state under it with a dot, and what the address may be.
+  /// connection's state under it with a dot; what the address may be is the label's tooltip.
   private var connection: some View {
     let reachable = model.fetchError == nil
     return SettingsCard(L10n.Settings.botConnection,
-      footnote: Text(L10n.Settings.addressFootnote(APIClient.defaultBaseURL.absoluteString))) {
+      info: L10n.Settings.addressFootnote(APIClient.defaultBaseURL.absoluteString)) {
       HStack(spacing: Tokens.Space.s) {
         Text(L10n.Settings.apiAddress)
           .font(Tokens.Typography.calloutMono)
@@ -163,10 +165,6 @@ private struct GeneralSettings: View {
         .font(Tokens.Typography.callout)
         .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
       }
-    } trailing: {
-      Text(L10n.Settings.thisMac)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
     }
     // Settings opens with nothing in focus, so the address is not selected under the cursor:
     // AppKit gives the field focus once the window is up, so it is taken back just after.
@@ -187,8 +185,8 @@ private struct GeneralSettings: View {
   }
 }
 
-/// The design's "Appearance · theme": System, Light or Dark as the apps' `SegmentSwitch`. A
-/// choice other than System holds every window of the app in that appearance (Defaults.appearance).
+/// The design's "Appearance": System, Light or Dark as the apps' `SegmentSwitch`. A choice other
+/// than System holds every window of the app in that appearance (Defaults.appearance).
 private struct ThemeCard: View {
   @AppStorage(Defaults.appearance) private var appearance = ""
 
@@ -196,18 +194,10 @@ private struct ThemeCard: View {
   static let choices = ["", Defaults.light, Defaults.dark]
 
   var body: some View {
-    SettingsCard(L10n.Settings.appearanceTheme, footnote: Text(note)) {
+    SettingsCard(L10n.Settings.appearance) {
       SegmentSwitch(options: Self.choices.map { ($0, Text(Self.title($0))) },
         selection: Binding(get: { appearance }, set: { choose($0) }))
-        .accessibilityLabel(Text(L10n.Settings.appearanceTheme))
-    }
-  }
-
-  private var note: LocalizedStringResource {
-    switch appearance {
-    case Defaults.light: L10n.Settings.alwaysLight
-    case Defaults.dark: L10n.Settings.alwaysDark
-    default: L10n.Settings.followsSystem
+        .accessibilityLabel(Text(L10n.Settings.theme))
     }
   }
 
@@ -287,7 +277,6 @@ private struct TradingSettings: View {
           SettingsRow(L10n.Settings.maxQuoteAge, value: Format.seconds(settings.risk.maxQuoteAgeSeconds.value))
         }
         SettingsCard(L10n.Settings.session) {
-          SettingsRow(L10n.Settings.marketTimezone, value: settings.session.timezone)
           SettingsRow(L10n.Settings.lastEntry, value: Self.beforeClose(settings.session.lastEntryMinutesBeforeClose))
           SettingsRow(L10n.Settings.flatten, value: Self.beforeClose(settings.session.flattenMinutesBeforeClose))
           SettingsRow(L10n.Settings.halfDays) {
@@ -299,8 +288,7 @@ private struct TradingSettings: View {
       Text(L10n.Settings.configFootnote)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
-        .padding(.horizontal, Tokens.Space.m)  // level with the text inside the cards
-      FeaturesCard(settings: settings)
+        .padding(.horizontal, Tokens.Space.l)  // level with the text inside the cards
     } else {
       SettingsCard(L10n.Common.strategy) {
         Group {
@@ -317,43 +305,6 @@ private struct TradingSettings: View {
   }
 
   private static func beforeClose(_ minutes: Int) -> String { String(localized: L10n.Settings.beforeClose(minutes)) }
-}
-
-/// The design's "Features · from config": what the configuration turns on, each a status dot,
-/// never a switch (the app edits none of it). Half days are a real value; the rest are planned
-/// and marked so.
-private struct FeaturesCard: View {
-  let settings: SettingsV1
-
-  var body: some View {
-    SettingsCard(L10n.Settings.features, footnote: Text(L10n.Settings.featuresFootnote)) {
-      row(L10n.Settings.featureTrailing, on: false) { Badge.backlog }
-      row(L10n.Settings.featureExtendedHours, on: false) { Badge.backlog }
-      row(L10n.Settings.featureShort, on: false) { Badge.backlog }
-      row(L10n.Settings.featureChase, on: false) { Badge.backlog }
-      row(L10n.Settings.featureHalfDays, on: settings.session.halfDaysEnabled) {
-        Text(settings.session.halfDaysEnabled ? L10n.Settings.traded : L10n.Settings.notTraded)
-      }
-    }
-  }
-
-  private func row(_ title: LocalizedStringResource, on: Bool, @ViewBuilder tag: () -> some View) -> some View {
-    HStack(spacing: Tokens.Space.m) {
-      Circle()
-        .fill(on ? Palette.accent : Palette.separatorStrong)
-        .frame(width: Tokens.Size.dot, height: Tokens.Size.dot)
-        .help(Text(on ? L10n.Common.on : L10n.Common.off))
-        .accessibilityLabel(Text(on ? L10n.Common.on : L10n.Common.off))
-      Text(title)
-        .font(Tokens.Typography.callout)
-        .foregroundStyle(Palette.textSecondary)
-      Spacer(minLength: Tokens.Space.s)
-      tag()
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-    }
-    .accessibilityElement(children: .combine)
-  }
 }
 
 // MARK: - Notifications
@@ -448,41 +399,96 @@ private struct PhoneDot: View {
 
 // MARK: - Environment
 
-/// The environment and the trading gate: the environment the bot runs in as the one
-/// `EnvironmentBadge` of both apps beside the gate's open or closed badge (as in the Overview
-/// header); then the gate, its cause, the environment's name and the API version.
+/// The design's "Environment": the environment the bot runs in, big with a dot in its badge's
+/// colour, then the trading gate with its cause and whether new entries are allowed. A status,
+/// never a picker: config/bot.toml sets it, the app never does.
 private struct EnvironmentSettings: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
     let raw = model.status?.environment ?? model.settings?.environment
-    SettingsCard(L10n.Settings.environmentGate, footnote: Text(L10n.Settings.environmentFixed)) {
-      // The environment in use as a status, not a picker: config/bot.toml sets it, the app never does.
+    SettingsCard(L10n.Settings.environment, info: L10n.Settings.environmentFixed) {
       HStack(spacing: Tokens.Space.s) {
         if let raw {
-          EnvironmentBadge(ApiText.environment(raw), raw: raw, accessibilityLabel: ApiText.environmentLabel(raw))
+          PulseDot(EnvironmentBadge.Kind(raw: raw).tone.fill, pulsing: false)
+          Text(verbatim: ApiText.environment(raw))
+            .font(Tokens.Typography.heading)
+            .foregroundStyle(Palette.textPrimary)
+            .accessibilityLabel(Text(verbatim: ApiText.environmentLabel(raw)))
         } else {
-          Text(verbatim: Format.missing).foregroundStyle(Palette.textQuaternary)
+          Text(verbatim: Format.missing)
+            .font(Tokens.Typography.heading)
+            .foregroundStyle(Palette.textQuaternary)
         }
-        // The gate at a glance beside it, the same badge as the headline's; its cause on hover.
-        if let gate = model.status?.tradingGate {
-          let shown: EntryGate = gate.open ? .open : .closed
-          Badge(shown.title, symbol: shown.symbol, tone: shown.tone)
-            .help(Text(verbatim: ApiText.gate(gate)))
-        }
-        Spacer(minLength: 0)
       }
-      if let gate = model.status?.tradingGate {
-        SettingsRow(L10n.Settings.tradingGate) {
-          Text(gate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed)
-            .foregroundStyle(gate.open ? Palette.profitText : Palette.lossText)
-        }
-        SettingsRow(L10n.Settings.gateCause, value: ApiText.gate(gate))
+      if let status = model.status {
+        let gate = status.tradingGate
+        let entries = NewEntries.of(status)
+        WrappingRow(L10n.Settings.tradingGate,
+          value: String(localized: gate.open ? L10n.Settings.gateOpen : L10n.Settings.gateClosed)
+            + Format.itemSeparator + ApiText.gate(gate),
+          color: gate.open ? Palette.profitText : Palette.lossText)
+        WrappingRow(L10n.Settings.newEntries, value: String(localized: entries.title), color: entries.color)
       }
-      SettingsRow(L10n.Settings.brokerEnvironment,
-        value: raw.map { ApiText.environment($0).localizedLowercase } ?? Format.missing)
-      SettingsRow(L10n.Settings.apiVersion, value: model.settings.map { "\($0.apiVersion)" } ?? Format.missing)
     }
+  }
+}
+
+/// Whether the bot may open new positions: off while the gate is closed, paused by the
+/// operator's entry-stop, else allowed.
+enum NewEntries: Equatable {
+  case allowed, paused, off
+
+  var title: LocalizedStringResource {
+    switch self {
+    case .allowed: L10n.Settings.entriesAllowed
+    case .paused: L10n.Settings.entriesPaused
+    case .off: L10n.Settings.entriesOff
+    }
+  }
+
+  var color: Color {
+    switch self {
+    case .allowed: Palette.profitText
+    case .paused: Palette.warningText
+    case .off: Palette.lossText
+    }
+  }
+
+  /// The state of `status`.
+  static func of(_ status: StatusV1) -> NewEntries {
+    guard status.tradingGate.open else { return .off }
+    return status.entryStop ? .paused : .allowed
+  }
+}
+
+/// A key–value row whose value may run long (a gate's cause): the value wraps at the trailing
+/// edge rather than pushing past the card.
+private struct WrappingRow: View {
+  let label: LocalizedStringResource
+  let value: String
+  let color: Color
+
+  init(_ label: LocalizedStringResource, value: String, color: Color) {
+    self.label = label
+    self.value = value
+    self.color = color
+  }
+
+  var body: some View {
+    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+      Text(label)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textSecondary)
+        .fixedSize()
+      Spacer(minLength: Tokens.Space.m)
+      Text(verbatim: value)
+        .font(Tokens.Typography.calloutMono)
+        .foregroundStyle(color)
+        .multilineTextAlignment(.trailing)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .accessibilityElement(children: .combine)
   }
 }
 
@@ -492,8 +498,10 @@ private struct StorageSettings: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    SettingsCard(L10n.Settings.history, footnote: historyNote,
-      footnoteColor: model.historyError == nil ? Palette.textQuaternary : Palette.lossText) {
+    // Plain words on a failed read: its technical cause is the connection banner's (Details) or
+    // the Trades screen's.
+    SettingsCard(L10n.Settings.history, footnote: model.historyError.map { _ in Text(L10n.ReadFailed.history) },
+      footnoteColor: Palette.lossText) {
       HStack(spacing: Tokens.Space.s) {
         StatTile(value: "\(model.days.count)", label: L10n.Settings.recordedDays)
         StatTile(value: model.days.last.map { DayText.day($0.day) } ?? Format.missing,
@@ -503,12 +511,6 @@ private struct StorageSettings: View {
     }
     BackupSection()
   }
-
-  private var historyNote: Text {
-    // Plain words: the read's technical cause is the connection banner's (Details) or the
-    // Trades screen's.
-    model.historyError.map { _ in Text(L10n.ReadFailed.history) } ?? Text(L10n.Settings.historySource)
-  }
 }
 
 // MARK: - Advanced
@@ -517,7 +519,7 @@ private struct AdvancedSettings: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    SettingsCard(L10n.Settings.botStatusInApp, footnote: Text(L10n.Settings.configFootnote)) {
+    SettingsCard(L10n.Settings.botStatusInApp) {
       HStack(spacing: Tokens.Space.s) {
         StatTile(dot: Palette.accent, label: L10n.Settings.statusRefresh,
           value: model.settings.map { String(localized: L10n.Settings.every(Format.seconds($0.pollSeconds.value))) }
@@ -527,22 +529,19 @@ private struct AdvancedSettings: View {
       }
     }
     BotServiceCard()
+    JobsSection()
     ConfigCard()
       .task(id: model.baseURL) { await model.refreshConfig() }
   }
 }
 
-/// What the Bot service card asks before it acts.
-private enum ServiceQuestion: Equatable {
-  case start, stop
-}
-
-/// The design's "Bot service · launchd job" card: the bot's state with a power glyph, Start (the
-/// API kickstarts the launchd job, preflight first) and Stop (the stop-bot command, refused by the
-/// bot while a trade is open). Both ask first, inside the card, as the design draws the question.
+/// The design's "Bot" card: the bot's state with a power glyph, Start (the API kickstarts the
+/// launchd job, which runs the morning check first) and Stop (the stop-bot command, refused by
+/// the bot while a trade is open). Stop asks first, inside the card, as the design draws the
+/// question; Start does not, as on the board.
 private struct BotServiceCard: View {
   @Environment(AppModel.self) private var model
-  @State private var question: ServiceQuestion?
+  @State private var askingStop = false
 
   /// Symbol of the service glyph (the design's power sign).
   static let serviceSymbol = "power"
@@ -550,16 +549,16 @@ private struct BotServiceCard: View {
   static let startSymbol = "play.fill"
 
   var body: some View {
-    SettingsCard(L10n.Settings.botService, footnote: Text(L10n.Settings.startStopFootnote)) {
+    SettingsCard(L10n.Common.bot) {
       HStack(spacing: Tokens.Space.m) {
-        StateGlyph(Self.serviceSymbol, tone: tone, label: L10n.Settings.botService, live: running,
+        StateGlyph(Self.serviceSymbol, tone: tone, label: L10n.Common.bot, live: running,
           event: model.status?.botState)
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
           title.font(Tokens.Typography.body.weight(.semibold)).foregroundStyle(Palette.textPrimary)
           Text(note).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
         }
         Spacer(minLength: Tokens.Space.s)
-        Button { question = .start } label: {
+        Button { Task { await model.startBot() } } label: {
           Label { Text(L10n.Settings.startBotAction) } icon: { Image(systemName: Self.startSymbol) }
         }
         // Start is the card's main action; Stop is a destructive bot command, as on Overview.
@@ -567,7 +566,7 @@ private struct BotServiceCard: View {
         .disabled(!model.canStartBot)
         .inFlight(model.botStarting ? Text(InFlightText.startBot) : nil)
         .hint(L10n.Settings.startBotHint)
-        Button(role: .destructive) { question = .stop } label: {
+        Button(role: .destructive) { askingStop = true } label: {
           Label { Text(L10n.Settings.stopBotAction) } icon: { Image(systemName: BotAction.stopSymbol) }
         }
         .buttonStyle(.command(.destructive, tag: model.demoDay ? Text(L10n.Bot.demoTag) : nil))
@@ -576,8 +575,8 @@ private struct BotServiceCard: View {
         .inFlight(model.inFlight == .stopBot ? Text(OperatorCommand.stopBot.inFlightTitle) : nil)
         .hint(verbatim: BotAction.stopBot.explanation)
       }
-      if let question {
-        confirmation(question)
+      if askingStop {
+        stopQuestion
       }
       if let outcome = model.botStart {
         switch outcome {
@@ -590,52 +589,34 @@ private struct BotServiceCard: View {
         }
       }
     }
-    .animation(Tokens.Motion.quick, value: question)
-    // A question asked in one state is withdrawn when the state no longer allows the action.
-    .onChange(of: model.canStartBot) { _, enabled in
-      if !enabled && question == .start { question = nil }
-    }
+    .animation(Tokens.Motion.quick, value: askingStop)
+    // The question is withdrawn when the state no longer allows a stop.
     .onChange(of: model.canStopBot) { _, enabled in
-      if !enabled && question == .stop { question = nil }
+      if !enabled { askingStop = false }
     }
   }
 
-  /// The design's question inside the card: what happens, then Cancel and the action.
-  private func confirmation(_ asked: ServiceQuestion) -> some View {
+  /// The design's question inside the card: what happens, then Cancel and Stop.
+  private var stopQuestion: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
-      Text(asked == .start ? L10n.Settings.startQuestion : L10n.Bot.stopQuestion)
+      Text(L10n.Bot.stopQuestion)
         .font(Tokens.Typography.body.weight(.semibold))
         .foregroundStyle(Palette.textPrimary)
-      Group {
-        if asked == .start {
-          Text(L10n.Settings.startExplanation)
-        } else {
-          Text(verbatim: BotAction.stopBot.explanation)
-        }
-      }
-      .font(Tokens.Typography.callout)
-      .foregroundStyle(Palette.textTertiary)
-      .fixedSize(horizontal: false, vertical: true)
+      Text(verbatim: BotAction.stopBot.explanation)
+        .font(Tokens.Typography.callout)
+        .foregroundStyle(Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
       HStack(spacing: Tokens.Space.s) {
         Spacer()
-        Button { question = nil } label: { Text(L10n.Common.cancel) }
+        Button { askingStop = false } label: { Text(L10n.Common.cancel) }
           .buttonStyle(.action(.secondary, size: .compact))
           .keyboardShortcut(.cancelAction)
-        if asked == .start {
-          Button {
-            question = nil
-            Task { await model.startBot() }
-          } label: { Text(L10n.Settings.startQuestion) }
-            .buttonStyle(.action(.primary, size: .compact))
-            .disabled(!model.canStartBot)
-        } else {
-          Button(role: .destructive) {
-            question = nil
-            Task { await model.send(BotAction.stopBot.command, title: BotAction.stopBot.title) }
-          } label: { Text(verbatim: BotAction.stopBot.title) }
-            .buttonStyle(.action(.destructive, size: .compact))
-            .disabled(!model.canStopBot)
-        }
+        Button(role: .destructive) {
+          askingStop = false
+          Task { await model.send(BotAction.stopBot.command, title: BotAction.stopBot.title) }
+        } label: { Text(verbatim: BotAction.stopBot.title) }
+          .buttonStyle(.action(.destructive, size: .compact))
+          .disabled(!model.canStopBot)
       }
     }
     .padding(Tokens.Space.m)
@@ -678,24 +659,23 @@ private struct BotServiceCard: View {
 
 /// The bot's configuration file, read-only (GET /config), as the design's card: the file and
 /// whether it loads and matches what runs in its header, then one folded group per table with
-/// each key's comment over its line. Editing comes later, behind a backup and a restart.
+/// each key's comment over its line (credentials appear only as variable names). Editing comes
+/// later, behind a backup and a restart.
 private struct ConfigCard: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    SettingsCard(model.config.map { L10n.Settings.configFile($0.file) } ?? L10n.Settings.configuration,
-      footnote: Text(L10n.Settings.configFooter)) {
+    SettingsCard(model.config.map { L10n.Settings.configFile($0.file) } ?? L10n.Settings.configuration) {
       if let config = model.config {
         if let error = config.error {
           Text(verbatim: error).font(Tokens.Typography.callout).foregroundStyle(Palette.lossText)
             .fixedSize(horizontal: false, vertical: true)
         }
         ForEach(config.sections, id: \.name) { section in
-          DisclosureGroup {
+          RowExpander {
             VStack(alignment: .leading, spacing: Tokens.Space.s) {
               ForEach(section.keys, id: \.key) { key in line(key) }
             }
-            .padding(.top, Tokens.Space.xs)
           } label: {
             Text(verbatim: section.name.isEmpty ? String(localized: L10n.Settings.configTop) : "[\(section.name)]")
               .font(Tokens.Typography.calloutMono)
@@ -753,12 +733,45 @@ struct JobDot: Hashable {
   let live: Bool
 }
 
-/// The design's "Session" card with the jobs under it (GET /jobs): today's session as a strip,
-/// then what runs on its own on the Mac, one row each: a dot in its colour (pulsing while it
-/// runs), its name, when it runs, its state and its last or next time. Read while Settings is open.
-struct JobsSection: View {
+/// The design's "Today's session" (GET /jobs): today's session as a strip, times ET, or why there
+/// is none today. Read while Settings is open.
+struct SessionSection: View {
   @Environment(AppModel.self) private var model
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+  var body: some View {
+    SettingsCard(sessionTitle) {
+      if let session = model.jobs?.session {
+        // The now line follows the bot's clock; it moves once a minute (`SessionStrip.minute`).
+        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
+          SessionStrip(span: SessionSpan(session), now: model.botTime(context.date),
+            moving: JobsSection.stripesMove(reduceMotion: reduceMotion, model: model))
+        }
+      } else if let cause = model.jobs?.sessionCauseText {
+        Text(verbatim: cause).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
+      } else if let error = model.jobsError {
+        ReadFailureNote(L10n.ReadFailed.jobs, detail: error)
+      } else {
+        Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.fewLines) }
+      }
+    } trailing: {
+      Text(L10n.Settings.timesET)
+        .font(Tokens.Typography.annotation)
+        .foregroundStyle(Palette.textQuaternary)
+    }
+  }
+
+  private var sessionTitle: LocalizedStringResource {
+    guard let day = model.jobs?.session?.day else { return L10n.Settings.session }
+    return L10n.Settings.sessionTitle(DayText.day(day))
+  }
+}
+
+/// The design's "Scheduled jobs" (GET /jobs): what runs on its own on the Mac, one row each: a
+/// dot in its colour (pulsing while it runs), its name, when it runs, its state and its last or
+/// next time. Read while Settings is open.
+struct JobsSection: View {
+  @Environment(AppModel.self) private var model
 
   /// Widths of the name and "when" columns, in points (the design's 86 and 130, the name widened
   /// for the longer translated names).
@@ -772,25 +785,7 @@ struct JobsSection: View {
   static let rangeDash = "–"
 
   var body: some View {
-    SettingsCard(sessionTitle) {
-      if let session = model.jobs?.session {
-        // The now line follows the bot's clock; it moves once a minute (`SessionStrip.minute`).
-        TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
-          SessionStrip(span: SessionSpan(session), now: model.botTime(context.date),
-            moving: Self.stripesMove(reduceMotion: reduceMotion, model: model))
-        }
-      } else if let cause = model.jobs?.sessionCauseText {
-        Text(verbatim: cause).font(Tokens.Typography.callout).foregroundStyle(Palette.textTertiary)
-      }
-      Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.thin)
-        .padding(.vertical, Tokens.Space.xs)
-      HStack {
-        CardLabel(L10n.Settings.jobs)
-        Spacer(minLength: Tokens.Space.s)
-        Text(L10n.Settings.jobsFooter)
-          .font(Tokens.Typography.annotation)
-          .foregroundStyle(Palette.textQuaternary)
-      }
+    SettingsCard(L10n.Settings.jobs) {
       if let jobs = model.jobs {
         ForEach(jobs.launchd, id: \.name) { job in launchd(job, jobs: jobs) }
         reconcile(jobs.reconcile)
@@ -802,7 +797,7 @@ struct JobsSection: View {
         Skeleton(L10n.Common.loading) { SkeletonRows(Tokens.Loading.rows, badge: true) }
       }
     } trailing: {
-      Text(L10n.Settings.timesET)
+      Text(L10n.Settings.jobsFooter)
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textQuaternary)
     }
@@ -812,11 +807,6 @@ struct JobsSection: View {
   /// work", so only while it is (`OrnamentGate`: running, live and fresh status, motion allowed).
   static func stripesMove(reduceMotion: Bool, model: AppModel) -> Bool {
     model.ornamentsMove(reduceMotion: reduceMotion)
-  }
-
-  private var sessionTitle: LocalizedStringResource {
-    guard let day = model.jobs?.session?.day else { return L10n.Settings.session }
-    return L10n.Settings.sessionTitle(DayText.day(day))
   }
 
   /// One job: dot (its tone, and whether it pulses), name, when, state, times.
@@ -952,8 +942,8 @@ struct JobsSection: View {
   }
 }
 
-/// Today's session as the design's strip: pre-market and post-market striped, dashed and marked
-/// planned (the bot trades the regular session only), the regular session in the accent with the
+/// Today's session as the design's strip: pre-market and post-market striped and dashed, marked
+/// "not traded" (the bot trades the regular session only), the regular session in the accent with the
 /// minutes after the flatten time in amber, the open, last entry, flatten and close times above
 /// and below, and a line at now with a dot on top.
 ///
@@ -977,13 +967,6 @@ struct SessionStrip: View {
   /// design's 10 px and 10 px).
   static let nowDot: CGFloat = 10
   static let lineAbove: CGFloat = 10
-
-  /// The pre-market label: with the calendar's pre-market open, as the design's "PRE 04:00 ·
-  /// BACKLOG"; without the time for an older bot's session.
-  static func preLabel(_ span: SessionSpan) -> LocalizedStringResource {
-    guard span.extendedHoursKnown else { return L10n.Settings.preBacklog }
-    return L10n.Settings.preBacklogFrom(Format.marketMinute(span.start))
-  }
 
   var body: some View {
     let open = span.regularOpen
@@ -1014,11 +997,10 @@ struct SessionStrip: View {
           x: x(span.lastEntry), trailing: true)
         mark(L10n.Settings.markClose(Format.marketMinute(close)), color: Palette.accentText,
           x: x(close) + Tokens.Space.xs)
-        mark(Self.preLabel(span), color: Palette.highlightText, x: Tokens.Space.s, y: below)
+        mark(L10n.Settings.notTraded, color: Palette.textQuaternary, x: Tokens.Space.s, y: below)
+          .hint(L10n.Settings.notTradedHint)
         mark(L10n.Settings.markFlatten(Format.marketMinute(flatten)), color: Palette.warningText,
           x: x(flatten), y: below, trailing: true)
-        mark(L10n.Settings.postBacklog, color: Palette.highlightText, x: width - Tokens.Space.s, y: below,
-          trailing: true)
         // The dot over the labels, as the design's: the line passes behind them.
         if span.contains(minute) {
           nowDot
@@ -1065,35 +1047,30 @@ struct SessionStrip: View {
   }
 }
 
-/// The bot's database backup (GET /jobs) as the design's "Backups · storage": a green check with
-/// what the backup is and when the last one was made, or the failure when it is newer, with its
-/// error; why neither is known when the bot cannot tell; and how clean-up runs.
+/// The bot's database backup (GET /jobs) as the design's "Backup": a green check with "Backup
+/// checked" and when the last one was made, or the failure when it is newer, with its error; why
+/// neither is known when the bot cannot tell. How clean-up runs is the label's tooltip.
 struct BackupSection: View {
   @Environment(AppModel.self) private var model
 
-  /// Symbols of the unknown state and of the clean-up note (verified and failed draw
-  /// `Symbols.passed` and `Symbols.failed`).
+  /// Symbol of the unknown state (verified and failed draw `Symbols.passed` and `Symbols.failed`).
   static let unknownSymbol = "circle.dashed"
-  static let cleanupSymbol = "trash"
   /// Separates the day from the time.
   static let dayTimeSeparator = " "
 
   var body: some View {
-    SettingsCard(L10n.Settings.backups, footnote: Text(L10n.Settings.backupFooter)) {
+    SettingsCard(L10n.Settings.backup, info: L10n.Settings.cleanup) {
       if let job = model.jobs?.backup {
         let failed = job.lastFailedAt.map { failure in job.lastAt.map { failure.date > $0.date } ?? true } ?? false
         if failed, let at = job.lastFailedAt {
-          state(Symbols.failed, tone: .loss, Text(L10n.Settings.backupFailed(Self.when(at.date))))
+          state(Symbols.failed, tone: .loss, Text(L10n.Settings.backupFailed(Self.when(at.date))), when: nil)
           if let error = job.lastFailedError {
             Text(verbatim: error).font(Tokens.Typography.callout).foregroundStyle(Palette.lossText)
           }
         } else if let at = job.lastAt {
-          state(Symbols.passed, tone: .profit, Text(L10n.Settings.backupVerified))
-          Text(L10n.Settings.backupLast(Self.when(at.date)))
-            .font(Tokens.Typography.annotation)
-            .foregroundStyle(Palette.textQuaternary)
+          state(Symbols.passed, tone: .profit, Text(L10n.Settings.backupVerified), when: Self.when(at.date))
         } else {
-          state(Self.unknownSymbol, tone: .neutral, Text(verbatim: Format.missing))
+          state(Self.unknownSymbol, tone: .neutral, Text(verbatim: Format.missing), when: nil)
         }
         if let cause = job.causeText {
           Text(verbatim: cause).font(Tokens.Typography.callout).foregroundStyle(Palette.warningText)
@@ -1103,20 +1080,11 @@ struct BackupSection: View {
       } else {
         Skeleton(L10n.Common.loading) { SkeletonLines(Tokens.Loading.fewLines) }
       }
-      Label {
-        Text(L10n.Settings.cleanup)
-      } icon: {
-        Image(systemName: Self.cleanupSymbol)
-      }
-      .labelStyle(ControlLabelStyle())
-      .font(Tokens.Typography.callout)
-      .foregroundStyle(Palette.textTertiary)
-      .fixedSize(horizontal: false, vertical: true)
-      .padding(.top, Tokens.Space.xs)
     }
   }
 
-  private func state(_ symbol: String, tone: Tone, _ text: Text) -> some View {
+  /// The state big beside its symbol, and when the backup was made at the trailing edge.
+  private func state(_ symbol: String, tone: Tone, _ text: Text, when: String?) -> some View {
     HStack(spacing: Tokens.Space.s) {
       Image(systemName: symbol)
         .font(Tokens.Typography.symbol)
@@ -1126,8 +1094,16 @@ struct BackupSection: View {
         .popIn(delay: Tokens.Motion.popStagger)
         .id(state(of: model.jobs?.backup))
       text
-        .font(Tokens.Typography.callout)
+        .font(Tokens.Typography.heading)
         .foregroundStyle(Palette.textPrimary)
+        .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Tokens.Space.s)
+      if let when {
+        Text(verbatim: when)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+          .fixedSize()
+      }
     }
   }
 
@@ -1141,3 +1117,4 @@ struct BackupSection: View {
     DayText.day(WireDate(newYorkDateOf: date)) + dayTimeSeparator + Format.marketMinute(date)
   }
 }
+#endif

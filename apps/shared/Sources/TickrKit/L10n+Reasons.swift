@@ -337,6 +337,11 @@ extension L10n {
     LocalizedStringResource("kit.refusal.WORKING_ENTRY_LIMIT_REACHED",
       defaultValue: "{working} entries working, limit {limit}", bundle: bundle)
   }
+  /// A refused entry's detail (`refusal.params`), after the rule's title. STOP_OUT_STREAK (values: count, limit)
+  static var refusalReasonStopOutStreak: LocalizedStringResource {
+    LocalizedStringResource("kit.refusal.STOP_OUT_STREAK",
+      defaultValue: "{count} stop-outs in a row today, limit {limit}; no new entries today", bundle: bundle)
+  }
   /// A refused entry's detail (`refusal.params`), after the rule's title. SYMBOL_COOLDOWN (values: symbol, until)
   static var refusalReasonSymbolCooldown: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.SYMBOL_COOLDOWN",
@@ -381,10 +386,5 @@ extension L10n {
   static var refusalReasonQuoteInvalid: LocalizedStringResource {
     LocalizedStringResource("kit.refusal.QUOTE_INVALID",
       defaultValue: "Bid {bid} / ask {ask} cannot be traded", bundle: bundle)
-  }
-  /// A refused entry's detail (`refusal.params`), after the rule's title. QUOTE_TIME_INVALID (values: seconds, limit)
-  static var refusalReasonQuoteTimeInvalid: LocalizedStringResource {
-    LocalizedStringResource("kit.refusal.QUOTE_TIME_INVALID",
-      defaultValue: "Quote time {seconds} s ahead of the clock, limit {limit} s", bundle: bundle)
   }
 }

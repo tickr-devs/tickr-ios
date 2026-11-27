@@ -1,0 +1,20 @@
+{
+  "file": "config/bot.toml",
+  "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "changed_since_start": true,
+  "valid": false,
+  "error": "[run] maintain_keep_sessions must be at least 1 (today is always kept)",
+  "sections": [
+    {
+      "name": "run",
+      "keys": [
+        {
+          "key": "maintain_keep_sessions",
+          "value": "0",
+          "comment": "Closed sessions kept uncompressed."
+        }
+      ]
+    }
+  ],
+  "api_version": 1
+}

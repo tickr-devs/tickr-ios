@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:bot-start-v1",
+  "title": "BotStartV1",
+  "type": "object",
+  "properties": {
+    "requested_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "stop_marker_cleared": {
+      "type": "boolean"
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "requested_at",
+    "stop_marker_cleared",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

@@ -116,6 +116,7 @@ final class StubProtocol: URLProtocol {
       (.entryStop(on: true), "/commands/entry-stop", ["state": "on"]),
       (.entryStop(on: false), "/commands/entry-stop", ["state": "off"]),
       (.cancelOwnOrders, "/commands/cancel-own-orders", [:]),
+      (.cancelEntry("KLMN"), "/commands/cancel-own-orders", ["symbol": "KLMN"]),
       (.flatten, "/commands/flatten", [:]),
       (.flattenSymbol("ABCD"), "/commands/flatten", ["symbol": "ABCD"]),
       (.stopBot, "/commands/stop-bot", [:]),

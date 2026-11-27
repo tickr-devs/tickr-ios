@@ -2,7 +2,7 @@ import FactoryTesting
 import Foundation
 import Testing
 import TickrKit
-@testable import TickrMac
+@testable import TickrScreens
 
 /// Answers every request with an error: these tests look at where the model points and what it
 /// lets the owner pick, never at what it reads.
