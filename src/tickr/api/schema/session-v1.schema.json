@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tickr:session-v1",
+  "title": "SessionV1",
+  "type": "object",
+  "properties": {
+    "access_token": {
+      "type": "string"
+    },
+    "access_expires_in": {
+      "type": "integer"
+    },
+    "refresh_token": {
+      "type": "string"
+    },
+    "refresh_expires_in": {
+      "type": "integer"
+    },
+    "api_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "required": [
+    "access_token",
+    "access_expires_in",
+    "refresh_token",
+    "refresh_expires_in",
+    "api_version"
+  ],
+  "additionalProperties": false
+}

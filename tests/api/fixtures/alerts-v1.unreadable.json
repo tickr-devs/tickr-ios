@@ -299,6 +299,15 @@
         "telegram": true,
         "push": true
       }
+    },
+    {
+      "kind": "device-session",
+      "group": "critical",
+      "locked": true,
+      "channels": {
+        "telegram": true,
+        "push": true
+      }
     }
   ],
   "routing_cause": "routing-file-unreadable: Expecting value: line 1 column 1 (char 0)",
