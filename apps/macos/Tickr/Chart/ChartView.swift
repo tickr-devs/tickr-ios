@@ -8,6 +8,7 @@ import TickrKit
 /// card. Beside it, the rail: the symbols to pick from, what the strategy decided at the pointed
 /// candle, and the open position. Live days refresh as new M1 bars arrive.
 struct ChartView: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(AppModel.self) private var model
   @Environment(ChartModel.self) private var chart
   @State private var viewport = Viewport.opening
@@ -153,7 +154,7 @@ struct ChartView: View {
           position: model.positions.first { $0.id == symbol })
           .frame(width: ChartRail.width)
           .frame(maxHeight: .infinity, alignment: .top)
-          .transition(.move(edge: .trailing).combined(with: .opacity))
+          .transition(.moving(from: .trailing, reduceMotion: reduceMotion))
       }
     }
     .padding(Tokens.Space.l)

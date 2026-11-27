@@ -187,7 +187,7 @@ extension HomeView {
   /// A recorded day says so in a card where today's positions stand.
   fileprivate var pastNote: some View {
     Text(L10n.Home.pastDayNote(DayText.day(model.shownDay.noonInNewYork)))
-      .font(.subheadline)
+      .font(Tokens.Typography.subheadline)
       .foregroundStyle(Palette.textTertiary)
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(Tokens.Space.l)
@@ -244,7 +244,7 @@ extension HomeView {
     }
     if status.positions.isEmpty && entries.isEmpty {
       Text(L10n.Home.noPosition)
-        .font(.subheadline)
+        .font(Tokens.Typography.subheadline)
         .foregroundStyle(Palette.textTertiary)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Space.l)
@@ -440,7 +440,7 @@ private struct Summary: View {
           if stats?.beforeFees == true {
             // The ring's result does not count the broker's fees yet; wraps rather than cuts.
             Text(L10n.Home.beforeFees)
-              .font(.footnote)
+              .font(Tokens.Typography.footnote)
               .foregroundStyle(Palette.warningText)
               .fixedSize(horizontal: false, vertical: true)
           }
@@ -453,7 +453,7 @@ private struct Summary: View {
               Text(verbatim: Format.missing)
             }
           }
-          .font(.headline)
+          .font(Tokens.Typography.headline)
           .foregroundStyle(Palette.textPrimary)
           .fixedSize(horizontal: false, vertical: true)
           if let past {
@@ -463,7 +463,7 @@ private struct Summary: View {
               // A working entry holds a slot as the engine counts it (mockup v162: "· 1 pending").
               Text(verbatim: Slots.withPending(String(localized: L10n.Home.slotsFree(Slots.free(status, limit: limit), limit)),
                 status))
-                .font(.subheadline)
+                .font(Tokens.Typography.subheadline)
                 .foregroundStyle(Palette.textTertiary)
                 .contentTransition(.numericText())
                 .fixedSize(horizontal: false, vertical: true)
@@ -490,7 +490,7 @@ private struct Summary: View {
 
   private func entryLine(_ text: LocalizedStringResource, tone: Tone) -> some View {
     Text(text)
-      .font(.footnote)
+      .font(Tokens.Typography.footnote)
       .foregroundStyle(tone.text)
       .fixedSize(horizontal: false, vertical: true)
   }
@@ -587,7 +587,7 @@ private struct PositionRow: View {
           HStack(spacing: Tokens.Space.s) {
             StopGlyph(state: position.stop.state, symbol: position.symbol, price: position.stop.price)
             SymbolText(position.symbol)
-              .font(.headline.monospaced())
+              .font(Tokens.Typography.headlineMono)
               .foregroundStyle(Palette.textPrimary)
               .fixedSize()
           }

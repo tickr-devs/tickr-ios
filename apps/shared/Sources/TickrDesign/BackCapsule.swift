@@ -49,7 +49,7 @@ public struct BackCapsuleStyle: ButtonStyle {
       .padding(.trailing, Tokens.Space.m + Tokens.Space.xxs)
       .padding(.vertical, Tokens.Space.xs)
       .frame(minHeight: Tokens.Size.iconButton)
-      .glassSurface(in: shape, shadow: Tokens.Opacity.shadow)
+      .glassSurface(in: shape)
       #if os(iOS)
       .frame(minHeight: Tokens.Size.touchTarget)
       #endif
@@ -65,13 +65,9 @@ public extension ButtonStyle where Self == BackCapsuleStyle {
 }
 
 public extension View {
-  /// The design's glass for a header's controls (the boards' `.gbtn` and `.bk`): the card surface,
-  /// a little see-through over a blur, with the strong hairline and a soft shadow of `shadow`.
-  func glassSurface(in shape: some InsettableShape, shadow: Double) -> some View {
-    background(Palette.surface.opacity(Tokens.Opacity.overlay), in: shape)
-      .background(.ultraThinMaterial, in: shape)
-      .overlay(shape.strokeBorder(Palette.separatorStrong, lineWidth: Tokens.Stroke.thin))
-      .shadow(color: Palette.shadow.opacity(shadow), radius: Tokens.Size.glassShadowRadius, x: 0,
-        y: Tokens.Size.glassShadowOffset)
+  /// The design's glass for a header's controls (the boards' `.gbtn` and `.bk`): the system's
+  /// Liquid Glass in `shape`, which bends and lights what is under it and answers a touch.
+  func glassSurface(in shape: some Shape) -> some View {
+    glassEffect(.regular.interactive(), in: shape)
   }
 }

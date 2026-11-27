@@ -73,7 +73,7 @@ struct SettingsView: View {
       SettingsCard(L10n.Settings.about) {
         SettingsRow(L10n.Settings.app, systemImage: Self.appSymbol, tone: .accent) {
           Text(verbatim: Bundle.main.object(forInfoDictionaryKey: Self.versionKey) as? String ?? Format.missing)
-            .font(.body.monospaced())
+            .font(Tokens.Typography.bodyMono)
         }
         SettingsRow(L10n.Settings.contract, systemImage: Self.contractSymbol, tone: .info) {
           Text(L10n.Settings.contractVersion(Wire.apiVersion))
@@ -193,7 +193,7 @@ struct SettingsView: View {
       .focused($editing)
       .submitLabel(.done)
       .onSubmit(save)
-      .font(.body.monospaced())
+      .font(Tokens.Typography.bodyMono)
       if draft != model.connection.address {
         Button(action: save) { Text(L10n.Settings.saveAddress) }
           .disabled(!draft.isEmpty && Connection(address: draft).url == nil)
@@ -245,7 +245,7 @@ private struct PairingSheet: View {
           }
           .textInputAutocapitalization(.never)
           .autocorrectionDisabled()
-          .font(.footnote.monospaced())
+          .font(Tokens.Typography.footnoteMono)
           PasteButton(payloadType: String.self) { strings in
             if let first = strings.first { text = first }
           }

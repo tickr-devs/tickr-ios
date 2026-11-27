@@ -154,6 +154,31 @@ public enum Tokens {
     /// A detail line under a figure or beside a symbol (trades and room, a size in shares); the Mac
     /// title bar's connection status (11 points on the Mac).
     public static let subheadlineMono = Font.subheadline.monospaced()
+    /// Row and card titles (a stop choice, a bot control, a section's lead line).
+    public static let headline = Font.headline
+    /// A title beside a figure in mono (a symbol's price line).
+    public static let headlineMono = Font.headline.monospaced()
+    /// Secondary lines under a title, explanations in a card.
+    public static let subheadline = Font.subheadline
+    /// A notice's title, an emphasised secondary line.
+    public static let subheadlineStrong = Font.subheadline.weight(.semibold)
+    /// A compact figure beside a symbol (a position's share count).
+    public static let subheadlineMonoBold = Font.subheadline.monospaced().bold()
+    /// Small print: footers, captions of steps, hints under a control.
+    public static let footnote = Font.footnote
+    public static let footnoteStrong = Font.footnote.weight(.semibold)
+    public static let footnoteMono = Font.footnote.monospaced()
+    public static let footnoteMonoBold = Font.footnote.monospaced().bold()
+    /// A day switch's shown day.
+    public static let bodyMedium = Font.body.weight(.medium)
+    /// A section's figure in mono (the lab's model score).
+    public static let title3MonoBold = Font.title3.monospaced().bold()
+    /// A screen's result figure in mono (Activity's day result).
+    public static let titleMonoBold = Font.title.monospaced().bold()
+    /// A step's title in a working panel (the Mac entry sheet).
+    public static let title3Strong = Font.title3.weight(.semibold)
+    /// A large state symbol (working, done) in a panel.
+    public static let symbolLarge = Font.largeTitle
     /// The Mac title bar's day stepper: the shown day in 11.5-point mono.
     public static let dayStepperSize: CGFloat = 11.5
     public static let dayStepper = Font.system(size: dayStepperSize, design: .monospaced)
@@ -271,6 +296,9 @@ public enum Tokens {
     public static let miniRing: CGFloat = 52
     /// Widest a hint bubble gets before its text wraps.
     public static let hintMaxWidth: CGFloat = 260
+    /// Room above a view, in points, that a two-line hint bubble needs to show above it (else it
+    /// shows below, and grows from its top).
+    public static let hintRoomAbove: CGFloat = 56
     /// Blur of the accent glow under a primary button.
     public static let glowRadius: CGFloat = 8
   }
@@ -281,6 +309,11 @@ public enum Tokens {
     public static let quick = Animation.snappy
     /// Views entering or leaving, list changes, section switches.
     public static let standard = Animation.spring(response: 0.5, dampingFraction: 0.85)
+    /// The tab bar's selection pill moving to another tab: a quick spring with a little bounce.
+    public static let pill = Animation.spring(duration: pillSeconds, bounce: pillBounce)
+    /// Seconds and bounce of `pill`.
+    public static let pillSeconds = 0.4
+    public static let pillBounce = 0.2
     /// Screens assembling on appear (each card rises).
     public static let entrance = Animation.spring(response: 0.7, dampingFraction: 0.85)
     /// Figures filling up: rings, bars, counters.
@@ -297,8 +330,18 @@ public enum Tokens {
     public static let pulseScale: CGFloat = 2.2
     /// How much a button shrinks while pressed.
     public static let pressScale: CGFloat = 0.97
+    /// The scale a small view (a badge, a check, a count) enters from and leaves to: never from
+    /// nothing, which reads as popping out of a hole.
+    public static let enterScale: CGFloat = 0.9
+    /// Live values (a gauge, a ring, a count) moving to a new value: short, so the figure keeps up
+    /// with the data instead of trailing it. `fill` stays for a figure filling on first appear.
+    public static let live = Animation.smooth(duration: liveSeconds)
+    /// Seconds of a live value's move to its new value.
+    public static let liveSeconds = 0.3
     /// Seconds the pointer rests on a view before its hint appears.
     public static let hintDelay = 0.45
+    /// Seconds after a hint goes during which the next hint shows at once (no delay, no entrance).
+    public static let hintWarmSeconds = 0.6
     /// How far a live state glyph's pulse outline grows (and today's Trades calendar tile's).
     public static let glyphPulseScale: CGFloat = 1.35
     #if os(iOS)

@@ -308,7 +308,7 @@ private struct LossGauge: View {
           .frame(width: Self.hub, height: Self.hub)
           .offset(y: Self.hub / 2 - Self.arcWidth / 2)
       }
-      .animation(reduceMotion ? nil : Tokens.Motion.fill, value: shown)
+      .animation(reduceMotion ? nil : Tokens.Motion.live, value: shown)
       .onAppear {
         withAnimation(reduceMotion ? nil : Tokens.Motion.fill) { drawn = true }
       }

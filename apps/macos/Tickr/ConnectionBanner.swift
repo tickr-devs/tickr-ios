@@ -9,6 +9,7 @@ import TickrKit
 /// (address, port, the API's own words) is behind "Details"; commands stay off while it shows
 /// (`commandsEnabled`).
 struct ConnectionBanner: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(AppModel.self) private var model
   /// The address Settings shows and the app reads at launch; the one-click fix writes it too.
   @AppStorage(Defaults.apiBaseURL) private var apiBaseURL = APIClient.defaultBaseURL.absoluteString
@@ -45,7 +46,7 @@ struct ConnectionBanner: View {
         #endif
       }
       .padding([.horizontal, .top], Tokens.Space.l)
-      .transition(.move(edge: .top).combined(with: .opacity))
+      .transition(.moving(from: .top, reduceMotion: reduceMotion))
     }
   }
 

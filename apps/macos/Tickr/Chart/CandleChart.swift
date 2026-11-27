@@ -9,6 +9,7 @@ import TickrKit
 /// crosshair runs through every pane, with the pointed time on the time axis and the value under
 /// the pointer on the hovered pane's value axis. Times read in New York, like the bot.
 struct CandleChart: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   let plot: ChartPlot
   let lines: ChartLines
   let marks: [ChartMark]
@@ -114,7 +115,7 @@ struct CandleChart: View {
               Rectangle().fill(Palette.separator).frame(height: Tokens.Stroke.hairline)
             }
             .overlay(alignment: .topLeading) { paneName(pane) }
-            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .transition(.moving(from: .bottom, reduceMotion: reduceMotion))
         }
       }
     }
