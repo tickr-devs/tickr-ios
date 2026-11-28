@@ -14,13 +14,16 @@ extension Container {
 
   /// Client of the bot's local API at an address; a remote address adds its bearer token. The
   /// demo day's address (`DemoDay.address`) is answered by the recording the apps carry
-  /// (`demoSource`), never by the network.
+  /// (`demoSource`), never by the network. The bot's address before sign-in sends nothing
+  /// (`SignInFirst`): every read on every screen passes here, so none reaches the bot without a token.
   public var apiClient: ParameterFactory<APIClient.Endpoint, APIClient> {
     self { endpoint in
-      DemoDay.isDemo(endpoint.baseURL)
-        ? APIClient(baseURL: endpoint.baseURL, transport: self.demoSource())
-        : APIClient(baseURL: endpoint.baseURL, token: endpoint.token,
-          session: endpoint.signedIn ? self.botSession() : nil, transport: self.urlSession())
+      if DemoDay.isDemo(endpoint.baseURL) {
+        return APIClient(baseURL: endpoint.baseURL, transport: self.demoSource())
+      }
+      if endpoint.waitsForSignIn { return APIClient(baseURL: endpoint.baseURL, transport: SignInFirst()) }
+      return APIClient(baseURL: endpoint.baseURL, token: endpoint.token,
+        session: endpoint.signedIn ? self.botSession() : nil, transport: self.urlSession())
     }
   }
 
@@ -102,5 +105,8 @@ extension APIClient {
       self.token = token
       self.signedIn = signedIn
     }
+
+    /// The bot's address with neither a sign-in nor a fixed token: nothing may be asked of it yet.
+    public var waitsForSignIn: Bool { baseURL == BotAddress.url && token == nil && !signedIn }
   }
 }
