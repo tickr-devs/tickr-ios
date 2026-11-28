@@ -32,6 +32,22 @@ public struct Wordmark: View {
     height * crop.width / crop.height
   }
 
+  /// The whole wordmark's width at `height`, in points, measured in its own fonts (for layouts that
+  /// must know it before drawing, as the Mac Overview's header beside the day's result).
+  public static func width(height: CGFloat) -> CGFloat {
+    WordmarkFont.register()
+    let size = height * Tokens.Typography.wordmarkTextShare
+    let kern = size * Tokens.Typography.wordmarkTrackingShare
+    let parts = [(BrandText.rest, WordmarkFont.bold), (BrandText.domain, WordmarkFont.medium)]
+    let text = parts.reduce(CGFloat.zero) { sum, part in
+      // The fonts ship in this package; were one missing, the system's bold stands in, as SwiftUI's
+      // `.custom` falls back to the system font.
+      let font = TextMeasure.PlatformFont(name: part.1, size: size) ?? .boldSystemFont(ofSize: size)
+      return sum + TextMeasure.width(String(localized: part.0), font: font, kern: kern)
+    }
+    return markWidth(height: height) + text - height * Tokens.Typography.wordmarkOverlapShare
+  }
+
   public var body: some View {
     HStack(spacing: -height * Tokens.Typography.wordmarkOverlapShare * rest) {
       WordmarkGlyph(height: height, tone: tone)

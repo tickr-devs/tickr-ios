@@ -62,9 +62,10 @@ struct OverviewView: View {
   }
 
   /// Narrowest two-column grid, in points, with the day's result beside the header: the result's
-  /// narrow column and its gap, beside the day controls (`DayControls`), the widest part of the
-  /// header that never wraps. Narrower, the result is one line under it.
+  /// narrow column and its gap, beside the wordmark and the day controls (`DayControls`) side by side,
+  /// the parts of the header that never wrap. Narrower, the result is one line under it.
   static let headerBesideNarrowResultMinGridWidth: CGFloat = OverviewView.dayResultNarrowWidth + Tokens.Space.xl
+    + Wordmark.width(height: Tokens.Size.wordmark) + Tokens.Space.m
     + DayControls.stepperWidth(today: String(localized: L10n.Common.today))
 
   /// The design's grid at the widest (Main); two columns with the result beside the header, then
