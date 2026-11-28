@@ -718,7 +718,7 @@ enum L10n {
 
   enum Journal {
     static var title: LocalizedStringResource {
-      LocalizedStringResource("journal.title", defaultValue: "$ tail -f journal", bundle: L10n.bundle)
+      LocalizedStringResource("journal.title", defaultValue: "Journal", bundle: L10n.bundle)
     }
     static var latestFirst: LocalizedStringResource {
       LocalizedStringResource("journal.latestFirst", defaultValue: "latest first", bundle: L10n.bundle)
