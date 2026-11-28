@@ -93,6 +93,7 @@ private struct GeneralSettings: View {
   @Environment(AppModel.self) private var model
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
   @State private var signIn = Container.shared.signInState()
+  @State private var notifications = Container.shared.notificationPermission()
   /// The sign-out question is open.
   @State private var askingSignOut = false
 
@@ -114,8 +115,9 @@ private struct GeneralSettings: View {
   }
 
   /// The design's "Connection" (mockup v174, MacSystem > General): who this Mac is signed in as,
-  /// the bot's address (built into the app) with the link's state, and Sign Out with what it
-  /// does. A development address shows only its address and state.
+  /// the bot's address (built into the app) with the link's state, "Notifications · Off" while
+  /// they are (board PushAsk), and Sign Out with what it does. A development address shows only
+  /// its address and state.
   private var connection: some View {
     let reachable = model.fetchError == nil
     let ownAddress = model.address == BotAddress.url
@@ -146,6 +148,9 @@ private struct GeneralSettings: View {
         .font(Tokens.Typography.callout)
         .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
       }
+      if ownAddress, model.signedIn, notifications.state == .notAsked || notifications.state == .denied {
+        NotificationsOffRow(permission: notifications)
+      }
       if ownAddress, model.signedIn {
         HStack(spacing: Tokens.Space.m) {
           Button(String(localized: L10n.SignIn.signOut)) { askingSignOut = true }
@@ -157,11 +162,39 @@ private struct GeneralSettings: View {
         }
       }
     }
+    .task { await notifications.refresh() }
     .alert(Text(L10n.SignIn.outQuestionMac), isPresented: $askingSignOut) {
       Button(role: .destructive) { Task { await DeviceSignOut.run() } } label: { Text(L10n.SignIn.signOut) }
       Button(role: .cancel) {} label: { Text(L10n.SignIn.cancel) }
     } message: {
       Text(L10n.SignIn.outBody)
+    }
+  }
+}
+
+/// Settings › Connection's "Notifications · Off" (board PushAsk): Turn on opens the screen that
+/// asks, or the system's settings once the system was told no.
+private struct NotificationsOffRow: View {
+  let permission: NotificationPermission
+
+  var body: some View {
+    HStack(spacing: Tokens.Space.s) {
+      Image(systemName: NotificationsAskLayout.bellSymbol)
+        .foregroundStyle(Palette.warningText)
+        .accessibilityHidden(true)
+      VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+        Text(L10n.Notifications.row)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textPrimary)
+        Text(L10n.Notifications.rowLine)
+          .font(Tokens.Typography.annotation)
+          .foregroundStyle(Palette.textQuaternary)
+      }
+      .fixedSize(horizontal: false, vertical: true)
+      Spacer(minLength: Tokens.Space.s)
+      StatusPill(L10n.Notifications.off, tone: .warning)
+      Button(String(localized: L10n.Notifications.turnOn)) { permission.turnOn() }
+        .buttonStyle(.action(.secondary, size: .compact))
     }
   }
 }

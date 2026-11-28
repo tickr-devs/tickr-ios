@@ -1,27 +1,17 @@
 import ActivityKit
 import TickrKit
 import UIKit
-import UserNotifications
 
-/// Registers the phone for the bot's push (APNs): at launch it asks to show notifications and,
-/// once allowed, registers for remote notifications; the token it gets, and the Live Activity's
+/// Hands the bot the phone's push tokens (APNs): TickrScreens' `NotificationPermission` asks to
+/// show notifications and registers once allowed; the token it gets, and the Live Activity's
 /// tokens (`LiveActivityTokens`), go to the bot through `PushRegistrar`. A failure is recorded in
 /// the diagnostics log; the next launch or a new token tries again, never a loop.
 @MainActor
 final class PhoneAppDelegate: NSObject, UIApplicationDelegate {
-  /// UserDefaults key, set to NO as a launch argument by the UI tests (`-askForNotifications NO`),
-  /// that keeps the notification question off a run nobody answers.
-  static let asksKey = "askForNotifications"
-
   func application(
     _ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    let registrar = Container.shared.pushRegistrar()
-    LiveActivityTokens.watch(registrar)
-    let defaults = UserDefaults.standard
-    if defaults.object(forKey: Self.asksKey) == nil || defaults.bool(forKey: Self.asksKey) {
-      Task { await Self.registerWhenAllowed(application) }
-    }
+    LiveActivityTokens.watch(Container.shared.pushRegistrar())
     return true
   }
 
@@ -31,19 +21,6 @@ final class PhoneAppDelegate: NSObject, UIApplicationDelegate {
 
   func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: any Error) {
     Container.shared.pushRegistrar().failed(error, kind: .alert)
-  }
-
-  /// Asks once to show alerts with sound (the bot's critical alerts arrive time-sensitive, by the
-  /// entitlement); registers only when they are allowed, since a token is worth nothing otherwise.
-  private static func registerWhenAllowed(_ application: UIApplication) async {
-    let center = UNUserNotificationCenter.current()
-    do {
-      guard try await center.requestAuthorization(options: [.alert, .sound]) else { return }
-    } catch {
-      Container.shared.pushRegistrar().failed(error, kind: .alert)
-      return
-    }
-    application.registerForRemoteNotifications()
   }
 }
 
