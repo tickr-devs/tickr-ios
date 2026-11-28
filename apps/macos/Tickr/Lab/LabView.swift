@@ -45,7 +45,7 @@ struct LabView: View {
     }
     .scrollEdgeHints()
     // Session times for the chart's axis, and the reconcile clock other screens read.
-    .task(id: model.baseURL) { await model.followJobs() }
+    .task(id: model.endpoint) { await model.followJobs() }
   }
 
   @Environment(AppModel.self) private var model
@@ -290,7 +290,7 @@ private struct ReplayCard: View {
         }
       }
     })
-    .task(id: model.baseURL) { await model.followLabReplay() }
+    .task(id: model.endpoint) { await model.followLabReplay() }
   }
 
   /// When a start is allowed again while the regular session refuses one, from the bot's own

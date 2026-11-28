@@ -25,6 +25,13 @@ extension Container {
 }
 
 extension Container {
+  /// Whether this device shows the bot's notifications, and when the app asks for them
+  /// (`NotificationsAsk`): one per app run, for the Mac, the iPhone and the iPad alike.
+  @MainActor
+  public var notificationPermission: Factory<NotificationPermission> {
+    self { NotificationPermission(enabled: NotificationPermission.asksOnThisRun) }.singleton
+  }
+
   /// The system's passkey sheet for the sign-in (`SystemPasskeySheet`); tests answer it.
   @MainActor
   var passkeySheet: Factory<any PasskeySheet> {

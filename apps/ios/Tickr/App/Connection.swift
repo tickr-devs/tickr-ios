@@ -104,10 +104,18 @@ struct Connection: Equatable {
 
   /// The connection this launch starts with: the bot's address with this phone's sign-in, unless
   /// a development address replaces it (see the type's note).
+  /// `arguments` are the launch's arguments (UserDefaults' argument domain): only there does
+  /// `addressKey` replace the bot's address. The copy an older app saved under the same key for its
+  /// pairing is dropped from `defaults`, or that phone would skip the sign-in and read the old
+  /// address without a token.
   @MainActor
-  static func load(_ defaults: UserDefaults = .standard) -> Connection {
+  static func load(
+    _ defaults: UserDefaults = .standard,
+    arguments: [String: Any] = UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)
+  ) -> Connection {
     let demo = defaults.bool(forKey: demoKey)
-    if let text = defaults.string(forKey: addressKey), let url = URL(string: text), url.host != nil {
+    defaults.removeObject(forKey: addressKey)
+    if let text = arguments[addressKey] as? String, let url = URL(string: text), url.host != nil {
       return Connection(address: url, demo: demo)
     }
     #if targetEnvironment(simulator)
