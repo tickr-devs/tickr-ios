@@ -232,15 +232,9 @@ struct Sidebar: View {
   /// Whether the section rows have the keyboard focus (the arrow keys then move the selection).
   @FocusState private var rowsFocused: Bool
 
-  /// Space under the "OPERATOR" label, in points.
-  static let labelBottom: CGFloat = 10
-
   var body: some View {
+    // No label over the list (mockup v191, page p-machead: "Operator" is gone everywhere).
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
-      CardLabel(L10n.Common.operatorTitle)
-        .padding(.horizontal, Tokens.Space.m)
-        .padding(.top, Tokens.Space.xs)
-        .padding(.bottom, Self.labelBottom)
       VStack(alignment: .leading, spacing: Tokens.Space.xs) {
         ForEach(AppSection.allCases) { item in
           Button {

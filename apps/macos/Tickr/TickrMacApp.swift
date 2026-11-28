@@ -170,7 +170,9 @@ private struct OpeningOverlay: View {
   var body: some View {
     if !model.openingPlayed {
       BrandOpening(
-        target: model.overviewMarkCentre, flying: { model.openingFlying = true },
+        target: model.overviewMarkCentre,
+        targetHeight: model.showsSignIn ? SignInScreen.markHeight(on: .mac) : Tokens.Size.wordmark,
+        flying: { model.openingFlying = true },
         finished: { model.openingPlayed = true })
     }
   }
@@ -185,7 +187,7 @@ private struct MacSignInGate: View {
 
   var body: some View {
     Group {
-      if model.signedIn || model.demoDay || model.address != BotAddress.url {
+      if !model.showsSignIn {
         RootView()
       } else {
         SignInScreen(device: .mac, ended: state.ended, markShown: model.openingPlayed) { centre in

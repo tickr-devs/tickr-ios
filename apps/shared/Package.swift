@@ -27,7 +27,8 @@ let package = Package(
       name: "TickrKit",
       dependencies: [.product(name: "FactoryKit", package: "Factory")],
       resources: [.process("Resources")]),
-    .target(name: "TickrDesign", dependencies: ["TickrKit"]),
+    // Resources: the wordmark's font (Manrope 700 cut to "ickr", SIL OFL, Manrope-OFL.txt).
+    .target(name: "TickrDesign", dependencies: ["TickrKit"], resources: [.process("Resources")]),
     // Tests take FactoryTesting (the .container trait), never FactoryKit itself: a second copy of
     // FactoryKit in the test target would give two sets of factories.
     .testTarget(

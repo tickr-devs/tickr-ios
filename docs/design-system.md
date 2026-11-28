@@ -165,7 +165,6 @@ in rows uses the platform text styles so Dynamic Type applies.
 | Token | Font | Use |
 |---|---|---|
 | `title` | 28 pt bold | Screen header title (the product name, in `infoText`) |
-| `subtitle` | 28 pt medium mono | The word next to a screen title ("Operator") |
 | `display` | 44 pt bold mono | A headline figure set apart from cards (Overview's day result on the Mac) |
 | `hero` | 34 pt bold mono | The one key figure of a screen inside a card |
 | `panelFigure` | 32 pt bold mono, tracking −1 | The day result in the Mac menu-bar panel |
@@ -634,17 +633,26 @@ plus "ickr" in Manrope 700 and ".bot" in a muted grey.
   `BrandMark.breathSeconds`; ornament), still otherwise and with Reduce Motion. `.muted` draws the
   level in `brandMuted`. `BrandGlyph` is letter and level alone in one colour, with a wider gap
   at menu-bar size.
-- iOS opening (`LaunchHandoff`): the app starts exactly as the launch screen, flashes the level
-  once, then flies the mark into Home's bar mark while the background fades (`launchHoldSeconds`,
-  `launchFly`). Reduce Motion: a cross-fade (`launchFadeSeconds`).
+- The wordmark (`Wordmark`, TickrDesign; mockup v189, page p-logo option B, and v191, page
+  p-machead option C) is the app's name in headers, the sign-in and the openings: the mark's "t"
+  and level (`BrandLetter` in `textPrimary`, level in `brandLine`, `brandMuted` when muted)
+  cropped to `Wordmark.crop`, then "ickr" in the bundled Manrope Bold subset
+  (`TickrWordmark-Bold.ttf`, OFL) at `wordmarkTextShare` of its height. `rest` (0…1) shows that
+  much of "ickr", for the openings. Heights: `wordmark` (Mac Overview header, iPhone Home bar and
+  sign-in), `wordmarkSmall`, `wordmarkLaunch` (openings, Mac and iPad sign-in). No "Operator"
+  word anywhere: the header is the wordmark and the Paper/Live badge.
+- iOS opening (`LaunchHandoff`): the app starts exactly as the launch screen (the "t" of the
+  wordmark, `LaunchMark`), "ickr" slides out (`wordmarkReveal`), then the wordmark flies into
+  Home's bar while the background fades (`launchFly`). Reduce Motion: a cross-fade
+  (`launchFadeSeconds`).
 - macOS opening (`BrandOpening`, macOS has no launch screen): the first window of a launch opens
-  on the background with the mark (`openingMark`) in its centre, the letter fades in
-  (`openingDrawSeconds`, once the window is on screen and key or active) and its level slides in
-  as the letter nearly shows (`openingSpark`), then the mark flies into Overview's header mark
-  (`openingFly`) while the background fades and the screen shows through, its cards rising one
-  after another (`risesHeld` holds them until the flight starts). The header's own mark stays hidden until the flying one lands on it, so two marks are
-  never seen. About 1 s in all. Once per launch (`AppModel.openingPlayed`), not on reopening the window.
-  Reduce Motion: the same cross-fade.
+  on the background with the wordmark's "t" (`wordmarkLaunch`) in its centre, fading in
+  (`openingDrawSeconds`, once the window is on screen and key or active); "ickr" slides out
+  (`wordmarkReveal`), then the wordmark flies into Overview's header wordmark, or the sign-in's
+  (`openingFly`), while the background fades and the screen shows through, its cards rising one
+  after another (`risesHeld` holds them until the flight starts). The header's own wordmark stays
+  hidden until the flying one lands on it, so two are never seen. Once per launch
+  (`AppModel.openingPlayed`), not on reopening the window. Reduce Motion: the same cross-fade.
 - The mark stands for the app only: launch, opening, headers, icons and the menu bar. Empty
   screens never show it (owner, 2026-11-25): `EmptyState` is the system's `ContentUnavailableView`
   with a quiet SF Symbol (`nothingSymbol`, or `unavailableSymbol` when the list could not be

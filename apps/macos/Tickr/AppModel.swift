@@ -133,6 +133,9 @@ public final class AppModel {
   /// Whether this device is signed in with the bot (`SignInState`): its requests to the bot's
   /// address carry the access token `BotSession` keeps (never in the demo day).
   public private(set) var signedIn: Bool
+  /// Whether the Mac's window shows the sign-in (mockup v174, board MacSignIn): the bot's own
+  /// address before sign-in; a development address and the demo day need none.
+  public var showsSignIn: Bool { !signedIn && !demoDay && address == BotAddress.url }
   /// Proves the owner is the one pressing (Face ID or the passcode on iPad) before a command is
   /// sent, `nil` for starting the bot, with the command's title as the reason; false refuses the
   /// command and sends nothing. Set by the iPad; nil on the Mac, which asks nothing more than the

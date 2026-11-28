@@ -189,9 +189,5 @@ extension L10n {
     static func status(_ host: String, _ state: String) -> LocalizedStringResource {
       LocalizedStringResource("signIn.status", defaultValue: "\(host) · \(state)", bundle: L10n.bundle)
     }
-    /// The Mac's brand column under the mark.
-    static var operatorName: LocalizedStringResource {
-      LocalizedStringResource("signIn.operatorName", defaultValue: "Tickr Operator", bundle: L10n.bundle)
-    }
   }
 }

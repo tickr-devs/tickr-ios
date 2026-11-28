@@ -55,10 +55,18 @@ def test_launch_background_is_the_window_background():
 
 
 def test_opening_animation_starts_from_the_launch_mark_size():
-    """LaunchHandoff sizes the spark and the flight by Tokens.Size.launchMark: the image size."""
+    """LaunchHandoff starts the wordmark at Tokens.Size.wordmarkLaunch: the launch image's height."""
     module = load()
-    tokens = (ROOT / "apps/shared/Sources/TickrDesign/Tokens.swift").read_text()
-    assert f"public static let launchMark: CGFloat = {module.LAUNCH_MARK}\n" in tokens
+    tokens = (ROOT / "apps/shared/Sources/TickrDesign/Tokens+Wordmark.swift").read_text()
+    assert f"public static let wordmarkLaunch: CGFloat = {module.WORDMARK_LAUNCH}\n" in tokens
+
+
+def test_wordmark_shows_the_launch_images_part_of_the_grid():
+    """Wordmark cuts the mark's grid where the launch image does, so the launch hands over in place."""
+    module = load()
+    swift = (ROOT / "apps/shared/Sources/TickrDesign/Wordmark.swift").read_text()
+    x, y, w, h = module.WORDMARK_CROP
+    assert f"static let crop = CGRect(x: {x:g}, y: {y:g}, width: {w:g}, height: {h:g})" in swift
 
 
 def test_in_app_mark_uses_the_scripts_geometry():
@@ -71,7 +79,6 @@ def test_in_app_mark_uses_the_scripts_geometry():
     assert f"stub = CGRect(x: {x:g}, y: {y:g}, width: {w:g}, height: {h:g})" in swift
     assert f"static let gridInset = {module.GRID_INSET:g}\n" in swift
     assert f"static let gridSide = {module.GRID_SIDE:g}\n" in swift
-    assert f"static let tileRadius = {module.TILE_RADIUS:g}\n" in swift
     # Every corner of the stem's outline is a point of BrandLetter.
     numbers = [float(n) for n in __import__("re").findall(r"[-\d.]+", module.STEM)]
     for value in numbers:

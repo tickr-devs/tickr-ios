@@ -29,10 +29,11 @@ struct HomeView: View {
 
   var body: some View {
     Screen(L10n.App.name, tab: .home) {
-      // The mark the opening animation flies into (LaunchHandoff); it pulses while data is current.
-      // Muted while the link is down: the mark says nothing about a bot it cannot hear.
-      BrandMark(size: Tokens.Size.glyph, live: ornamentMoves && model.fetchError == nil,
-        tone: model.fetchError == nil ? .brand : .muted)
+      // The wordmark the opening flies into (LaunchHandoff), in place of the title (mockup v189,
+      // board IOSHome). Its level is muted while the link is down: it says nothing about a bot it
+      // cannot hear.
+      Wordmark(tone: model.fetchError == nil ? .brand : .muted)
+        .accessibilityAddTraits(.isHeader)
         .onGeometryChange(for: CGPoint.self) { proxy in
           let frame = proxy.frame(in: .global)
           return CGPoint(x: frame.midX, y: frame.midY)
@@ -118,6 +119,7 @@ struct HomeView: View {
         }
       }
     }
+    .brandTitle()
     .botControl(isPresented: $showControl)
     .navigationDestination(item: $symbolsTab) { SymbolsView(tab: $0) }
     .daySwipe(dayModel.arrows, back: { dayModel.back() }, forward: { dayModel.forward() })

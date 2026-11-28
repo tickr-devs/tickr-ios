@@ -39,7 +39,7 @@ struct WindowWidthFit: Equatable {
 /// (owner rule 2026-11-16: no text in the title bar is cut or moved into the "»" overflow menu).
 struct TitleBarFit: Equatable {
   /// The day stepper ‹ day › and Today stay in the title bar; otherwise they sit in Overview's
-  /// header beside "Tickr Operator" (MainNarrow v110).
+  /// header beside the wordmark (MainNarrow v110).
   var stepper: Bool
   /// The connection status as "127.0.0.1 · age 2 s"; otherwise as its dot alone, the text in its
   /// tooltip and accessibility label (MainNarrow v110, 640-point board).

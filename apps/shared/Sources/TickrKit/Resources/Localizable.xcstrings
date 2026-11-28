@@ -1496,6 +1496,40 @@
         }
       }
     },
+    "kit.brand.wordmarkName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tickr"
+          }
+        }
+      }
+    },
+    "kit.brand.wordmarkRest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ickr"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ickr"
+          }
+        }
+      }
+    },
     "kit.chart.afterAt" : {
       "extractionState" : "manual",
       "localizations" : {
