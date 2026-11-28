@@ -104,7 +104,6 @@ enum L10n {
     }
   }
 
-  /// Settings' Connection card (mockup v174, board IOSSystem); the sign-in itself is TickrScreens'.
   /// Settings › Connection's row while notifications are off (mockup v189, board PushAsk); the
   /// screen itself is TickrScreens' `NotificationsAsk`.
   enum Notifications {
@@ -122,6 +121,7 @@ enum L10n {
     }
   }
 
+  /// Settings' Connection card (mockup v174, board IOSSystem); the sign-in itself is TickrScreens'.
   enum SignIn {
     static var connection: LocalizedStringResource {
       LocalizedStringResource("signin.connection", defaultValue: "Connection", bundle: L10n.bundle)

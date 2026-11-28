@@ -7,9 +7,6 @@ enum NotificationsAskLayout {
   /// The bell's round well: the iPhone's screen, and the sheet of the Mac and the wide iPad.
   static let well: CGFloat = 72
   static let wellSheet: CGFloat = 56
-  /// The bell inside it.
-  static let bell: CGFloat = 34
-  static let bellSheet: CGFloat = 26
   /// The sheet's width on the Mac and the wide iPad.
   static let sheetWidth: CGFloat = 440
   /// The least height of the buttons: the Mac's icon button; the iPhone's and iPad's touch target.
@@ -79,7 +76,7 @@ public struct NotificationsAsk: View {
   private var heading: some View {
     VStack(spacing: Tokens.Space.m) {
       Image(systemName: NotificationsAskLayout.bellSymbol)
-        .font(.system(size: sheet ? NotificationsAskLayout.bellSheet : NotificationsAskLayout.bell))
+        .font(sheet ? Tokens.Typography.heading : Tokens.Typography.title)
         .foregroundStyle(Palette.warningText)
         .frame(width: well, height: well)
         .background(Circle().fill(Palette.warning.opacity(Tokens.Opacity.glow)))
