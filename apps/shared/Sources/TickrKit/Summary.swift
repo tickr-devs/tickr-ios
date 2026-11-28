@@ -11,6 +11,9 @@ public enum Severity: Int, Comparable, Sendable {
 public struct Headline: Equatable, Sendable {
   public let text: String
   public let severity: Severity
+  /// The bot is off, about to start or starting by its schedule (`BotRun`): an expected silence,
+  /// told calmly (blue, mockup v190, page p-off), never as a fault.
+  public let calm: Bool
   /// What a pulse or transition beside the headline marks: a change of it is a real change of
   /// state. Not `text`: a stale status's text counts its age, which grows with every read of the
   /// same stale status.
@@ -34,9 +37,10 @@ public struct Headline: Equatable, Sendable {
   }
 
   /// `pulse` defaults to the text.
-  public init(text: String, severity: Severity, pulse: Pulse? = nil, detail: String? = nil) {
+  public init(text: String, severity: Severity, calm: Bool = false, pulse: Pulse? = nil, detail: String? = nil) {
     self.text = text
     self.severity = severity
+    self.calm = calm
     self.pulse = pulse ?? .text(text)
     self.detail = detail
   }
@@ -44,12 +48,18 @@ public struct Headline: Equatable, Sendable {
   /// `readFailed`: the last read of /status failed; it wins over an older good response. The
   /// headline says so in plain words; the failure's technical detail is the connection banner's
   /// (ConnectionState), behind its "Details".
-  public static func make(response: StatusResponseV1?, readFailed: Bool) -> Headline {
+  /// `run`: the bot's run by its schedule (`BotRun`) at `now`; off, starting or silent, it speaks
+  /// for a status that did not come (nil keeps the stale status's alarm).
+  public static func make(response: StatusResponseV1?, readFailed: Bool, run: BotRun? = nil, now: Date = .now)
+    -> Headline {
     if readFailed {
       return Headline(text: String(localized: L10n.headlineNoConnection), severity: .alarm)
     }
     guard let response else {
       return Headline(text: String(localized: L10n.headlineConnecting), severity: .attention)
+    }
+    if let run, let headline = run.headline(lastAnswer: response.status?.writtenAt.date, now: now) {
+      return headline
     }
     guard let status = response.status, !response.stale else {
       let text = summary(response)

@@ -181,7 +181,14 @@ final class AppModel {
     guard isConfigured else {
       return Headline(text: String(localized: L10n.Connect.notConnected), severity: .attention)
     }
-    return Headline.make(response: response, readFailed: readFailure != nil)
+    return Headline.make(response: response, readFailed: readFailure != nil, run: botRun, now: botNow)
+  }
+
+  /// The bot's run by its schedule (TickrKit `BotRun`): off, starting or silent; nil while the
+  /// schedule is unknown or the last status holds a position or an entry order.
+  var botRun: BotRun? {
+    let staleSeconds = settings.map { NSDecimalNumber(decimal: $0.statusStaleSeconds.value).doubleValue }
+    return BotRun.make(response: response, staleSeconds: staleSeconds, runStartedAt: nil, now: botNow)
   }
 
   /// What every screen says about the link to the bot: last known data under a banner, or an

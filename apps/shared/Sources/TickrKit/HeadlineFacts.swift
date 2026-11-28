@@ -86,7 +86,8 @@ public enum EntryGate: Equatable, Sendable {
   /// The gate of `status`; nil without a status, and under an alarm headline, which takes the
   /// whole row and says what is wrong itself.
   public static func make(_ status: StatusV1?, headline: Headline) -> EntryGate? {
-    guard let status, headline.severity != .alarm else { return nil }
+    // An alarm, or the bot off by its schedule: the last status's gate is not the bot's now.
+    guard let status, headline.severity != .alarm, !headline.calm else { return nil }
     if status.entryStop { return .paused }
     return status.tradingGate.open ? .open : .closed
   }
