@@ -391,10 +391,21 @@ enum L10n {
     static var nextDayHelp: LocalizedStringResource {
       LocalizedStringResource("toolbar.nextDayHelp", defaultValue: "Next trading day (⌘])", bundle: L10n.bundle)
     }
-    static func dayRow(_ day: String, _ result: String, _ trades: Int) -> LocalizedStringResource {
-      LocalizedStringResource("toolbar.dayRow",
-        defaultValue: "\(day)   \(result)   trades: \(trades)",
-        bundle: L10n.bundle)
+    /// The day picker's heading over its days (`TradingDaysPopover`).
+    static var tradingDays: LocalizedStringResource {
+      LocalizedStringResource("toolbar.tradingDays", defaultValue: "Trading days", bundle: L10n.bundle)
+    }
+    /// The tag on the newest recorded trading day.
+    static var lastDay: LocalizedStringResource {
+      LocalizedStringResource("toolbar.lastDay", defaultValue: "Last", bundle: L10n.bundle)
+    }
+    /// A trading day without a trade, under its date.
+    static var noTrades: LocalizedStringResource {
+      LocalizedStringResource("toolbar.noTrades", defaultValue: "No trades", bundle: L10n.bundle)
+    }
+    /// The day picker's footer row, to Trades & days.
+    static var showAllDays: LocalizedStringResource {
+      LocalizedStringResource("toolbar.showAllDays", defaultValue: "Show all trading days", bundle: L10n.bundle)
     }
     static var pickDayHelp: LocalizedStringResource {
       LocalizedStringResource("toolbar.pickDayHelp", defaultValue: "Pick a recorded trading day", bundle: L10n.bundle)
