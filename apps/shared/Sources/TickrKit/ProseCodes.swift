@@ -3,7 +3,7 @@
 import Foundation
 
 /// A cause the API writes itself (`<field>_codes`). An unknown code has no case; show the bot's own text then.
-public enum ProseReason: String, CaseIterable, Sendable {
+public enum ProseReason: String, CaseIterable, Sendable { // swiftlint:disable:this type_body_length
   case entryOrdersCount = "entry_orders_count"
   case noIntentRow = "no_intent_row"
   case neverAttempted = "never_attempted"
@@ -124,6 +124,7 @@ public enum ProseReason: String, CaseIterable, Sendable {
   case calendarWeekend = "calendar_weekend"
   case calendarHoliday = "calendar_holiday"
   case calendarNotCovered = "calendar_not_covered"
+  case noBotRun = "no_bot_run"
   case calendarInvalid = "calendar_invalid"
   case calendarNaiveTime = "calendar_naive_time"
   case calendarInvalidOffset = "calendar_invalid_offset"

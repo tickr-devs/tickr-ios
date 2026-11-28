@@ -8726,6 +8726,24 @@
         }
       }
     },
+    "kit.prose.no_bot_run" : {
+      "comment" : "A cause the API writes itself (`<field>_codes`). no_bot_run",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No bot run within {days} days of {day}"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguna ejecución del bot en los {days} días cercanos a {day}"
+          }
+        }
+      }
+    },
     "kit.prose.no_broker_read" : {
       "comment" : "A cause the API writes itself (`<field>_codes`). no_broker_read",
       "extractionState" : "manual",

@@ -272,63 +272,6 @@ public struct StatusV1: Codable, Hashable, Sendable {
   }
 }
 
-/// GET /status. Always this shape; `status` is nil when the bot's file is missing or bad.
-public struct StatusResponseV1: Codable, Hashable, Sendable {
-  public let servedAt: WireTime
-  public let status: StatusV1?
-  public let ageSeconds: DecimalString?
-  public let stale: Bool
-  public let unavailableCause: String?
-  /// The codes of `unavailableCause` (added after version 1 shipped: empty from an older API).
-  public let unavailableCauseCodes: [ReasonV1]
-  public let summary: String
-  public let pollSeconds: DecimalString
-  public let apiVersion: Int
-  public let apiStartedAt: WireTime? // the API's start: /settings are read again on a change (nil from an older API)
-
-  enum CodingKeys: String, CodingKey {
-    case status, stale, summary
-    case apiStartedAt = "api_started_at"
-    case servedAt = "served_at"
-    case ageSeconds = "age_seconds"
-    case unavailableCause = "unavailable_cause"
-    case pollSeconds = "poll_seconds"
-    case apiVersion = "api_version"
-    case unavailableCauseCodes = "unavailable_cause_codes"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    apiVersion = try c.decodeVersion(forKey: .apiVersion, expected: Wire.apiVersion)
-    servedAt = try c.decode(WireTime.self, forKey: .servedAt)
-    status = try c.decodeNullable(StatusV1.self, forKey: .status)
-    ageSeconds = try c.decodeNullable(DecimalString.self, forKey: .ageSeconds)
-    stale = try c.decode(Bool.self, forKey: .stale)
-    unavailableCause = try c.decodeNullable(String.self, forKey: .unavailableCause)
-    unavailableCauseCodes = try c.decodeIfPresent([ReasonV1].self, forKey: .unavailableCauseCodes) ?? []
-    summary = try c.decode(String.self, forKey: .summary)
-    pollSeconds = try c.decode(DecimalString.self, forKey: .pollSeconds)
-    apiStartedAt = try c.decodeIfPresent(WireTime.self, forKey: .apiStartedAt)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var c = encoder.container(keyedBy: CodingKeys.self)
-    try c.encode(apiVersion, forKey: .apiVersion)
-    try c.encode(servedAt, forKey: .servedAt)
-    try c.encodeNullable(status, forKey: .status)
-    try c.encodeNullable(ageSeconds, forKey: .ageSeconds)
-    try c.encode(stale, forKey: .stale)
-    try c.encodeNullable(unavailableCause, forKey: .unavailableCause)
-    try c.encode(unavailableCauseCodes, forKey: .unavailableCauseCodes)
-    try c.encode(summary, forKey: .summary)
-    try c.encode(pollSeconds, forKey: .pollSeconds)
-    try c.encodeNullable(apiStartedAt, forKey: .apiStartedAt)
-  }
-
-  /// Why the bot's status is unavailable, in the person's language (the bot's words for an unknown code).
-  public var unavailableCauseText: String? { ApiText.prose(unavailableCauseCodes, text: unavailableCause) }
-}
-
 /// POST /pair on the remote port: the bearer token a pairing code bought, answered once.
 public struct PairedV1: Codable, Hashable, Sendable {
   public let token: String
