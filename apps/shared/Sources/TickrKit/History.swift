@@ -236,61 +236,6 @@ public struct DayTrade: Codable, Hashable, Sendable, Identifiable {
   }
 }
 
-public struct DaySummary: Codable, Hashable, Sendable, Identifiable {
-  public let day: WireDate
-  public let trades: Int
-  public let wins: Int
-  public let losses: Int
-  public let resultGrossUsd: DecimalString
-  public let hasBars: Bool
-  /// Whether the day was clean by the journal: no mismatch, unknown outcome, unprotected position
-  /// or safety exit, and a clean day end.
-  public let clean: CleanDay
-  /// The day's result after fees (the sum of its trades' `resultNetUsd`); nil while any of them
-  /// is nil. Added after version 1 shipped.
-  public let resultNetUsd: DecimalString?
-
-  /// The result as shown: after fees once known, else the gross from the order rows.
-  public var resultUsd: DecimalString { resultNetUsd ?? resultGrossUsd }
-
-  public var id: WireDate { day }
-
-  enum CodingKeys: String, CodingKey {
-    case day, trades, wins, losses, clean
-    case resultGrossUsd = "result_gross_usd"
-    case hasBars = "has_bars"
-    case resultNetUsd = "result_net_usd"
-  }
-}
-
-// In an extension so the memberwise initializer stays available.
-extension DaySummary {
-  public init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    day = try c.decode(WireDate.self, forKey: .day)
-    trades = try c.decode(Int.self, forKey: .trades)
-    wins = try c.decode(Int.self, forKey: .wins)
-    losses = try c.decode(Int.self, forKey: .losses)
-    resultGrossUsd = try c.decode(DecimalString.self, forKey: .resultGrossUsd)
-    hasBars = try c.decode(Bool.self, forKey: .hasBars)
-    clean = try c.decode(CleanDay.self, forKey: .clean)
-    // Added after version 1 shipped: an older days document has no such key.
-    resultNetUsd = try c.decodeIfPresent(DecimalString.self, forKey: .resultNetUsd)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var c = encoder.container(keyedBy: CodingKeys.self)
-    try c.encode(day, forKey: .day)
-    try c.encode(trades, forKey: .trades)
-    try c.encode(wins, forKey: .wins)
-    try c.encode(losses, forKey: .losses)
-    try c.encode(resultGrossUsd, forKey: .resultGrossUsd)
-    try c.encode(hasBars, forKey: .hasBars)
-    try c.encode(clean, forKey: .clean)
-    try c.encodeNullable(resultNetUsd, forKey: .resultNetUsd)
-  }
-}
-
 /// GET /days: every New York date with records, newest first.
 public struct DaysV1: Codable, Hashable, Sendable {
   public let environment: String

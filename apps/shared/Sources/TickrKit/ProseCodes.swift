@@ -125,6 +125,7 @@ public enum ProseReason: String, CaseIterable, Sendable { // swiftlint:disable:t
   case calendarHoliday = "calendar_holiday"
   case calendarNotCovered = "calendar_not_covered"
   case noBotRun = "no_bot_run"
+  case operatorStopped = "operator_stopped"
   case calendarInvalid = "calendar_invalid"
   case calendarNaiveTime = "calendar_naive_time"
   case calendarInvalidOffset = "calendar_invalid_offset"

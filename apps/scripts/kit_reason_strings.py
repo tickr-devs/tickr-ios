@@ -1123,6 +1123,11 @@ GROUPS = [
                 "Ninguna ejecución del bot en los {days} días cercanos a {day}",
             ),
             (
+                "operator_stopped",
+                "Stopped by you: it starts again only when you press Start bot",
+                "Detenido por ti: vuelve a arrancar solo cuando pulses Iniciar bot",
+            ),
+            (
                 "calendar_invalid",
                 "The session calendar is invalid: {detail}",
                 "El calendario de sesiones no es válido: {detail}",

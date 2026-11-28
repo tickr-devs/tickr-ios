@@ -175,7 +175,8 @@
     "run_ends_at": null,
     "next_start_at": "2026-11-23T09:00:00.000Z",
     "next_end_at": "2026-11-24T01:00:00.000Z",
-    "last_trading_day": "2026-11-20"
+    "last_trading_day": "2026-11-20",
+    "run_started_at": null
   },
   "schedule_cause": null,
   "unavailable_cause_codes": [],

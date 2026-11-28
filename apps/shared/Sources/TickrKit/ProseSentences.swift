@@ -128,6 +128,7 @@ extension ProseReason {
     case .calendarHoliday: [ReasonSentence(L10n.proseReasonCalendarHoliday, [.day])]
     case .calendarNotCovered: [ReasonSentence(L10n.proseReasonCalendarNotCovered, [.day])]
     case .noBotRun: [ReasonSentence(L10n.proseReasonNoBotRun, [.days, .day])]
+    case .operatorStopped: [ReasonSentence(L10n.proseReasonOperatorStopped, [])]
     case .calendarInvalid: [ReasonSentence(L10n.proseReasonCalendarInvalid, [.detail])]
     case .calendarNaiveTime: [ReasonSentence(L10n.proseReasonCalendarNaiveTime, [.detail])]
     case .calendarInvalidOffset: [ReasonSentence(L10n.proseReasonCalendarInvalidOffset, [.detail])]

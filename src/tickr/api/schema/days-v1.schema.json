@@ -187,6 +187,21 @@
                 "type": "null"
               }
             ]
+          },
+          "session": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "regular",
+                  "half",
+                  "none"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [

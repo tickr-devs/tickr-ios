@@ -1,0 +1,131 @@
+{
+  "environment": "sandbox",
+  "days": [
+    {
+      "day": "2026-11-27",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "result_gross_usd": "0",
+      "has_bars": true,
+      "clean": {
+        "verdict": "unknown",
+        "cause": "not recorded: no reconcile-checked row that date (the bot records them since [orders] reconcile_proof_seconds was added)",
+        "causes": [],
+        "reconcile_rows": 0,
+        "first_reconcile_at": null,
+        "last_reconcile_at": null,
+        "day_end_seq": null,
+        "cause_codes": [
+          {
+            "code": "reconcile_not_recorded",
+            "params": {}
+          }
+        ]
+      },
+      "result_net_usd": "0",
+      "session": "half"
+    },
+    {
+      "day": "2026-11-26",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "result_gross_usd": "0",
+      "has_bars": true,
+      "clean": {
+        "verdict": "unknown",
+        "cause": "not recorded: no reconcile-checked row that date (the bot records them since [orders] reconcile_proof_seconds was added)",
+        "causes": [],
+        "reconcile_rows": 0,
+        "first_reconcile_at": null,
+        "last_reconcile_at": null,
+        "day_end_seq": null,
+        "cause_codes": [
+          {
+            "code": "reconcile_not_recorded",
+            "params": {}
+          }
+        ]
+      },
+      "result_net_usd": "0",
+      "session": "none"
+    },
+    {
+      "day": "2026-11-22",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "result_gross_usd": "0",
+      "has_bars": true,
+      "clean": {
+        "verdict": "unknown",
+        "cause": "not recorded: no reconcile-checked row that date (the bot records them since [orders] reconcile_proof_seconds was added)",
+        "causes": [],
+        "reconcile_rows": 0,
+        "first_reconcile_at": null,
+        "last_reconcile_at": null,
+        "day_end_seq": null,
+        "cause_codes": [
+          {
+            "code": "reconcile_not_recorded",
+            "params": {}
+          }
+        ]
+      },
+      "result_net_usd": "0",
+      "session": "none"
+    },
+    {
+      "day": "2026-11-20",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "result_gross_usd": "0",
+      "has_bars": true,
+      "clean": {
+        "verdict": "unknown",
+        "cause": "not recorded: no reconcile-checked row that date (the bot records them since [orders] reconcile_proof_seconds was added)",
+        "causes": [],
+        "reconcile_rows": 0,
+        "first_reconcile_at": null,
+        "last_reconcile_at": null,
+        "day_end_seq": null,
+        "cause_codes": [
+          {
+            "code": "reconcile_not_recorded",
+            "params": {}
+          }
+        ]
+      },
+      "result_net_usd": "0",
+      "session": "regular"
+    },
+    {
+      "day": "2025-12-31",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "result_gross_usd": "0",
+      "has_bars": true,
+      "clean": {
+        "verdict": "unknown",
+        "cause": "not recorded: no reconcile-checked row that date (the bot records them since [orders] reconcile_proof_seconds was added)",
+        "causes": [],
+        "reconcile_rows": 0,
+        "first_reconcile_at": null,
+        "last_reconcile_at": null,
+        "day_end_seq": null,
+        "cause_codes": [
+          {
+            "code": "reconcile_not_recorded",
+            "params": {}
+          }
+        ]
+      },
+      "result_net_usd": "0",
+      "session": null
+    }
+  ],
+  "api_version": 1
+}
