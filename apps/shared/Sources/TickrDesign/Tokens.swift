@@ -61,8 +61,6 @@ public enum Tokens {
     public static let displaySize: CGFloat = 44
     /// Window and screen titles drawn in content.
     public static let titleSize: CGFloat = 28
-    /// The mono word next to a screen title ("Operator"): as large as the title, lighter.
-    public static let subtitleSize: CGFloat = 28
     /// The day result in the macOS menu-bar panel: a little smaller than `hero`, drawn tight.
     public static let panelFigureSize: CGFloat = 32
     /// Letter spacing of `panelFigure`, in points (negative: tighter).
@@ -93,7 +91,6 @@ public enum Tokens {
     public static let hero = Font.system(.largeTitle, design: .monospaced, weight: .bold)
     public static let display = Font.system(.largeTitle, design: .monospaced, weight: .bold)
     public static let title = Font.system(.title, weight: .bold)
-    public static let subtitle = Font.system(.title, design: .monospaced, weight: .medium)
     public static let heading = Font.system(.title2, weight: .bold)
     public static let quote = Font.system(.title3, design: .monospaced, weight: .semibold)
     public static let figure = Font.system(.headline, design: .monospaced, weight: .bold)
@@ -115,7 +112,6 @@ public enum Tokens {
     public static let hero = Font.system(size: heroSize, weight: .bold, design: .monospaced)
     public static let display = Font.system(size: displaySize, weight: .bold, design: .monospaced)
     public static let title = Font.system(size: titleSize, weight: .bold)
-    public static let subtitle = Font.system(size: subtitleSize, weight: .medium, design: .monospaced)
     public static let heading = Font.system(size: headingSize, weight: .bold)
     public static let quote = Font.system(size: quoteSize, weight: .semibold, design: .monospaced)
     public static let figure = Font.system(size: figureSize, weight: .bold, design: .monospaced)
@@ -224,10 +220,6 @@ public enum Tokens {
     /// The brand mark's tile (BrandMark) in a header, and small in a panel.
     public static let logo: CGFloat = 52
     public static let logoSmall: CGFloat = 26
-    /// The brand mark in the centre of the macOS opening (BrandOpening).
-    public static let openingMark: CGFloat = 120
-    /// The brand mark on the iOS launch screen (LAUNCH_MARK in apps/scripts/make_brand_assets.py).
-    public static let launchMark: CGFloat = 160
     /// Height of a sparkline and of a progress bar.
     public static let sparkline: CGFloat = 34
     /// Height of a symbol's price line today in the Symbols detail (mockup v101, 266×40).

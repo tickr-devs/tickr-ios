@@ -31,7 +31,7 @@ struct TickrApp: App {
 /// The app's screens once the phone is signed in with the bot, the sign-in until then (mockup
 /// v174, boards IOSSignIn and IPadSignIn: the iPad takes the Mac's sign-in at touch sizes). The
 /// demo day and a development address need no sign-in. The launch's opening lands on the
-/// sign-in's mark when there is no sign-in, else on Home's.
+/// sign-in's wordmark when there is no sign-in, else on Home's.
 private struct PhoneSignInGate: View {
   @Environment(AppModel.self) private var model
   @State private var state = Container.shared.signInState()
@@ -47,7 +47,7 @@ private struct PhoneSignInGate: View {
         let device = SignInDevice.current
         SignInScreen(device: device, ended: state.ended, markShown: !opening) { centre in
           model.homeMarkCentre = centre
-          model.homeMarkSide = SignInScreen.markSide(on: device)
+          model.homeMarkHeight = SignInScreen.markHeight(on: device)
         }
       } else {
         AdaptiveRoot()

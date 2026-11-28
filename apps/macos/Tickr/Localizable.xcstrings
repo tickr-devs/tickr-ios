@@ -4343,23 +4343,6 @@
         }
       }
     },
-    "common.operatorTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Operator"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Operador"
-          }
-        }
-      }
-    },
     "common.recordedDay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12605,23 +12588,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "EN LÍNEA"
-          }
-        }
-      }
-    },
-    "signIn.operatorName" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tickr Operator"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tickr Operator"
           }
         }
       }

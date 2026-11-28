@@ -163,7 +163,9 @@ private struct OpeningOverlay: View {
   var body: some View {
     if !model.openingPlayed {
       BrandOpening(
-        target: model.overviewMarkCentre, flying: { model.openingFlying = true },
+        target: model.overviewMarkCentre,
+        targetHeight: model.needsSignIn ? SignInScreen.markHeight(on: .mac) : Tokens.Size.wordmark,
+        flying: { model.openingFlying = true },
         finished: { model.openingPlayed = true })
     }
   }

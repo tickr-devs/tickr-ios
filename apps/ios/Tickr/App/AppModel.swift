@@ -111,11 +111,11 @@ final class AppModel {
   private(set) var entryWatch = EntryCancelWatch()
   var notice: Notice?
   var selectedTab: AppTab = .home
-  /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands;
-  /// the sign-in's mark while the phone has no sign-in.
+  /// Centre of Home's wordmark on screen (global coordinates), where the opening animation lands;
+  /// the sign-in's wordmark while the phone has no sign-in.
   @ObservationIgnored var homeMarkCentre: CGPoint?
-  /// The side of the mark the opening lands on: Home's, or the sign-in's.
-  @ObservationIgnored var homeMarkSide = Tokens.Size.logoSmall
+  /// The height of the wordmark the opening lands on: Home's, or the sign-in's.
+  @ObservationIgnored var homeMarkHeight = Tokens.Size.wordmark
   var selectedSymbol: String?
 
   /// How far the bot's clock is ahead of this phone's, from the last status's `served_at`. The

@@ -130,6 +130,9 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
   let leading: Leading
   let actions: Actions
   let content: Content
+  /// The title row shows the title; false where `leading` is the brand (Home's wordmark), and the
+  /// title is only the screen's name for VoiceOver and the app switcher.
+  private var titleShown = true
   @Environment(AppModel.self) private var model
   /// How far the window's controls reach into the screen's top leading corner, in points.
   @State private var windowControls: CGFloat = 0
@@ -146,12 +149,19 @@ struct Screen<Leading: View, Actions: View, Content: View>: View {
     self.content = content()
   }
 
+  /// The same screen whose title row shows `leading` (the wordmark) in place of the title.
+  func brandTitle() -> Self {
+    var screen = self
+    screen.titleShown = false
+    return screen
+  }
+
   var body: some View {
     let scroll = ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         Group {
           if tab != nil {
-            TitleRow(title: title) { leading } actions: { actions }
+            TitleRow(title: title, titleShown: titleShown) { leading } actions: { actions }
           } else {
             PushedHeader(title: title, back: back) { leading } actions: { actions }
           }
@@ -366,11 +376,16 @@ extension Screen where Leading == EmptyView, Actions == EmptyView {
 struct TitleRow<Leading: View, Actions: View>: View {
   @Environment(\.dynamicTypeSize) private var typeSize
   let title: LocalizedStringResource
+  let titleShown: Bool
   let leading: Leading
   let actions: Actions
 
-  init(title: LocalizedStringResource, @ViewBuilder leading: () -> Leading, @ViewBuilder actions: () -> Actions) {
+  init(
+    title: LocalizedStringResource, titleShown: Bool = true, @ViewBuilder leading: () -> Leading,
+    @ViewBuilder actions: () -> Actions
+  ) {
     self.title = title
+    self.titleShown = titleShown
     self.leading = leading()
     self.actions = actions()
   }
@@ -380,14 +395,16 @@ struct TitleRow<Leading: View, Actions: View>: View {
     VStack(alignment: .leading, spacing: Tokens.Space.xs) {
       HStack(spacing: Tokens.Space.s) {
         leading
-        // One line when it fits; otherwise it wraps (at large text sizes), never cut with "…".
-        ViewThatFits(in: .horizontal) {
-          Text(title).fixedSize()
-          Text(title).fixedSize(horizontal: false, vertical: true)
+        if titleShown {
+          // One line when it fits; otherwise it wraps (at large text sizes), never cut with "…".
+          ViewThatFits(in: .horizontal) {
+            Text(title).fixedSize()
+            Text(title).fixedSize(horizontal: false, vertical: true)
+          }
+          .font(Tokens.Typography.title)
+          .foregroundStyle(Palette.textPrimary)
+          .accessibilityAddTraits(.isHeader)
         }
-        .font(Tokens.Typography.title)
-        .foregroundStyle(Palette.textPrimary)
-        .accessibilityAddTraits(.isHeader)
         Spacer(minLength: Tokens.Space.s)
         if !stacked { actionRow }
       }

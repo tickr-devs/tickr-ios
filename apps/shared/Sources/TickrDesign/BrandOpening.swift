@@ -1,13 +1,14 @@
 import SwiftUI
 
-/// The macOS app's opening (macOS has no launch screen): the first window of a launch opens on the
-/// plain background with the mark in its centre, the letter fades in, then the mark flies to the
-/// header's mark (`target`, on screen) while the background fades and the screen shows through
-/// under it; as it lands the header's own mark (hidden until then) takes its place. The mark
-/// follows the header's mark wherever it moves until the opening is over, so it never lands
-/// beside it. It starts when the window is on screen and in front (key or active), or after `openingWaitSeconds` at the
+/// The macOS app's opening (macOS has no launch screen; mockup v189, page p-logo option B, and
+/// v191, page p-machead): the first window of a launch opens on the plain background with the
+/// wordmark's "t" in its centre, "ickr.bot" slides out of it, then the wordmark flies to the header's
+/// (`target`, on screen) while the background fades and the screen shows through under it; as it
+/// lands the header's own wordmark (hidden until then) takes its place. It follows the header's
+/// wordmark wherever it moves until the opening is over, so it never lands beside it. It starts
+/// when the window is on screen and in front (key or active), or after `openingWaitSeconds` at the
 /// latest, so a window opened in the background is never left covered. Under Reduce Motion it only
-/// cross-fades. Design: the "Бренд Tickr" board, "macOS opening".
+/// cross-fades.
 public struct BrandOpening: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   #if os(macOS)
@@ -15,30 +16,31 @@ public struct BrandOpening: View {
   #endif
   /// The window is ready for the opening (in front, or waited long enough); set once, never undone.
   @State private var ready = false
-  /// The mark is on stage (and starts drawing).
+  /// The "t" is on stage.
   @State private var started = false
+  @State private var revealed = false
   @State private var flown = false
   @State private var faded = false
   /// This view's origin on screen, to bring the target into its coordinates.
   @State private var origin = CGPoint.zero
-  /// The header mark's centre on screen; nil (not on screen yet) keeps the mark in the centre.
+  /// The header wordmark's centre on screen; nil (not on screen yet) keeps the wordmark in the centre.
   let target: CGPoint?
-  /// The size the mark lands at.
-  let targetSize: CGFloat
-  /// Called as the mark leaves for the header (or the fade starts under Reduce Motion): the screen
-  /// under it shows from then on, so its cards can rise.
+  /// The height the wordmark lands at.
+  let targetHeight: CGFloat
+  /// Called as the wordmark leaves for the header (or the fade starts under Reduce Motion): the
+  /// screen under it shows from then on, so its cards can rise.
   let flying: () -> Void
   /// Called when the opening is over and the overlay can go.
   let finished: () -> Void
 
   public init(
     target: CGPoint?,
-    targetSize: CGFloat = Tokens.Size.logo,
+    targetHeight: CGFloat = Tokens.Size.wordmark,
     flying: @escaping () -> Void = {},
     finished: @escaping () -> Void
   ) {
     self.target = target
-    self.targetSize = targetSize
+    self.targetHeight = targetHeight
     self.flying = flying
     self.finished = finished
   }
@@ -48,19 +50,16 @@ public struct BrandOpening: View {
       let centre = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
       let landing = target.map { CGPoint(x: $0.x - origin.x, y: $0.y - origin.y) }
       ZStack {
-        if started {
-          // The level slides in as the letter nearly shows, as the design times it.
-          BrandMark(size: Tokens.Size.openingMark, live: false, tone: .brand,
-            drawing: .easeOut(duration: Tokens.Motion.openingDrawSeconds).delay(Tokens.Motion.openingDelaySeconds),
-            sparkPop: Tokens.Motion.openingSpark.delay(Tokens.Motion.openingSparkDelaySeconds))
-            .scaleEffect(flown ? targetSize / Tokens.Size.openingMark : 1)
-            .position(flown ? landing ?? centre : centre)
-            // The header settles while its data arrives: glide after it rather than jump.
-            .animation(Tokens.Motion.quick, value: landing)
-        }
+        Wordmark(height: Tokens.Size.wordmarkLaunch, rest: revealed ? 1 : .zero)
+          .opacity(started ? 1 : 0)
+          .scaleEffect(started ? 1 : Self.startScale)
+          .scaleEffect(flown ? targetHeight / Tokens.Size.wordmarkLaunch : 1)
+          .position(flown ? landing ?? centre : centre)
+          // The header settles while its data arrives: glide after it rather than jump.
+          .animation(Tokens.Motion.quick, value: landing)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      // The screen fades in under the mark while it flies.
+      // The screen fades in under the wordmark while it flies.
       .background(Palette.background.opacity(flown ? 0 : 1))
       .opacity(faded ? 0 : 1)
     }
@@ -82,10 +81,12 @@ public struct BrandOpening: View {
     // tasks, and the opening must run to its end once started (`ready` only ever turns true).
     .onChange(of: ready) { _, now in
       guard now, !started else { return }
-      started = true
       Task { await play() }
     }
   }
+
+  /// How much smaller the "t" starts as it fades in (the board's `lbw`).
+  static let startScale = 0.92
 
   #if os(macOS)
   /// Whether a window in this state is in front, so the opening is seen from its first frame.
@@ -96,13 +97,20 @@ public struct BrandOpening: View {
 
   private func play() async {
     if reduceMotion {
+      started = true
+      revealed = true
       flying()
       withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
       return
     }
     // A cut-short wait must not rush the rest through in one frame: the opening then just goes.
     do {
+      withAnimation(.easeOut(duration: Tokens.Motion.openingDrawSeconds).delay(Tokens.Motion.openingDelaySeconds)) {
+        started = true
+      }
       try await Task.sleep(for: .seconds(Tokens.Motion.openingDelaySeconds + Tokens.Motion.openingDrawSeconds))
+      withAnimation(Tokens.Motion.wordmarkReveal) { revealed = true }
+      try await Task.sleep(for: .seconds(Tokens.Motion.wordmarkRevealSeconds))
       flying()
       withAnimation(Tokens.Motion.openingFly) { flown = true }
       try await Task.sleep(for: .seconds(Tokens.Motion.openingFlySeconds))
@@ -111,8 +119,8 @@ public struct BrandOpening: View {
       finished()
       return
     }
-    // Landed on the header's mark, which shows from this frame on (it stays hidden while the
-    // opening plays), so there is never a second mark. With no header on screen it fades out.
+    // Landed on the header's wordmark, which shows from this frame on (it stays hidden while the
+    // opening plays), so there is never a second one. With no header on screen it fades out.
     if target == nil {
       withAnimation(.easeOut(duration: Tokens.Motion.launchFadeSeconds)) { faded = true } completion: { finished() }
     } else {

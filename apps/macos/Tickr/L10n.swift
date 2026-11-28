@@ -75,9 +75,6 @@ enum L10n {
     static func strategyCode(_ name: String, _ version: String, _ code: String) -> LocalizedStringResource {
       LocalizedStringResource("common.strategyCode", defaultValue: "\(name) v\(version) · code \(code)", bundle: L10n.bundle)
     }
-    static var operatorTitle: LocalizedStringResource {
-      LocalizedStringResource("common.operatorTitle", defaultValue: "Operator", bundle: L10n.bundle)
-    }
     static var bot: LocalizedStringResource {
       LocalizedStringResource("common.bot", defaultValue: "Bot", bundle: L10n.bundle)
     }

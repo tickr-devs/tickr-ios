@@ -8,10 +8,12 @@ the launch screen never drift apart:
 - `apps/macos/Tickr/AppIcon.icon` and `apps/ios/Tickr/AppIcon.icon`: the layered icon
   (one look in every appearance; the system adds Liquid Glass and the tinted rendering).
 - `apps/ios/Tickr/Assets.xcassets`: `LaunchBackground` (the window background, so the launch
-  screen hands over to the first screen without a flash) and `LaunchMark` (the mark on its tile).
+  screen hands over to the first screen without a flash) and `LaunchMark` (the wordmark's "t"
+  without a tile, in the text colour of each appearance: the launch then slides "ickr" out of it).
 
 Colours come from `apps/shared/Sources/TickrDesign/Palette.swift`. The in-app mark
-(`BrandMark` in TickrDesign) draws the same tile, letter and level. Files are committed;
+(`BrandMark` in TickrDesign) draws the same tile, letter and level, and `Wordmark` the same letter
+and level without the tile. Files are committed;
 `tests/test_brand_assets.py` fails when they differ from this script's output.
 Usage: make_brand_assets.py
 """
@@ -42,11 +44,10 @@ LEVEL = (12, 9, 7.5, 3)
 # The grid inside the tile or icon: inset and side as shares of the side (768 of 1024).
 GRID_INSET = 0.125
 GRID_SIDE = 0.75
-# The tile's corner radius and edge width (launch screen), as shares of its side.
-TILE_RADIUS = 0.3
-TILE_EDGE = 0.025
-# Launch-screen mark size in points (the image is drawn at this size, centred).
-LAUNCH_MARK = 160
+# The launch screen's "t": the part of the grid the wordmark shows (x, y, width, height; the boards'
+# viewBox "3 3 18 20", `Wordmark.crop`) and its height in points (`Tokens.Size.wordmarkLaunch`).
+WORDMARK_CROP = (3, 3, 18, 20)
+WORDMARK_LAUNCH = 52
 
 # A role is a Color, or a Swatch when other code needs its raw values (Palette.swift).
 COLOR = re.compile(r"static let (\w+) = (?:Color|Swatch)"
@@ -88,20 +89,13 @@ def layers(colors: dict[str, tuple[str, str]], size: float = CANVAS) -> dict[str
     }
 
 
-def tile(colors: dict[str, tuple[str, str]], size: float) -> str:
-    """The whole mark on its tile (the launch screen's image): as BrandMark draws it in the apps."""
-    top, bottom, edge = (colors[k][0] for k in ("brandTileTop", "brandTileBottom", "brandTileEdge"))
-    half = TILE_EDGE / 2
-    defs = ('<linearGradient id="t" x1="0" y1="0" x2="0" y2="1">'
-            f'<stop offset="0" stop-color="#{top}"/><stop offset="1" stop-color="#{bottom}"/>'
-            '</linearGradient>')
-    side = pt(1 - TILE_EDGE, size)
-    body = (f'<rect x="{pt(half, size)}" y="{pt(half, size)}" width="{side}" height="{side}" '
-            f'rx="{pt(TILE_RADIUS - half, size)}" fill="url(#t)" '
-            f'stroke="#{edge}" stroke-width="{pt(TILE_EDGE, size)}"/>')
-    small = layers(colors, size)
-    body += "".join(re.sub(r"</?svg[^>]*>\n?", "", small[k]) for k in ("letter", "level"))
-    return svg(body, size, defs)
+def launch_glyph(letter: str, teal: str) -> str:
+    """The wordmark's "t" for the launch screen: as `WordmarkGlyph` draws it in the apps."""
+    x, y, w, h = WORDMARK_CROP
+    width = WORDMARK_LAUNCH * w / h
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{width:g}" height="{WORDMARK_LAUNCH}" '
+            f'viewBox="{x} {y} {w} {h}">'
+            f'<path d="{STEM}" fill="#{letter}"/>{rect(*STUB, letter)}{rect(*LEVEL, teal)}</svg>\n')
 
 
 def srgb(hex_value: str) -> str:
@@ -159,13 +153,19 @@ def outputs() -> dict[Path, str]:
         files[icon / "icon.json"] = icon_json(colors)
         for name, content in layers(colors).items():
             files[icon / "Assets" / f"{name}.svg"] = content
-    mark = tile(colors, LAUNCH_MARK)
+    teal = colors["brandLine"][0]
+    light, dark = colors["textPrimary"]
     info = {"info": {"author": "xcode", "version": 1}}
     files[IOS_ASSETS / "Contents.json"] = xcode_json(info)
     files[IOS_ASSETS / "LaunchBackground.colorset/Contents.json"] = colorset(*colors["background"])
-    files[IOS_ASSETS / "LaunchMark.imageset/LaunchMark.svg"] = mark
+    files[IOS_ASSETS / "LaunchMark.imageset/LaunchMark.svg"] = launch_glyph(light, teal)
+    files[IOS_ASSETS / "LaunchMark.imageset/LaunchMark-dark.svg"] = launch_glyph(dark, teal)
     files[IOS_ASSETS / "LaunchMark.imageset/Contents.json"] = xcode_json({
-        "images": [{"filename": "LaunchMark.svg", "idiom": "universal"}],
+        "images": [
+            {"filename": "LaunchMark.svg", "idiom": "universal"},
+            {"appearances": [{"appearance": "luminosity", "value": "dark"}],
+             "filename": "LaunchMark-dark.svg", "idiom": "universal"},
+        ],
         **info,
         "properties": {"preserves-vector-representation": True},
     })
