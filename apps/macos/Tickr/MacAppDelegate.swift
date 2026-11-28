@@ -14,6 +14,16 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
   /// True when the app runs from a bundle, so notifications and push can be asked for.
   static var isBundled: Bool { Bundle.main.bundleURL.pathExtension == appExtension }
 
+  /// Whether this run asks to show notifications: not in the UI tests' fixture mode, where nobody
+  /// could answer, nor without an app bundle (`swift run`).
+  static var asksForNotifications: Bool {
+    #if DEBUG
+    isBundled && !PreviewAPI.servesFixtures
+    #else
+    isBundled
+    #endif
+  }
+
   /// Asks once to show notifications; when allowed, registers for remote notifications, and the
   /// token reaches the bot through `PushRegistrar`.
   static func registerForPushIfAllowed() async {

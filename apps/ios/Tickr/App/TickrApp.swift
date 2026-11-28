@@ -50,5 +50,10 @@ private struct PhoneSignInGate: View {
       }
     }
     .onChange(of: state.signedIn) { _, signedIn in model.connection = model.connection.signedIn(signedIn) }
+    // The question to show the bot's push comes once the screens show after the opening, never
+    // while the app loads or the sign-in shows.
+    .onChange(of: !opening && !model.connection.needsSignIn, initial: true) { _, ready in
+      if ready { PhoneAppDelegate.askWhenReady() }
+    }
   }
 }

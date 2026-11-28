@@ -47,13 +47,6 @@ struct TickrMacApp: App {
     LayoutSweep.startIfAsked(model: model)
     LayoutSweep.smallestIfAsked(model: model)
     #endif
-    // Ask once, here, where the question can be seen, to show the bot's push (APNs). Not in the
-    // UI tests' fixture mode, where nobody could answer, nor without an app bundle (`swift run`).
-    var asksForNotifications = MacAppDelegate.isBundled
-    #if DEBUG
-    asksForNotifications = asksForNotifications && !PreviewAPI.servesFixtures
-    #endif
-    if asksForNotifications { Task { await MacAppDelegate.registerForPushIfAllowed() } }
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.
     NSApplication.shared.setActivationPolicy(.regular)
@@ -194,6 +187,11 @@ private struct MacSignInGate: View {
       }
     }
     .onChange(of: state.signedIn, initial: true) { _, signedIn in model.use(signedIn: signedIn) }
+    // The question to show the bot's push (APNs) comes once the screens show after the opening,
+    // never while the app loads or the sign-in shows.
+    .onChange(of: model.openingPlayed && !model.needsSignIn, initial: true) { _, ready in
+      if ready && MacAppDelegate.asksForNotifications { Task { await MacAppDelegate.registerForPushIfAllowed() } }
+    }
   }
 }
 

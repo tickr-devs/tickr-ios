@@ -3,8 +3,8 @@ import TickrKit
 import UIKit
 import UserNotifications
 
-/// Registers the phone for the bot's push (APNs): at launch it asks to show notifications and,
-/// once allowed, registers for remote notifications; the token it gets, and the Live Activity's
+/// Registers the phone for the bot's push (APNs): once the screens show it asks to show
+/// notifications and, once allowed, registers for remote notifications; the token it gets, and the Live Activity's
 /// tokens (`LiveActivityTokens`), go to the bot through `PushRegistrar`. A failure is recorded in
 /// the diagnostics log; the next launch or a new token tries again, never a loop.
 @MainActor
@@ -16,13 +16,16 @@ final class PhoneAppDelegate: NSObject, UIApplicationDelegate {
   func application(
     _ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    let registrar = Container.shared.pushRegistrar()
-    LiveActivityTokens.watch(registrar)
-    let defaults = UserDefaults.standard
-    if defaults.object(forKey: Self.asksKey) == nil || defaults.bool(forKey: Self.asksKey) {
-      Task { await Self.registerWhenAllowed(application) }
-    }
+    LiveActivityTokens.watch(Container.shared.pushRegistrar())
     return true
+  }
+
+  /// Asks to show notifications once the app's screens show (`PhoneSignInGate`: after the opening
+  /// and the sign-in), never while it loads; not when the UI tests turned it off.
+  static func askWhenReady() {
+    let defaults = UserDefaults.standard
+    guard defaults.object(forKey: asksKey) == nil || defaults.bool(forKey: asksKey) else { return }
+    Task { await registerWhenAllowed(UIApplication.shared) }
   }
 
   func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
