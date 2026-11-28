@@ -231,6 +231,11 @@ extension L10n {
     LocalizedStringResource("kit.prose.no_bot_run",
       defaultValue: "No bot run within {days} days of {day}", bundle: bundle)
   }
+  /// A cause the API writes itself (`<field>_codes`). operator_stopped
+  static var proseReasonOperatorStopped: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.operator_stopped",
+      defaultValue: "Stopped by you: it starts again only when you press Start bot", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). calendar_invalid (values: detail)
   static var proseReasonCalendarInvalid: LocalizedStringResource {
     LocalizedStringResource("kit.prose.calendar_invalid",
@@ -381,10 +386,5 @@ extension L10n {
   static var proseReasonNightlyRefused: LocalizedStringResource {
     LocalizedStringResource("kit.prose.nightly_refused",
       defaultValue: "The nightly data refresh stopped: {detail}", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). no_status_file
-  static var proseReasonNoStatusFile: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.no_status_file",
-      defaultValue: "The bot has not written its status yet", bundle: bundle)
   }
 }

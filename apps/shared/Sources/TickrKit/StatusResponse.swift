@@ -93,6 +93,10 @@ public struct BotScheduleV1: Codable, Hashable, Sendable {
   public let nextEndAt: WireTime
   /// The last trading day before or on `served_at`'s date.
   public let lastTradingDay: WireDate
+  /// When the run going now started; nil unless `expectedRunning` (added with tickr-bot#24).
+  public let runStartedAt: WireTime?
+  /// Whether the API sent `run_started_at` (an older one does not), so it round-trips.
+  let runStartedSent: Bool
 
   enum CodingKeys: String, CodingKey {
     case timezone
@@ -101,6 +105,7 @@ public struct BotScheduleV1: Codable, Hashable, Sendable {
     case nextStartAt = "next_start_at"
     case nextEndAt = "next_end_at"
     case lastTradingDay = "last_trading_day"
+    case runStartedAt = "run_started_at"
   }
 
   public init(from decoder: Decoder) throws {
@@ -111,6 +116,8 @@ public struct BotScheduleV1: Codable, Hashable, Sendable {
     nextStartAt = try c.decode(WireTime.self, forKey: .nextStartAt)
     nextEndAt = try c.decode(WireTime.self, forKey: .nextEndAt)
     lastTradingDay = try c.decode(WireDate.self, forKey: .lastTradingDay)
+    runStartedSent = c.contains(.runStartedAt)
+    runStartedAt = try c.decodeIfPresent(WireTime.self, forKey: .runStartedAt)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -121,5 +128,6 @@ public struct BotScheduleV1: Codable, Hashable, Sendable {
     try c.encode(nextStartAt, forKey: .nextStartAt)
     try c.encode(nextEndAt, forKey: .nextEndAt)
     try c.encode(lastTradingDay, forKey: .lastTradingDay)
+    if runStartedSent { try c.encodeNullable(runStartedAt, forKey: .runStartedAt) }
   }
 }
