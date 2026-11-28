@@ -20,4 +20,17 @@ import TickrKit
     #expect(FunnelRings.fade(0.5) == 1)
     #expect(FunnelRings.fade(Tokens.Motion.funnelTravelFade / 2) < 1)
   }
+
+  @Test("The rail's lights run in Core Animation only while moving, never from a SwiftUI frame loop")
+  func railLightsRunOnlyWhileMoving() {
+    let view = FunnelRailLightsView(frame: CGRect(x: 0, y: 0, width: 300, height: 30))
+    let environment = EnvironmentValues()
+    let color = PipelineStage.screeners.fill
+    view.show(FunnelRailLights(color: color, moving: false), environment: environment)
+    #expect(!view.isRunning)
+    view.show(FunnelRailLights(color: color, moving: true), environment: environment)
+    #expect(view.isRunning)
+    view.show(FunnelRailLights(color: color, moving: false), environment: environment)
+    #expect(!view.isRunning)
+  }
 }
