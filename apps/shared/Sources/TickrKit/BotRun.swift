@@ -7,7 +7,8 @@ import Foundation
 ///
 /// Nil leaves the screens as they were, alarmed by a stale status: the schedule is unknown (an
 /// older API, or the calendar cannot say, `scheduleCause`), or the last status shows a position or
-/// a working entry order, which the schedule must never hide (Fable, review of tickr-bot#20).
+/// a working entry order, which the schedule must never hide (Fable, review of tickr-bot#20), or
+/// there is no status at all, so what the bot holds is unknown.
 public enum BotRun: Equatable, Sendable {
   /// Off by the schedule until `start`; its run ends at `end`. `weekend`: today is a Saturday or
   /// Sunday in New York.
@@ -34,13 +35,15 @@ public enum BotRun: Equatable, Sendable {
   /// sends it.
   public static func make(response: StatusResponseV1?, staleSeconds: TimeInterval?, runStartedAt: Date?, now: Date)
     -> BotRun? {
-    guard let response, let schedule = response.schedule else { return nil }
-    if let status = response.status, !status.positions.isEmpty || !status.workingEntries.isEmpty { return nil }
-    let fresh = response.status != nil && !response.stale
-    if fresh { return .running }
+    // No status (missing or unreadable file): what the bot holds is unknown, so no calm.
+    guard let response, let schedule = response.schedule, let status = response.status else { return nil }
+    if !status.positions.isEmpty || !status.workingEntries.isEmpty { return nil }
+    if !response.stale { return .running }
     guard schedule.expectedRunning else {
       let start = schedule.nextStartAt.date
       let end = schedule.nextEndAt.date
+      // A start already past with the schedule still saying off: the schedule is behind, never calm.
+      if start <= now { return .silent(start: start) }
       if start.timeIntervalSince(now) < Double(soonMinutes) * secondsPerMinute { return .startingSoon(start: start, end: end) }
       return .off(start: start, end: end, weekend: WireDate.newYork.isDateInWeekend(now))
     }

@@ -6,17 +6,18 @@ import Testing
 struct BotRunTests {
   /// The off-schedule fixture made flat, with its staleness and schedule changed as a test needs.
   static func response(
-    stale: Bool = true, expectedRunning: Bool = false, flat: Bool = true, schedule: Bool = true
+    stale: Bool = true, expectedRunning: Bool = false, flat: Bool = true, schedule: Bool = true, status: Bool = true
   ) throws -> StatusResponseV1 {
     var json = try #require(
       try JSONSerialization.jsonObject(with: fixture("status-response-v1.off-schedule.json")) as? [String: Any])
+    let keepStatus = status
     var status = try #require(json["status"] as? [String: Any])
     if flat {
       status["position"] = NSNull()
       status["positions"] = [Any]()
       status["working_entries"] = [Any]()
     }
-    json["status"] = status
+    json["status"] = keepStatus ? status : NSNull()
     json["stale"] = stale
     if schedule {
       var run = try #require(json["schedule"] as? [String: Any])
@@ -129,5 +130,19 @@ struct BotRunTests {
     #expect(BotRun.make(response: try Self.response(schedule: false), staleSeconds: Self.staleSeconds, runStartedAt: nil,
       now: Self.start) == nil)
     #expect(BotRun.make(response: nil, staleSeconds: Self.staleSeconds, runStartedAt: nil, now: Self.start) == nil)
+  }
+
+  @Test("No status with a schedule: nil, what the bot holds is unknown")
+  func noStatus() throws {
+    #expect(BotRun.make(response: try Self.response(status: false), staleSeconds: Self.staleSeconds, runStartedAt: nil,
+      now: Self.start.addingTimeInterval(-Self.hour)) == nil)
+  }
+
+  @Test("The start already past while the schedule still says off: silent, never starting soon")
+  func pastStart() throws {
+    let run = BotRun.make(response: try Self.response(), staleSeconds: Self.staleSeconds, runStartedAt: nil,
+      now: Self.start.addingTimeInterval(Self.minute))
+    #expect(run == .silent(start: Self.start))
+    #expect(run?.calm == false)
   }
 }
