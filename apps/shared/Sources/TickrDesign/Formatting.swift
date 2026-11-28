@@ -275,18 +275,11 @@ public enum Volume {
 /// "vie 13 nov"), the New York day whatever the device's time zone (noon in New York is already
 /// the next day from UTC+7 eastward).
 public enum DayText {
-  /// Between a day's weekday and its date.
-  static let space = " "
-
   public static func day(_ date: Date, locale: Locale = .autoupdatingCurrent) -> String {
-    var weekday = Date.FormatStyle.dateTime.weekday(.abbreviated).locale(locale)
-    var monthDay = Date.FormatStyle.dateTime.month(.abbreviated).day().locale(locale)
-    weekday.timeZone = WireDate.newYork.timeZone
-    monthDay.timeZone = WireDate.newYork.timeZone
-    return date.formatted(weekday) + space + date.formatted(monthDay)
+    WireDate.dayText(date, locale: locale)
   }
 
   public static func day(_ day: WireDate, locale: Locale = .autoupdatingCurrent) -> String {
-    Self.day(day.noonInNewYork, locale: locale)
+    day.dayText(locale: locale)
   }
 }

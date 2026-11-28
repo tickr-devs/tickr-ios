@@ -58,7 +58,8 @@ public struct CappedList<Item, ID: Hashable, Row: View>: View {
         .frame(maxWidth: .infinity, minHeight: CGFloat(cap.leastHeight),
           maxHeight: CGFloat(fills ? cap.fullHeight : cap.leastHeight))
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { available = $0 }
-        .overlay(alignment: .top) {
+        // Rows start at the leading edge, as in the sheet: narrow rows never drift to the middle.
+        .overlay(alignment: .topLeading) {
           VStack(alignment: .leading, spacing: spacing) {
             ForEach(shown, id: \.element.0) { index, pair in
               // Each row at its own full height (text wraps, never cut), whatever the space: the
@@ -68,6 +69,7 @@ public struct CappedList<Item, ID: Hashable, Row: View>: View {
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heights[pair.0] = $0 }
             }
           }
+          .frame(maxWidth: .infinity, alignment: .leading)
         }
         .clipped()
         .onChange(of: ids) { _, current in
