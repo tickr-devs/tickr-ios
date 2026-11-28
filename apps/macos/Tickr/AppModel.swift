@@ -308,6 +308,8 @@ public final class AppModel {
   private(set) var entryWatch = EntryCancelWatch()
 
   private var tasks: [Task<Void, Never>] = []
+  /// Whether the app asked for reads (`start`), held while the sign-in shows (`needsSignIn`).
+  @ObservationIgnored private var reading = false
   /// Counts connections (`reconnect`): an answer is applied only while the connection it was
   /// asked on is still this one (backlog A4), so a late answer from server A never replaces what
   /// the app shows of server B after a switch, even when B is A again.
@@ -497,8 +499,14 @@ public final class AppModel {
 
   // MARK: lifecycle
 
+  /// Whether the screens wait for this Mac to sign in with the bot (`MacSignInGate`): the bot's
+  /// own address, no sign-in, no demo day. Nothing is read then: every read without a token
+  /// would be a failed token check, and enough of them lock this address out at the bot.
+  public var needsSignIn: Bool { !signedIn && !demoDay && address == BotAddress.url }
+
   public func start() {
-    guard tasks.isEmpty else { return }
+    reading = true
+    guard tasks.isEmpty, !needsSignIn else { return }
     tasks.append(Task { [weak self] in
       while !Task.isCancelled {
         guard let self else { return }
@@ -551,6 +559,11 @@ public final class AppModel {
   }
 
   public func stop() {
+    reading = false
+    cancelReads()
+  }
+
+  private func cancelReads() {
     tasks.forEach { $0.cancel() }
     tasks = []
   }
@@ -561,6 +574,7 @@ public final class AppModel {
     guard url != address else { return }
     address = url
     reconnect()
+    followSignIn()
   }
 
   /// Point the screens at `endpoint` as it is, address and token (the iPad's connection after a
@@ -573,6 +587,7 @@ public final class AppModel {
     demoDay = false
     selectedDay = nil
     reconnect()
+    followSignIn()
   }
 
   /// This Mac signed in with the bot (`SignInState`), or signed out: the screens read the bot
@@ -581,6 +596,14 @@ public final class AppModel {
     guard signedIn != self.signedIn else { return }
     self.signedIn = signedIn
     reconnect()
+    followSignIn()
+  }
+
+  /// Once the app asked for reads (`start`): they run while the screens show and pause while the
+  /// sign-in shows.
+  private func followSignIn() {
+    guard reading else { return }
+    if needsSignIn { cancelReads() } else { start() }
   }
 
   /// Turn the demo day on or off (Settings › General). On: the demo day, and the day picker
@@ -590,6 +613,7 @@ public final class AppModel {
     demoDay = on
     selectedDay = nil
     reconnect()
+    followSignIn()
   }
 
   /// Start again from nothing on `baseURL`: nothing read from the other address stays on screen.

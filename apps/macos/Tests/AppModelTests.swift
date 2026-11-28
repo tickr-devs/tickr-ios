@@ -778,4 +778,98 @@ struct AppModelTests {
     await chart.load(endpoint: APIClient.Endpoint(baseURL: APIClient.defaultBaseURL), symbol: "ABCD", day: day)
     #expect(chart.newestBar == first)
   }
+
+  /// Paths asked of the network since the last `forgetPaths`.
+  static func asked() -> [String] { RouteProtocol.routes.withLock { $0.paths } }
+  static func forgetPaths() { RouteProtocol.routes.withLock { $0.paths = [] } }
+
+  /// Every read the windows make, the Settings window's own ones too.
+  static func readEverything(_ model: AppModel) async {
+    _ = await model.refreshStatus()
+    await model.refreshSettings()
+    await model.refreshAlerts()
+    await model.refreshConfig()
+    await model.refreshJobs()
+    await model.refreshSystem()
+    await model.refreshAccount()
+  }
+
+  /// A kept sign-in with the bot, its tokens in memory, renewals through the stub network.
+  static func signInHeld() async throws {
+    let answer = try Wire.decoder().decode(SessionV1.self, from: Data(Self.sessionBody.utf8))
+    let session = BotSession(keychain: Keychain(items: HeldItems()), transport: RouteProtocol.session(), now: { Date() })
+    #expect(await session.signedIn(answer))
+    Container.shared.botSession.register { session }
+  }
+
+  /// The bot's answer to a sign-in (docs/api.md, POST /session): an access token for 900 s.
+  static let sessionBody = #"{"access_token":"a1","access_expires_in":900,"refresh_token":"r1","#
+    + #""refresh_expires_in":2592000,"api_version":1}"#
+  /// Rounds of `pollPause` the polling loops get to send their first read.
+  static let pollRounds = 100
+  static let pollPause = Duration.milliseconds(20)
+
+  @Test("Nothing at all is sent to the bot's address before sign-in, the Settings window's reads too")
+  func nothingIsSentBeforeSignIn() async {
+    let model = AppModel(baseURL: BotAddress.url)
+    model.start()
+    await Self.readEverything(model)
+    model.stop()
+    #expect(Self.asked().isEmpty)
+  }
+
+  @Test("Reads start after sign-in and stop again on sign-out")
+  func readsFollowTheSignIn() async throws {
+    try await Self.signInHeld()
+    let model = AppModel(baseURL: BotAddress.url)
+    model.start()
+    model.use(signedIn: true)
+    for _ in 0..<Self.pollRounds where !Self.asked().contains("/status") { try await Task.sleep(for: Self.pollPause) }
+    #expect(Self.asked().contains("/status"))
+    await Self.readEverything(model)
+    #expect(Set(Self.asked()).isSuperset(of: ["/status", "/settings", "/config", "/jobs"]))
+    model.use(signedIn: false)
+    Self.forgetPaths()
+    await Self.readEverything(model)
+    model.stop()
+    #expect(Self.asked().isEmpty)
+  }
+
+  @Test("Turning the demo day off before sign-in sends nothing; the demo day never uses the network")
+  func demoDayOffBeforeSignInSendsNothing() async {
+    let model = AppModel(baseURL: BotAddress.url, demoDay: true)
+    await Self.readEverything(model)
+    model.setDemoDay(false)
+    await Self.readEverything(model)
+    #expect(Self.asked().isEmpty)
+  }
+
+  @Test("A development address needs no sign-in: its reads are sent as before")
+  func developmentAddressIsRead() async {
+    let model = AppModel(baseURL: APIClient.defaultBaseURL)
+    await Self.readEverything(model)
+    #expect(Self.asked().contains("/status"))
+  }
+}
+
+/// One Keychain item in memory, for a sign-in kept by a test.
+final class HeldItems: KeychainItems {
+  private let stored = Mutex<Data?>(nil)
+
+  func copy(_ query: [String: Any]) -> Data? { stored.withLock { $0 } }
+
+  func update(_ query: [String: Any], _ attributes: [String: Any]) -> OSStatus {
+    stored.withLock { $0 = attributes[kSecValueData as String] as? Data }
+    return errSecSuccess
+  }
+
+  func add(_ item: [String: Any]) -> OSStatus {
+    stored.withLock { $0 = item[kSecValueData as String] as? Data }
+    return errSecSuccess
+  }
+
+  func delete(_ query: [String: Any]) -> OSStatus {
+    stored.withLock { $0 = nil }
+    return errSecSuccess
+  }
 }
