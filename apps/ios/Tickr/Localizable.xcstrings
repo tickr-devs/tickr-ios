@@ -636,13 +636,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Journal"
+            "value" : "Activity"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diario"
+            "value" : "Actividad"
           }
         }
       }

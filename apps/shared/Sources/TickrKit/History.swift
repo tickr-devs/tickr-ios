@@ -68,6 +68,7 @@ public struct WireDate: Codable, Hashable, Comparable, Sendable, CustomStringCon
   }
 
   public var description: String { text }
+
   public static func < (a: WireDate, b: WireDate) -> Bool { a.text < b.text }
 
   public init(from decoder: Decoder) throws {

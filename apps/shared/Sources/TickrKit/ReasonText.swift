@@ -38,8 +38,13 @@ public struct ReasonSentence: Sendable {
     self.names = names
   }
 
-  /// The sentence with the values the bot sent; nil when one of them is missing.
+  /// The sentence with the values the bot sent; nil when one of them is missing. A date the bot
+  /// sends ("2026-11-28") reads as the apps write a day ("Sat Nov 28"), never as the wire's.
   public func text(_ params: [String: String]) -> String? {
-    ReasonParam.fill(String(localized: template), names: names, params: params)
+    ReasonParam.fill(String(localized: template), names: names, params: params.mapValues(Self.readable))
+  }
+
+  static func readable(_ value: String) -> String {
+    (try? WireDate(value)).map { $0.dayText() } ?? value
   }
 }

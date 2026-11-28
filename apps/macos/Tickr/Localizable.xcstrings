@@ -5444,13 +5444,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "$ tail -f journal"
+            "value" : "Activity"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "$ tail -f journal"
+            "value" : "Actividad"
           }
         }
       }

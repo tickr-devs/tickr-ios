@@ -942,7 +942,7 @@ enum L10n {
       LocalizedStringResource("activity.notTaken", defaultValue: "Not taken", bundle: L10n.bundle)
     }
     static var journal: LocalizedStringResource {
-      LocalizedStringResource("activity.journal", defaultValue: "Journal", bundle: L10n.bundle)
+      LocalizedStringResource("activity.journal", defaultValue: "Activity", bundle: L10n.bundle)
     }
     static var show: LocalizedStringResource {
       LocalizedStringResource("activity.show", defaultValue: "Show", bundle: L10n.bundle)
