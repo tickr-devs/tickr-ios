@@ -31,7 +31,7 @@ public struct MeterBar: View {
       .frame(height: Tokens.Size.bar)
       // Only the fill glides; the figures under it change at once (a cross-fade left a ghost of
       // the old last digit over the new one: owner report 2026-11-18, "38.73").
-      .animation(reduceMotion ? nil : Tokens.Motion.fill, value: fraction)
+      .animation(reduceMotion ? nil : Tokens.Motion.live, value: fraction)
       if !marks.isEmpty {
         HStack {
           ForEach(marks.indices, id: \.self) { index in

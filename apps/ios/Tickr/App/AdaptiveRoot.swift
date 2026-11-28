@@ -82,24 +82,6 @@ struct AdaptiveRoot: View {
     }
     .onGeometryChange(for: CGSize.self) { $0.size } action: { window = $0 }
     .modifier(NoticeOverlay())
-    .onOpenURL { url in
-      if let pairing = Pairing.parse(url.absoluteString) {
-        model.pendingPairing = pairing
-      } else {
-        model.notice = Notice(L10n.Pair.notALink, tone: .failure)
-      }
-    }
-    .alert(
-      Text(L10n.Pair.ask(
-        model.pendingPairing.flatMap { Connection.displayHost($0.url) } ?? String(localized: L10n.Pair.thisMac))),
-      isPresented: Binding(get: { model.pendingPairing != nil }, set: { if !$0 { model.pendingPairing = nil } }),
-      presenting: model.pendingPairing
-    ) { pairing in
-      Button { Task { await model.pair(pairing) } } label: { Text(L10n.Pair.pair) }
-      Button(role: .cancel) {} label: { Text(L10n.Common.cancel) }
-    } message: { _ in
-      Text(L10n.Pair.askMessage)
-    }
     // The iPhone screens' model reads the bot only while they are shown and the app is in front
     // (`RegularScreens` does the same for its own).
     // One screen across the two layouts: folding or unfolding a Duo, or resizing an iPad window,

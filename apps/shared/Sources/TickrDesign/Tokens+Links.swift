@@ -43,10 +43,6 @@ extension Tokens.Opacity {
 }
 
 extension Tokens.Size {
-  /// The soft shadow under a glass control (`glassSurface`: the back capsule, header icons): blur
-  /// radius and downward offset.
-  public static let glassShadowRadius: CGFloat = 7
-  public static let glassShadowOffset: CGFloat = 4
   /// The round chevron chip at the end of a footer link (`CardFooterLink`).
   public static let footerChip: CGFloat = 22
   #if os(iOS)

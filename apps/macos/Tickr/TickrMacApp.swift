@@ -8,7 +8,7 @@ import TickrKit
 #if os(macOS)
 /// macOS shell: the main window with a sidebar, the standard Settings window (⌘,) and a
 /// menu-bar extra. Appearance follows the system (Defaults.appearance can force one for the tour).
-/// Started by `Launcher` (AlertCommand.swift), which first handles the bot's notify mode.
+/// Started by `Launcher` (Launcher.swift).
 @MainActor
 struct TickrMacApp: App {
   /// Narrowest window at which no screen breaks, in points: the sidebar at its widest (the person
@@ -32,6 +32,8 @@ struct TickrMacApp: App {
   static let defaultWidth: CGFloat = 1440
   static let defaultHeight: CGFloat = 920
 
+  /// Receives the push token the system gives this Mac (MacAppDelegate.swift).
+  @NSApplicationDelegateAdaptor(MacAppDelegate.self) private var appDelegate
   @State private var model: AppModel
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
 
@@ -45,15 +47,13 @@ struct TickrMacApp: App {
     LayoutSweep.startIfAsked(model: model)
     LayoutSweep.smallestIfAsked(model: model)
     #endif
-    // The bot shows its alerts through this app (AlertCommand.swift): ask once, here, where the
-    // question can be seen. Not in the UI tests' fixture mode, where nobody could answer.
-    var asksForNotifications = AlertPoster.available
+    // Ask once, here, where the question can be seen, to show the bot's push (APNs). Not in the
+    // UI tests' fixture mode, where nobody could answer, nor without an app bundle (`swift run`).
+    var asksForNotifications = MacAppDelegate.isBundled
     #if DEBUG
     asksForNotifications = asksForNotifications && !PreviewAPI.servesFixtures
     #endif
-    if asksForNotifications {
-      Task { await AlertPoster().requestPermission() }
-    }
+    if asksForNotifications { Task { await MacAppDelegate.registerForPushIfAllowed() } }
     _model = State(initialValue: model)
     // Started with `swift run` there is no bundle: still show a Dock icon and the window.
     NSApplication.shared.setActivationPolicy(.regular)
@@ -176,6 +176,27 @@ private struct OpeningOverlay: View {
   }
 }
 
+/// The screens once this Mac is signed in with the bot, the sign-in until then (mockup v174,
+/// board MacSignIn). A development address and the demo day need no sign-in. The launch's opening
+/// lands on the sign-in's mark when there is no sign-in, else on the Overview's.
+private struct MacSignInGate: View {
+  @Environment(AppModel.self) private var model
+  @State private var state = Container.shared.signInState()
+
+  var body: some View {
+    Group {
+      if !model.needsSignIn {
+        RootView()
+      } else {
+        SignInScreen(device: .mac, ended: state.ended, markShown: model.openingPlayed) { centre in
+          model.overviewMarkCentre = centre
+        }
+      }
+    }
+    .onChange(of: state.signedIn, initial: true) { _, signedIn in model.use(signedIn: signedIn) }
+  }
+}
+
 /// The main window's content at its least size or larger.
 ///
 /// The least size comes from data and constants only (`TickrMacApp.leastWidth`, `minHeight`),
@@ -195,7 +216,7 @@ private struct MainWindow: View {
   var body: some View {
     let comfortable = CGSize(width: TickrMacApp.leastWidth(model: model, chart: chart), height: TickrMacApp.minHeight)
     WindowFrame(minSize: WindowFit.least(comfortable: comfortable, room: room)) {
-      RootView()
+      MacSignInGate()
         .background(ScreenRoomReader { if room != $0 { room = $0 } })
         .overlay { OpeningOverlay() }
         .readFailureContext(model)

@@ -190,6 +190,4 @@ public struct ConnectionMessage: Equatable, Sendable {
   public static var waiting: LocalizedStringResource { L10n.connectionWaiting }
   /// The details' first line: the address the app reads from.
   public static func address(_ address: String) -> LocalizedStringResource { L10n.connectionAddress(address) }
-  /// The action that goes back to the address this app reads from by default; argument: it.
-  public static func useAddress(_ address: String) -> LocalizedStringResource { L10n.connectionUseAddress(address) }
 }

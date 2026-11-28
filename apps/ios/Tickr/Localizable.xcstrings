@@ -4631,13 +4631,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter the address of the bot's API in Settings."
+            "value" : "Sign in with your tickr.bot account in Settings."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Introduce la dirección de la API del bot en Ajustes."
+            "value" : "Inicia sesión con tu cuenta de tickr.bot en Ajustes."
           }
         }
       }
@@ -4682,13 +4682,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Not connected. Add your Mac's address in Settings."
+            "value" : "Not signed in. Sign in with your tickr.bot account in Settings."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sin conexión. Agrega la dirección de tu Mac en Ajustes."
+            "value" : "Sin sesión. Inicia sesión con tu cuenta de tickr.bot en Ajustes."
           }
         }
       }
@@ -4716,13 +4716,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect to your Mac"
+            "value" : "Sign in to your bot"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Conéctate a tu Mac"
+            "value" : "Inicia sesión en tu bot"
           }
         }
       }
@@ -7393,329 +7393,6 @@
         }
       }
     },
-    "pair.address" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Address"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dirección"
-          }
-        }
-      }
-    },
-    "pair.ask" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pair with %@?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Vincular con %@?"
-          }
-        }
-      }
-    },
-    "pair.askMessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The phone will read the bot's status from this address and can send commands. Any earlier pairing is replaced."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El teléfono leerá el estado del bot desde esta dirección y podrá enviar comandos. Se reemplaza cualquier vinculación anterior."
-          }
-        }
-      }
-    },
-    "pair.forget" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Forget Pairing"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Olvidar vinculación"
-          }
-        }
-      }
-    },
-    "pair.forgetMessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The phone deletes its token and can no longer reach the bot remotely until you pair again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El teléfono borra su token y ya no puede llegar al bot de forma remota hasta que vuelvas a vincularlo."
-          }
-        }
-      }
-    },
-    "pair.forgetTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Forget the pairing?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Olvidar la vinculación?"
-          }
-        }
-      }
-    },
-    "pair.invalid" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This is not a pairing link."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este no es un enlace de vinculación."
-          }
-        }
-      }
-    },
-    "pair.mac" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mac"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mac"
-          }
-        }
-      }
-    },
-    "pair.notALink" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "That link is not a Tickr pairing link."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ese enlace no es un enlace de vinculación de Tickr."
-          }
-        }
-      }
-    },
-    "pair.notPaired" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not paired"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin vincular"
-          }
-        }
-      }
-    },
-    "pair.notRedeemed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not paired: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin vincular: %@"
-          }
-        }
-      }
-    },
-    "pair.notSaved" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not paired: the phone could not keep the token in its Keychain. Run pair on the Mac again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin vincular: el teléfono no pudo guardar el token en su Llavero. Vuelve a ejecutar pair en la Mac."
-          }
-        }
-      }
-    },
-    "pair.pair" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pair"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vincular"
-          }
-        }
-      }
-    },
-    "pair.paired" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paired with %@."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vinculado con %@."
-          }
-        }
-      }
-    },
-    "pair.prompt" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tickr://pair?…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tickr://pair?…"
-          }
-        }
-      }
-    },
-    "pair.sheetFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "On the Mac run `python -m tickr.api --config config/bot.toml pair`, then AirDrop the pairing file it names to this phone and paste the link here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En la Mac ejecuta `python -m tickr.api --config config/bot.toml pair`, luego envía por AirDrop a este teléfono el archivo de vinculación que indica y pega el enlace aquí."
-          }
-        }
-      }
-    },
-    "pair.start" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pair with Mac…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vincular con la Mac…"
-          }
-        }
-      }
-    },
-    "pair.thisMac" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "this Mac"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "esta Mac"
-          }
-        }
-      }
-    },
-    "pair.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pair with Mac"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vincular con la Mac"
-          }
-        }
-      }
-    },
     "positions.asOf" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8947,23 +8624,6 @@
         }
       }
     },
-    "settings.addressFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In the Simulator the Mac's own address works. On the phone, pair with the link that `python -m tickr.api pair` leaves on the Mac; it reaches the Mac through Tailscale over HTTPS. The token stays in this phone's Keychain and goes only to the paired address."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En el Simulador funciona la propia dirección de la Mac. En el teléfono, vincula con el enlace que `python -m tickr.api pair` deja en la Mac; llega a la Mac mediante Tailscale por HTTPS. El token se queda en el Llavero de este teléfono y solo va a la dirección vinculada."
-          }
-        }
-      }
-    },
     "settings.afterHours" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8981,108 +8641,6 @@
         }
       }
     },
-    "settings.alertCeiling" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daily loss ceiling"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tope de pérdida diaria"
-          }
-        }
-      }
-    },
-    "settings.alertFilled" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entry and exit filled"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrada y salida ejecutadas"
-          }
-        }
-      }
-    },
-    "settings.alertMismatch" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Broker mismatch"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Discrepancia con el bróker"
-          }
-        }
-      }
-    },
-    "settings.alertRefused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop or exit refused"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop o salida rechazados"
-          }
-        }
-      }
-    },
-    "settings.alertTrailing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trailing stop tightened"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trailing stop ajustado"
-          }
-        }
-      }
-    },
-    "settings.alertUnprotected" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Position without a stop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posición sin stop"
-          }
-        }
-      }
-    },
     "settings.allPassed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9096,23 +8654,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "todo aprobado"
-          }
-        }
-      }
-    },
-    "settings.alwaysOn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "always on"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "siempre activo"
           }
         }
       }
@@ -9181,23 +8722,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bot"
-          }
-        }
-      }
-    },
-    "settings.botOnMac" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bot on your Mac"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bot en tu Mac"
           }
         }
       }
@@ -9899,23 +9423,6 @@
         }
       }
     },
-    "settings.noAddress" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No address"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin dirección"
-          }
-        }
-      }
-    },
     "settings.notCurrent" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9929,40 +9436,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conectado, estado no actual"
-          }
-        }
-      }
-    },
-    "settings.notificationsFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alerts reach this iPhone once push notifications are set up, which needs an Apple Developer membership. Until then the switches show the planned choice and cannot be changed; the three alarms with a lock are always on."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las alertas llegan a este iPhone cuando se configuren las notificaciones push, lo que requiere una membresía de Apple Developer. Hasta entonces los interruptores muestran la elección prevista y no se pueden cambiar; las tres alarmas con candado están siempre activas."
-          }
-        }
-      }
-    },
-    "settings.notifyPhone" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notify this iPhone"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notificar a este iPhone"
           }
         }
       }
@@ -10103,23 +9576,6 @@
         }
       }
     },
-    "settings.pushNeedsDeveloper" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Push · needs Apple Developer"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Push · requiere Apple Developer"
-          }
-        }
-      }
-    },
     "settings.reconcile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10150,23 +9606,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "horario regular"
-          }
-        }
-      }
-    },
-    "settings.saveAddress" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save Address"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guardar dirección"
           }
         }
       }
@@ -10303,6 +9742,142 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajustes"
+          }
+        }
+      }
+    },
+    "signin.connection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conexión"
+          }
+        }
+      }
+    },
+    "signin.signedInIPad" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signed in as %@ on this iPad"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión iniciada como %@ en este iPad"
+          }
+        }
+      }
+    },
+    "signin.signedInIPhone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signed in as %@ on this iPhone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión iniciada como %@ en este iPhone"
+          }
+        }
+      }
+    },
+    "signin.signedInNoEmail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signed in on this device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión iniciada en este dispositivo"
+          }
+        }
+      }
+    },
+    "signin.signOut" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar sesión"
+          }
+        }
+      }
+    },
+    "signin.signOutIPad" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out of tickr.bot on this iPad?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cerrar la sesión de tickr.bot en este iPad?"
+          }
+        }
+      }
+    },
+    "signin.signOutIPhone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out of tickr.bot on this iPhone?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cerrar la sesión de tickr.bot en este iPhone?"
+          }
+        }
+      }
+    },
+    "signin.signOutMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bot revokes this device's key. Other devices stay signed in, and the bot keeps running."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bot revoca la clave de este dispositivo. Los demás dispositivos siguen conectados y el bot sigue funcionando."
           }
         }
       }

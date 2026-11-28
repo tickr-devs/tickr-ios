@@ -58,7 +58,7 @@ struct SettingsView: View {
     .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.top } action: { inset in
       if titleInset == 0 { titleInset = inset }
     }
-    .task(id: model.baseURL) { await model.followJobs() }
+    .task(id: model.endpoint) { await model.followJobs() }
   }
 
   @ViewBuilder private var pane: some View {
@@ -91,16 +91,10 @@ struct SettingsView: View {
 
 private struct GeneralSettings: View {
   @Environment(AppModel.self) private var model
-  @AppStorage(Defaults.apiBaseURL) private var apiBaseURL = APIClient.defaultBaseURL.absoluteString
   @AppStorage(Defaults.showMenuBarExtra) private var showMenuBarExtra = true
-  @State private var draft = ""
-  @State private var invalid = false
-  @FocusState private var editing: Bool
-
-  /// URL schemes the local API address may use.
-  static let schemes: Set = ["http", "https"]
-  /// How long after the pane appears the address field's automatic focus is released.
-  static let focusRelease: Duration = .milliseconds(150)
+  @State private var signIn = Container.shared.signInState()
+  /// The sign-out question is open.
+  @State private var askingSignOut = false
 
   var body: some View {
     Group {
@@ -117,45 +111,32 @@ private struct GeneralSettings: View {
       MorningCheckSection()
       SystemSection()
     }
-    .onAppear { draft = model.address.absoluteString }
-    .alert(String(localized: L10n.Settings.invalidAddress), isPresented: $invalid) {
-      Button(String(localized: L10n.Settings.ok), role: .cancel) {}
-    } message: {
-      Text(L10n.Settings.enterAddress(APIClient.defaultBaseURL.absoluteString))
-    }
   }
 
-  /// The design's "Bot connection": the address in a mono field with Use Default and Connect, the
-  /// connection's state under it with a dot; what the address may be is the label's tooltip.
+  /// The design's "Connection" (mockup v174, MacSystem > General): who this Mac is signed in as,
+  /// the bot's address (built into the app) with the link's state, and Sign Out with what it
+  /// does. A development address shows only its address and state.
   private var connection: some View {
     let reachable = model.fetchError == nil
-    return SettingsCard(L10n.Settings.botConnection,
-      info: L10n.Settings.addressFootnote(APIClient.defaultBaseURL.absoluteString)) {
+    let ownAddress = model.address == BotAddress.url
+    return SettingsCard(L10n.SignIn.connection) {
+      if ownAddress, model.signedIn {
+        Text(signIn.email.map { L10n.SignIn.signedInMac($0) } ?? L10n.SignIn.signedInNoEmail)
+          .font(Tokens.Typography.callout)
+          .foregroundStyle(Palette.textPrimary)
+      }
       HStack(spacing: Tokens.Space.s) {
-        Text(L10n.Settings.apiAddress)
+        Text(L10n.SignIn.bot)
           .font(Tokens.Typography.calloutMono)
           .foregroundStyle(Palette.textTertiary)
           .fixedSize()
-        TextField(String(localized: L10n.Settings.apiAddress), text: $draft)
-          .labelsHidden()
-          .textFieldStyle(.roundedBorder)
+        Text(verbatim: model.address.host() ?? model.address.absoluteString)
           .font(Tokens.Typography.calloutMono)
-          .focused($editing)
-          .onSubmit(apply)
-        Button(String(localized: L10n.Settings.useDefault)) {
-          draft = APIClient.defaultBaseURL.absoluteString
-          apply()
-        }
-        .buttonStyle(.action(.secondary, size: .compact))
-        // Connect with the same address reads the bot again at once, so it is never off.
-        Button(String(localized: L10n.Settings.connect), action: apply)
-          .buttonStyle(.action(.primary, size: .compact))
-          .keyboardShortcut(.defaultAction)
-      }
-      HStack(spacing: Tokens.Space.s) {
+          .textSelection(.enabled)
+        Spacer(minLength: Tokens.Space.s)
         // One pulse when the bot becomes reachable or unreachable, never per read.
-        PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
-        Group {
+        HStack(spacing: Tokens.Space.xs) {
+          PulseDot(reachable ? Palette.profit : Palette.loss, event: reachable)
           if let error = model.fetchError {
             ReadFailureNote(L10n.Settings.notReachable, detail: error, tone: .loss, defersToConnection: false)
           } else {
@@ -165,23 +146,23 @@ private struct GeneralSettings: View {
         .font(Tokens.Typography.callout)
         .foregroundStyle(reachable ? Palette.profitText : Palette.lossText)
       }
+      if ownAddress, model.signedIn {
+        HStack(spacing: Tokens.Space.m) {
+          Button(String(localized: L10n.SignIn.signOut)) { askingSignOut = true }
+            .buttonStyle(.action(.secondary, size: .compact))
+          Text(L10n.SignIn.outHintMac)
+            .font(Tokens.Typography.annotation)
+            .foregroundStyle(Palette.textQuaternary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+      }
     }
-    // Settings opens with nothing in focus, so the address is not selected under the cursor:
-    // AppKit gives the field focus once the window is up, so it is taken back just after.
-    .task {
-      try? await Task.sleep(for: Self.focusRelease)
-      editing = false
+    .alert(Text(L10n.SignIn.outQuestionMac), isPresented: $askingSignOut) {
+      Button(role: .destructive) { Task { await DeviceSignOut.run() } } label: { Text(L10n.SignIn.signOut) }
+      Button(role: .cancel) {} label: { Text(L10n.SignIn.cancel) }
+    } message: {
+      Text(L10n.SignIn.outBody)
     }
-  }
-
-  private func apply() {
-    guard let url = URL(string: draft.trimmingCharacters(in: .whitespaces)),
-      Self.schemes.contains(url.scheme ?? ""), url.host() != nil else {
-      invalid = true
-      return
-    }
-    apiBaseURL = url.absoluteString
-    model.connect(to: url)
   }
 }
 
@@ -309,91 +290,25 @@ private struct TradingSettings: View {
 
 // MARK: - Notifications
 
-/// The alerts the bot sends (runtime/alerts.py `AlertKind`, grouped), one row per group with a dot
-/// of its weight and the kinds it covers under it; every one is on and goes out as a Mac
-/// notification and, with a recipient in the bot's env file, as an iMessage. Nothing here is a
-/// switch, because the bot decides; phone push waits for the iOS app.
+/// Which alerts go where (GET /alerts, PUT /alerts/routing): the shared `AlertRoutingPanel` in
+/// this app's settings card. Each switch is one change sent to the bot at once.
 private struct NotificationSettings: View {
-  /// One group: how loud it is, its title and the kinds it covers.
-  struct AlertGroup: Identifiable {
-    let tone: Tone
-    let title: LocalizedStringResource
-    let kinds: LocalizedStringResource
-    var id: String { title.key }
-  }
-
-  /// The groups, loudest first, as the design lists them.
-  static var groups: [AlertGroup] {
-    [
-      AlertGroup(tone: .loss, title: L10n.Settings.alertUnprotected, kinds: L10n.Settings.alertUnprotectedKinds),
-      AlertGroup(tone: .loss, title: L10n.Settings.alertExit, kinds: L10n.Settings.alertExitKinds),
-      AlertGroup(tone: .loss, title: L10n.Settings.alertBot, kinds: L10n.Settings.alertBotKinds),
-      AlertGroup(tone: .loss, title: L10n.Settings.alertWatchdog, kinds: L10n.Settings.alertWatchdogKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertBroker, kinds: L10n.Settings.alertBrokerKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertLossLimit, kinds: L10n.Settings.alertLossLimitKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertMorning, kinds: L10n.Settings.alertMorningKinds),
-      AlertGroup(tone: .warning, title: L10n.Settings.alertToken, kinds: L10n.Settings.alertTokenKinds),
-    ]
-  }
+  @Environment(AppModel.self) private var model
 
   var body: some View {
-    SettingsCard(L10n.Settings.alerts) {
-      ForEach(Self.groups) { group in
-        HStack(spacing: Tokens.Space.s) {
-          PulseDot(group.tone.fill, size: Tokens.Size.dotSmall, pulsing: false)
-          VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
-            Text(group.title)
-              .font(Tokens.Typography.callout)
-              .foregroundStyle(Palette.textSecondary)
-            Text(group.kinds)
-              .font(Tokens.Typography.captionMono)
-              .foregroundStyle(Palette.textQuaternary)
-              .fixedSize(horizontal: false, vertical: true)
-          }
-          Spacer(minLength: Tokens.Space.s)
-          MacDot()
-          PhoneDot()
+    let routing = model.alertRouting
+    SettingsCard(AlertText.title) {
+      if let alerts = routing.alerts {
+        AlertRoutingPanel(alerts, routing: routing) { cell, on in
+          Task { await model.setAlertRoute(cell, on: on) }
         }
-        .accessibilityElement(children: .combine)
+      } else if let error = routing.readError {
+        ReadFailureNote(AlertText.readFailed, detail: error)
+      } else {
+        AlertRoutingPanelLoading()
       }
-      HStack(spacing: Tokens.Space.xs) {
-        MacDot()
-        Text(L10n.Settings.legendOn)
-        PhoneDot()
-        Text(L10n.Settings.legendPhone)
-      }
-      .font(Tokens.Typography.annotation)
-      .foregroundStyle(Palette.textQuaternary)
-      .padding(.top, Tokens.Space.xxs)
-      Text(L10n.Settings.alertsNote)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
-        .fixedSize(horizontal: false, vertical: true)
-    } trailing: {
-      Text(L10n.Settings.alertColumns)
-        .font(Tokens.Typography.annotation)
-        .foregroundStyle(Palette.textQuaternary)
     }
-  }
-}
-
-/// A Mac column dot: on.
-private struct MacDot: View {
-  var body: some View {
-    Circle().fill(Palette.profit)
-      .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-      .frame(width: Tokens.Size.rowSymbol)
-      .accessibilityHidden(true)
-  }
-}
-
-/// A phone column dot: an empty ring, phone push is planned.
-private struct PhoneDot: View {
-  var body: some View {
-    Circle().strokeBorder(Palette.highlight, lineWidth: Tokens.Stroke.thin)
-      .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
-      .frame(width: Tokens.Size.rowSymbol)
-      .accessibilityHidden(true)
+    .task(id: model.endpoint) { await model.refreshAlerts() }
   }
 }
 
@@ -531,7 +446,7 @@ private struct AdvancedSettings: View {
     BotServiceCard()
     JobsSection()
     ConfigCard()
-      .task(id: model.baseURL) { await model.refreshConfig() }
+      .task(id: model.endpoint) { await model.refreshConfig() }
   }
 }
 

@@ -127,22 +127,29 @@ public final class AppModel {
   public private(set) var demoDay: Bool
   /// The address the app talks to: `address`, or the demo day's (`DemoDay.address`).
   public var baseURL: URL { DemoDay.address(address, demo: demoDay) }
-  /// The paired token of a remote address (iPad: from the pairing in its Settings); nil on the
-  /// Mac, whose API is this machine's own.
+  /// A fixed token for the bot: the iPad Simulator's own (`pair-simulator`); nil otherwise, a
+  /// signed-in device's tokens being `BotSession`'s (`signedIn`).
   public private(set) var token: String?
+  /// Whether this device is signed in with the bot (`SignInState`): its requests to the bot's
+  /// address carry the access token `BotSession` keeps (never in the demo day).
+  public private(set) var signedIn: Bool
   /// Proves the owner is the one pressing (Face ID or the passcode on iPad) before a command is
   /// sent, `nil` for starting the bot, with the command's title as the reason; false refuses the
   /// command and sends nothing. Set by the iPad; nil on the Mac, which asks nothing more than the
   /// screens' own questions.
   @ObservationIgnored public var ownerCheck: (@MainActor (OperatorCommand?, String) async -> Bool)?
   /// Where every read and command of the screens goes: the address with its token.
-  public var endpoint: APIClient.Endpoint { APIClient.Endpoint(baseURL: baseURL, token: token) }
+  public var endpoint: APIClient.Endpoint {
+    APIClient.Endpoint(baseURL: baseURL, token: token, signedIn: signedIn && !demoDay && address == BotAddress.url)
+  }
   @ObservationIgnored private var client: APIClient
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
   /// The bot's live quotes (GET /quotes), read every `settings.quotes_poll_seconds`: every live
   /// price the app shows comes from here.
   @ObservationIgnored @Injected(\.liveQuotes) public var quotes
+  /// Sends this Mac's push token to the bot once a status read there has answered.
+  @ObservationIgnored @Injected(\.pushRegistrar) private var pushRegistrar
   /// How far the bot's clock is ahead of this Mac's, from the last status's `served_at`. The
   /// bot's clock decides what "today" is and how old its reads are: the Mac's clock can drift,
   /// and `tickr demo` plays a past day on a clock of its own.
@@ -185,6 +192,9 @@ public final class AppModel {
   public private(set) var system: SystemV1?
   /// Why the System card could not be read, if it could not.
   public private(set) var systemError: String?
+  /// The notification settings (GET /alerts) and the owner's changes on their way, read when
+  /// Settings › Notifications opens.
+  public let alertRouting = AlertRouting()
   /// The bot day whose jobs were read for the headline's countdown (today's session); nil until
   /// they are, so a failed read is tried again at the next status.
   private var jobsReadDay: WireDate?
@@ -298,6 +308,8 @@ public final class AppModel {
   private(set) var entryWatch = EntryCancelWatch()
 
   private var tasks: [Task<Void, Never>] = []
+  /// Whether the app asked for reads (`start`), held while the sign-in shows (`needsSignIn`).
+  @ObservationIgnored private var reading = false
   /// Counts connections (`reconnect`): an answer is applied only while the connection it was
   /// asked on is still this one (backlog A4), so a late answer from server A never replaces what
   /// the app shows of server B after a switch, even when B is A again.
@@ -314,10 +326,14 @@ public final class AppModel {
   /// The title each lost send was pressed under ("Close ABCD position"), by its key.
   @ObservationIgnored private var lostTitles: [String: String] = [:]
 
-  public init(baseURL: URL, demoDay: Bool = false) {
+  public init(baseURL: URL, token: String? = nil, signedIn: Bool = false, demoDay: Bool = false) {
     self.address = baseURL
+    self.token = token
+    self.signedIn = signedIn
     self.demoDay = demoDay
-    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: DemoDay.address(baseURL, demo: demoDay)))
+    let shown = DemoDay.address(baseURL, demo: demoDay)
+    self.client = Container.shared.apiClient(APIClient.Endpoint(baseURL: shown, token: demoDay ? nil : token,
+      signedIn: signedIn && !demoDay && baseURL == BotAddress.url))
   }
 
   // MARK: derived
@@ -483,8 +499,14 @@ public final class AppModel {
 
   // MARK: lifecycle
 
+  /// Whether the screens wait for this Mac to sign in with the bot (`MacSignInGate`): the bot's
+  /// own address, no sign-in, no demo day. Nothing is read then: every read without a token
+  /// would be a failed token check, and enough of them lock this address out at the bot.
+  public var needsSignIn: Bool { !signedIn && !demoDay && address == BotAddress.url }
+
   public func start() {
-    guard tasks.isEmpty else { return }
+    reading = true
+    guard tasks.isEmpty, !needsSignIn else { return }
     tasks.append(Task { [weak self] in
       while !Task.isCancelled {
         guard let self else { return }
@@ -537,6 +559,11 @@ public final class AppModel {
   }
 
   public func stop() {
+    reading = false
+    cancelReads()
+  }
+
+  private func cancelReads() {
     tasks.forEach { $0.cancel() }
     tasks = []
   }
@@ -547,17 +574,36 @@ public final class AppModel {
     guard url != address else { return }
     address = url
     reconnect()
+    followSignIn()
   }
 
   /// Point the screens at `endpoint` as it is, address and token (the iPad's connection after a
-  /// pairing or a change in its Settings). The same endpoint again changes nothing.
+  /// sign-in or a change in its Settings). The same endpoint again changes nothing.
   public func connect(to endpoint: APIClient.Endpoint) {
     guard endpoint != self.endpoint else { return }
     address = endpoint.baseURL
     token = endpoint.token
+    signedIn = endpoint.signedIn
     demoDay = false
     selectedDay = nil
     reconnect()
+    followSignIn()
+  }
+
+  /// This Mac signed in with the bot (`SignInState`), or signed out: the screens read the bot
+  /// again from nothing.
+  public func use(signedIn: Bool) {
+    guard signedIn != self.signedIn else { return }
+    self.signedIn = signedIn
+    reconnect()
+    followSignIn()
+  }
+
+  /// Once the app asked for reads (`start`): they run while the screens show and pause while the
+  /// sign-in shows.
+  private func followSignIn() {
+    guard reading else { return }
+    if needsSignIn { cancelReads() } else { start() }
   }
 
   /// Turn the demo day on or off (Settings › General). On: the demo day, and the day picker
@@ -567,6 +613,7 @@ public final class AppModel {
     demoDay = on
     selectedDay = nil
     reconnect()
+    followSignIn()
   }
 
   /// Start again from nothing on `baseURL`: nothing read from the other address stays on screen.
@@ -597,6 +644,7 @@ public final class AppModel {
     jobsReadDay = nil
     system = nil
     systemError = nil
+    alertRouting.clear()
     config = nil
     configError = nil
     botStart = nil
@@ -645,6 +693,7 @@ public final class AppModel {
         await refreshHistory()
       }
       resolveSentCommands()
+      pushRegistrar.reached(endpoint)
       await settleLost()
       // Today's session and the next one for the headline's countdown: read once per bot day,
       // and again once the next session has opened (it then names the one after).
@@ -817,6 +866,17 @@ public final class AppModel {
       system = nil
       systemError = Self.describe(error) ?? systemError
     }
+  }
+
+  /// Reads the notification settings.
+  public func refreshAlerts() async {
+    await alertRouting.refresh(client)
+  }
+
+  /// Turns one alert kind on or off on one channel (PUT /alerts/routing): sent once, the answer
+  /// shown; a refusal is kept in `alertRouting.changeError`.
+  public func setAlertRoute(_ cell: AlertCell, on: Bool) async {
+    await alertRouting.set(cell, on: on, client: client)
   }
 
   public func refreshConfig() async {

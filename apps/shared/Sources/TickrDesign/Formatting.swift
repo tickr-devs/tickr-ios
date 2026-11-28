@@ -51,6 +51,11 @@ public enum Money {
     return signed(change, fractionDigits: digits)
   }
 
+  /// "$11.90", "$0.4567": a price per share with its dollar sign, at its tick (`price`).
+  public static func usdPrice(_ value: Decimal) -> String {
+    dollar + price(value)
+  }
+
   /// A distance between two prices in the decimals of the price it is measured at (`price`'s
   /// rule: cents from one dollar, hundredths of a cent below), rounded up so a distance that is
   /// not zero never reads as "0.00": 0.00985 at 57.11 is "0.01"; never a sign.
@@ -184,7 +189,7 @@ public enum Shares {
 extension SizeText {
   /// The apps' one money, price and share-count rules for the "Last entry size" block: a price per
   /// share is an amount here, so it carries the dollar sign ("$0.7100").
-  public static let money = SizeText(usd: Money.usd, price: { Money.dollar + Money.price($0) }, shares: Shares.text)
+  public static let money = SizeText(usd: Money.usd, price: Money.usdPrice, shares: Shares.text)
 }
 
 /// Risk arithmetic shown next to a position. Long positions only (v1 trades long only).

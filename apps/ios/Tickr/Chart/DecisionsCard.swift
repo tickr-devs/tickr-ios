@@ -7,6 +7,7 @@ import TickrKit
 /// is one row with a count. Entries and exits show on the card; "Show all N ›" opens every
 /// decision, watching and holding too, in a sheet.
 struct DecisionsCard: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   let decisions: DecisionsV1?
   let failure: String?
 
@@ -44,7 +45,7 @@ struct DecisionsCard: View {
     LazyVStack(alignment: .leading, spacing: Tokens.Space.s) {
       ForEach(runs, id: \.self) { run in
         DecisionRow(run: run)
-          .transition(.opacity.combined(with: .move(edge: .top)))
+          .transition(.moving(from: .top, reduceMotion: reduceMotion))
       }
     }
   }
@@ -86,10 +87,10 @@ private struct DecisionRow: View {
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
           ChipFlow(spacing: Tokens.Space.xs) {
             Text(decision.action.title)
-              .font(.footnote.weight(.semibold))
+              .font(Tokens.Typography.footnoteStrong)
               .foregroundStyle(Palette.textPrimary)
             Text(ChartText.strategy(decision.strategy.name, decision.strategy.version))
-              .font(.footnote)
+              .font(Tokens.Typography.footnote)
               .foregroundStyle(Palette.textSecondary)
           }
           if run.count > 1 {

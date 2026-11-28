@@ -285,3 +285,78 @@ public enum NotReachedCause: String, CaseIterable, Sendable {
     }
   }
 }
+
+/// An alert kind the owner can route (`AlertKindV1.kind`). An unknown code has no case; show the bot's own text then.
+public enum AlertKindCode: String, CaseIterable, Sendable {
+  case unprotectedPosition = "unprotected-position"
+  case stopRejected = "stop-rejected"
+  case exitRefused = "exit-refused"
+  case unknownOrderStatus = "unknown-order-status"
+  case foreignExposure = "foreign-exposure"
+  case brokerReadsFailing = "broker-reads-failing"
+  case streamLostWithPosition = "stream-lost-with-position"
+  case dailyCeilingReached = "daily-ceiling-reached"
+  case botCrashed = "bot-crashed"
+  case botDidNotStart = "bot-did-not-start"
+  case botDidNotStop = "bot-did-not-stop"
+  case preflightFailed = "preflight-failed"
+  case tokenNeedsConfirmation = "token-needs-confirmation"
+  case observersStopped = "observers-stopped"
+  case notFlatAfterFlatten = "not-flat-after-flatten"
+  case watchdogNotFlat = "watchdog-not-flat"
+  case watchdogCannotCheck = "watchdog-cannot-check"
+  case botDownWithOpenTrade = "bot-down-with-open-trade"
+  case botDown = "bot-down"
+  case diskLow = "disk-low"
+  case watchdogRestartedBot = "watchdog-restarted-bot"
+  case watchdogRestartRefused = "watchdog-restart-refused"
+  case watchdogRestartFailed = "watchdog-restart-failed"
+  case exitNotFilled = "exit-not-filled"
+  case flattenAfterClose = "flatten-after-close"
+  case feesUnknown = "fees-unknown"
+  case feesCorrected = "fees-corrected"
+  case apiCredentialsUnexpected = "api-credentials-unexpected"
+  case strategyNotLoaded = "strategy-not-loaded"
+  case protectionChangeIgnored = "protection-change-ignored"
+  case remoteAuthBlocked = "remote-auth-blocked"
+  case riskCommandUsed = "risk-command-used"
+  case deviceSession = "device-session"
+
+  public var title: LocalizedStringResource {
+    switch self {
+    case .unprotectedPosition: L10n.alertUnprotectedPosition
+    case .stopRejected: L10n.alertStopRejected
+    case .exitRefused: L10n.alertExitRefused
+    case .unknownOrderStatus: L10n.alertUnknownOrderStatus
+    case .foreignExposure: L10n.alertForeignExposure
+    case .brokerReadsFailing: L10n.alertBrokerReadsFailing
+    case .streamLostWithPosition: L10n.alertStreamLostWithPosition
+    case .dailyCeilingReached: L10n.alertDailyCeilingReached
+    case .botCrashed: L10n.alertBotCrashed
+    case .botDidNotStart: L10n.alertBotDidNotStart
+    case .botDidNotStop: L10n.alertBotDidNotStop
+    case .preflightFailed: L10n.alertPreflightFailed
+    case .tokenNeedsConfirmation: L10n.alertTokenNeedsConfirmation
+    case .observersStopped: L10n.alertObserversStopped
+    case .notFlatAfterFlatten: L10n.alertNotFlatAfterFlatten
+    case .watchdogNotFlat: L10n.alertWatchdogNotFlat
+    case .watchdogCannotCheck: L10n.alertWatchdogCannotCheck
+    case .botDownWithOpenTrade: L10n.alertBotDownWithOpenTrade
+    case .botDown: L10n.alertBotDown
+    case .diskLow: L10n.alertDiskLow
+    case .watchdogRestartedBot: L10n.alertWatchdogRestartedBot
+    case .watchdogRestartRefused: L10n.alertWatchdogRestartRefused
+    case .watchdogRestartFailed: L10n.alertWatchdogRestartFailed
+    case .exitNotFilled: L10n.alertExitNotFilled
+    case .flattenAfterClose: L10n.alertFlattenAfterClose
+    case .feesUnknown: L10n.alertFeesUnknown
+    case .feesCorrected: L10n.alertFeesCorrected
+    case .apiCredentialsUnexpected: L10n.alertApiCredentialsUnexpected
+    case .strategyNotLoaded: L10n.alertStrategyNotLoaded
+    case .protectionChangeIgnored: L10n.alertProtectionChangeIgnored
+    case .remoteAuthBlocked: L10n.alertRemoteAuthBlocked
+    case .riskCommandUsed: L10n.alertRiskCommandUsed
+    case .deviceSession: L10n.alertDeviceSession
+    }
+  }
+}

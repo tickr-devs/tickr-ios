@@ -14,9 +14,15 @@ public enum ApiText {
 
   /// Why entries are blocked.
   public static func entryBlock(_ block: EntryBlock) -> String {
-    if let code = BlockCode(rawValue: block.cause) { return String(localized: code.title) }
-    if let kind = FenceKind(rawValue: block.cause) { return String(localized: kind.title) }
-    return block.text
+    blockCause(block.cause) ?? block.text
+  }
+
+  /// An entry block's cause code (`EntryBlock.cause`: a block code or the fence that blocks) in
+  /// words; nil for a code this app does not know.
+  public static func blockCause(_ cause: String) -> String? {
+    if let code = BlockCode(rawValue: cause) { return String(localized: code.title) }
+    if let kind = FenceKind(rawValue: cause) { return String(localized: kind.title) }
+    return nil
   }
 
   /// A fence's kind with its key, if any; the bot's detail stays in `Fence.text`.

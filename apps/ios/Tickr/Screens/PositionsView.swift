@@ -7,6 +7,7 @@ import TickrKit
 /// (the broker stop, three figures, the steps behind "How it was protected ›") and Close position.
 /// Prices come from the captured bars (`PositionsModel`), for display only.
 struct PositionsView: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(AppModel.self) private var model
   @State private var prices = Container.shared.positionsModel()
   @State private var watching = Container.shared.watchingModel()
@@ -29,7 +30,7 @@ struct PositionsView: View {
       if !model.isLive {
         // A recorded day has no open positions: they are today's, live. What it watched follows.
         Text(L10n.Home.pastDayNote(DayText.day(model.shownDay.noonInNewYork)))
-          .font(.subheadline)
+          .font(Tokens.Typography.subheadline)
           .foregroundStyle(Palette.textTertiary)
           .frame(maxWidth: .infinity, alignment: .leading)
           .padding(Tokens.Space.l)
@@ -56,7 +57,7 @@ struct PositionsView: View {
           if let position = positions.first(where: { $0.symbol == model.selectedSymbol }) ?? positions.first {
             PositionDetail(position: position, marks: prices.marks[position.symbol])
               .id(position.symbol)
-              .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
+              .transition(.asymmetric(insertion: .moving(from: .trailing, reduceMotion: reduceMotion), removal: .opacity))
           }
         }
         WatchingCard(watching: watching.watching, failure: watching.failure)
@@ -186,7 +187,7 @@ private struct PositionChips: View {
               StopDot(position.stop.state)
               SymbolText(position.symbol)
             }
-            .font(.footnote.monospaced().bold())
+            .font(Tokens.Typography.footnoteMonoBold)
             .fixedSize()
             if let unrealized = marks[position.symbol]?.unrealized {
               Text(verbatim: Money.signedUSD(unrealized))
@@ -209,7 +210,7 @@ private struct PositionChips: View {
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityValue(Text(verbatim: Board.stopStateTitle(position.stop.state)))
-        .transition(.scale.combined(with: .opacity))
+        .transition(.scale(scale: Tokens.Motion.enterScale).combined(with: .opacity))
       }
       ForEach(0..<freeSlots, id: \.self) { _ in
         // Plain text beside the chips, not a chip (IOS2Position): a hollow dot, where a position's
@@ -220,7 +221,7 @@ private struct PositionChips: View {
             .frame(width: Tokens.Size.dotSmall, height: Tokens.Size.dotSmall)
           Text(L10n.Positions.freeSlot)
         }
-        .font(.footnote)
+        .font(Tokens.Typography.footnote)
         .fixedSize()
         .padding(.horizontal, Tokens.Space.s)
         .frame(maxWidth: stretch ? .infinity : nil, minHeight: Self.chipHeight)
@@ -254,7 +255,7 @@ private struct PositionDetail: View {
       RowStack(alignment: .bottom, spacing: Tokens.Space.s) {
         VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
           SymbolText(position.symbol)
-            .font(.largeTitle.monospaced().bold())
+            .font(Tokens.Typography.hero)
             .fixedSize()
           Text(L10n.Positions.shares(position.quantity.text, Money.price(position.entryPrice.value),
             Format.clock(position.openedAt.date)))
@@ -513,7 +514,7 @@ private struct ProtectionCard: View {
       } icon: {
         Image(systemName: state.symbol).foregroundStyle(state.tone.text)
       }
-      .font(.headline)
+      .font(Tokens.Typography.headline)
       .foregroundStyle(state == .verified ? Palette.textPrimary : state.tone.text)
       // Three figures in a row; one under another at large text sizes, so labels and figures stay whole.
       RowStack(alignment: .top, spacing: Tokens.Space.s) {
@@ -545,7 +546,7 @@ private struct ProtectionCard: View {
         .font(Tokens.Typography.annotation)
         .foregroundStyle(Palette.textTertiary)
       Text(verbatim: value)
-        .font(.subheadline.monospaced().bold())
+        .font(Tokens.Typography.subheadlineMonoBold)
         .foregroundStyle(Palette.textPrimary)
         .contentTransition(.numericText())
         .fixedSize()
@@ -596,7 +597,7 @@ private struct ProtectionSteps: View {
                 // a step pops again when the bot proves it (or loses it): one pop per real change.
                 .popIn(delay: assembled ? 0 : Self.firstDelay + Double(index) * Tokens.Motion.popStagger)
                 .id(step.ok)
-              Text(step.label).font(.footnote)
+              Text(step.label).font(Tokens.Typography.footnote)
               Spacer()
               if step.badge {
                 // The stop's state as a tag, as on the design: green VERIFIED, red otherwise.

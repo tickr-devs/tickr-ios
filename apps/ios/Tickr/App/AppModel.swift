@@ -1,6 +1,9 @@
 import Foundation
 import Observation
+import TickrDesign
 import TickrKit
+import TickrScreens
+import UIKit
 
 enum AppTab: Hashable { case home, positions, chart, activity, lab }
 
@@ -57,6 +60,9 @@ final class AppModel {
   private(set) var system: SystemV1?
   /// Why the System card could not be read, if it could not.
   private(set) var systemError: String?
+  /// The notification settings (GET /alerts) and the owner's changes on their way, read while
+  /// Settings is on screen.
+  let alertRouting = AlertRouting()
   /// The bot day whose jobs were read for the headline's countdown (today's session); nil until
   /// they are, so a failed read is tried again at the next status.
   @ObservationIgnored private var jobsReadDay: WireDate?
@@ -105,11 +111,12 @@ final class AppModel {
   private(set) var entryWatch = EntryCancelWatch()
   var notice: Notice?
   var selectedTab: AppTab = .home
-  /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands.
+  /// Centre of Home's bar mark on screen (global coordinates), where the opening animation lands;
+  /// the sign-in's mark while the phone has no sign-in.
   @ObservationIgnored var homeMarkCentre: CGPoint?
+  /// The side of the mark the opening lands on: Home's, or the sign-in's.
+  @ObservationIgnored var homeMarkSide = Tokens.Size.logoSmall
   var selectedSymbol: String?
-  /// A pairing link opened from outside (AirDrop), waiting for the owner to confirm.
-  var pendingPairing: Pairing?
 
   /// How far the bot's clock is ahead of this phone's, from the last status's `served_at`. The
   /// bot's clock decides what "today" is: the phone's clock can drift, and `tickr demo` plays a
@@ -123,6 +130,8 @@ final class AppModel {
   /// The bot's live quotes (GET /quotes), read every `settings.quotes_poll_seconds` while the app
   /// runs: every live price the app shows comes from here.
   @ObservationIgnored @Injected(\.liveQuotes) var quotes
+  /// Sends this phone's push tokens to the bot once a status read there has answered.
+  @ObservationIgnored @Injected(\.pushRegistrar) private var pushRegistrar
   /// The current moment (Container.now; tests pin it).
   @ObservationIgnored @Injected(\.now) private var now
   /// Commands this phone queued whose outcome has not appeared in recent_commands yet.
@@ -263,6 +272,7 @@ final class AppModel {
     jobsReadDay = nil
     system = nil
     systemError = nil
+    alertRouting.clear()
     config = nil
     configError = nil
     flow = nil
@@ -320,6 +330,7 @@ final class AppModel {
       lastReadAt = now()
       followBotClock(servedAt: fresh.servedAt.date)
       resolveAwaited(fresh)
+      pushRegistrar.reached(connection.endpoint(for: url))
     } catch {
       if asked == link { reads.failed(error, hadAnswer: lastReadAt != nil) }
       return false
@@ -414,6 +425,19 @@ final class AppModel {
         systemError = Self.describe(error) ?? systemError
       }
     }
+  }
+
+  /// Reads the notification settings.
+  func refreshAlerts() async {
+    guard let url = connection.url else { return }
+    await alertRouting.refresh(Container.shared.apiClient(connection.endpoint(for: url)))
+  }
+
+  /// Turns one alert kind on or off on one channel (PUT /alerts/routing): sent once, the answer
+  /// shown; a refusal is kept in `alertRouting.changeError`.
+  func setAlertRoute(_ cell: AlertCell, on: Bool) async {
+    guard let url = connection.url else { return }
+    await alertRouting.set(cell, on: on, client: Container.shared.apiClient(connection.endpoint(for: url)))
   }
 
   func refreshConfig() async {
@@ -707,26 +731,9 @@ final class AppModel {
     await refresh()
   }
 
-  /// Uses a pairing link: redeems its one-time code at the Mac's HTTPS address for the bearer
-  /// token, then that address and token replace the current connection. Refused, with the earlier
-  /// connection kept, when the Mac refuses the code (used, expired, or another pairing started) or
-  /// the Keychain does not take the token.
-  func pair(_ pairing: Pairing) async {
-    let redeemed: PairedV1
-    do {
-      redeemed = try await Container.shared.apiClient(APIClient.Endpoint(baseURL: pairing.url))
-        .redeemPairing(code: pairing.code)
-    } catch {
-      notice = Notice(L10n.Pair.notRedeemed(ErrorText.text(error)), tone: .failure)
-      return
-    }
-    guard Container.shared.keychain().saveToken(redeemed.token) else {
-      notice = Notice(L10n.Pair.notSaved, tone: .failure)
-      return
-    }
-    connection = Connection(paired: pairing.url, token: redeemed.token)
-    notice = Notice(L10n.Pair.paired(Connection.displayHost(pairing.url) ?? String(localized: L10n.Pair.thisMac)),
-      tone: .success)
+  /// Signs this phone out (`DeviceSignOut`); the screens turn to the sign-in.
+  func signOut() async {
+    await DeviceSignOut.run()
   }
 
   private func resolveAwaited(_ fresh: StatusResponseV1) {

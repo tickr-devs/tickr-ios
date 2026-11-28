@@ -15,6 +15,10 @@ public struct DesignSwitchStyle: ToggleStyle {
   public func makeBody(configuration: Configuration) -> some View {
     DesignSwitchFace(isOn: configuration.isOn, tint: tint)
       .onTapGesture { configuration.isOn.toggle() }
+      #if os(iOS)
+      // A light tick as the knob lands, as the system switch gives.
+      .sensoryFeedback(.selection, trigger: configuration.isOn)
+      #endif
       // VoiceOver and keyboard access get the system switch with its label: on, off, toggle.
       .accessibilityRepresentation {
         Toggle(isOn: configuration.$isOn) { configuration.label }

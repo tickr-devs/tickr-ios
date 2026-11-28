@@ -25,6 +25,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "6.0"
+    # The version people see, and the build number: the one place for the app and its widget
+    # extension. Raise CURRENT_PROJECT_VERSION for every TestFlight upload (README.md, TestFlight).
     MARKETING_VERSION: "0.1"
     CURRENT_PROJECT_VERSION: "1"
     # Settings Xcode recommends for current projects.
@@ -50,6 +52,8 @@ targets:
         product: TickrDesign
       - package: TickrApp
         product: TickrScreens
+      # The Live Activity's widget extension, embedded in the app.
+      - target: TickrWidgets
     info:
       path: Support/Info.plist
       properties:
@@ -79,19 +83,32 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         NSFaceIDUsageDescription: Confirms commands that cancel orders or close positions.
-        # The API address the app starts with before pairing: the Simulator's or the iPhone's,
-        # set per destination in Config/Signing.xcconfig.
-        TickrAPIAddress: $(TICKR_API_ADDRESS)
+        # The bot starts, updates and ends the trading day's Live Activity by push (TickrWidgets).
+        NSSupportsLiveActivities: true
+        # Only HTTPS and the system's own encryption: exempt, so App Store Connect asks nothing
+        # at each TestFlight upload.
+        ITSAppUsesNonExemptEncryption: false
         # The Simulator's own token file on this Mac, read by a Simulator build at launch.
         TickrSimulatorTokenFile: $(TICKR_SIMULATOR_FILE)
-        # tickr://pair?... links from `python -m tickr.api pair` open the app to pair.
-        CFBundleURLTypes:
-          - CFBundleURLName: $(PRODUCT_BUNDLE_IDENTIFIER).pair
-            CFBundleURLSchemes: [tickr]
+        # The APNs environment of this build's push token (TICKR_APS_ENVIRONMENT in
+        # apps/Config/Identity.xcconfig: development for Debug, production for Release), which the
+        # app tells the bot (TickrKit PushIdentity).
+        TickrApsEnvironment: $(TICKR_APS_ENVIRONMENT)
         # Plain HTTP is allowed only to local addresses (the Simulator reaches the Mac's API on
         # 127.0.0.1). Remote access goes through HTTPS (Tailscale serve).
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+    # Push (APNs) for the bot's alerts and Live Activity. aps-environment stays development:
+    # exporting an archive for TestFlight or the App Store sets production from the distribution
+    # profile. Time-sensitive: the bot's critical alerts break through Focus.
+    entitlements:
+      path: Support/Tickr.entitlements
+      properties:
+        aps-environment: development
+        com.apple.developer.usernotifications.time-sensitive: true
+        # Passkeys of tickr.bot for the native sign-in: tickr.bot's apple-app-site-association
+        # lists this app.
+        com.apple.developer.associated-domains: [webcredentials:tickr.bot]
     # The bundle id prefix, the team id and the API address come from Config/Signing.xcconfig
     # (which includes apps/Config/Identity.xcconfig) and the git-ignored Config/Local.xcconfig.
     configFiles:
@@ -104,7 +121,46 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
+        # tickr.bot's passkeys for the native sign-in (associated domain webcredentials:tickr.bot).
+        CODE_SIGN_ENTITLEMENTS: Support/Tickr.entitlements
         ENABLE_PREVIEWS: YES
+  # The trading day's Live Activity (Lock Screen and Dynamic Island, mockup v138), drawn from the
+  # content-state the bot pushes (TickrKit TickrActivityAttributes). Its own texts and String
+  # Catalog (Widgets/Sources/L10n.swift); the versions are the app's (project settings above).
+  TickrWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widgets/Sources
+        type: syncedFolder
+    dependencies:
+      - package: TickrShared
+        product: TickrKit
+      - package: TickrShared
+        product: TickrDesign
+    info:
+      path: Widgets/Support/Info.plist
+      properties:
+        CFBundleDisplayName: Tickr
+        # The extension's String Catalog and the shared package's (check_swift_rules.py).
+        CFBundleLocalizations: [en, es]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    # The bundle id prefix (apps/Config/Identity.xcconfig, through Config/Signing.xcconfig).
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(TICKR_BUNDLE_ID_PREFIX).ios.widgets
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
+        ENABLE_PREVIEWS: YES
+        # Archived inside the app only, so an archive stays an iOS app for TestFlight.
+        SKIP_INSTALL: YES
   # Swift Testing tests of the screens' logic (Tests/TickrTests), hosted in the app so they can
   # reach its internal types with @testable import.
   TickrTests:

@@ -137,7 +137,7 @@ private struct ActiveCard: View {
       CardLabel(L10n.Lab.active)
       HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.xs) {
         Text(verbatim: active.name)
-          .font(.title3.monospaced().bold())
+          .font(Tokens.Typography.title3MonoBold)
           .foregroundStyle(Palette.textPrimary)
           .fixedSize(horizontal: false, vertical: true)
           .layoutPriority(1)

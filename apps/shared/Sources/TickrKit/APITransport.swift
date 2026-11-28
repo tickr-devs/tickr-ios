@@ -15,3 +15,14 @@ extension URLSession: APITransport {
     try await data(for: request)
   }
 }
+
+/// The transport for the bot's address before this device signed in: it sends nothing and every
+/// request fails as `BotSessionError.signInAgain`, so no tokenless read reaches the bot (whose
+/// limit on failed token checks would lock this network out).
+public struct SignInFirst: APITransport {
+  public init() {}
+
+  public func response(to request: URLRequest) async throws -> (Data, URLResponse) {
+    throw BotSessionError.signInAgain
+  }
+}

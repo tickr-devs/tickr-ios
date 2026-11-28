@@ -11,6 +11,8 @@ public struct StatusPill: View {
   let live: Bool
   let event: AnyHashable?
   let systemImage: String?
+  /// Capitals, but for a state that carries data whose case means something (a host name).
+  var textCase: Text.Case? = .uppercase
 
   public init(_ title: LocalizedStringResource, tone: Tone, live: Bool = false, event: AnyHashable? = nil) {
     self.init(Text(title), tone: tone, live: live, event: event)
@@ -30,6 +32,11 @@ public struct StatusPill: View {
     self.init(Text(verbatim: title), tone: tone, live: live, event: event)
   }
 
+  /// A state whose words keep their case ("api.tickr.bot · ONLINE"): the sign-in's link pill.
+  public init(keepingCase title: Text, tone: Tone, live: Bool = false, event: AnyHashable? = nil) {
+    self.init(title, tone: tone, live: live, event: event)
+    textCase = nil
+  }
   public init(_ title: Text, tone: Tone, live: Bool = false, event: AnyHashable? = nil, systemImage: String? = nil) {
     self.title = title
     self.tone = tone
@@ -48,7 +55,7 @@ public struct StatusPill: View {
         PulseDot(tone.fill, size: Tokens.Size.dotSmall, pulsing: live, event: event)
       }
       title
-        .textCase(.uppercase)
+        .textCase(textCase)
         .font(Tokens.Typography.badge)
         .tracking(Tokens.Typography.badgeTracking)
         // At the largest text sizes a long state ("SIN EJECUTAR") wraps inside the pill

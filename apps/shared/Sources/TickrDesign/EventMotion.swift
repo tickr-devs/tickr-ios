@@ -17,7 +17,7 @@ struct Grow: ViewModifier {
     let isGrown = grown || reduceMotion
     content
       .scaleEffect(x: isGrown ? 1 : 0, anchor: .leading)
-      .animation(reduceMotion ? nil : Tokens.Motion.fill, value: value)
+      .animation(reduceMotion ? nil : Tokens.Motion.live, value: value)
       .onAppear {
         withAnimation(reduceMotion ? nil : Tokens.Motion.fill.delay(delay)) { grown = true }
       }
@@ -152,9 +152,11 @@ public struct CountingText: View {
   private func count() {
     // Another period's figure lands at once; the first appearance and a new value of the same
     // period count.
-    let samePeriod = shownPeriod == period || shown == 0
+    let first = shown == 0
+    let samePeriod = shownPeriod == period || first
     shownPeriod = period
-    withAnimation(reduceMotion || !samePeriod ? nil : Tokens.Motion.fill) { shown = value }
+    // The first count fills in (`fill`); a new value of a live figure keeps up with it (`live`).
+    withAnimation(reduceMotion || !samePeriod ? nil : first ? Tokens.Motion.fill : Tokens.Motion.live) { shown = value }
   }
 }
 
@@ -169,4 +171,12 @@ private struct CountedText: View, Animatable {
   }
 
   var body: some View { Text(verbatim: format(value)) }
+}
+
+public extension AnyTransition {
+  /// Moves in from `edge` (and out to it) with a fade. With Reduce Motion only the fade is left:
+  /// gentler motion, not none, so the change is still seen.
+  static func moving(from edge: Edge, reduceMotion: Bool) -> AnyTransition {
+    reduceMotion ? .opacity : .move(edge: edge).combined(with: .opacity)
+  }
 }
