@@ -3,6 +3,15 @@ import Foundation
 /// Stepping through the recorded days one at a time, as Home's day switcher does: back to the
 /// newest older day, forward to the oldest newer one, and from the newest past day forward to today.
 public enum DaySteps {
+  /// The day the live page stands for: `today`, or the day of the bot's last status when that is
+  /// older (a weekend, a holiday, a bot that is off). The day switch steps back from it to the
+  /// day before, never to the same day again as a recorded day (owner's recording, 2026-11-28:
+  /// "Wed Nov 25" live, then "Wed Nov 25" recorded).
+  public static func liveDay(today: WireDate, lastStatus: Date?) -> WireDate {
+    guard let lastStatus else { return today }
+    return min(today, WireDate(newYorkDateOf: lastStatus))
+  }
+
   /// The newest recorded day before `day`; nil when none is older.
   public static func previous(_ day: WireDate, in days: [DaySummary]) -> DaySummary? {
     days.filter { $0.day < day }.max { $0.day < $1.day }

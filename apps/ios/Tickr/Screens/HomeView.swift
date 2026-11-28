@@ -16,6 +16,8 @@ struct HomeView: View {
   @State private var dayModel = Container.shared.homeDayModel()
   /// The Symbols tab the funnel sheet picked, pushed on Home.
   @State private var symbolsTab: SymbolsTab?
+  /// The day was stepped since Home appeared: later days land in place instead of rising.
+  @State private var dayStepped = false
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -69,60 +71,20 @@ struct HomeView: View {
         // Every command from here goes to the demo day: said at the top, as loud as a warning.
         WarningBanner(L10n.Home.demoTitle, detail: L10n.Home.demoDetail, systemImage: SettingsView.demoSymbol)
       }
-      if compactHeight {
-        // An iPhone in landscape (IOS2Landscape board): two columns, the day on the left (what
-        // the bot does, its result without the ring, its events, the fast movers), the
-        // positions and the funnel on the right.
-        HStack(alignment: .top, spacing: Tokens.Space.m) {
-          VStack(alignment: .leading, spacing: Tokens.Space.m) {
-            Summary(past: dayModel.shown, showsRing: false).rise(step: Order.summary.rawValue)
-            switch phase {
-            case .unread, .offline: EmptyView()
-            case .past: pastNote
-            case .live(let status):
-              ticker(status)
-              movers(of: model.today)
-            }
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
-          VStack(alignment: .leading, spacing: Tokens.Space.m) {
-            switch phase {
-            case .unread: EmptyView()
-            case .offline: offlineCards
-            case .past(let status):
-              pastFunnel(status)
-              movers(of: model.shownDay)
-            case .live(let status):
-              positions(status)
-              liveFunnel(status)
-            }
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
-        }
-      } else {
-        daySwitch.rise(step: Order.day.rawValue)
-        Summary(past: dayModel.shown).rise(step: Order.summary.rawValue)
-        switch phase {
-        case .unread: EmptyView()
-        case .offline: offlineCards
-        case .past(let status):
-          // A recorded day: its result above, then what it recorded (the flow, its fast movers);
-          // nothing live (no positions, quotes or fences of today).
-          pastNote
-          pastFunnel(status)
-          movers(of: model.shownDay)
-        case .live(let status):
-          ticker(status)
-          positions(status)
-          liveFunnel(status)
-          movers(of: model.today)
-        }
+      if !compactHeight { daySwitch.rise(step: Order.day.rawValue) }
+      // Only the day's content follows a sideways swipe: the title row, the tab bar and the
+      // background stay put (owner's recording, 2026-11-28: the whole screen, tab bar and all,
+      // slid out and black showed behind it). A day after the first one lands in place, with no
+      // fade and rise of its cards (they replayed on each day and read as jitter).
+      VStack(alignment: .leading, spacing: Tokens.Space.m) {
+        dayContent
       }
+      .environment(\.arrivesInPlace, dayStepped)
+      .daySwipe(dayModel.arrows, back: { step { dayModel.back() } }, forward: { step { dayModel.forward() } })
     }
     .brandTitle()
     .botControl(isPresented: $showControl)
     .navigationDestination(item: $symbolsTab) { SymbolsView(tab: $0) }
-    .daySwipe(dayModel.arrows, back: { dayModel.back() }, forward: { dayModel.forward() })
     // Another day lands at once: no crossfade of one day's figures over the other's.
     .jumps(on: model.shownDay)
     .refreshable {
@@ -145,6 +107,64 @@ struct HomeView: View {
 extension HomeView {
   /// The shown day as the board's "Today ▾": a recorded day, today, or the last session (a weekend,
   /// a day off), which is never shown as live.
+  /// Everything under the title row that belongs to the shown day: the part a day swipe moves.
+  @ViewBuilder fileprivate var dayContent: some View {
+    if compactHeight {
+      // An iPhone in landscape (IOS2Landscape board): two columns, the day on the left (what
+      // the bot does, its result without the ring, its events, the fast movers), the
+      // positions and the funnel on the right.
+      HStack(alignment: .top, spacing: Tokens.Space.m) {
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+          Summary(past: dayModel.shown, showsRing: false).rise(step: Order.summary.rawValue)
+          switch phase {
+          case .unread, .offline: EmptyView()
+          case .past: pastNote
+          case .live(let status):
+            ticker(status)
+            movers(of: model.today)
+          }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+          switch phase {
+          case .unread: EmptyView()
+          case .offline: offlineCards
+          case .past(let status):
+            pastFunnel(status)
+            movers(of: model.shownDay)
+          case .live(let status):
+            positions(status)
+            liveFunnel(status)
+          }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+    } else {
+      Summary(past: dayModel.shown).rise(step: Order.summary.rawValue)
+      switch phase {
+      case .unread: EmptyView()
+      case .offline: offlineCards
+      case .past(let status):
+        // A recorded day: its result above, then what it recorded (the flow, its fast movers);
+        // nothing live (no positions, quotes or fences of today).
+        pastNote
+        pastFunnel(status)
+        movers(of: model.shownDay)
+      case .live(let status):
+        ticker(status)
+        positions(status)
+        liveFunnel(status)
+        movers(of: model.today)
+      }
+    }
+  }
+
+  /// Steps the day (a swipe or the day button); the next day then lands in place (`arrivesInPlace`).
+  private func step(_ change: () -> Void) {
+    dayStepped = true
+    change()
+  }
+
   fileprivate var daySwitch: some View {
     let written = model.status?.writtenAt.date ?? model.botNow
     let isToday = WireDate(newYorkDateOf: written) == model.today
@@ -152,8 +172,8 @@ extension HomeView {
     let day = past ?? String(localized: isToday ? L10n.Common.today(DayText.day(written))
       : L10n.Activity.lastSession(DayText.day(written)))
     return DaySwitch(caption: past ?? (isToday ? nil : DayText.day(written)), day: day, away: past != nil,
-      steps: dayModel.arrows, today: { dayModel.showToday() }, back: { dayModel.back() },
-      forward: { dayModel.forward() })
+      steps: dayModel.arrows, today: { step { dayModel.showToday() } }, back: { step { dayModel.back() } },
+      forward: { step { dayModel.forward() } })
       .accessibilityIdentifier(AccessibilityID.daySwitch)
   }
 

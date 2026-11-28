@@ -83,4 +83,17 @@ struct DayArrowsTests {
       canGoForward: false)
     #expect(withHistory.visible && withHistory.canGoBack && !withHistory.canGoForward)
   }
+
+  @Test("A Saturday with the last status on Wednesday: the live page is Wednesday, back goes before it")
+  func liveDayIsTheLastStatusDay() throws {
+    let saturday = try WireDate("2026-11-28")
+    // Wednesday 2026-11-25 20:00 ET, the owner's recording.
+    let wednesday = Date(timeIntervalSince1970: 1_795_654_800)
+    let live = DaySteps.liveDay(today: saturday, lastStatus: wednesday)
+    #expect(live.text == "2026-11-25")
+    let days = try ["2026-11-25", "2026-11-24"].map(summary)
+    #expect(DaySteps.previous(live, in: days)?.day.text == "2026-11-24")
+    #expect(DaySteps.next(try WireDate("2026-11-24"), in: days, today: live) == nil)
+    #expect(DaySteps.liveDay(today: saturday, lastStatus: nil) == saturday)
+  }
 }

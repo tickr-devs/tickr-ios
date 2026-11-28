@@ -16,11 +16,11 @@ final class HomeDayModel {
   @ObservationIgnored private var source: URL?
   @ObservationIgnored @Injected(\.appModel) private var app
 
-  /// Today in New York, on the bot's clock.
-  private var today: WireDate { app.today }
+  /// The day the live page stands for (`DaySteps.liveDay`).
+  private var liveDay: WireDate { DaySteps.liveDay(today: app.today, lastStatus: app.status?.writtenAt.date) }
 
-  /// The day the switcher stands on: the chosen past day, else today.
-  var day: WireDate { app.shownDay }
+  /// The day the switcher stands on: the chosen past day, else the live page's day.
+  var day: WireDate { app.selectedDay ?? liveDay }
   /// The switcher stands still: the demo day is the only day while its switch is on.
   var locked: Bool { app.connection.demo }
   var canGoBack: Bool { !locked && DaySteps.previous(day, in: days) != nil }
@@ -51,7 +51,7 @@ final class HomeDayModel {
   /// One day forward; from the newest past day, back to today.
   func forward() {
     guard app.selectedDay != nil else { return }
-    app.selectedDay = DaySteps.next(day, in: days, today: today)?.day
+    app.selectedDay = DaySteps.next(day, in: days, today: liveDay)?.day
   }
 
   func showToday() { app.selectedDay = nil }
