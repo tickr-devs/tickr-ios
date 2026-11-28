@@ -54,22 +54,33 @@ import TickrKit
   @Test func aDevelopmentAddressNeedsNoSignInAndGetsNoToken() throws {
     let defaults = try #require(UserDefaults(suiteName: "DemoDayTests.address"))
     defaults.removePersistentDomain(forName: "DemoDayTests.address")
-    defaults.set("http://127.0.0.1:9000", forKey: Connection.addressKey)
-    let connection = Connection.load(defaults)
+    let connection = Connection.load(defaults, arguments: [Connection.addressKey: "http://127.0.0.1:9000"])
     let url = try #require(connection.url)
     #expect(url.absoluteString == "http://127.0.0.1:9000")
     #expect(connection.endpoint(for: url).token == nil && !connection.endpoint(for: url).signedIn)
     defaults.removePersistentDomain(forName: "DemoDayTests.address")
   }
 
+  /// The address an older app saved for its pairing is not a development address: the phone
+  /// signs in with the bot, and the saved copy is gone.
+  @Test func anAddressAnOlderAppSavedIsDropped() throws {
+    let defaults = try #require(UserDefaults(suiteName: "DemoDayTests.saved"))
+    defaults.removePersistentDomain(forName: "DemoDayTests.saved")
+    defaults.set("https://bot.tickr.bot", forKey: Connection.addressKey)
+    let connection = Connection.load(defaults, arguments: [:])
+    #expect(connection.address == BotAddress.url)
+    #expect(defaults.string(forKey: Connection.addressKey) == nil)
+    defaults.removePersistentDomain(forName: "DemoDayTests.saved")
+  }
+
   @Test func theSwitchIsSavedAndLoaded() throws {
     let defaults = try #require(UserDefaults(suiteName: "DemoDayTests"))
     defaults.removePersistentDomain(forName: "DemoDayTests")
-    defaults.set("http://127.0.0.1:9000", forKey: Connection.addressKey)
+    let development = [Connection.addressKey: "http://127.0.0.1:9000"]
     defaults.set(true, forKey: Connection.demoKey)
-    #expect(Connection.load(defaults).demo)
+    #expect(Connection.load(defaults, arguments: development).demo)
     defaults.set(false, forKey: Connection.demoKey)
-    #expect(!Connection.load(defaults).demo)
+    #expect(!Connection.load(defaults, arguments: development).demo)
     defaults.removePersistentDomain(forName: "DemoDayTests")
   }
 

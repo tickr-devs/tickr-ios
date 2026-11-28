@@ -178,7 +178,7 @@ private struct MacSignInGate: View {
 
   var body: some View {
     Group {
-      if model.signedIn || model.demoDay || model.address != BotAddress.url {
+      if !model.needsSignIn {
         RootView()
       } else {
         SignInScreen(device: .mac, ended: state.ended, markShown: model.openingPlayed) { centre in

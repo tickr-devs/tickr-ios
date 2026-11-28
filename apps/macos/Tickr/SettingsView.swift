@@ -58,7 +58,7 @@ struct SettingsView: View {
     .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.top } action: { inset in
       if titleInset == 0 { titleInset = inset }
     }
-    .task(id: model.baseURL) { await model.followJobs() }
+    .task(id: model.endpoint) { await model.followJobs() }
   }
 
   @ViewBuilder private var pane: some View {
@@ -308,7 +308,7 @@ private struct NotificationSettings: View {
         AlertRoutingPanelLoading()
       }
     }
-    .task(id: model.baseURL) { await model.refreshAlerts() }
+    .task(id: model.endpoint) { await model.refreshAlerts() }
   }
 }
 
@@ -446,7 +446,7 @@ private struct AdvancedSettings: View {
     BotServiceCard()
     JobsSection()
     ConfigCard()
-      .task(id: model.baseURL) { await model.refreshConfig() }
+      .task(id: model.endpoint) { await model.refreshConfig() }
   }
 }
 
