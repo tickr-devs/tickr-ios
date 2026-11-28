@@ -38,14 +38,9 @@ struct FunnelCard: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s) {
       RowStack {
-        ChipFlow(spacing: Tokens.Space.s) {
-          CardLabel(L10n.Flow.funnel)
-          if !current && !recorded {
-            Text(L10n.Flow.notCurrent)
-              .font(Tokens.Typography.annotation)
-              .foregroundStyle(Palette.warningText)
-          }
-        }
+        // The title alone (board IOSHome): a stale status is said once, by the headline and the
+        // age line, never again on each card (owner, 2026-11-28).
+        CardLabel(L10n.Flow.funnel)
         Spacer(minLength: 0)
         NavigationLink {
           RiskView()
@@ -70,13 +65,6 @@ struct FunnelCard: View {
       .accessibilityElement(children: .combine)
       .accessibilityHint(Text(L10n.Flow.funnelHint))
       .accessibilityIdentifier(AccessibilityID.funnel)
-      ForEach(liveFences, id: \.kind) { fence in
-        Label { Text(verbatim: Board.fenceText(fence, status: status)) } icon: {
-          Image(systemName: Symbols.failure)
-        }
-        .font(Tokens.Typography.caption)
-        .foregroundStyle(Palette.warningText)
-      }
     }
     .padding(.horizontal, Tokens.Space.l)
     .padding(.vertical, Tokens.Space.m)

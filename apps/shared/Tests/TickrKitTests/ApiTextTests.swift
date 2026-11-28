@@ -135,7 +135,8 @@ struct ApiTextTests {
   @Test("The headline is built from codes, with the status age in whole seconds")
   func headline() throws {
     let stale = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.stale.json"))
-    #expect(Headline.make(response: stale, readFailed: false).text == String(localized: L10n.headlineStale(42)))
+    #expect(Headline.make(response: stale, readFailed: false).text
+      == String(localized: L10n.headlineStale(Elapsed.text(seconds: 42))))
     let calm = try Wire.decoder().decode(StatusResponseV1.self, from: fixture("status-response-v1.json"))
     // One open position with a verified stop: the headline says what the bot holds.
     #expect(Headline.make(response: calm, readFailed: false).text == String(localized: L10n.headlineHoldingOne))

@@ -2579,6 +2579,74 @@
         }
       }
     },
+    "kit.elapsed.days" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld d"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld d"
+          }
+        }
+      }
+    },
+    "kit.elapsed.hours" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld h"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld h"
+          }
+        }
+      }
+    },
+    "kit.elapsed.minutes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        }
+      }
+    },
+    "kit.elapsed.seconds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        }
+      }
+    },
     "kit.entry.buy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4188,13 +4256,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free space on the data disk unreadable ({error}); no new entry until it reads"
+            "value" : "Free space on the data disk unreadable; no new entry until it reads"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Espacio libre del disco de datos ilegible ({error}); sin nuevas entradas hasta que se pueda leer"
+            "value" : "Espacio libre del disco de datos ilegible; sin nuevas entradas hasta que se pueda leer"
           }
         }
       }
@@ -4368,13 +4436,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open orders read failed: {error}"
+            "value" : "The broker's open orders could not be read"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Falló la lectura de órdenes abiertas: {error}"
+            "value" : "No se pudieron leer las órdenes abiertas del bróker"
           }
         }
       }
@@ -4458,13 +4526,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Positions read failed: {error}"
+            "value" : "The broker's positions could not be read"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Falló la lectura de posiciones: {error}"
+            "value" : "No se pudieron leer las posiciones del bróker"
           }
         }
       }
@@ -4548,13 +4616,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shutdown in progress"
+            "value" : "No new entry until it starts again"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apagado en curso"
+            "value" : "Sin nuevas entradas hasta que vuelva a arrancar"
           }
         }
       }
@@ -4746,13 +4814,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The watchdog's restart record is unreadable ({error}); no new entry until you clear this (tickr clear-fence watchdog-started)"
+            "value" : "The watchdog's restart record is unreadable; no new entry until you clear this (tickr clear-fence watchdog-started)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El registro de reinicio del vigilante es ilegible ({error}); sin nuevas entradas hasta que quites esto (tickr clear-fence watchdog-started)"
+            "value" : "El registro de reinicio del vigilante es ilegible; sin nuevas entradas hasta que quites esto (tickr clear-fence watchdog-started)"
           }
         }
       }
@@ -5233,13 +5301,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot status is %lld s old: the bot may be down. Do not trust the rest of this page."
+            "value" : "Bot status is %@ old: the bot may be down. Do not trust the rest of this page."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El estado del bot tiene %lld s de antigüedad: puede que el bot esté caído. No confíes en el resto de esta página."
+            "value" : "El estado del bot tiene %@ de antigüedad: puede que el bot esté caído. No confíes en el resto de esta página."
           }
         }
       }
@@ -10206,13 +10274,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The replay's {file}.json cannot be read ({error})"
+            "value" : "The replay's {file}.json cannot be read"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No se puede leer el {file}.json de la repetición ({error})"
+            "value" : "No se puede leer el {file}.json de la repetición"
           }
         }
       }

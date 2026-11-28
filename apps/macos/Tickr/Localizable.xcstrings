@@ -5319,19 +5319,19 @@
         }
       }
     },
-    "format.minutesAgo" : {
+    "format.ago" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld min ago"
+            "value" : "%@ ago"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "hace %lld min"
+            "value" : "hace %@"
           }
         }
       }
@@ -5366,23 +5366,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ s"
-          }
-        }
-      }
-    },
-    "format.secondsAgo" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld s ago"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hace %lld s"
           }
         }
       }
@@ -6862,23 +6845,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sin posición"
-          }
-        }
-      }
-    },
-    "menuBar.ageMinutes" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min"
           }
         }
       }
@@ -13897,40 +13863,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Advertencia: %@"
-          }
-        }
-      }
-    },
-    "toolbar.ageMinutes" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min"
-          }
-        }
-      }
-    },
-    "toolbar.ageSeconds" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld s"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld s"
           }
         }
       }

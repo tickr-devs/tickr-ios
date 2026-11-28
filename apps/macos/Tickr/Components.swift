@@ -330,10 +330,6 @@ enum Format {
   static let lineSeparator = "\n"
   /// Joins the parts of a one-line summary ("1 min +0.06 · 5 min +0.14").
   static let itemSeparator = " · "
-  /// Up to this many seconds an age reads in seconds, beyond it in minutes.
-  static let secondsShownUpTo = 120
-  /// Seconds in a minute.
-  static let secondsPerMinute = 60
 
   /// "14:42:08" in New York time (market time), 24-hour whatever the Mac's clock setting.
   /// The shared clock (TickrKit `ClockText`).
@@ -383,12 +379,10 @@ enum Format {
     return date.formatted(chartStyle(january ? Date.FormatStyle().year() : Date.FormatStyle().month(.abbreviated)))
   }
 
-  /// "3 s ago", "2 min ago".
+  /// "3 s ago", "2 min ago", "2 d ago".
   static func age(since date: Date?, now: Date) -> String {
     guard let date else { return String(localized: L10n.Format.never) }
-    let seconds = max(0, Int(now.timeIntervalSince(date)))
-    if seconds < secondsShownUpTo { return String(localized: L10n.Format.secondsAgo(seconds)) }
-    return String(localized: L10n.Format.minutesAgo(seconds / secondsPerMinute))
+    return String(localized: L10n.Format.ago(Elapsed.text(since: date, now: now)))
   }
 
   /// A price at its tick (`Money.price`: four decimals below a dollar), or the missing mark.

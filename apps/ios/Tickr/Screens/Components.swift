@@ -85,8 +85,8 @@ enum Format {
   /// "updated 3 s ago" from the API's age of the status document.
   static func age(_ response: StatusResponseV1?) -> LocalizedStringResource {
     guard let response, let age = response.ageSeconds else { return L10n.Age.none }
-    let seconds = NSDecimalNumber(decimal: age.value).intValue
-    return response.stale ? L10n.Age.stale(seconds) : L10n.Age.updated(seconds)
+    let text = Elapsed.text(seconds: NSDecimalNumber(decimal: age.value).intValue)
+    return response.stale ? L10n.Age.stale(text) : L10n.Age.updated(text)
   }
 }
 

@@ -87,7 +87,7 @@ extension ProseReason {
     case .backtestRefused: [ReasonSentence(L10n.proseReasonBacktestRefused, [.detail])]
     case .runWithoutReport: [ReasonSentence(L10n.proseReasonRunWithoutReport, [])]
     case .versionNeverStarted: [ReasonSentence(L10n.proseReasonVersionNeverStarted, [])]
-    case .runFileUnreadable: [ReasonSentence(L10n.proseReasonRunFileUnreadable, [.file, .error])]
+    case .runFileUnreadable: [ReasonSentence(L10n.proseReasonRunFileUnreadable, [.file])]
     case .noAccountFile: [ReasonSentence(L10n.proseReasonNoAccountFile, [])]
     case .noQuotesFile: [ReasonSentence(L10n.proseReasonNoQuotesFile, [])]
     case .noStartCommand: [ReasonSentence(L10n.proseReasonNoStartCommand, [])]

@@ -32,8 +32,8 @@ extension FenceReason {
   public var sentences: [ReasonSentence] {
     switch self {
     case .startupReconcilePending: [ReasonSentence(L10n.fenceReasonStartupReconcilePending, [])]
-    case .positionsReadFailed: [ReasonSentence(L10n.fenceReasonPositionsReadFailed, [.error])]
-    case .openOrdersReadFailed: [ReasonSentence(L10n.fenceReasonOpenOrdersReadFailed, [.error])]
+    case .positionsReadFailed: [ReasonSentence(L10n.fenceReasonPositionsReadFailed, [])]
+    case .openOrdersReadFailed: [ReasonSentence(L10n.fenceReasonOpenOrdersReadFailed, [])]
     case .detailBudget: [ReasonSentence(L10n.fenceReasonDetailBudget, [])]
     case .sendOutcomeUnknown: [ReasonSentence(L10n.fenceReasonSendOutcomeUnknown, [])]
     case .crashedDuringSend: [ReasonSentence(L10n.fenceReasonCrashedDuringSend, [])]
@@ -71,9 +71,9 @@ extension FenceReason {
     case .heldUntrackedSell: [ReasonSentence(L10n.fenceReasonHeldUntrackedSell, [.orders, .symbol])]
     case .exitNotFilled: [ReasonSentence(L10n.fenceReasonExitNotFilled, [.order, .quantity, .symbol, .seconds, .filled, .state])]
     case .diskLow: [ReasonSentence(L10n.fenceReasonDiskLow, [.mb])]
-    case .diskUnknown: [ReasonSentence(L10n.fenceReasonDiskUnknown, [.error])]
+    case .diskUnknown: [ReasonSentence(L10n.fenceReasonDiskUnknown, [])]
     case .watchdogStarted: [ReasonSentence(L10n.fenceReasonWatchdogStarted, [.time])]
-    case .watchdogRecordUnreadable: [ReasonSentence(L10n.fenceReasonWatchdogRecordUnreadable, [.error])]
+    case .watchdogRecordUnreadable: [ReasonSentence(L10n.fenceReasonWatchdogRecordUnreadable, [])]
     case .closeNotSent: [ReasonSentence(L10n.fenceReasonCloseNotSent, [.quantity, .expected, .symbol])]
     }
   }

@@ -45,14 +45,10 @@ struct BotChecksTests {
     #expect(none.tone == .profit)
   }
 
-  @Test("A silent bot's age reads in seconds, then in minutes, never below zero")
+  @Test("A silent bot's age reads as TickrKit's Elapsed, never below zero")
   func silence() {
     let written = Date(timeIntervalSince1970: 0)
-    #expect(BotChecks.silence(since: written, now: written.addingTimeInterval(47))
-      == String(localized: L10n.Toolbar.ageSeconds(47)))
-    #expect(BotChecks.silence(since: written, now: written.addingTimeInterval(TimeInterval(Format.secondsShownUpTo)))
-      == String(localized: L10n.Toolbar.ageMinutes(Format.secondsShownUpTo / Format.secondsPerMinute)))
-    #expect(BotChecks.silence(since: written, now: written.addingTimeInterval(-5))
-      == String(localized: L10n.Toolbar.ageSeconds(0)))
+    #expect(BotChecks.silence(since: written, now: written.addingTimeInterval(47)) == Elapsed.text(seconds: 47))
+    #expect(BotChecks.silence(since: written, now: written.addingTimeInterval(-5)) == Elapsed.text(seconds: 0))
   }
 }

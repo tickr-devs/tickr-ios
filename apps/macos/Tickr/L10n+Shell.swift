@@ -16,13 +16,6 @@ extension L10n.Toolbar {
   static func closedTrades(_ count: Int) -> LocalizedStringResource {
     LocalizedStringResource("toolbar.closedTrades", defaultValue: "\(count) closed", bundle: L10n.bundle)
   }
-  /// An age in seconds and in minutes ("3 s", "2 min").
-  static func ageSeconds(_ seconds: Int) -> LocalizedStringResource {
-    LocalizedStringResource("toolbar.ageSeconds", defaultValue: "\(seconds) s", bundle: L10n.bundle)
-  }
-  static func ageMinutes(_ minutes: Int) -> LocalizedStringResource {
-    LocalizedStringResource("toolbar.ageMinutes", defaultValue: "\(minutes) min", bundle: L10n.bundle)
-  }
   /// The title bar's sidebar button.
   static var hideSidebar: LocalizedStringResource {
     LocalizedStringResource("toolbar.hideSidebar", defaultValue: "Hide Sidebar", bundle: L10n.bundle)
