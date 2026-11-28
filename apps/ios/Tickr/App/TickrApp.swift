@@ -35,7 +35,11 @@ struct TickrApp: App {
 private struct PhoneSignInGate: View {
   @Environment(AppModel.self) private var model
   @State private var state = Container.shared.signInState()
+  @State private var notifications = Container.shared.notificationPermission()
   let opening: Bool
+
+  /// Whether this is an iPad, where the screen is a sheet over the Mac's screens.
+  private static var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
   var body: some View {
     Group {
@@ -50,10 +54,17 @@ private struct PhoneSignInGate: View {
       }
     }
     .onChange(of: state.signedIn) { _, signedIn in model.connection = model.connection.signedIn(signedIn) }
-    // The question to show the bot's push comes once the screens show after the opening, never
-    // while the app loads or the sign-in shows.
+    // "Turn on notifications" (board PushAsk) comes once the screens show after the opening,
+    // never while the app loads or the sign-in shows: the iPhone's own screen, a sheet on the iPad.
     .onChange(of: !opening && !model.connection.needsSignIn, initial: true) { _, ready in
-      if ready { PhoneAppDelegate.askWhenReady() }
+      if ready { Task { await notifications.screensShown() } }
+    }
+    .fullScreenCover(isPresented: Binding(get: { notifications.asking && !Self.isPad },
+      set: { notifications.asking = $0 })) {
+      NotificationsAsk(sheet: false, liveActivity: true).environment(notifications)
+    }
+    .sheet(isPresented: Binding(get: { notifications.asking && Self.isPad }, set: { notifications.asking = $0 })) {
+      NotificationsAsk(sheet: true, liveActivity: false).environment(notifications)
     }
   }
 }

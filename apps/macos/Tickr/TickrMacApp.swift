@@ -175,6 +175,7 @@ private struct OpeningOverlay: View {
 private struct MacSignInGate: View {
   @Environment(AppModel.self) private var model
   @State private var state = Container.shared.signInState()
+  @State private var notifications = Container.shared.notificationPermission()
 
   var body: some View {
     Group {
@@ -187,10 +188,13 @@ private struct MacSignInGate: View {
       }
     }
     .onChange(of: state.signedIn, initial: true) { _, signedIn in model.use(signedIn: signedIn) }
-    // The question to show the bot's push (APNs) comes once the screens show after the opening,
+    // "Turn on notifications" (board PushAsk) comes once the screens show after the opening,
     // never while the app loads or the sign-in shows.
     .onChange(of: model.openingPlayed && !model.needsSignIn, initial: true) { _, ready in
-      if ready && MacAppDelegate.asksForNotifications { Task { await MacAppDelegate.registerForPushIfAllowed() } }
+      if ready { Task { await notifications.screensShown() } }
+    }
+    .sheet(isPresented: $notifications.asking) {
+      NotificationsAsk(sheet: true, liveActivity: false).environment(notifications)
     }
   }
 }

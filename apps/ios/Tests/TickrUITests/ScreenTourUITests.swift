@@ -71,7 +71,7 @@ final class ScreenTourUITests: XCTestCase {
     XCUIDevice.shared.orientation = .portrait
     let api = Self.variable("TOUR_API") ?? Self.defaultAPI
     let language = Self.variable("TOUR_LANGUAGE") ?? Self.defaultLanguage
-    // No notification question over the screens (PhoneAppDelegate.asksKey).
+    // No notification question over the screens (NotificationPermission.asksKey).
     app.launchArguments = ["-apiBaseURL", api, "-AppleLanguages", "(\(language))", "-askForNotifications", "NO"]
     app.launch()
     sleep(Self.settle)
