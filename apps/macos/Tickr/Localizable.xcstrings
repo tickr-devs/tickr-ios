@@ -14003,23 +14003,6 @@
         }
       }
     },
-    "toolbar.dayRow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@   %@   trades: %lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@   %@   operaciones: %lld"
-          }
-        }
-      }
-    },
     "toolbar.dayToday" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14071,6 +14054,23 @@
         }
       }
     },
+    "toolbar.lastDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Último"
+          }
+        }
+      }
+    },
     "toolbar.nextDay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14101,6 +14101,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Siguiente día de trading (⌘])"
+          }
+        }
+      }
+    },
+    "toolbar.noTrades" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trades"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin operaciones"
           }
         }
       }
@@ -14173,6 +14190,23 @@
         }
       }
     },
+    "toolbar.showAllDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show all trading days"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver todos los días de trading"
+          }
+        }
+      }
+    },
     "toolbar.showSidebar" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14203,6 +14237,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Volver al día en vivo (⌘T)"
+          }
+        }
+      }
+    },
+    "toolbar.tradingDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading days"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Días de trading"
           }
         }
       }

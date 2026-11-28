@@ -80,6 +80,8 @@ extension Tokens {
     public static let brokerRows = 6
     /// The journal's lines (one short line each).
     public static let journalRows = 10
+    /// Trading days in the day picker's popover before "Show all trading days" (board MacDayPicker).
+    public static let dayPickerRows = 7
     /// The watchdog's restarts on the System card (owner, 2026-11-19; at most one a day).
     public static let restartRows = 5
   }

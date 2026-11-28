@@ -618,8 +618,8 @@ struct WindowLine: View {
   }
 }
 
-/// The right side of the title bar: the connection status, then ‹ day › with a menu of recorded
-/// days, and Today (`DayControls`). In a window narrower than the title bar's comfortable width
+/// The right side of the title bar: the connection status, then ‹ day › with the trading days' popover
+/// and Today (`DayControls`). In a window narrower than the title bar's comfortable width
 /// the day controls sit in Overview's header instead, and in the narrowest the status is its dot
 /// alone (`TitleBarFit`).
 struct DayStepper: View {
@@ -644,10 +644,12 @@ struct DayStepper: View {
   }
 }
 
-/// ‹ day › with a menu of recorded days, and Today: in the title bar (`DayStepper`), or in
+/// ‹ day › with the trading days' popover (`TradingDaysPopover`), and Today: in the title bar (`DayStepper`), or in
 /// Overview's header in a narrow window.
 struct DayControls: View {
   @Environment(AppModel.self) private var model
+  /// The trading days' popover under the day (`TradingDaysPopover`).
+  @State private var daysOpen = false
 
   /// Least width of the day label, in points, so the arrows keep their place from day to day:
   /// holds the widest live-day label in 11.5-point mono (`Typography.dayStepper`): 22 characters
@@ -660,7 +662,7 @@ struct DayControls: View {
 
   var body: some View {
     Group {
-      // On the demo day there is one day: no arrows, no day menu and no Today that would do
+      // On the demo day there is one day: no arrows, no days' popover and no Today that would do
       // nothing (they also pushed the stepper into the toolbar's overflow in a narrow window).
       if model.dayLocked {
         Text(L10n.Toolbar.dayDemo(DayText.day(model.today)))
@@ -671,7 +673,7 @@ struct DayControls: View {
       } else if arrows.visible {
         stepper
       } else {
-        // No other recorded day: no arrows, day menu or Today that would do nothing.
+        // No other recorded day: no arrows, days' popover or Today that would do nothing.
         Text(L10n.Toolbar.dayToday(DayText.day(model.today)))
           .font(Tokens.Typography.dayStepper)
           .foregroundStyle(Palette.textPrimary)
@@ -705,7 +707,7 @@ struct DayControls: View {
     DayArrows(locked: model.dayLocked, canGoBack: model.previousDay != nil, canGoForward: !model.isLive)
   }
 
-  /// ‹ day menu › and Today.
+  /// ‹ day › (opening the trading days' popover) and Today.
   @ViewBuilder private var stepper: some View {
     HStack(spacing: Tokens.Space.s) {
       Button { model.showPreviousDay() } label: {
@@ -714,18 +716,7 @@ struct DayControls: View {
       .buttonStyle(.titleBar(square: true))
       .disabled(!arrows.canGoBack)
       .tip(Text(L10n.Toolbar.previousDayHelp))
-      Menu {
-        Button(String(localized: L10n.Common.today)) { model.showToday() }
-          .disabled(model.isLive)
-        if !model.days.isEmpty { Divider() }
-        ForEach(model.days.filter { $0.day != model.today }) { day in
-          Button {
-            model.selectedDay = day.day
-          } label: {
-            Text(L10n.Toolbar.dayRow(DayText.day(day.day), Money.signedUSD(day.resultUsd.value), day.trades))
-          }
-        }
-      } label: {
+      Button { daysOpen = true } label: {
         Group {
           if model.isLive {
             Text(L10n.Toolbar.dayToday(DayText.day(model.today)))
@@ -736,12 +727,17 @@ struct DayControls: View {
         .font(Tokens.Typography.dayStepper)
         .foregroundStyle(Palette.textPrimary)
         .frame(minWidth: Self.dayMinWidth)
+        .contentShape(Rectangle())
       }
-      .buttonMenuStyle()
       .buttonStyle(.plain)
-      .menuIndicator(.hidden)
       .fixedSize()
       .tip(Text(L10n.Toolbar.pickDayHelp))
+      .popover(isPresented: $daysOpen, arrowEdge: .bottom) {
+        TradingDaysPopover { daysOpen = false }
+          #if os(iOS)
+          .presentationCompactAdaptation(.popover)
+          #endif
+      }
       Button { model.showNextDay() } label: {
         Label { Text(L10n.Toolbar.nextDay) } icon: { Image(systemName: Symbols.next) }
       }
