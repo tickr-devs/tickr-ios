@@ -3,6 +3,11 @@
 import Foundation
 
 extension L10n {
+  /// A cause the API writes itself (`<field>_codes`). status_file_invalid (values: detail)
+  static var proseReasonStatusFileInvalid: LocalizedStringResource {
+    LocalizedStringResource("kit.prose.status_file_invalid",
+      defaultValue: "The bot's status file is invalid: {detail}", bundle: bundle)
+  }
   /// A cause the API writes itself (`<field>_codes`). status_from_future
   static var proseReasonStatusFromFuture: LocalizedStringResource {
     LocalizedStringResource("kit.prose.status_from_future",
@@ -380,10 +385,5 @@ extension L10n {
     LocalizedStringResource("kit.prose.trades_still_open",
       // swiftlint:disable:next line_length
       defaultValue: "{count} trade(s) open or entering: close them first (or send the emergency command), then stop the bot", bundle: bundle)
-  }
-  /// A cause the API writes itself (`<field>_codes`). stop_already_running
-  static var proseReasonStopAlreadyRunning: LocalizedStringResource {
-    LocalizedStringResource("kit.prose.stop_already_running",
-      defaultValue: "A close-and-stop is already running", bundle: bundle)
   }
 }

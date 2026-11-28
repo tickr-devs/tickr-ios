@@ -189,5 +189,15 @@
   "poll_seconds": "3",
   "api_version": 1,
   "api_started_at": "2026-11-16T14:00:00.123Z",
-  "unavailable_cause_codes": []
+  "schedule": {
+    "timezone": "America/New_York",
+    "expected_running": true,
+    "run_ends_at": "2026-11-17T01:00:00.000Z",
+    "next_start_at": "2026-11-17T09:00:00.000Z",
+    "next_end_at": "2026-11-18T01:00:00.000Z",
+    "last_trading_day": "2026-11-16"
+  },
+  "schedule_cause": null,
+  "unavailable_cause_codes": [],
+  "schedule_cause_codes": []
 }

@@ -1114,6 +1114,11 @@ GROUPS = [
                 "El calendario de sesiones no cubre {day}",
             ),
             (
+                "no_bot_run",
+                "No bot run within {days} days of {day}",
+                "Ninguna ejecución del bot en los {days} días cercanos a {day}",
+            ),
+            (
                 "calendar_invalid",
                 "The session calendar is invalid: {detail}",
                 "El calendario de sesiones no es válido: {detail}",
@@ -1819,6 +1824,8 @@ PARTS = {
 PARAM = re.compile(r"\{(\w+)\}")
 # Longest line SwiftLint allows (it warns above this, and CI runs it strict).
 LINE = 130
+# Longest type body SwiftLint allows, in lines (`type_body_length`).
+TYPE_BODY = 250
 
 
 def camel(name):
@@ -1934,11 +1941,12 @@ def reason_swift(part):
     for enum, _prefix, doc, items, group_part in GROUPS:
         if group_part != part:
             continue
-        out += [
-            f"/// {doc} An unknown code has no case; show the bot's own text then.",
-            f"public enum {enum}: String, CaseIterable, Sendable {{",
-        ]
         codes = list(dict.fromkeys(code for code, *_ in items))
+        out.append(f"/// {doc} An unknown code has no case; show the bot's own text then.")
+        # One case per code the bot writes: a list of data, never logic, so its length is the
+        # contract's (its sentences and words are already in files of their own).
+        waiver = " // swiftlint:disable:this type_body_length" if len(codes) > TYPE_BODY else ""
+        out.append(f"public enum {enum}: String, CaseIterable, Sendable {{{waiver}")
         for code in codes:
             out.append(f'  case {camel(code)} = "{code}"')
         out += ["}", ""]
