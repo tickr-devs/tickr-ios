@@ -2,7 +2,7 @@ import CoreText
 import SwiftUI
 
 // Tokens of the wordmark (`Wordmark`, mockup v189, page p-logo option B): the mark's "t" without its
-// tile, then "ickr" in Manrope 700. In their own file because Tokens.swift is at SwiftLint's file
+// tile, then "ickr" in Manrope 700 and ".bot" in Manrope 500. In their own file because Tokens.swift is at SwiftLint's file
 // length limit.
 
 extension Tokens.Size {
@@ -26,23 +26,29 @@ extension Tokens.Typography {
   /// "ickr" beside a mark of height `markHeight`, in the wordmark's own font.
   public static func wordmark(markHeight: CGFloat) -> Font {
     WordmarkFont.register()
-    return .custom(WordmarkFont.postScriptName, fixedSize: markHeight * wordmarkTextShare)
+    return .custom(WordmarkFont.bold, fixedSize: markHeight * wordmarkTextShare)
+  }
+
+  /// ".bot" after "ickr", the same size, lighter (the site's `.wm .dot`, weight 500).
+  public static func wordmarkDomain(markHeight: CGFloat) -> Font {
+    WordmarkFont.register()
+    return .custom(WordmarkFont.medium, fixedSize: markHeight * wordmarkTextShare)
   }
 }
 
-/// The wordmark's font: Manrope 700 cut to the four letters of "ickr" (Resources/
-/// TickrWordmark-Bold.ttf, SIL Open Font License in Resources/Manrope-OFL.txt), registered for this
-/// process at its first use.
+/// The wordmark's fonts: Manrope 700 cut to "ickr" and Manrope 500 cut to ".bot" (Resources/
+/// TickrWordmark-Bold.ttf and TickrWordmark-Medium.ttf, SIL Open Font License in
+/// Resources/Manrope-OFL.txt), registered for this process at the first use.
 enum WordmarkFont {
-  /// The font's file in this package's resources, and the name it registers under.
-  static let fileName = "TickrWordmark-Bold"
+  /// The fonts' files in this package's resources, named as they register (PostScript names).
+  static let bold = "TickrWordmark-Bold"
+  static let medium = "TickrWordmark-Medium"
   static let fileExtension = "ttf"
-  static let postScriptName = "TickrWordmark-Bold"
 
   /// Registered once, at the first wordmark drawn.
   private static let registered: Bool = {
-    guard let url = Bundle.module.url(forResource: fileName, withExtension: fileExtension) else { return false }
-    return CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+    let urls = [bold, medium].compactMap { Bundle.module.url(forResource: $0, withExtension: fileExtension) }
+    return urls.allSatisfy { CTFontManagerRegisterFontsForURL($0 as CFURL, .process, nil) }
   }()
 
   static func register() {

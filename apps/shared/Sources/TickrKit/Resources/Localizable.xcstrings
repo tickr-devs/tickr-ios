@@ -1496,19 +1496,36 @@
         }
       }
     },
+    "kit.brand.wordmarkDomain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ".bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ".bot"
+          }
+        }
+      }
+    },
     "kit.brand.wordmarkName" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "tickr"
+            "value" : "tickr.bot"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "tickr"
+            "value" : "tickr.bot"
           }
         }
       }

@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The macOS app's opening (macOS has no launch screen; mockup v189, page p-logo option B, and
 /// v191, page p-machead): the first window of a launch opens on the plain background with the
-/// wordmark's "t" in its centre, "ickr" slides out of it, then the wordmark flies to the header's
+/// wordmark's "t" in its centre, "ickr.bot" slides out of it, then the wordmark flies to the header's
 /// (`target`, on screen) while the background fades and the screen shows through under it; as it
 /// lands the header's own wordmark (hidden until then) takes its place. It follows the header's
 /// wordmark wherever it moves until the opening is over, so it never lands beside it. It starts

@@ -55,6 +55,7 @@ emergency command tiers from the palette's values (`Swatch`) and fails below 4.5
 | `brandLetter` | The mark's letter on the tile | `#E7EAF6` | `#E7EAF6` |
 | `brandTileEdge` | The tile's hairline edge | `#2A3459` | `#2A3459` |
 | `brandLine` / `brandMuted` | The mark's level on the tile; muted when the bot is unreachable | `#2DD4BF` / `#5F6A8C` | `#2DD4BF` / `#5F6A8C` |
+| `wordmarkDomain` | ".bot" in the wordmark (`Wordmark`), as the site's `--wmdot` | `#6B7493` | `#7C86A8` |
 | `textPrimary` | Headlines, primary values | `#0E1430` | `#E7EAF6` |
 | `textSecondary` | Body text in rows and lists | `#262F52` | `#C9CFE6` |
 | `textTertiary` | Labels next to values, explanations | `#475174` | `#A9B2D3` |
@@ -636,13 +637,14 @@ plus "ickr" in Manrope 700 and ".bot" in a muted grey.
 - The wordmark (`Wordmark`, TickrDesign; mockup v189, page p-logo option B, and v191, page
   p-machead option C) is the app's name in headers, the sign-in and the openings: the mark's "t"
   and level (`BrandLetter` in `textPrimary`, level in `brandLine`, `brandMuted` when muted)
-  cropped to `Wordmark.crop`, then "ickr" in the bundled Manrope Bold subset
-  (`TickrWordmark-Bold.ttf`, OFL) at `wordmarkTextShare` of its height. `rest` (0…1) shows that
-  much of "ickr", for the openings. Heights: `wordmark` (Mac Overview header, iPhone Home bar and
+  cropped to `Wordmark.crop`, then "ickr" (Manrope 700, `textPrimary`) and ".bot" (Manrope 500,
+  `wordmarkDomain`, as the site) in bundled subsets (`TickrWordmark-Bold/Medium.ttf`, OFL) at `wordmarkTextShare` of its
+  height: it reads "tickr.bot" (owner, 2026-11-28); the Home Screen and Dock name stays "tickr".
+  `rest` (0…1) shows that much of "ickr.bot", for the openings. Heights: `wordmark` (Mac Overview header, iPhone Home bar and
   sign-in), `wordmarkSmall`, `wordmarkLaunch` (openings, Mac and iPad sign-in). No "Operator"
   word anywhere: the header is the wordmark and the Paper/Live badge.
 - iOS opening (`LaunchHandoff`): the app starts exactly as the launch screen (the "t" of the
-  wordmark, `LaunchMark`), "ickr" slides out (`wordmarkReveal`), then the wordmark flies into
+  wordmark, `LaunchMark`), "ickr.bot" slides out (`wordmarkReveal`), then the wordmark flies into
   Home's bar while the background fades (`launchFly`). Reduce Motion: a cross-fade
   (`launchFadeSeconds`).
 - macOS opening (`BrandOpening`, macOS has no launch screen): the first window of a launch opens
