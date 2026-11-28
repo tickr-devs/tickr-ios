@@ -104,6 +104,23 @@ enum L10n {
     }
   }
 
+  /// Settings › Connection's row while notifications are off (mockup v189, board PushAsk); the
+  /// screen itself is TickrScreens' `NotificationsAsk`.
+  enum Notifications {
+    /// Settings › Connection: the row while notifications are off.
+    static var row: LocalizedStringResource {
+      LocalizedStringResource("notifications.row", defaultValue: "Notifications", bundle: L10n.bundle)
+    }
+    /// Under the row's title.
+    static var rowLine: LocalizedStringResource {
+      LocalizedStringResource("notifications.rowLine", defaultValue: "Alarms and sign-ins won’t reach you.", bundle: L10n.bundle)
+    }
+    /// The row's state.
+    static var off: LocalizedStringResource {
+      LocalizedStringResource("notifications.off", defaultValue: "Off", bundle: L10n.bundle)
+    }
+  }
+
   /// Settings' Connection card (mockup v174, board IOSSystem); the sign-in itself is TickrScreens'.
   enum SignIn {
     static var connection: LocalizedStringResource {
@@ -925,7 +942,7 @@ enum L10n {
       LocalizedStringResource("activity.notTaken", defaultValue: "Not taken", bundle: L10n.bundle)
     }
     static var journal: LocalizedStringResource {
-      LocalizedStringResource("activity.journal", defaultValue: "Journal", bundle: L10n.bundle)
+      LocalizedStringResource("activity.journal", defaultValue: "Activity", bundle: L10n.bundle)
     }
     static var show: LocalizedStringResource {
       LocalizedStringResource("activity.show", defaultValue: "Show", bundle: L10n.bundle)

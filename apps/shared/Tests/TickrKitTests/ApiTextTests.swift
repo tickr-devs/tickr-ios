@@ -84,6 +84,18 @@ struct ApiTextTests {
     #expect(ReasonParam.fill("{symbol} is {state}", names: names, params: ["symbol": "AB"]) == nil)
   }
 
+  @Test("A date the bot names reads as the apps write a day, never as the wire's 2026-11-28")
+  func dateValues() throws {
+    let day = try WireDate("2026-11-28")
+    let sentence = ReasonSentence(L10n.proseReasonCalendarWeekend, [.day])
+    let text = sentence.text(["day": "2026-11-28"])
+    #expect(text == String(localized: L10n.proseReasonCalendarWeekend)
+      .replacing("{day}", with: day.dayText()))
+    #expect(text?.contains("2026-11-28") == false)
+    #expect(ReasonSentence.readable("not-a-date") == "not-a-date")
+    #expect(day.dayText(locale: Locale(identifier: "en_US")) == "Sat Nov 28")
+  }
+
   @Test("A refusal's detail reads as its sentence, a closed gate as the gate's; else nil")
   func refusals() {
     #expect(ApiText.refusalDetail(code: "QUOTE_STALE", params: ["age": "9", "limit": "5"])

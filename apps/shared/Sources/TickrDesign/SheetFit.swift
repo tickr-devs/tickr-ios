@@ -48,6 +48,9 @@ enum SheetHeight {
 
 struct SheetFit: ViewModifier {
   @State private var fitting = SheetFitting()
+  #if os(iOS)
+  @Environment(\.horizontalSizeClass) private var sizeClass
+  #endif
 
   func body(content: Content) -> some View {
     #if os(iOS)
@@ -58,7 +61,9 @@ struct SheetFit: ViewModifier {
       // system's half height; then the content's own. Taller than the screen, the system stops
       // it at full height.
       .presentationDetents([detent])
-      .presentationDragIndicator(.visible)
+      // The grabber says a sheet can be dragged to another height: on the iPhone's bottom sheet.
+      // An iPad's sheet floats at its own size with a close button, so it shows none (Apple HIG).
+      .presentationDragIndicator(sizeClass == .regular ? .hidden : .visible)
     #else
     content
     #endif

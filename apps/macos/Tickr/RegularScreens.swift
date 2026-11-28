@@ -133,13 +133,16 @@ private struct RegularToolbar: ToolbarContent {
   var body: some ToolbarContent {
     ToolbarItem(placement: .topBarTrailing) { ConnectionStatus() }
       .sharedBackgroundVisibility(.hidden)
-    ToolbarItem(placement: .topBarTrailing) { DayControls() }
+    // The bar's glyphs in the title bar's colour (`TitleBarButtonStyle`), never the system's
+    // blue: iPadOS draws a toolbar item's symbols in the tint, not in a button style's colour.
+    ToolbarItem(placement: .topBarTrailing) { DayControls().tint(Palette.textTertiary) }
       .sharedBackgroundVisibility(.hidden)
     ToolbarItem(placement: .topBarTrailing) { PowerButton() }
     ToolbarItem(placement: .topBarTrailing) {
       Button(action: settings) {
         Label { Text(L10n.Toolbar.settings) } icon: { Image(systemName: PowerButton.settingsSymbol) }
       }
+      .tint(Palette.textTertiary)
     }
   }
 }

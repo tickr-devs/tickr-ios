@@ -62,10 +62,10 @@ struct OverviewView: View {
   }
 
   /// Narrowest two-column grid, in points, with the day's result beside the header: the result's
-  /// narrow column and its gap, beside the brand mark and the day controls (`DayControls`), the
-  /// widest part of the header that never wraps. Narrower, the result is one line under it.
+  /// narrow column and its gap, beside the wordmark and the day controls (`DayControls`) side by side,
+  /// the parts of the header that never wrap. Narrower, the result is one line under it.
   static let headerBesideNarrowResultMinGridWidth: CGFloat = OverviewView.dayResultNarrowWidth + Tokens.Space.xl
-    + Tokens.Size.logo + Tokens.Space.l
+    + Wordmark.width(height: Tokens.Size.wordmark) + Tokens.Space.m
     + DayControls.stepperWidth(today: String(localized: L10n.Common.today))
 
   /// The design's grid at the widest (Main); two columns with the result beside the header, then
@@ -223,25 +223,10 @@ extension EnvironmentValues {
 
 private struct Header: View {
   @Environment(AppModel.self) private var model
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.windowFit) private var fit
 
   var body: some View {
     HStack(alignment: .center, spacing: Tokens.Space.l) {
-      // Drawn at once while the opening flies the mark here; it draws itself on later visits.
-      // Muted while the link is down: nothing about the bot can be known, so no green mark.
-      BrandMark(live: model.ornamentsMove(reduceMotion: reduceMotion) && !linkDown,
-        tone: linkDown ? .muted : .brand, drawsIn: model.openingPlayed)
-        // Hidden while the launch's opening flies its own mark here; shown as that one lands.
-        .opacity(model.openingPlayed ? 1 : 0)
-        .onGeometryChange(for: CGPoint.self) { proxy in
-          let frame = proxy.frame(in: .global)
-          return CGPoint(x: frame.midX, y: frame.midY)
-        } action: { centre in
-          // Only while the opening can still land here: afterwards a scroll would write the
-          // model on every frame for nobody.
-          if !model.openingPlayed { model.overviewMarkCentre = centre }
-        }
       VStack(alignment: .leading, spacing: Tokens.Space.m) {
         if fit.titleBar.stepper {
           titleRow
@@ -273,16 +258,24 @@ private struct Header: View {
   /// The last read of the bot failed: the connection banner speaks for the whole screen.
   private var linkDown: Bool { model.connectionState.failure != nil }
 
-  /// "Tickr Operator", the environment badge and, when the shown day needs a look, its verdict.
+  /// The wordmark, the environment badge and, when the shown day needs a look, its verdict (mockup
+  /// v191, page p-machead: the wordmark alone, no "Operator").
   private var titleRow: some View {
     // The badges go onto a second line rather than run past a narrow header (MainNarrow v110).
     WrapRow(spacing: Tokens.Space.m, lineSpacing: Tokens.Space.s) {
-      HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s) {
-        Text(L10n.App.name).font(Tokens.Typography.title).foregroundStyle(Palette.infoText)
-        Text(L10n.Common.operatorTitle).font(Tokens.Typography.subtitle).foregroundStyle(Palette.textPrimary)
-      }
-      // The product name never wraps ("Tickr Operat / or" in a narrow window): badges move first.
-      .fixedSize()
+      // Muted while the link is down: nothing about the bot can be known, so no teal level.
+      Wordmark(tone: linkDown ? .muted : .brand)
+        .accessibilityAddTraits(.isHeader)
+        // Hidden while the launch's opening flies its own wordmark here; shown as that one lands.
+        .opacity(model.openingPlayed ? 1 : 0)
+        .onGeometryChange(for: CGPoint.self) { proxy in
+          let frame = proxy.frame(in: .global)
+          return CGPoint(x: frame.midX, y: frame.midY)
+        } action: { centre in
+          // Only while the opening can still land here: afterwards a scroll would write the
+          // model on every frame for nobody.
+          if !model.openingPlayed { model.overviewMarkCentre = centre }
+        }
       if let status = model.status {
         EnvironmentBadge(ApiText.environment(status.environment), raw: status.environment,
           accessibilityLabel: ApiText.environmentLabel(status.environment))

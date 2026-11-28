@@ -31,11 +31,15 @@ struct TickrApp: App {
 /// The app's screens once the phone is signed in with the bot, the sign-in until then (mockup
 /// v174, boards IOSSignIn and IPadSignIn: the iPad takes the Mac's sign-in at touch sizes). The
 /// demo day and a development address need no sign-in. The launch's opening lands on the
-/// sign-in's mark when there is no sign-in, else on Home's.
+/// sign-in's wordmark when there is no sign-in, else on Home's.
 private struct PhoneSignInGate: View {
   @Environment(AppModel.self) private var model
   @State private var state = Container.shared.signInState()
+  @State private var notifications = Container.shared.notificationPermission()
   let opening: Bool
+
+  /// Whether this is an iPad, where the screen is a sheet over the Mac's screens.
+  private static var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
   var body: some View {
     Group {
@@ -43,12 +47,24 @@ private struct PhoneSignInGate: View {
         let device = SignInDevice.current
         SignInScreen(device: device, ended: state.ended, markShown: !opening) { centre in
           model.homeMarkCentre = centre
-          model.homeMarkSide = SignInScreen.markSide(on: device)
+          model.homeMarkHeight = SignInScreen.markHeight(on: device)
         }
       } else {
         AdaptiveRoot()
       }
     }
     .onChange(of: state.signedIn) { _, signedIn in model.connection = model.connection.signedIn(signedIn) }
+    // "Turn on notifications" (board PushAsk) comes once the screens show after the opening,
+    // never while the app loads or the sign-in shows: the iPhone's own screen, a sheet on the iPad.
+    .onChange(of: !opening && !model.connection.needsSignIn, initial: true) { _, ready in
+      if ready { Task { await notifications.screensShown() } }
+    }
+    .fullScreenCover(isPresented: Binding(get: { notifications.asking && !Self.isPad },
+      set: { notifications.asking = $0 })) {
+      NotificationsAsk(sheet: false, liveActivity: true).environment(notifications)
+    }
+    .sheet(isPresented: Binding(get: { notifications.asking && Self.isPad }, set: { notifications.asking = $0 })) {
+      NotificationsAsk(sheet: true, liveActivity: false).environment(notifications)
+    }
   }
 }

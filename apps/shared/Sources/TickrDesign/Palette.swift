@@ -45,6 +45,8 @@ public enum Palette {
   public static let brandLine = Color(light: 0x2DD4BF, dark: 0x2DD4BF)
   /// The level when nothing about the bot can be known (bot unreachable).
   public static let brandMuted = Color(light: 0x5F6A8C, dark: 0x5F6A8C)
+  /// ".bot" in the wordmark (`Wordmark`), as the tickr.bot site draws it (its `--wmdot`).
+  public static let wordmarkDomain = Color(light: 0x6B7493, dark: 0x7C86A8)
 
   // MARK: text, strongest to weakest
 

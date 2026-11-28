@@ -11,8 +11,6 @@ enum SignInLayout {
   static let formWidth: CGFloat = 380
   /// The form's distance from the window's top beside the brand column.
   static let formTop: CGFloat = 56
-  /// The iPhone's brand tile over the title.
-  static let tile: CGFloat = 64
   /// One code cell's height (the metric tiles of the code steps).
   static let codeCell: CGFloat = 52
   /// The least height of a field, a button and a footer row: the Mac's icon button; the iPhone's
@@ -26,10 +24,11 @@ enum SignInLayout {
 
 /// The sign-in with the owner's tickr.bot account, shown while this device has no sign-in with
 /// the bot (`SignInState`). One screen for the three devices, laid out as each one's board: the
-/// iPhone's single column with the brand tile over the title; the Mac's and iPad's two columns,
-/// the brand on the left and the form on the right. The status pill says whether this device has
-/// a network path to api.tickr.bot. `markShown` hides the brand mark while the launch's opening
-/// flies its own mark there; `markMoved` reports where it is (global coordinates).
+/// iPhone's single column with the wordmark over the title; the Mac's and iPad's two columns,
+/// the wordmark alone in the left panel and the form on the right (mockup v191, boards MacSignIn,
+/// IPadSignIn). The status pill says whether this device has a network path to api.tickr.bot.
+/// `markShown` hides the wordmark while the launch's opening flies its own there; `markMoved`
+/// reports where it is (global coordinates).
 public struct SignInScreen: View {
   @State private var model: SignInModel
   @State private var online = true
@@ -44,9 +43,9 @@ public struct SignInScreen: View {
     self.markMoved = markMoved
   }
 
-  /// The side of the mark the launch's opening lands on, for `device`.
-  public static func markSide(on device: SignInDevice) -> CGFloat {
-    device == .iPhone ? SignInLayout.tile : Tokens.Size.logo
+  /// The height of the wordmark the launch's opening lands on, for `device`.
+  public static func markHeight(on device: SignInDevice) -> CGFloat {
+    device == .iPhone ? Tokens.Size.wordmark : Tokens.Size.wordmarkLaunch
   }
 
   public var body: some View {
@@ -84,7 +83,7 @@ public struct SignInScreen: View {
     ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.l) {
         if model.step == .main {
-          brandTile
+          mark(height: Self.markHeight(on: .iPhone))
           SignInHeading(title: Text(L10n.SignIn.title), line: Text(L10n.SignIn.line))
         } else {
           SignInStepHeading()
@@ -101,16 +100,11 @@ public struct SignInScreen: View {
 
   private var columns: some View {
     HStack(spacing: .zero) {
-      VStack(spacing: Tokens.Space.l) {
-        mark(size: Tokens.Size.logo)
-        Text(L10n.SignIn.operatorName)
-          .font(Tokens.Typography.heading)
-          .foregroundStyle(Palette.textPrimary)
-      }
-      .frame(width: SignInLayout.brandColumn)
-      .frame(maxHeight: .infinity)
-      .background(Palette.surface)
-      .overlay(alignment: .trailing) { Rectangle().fill(Palette.separator).frame(width: Tokens.Stroke.thin) }
+      mark(height: Self.markHeight(on: model.device))
+        .frame(width: SignInLayout.brandColumn)
+        .frame(maxHeight: .infinity)
+        .background(Palette.surface)
+        .overlay(alignment: .trailing) { Rectangle().fill(Palette.separator).frame(width: Tokens.Stroke.thin) }
       ScrollView {
         VStack(alignment: .leading, spacing: Tokens.Space.l) {
           if model.step == .main {
@@ -132,12 +126,9 @@ public struct SignInScreen: View {
 
   // MARK: Pieces
 
-  private var brandTile: some View {
-    mark(size: SignInLayout.tile)
-  }
-
-  private func mark(size: CGFloat) -> some View {
-    BrandMark(size: size, live: false, drawsIn: markShown)
+  private func mark(height: CGFloat) -> some View {
+    Wordmark(height: height)
+      .accessibilityAddTraits(.isHeader)
       .opacity(markShown ? 1 : 0)
       .onGeometryChange(for: CGPoint.self) { proxy in
         let frame = proxy.frame(in: .global)

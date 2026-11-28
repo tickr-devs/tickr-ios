@@ -1,6 +1,7 @@
 import SwiftUI
 import TickrDesign
 import TickrKit
+import TickrScreens
 
 /// Settings, behind the gear on Home: what the bot reports about itself, what this phone does, and
 /// where the bot is. A grouped form whose sections are the design's cards, with no tab bar.
@@ -16,6 +17,7 @@ struct SettingsView: View {
   static let appSymbol = "app.fill"
   static let contractSymbol = "doc.text.fill"
   static let demoSymbol = "theatermasks.fill"
+  static let notificationsSymbol = "bell.fill"
   /// Accessibility id of the demo day switch, for the UI tests.
   static let demoDayID = "settings-demo-day"
 
@@ -29,6 +31,7 @@ struct SettingsView: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var confirmSignOut = false
   @State private var signIn = Container.shared.signInState()
+  @State private var notifications = Container.shared.notificationPermission()
   @State private var showControl = false
   @State private var confirmStart = false
 
@@ -176,7 +179,9 @@ struct SettingsView: View {
   }
 
   /// The design's "Connection" (mockup v174, IOSSystem): who this phone is signed in as, the
-  /// link's state, and Sign Out (confirmed). A development address shows only the state.
+  /// link's state, "Notifications · Off" while they are (board PushAsk: it opens the screen that
+  /// asks, or the system's settings once the system was told no), and Sign Out (confirmed). A
+  /// development address shows only the state.
   private var connectionCard: some View {
     SettingsCard(L10n.SignIn.connection) {
       if model.connection.signedIn {
@@ -188,12 +193,22 @@ struct SettingsView: View {
       SettingsRow(L10n.Settings.status, systemImage: Self.statusSymbol, tone: connectionState.tone) {
         StatusPill(connectionState.text, tone: connectionState.tone)
       }
+      if model.connection.signedIn, notifications.state == .notAsked || notifications.state == .denied {
+        Button { notifications.turnOn() } label: {
+          SettingsRow(L10n.Notifications.row, systemImage: Self.notificationsSymbol, tone: .warning) {
+            StatusPill(L10n.Notifications.off, tone: .warning)
+          } subtitle: {
+            Text(L10n.Notifications.rowLine)
+          }
+        }
+      }
       if model.connection.signedIn {
         Button(role: .destructive) { confirmSignOut = true } label: {
           Label { Text(L10n.SignIn.signOut) } icon: { SettingsIcon(Self.signOutSymbol, tone: .loss) }
         }
       }
     }
+    .task { await notifications.refresh() }
   }
 
   /// Whether this is an iPad (the texts name the device).
