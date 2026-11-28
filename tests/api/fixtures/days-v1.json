@@ -23,7 +23,8 @@
           }
         ]
       },
-      "result_net_usd": null
+      "result_net_usd": null,
+      "session": null
     },
     {
       "day": "2026-11-13",
@@ -42,7 +43,8 @@
         "day_end_seq": 9120,
         "cause_codes": []
       },
-      "result_net_usd": null
+      "result_net_usd": null,
+      "session": null
     },
     {
       "day": "2026-11-12",
@@ -101,7 +103,8 @@
         "day_end_seq": 8890,
         "cause_codes": []
       },
-      "result_net_usd": null
+      "result_net_usd": null,
+      "session": null
     },
     {
       "day": "2026-11-11",
@@ -125,7 +128,8 @@
           }
         ]
       },
-      "result_net_usd": null
+      "result_net_usd": null,
+      "session": null
     }
   ],
   "api_version": 1
