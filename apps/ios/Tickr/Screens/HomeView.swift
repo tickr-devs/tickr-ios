@@ -478,8 +478,9 @@ private struct Summary: View {
               let entries = EntriesGlyph.make(status)
               entryLine(entries.label, tone: entries.tone)
             }
-            Text(status.codeVersion.map { L10n.Home.versionCode(status.strategy.version, CodeVersion.short($0)) }
-              ?? L10n.Common.version(status.strategy.version))
+            // The strategy that trades, as the board's "Model l2 12-01a"; never the code version, a
+            // commit hash (owner, 2026-11-28: no developer text on Home).
+            Text(L10n.Home.strategy(StrategyName.title(status.strategy.name), status.strategy.version))
               .font(Tokens.Typography.annotation)
               .foregroundStyle(Palette.highlightText)
             AgeLine()

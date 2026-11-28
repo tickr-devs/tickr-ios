@@ -23,10 +23,10 @@ extension L10n {
     LocalizedStringResource("kit.prose.version_never_started",
       defaultValue: "The API stopped before this version started", bundle: bundle)
   }
-  /// A cause the API writes itself (`<field>_codes`). run_file_unreadable (values: file, error)
+  /// A cause the API writes itself (`<field>_codes`). run_file_unreadable (values: file)
   static var proseReasonRunFileUnreadable: LocalizedStringResource {
     LocalizedStringResource("kit.prose.run_file_unreadable",
-      defaultValue: "The replay's {file}.json cannot be read ({error})", bundle: bundle)
+      defaultValue: "The replay's {file}.json cannot be read", bundle: bundle)
   }
   /// A cause the API writes itself (`<field>_codes`). no_account_file
   static var proseReasonNoAccountFile: LocalizedStringResource {

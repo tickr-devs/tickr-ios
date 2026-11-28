@@ -69,11 +69,11 @@ enum L10n {
       LocalizedStringResource("common.recordedDay", defaultValue: "Recorded day · \(day)", bundle: L10n.bundle)
     }
     static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
-      LocalizedStringResource("common.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
+      LocalizedStringResource("common.strategyVersion", defaultValue: "\(name) · v\(version)", bundle: L10n.bundle)
     }
     /// The running strategy and the bot code version (short commit) it runs on.
     static func strategyCode(_ name: String, _ version: String, _ code: String) -> LocalizedStringResource {
-      LocalizedStringResource("common.strategyCode", defaultValue: "\(name) v\(version) · code \(code)", bundle: L10n.bundle)
+      LocalizedStringResource("common.strategyCode", defaultValue: "\(name) · v\(version) · code \(code)", bundle: L10n.bundle)
     }
     static var bot: LocalizedStringResource {
       LocalizedStringResource("common.bot", defaultValue: "Bot", bundle: L10n.bundle)
@@ -122,11 +122,9 @@ enum L10n {
     static var never: LocalizedStringResource {
       LocalizedStringResource("format.never", defaultValue: "never", bundle: L10n.bundle)
     }
-    static func secondsAgo(_ seconds: Int) -> LocalizedStringResource {
-      LocalizedStringResource("format.secondsAgo", defaultValue: "\(seconds) s ago", bundle: L10n.bundle)
-    }
-    static func minutesAgo(_ minutes: Int) -> LocalizedStringResource {
-      LocalizedStringResource("format.minutesAgo", defaultValue: "\(minutes) min ago", bundle: L10n.bundle)
+    /// Argument: how long ago (TickrKit `Elapsed`, "3 s", "2 d").
+    static func ago(_ age: String) -> LocalizedStringResource {
+      LocalizedStringResource("format.ago", defaultValue: "\(age) ago", bundle: L10n.bundle)
     }
     static func seconds(_ value: String) -> LocalizedStringResource {
       LocalizedStringResource("format.seconds", defaultValue: "\(value) s", bundle: L10n.bundle)
@@ -2968,10 +2966,6 @@ enum L10n {
     /// A position's entry price; the full words are the hint.
     static func entry(_ price: String) -> LocalizedStringResource {
       LocalizedStringResource("menuBar.entry", defaultValue: "Entry \(price)", bundle: L10n.bundle)
-    }
-    /// The age of the last broker read past two minutes, short ("3 min").
-    static func ageMinutes(_ minutes: Int) -> LocalizedStringResource {
-      LocalizedStringResource("menuBar.ageMinutes", defaultValue: "\(minutes) min", bundle: L10n.bundle)
     }
     /// The room under the daily loss limit.
     static func room(_ room: String, _ limit: String) -> LocalizedStringResource {

@@ -1486,13 +1486,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "stale · written %lld s ago"
+            "value" : "updated %@ ago · stale"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "desactualizado · escrito hace %lld s"
+            "value" : "hace %@ · desactualizado"
           }
         }
       }
@@ -1503,13 +1503,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "updated %lld s ago"
+            "value" : "updated %@ ago"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "actualizado hace %lld s"
+            "value" : "actualizado hace %@"
           }
         }
       }
@@ -4591,23 +4591,6 @@
         }
       }
     },
-    "common.version" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "v%@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "v%@"
-          }
-        }
-      }
-    },
     "common.winsLosses" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5199,23 +5182,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld más"
-          }
-        }
-      }
-    },
-    "flow.notCurrent" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not current"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no actual"
           }
         }
       }
@@ -6036,6 +6002,23 @@
         }
       }
     },
+    "home.strategy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · v%2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · v%2$@"
+          }
+        }
+      }
+    },
     "home.today" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6049,23 +6032,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "hoy"
-          }
-        }
-      }
-    },
-    "home.versionCode" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "v%@ · %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "v%@ · %@"
           }
         }
       }

@@ -91,13 +91,13 @@ GROUPS = [
             ),
             (
                 "positions_read_failed",
-                "Positions read failed: {error}",
-                "Falló la lectura de posiciones: {error}",
+                "The broker's positions could not be read",
+                "No se pudieron leer las posiciones del bróker",
             ),
             (
                 "open_orders_read_failed",
-                "Open orders read failed: {error}",
-                "Falló la lectura de órdenes abiertas: {error}",
+                "The broker's open orders could not be read",
+                "No se pudieron leer las órdenes abiertas del bróker",
             ),
             (
                 "detail_budget",
@@ -267,7 +267,11 @@ GROUPS = [
                 "The broker holds {held} shares, the order detail says {expected}",
                 "El bróker tiene {held} acciones, el detalle de la orden dice {expected}",
             ),
-            ("shutting_down", "Shutdown in progress", "Apagado en curso"),
+            (
+                "shutting_down",
+                "No new entry until it starts again",
+                "Sin nuevas entradas hasta que vuelva a arrancar",
+            ),
             (
                 "operator_command",
                 "Stopped by an operator command",
@@ -313,8 +317,8 @@ GROUPS = [
             ),
             (
                 "disk_unknown",
-                "Free space on the data disk unreadable ({error}); no new entry until it reads",
-                "Espacio libre del disco de datos ilegible ({error}); sin nuevas entradas hasta "
+                "Free space on the data disk unreadable; no new entry until it reads",
+                "Espacio libre del disco de datos ilegible; sin nuevas entradas hasta "
                 "que se pueda leer",
             ),
             (
@@ -326,9 +330,9 @@ GROUPS = [
             ),
             (
                 "watchdog_record_unreadable",
-                "The watchdog's restart record is unreadable ({error}); no new entry until "
+                "The watchdog's restart record is unreadable; no new entry until "
                 "you clear this (tickr clear-fence watchdog-started)",
-                "El registro de reinicio del vigilante es ilegible ({error}); sin nuevas entradas "
+                "El registro de reinicio del vigilante es ilegible; sin nuevas entradas "
                 "hasta que quites esto (tickr clear-fence watchdog-started)",
             ),
             (
@@ -906,8 +910,8 @@ GROUPS = [
             ),
             (
                 "run_file_unreadable",
-                "The replay's {file}.json cannot be read ({error})",
-                "No se puede leer el {file}.json de la repetición ({error})",
+                "The replay's {file}.json cannot be read",
+                "No se puede leer el {file}.json de la repetición",
             ),
             (
                 "no_account_file",

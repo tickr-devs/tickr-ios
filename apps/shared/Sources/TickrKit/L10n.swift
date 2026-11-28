@@ -128,10 +128,10 @@ enum L10n {
   static var headlineAllowed: LocalizedStringResource {
     LocalizedStringResource("kit.headline.allowed", defaultValue: "Entries allowed.", bundle: bundle)
   }
-  /// Headline: the status is old; argument: its age in whole seconds.
-  static func headlineStale(_ seconds: Int) -> LocalizedStringResource {
+  /// Headline: the status is old; argument: its age (`Elapsed`, "2 d").
+  static func headlineStale(_ age: String) -> LocalizedStringResource {
     LocalizedStringResource("kit.headline.stale",
-      defaultValue: "Bot status is \(seconds) s old: the bot may be down. Do not trust the rest of this page.",
+      defaultValue: "Bot status is \(age) old: the bot may be down. Do not trust the rest of this page.",
       bundle: bundle)
   }
   /// Headline: the bot has no status; argument: the API's cause.

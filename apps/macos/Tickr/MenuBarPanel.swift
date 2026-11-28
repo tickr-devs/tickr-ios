@@ -342,12 +342,10 @@ private struct MenuFooter: View {
     }
   }
 
-  /// "3 s", "4 min": the read's age as the design writes it, without "ago".
+  /// "3 s", "4 min", "2 d": the read's age as the design writes it, without "ago".
   static func shortAge(since date: Date?, now: Date) -> String {
     guard let date else { return String(localized: L10n.Format.never) }
-    let seconds = max(0, Int(now.timeIntervalSince(date)))
-    if seconds < Format.secondsShownUpTo { return Format.seconds(Decimal(seconds)) }
-    return String(localized: L10n.MenuBar.ageMinutes(seconds / Format.secondsPerMinute))
+    return Elapsed.text(since: date, now: now)
   }
 
   private var icons: some View {

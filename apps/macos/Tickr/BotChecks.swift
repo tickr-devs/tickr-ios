@@ -89,11 +89,9 @@ enum BotChecks {
     ]
   }
 
-  /// How long the bot has been silent, short ("47 s", "2 min").
+  /// How long the bot has been silent, short ("47 s", "2 min", "2 d").
   static func silence(since date: Date, now: Date) -> String {
-    let seconds = max(0, Int(now.timeIntervalSince(date)))
-    return String(localized: seconds < Format.secondsShownUpTo
-      ? L10n.Toolbar.ageSeconds(seconds) : L10n.Toolbar.ageMinutes(seconds / Format.secondsPerMinute))
+    Elapsed.text(since: date, now: now)
   }
 }
 

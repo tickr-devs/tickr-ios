@@ -128,7 +128,7 @@ public struct Headline: Equatable, Sendable {
     }
     if response.stale {
       let seconds = response.ageSeconds.map { NSDecimalNumber(decimal: $0.value).intValue }
-      return seconds.map { String(localized: L10n.headlineStale($0)) } ?? response.summary
+      return seconds.map { String(localized: L10n.headlineStale(Elapsed.text(seconds: $0))) } ?? response.summary
     }
     if let block = status.entryBlock { return ApiText.entryBlock(block) }
     return String(localized: L10n.headlineAllowed)

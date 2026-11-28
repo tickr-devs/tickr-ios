@@ -45,9 +45,6 @@ enum L10n {
       LocalizedStringResource("common.cancel", defaultValue: "Cancel", bundle: L10n.bundle)
     }
     /// A strategy version on its own, as on Home's badge: "v1".
-    static func version(_ version: String) -> LocalizedStringResource {
-      LocalizedStringResource("common.version", defaultValue: "v\(version)", bundle: L10n.bundle)
-    }
     static func quantityAt(_ quantity: String, _ price: String) -> LocalizedStringResource {
       LocalizedStringResource("common.quantityAt", defaultValue: "\(quantity) @ \(price)", bundle: L10n.bundle)
     }
@@ -96,11 +93,12 @@ enum L10n {
     static var none: LocalizedStringResource {
       LocalizedStringResource("age.none", defaultValue: "no status yet", bundle: L10n.bundle)
     }
-    static func stale(_ seconds: Int) -> LocalizedStringResource {
-      LocalizedStringResource("age.stale", defaultValue: "stale · written \(seconds) s ago", bundle: L10n.bundle)
+    /// Arguments: the status's age (TickrKit `Elapsed`, "41 s", "2 d").
+    static func stale(_ age: String) -> LocalizedStringResource {
+      LocalizedStringResource("age.stale", defaultValue: "updated \(age) ago · stale", bundle: L10n.bundle)
     }
-    static func updated(_ seconds: Int) -> LocalizedStringResource {
-      LocalizedStringResource("age.updated", defaultValue: "updated \(seconds) s ago", bundle: L10n.bundle)
+    static func updated(_ age: String) -> LocalizedStringResource {
+      LocalizedStringResource("age.updated", defaultValue: "updated \(age) ago", bundle: L10n.bundle)
     }
   }
 
@@ -412,8 +410,9 @@ enum L10n {
         bundle: L10n.bundle)
     }
     /// The strategy version badge with the bot code version (short git commit).
-    static func versionCode(_ version: String, _ code: String) -> LocalizedStringResource {
-      LocalizedStringResource("home.versionCode", defaultValue: "v\(version) · \(code)", bundle: L10n.bundle)
+    /// The strategy that trades: its readable name (TickrKit `StrategyName`) and version.
+    static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
+      LocalizedStringResource("home.strategy", defaultValue: "\(name) · v\(version)", bundle: L10n.bundle)
     }
     static var entriesAllowed: LocalizedStringResource {
       LocalizedStringResource("home.entriesAllowed", defaultValue: "Entries allowed.", bundle: L10n.bundle)
@@ -522,10 +521,6 @@ enum L10n {
     /// VoiceOver hint of a symbol in a stage's detail.
     static var openOnChart: LocalizedStringResource {
       LocalizedStringResource("flow.openOnChart", defaultValue: "Opens the chart on this symbol", bundle: L10n.bundle)
-    }
-    /// In place of the slots when the status is stale, failed or from an earlier session.
-    static var notCurrent: LocalizedStringResource {
-      LocalizedStringResource("flow.notCurrent", defaultValue: "not current", bundle: L10n.bundle)
     }
     /// The quote stream's state under the stages: "quotes fresh".
     static func quotes(_ state: String) -> LocalizedStringResource {

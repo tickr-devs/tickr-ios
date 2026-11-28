@@ -53,15 +53,15 @@ extension L10n {
     LocalizedStringResource("kit.fenceReason.startup_reconcile_pending",
       defaultValue: "Startup reconciliation is still running", bundle: bundle)
   }
-  /// A fence's cause (`Fence.code`). positions_read_failed (values: error)
+  /// A fence's cause (`Fence.code`). positions_read_failed
   static var fenceReasonPositionsReadFailed: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.positions_read_failed",
-      defaultValue: "Positions read failed: {error}", bundle: bundle)
+      defaultValue: "The broker's positions could not be read", bundle: bundle)
   }
-  /// A fence's cause (`Fence.code`). open_orders_read_failed (values: error)
+  /// A fence's cause (`Fence.code`). open_orders_read_failed
   static var fenceReasonOpenOrdersReadFailed: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.open_orders_read_failed",
-      defaultValue: "Open orders read failed: {error}", bundle: bundle)
+      defaultValue: "The broker's open orders could not be read", bundle: bundle)
   }
   /// A fence's cause (`Fence.code`). detail_budget
   static var fenceReasonDetailBudget: LocalizedStringResource {
@@ -220,7 +220,7 @@ extension L10n {
   /// A fence's cause (`Fence.code`). shutting_down
   static var fenceReasonShuttingDown: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.shutting_down",
-      defaultValue: "Shutdown in progress", bundle: bundle)
+      defaultValue: "No new entry until it starts again", bundle: bundle)
   }
   /// A fence's cause (`Fence.code`). operator_command
   static var fenceReasonOperatorCommand: LocalizedStringResource {
@@ -259,10 +259,10 @@ extension L10n {
     LocalizedStringResource("kit.fenceReason.disk_low",
       defaultValue: "Less than {mb} MB free on the data disk; no new entry until there is room", bundle: bundle)
   }
-  /// A fence's cause (`Fence.code`). disk_unknown (values: error)
+  /// A fence's cause (`Fence.code`). disk_unknown
   static var fenceReasonDiskUnknown: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.disk_unknown",
-      defaultValue: "Free space on the data disk unreadable ({error}); no new entry until it reads", bundle: bundle)
+      defaultValue: "Free space on the data disk unreadable; no new entry until it reads", bundle: bundle)
   }
   /// A fence's cause (`Fence.code`). watchdog_started (values: time)
   static var fenceReasonWatchdogStarted: LocalizedStringResource {
@@ -270,11 +270,11 @@ extension L10n {
       // swiftlint:disable:next line_length
       defaultValue: "The watchdog started the bot at {time} for a resting entry; no new entry until you clear this (tickr clear-fence watchdog-started)", bundle: bundle)
   }
-  /// A fence's cause (`Fence.code`). watchdog_record_unreadable (values: error)
+  /// A fence's cause (`Fence.code`). watchdog_record_unreadable
   static var fenceReasonWatchdogRecordUnreadable: LocalizedStringResource {
     LocalizedStringResource("kit.fenceReason.watchdog_record_unreadable",
       // swiftlint:disable:next line_length
-      defaultValue: "The watchdog's restart record is unreadable ({error}); no new entry until you clear this (tickr clear-fence watchdog-started)", bundle: bundle)
+      defaultValue: "The watchdog's restart record is unreadable; no new entry until you clear this (tickr clear-fence watchdog-started)", bundle: bundle)
   }
   /// A fence's cause (`Fence.code`). close_not_sent (values: quantity, expected, symbol)
   static var fenceReasonCloseNotSent: LocalizedStringResource {
