@@ -92,28 +92,15 @@ public struct FunnelRings: View {
     .padding(.horizontal, inset)
   }
 
-  /// Lights a run apart along the rail, fading in at its start and out at its end.
+  /// Lights a run apart along the rail, fading in at its start and out at its end, played by Core
+  /// Animation (`FunnelRailLights`).
   private var travellers: some View {
-    // decorative: the lights along the rail say the bot is at work; they carry no data.
-    TimelineView(.animation(paused: !moving)) { context in
-      GeometryReader { proxy in
-        let run = Tokens.Motion.funnelTravelSeconds
-        let count = Tokens.Motion.funnelTravellers
-        let now = context.date.timeIntervalSinceReferenceDate
-        ForEach(0..<count, id: \.self) { index in
-          let share = ((now + run * Double(index) / Double(count)).truncatingRemainder(dividingBy: run)) / run
-          Circle()
-            .fill(PipelineStage.screeners.fill)
-            .frame(width: Tokens.Size.funnelTraveller, height: Tokens.Size.funnelTraveller)
-            .shadow(color: PipelineStage.screeners.fill, radius: Tokens.Size.funnelTraveller / 2)
-            .opacity(Self.fade(share))
-            .position(x: proxy.size.width * share, y: proxy.size.height / 2)
-        }
-      }
-    }
+    FunnelRailLights(color: PipelineStage.screeners.fill, moving: moving)
+      .allowsHitTesting(false)
   }
 
-  /// A light's opacity at `share` of its run: in over the first `funnelTravelFade`, out over the last.
+  /// A light's opacity at `share` of its run: in over the first `funnelTravelFade`, out over the last
+  /// (the curve `FunnelRailLights` plays).
   static func fade(_ share: Double) -> Double {
     let edge = Tokens.Motion.funnelTravelFade
     return min(1, share / edge, (1 - share) / edge)
