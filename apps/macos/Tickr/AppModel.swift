@@ -339,15 +339,26 @@ public final class AppModel {
   // MARK: derived
 
   public var status: StatusV1? { response?.status }
-  public var headline: Headline { Headline.make(response: response, readFailed: readFailure != nil) }
+  public var headline: Headline {
+    Headline.make(response: response, readFailed: readFailure != nil, run: botRun, now: botNow)
+  }
+  /// The bot's run by its schedule (TickrKit `BotRun`): off, starting or silent; nil while the
+  /// schedule is unknown or the last status holds a position or an entry order.
+  public var botRun: BotRun? {
+    let staleSeconds = settings.map { NSDecimalNumber(decimal: $0.statusStaleSeconds.value).doubleValue }
+    return BotRun.make(response: response, staleSeconds: staleSeconds, runStartedAt: nil, now: botNow)
+  }
   /// The facts beside the live headline (mockup v108): the gate of the status, and the countdown
   /// to the regular close or the next open from /jobs, on the bot's clock.
   public var headlineFacts: HeadlineBanner.Facts {
     let session = jobs?.session
     let next = jobs?.nextSession
     let offset = botClockOffset
+    let headline = headline
     return HeadlineBanner.Facts(gate: EntryGate.make(status, headline: headline)) { local in
-      SessionCountdown.make(session: session, next: next, now: local.addingTimeInterval(offset))
+      // Off by its schedule the headline names the bot's start; the market's open would only
+      // compete with it (mockup v190, page p-off).
+      headline.calm ? nil : SessionCountdown.make(session: session, next: next, now: local.addingTimeInterval(offset))
     }
   }
   /// What every section says about the link to the bot: last known data under a banner, or a

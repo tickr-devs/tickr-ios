@@ -447,6 +447,8 @@ private struct BotStateCard: View {
     if model.fetchError != nil { return String(localized: L10n.Root.apiUnreachable) }
     guard let response = model.response else { return String(localized: L10n.Root.connecting) }
     guard let status = response.status else { return String(localized: L10n.Common.unavailable) }
+    // Off by the schedule (mockup v190, page p-off): "Off · until Mon 04:00", in grey.
+    if model.isLive, let calm = model.botRun?.shortText { return calm }
     if response.stale { return String(localized: L10n.Root.stale(status.botState.title)) }
     return status.entryStop ? String(localized: L10n.Root.statePaused(status.botState.title)) : status.botState.title
   }
@@ -455,6 +457,7 @@ private struct BotStateCard: View {
   static func color(_ model: AppModel) -> Color {
     // No connection says nothing about the bot: a quiet grey, never the red of danger.
     guard model.fetchError == nil else { return Palette.textQuaternary }
+    if model.isLive, model.botRun?.calm == true { return Palette.textQuaternary }
     guard let response = model.response, let status = response.status, !response.stale else { return Palette.loss }
     switch status.botState {
     case .running: return status.entryStop ? Palette.warning : Palette.profit

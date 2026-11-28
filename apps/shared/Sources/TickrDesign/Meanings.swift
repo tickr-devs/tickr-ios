@@ -147,8 +147,9 @@ extension Severity {
 }
 
 extension Headline {
-  /// The headline's tone, as the boards draw it (mockup v108): its severity's.
-  public var tone: Tone { severity.tone }
+  /// The headline's tone, as the boards draw it (mockup v108): its severity's; blue while the bot
+  /// is off by its schedule (mockup v190, page p-off).
+  public var tone: Tone { calm ? .info : severity.tone }
 }
 
 extension EntryGate {

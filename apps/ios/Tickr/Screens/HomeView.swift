@@ -503,8 +503,9 @@ private struct Summary: View {
     let session = model.jobs?.session
     let next = model.jobs?.nextSession
     let offset = model.botClockOffset
-    return HeadlineBanner.Facts(gate: EntryGate.make(model.status, headline: model.headline)) { local in
-      SessionCountdown.make(session: session, next: next, now: local.addingTimeInterval(offset))
+    let headline = model.headline
+    return HeadlineBanner.Facts(gate: EntryGate.make(model.status, headline: headline)) { local in
+      headline.calm ? nil : SessionCountdown.make(session: session, next: next, now: local.addingTimeInterval(offset))
     }
   }
 
