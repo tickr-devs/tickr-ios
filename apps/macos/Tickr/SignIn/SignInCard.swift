@@ -81,6 +81,7 @@ struct SignInCard: View {
     footer {
       CardFooterLink(L10n.SignIn.codeLink) { Task { await model.requestCode() } }
         .disabled(!model.canRequestCode)
+        .footerLinkInline()
       CardFooterLink(L10n.SignIn.forgot) { model.show(.forgot) }
     }
   }
@@ -109,6 +110,7 @@ struct SignInCard: View {
     footer {
       if model.factors.contains(.passkey) {
         CardFooterLink(L10n.SignIn.usePasskey) { Task { await model.verifyWithPasskey() } }
+          .footerLinkInline(model.factors.contains(.recoveryCode))
       }
       if model.factors.contains(.recoveryCode) {
         CardFooterLink(L10n.SignIn.useRecovery) { model.show(.recovery) }
