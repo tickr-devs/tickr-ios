@@ -227,7 +227,10 @@ struct BotPill: View {
 
   var body: some View {
     if let status = model.status {
-      if model.isLive, model.response?.stale == true {
+      if model.isLive, let calm = model.botRun?.shortText {
+        // Off by the schedule (mockup v190, page p-off): grey, never "no answer".
+        StatusPill(verbatim: calm, tone: .neutral)
+      } else if model.isLive, model.response?.stale == true {
         TimelineView(.periodic(from: .now, by: Tokens.Motion.clockTickSeconds)) { context in
           StatusPill(L10n.Bot.noAnswer(BotChecks.silence(since: status.writtenAt.date, now: model.botTime(context.date))),
             tone: .loss)

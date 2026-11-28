@@ -208,6 +208,8 @@ struct SettingsView: View {
     if !model.isConfigured { return (L10n.Settings.notReachable, .warning) }
     if model.fetchError != nil { return (L10n.Settings.notReachable, .loss) }
     if model.response == nil { return (L10n.Settings.connecting, .neutral) }
+    // Off by the schedule (mockup v190, page p-off): the API answers and the bot's silence is expected.
+    if model.botRun?.calm == true { return (L10n.Settings.connected, .profit) }
     if model.status == nil || model.response?.stale == true { return (L10n.Settings.notCurrent, .warning) }
     return (L10n.Settings.connected, .profit)
   }
