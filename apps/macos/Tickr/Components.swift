@@ -407,16 +407,16 @@ enum Format {
     Money.plain(value, fractionDigits: 0)
   }
 
-  /// "Momentum v3": a strategy and its version.
+  /// "Price action · v3": a strategy's readable name (TickrKit `StrategyName`) and its version.
   static func strategy(_ strategy: StrategyId) -> String {
-    String(localized: L10n.Common.strategyVersion(strategy.name, strategy.version))
+    String(localized: L10n.Common.strategyVersion(StrategyName.title(strategy.name), strategy.version))
   }
 
   /// "Momentum v3 · code 6c4eec8b": the running bot's strategy and code version (short commit);
   /// the strategy alone when the run did not record a code version.
   static func strategy(_ status: StatusV1) -> String {
     guard let code = status.codeVersion else { return strategy(status.strategy) }
-    return String(localized: L10n.Common.strategyCode(status.strategy.name, status.strategy.version,
+    return String(localized: L10n.Common.strategyCode(StrategyName.title(status.strategy.name), status.strategy.version,
       CodeVersion.short(code)))
   }
 

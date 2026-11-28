@@ -69,11 +69,11 @@ enum L10n {
       LocalizedStringResource("common.recordedDay", defaultValue: "Recorded day · \(day)", bundle: L10n.bundle)
     }
     static func strategyVersion(_ name: String, _ version: String) -> LocalizedStringResource {
-      LocalizedStringResource("common.strategyVersion", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
+      LocalizedStringResource("common.strategyVersion", defaultValue: "\(name) · v\(version)", bundle: L10n.bundle)
     }
     /// The running strategy and the bot code version (short commit) it runs on.
     static func strategyCode(_ name: String, _ version: String, _ code: String) -> LocalizedStringResource {
-      LocalizedStringResource("common.strategyCode", defaultValue: "\(name) v\(version) · code \(code)", bundle: L10n.bundle)
+      LocalizedStringResource("common.strategyCode", defaultValue: "\(name) · v\(version) · code \(code)", bundle: L10n.bundle)
     }
     static var bot: LocalizedStringResource {
       LocalizedStringResource("common.bot", defaultValue: "Bot", bundle: L10n.bundle)

@@ -410,9 +410,9 @@ enum L10n {
         bundle: L10n.bundle)
     }
     /// The strategy version badge with the bot code version (short git commit).
-    /// The strategy that trades: its name and version.
+    /// The strategy that trades: its readable name (TickrKit `StrategyName`) and version.
     static func strategy(_ name: String, _ version: String) -> LocalizedStringResource {
-      LocalizedStringResource("home.strategy", defaultValue: "\(name) v\(version)", bundle: L10n.bundle)
+      LocalizedStringResource("home.strategy", defaultValue: "\(name) · v\(version)", bundle: L10n.bundle)
     }
     static var entriesAllowed: LocalizedStringResource {
       LocalizedStringResource("home.entriesAllowed", defaultValue: "Entries allowed.", bundle: L10n.bundle)

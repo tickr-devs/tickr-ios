@@ -4400,13 +4400,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ v%@ · code %@"
+            "value" : "%@ · v%@ · code %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ v%@ · código %@"
+            "value" : "%@ · v%@ · código %@"
           }
         }
       }
@@ -4417,13 +4417,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ v%@"
+            "value" : "%@ · v%@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ v%@"
+            "value" : "%@ · v%@"
           }
         }
       }

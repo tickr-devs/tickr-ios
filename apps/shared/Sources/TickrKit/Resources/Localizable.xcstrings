@@ -14778,6 +14778,23 @@
         }
       }
     },
+    "kit.strategy.priceAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price action"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acción del precio"
+          }
+        }
+      }
+    },
     "kit.symbols.at" : {
       "extractionState" : "manual",
       "localizations" : {

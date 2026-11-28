@@ -6008,13 +6008,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ v%2$@"
+            "value" : "%1$@ · v%2$@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ v%2$@"
+            "value" : "%1$@ · v%2$@"
           }
         }
       }
