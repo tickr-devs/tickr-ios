@@ -185,6 +185,14 @@ extension EnvironmentValues {
   @Entry var footerLinkInline = false
 }
 
+extension View {
+  /// A footer link with another one under it: it reaches the card's sides but not its bottom
+  /// edge, so the rows stack under their own hairlines instead of overlapping.
+  public func footerLinkInline(_ inline: Bool = true) -> some View {
+    environment(\.footerLinkInline, inline)
+  }
+}
+
 /// The look of `CardFooterLink`: the row reaching the card's edges under a hairline, tinted under
 /// the pointer, pressed in a little while held.
 struct CardFooterLinkStyle: ButtonStyle {
